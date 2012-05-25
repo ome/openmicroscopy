@@ -21,8 +21,8 @@ import ome.model.core.Plane;
 import ome.model.display.Thumbnail;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobOriginalFileLink;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
 import org.testng.annotations.BeforeMethod;

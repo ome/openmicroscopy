@@ -14,7 +14,7 @@ import java.util.Map;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;

@@ -8,7 +8,7 @@ package ome.client.itests.sec;
 
 import ome.api.IAdmin;
 import ome.conditions.SecurityViolation;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 

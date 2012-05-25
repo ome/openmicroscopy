@@ -22,7 +22,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.Correction;
 import ome.model.enums.Immersion;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;

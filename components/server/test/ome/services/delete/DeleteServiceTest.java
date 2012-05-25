@@ -27,7 +27,7 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.spw.Plate;
 import ome.model.spw.Well;
 import ome.model.spw.WellSample;

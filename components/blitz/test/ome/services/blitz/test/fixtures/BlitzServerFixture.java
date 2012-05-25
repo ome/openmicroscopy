@@ -16,7 +16,7 @@ import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.services.blitz.Entry;

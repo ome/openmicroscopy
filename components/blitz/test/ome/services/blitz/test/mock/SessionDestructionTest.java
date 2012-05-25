@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sf.ehcache.CacheManager;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.ThumbnailBean;

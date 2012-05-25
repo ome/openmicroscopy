@@ -27,7 +27,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
 import ome.model.core.StatsInfo;

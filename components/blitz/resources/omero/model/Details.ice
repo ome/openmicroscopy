@@ -23,12 +23,12 @@ module omero {
     ["protected"] class Details
     {
 
-      //  ome.model.meta.Experimenter owner;
+      //  ome.model.core.Experimenter owner;
       omero::model::Experimenter owner;
       omero::model::Experimenter getOwner();
       void setOwner(omero::model::Experimenter theOwner);
 
-      //  ome.model.meta.ExperimenterGroup group;
+      //  ome.model.core.ExperimenterGroup group;
       omero::model::ExperimenterGroup group;
       omero::model::ExperimenterGroup getGroup();
       void setGroup(omero::model::ExperimenterGroup theGroup);

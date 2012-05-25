@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import ome.api.IConfig;
 import ome.api.ISession;
 import ome.conditions.RemovedSessionException;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.system.Login;
 import ome.system.OmeroContext;

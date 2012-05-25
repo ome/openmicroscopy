@@ -7,8 +7,8 @@
 
 package ome.services.sessions.events;
 
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.security.SecuritySystem;
 import ome.services.sessions.SessionManager;

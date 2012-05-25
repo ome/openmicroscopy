@@ -7,7 +7,7 @@
 package ome.server.itests.sessions;
 
 import junit.framework.TestCase;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.server.itests.ManagedContextFixture;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 

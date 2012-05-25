@@ -19,7 +19,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.internal.Details;
 import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 
@@ -114,7 +114,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Gets a share as a {@link Session} with all related:
      * {@link ome.model.annotations.Annotation comments},
-     * {@link ome.model.meta.Experimenter members}, fully loaded. Unlike the
+     * {@link ome.model.core.Experimenter members}, fully loaded. Unlike the
      * other methods on this interface, if the sessionId is unknown, does not
      * throw a {@link ValidationException}.
      * 
@@ -160,7 +160,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Creates {@link ome.model.meta.Session share} with all related:
-     * {@link ome.model.IObject items}, {@link ome.model.meta.Experimenter
+     * {@link ome.model.IObject items}, {@link ome.model.core.Experimenter
      * members}, and guests.
      * 
      * @param description
@@ -314,7 +314,7 @@ public interface IShare extends ServiceInterface {
     Set<String> getAllUsers(long shareId) throws ValidationException;
 
     /**
-     * Adds {@link ome.model.meta.Experimenter experimenters} to
+     * Adds {@link ome.model.core.Experimenter experimenters} to
      * {@link ome.model.meta.Session share}
      * 
      * @param share
@@ -331,7 +331,7 @@ public interface IShare extends ServiceInterface {
     void addGuests(long shareId, String... emailAddresses);
 
     /**
-     * Removes {@link ome.model.meta.Experimenter experimenters} from
+     * Removes {@link ome.model.core.Experimenter experimenters} from
      * {@link ome.model.meta.Session share}
      * 
      * @param shareId
@@ -349,7 +349,7 @@ public interface IShare extends ServiceInterface {
     void removeGuests(long shareId, String... emailAddresses);
 
     /**
-     * Adds {@link ome.model.meta.Experimenter experimenter} to
+     * Adds {@link ome.model.core.Experimenter experimenter} to
      * {@link ome.model.meta.Session share}
      * 
      * @param shareId
@@ -366,7 +366,7 @@ public interface IShare extends ServiceInterface {
     void addGuest(long shareId, String emailAddress);
 
     /**
-     * Removes {@link ome.model.meta.Experimenter experimenter} from
+     * Removes {@link ome.model.core.Experimenter experimenter} from
      * {@link ome.model.meta.Session share}
      * 
      * @param shareId
@@ -413,7 +413,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Gets events for {@link ome.model.meta.Session share} per
-     * {@link ome.model.meta.Experimenter experimenter} for period of time.
+     * {@link ome.model.core.Experimenter experimenter} for period of time.
      * 
      * @param shareId
      * @param exp

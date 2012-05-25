@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 

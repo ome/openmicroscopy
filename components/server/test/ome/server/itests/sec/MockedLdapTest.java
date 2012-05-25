@@ -10,7 +10,7 @@ import java.util.List;
 
 import ome.api.ILdap;
 import ome.logic.LdapImpl;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Roles;
 

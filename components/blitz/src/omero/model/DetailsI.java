@@ -118,10 +118,10 @@ public class DetailsI extends Details implements ome.model.ModelBased {
         ome.model.internal.Details target = ome.model.internal.Details.create();
         mapper.store(this, target);
         target.putAt(ome.model.internal.Details.OWNER,
-                (ome.model.meta.Experimenter) mapper
+                (ome.model.core.Experimenter) mapper
                         .reverse((ome.model.ModelBased) this.getOwner()));
         target.putAt(ome.model.internal.Details.GROUP,
-                (ome.model.meta.ExperimenterGroup) mapper
+                (ome.model.core.ExperimenterGroup) mapper
                         .reverse((ome.model.ModelBased) this.getGroup()));
         target
                 .putAt(ome.model.internal.Details.CREATIONEVENT,

@@ -18,7 +18,7 @@ import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
 
 /**

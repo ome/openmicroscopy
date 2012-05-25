@@ -28,7 +28,7 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.meta.EventLog;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.eventlogs.EventLogLoader;
@@ -138,11 +138,11 @@ public class FullTextTest extends AbstractTest {
                     break;
                 case 2:
                     l.setAction("BAD");
-                    l.setEntityType("ome.model.meta.Experimenter"); // good
+                    l.setEntityType("ome.model.core.Experimenter"); // good
                     break;
                 case 1:
                     l.setAction("INSERT"); // good
-                    l.setEntityType("ome.model.meta.Experimenter"); // good
+                    l.setEntityType("ome.model.core.Experimenter"); // good
                 case 0:
                     l = null;
                 }

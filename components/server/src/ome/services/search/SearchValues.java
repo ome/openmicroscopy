@@ -14,8 +14,8 @@ import java.util.List;
 
 import ome.api.Search;
 import ome.model.internal.Details;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.SearchBean;

@@ -26,7 +26,7 @@ import ome.model.core.Dataset;
 import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Parameters;
 import ome.testing.FileUploader;
 

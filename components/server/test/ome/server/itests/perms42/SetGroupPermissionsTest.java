@@ -9,7 +9,7 @@ package ome.server.itests.perms42;
 import ome.conditions.SecurityViolation;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 
 import org.testng.annotations.Test;
 

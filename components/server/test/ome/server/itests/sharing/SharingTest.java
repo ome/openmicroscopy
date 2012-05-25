@@ -26,7 +26,7 @@ import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;

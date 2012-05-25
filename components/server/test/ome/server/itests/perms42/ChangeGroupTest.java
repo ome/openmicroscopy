@@ -11,7 +11,7 @@ import java.util.List;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 
 import org.testng.annotations.Test;
 

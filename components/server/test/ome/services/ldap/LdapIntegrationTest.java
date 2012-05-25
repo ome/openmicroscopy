@@ -13,7 +13,7 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.SecurityViolation;
 import ome.logic.LdapImpl;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;

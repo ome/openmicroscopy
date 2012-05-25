@@ -28,7 +28,7 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.util.Filter;

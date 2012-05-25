@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;

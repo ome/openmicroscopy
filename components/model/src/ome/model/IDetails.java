@@ -13,7 +13,7 @@ package ome.model;
 // Application-internal dependencies
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 
 /**
  * simple interface for {@link ome.model.internal.Details}; currently unused.

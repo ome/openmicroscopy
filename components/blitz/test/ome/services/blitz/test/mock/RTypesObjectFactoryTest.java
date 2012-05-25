@@ -6,7 +6,7 @@
  */
 package ome.services.blitz.test.mock;
 
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 
 import omero.api.ServiceFactoryPrx;
 

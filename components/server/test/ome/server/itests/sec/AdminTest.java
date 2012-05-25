@@ -19,8 +19,8 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Login;
@@ -103,13 +103,13 @@ public class AdminTest extends AbstractManagedContextTest {
 
     @Test(expectedExceptions = ApiUsageException.class)
     public void testExperimenterAccountCreationWithAllNulls() throws Exception {
-        iAdmin.createExperimenter(null, null, (ome.model.meta.ExperimenterGroup[])null);
+        iAdmin.createExperimenter(null, null, (ome.model.core.ExperimenterGroup[])null);
     }
 
     @Test(expectedExceptions = ApiUsageException.class)
     public void testExperimenterAccountCreationWithEmpty() throws Exception {
         Experimenter e = new Experimenter();
-        iAdmin.createExperimenter(e, null, (ome.model.meta.ExperimenterGroup[])null);
+        iAdmin.createExperimenter(e, null, (ome.model.core.ExperimenterGroup[])null);
     }
 
     @Test

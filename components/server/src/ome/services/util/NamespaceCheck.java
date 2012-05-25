@@ -10,7 +10,7 @@ package ome.services.util;
 import java.util.Arrays;
 import java.util.List;
 
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.Namespace;
 import ome.parameters.Parameters;
 import ome.system.Principal;

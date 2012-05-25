@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 
 /**
  * implementation of {@link java.security.Principal}. Specialized for Omero to

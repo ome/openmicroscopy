@@ -15,7 +15,7 @@ import javax.naming.directory.SearchControls;
 
 import ome.conditions.ApiUsageException;
 import ome.logic.LdapImpl;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 
 import org.aopalliance.intercept.MethodInterceptor;

@@ -9,7 +9,7 @@ package ome.security.auth;
 
 import java.util.Set;
 
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;

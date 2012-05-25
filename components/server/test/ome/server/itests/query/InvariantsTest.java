@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 

@@ -27,7 +27,7 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;

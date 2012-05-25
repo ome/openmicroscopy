@@ -17,8 +17,8 @@ import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.system.EventContext;
 import ome.system.Roles;
@@ -28,10 +28,10 @@ import ome.system.Roles;
  * as JMX-based server access and selected user functions. Most methods require
  * membership in privileged {@link ExperimenterGroup groups}.
  * 
- * Methods which return {@link ome.model.meta.Experimenter} or
- * {@link ome.model.meta.ExperimenterGroup} instances fetch and load all related
- * instances of {@link ome.model.meta.ExperimenterGroup} or
- * {@link ome.model.meta.Experimenter}, respectively.
+ * Methods which return {@link ome.model.core.Experimenter} or
+ * {@link ome.model.core.ExperimenterGroup} instances fetch and load all related
+ * instances of {@link ome.model.core.ExperimenterGroup} or
+ * {@link ome.model.core.Experimenter}, respectively.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a

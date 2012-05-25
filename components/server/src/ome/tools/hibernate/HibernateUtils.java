@@ -36,7 +36,7 @@ import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.tools.lsid.LsidUtils;
 
 /**
