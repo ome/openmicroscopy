@@ -1715,24 +1715,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ds_list = list()
         pr_list = list()
         
-        if otype == 'image':
-            try:
-                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Image']:
-                    im_list.append(ImageWrapper(self, e))
-            except:
-                pass
-        elif otype == 'dataset':
-            try:
-                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Dataset']:
-                    ds_list.append(DatasetWrapper(self, e))
-            except:
-                pass
-        elif otype == 'project':
-            try:
-                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Project']:
-                    pr_list.append(ImageWrapper(self, e))
-            except:
-                pass
+        if otype is not None and otype in ("Image", "Dataset", "Project"):
+            otype = otype.title()
+            for e in tm.getByPeriod([otype], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])[otype]:
+                wrapper = KNOWN_WRAPPERS.get(otype.title(), None)
+                im_list.append(wrapper(self, e))
         else:
             res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])
             try:
@@ -1800,10 +1787,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.limit = rint(100000)
-        f.ownerId = rlong(eid)
-        #f.groupId = rlong(self.getEventContext().groupId)
+        try:
+            f.groupId = rlong(self.CONFIG['SERVICE_OPTS']['omero.group'])
+        except:
+            f.groupId = rlong(self.getEventContext().groupId)
+        f.ownerId = rlong(eid or self.getEventContext().userId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, self.CONFIG['SERVICE_OPTS'])
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, {'omero.group': "-1"})
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway

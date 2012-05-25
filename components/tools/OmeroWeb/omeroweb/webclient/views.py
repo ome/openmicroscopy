@@ -76,7 +76,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
-                    UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    UsersForm, ActiveGroupForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
@@ -1868,24 +1868,11 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     # get page 
     page = int(request.REQUEST.get('page', 1))
     
-    cal_type = None
-    try:
-        cal_type = request.REQUEST['history_type']
-        if cal_type == "all":
-            cal_type = None
-    except:
-        cal_type = None    
-    
     filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
-    controller.get_items(cal_type, page)
+    controller.get_items(page)
     
-    #if cal_type is None:
-    #    form_history_type = HistoryTypeForm()
-    #else:
-    #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
-    
-    context = {'controller':controller}#, 'form_history_type':form_history_type}
+    context = {'controller':controller}
     context['template'] = template
     return context
 
