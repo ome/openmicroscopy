@@ -106,7 +106,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String LONG = "Long";
 
-    public final static String TIMESTAMP = "timestamp";
+    public final static String TIMESTAMP = "Timestamp";
 
     public final static String TEXT = "text";
 

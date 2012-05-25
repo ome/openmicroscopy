@@ -50,7 +50,7 @@
 	</type>
 	<type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
-			<optional name="timeValue" type="timestamp"/>
+			<optional name="timeValue" type="Timestamp"/>
 		</properties>
 	</type>
 	<type id="ome.model.annotations.TermAnnotation" discriminator="/basic/term/" superclass="ome.model.annotations.BasicAnnotation">
