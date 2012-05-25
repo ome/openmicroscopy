@@ -696,7 +696,7 @@ def roiFigure(conn, commandArgs):
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
-    output="Movie ROI figure", parenttype=commandArgs["Data_Type"], mimetype=mimetype, desc=figLegend)
+    output="Movie ROI figure", mimetype=mimetype, desc=figLegend)
     message += faMessage
     
     return fileAnnotation, message

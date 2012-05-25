@@ -517,7 +517,7 @@ def movieFigure(conn, commandArgs):
         mimetype = "image/jpeg"
     
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
-    output="Movie figure", parenttype=commandArgs["Data_Type"], mimetype=mimetype, desc=figLegend)
+    output="Movie figure", mimetype=mimetype, desc=figLegend)
     message += faMessage
     
     return fileAnnotation, message

@@ -340,7 +340,8 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
         message = "%s created" % output
         if parent is not None:
             if parent.canAnnotate():
-                message += " and attached to %s %s."  % (parenttype, parent.getName())                
+                parentClass = parent.OMERO_CLASS
+                message += " and attached to %s %s."  % (parentClass[0].lower+parentClass[1:], parent.getName())                
                 parent.linkAnnotation(fileAnnotation)
             else:
                 message += " but could not be attached."

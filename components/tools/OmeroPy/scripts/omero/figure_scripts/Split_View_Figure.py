@@ -637,7 +637,7 @@ def splitViewFigure(conn, scriptParams):
     # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description.
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage,
-        output="Split view figure", parenttype=scriptParams["Data_Type"], mimetype=mimetype, desc=figLegend)
+        output="Split view figure", mimetype=mimetype, desc=figLegend)
     message += faMessage
     
     return fileAnnotation, message
