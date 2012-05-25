@@ -549,11 +549,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         def.setModel(defaultModel);
     
         // Quantization settings
-        QuantumDef quantumDef = def.getQuantization();
+        QuantumDef quantumDef = def.getQuantumDef();
         quantumDef.setCdStart(0);
         quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
         quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
-        def.setQuantization(quantumDef);
+        def.setQuantumDef(quantumDef);
     
         // Reset the channel bindings
         resetChannelBindings(def, pixels, quantumFactory, buffer, computeStats);
@@ -739,7 +739,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             computeStats) {
         // The actual channel bindings we are returning
         List<ChannelBinding> 
-        	channelBindings = def.<ChannelBinding>collectWaveRendering(null);
+        	channelBindings = def.<ChannelBinding>collectChannelBindings(null);
     
         // Default plane definition for our rendering definition
         PlaneDef planeDef = getDefaultPlaneDef(def);
@@ -795,7 +795,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			}
     		}
         }
-        QuantumDef qDef = def.getQuantization();
+        QuantumDef qDef = def.getQuantumDef();
         // Set the input start and input end for each channel binding based upon
         // the computation of the pixels set's location statistics.
         if (computeStats)
@@ -946,15 +946,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	settingsTo.setDefaultT(t);
         settingsTo.setModel(settingsFrom.getModel());
         
-        QuantumDef qDefFrom = settingsFrom.getQuantization();
-        QuantumDef qDefTo = settingsTo.getQuantization();
+        QuantumDef qDefFrom = settingsFrom.getQuantumDef();
+        QuantumDef qDefTo = settingsTo.getQuantumDef();
 
         qDefTo.setBitResolution(qDefFrom.getBitResolution());
         qDefTo.setCdEnd(qDefFrom.getCdEnd());
         qDefTo.setCdStart(qDefFrom.getCdStart());
 
-        Iterator<ChannelBinding> i = settingsFrom.iterateWaveRendering();
-        Iterator<ChannelBinding> iTo = settingsTo.iterateWaveRendering();
+        Iterator<ChannelBinding> i = settingsFrom.iterateChannelBindings();
+        Iterator<ChannelBinding> iTo = settingsTo.iterateChannelBindings();
         ChannelBinding binding, bindingTo;
         while (i.hasNext())
         {
@@ -1250,10 +1250,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         //The default rendering definition settings
         r.setDefaultZ(pixels.getSizeZ() / 2);
         r.setDefaultT(0);
-        r.setQuantization(new QuantumDef());
+        r.setQuantumDef(new QuantumDef());
 
         List<ChannelBinding> list = createNewChannelBindings(pixels);
-        r.clearWaveRendering();
+        r.clearChannelBindings();
         for (ChannelBinding channelBinding : list) {
             r.addChannelBinding(channelBinding);
         }

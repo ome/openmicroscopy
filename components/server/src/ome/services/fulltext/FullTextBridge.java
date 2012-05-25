@@ -241,10 +241,10 @@ public class FullTextBridge extends BridgeHelper {
         if (details != null) {
             Experimenter e = details.getOwner();
             if (e != null && e.isLoaded()) {
-                String omename = e.getOmeName();
+                String omename = e.getUserName();
                 String firstName = e.getFirstName();
                 String lastName = e.getLastName();
-                add(document, "details.owner.omeName", omename, stored);
+                add(document, "details.owner.userName", omename, stored);
                 add(document, "details.owner.firstName", firstName, opts);
                 add(document, "details.owner.lastName", lastName, opts);
             }
@@ -341,10 +341,10 @@ public class FullTextBridge extends BridgeHelper {
             add(document, "file.name", file.getName(), opts);
             add(document, "file.path", file.getPath(), opts);
             add(document, "file.sha1", file.getSha1(), opts);
-            if (file.getMimetype() != null) {
-                add(document, "file.format", file.getMimetype(), opts);
+            if (file.getMimeType() != null) {
+                add(document, "file.format", file.getMimeType(), opts);
                 // ticket:2211 - duplicating for backwards compatibility
-                add(document, "file.mimetype", file.getMimetype(), opts);
+                add(document, "file.mimeType", file.getMimeType(), opts);
             }
             addContents(document, "file.contents", file, files, parsers, opts);
         }
