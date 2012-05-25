@@ -12,14 +12,14 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
-# Created by callan via xsd-fu on 2012-03-14 15:31:20+0000
+# Created by moore via xsd-fu on 2012-05-25 09:11:40.483798
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
 <types>
     <!-- OME model object AffineTransform -->
-    <type id="ome.model.roi.AffineTransform" >
+    <type id="ome.model.roi.AffineTransform">
         <properties>
             <!--
             // Property A00
@@ -49,7 +49,7 @@
     </type>
 
     <!-- OME model object Arc -->
-    <type id="ome.model.core.Arc" superclass="ome.model.core.LightSource" >
+    <type id="ome.model.core.Arc" superclass="ome.model.core.LightSource">
         <properties>
             <!--
             // Property Type
@@ -61,9 +61,10 @@
     <!-- OME model object Channel -->
     <type id="ome.model.core.Channel" annotated="true">
         <properties>
-            <optional name="name" type="String"/>
-	        <!-- inserted manually for now, so code can compile. -->
-	        <optional name="statsInfo" type="ome.model.core.StatsInfo"/>
+            <!--
+            // Property StatsInfo
+            -->
+            <optional name="statsInfo" type="ome.model.meta.StatsInfo"/>
             <!--
             // Property AcquisitionMode
             -->
@@ -71,7 +72,7 @@
             <!--
             // Property Color
             -->
-            <optional name="color" type="ome.model.core.Color"/>
+            <optional name="color" type="Color"/>
             <!--
             // Property ContrastMethod
             -->
@@ -113,9 +114,17 @@
             -->
             <optional name="ndFilter" type="Double"/>
             <!--
+            // Property Name
+            -->
+            <optional name="name" type="String"/>
+            <!--
             // Property PinholeSize
             -->
             <optional name="pinholeSize" type="Double"/>
+            <!--
+            // Back reference Pixels_BackReference
+            -->
+            <required name="pixels" type="ome.model.core.Pixels" ordered="true"/>
             <!--
             // Property PockelCellSetting
             -->
@@ -124,7 +133,106 @@
             // Property SamplesPerPixel
             -->
             <optional name="samplesPerPixel" type="PositiveInteger"/>
-            <manyone name="pixels" type="ome.model.core.Pixels"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ChannelBinding -->
+    <type id="ome.model.meta.ChannelBinding">
+        <properties>
+            <!--
+            // Property Active
+            -->
+            <required name="active" type="Boolean"/>
+            <!--
+            // Property Coefficient
+            -->
+            <required name="coefficient" type="Double"/>
+            <!--
+            // Property Color
+            -->
+            <required name="color" type="Color"/>
+            <!--
+            // Property Family
+            -->
+            <required name="family" type="ome.model.enums.Family"/>
+            <!--
+            // Property InputEnd
+            -->
+            <required name="inputEnd" type="Double"/>
+            <!--
+            // Property InputStart
+            -->
+            <required name="inputStart" type="Double"/>
+            <!--
+            // Property NoiseReduction
+            -->
+            <required name="noiseReduction" type="Boolean"/>
+            <!--
+            // Back reference RenderingDef_BackReference
+            -->
+            <required name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
+        </properties>
+    </type>
+
+    <!-- OME model object CodomainMapContext -->
+    <type id="ome.model.meta.CodomainMapContext">
+        <properties>
+            <!--
+            // Back reference RenderingDef_BackReference
+            -->
+            <required name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ContrastStretchingContext -->
+    <type id="ome.model.meta.ContrastStretchingContext" superclass="ome.model.meta.CodomainMapContext">
+        <properties>
+            <!--
+            // Property XEnd
+            -->
+            <required name="xEnd" type="Long"/>
+            <!--
+            // Property XStart
+            -->
+            <required name="xStart" type="Long"/>
+            <!--
+            // Property YEnd
+            -->
+            <required name="yEnd" type="Long"/>
+            <!--
+            // Property YStart
+            -->
+            <required name="yStart" type="Long"/>
+        </properties>
+    </type>
+
+    <!-- OME model object DBPatch -->
+    <type id="ome.model.meta.DBPatch" global="true" immutable="true">
+        <properties>
+            <!--
+            // Property CurrentPatch
+            -->
+            <required name="currentPatch" type="Integer"/>
+            <!--
+            // Property CurrentVersion
+            -->
+            <required name="currentVersion" type="String"/>
+            <!--
+            // Property Finished
+            -->
+            <optional name="finished" type="Timestamp"/>
+            <!--
+            // Property Message
+            -->
+            <optional name="message" type="String"/>
+            <!--
+            // Property PreviousPatch
+            -->
+            <required name="previousPatch" type="Integer"/>
+            <!--
+            // Property PreviousVersion
+            -->
+            <required name="previousVersion" type="String"/>
         </properties>
     </type>
 
@@ -143,7 +251,7 @@
     </type>
 
     <!-- OME model object Detector -->
-    <type id="ome.model.core.Detector" >
+    <type id="ome.model.core.Detector" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Property AmplificationGain
@@ -154,25 +262,13 @@
             -->
             <optional name="gain" type="Double"/>
             <!--
-            // Property LotNumber
+            // Back reference Instrument_BackReference
             -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
+            <required name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Property Offset
             -->
             <optional name="offset" type="Double"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
             <!--
             // Property Type
             -->
@@ -185,18 +281,20 @@
             // Property Zoom
             -->
             <optional name="zoom" type="Double"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
     <!-- OME model object DetectorSettings -->
-    <type id="ome.model.core.DetectorSettings" >
+    <type id="ome.model.core.DetectorSettings" superclass="ome.model.core.Settings">
         <properties>
-        <required name="detector" type="ome.model.core.Detector"/>
             <!--
             // Property Binning
             -->
             <optional name="binning" type="ome.model.enums.Binning"/>
+            <!--
+            // Back reference DetectorRef
+            -->
+            <required name="detector" type="ome.model.core.Detector"/>
             <!--
             // Property Gain
             -->
@@ -217,38 +315,25 @@
     </type>
 
     <!-- OME model object Dichroic -->
-    <type id="ome.model.core.Dichroic" >
+    <type id="ome.model.core.Dichroic" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Back reference FilterSet_BackReference
             -->
-            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="dichroic" ordered="TODO"/>
+            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="dichroic"/>
+            <!--
+            // Back reference Instrument_BackReference
+            -->
+            <required name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Back reference LightPath_BackReference
             -->
-            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="dichroic" ordered="TODO"/>
-            <!--
-            // Property LotNumber
-            -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
+            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="dichroic"/>
         </properties>
     </type>
 
     <!-- OME model object Ellipse -->
-    <type id="ome.model.roi.Ellipse" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Ellipse" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property RadiusX
@@ -269,17 +354,81 @@
         </properties>
     </type>
 
+    <!-- OME model object Event -->
+    <type id="ome.model.meta.Event" global="true" immutable="true">
+        <properties>
+            <!--
+            // Property which occurs more than once EventLog
+            -->
+            <zeromany name="eventLogs" type="ome.model.meta.EventLog" inverse="event"/>
+            <!--
+            // Property EventRef
+            -->
+            <optional name="event" type="ome.model.meta.Event"/>
+            <!--
+            // Back reference Event_BackReference
+            -->
+            <manyzero name="events" type="ome.model.meta.Event" inverse="event"/>
+            <!--
+            // Property ExperimenterGroupRef
+            -->
+            <required name="experimenterGroup" type="ome.model.core.ExperimenterGroup"/>
+            <!--
+            // Property ExperimenterRef
+            -->
+            <required name="experimenter" type="ome.model.core.Experimenter"/>
+            <!--
+            // Back reference Session_BackReference
+            -->
+            <required name="session" type="ome.model.meta.Session"/>
+            <!--
+            // Property Status
+            -->
+            <optional name="status" type="String"/>
+            <!--
+            // Property Time
+            -->
+            <required name="time" type="Timestamp"/>
+            <!--
+            // Property Type
+            -->
+            <required name="type" type="ome.model.enums.EventType"/>
+        </properties>
+    </type>
+
+    <!-- OME model object EventLog -->
+    <type id="ome.model.meta.EventLog" global="true" immutable="true">
+        <properties>
+            <!--
+            // Property Action
+            -->
+            <required name="action" type="String"/>
+            <!--
+            // Property EntityId
+            -->
+            <required name="entityId" type="Long"/>
+            <!--
+            // Property EntityType
+            -->
+            <required name="entityType" type="String"/>
+            <!--
+            // Back reference Event_BackReference
+            -->
+            <required name="event" type="ome.model.meta.Event"/>
+        </properties>
+    </type>
+
     <!-- OME model object Experiment -->
     <type id="ome.model.core.Experiment" described="true">
         <properties>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="experiment" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="experiment"/>
             <!--
             // Property which occurs more than once MicrobeamManipulation
             -->
-            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="experiment" ordered="TODO"/>
+            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="experiment"/>
             <!--
             // Property Type
             -->
@@ -287,8 +436,122 @@
         </properties>
     </type>
 
+    <!-- OME model object Experimenter -->
+    <type id="ome.model.core.Experimenter" global="true" annotated="true">
+        <properties>
+            <!--
+            // Ignoring back reference Dataset_BackReference for global OMERO type.
+            -->
+            <!--
+            // Property Email
+            -->
+            <optional name="email" type="String"/>
+            <!--
+            // Back reference Event_BackReference
+            -->
+            <manyzero name="events" type="ome.model.meta.Event" inverse="experimenter"/>
+            <!--
+            // Ignoring back reference Experiment_BackReference for global OMERO type.
+            -->
+            <!--
+            // Many-to-many back reference ExperimenterGroup_BackReference
+            -->
+            <parent name="experimenterGroupLinks" type="ome.model.core.ExperimenterGroupExperimenterLink" target="ome.model.core.ExperimenterGroup" ordered="true"/>
+            <!--
+            // Property FirstName
+            -->
+            <optional name="firstName" type="String"/>
+            <!--
+            // Ignoring back reference Image_BackReference for global OMERO type.
+            -->
+            <!--
+            // Property Institution
+            -->
+            <optional name="institution" type="String"/>
+            <!--
+            // Property LastName
+            -->
+            <optional name="lastName" type="String"/>
+            <!--
+            // Ignoring back reference MicrobeamManipulation_BackReference for global OMERO type.
+            -->
+            <!--
+            // Property MiddleName
+            -->
+            <optional name="middleName" type="String"/>
+            <!--
+            // Ignoring back reference Project_BackReference for global OMERO type.
+            -->
+            <!--
+            // Back reference Session_BackReference
+            -->
+            <manyzero name="sessions" type="ome.model.meta.Session" inverse="experimenter"/>
+            <!--
+            // Many-to-many back reference Share_BackReference
+            -->
+            <parent name="shareLinks" type="ome.model.core.ShareExperimenterLink" target="ome.model.meta.Share"/>
+            <!--
+            // Property UserName
+            -->
+            <required name="userName" type="String" unique="true"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ExperimenterGroup -->
+    <type id="ome.model.core.ExperimenterGroup" global="true" annotated="true" described="true">
+        <properties>
+            <!--
+            // Ignoring back reference Dataset_BackReference for global OMERO type.
+            -->
+            <!--
+            // Back reference Event_BackReference
+            -->
+            <manyzero name="events" type="ome.model.meta.Event" inverse="experimenterGroup"/>
+            <!--
+            // Many-to-many reference ExperimenterRef
+            -->
+            <child name="experimenterLinks" type="ome.model.core.ExperimenterGroupExperimenterLink" target="ome.model.core.Experimenter"/>
+            <!--
+            // Ignoring back reference Image_BackReference for global OMERO type.
+            -->
+            <!--
+            // Property Name
+            -->
+            <required name="name" type="String" unique="true"/>
+            <!--
+            // Ignoring back reference Project_BackReference for global OMERO type.
+            -->
+            <!--
+            // Back reference Share_BackReference
+            -->
+            <manyzero name="shares" type="ome.model.meta.Share" inverse="experimenterGroup"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ExternalInfo -->
+    <type id="ome.model.meta.ExternalInfo" immutable="true">
+        <properties>
+            <!--
+            // Property EntityId
+            -->
+            <required name="entityId" type="Long"/>
+            <!--
+            // Property EntityType
+            -->
+            <required name="entityType" type="String"/>
+            <!--
+            // Property LSID
+            -->
+            <optional name="lsid" type="String"/>
+            <!--
+            // Property UUID
+            -->
+            <optional name="uuid" type="String"/>
+        </properties>
+    </type>
+
     <!-- OME model object Filament -->
-    <type id="ome.model.core.Filament" superclass="ome.model.core.LightSource" >
+    <type id="ome.model.core.Filament" superclass="ome.model.core.LightSource">
         <properties>
             <!--
             // Property Type
@@ -298,36 +561,32 @@
     </type>
 
     <!-- OME model object Filter -->
-    <type id="ome.model.core.Filter" >
+    <type id="ome.model.core.Filter" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Many-to-many back reference FilterSet_BackReference
             -->
-            <parent name="excitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.FilterSet"/>
+            <parent name="filterSetExcitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.FilterSet"/>
             <!--
             // Many-to-many back reference FilterSet_BackReference
             -->
-            <parent name="emissionFilterLinks" type="ome.model.core.FilterSetEmissionFilterLink" target="ome.model.core.FilterSet"/>
+            <parent name="filterSetEmissionFilterLinks" type="ome.model.core.FilterSetEmissionFilterLink" target="ome.model.core.FilterSet"/>
             <!--
             // Property FilterWheel
             -->
             <optional name="filterWheel" type="String"/>
             <!--
-            // Property LotNumber
+            // Back reference Instrument_BackReference
             -->
-            <optional name="lotNumber" type="String"/>
+            <required name="instrument" type="ome.model.core.Instrument"/>
             <!--
-            // Property Manufacturer
+            // Many-to-many back reference LightPath_BackReference
             -->
-            <optional name="manufacturer" type="String"/>
+            <parent name="lightPathExcitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.LightPath"/>
             <!--
-            // Property Model
+            // Many-to-many back reference LightPath_BackReference
             -->
-            <optional name="model" type="String"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
+            <parent name="lightPathEmissionFilterLinks" type="ome.model.core.LightPathEmissionFilterLink" target="ome.model.core.LightPath"/>
             <!--
             // Property TransmittanceRange
             -->
@@ -336,17 +595,16 @@
             // Property Type
             -->
             <optional name="type" type="ome.model.enums.FilterType"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
     <!-- OME model object FilterSet -->
-    <type id="ome.model.core.FilterSet" >
+    <type id="ome.model.core.FilterSet" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Back reference Channel_BackReference
             -->
-            <manyzero name="channels" type="ome.model.core.Channel" inverse="filterSet" ordered="TODO"/>
+            <manyzero name="channels" type="ome.model.core.Channel" inverse="filterSet"/>
             <!--
             // Property DichroicRef
             -->
@@ -360,33 +618,27 @@
             -->
             <child name="excitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.Filter"/>
             <!--
-            // Property LotNumber
+            // Back reference Instrument_BackReference
             -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
+            <required name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
     <!-- OME model object Image -->
     <type id="ome.model.core.Image" annotated="true" named="true" described="true">
         <properties>
-           <optional name="format" type="ome.model.enums.Format"/>
+            <!--
+            // Property Format
+            -->
+            <optional name="format" type="ome.model.enums.Format"/>
+            <!--
+            // Property Pixels
+            -->
+            <oneone name="pixels" type="ome.model.core.Pixels" inverse="image"/>
             <!--
             // Property AcquisitionDate
             -->
-            <optional name="acquisitionDate" type="timestamp"/>
+            <optional name="acquisitionDate" type="Timestamp"/>
             <!--
             // Many-to-many back reference Dataset_BackReference
             -->
@@ -412,10 +664,6 @@
             -->
             <optional name="objectiveSettings" type="ome.model.core.ObjectiveSettings"/>
             <!--
-            // Property Pixels
-            -->
-            <oneone name="pixels" type="ome.model.core.Pixels" inverse="image"/>
-            <!--
             // Many-to-many reference ROIRef
             -->
             <child name="roiLinks" type="ome.model.roi.ImageROILink" target="ome.model.roi.ROI"/>
@@ -426,12 +674,12 @@
             <!--
             // Back reference WellSample_BackReference
             -->
-            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="image" ordered="TODO"/>
+            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="image"/>
         </properties>
     </type>
 
     <!-- OME model object ImagingEnvironment -->
-    <type id="ome.model.core.ImagingEnvironment" >
+    <type id="ome.model.core.ImagingEnvironment">
         <properties>
             <!--
             // Property AirPressure
@@ -452,33 +700,47 @@
         </properties>
     </type>
 
+    <!-- OME model object ImportJob -->
+    <type id="ome.model.meta.ImportJob" superclass="ome.model.meta.Job">
+        <properties>
+            <!--
+            // Property ImageDescription
+            -->
+            <required name="imageDescription" type="String"/>
+            <!--
+            // Property ImageName
+            -->
+            <required name="imageName" type="String"/>
+        </properties>
+    </type>
+
     <!-- OME model object Instrument -->
-    <type id="ome.model.core.Instrument" >
+    <type id="ome.model.core.Instrument">
         <properties>
             <!--
             // Property which occurs more than once Detector
             -->
-            <zeromany name="detectors" type="ome.model.core.Detector" inverse="instrument" ordered="TODO"/>
+            <zeromany name="detectors" type="ome.model.core.Detector" inverse="instrument"/>
             <!--
             // Property which occurs more than once Dichroic
             -->
-            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="instrument" ordered="TODO"/>
+            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="instrument"/>
             <!--
             // Property which occurs more than once Filter
             -->
-            <zeromany name="filters" type="ome.model.core.Filter" inverse="instrument" ordered="TODO"/>
+            <zeromany name="filters" type="ome.model.core.Filter" inverse="instrument"/>
             <!--
             // Property which occurs more than once FilterSet
             -->
-            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="instrument" ordered="TODO"/>
+            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="instrument"/>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="instrument" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="instrument"/>
             <!--
             // Property which occurs more than once LightSource
             -->
-            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="instrument" ordered="TODO"/>
+            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="instrument"/>
             <!--
             // Property Microscope
             -->
@@ -486,12 +748,58 @@
             <!--
             // Property which occurs more than once Objective
             -->
-            <zeromany name="objectives" type="ome.model.core.Objective" inverse="instrument" ordered="TODO"/>
+            <zeromany name="objectives" type="ome.model.core.Objective" inverse="instrument"/>
         </properties>
     </type>
 
+    <!-- OME model object Job -->
+    <abstract id="ome.model.meta.Job">
+        <properties>
+            <!--
+            // Property Finished
+            -->
+            <optional name="finished" type="Timestamp"/>
+            <!--
+            // Property GroupName
+            -->
+            <required name="groupName" type="String"/>
+            <!--
+            // Property Message
+            -->
+            <required name="message" type="String"/>
+            <!--
+            // Many-to-many reference OriginalFileRef
+            -->
+            <child name="originalFileLinks" type="ome.model.meta.JobOriginalFileLink" target="ome.model.meta.OriginalFile"/>
+            <!--
+            // Property ScheduledFor
+            -->
+            <required name="scheduledFor" type="Timestamp"/>
+            <!--
+            // Property Started
+            -->
+            <optional name="started" type="Timestamp"/>
+            <!--
+            // Property Status
+            -->
+            <required name="status" type="ome.model.enums.JobStatus"/>
+            <!--
+            // Property Submitted
+            -->
+            <required name="submitted" type="Timestamp"/>
+            <!--
+            // Property Type
+            -->
+            <required name="type" type="String"/>
+            <!--
+            // Property UserName
+            -->
+            <required name="userName" type="String"/>
+        </properties>
+    </abstract>
+
     <!-- OME model object Label -->
-    <type id="ome.model.roi.Label" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Label" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property X
@@ -505,7 +813,7 @@
     </type>
 
     <!-- OME model object Laser -->
-    <type id="ome.model.core.Laser" superclass="ome.model.core.LightSource" >
+    <type id="ome.model.core.Laser" superclass="ome.model.core.LightSource">
         <properties>
             <!--
             // Property FrequencyMultiplication
@@ -547,13 +855,13 @@
     </type>
 
     <!-- OME model object LightEmittingDiode -->
-    <type id="ome.model.core.LightEmittingDiode" superclass="ome.model.core.LightSource" >
+    <type id="ome.model.core.LightEmittingDiode" superclass="ome.model.core.LightSource">
         <properties>
         </properties>
     </type>
 
     <!-- OME model object LightPath -->
-    <type id="ome.model.core.LightPath" >
+    <type id="ome.model.core.LightPath">
         <properties>
             <!--
             // Property DichroicRef
@@ -571,7 +879,7 @@
     </type>
 
     <!-- OME model object LightSource -->
-    <abstract id="ome.model.core.LightSource" >
+    <abstract id="ome.model.core.LightSource" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // *** WARNING *** Unhandled or skipped property Arc
@@ -580,53 +888,46 @@
             // *** WARNING *** Unhandled or skipped property Filament
             -->
             <!--
+            // Back reference Instrument_BackReference
+            -->
+            <required name="instrument" type="ome.model.core.Instrument"/>
+            <!--
             // *** WARNING *** Unhandled or skipped property Laser
             -->
             <!--
             // *** WARNING *** Unhandled or skipped property LightEmittingDiode
             -->
             <!--
-            // Property LotNumber
-            -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
-            <!--
             // Property Power
             -->
             <optional name="power" type="Double"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </abstract>
 
     <!-- OME model object LightSourceSettings -->
-    <type id="ome.model.core.LightSourceSettings" >
+    <type id="ome.model.core.LightSourceSettings" superclass="ome.model.core.Settings">
         <properties>
-        <required name="lightSource" type="ome.model.core.LightSource"/>
             <!--
             // Property Attenuation
             -->
             <optional name="attenuation" type="PercentFraction"/>
             <!--
+            // Back reference LightSourceRef
+            -->
+            <required name="lightSource" type="ome.model.core.LightSource"/>
+            <!--
+            // Back reference MicrobeamManipulation_BackReference
+            -->
+            <optional name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
+            <!--
             // Property Wavelength
             -->
             <optional name="wavelength" type="PositiveInteger"/>
-            <manyzero name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
         </properties>
     </type>
 
     <!-- OME model object Line -->
-    <type id="ome.model.roi.Line" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Line" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property MarkerEnd
@@ -656,7 +957,7 @@
     </type>
 
     <!-- OME model object ManufacturerSpec -->
-    <abstract id="ome.model.core.ManufacturerSpec" >
+    <abstract id="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Property LotNumber
@@ -678,8 +979,12 @@
     </abstract>
 
     <!-- OME model object Mask -->
-    <type id="ome.model.roi.Mask" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Mask" superclass="ome.model.roi.Shape">
         <properties>
+            <!--
+            // Property Bytes
+            -->
+            <optional name="bytes" type="byte[]"/>
             <!--
             // Property Height
             -->
@@ -696,7 +1001,6 @@
             // Property Y
             -->
             <required name="y" type="Double"/>
-            <optional name="bytes" type="byte[]"/>
         </properties>
     </type>
 
@@ -704,13 +1008,17 @@
     <type id="ome.model.core.MicrobeamManipulation" described="true">
         <properties>
             <!--
+            // Back reference Experiment_BackReference
+            -->
+            <required name="experiment" type="ome.model.core.Experiment"/>
+            <!--
             // Many-to-many back reference Image_BackReference
             -->
             <parent name="imageLinks" type="ome.model.core.ImageMicrobeamManipulationLink" target="ome.model.core.Image"/>
             <!--
             // Property which occurs more than once LightSourceSettings
             -->
-            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="microbeamManipulation" ordered="TODO"/>
+            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="microbeamManipulation"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -719,29 +1027,12 @@
             // Property Type
             -->
             <optional name="type" type="ome.model.enums.MicrobeamManipulationType"/>
-            <manyzero name="experiment" type="ome.model.core.Experiment"/>
         </properties>
     </type>
 
     <!-- OME model object Microscope -->
-    <type id="ome.model.core.Microscope" >
+    <type id="ome.model.core.Microscope" superclass="ome.model.core.ManufacturerSpec">
         <properties>
-            <!--
-            // Property LotNumber
-            -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
-            <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
             <!--
             // Property Type
             -->
@@ -749,8 +1040,56 @@
         </properties>
     </type>
 
+    <!-- OME model object Namespace -->
+    <type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
+        <properties>
+            <!--
+            // Property Display
+            -->
+            <optional name="display" type="Boolean"/>
+            <!--
+            // Property Keywords
+            -->
+            <optional name="keywords" type="String"/>
+            <!--
+            // Property Multivalued
+            -->
+            <optional name="multivalued" type="Boolean"/>
+        </properties>
+    </type>
+
+    <!-- OME model object Node -->
+    <type id="ome.model.meta.Node" global="true" annotated="true">
+        <properties>
+            <!--
+            // Property Conn
+            -->
+            <required name="conn" type="String"/>
+            <!--
+            // Property Down
+            -->
+            <optional name="down" type="Timestamp"/>
+            <!--
+            // Property Scale
+            -->
+            <optional name="scale" type="Integer"/>
+            <!--
+            // Property which occurs more than once Session
+            -->
+            <zeromany name="sessions" type="ome.model.meta.Session" inverse="node"/>
+            <!--
+            // Property Up
+            -->
+            <required name="up" type="Timestamp"/>
+            <!--
+            // Property Uuid
+            -->
+            <required name="uuid" type="String" unique="true"/>
+        </properties>
+    </type>
+
     <!-- OME model object Objective -->
-    <type id="ome.model.core.Objective" >
+    <type id="ome.model.core.Objective" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
             // Property CalibratedMagnification
@@ -765,6 +1104,10 @@
             -->
             <optional name="immersion" type="ome.model.enums.Immersion"/>
             <!--
+            // Back reference Instrument_BackReference
+            -->
+            <required name="instrument" type="ome.model.core.Instrument"/>
+            <!--
             // Property Iris
             -->
             <optional name="iris" type="Boolean"/>
@@ -773,37 +1116,19 @@
             -->
             <optional name="lensNA" type="Double"/>
             <!--
-            // Property LotNumber
-            -->
-            <optional name="lotNumber" type="String"/>
-            <!--
-            // Property Manufacturer
-            -->
-            <optional name="manufacturer" type="String"/>
-            <!--
-            // Property Model
-            -->
-            <optional name="model" type="String"/>
-            <!--
             // Property NominalMagnification
             -->
             <optional name="nominalMagnification" type="PositiveInteger"/>
             <!--
-            // Property SerialNumber
-            -->
-            <optional name="serialNumber" type="String"/>
-            <!--
             // Property WorkingDistance
             -->
             <optional name="workingDistance" type="Double"/>
-            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
     <!-- OME model object ObjectiveSettings -->
-    <type id="ome.model.core.ObjectiveSettings" >
+    <type id="ome.model.core.ObjectiveSettings" superclass="ome.model.core.Settings">
         <properties>
-        <required name="objective" type="ome.model.core.Objective"/>
             <!--
             // Property CorrectionCollar
             -->
@@ -813,24 +1138,87 @@
             -->
             <optional name="medium" type="ome.model.enums.Medium"/>
             <!--
+            // Back reference ObjectiveRef
+            -->
+            <required name="objective" type="ome.model.core.Objective"/>
+            <!--
             // Property RefractiveIndex
             -->
             <optional name="refractiveIndex" type="Double"/>
         </properties>
     </type>
 
-    <!-- OME model object Pixels -->
-    <type id="ome.model.core.Pixels" annotated="true" >
+    <!-- OME model object OriginalFile -->
+    <type id="ome.model.meta.OriginalFile" annotated="true" named="true">
         <properties>
-            <oneoneowner name="image" type="ome.model.core.Image"/>
+            <!--
+            // Property Atime
+            -->
+            <optional name="atime" type="Timestamp"/>
+            <!--
+            // Property Ctime
+            -->
+            <optional name="ctime" type="Timestamp"/>
+            <!--
+            // Many-to-many back reference Job_BackReference
+            -->
+            <parent name="jobLinks" type="ome.model.meta.JobOriginalFileLink" target="ome.model.meta.Job"/>
+            <!--
+            // Property MimeType
+            -->
+            <optional name="mimeType" type="String"/>
+            <!--
+            // Property Mtime
+            -->
+            <optional name="mtime" type="Timestamp"/>
+            <!--
+            // Property Path
+            -->
+            <required name="path" type="Text"/>
+            <!--
+            // Many-to-many reference PixelsRef
+            -->
+            <child name="pixelsLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.core.Pixels"/>
+            <!--
+            // Property SHA1
+            -->
+            <required name="sha1" type="String"/>
+            <!--
+            // Property Size
+            -->
+            <required name="size" type="NonNegativeLong"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ParseJob -->
+    <type id="ome.model.meta.ParseJob" superclass="ome.model.meta.Job">
+        <properties>
+            <!--
+            // Property Params
+            -->
+            <optional name="params" type="byte[]"/>
+        </properties>
+    </type>
+
+    <!-- OME model object Pixels -->
+    <type id="ome.model.core.Pixels" annotated="true">
+        <properties>
+            <!--
+            // Property SHA1
+            -->
+            <required name="sha1" type="String"/>
             <!--
             // Property which occurs more than once Channel
             -->
-            <zeromany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="TODO"/>
+            <zeromany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="true"/>
             <!--
             // Property DimensionOrder
             -->
             <required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
+            <!--
+            // Many-to-many back reference OriginalFile_BackReference
+            -->
+            <parent name="originalFileLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.meta.OriginalFile"/>
             <!--
             // Property PhysicalSizeX
             -->
@@ -846,7 +1234,11 @@
             <!--
             // Property which occurs more than once Plane
             -->
-            <zeromany name="planes" type="ome.model.core.Plane" inverse="pixels" ordered="TODO"/>
+            <zeromany name="planes" type="ome.model.core.Plane" inverse="pixels"/>
+            <!--
+            // Back reference RenderingDef_BackReference
+            -->
+            <zeromany name="renderingDefs" type="ome.model.meta.RenderingDef" inverse="pixels"/>
             <!--
             // Property SizeC
             -->
@@ -868,6 +1260,10 @@
             -->
             <required name="sizeZ" type="PositiveInteger"/>
             <!--
+            // Back reference Thumbnail_BackReference
+            -->
+            <zeromany name="thumbnails" type="ome.model.meta.Thumbnail" inverse="pixels"/>
+            <!--
             // Property TimeIncrement
             -->
             <optional name="timeIncrement" type="Double"/>
@@ -875,20 +1271,11 @@
             // Property Type
             -->
             <required name="type" type="ome.model.enums.PixelType"/>
-			<!--
-            // Property Type, added manually.
-            -->
-            <required name="sha1" type="String"/>
-            <!--Display Settings 1-->
-            <zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
-            <zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
-            <!-- TODO: storage -->
-            <parent name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.OriginalFile"/>
         </properties>
     </type>
 
     <!-- OME model object Plane -->
-    <type id="ome.model.core.Plane" annotated="true" >
+    <type id="ome.model.core.Plane" annotated="true">
         <properties>
             <!--
             // Property DeltaT
@@ -902,6 +1289,10 @@
             // Property HashSHA1
             -->
             <optional name="hashSHA1" type="String"/>
+            <!--
+            // Back reference Pixels_BackReference
+            -->
+            <required name="pixels" type="ome.model.core.Pixels"/>
             <!--
             // Property PositionX
             -->
@@ -926,7 +1317,32 @@
             // Property TheZ
             -->
             <required name="theZ" type="NonNegativeInteger"/>
-            <manyone name="pixels" type="ome.model.core.Pixels"/>
+        </properties>
+    </type>
+
+    <!-- OME model object PlaneSlicingContext -->
+    <type id="ome.model.meta.PlaneSlicingContext" superclass="ome.model.meta.CodomainMapContext">
+        <properties>
+            <!--
+            // Property Constant
+            -->
+            <required name="constant" type="Boolean"/>
+            <!--
+            // Property LowerLimit
+            -->
+            <required name="lowerLimit" type="Integer"/>
+            <!--
+            // Property PlanePrevious
+            -->
+            <required name="planePrevious" type="Integer"/>
+            <!--
+            // Property PlaneSelected
+            -->
+            <required name="planeSelected" type="Integer"/>
+            <!--
+            // Property UpperLimit
+            -->
+            <required name="upperLimit" type="Integer"/>
         </properties>
     </type>
 
@@ -946,9 +1362,13 @@
             -->
             <optional name="externalIdentifier" type="String"/>
             <!--
+            // Property FieldIndex
+            -->
+            <optional name="fieldIndex" type="NonNegativeInteger"/>
+            <!--
             // Property which occurs more than once PlateAcquisition
             -->
-            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="plate" ordered="TODO"/>
+            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="plate"/>
             <!--
             // Property RowNamingConvention
             -->
@@ -958,7 +1378,7 @@
             -->
             <optional name="rows" type="PositiveInteger"/>
             <!--
-            // Many-to-many reference ScreenRef
+            // Many-to-many back reference Screen_BackReference
             -->
             <parent name="screenLinks" type="ome.model.spw.ScreenPlateLink" target="ome.model.spw.Screen"/>
             <!--
@@ -968,8 +1388,7 @@
             <!--
             // Property which occurs more than once Well
             -->
-            <zeromany name="wells" type="ome.model.spw.Well" inverse="plate" ordered="TODO"/>
-
+            <zeromany name="wells" type="ome.model.spw.Well" inverse="plate"/>
             <!--
             // Property WellOriginX
             -->
@@ -978,9 +1397,6 @@
             // Property WellOriginY
             -->
             <optional name="wellOriginY" type="Double"/>
-            
-            <!-- Added manually, this will be part of the model. -->
-            <optional name="fieldIndex" type="NonNegativeInteger"/>
         </properties>
     </type>
 
@@ -990,25 +1406,28 @@
             <!--
             // Property EndTime
             -->
-            <optional name="endTime" type="timestamp"/>
+            <optional name="endTime" type="Timestamp"/>
             <!--
             // Property MaximumFieldCount
             -->
             <optional name="maximumFieldCount" type="PositiveInteger"/>
             <!--
+            // Back reference Plate_BackReference
+            -->
+            <required name="plate" type="ome.model.spw.Plate"/>
+            <!--
             // Property StartTime
             -->
-            <optional name="startTime" type="timestamp"/>
+            <optional name="startTime" type="Timestamp"/>
             <!--
             // Reference WellSampleRef
             -->
-            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="plateAcquisition" ordered="TODO"/>
-            <manyone name="plate" type="ome.model.spw.Plate" inverse="plateAcquisition"/>
+            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="plateAcquisition"/>
         </properties>
     </type>
 
     <!-- OME model object Point -->
-    <type id="ome.model.roi.Point" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Point" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property X
@@ -1022,7 +1441,7 @@
     </type>
 
     <!-- OME model object Polygon -->
-    <type id="ome.model.roi.Polygon" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Polygon" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property Points
@@ -1032,7 +1451,7 @@
     </type>
 
     <!-- OME model object Polyline -->
-    <type id="ome.model.roi.Polyline" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Polyline" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property MarkerEnd
@@ -1059,10 +1478,31 @@
         </properties>
     </type>
 
+    <!-- OME model object QuantumDef -->
+    <type id="ome.model.meta.QuantumDef">
+        <properties>
+            <!--
+            // Property BitResolution
+            -->
+            <required name="bitResolution" type="Integer"/>
+            <!--
+            // Property CDEnd
+            -->
+            <required name="cdEnd" type="Integer"/>
+            <!--
+            // Property CDStart
+            -->
+            <required name="cdStart" type="Integer"/>
+        </properties>
+    </type>
+
     <!-- OME model object ROI -->
     <type id="ome.model.roi.ROI" annotated="true" described="true">
         <properties>
-            <optional name="name" type="String"/>
+            <!--
+            // Property Shapes
+            -->
+            <onemany name="shapes" type="ome.model.roi.Shape" inverse="shape" ordered="true"/>
             <!--
             // Many-to-many back reference Image_BackReference
             -->
@@ -1072,12 +1512,13 @@
             -->
             <parent name="microbeamManipulationLinks" type="ome.model.roi.MicrobeamManipulationROILink" target="ome.model.core.MicrobeamManipulation"/>
             <!--
+            // Property Name
+            -->
+            <optional name="name" type="String"/>
+            <!--
             // Property Namespace
             -->
             <optional name="namespace" type="String"/>
-            <onemany name="shapes" type="ome.model.roi.Shape" inverse="shape" ordered="TODO"/>
-            <optional name="image" type="ome.model.core.Image" inverse="rois"/>
-
         </properties>
     </type>
 
@@ -1089,15 +1530,18 @@
             -->
             <optional name="reagentIdentifier" type="String"/>
             <!--
+            // Back reference Screen_BackReference
+            -->
+            <required name="screen" type="ome.model.spw.Screen"/>
+            <!--
             // Back reference Well_BackReference
             -->
-            <manyzero name="wells" type="ome.model.spw.Well" inverse="reagent" ordered="TODO"/>
-            <manyzero name="screens" type="ome.model.spw.Screen" inverse="reagent" ordered="TODO"/>
+            <manyzero name="wells" type="ome.model.spw.Well" inverse="reagent"/>
         </properties>
     </type>
 
     <!-- OME model object Rectangle -->
-    <type id="ome.model.roi.Rectangle" superclass="ome.model.roi.Shape" >
+    <type id="ome.model.roi.Rectangle" superclass="ome.model.roi.Shape">
         <properties>
             <!--
             // Property Height
@@ -1115,6 +1559,58 @@
             // Property Y
             -->
             <required name="y" type="Double"/>
+        </properties>
+    </type>
+
+    <!-- OME model object RenderingDef -->
+    <type id="ome.model.meta.RenderingDef">
+        <properties>
+            <!--
+            // Property which occurs more than once ChannelBinding
+            -->
+            <onemany name="channelBindings" type="ome.model.meta.ChannelBinding" inverse="renderingDef" ordered="true"/>
+            <!--
+            // Property which occurs more than once CodomainMapContext
+            -->
+            <zeromany name="codomainMapContexts" type="ome.model.meta.CodomainMapContext" inverse="renderingDef" ordered="true"/>
+            <!--
+            // Property Compression
+            -->
+            <optional name="compression" type="Double"/>
+            <!--
+            // Property DefaultT
+            -->
+            <required name="defaultT" type="NonNegativeInteger"/>
+            <!--
+            // Property DefaultZ
+            -->
+            <required name="defaultZ" type="NonNegativeInteger"/>
+            <!--
+            // Property Model
+            -->
+            <required name="model" type="ome.model.enums.RenderingModel"/>
+            <!--
+            // Property Name
+            -->
+            <optional name="name" type="String"/>
+            <!--
+            // Property PixelsRef
+            -->
+            <required name="pixels" type="ome.model.core.Pixels"/>
+            <!--
+            // Property QuantumDef
+            -->
+            <required name="quantumDef" type="ome.model.meta.QuantumDef"/>
+        </properties>
+    </type>
+
+    <!-- OME model object ReverseIntensityContext -->
+    <type id="ome.model.meta.ReverseIntensityContext" superclass="ome.model.meta.CodomainMapContext">
+        <properties>
+            <!--
+            // Property Reverse
+            -->
+            <required name="reverse" type="Boolean"/>
         </properties>
     </type>
 
@@ -1136,7 +1632,7 @@
             <!--
             // Property which occurs more than once Reagent
             -->
-            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="screen" ordered="TODO"/>
+            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="screen"/>
             <!--
             // Property ReagentSetDescription
             -->
@@ -1152,17 +1648,76 @@
         </properties>
     </type>
 
-    <!-- OME model object Shape -->
-    <abstract id="ome.model.roi.Shape" >
+    <!-- OME model object ScriptJob -->
+    <type id="ome.model.meta.ScriptJob" superclass="ome.model.meta.Job" described="true">
         <properties>
-            <manyone name="roi" type="ome.model.roi.ROI"/>
+        </properties>
+    </type>
+
+    <!-- OME model object Session -->
+    <type id="ome.model.meta.Session" global="true" annotated="true">
+        <properties>
+            <!--
+            // Property Closed
+            -->
+            <optional name="closed" type="Timestamp"/>
+            <!--
+            // Property DefaultEventType
+            -->
+            <required name="defaultEventType" type="ome.model.enums.EventType"/>
+            <!--
+            // Property which occurs more than once Event
+            -->
+            <zeromany name="events" type="ome.model.meta.Event" inverse="session"/>
+            <!--
+            // Property ExperimenterRef
+            -->
+            <required name="experimenter" type="ome.model.core.Experimenter"/>
+            <!--
+            // Property Message
+            -->
+            <optional name="message" type="Text"/>
+            <!--
+            // Back reference Node_BackReference
+            -->
+            <required name="node" type="ome.model.meta.Node"/>
+            <!--
+            // Property Started
+            -->
+            <required name="started" type="Timestamp"/>
+            <!--
+            // Property TimeToIdle
+            -->
+            <required name="timeToIdle" type="NonNegativeLong"/>
+            <!--
+            // Property TimeToLive
+            -->
+            <required name="timeToLive" type="NonNegativeLong"/>
+            <!--
+            // Property UserAgent
+            -->
+            <optional name="userAgent" type="String"/>
+            <!--
+            // Property Uuid
+            -->
+            <required name="uuid" type="String" unique="true"/>
+        </properties>
+    </type>
+
+    <!-- OME model object Shape -->
+    <abstract id="ome.model.roi.Shape">
+        <properties>
+            <!--
+            // Property ROI
+            -->
+            <required name="roi" type="ome.model.roi.ROI" ordered="true"/>
             <!--
             // *** WARNING *** Unhandled or skipped property Ellipse
             -->
             <!--
             // Property FillColor
             -->
-            <optional name="fillColor" type="ome.model.core.Color"/>
+            <optional name="fillColor" type="Color"/>
             <!--
             // Property FillRule
             -->
@@ -1190,6 +1745,10 @@
             -->
             <optional name="lineCap" type="ome.model.enums.LineCap"/>
             <!--
+            // Property Locked
+            -->
+            <optional name="locked" type="Boolean"/>
+            <!--
             // *** WARNING *** Unhandled or skipped property Mask
             -->
             <!--
@@ -1207,7 +1766,7 @@
             <!--
             // Property StrokeColor
             -->
-            <optional name="strokeColor" type="ome.model.core.Color"/>
+            <optional name="strokeColor" type="Color"/>
             <!--
             // Property StrokeDashArray
             -->
@@ -1235,18 +1794,42 @@
             <!--
             // Property Transform
             -->
-            <optional name="transform" type="ome.model.roi.AffineTransform"/>
+            <optional name="transform" type="AffineTransform"/>
             <!--
-            // Property Visibility
+            // Property Visible
             -->
             <optional name="visible" type="Boolean"/>
-            <!-- add manually, It will be part of the model. -->
-            <optional name="locked" type="Boolean"/>
         </properties>
     </abstract>
 
+    <!-- OME model object Share -->
+    <type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
+        <properties>
+            <!--
+            // Property Data
+            -->
+            <required name="data" type="byte[]"/>
+            <!--
+            // Property Active
+            -->
+            <required name="active" type="Boolean"/>
+            <!--
+            // Property ExperimenterGroupRef
+            -->
+            <required name="experimenterGroup" type="ome.model.core.ExperimenterGroup"/>
+            <!--
+            // Many-to-many reference ExperimenterRef
+            -->
+            <child name="experimenterLinks" type="ome.model.core.ShareExperimenterLink" target="ome.model.core.Experimenter"/>
+            <!--
+            // Property ItemCount
+            -->
+            <required name="itemCount" type="Long"/>
+        </properties>
+    </type>
+
     <!-- OME model object StageLabel -->
-    <type id="ome.model.core.StageLabel" named="true" >
+    <type id="ome.model.core.StageLabel" named="true">
         <properties>
             <!--
             // Property X
@@ -1263,8 +1846,48 @@
         </properties>
     </type>
 
+    <!-- OME model object StatsInfo -->
+    <type id="ome.model.meta.StatsInfo">
+        <properties>
+            <!--
+            // Property GlobalMax
+            -->
+            <required name="globalMax" type="Double"/>
+            <!--
+            // Property GlobalMin
+            -->
+            <required name="globalMin" type="Double"/>
+        </properties>
+    </type>
+
+    <!-- OME model object Thumbnail -->
+    <type id="ome.model.meta.Thumbnail">
+        <properties>
+            <!--
+            // Property MimeType
+            -->
+            <required name="mimeType" type="String"/>
+            <!--
+            // Property PixelsRef
+            -->
+            <required name="pixels" type="ome.model.core.Pixels"/>
+            <!--
+            // Property REF
+            -->
+            <optional name="ref" type="String"/>
+            <!--
+            // Property SizeX
+            -->
+            <required name="sizeX" type="NonNegativeInteger"/>
+            <!--
+            // Property SizeY
+            -->
+            <required name="sizeY" type="NonNegativeInteger"/>
+        </properties>
+    </type>
+
     <!-- OME model object TransmittanceRange -->
-    <type id="ome.model.core.TransmittanceRange" >
+    <type id="ome.model.core.TransmittanceRange">
         <properties>
             <!--
             // Property CutIn
@@ -1290,12 +1913,12 @@
     </type>
 
     <!-- OME model object Well -->
-    <type id="ome.model.spw.Well" annotated="true" >
+    <type id="ome.model.spw.Well" annotated="true">
         <properties>
             <!--
             // Property Color
             -->
-            <optional name="color" type="ome.model.core.Color"/>
+            <optional name="color" type="Color"/>
             <!--
             // Property Column
             -->
@@ -1308,6 +1931,10 @@
             // Property ExternalIdentifier
             -->
             <optional name="externalIdentifier" type="String"/>
+            <!--
+            // Back reference Plate_BackReference
+            -->
+            <required name="plate" type="ome.model.spw.Plate"/>
             <!--
             // Property ReagentRef
             -->
@@ -1323,26 +1950,21 @@
             <!--
             // Property which occurs more than once WellSample
             -->
-            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="well" ordered="TODO"/>
-            <manyone name="plate" type="ome.model.spw.Plate" inverse="well"/>
+            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="well" ordered="true"/>
         </properties>
     </type>
 
     <!-- OME model object WellSample -->
-    <type id="ome.model.spw.WellSample" annotated="true" >
+    <type id="ome.model.spw.WellSample" annotated="true">
         <properties>
             <!--
             // Property ImageRef
             -->
             <optional name="image" type="ome.model.core.Image"/>
             <!--
-            // Property Index
-            -->
-            <required name="index" type="NonNegativeInteger"/>
-            <!--
             // Back reference PlateAcquisition_BackReference
             -->
-            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="wellSample" ordered="TODO"/>
+            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="wellSample"/>
             <!--
             // Property PositionX
             -->
@@ -1354,8 +1976,11 @@
             <!--
             // Property Timepoint
             -->
-            <optional name="timepoint" type="timestamp"/>
-            <manyone name="well" type="ome.model.spw.Well"/>
+            <optional name="timepoint" type="Timestamp"/>
+            <!--
+            // Back reference Well_BackReference
+            -->
+            <required name="well" type="ome.model.spw.Well" ordered="true"/>
         </properties>
     </type>
 
@@ -1382,6 +2007,13 @@
         <entry name="Other"/>
     </enum>
 
+    <enum id="ome.model.enums.ArcType">
+        <entry name="Hg"/>
+        <entry name="Xe"/>
+        <entry name="HgXe"/>
+        <entry name="Other"/>
+    </enum>
+
     <enum id="ome.model.enums.Binning">
         <entry name="1x1"/>
         <entry name="2x2"/>
@@ -1389,7 +2021,6 @@
         <entry name="8x8"/>
         <entry name="Other"/>
     </enum>
-
 
     <enum id="ome.model.enums.ContrastMethod">
         <entry name="Brightfield"/>
@@ -1421,6 +2052,23 @@
         <entry name="Other"/>
     </enum>
 
+    <enum id="ome.model.enums.DetectorType">
+        <entry name="CCD"/>
+        <entry name="IntensifiedCCD"/>
+        <entry name="AnalogVideo"/>
+        <entry name="PMT"/>
+        <entry name="Photodiode"/>
+        <entry name="Spectroscopy"/>
+        <entry name="LifetimeImaging"/>
+        <entry name="CorrelationSpectroscopy"/>
+        <entry name="FTIR"/>
+        <entry name="EMCCD"/>
+        <entry name="APD"/>
+        <entry name="CMOS"/>
+        <entry name="EBCCD"/>
+        <entry name="Other"/>
+    </enum>
+
     <enum id="ome.model.enums.DimensionOrder">
         <entry name="XYZCT"/>
         <entry name="XYZTC"/>
@@ -1430,150 +2078,16 @@
         <entry name="XYTZC"/>
     </enum>
 
-    <enum id="ome.model.enums.FillRule">
-        <entry name="EvenOdd"/>
-        <entry name="NonZero"/>
-    </enum>
-
-    <enum id="ome.model.enums.FontFamily">
-        <entry name="serif"/>
-        <entry name="sans-serif"/>
-        <entry name="cursive"/>
-        <entry name="fantasy"/>
-        <entry name="monospace"/>
-    </enum>
-
-    <enum id="ome.model.enums.FontStyle">
-        <entry name="Bold"/>
-        <entry name="BoldItalic"/>
-        <entry name="Italic"/>
-        <entry name="Normal"/>
-    </enum>
-
-    <enum id="ome.model.enums.IlluminationType">
-        <entry name="Transmitted"/>
-        <entry name="Epifluorescence"/>
-        <entry name="Oblique"/>
-        <entry name="NonLinear"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.Immersion">
-        <entry name="Oil"/>
-        <entry name="Water"/>
-        <entry name="WaterDipping"/>
-        <entry name="Air"/>
-        <entry name="Multi"/>
-        <entry name="Glycerol"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.LaserMedium">
-        <entry name="Cu"/>
-        <entry name="Ag"/>
-        <entry name="ArFl"/>
-        <entry name="ArCl"/>
-        <entry name="KrFl"/>
-        <entry name="KrCl"/>
-        <entry name="XeFl"/>
-        <entry name="XeCl"/>
-        <entry name="XeBr"/>
-        <entry name="N"/>
-        <entry name="Ar"/>
-        <entry name="Kr"/>
-        <entry name="Xe"/>
-        <entry name="HeNe"/>
-        <entry name="HeCd"/>
-        <entry name="CO"/>
-        <entry name="CO2"/>
-        <entry name="H2O"/>
-        <entry name="HFl"/>
-        <entry name="NdGlass"/>
-        <entry name="NdYAG"/>
-        <entry name="ErGlass"/>
-        <entry name="ErYAG"/>
-        <entry name="HoYLF"/>
-        <entry name="HoYAG"/>
-        <entry name="Ruby"/>
-        <entry name="TiSapphire"/>
-        <entry name="Alexandrite"/>
-        <entry name="Rhodamine6G"/>
-        <entry name="CoumarinC30"/>
-        <entry name="GaAs"/>
-        <entry name="GaAlAs"/>
-        <entry name="EMinus"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.LineCap">
-        <entry name="Butt"/>
-        <entry name="Line"/>
-        <entry name="Square"/>
-    </enum>
-
-    <enum id="ome.model.enums.Marker">
-        <entry name="Arrow"/>
-        <entry name="Circle"/>
-        <entry name="Square"/>
-    </enum>
-
-    <enum id="ome.model.enums.Medium">
-        <entry name="Air"/>
-        <entry name="Oil"/>
-        <entry name="Water"/>
-        <entry name="Glycerol"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.Pulse">
-        <entry name="CW"/>
-        <entry name="Single"/>
-        <entry name="QSwitched"/>
-        <entry name="Repetitive"/>
-        <entry name="ModeLocked"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.NamingConvention">
-        <entry name="letter"/>
-        <entry name="number"/>
-    </enum>
-
-    <enum id="ome.model.enums.PixelType">
-        <entry name="int8"/>
-        <entry name="int16"/>
-        <entry name="int32"/>
-        <entry name="uint8"/>
-        <entry name="uint16"/>
-        <entry name="uint32"/>
-        <entry name="float"/>
-        <entry name="bit"/>
-        <entry name="double"/>
-        <entry name="complex"/>
-        <entry name="double-complex"/>
-        <!-- These will be converted to required -->
-        <optional name="bitsize" type="Integer"/>
-        <optional name="isfloat" type="Boolean"/>
-        <optional name="issigned" type="Boolean"/>
-    </enum>
-
-    <enum id="ome.model.enums.MicrobeamManipulationType">
-        <entry name="FRAP"/>
-        <entry name="FLIP"/>
-        <entry name="InverseFRAP"/>
-        <entry name="Photoablation"/>
-        <entry name="Photoactivation"/>
-        <entry name="Uncaging"/>
-        <entry name="OpticalTrapping"/>
-        <entry name="Other"/>
-    </enum>
-
-    <enum id="ome.model.enums.MicroscopeType">
-        <entry name="Upright"/>
-        <entry name="Inverted"/>
-        <entry name="Dissection"/>
-        <entry name="Electrophysiology"/>
-        <entry name="Other"/>
+    <enum id="ome.model.enums.EventType">
+        <entry name="Import"/>
+        <entry name="Internal"/>
+        <entry name="Shoola"/>
+        <entry name="User"/>
+        <entry name="Task"/>
+        <entry name="Test"/>
+        <entry name="Processing"/>
+        <entry name="FullText"/>
+        <entry name="Sessions"/>
     </enum>
 
     <enum id="ome.model.enums.ExperimentType">
@@ -1596,21 +2110,22 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="ome.model.enums.DetectorType">
-        <entry name="CCD"/>
-        <entry name="IntensifiedCCD"/>
-        <entry name="AnalogVideo"/>
-        <entry name="PMT"/>
-        <entry name="Photodiode"/>
-        <entry name="Spectroscopy"/>
-        <entry name="LifetimeImaging"/>
-        <entry name="CorrelationSpectroscopy"/>
-        <entry name="FTIR"/>
-        <entry name="EMCCD"/>
-        <entry name="APD"/>
-        <entry name="CMOS"/>
-        <entry name="EBCCD"/>
+    <enum id="ome.model.enums.Family">
+        <entry name="Linear"/>
+        <entry name="Polynomial"/>
+        <entry name="Exponential"/>
+        <entry name="Logarithmic"/>
+    </enum>
+
+    <enum id="ome.model.enums.FilamentType">
+        <entry name="Incandescent"/>
+        <entry name="Halogen"/>
         <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.FillRule">
+        <entry name="EvenOdd"/>
+        <entry name="NonZero"/>
     </enum>
 
     <enum id="ome.model.enums.FilterType">
@@ -1623,445 +2138,22 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="ome.model.enums.LaserType">
-        <entry name="Excimer"/>
-        <entry name="Gas"/>
-        <entry name="MetalVapor"/>
-        <entry name="SolidState"/>
-        <entry name="Dye"/>
-        <entry name="Semiconductor"/>
-        <entry name="FreeElectron"/>
-        <entry name="Other"/>
+    <enum id="ome.model.enums.FontFamily">
+        <entry name="serif"/>
+        <entry name="sans-serif"/>
+        <entry name="cursive"/>
+        <entry name="fantasy"/>
+        <entry name="monospace"/>
     </enum>
 
-    <enum id="ome.model.enums.ArcType">
-        <entry name="Hg"/>
-        <entry name="Xe"/>
-        <entry name="HgXe"/>
-        <entry name="Other"/>
+    <enum id="ome.model.enums.FontStyle">
+        <entry name="Bold"/>
+        <entry name="BoldItalic"/>
+        <entry name="Italic"/>
+        <entry name="Normal"/>
     </enum>
 
-    <enum id="ome.model.enums.FilamentType">
-        <entry name="Incandescent"/>
-        <entry name="Halogen"/>
-        <entry name="Other"/>
-    </enum>
-
-	<link id="ome.model.core.LightPathExcitationFilterLink">
-		<properties>
-			<from_parent type="ome.model.core.LightPath" ordered="true"/>
-			<to_child type="ome.model.core.Filter"/>
-		</properties>
-	</link>
-	<link id="ome.model.core.LightPathEmissionFilterLink">
-		<properties>
-			<from_parent type="ome.model.core.LightPath"/>
-			<to_child type="ome.model.core.Filter"/>
-		</properties>
-	</link>
-	<link id="ome.model.core.FilterSetExcitationFilterLink">
-		<properties>
-			<from_parent type="ome.model.core.FilterSet"/>
-			<to_child type="ome.model.core.Filter"/>
-		</properties>
-	</link>
-	<link id="ome.model.core.FilterSetEmissionFilterLink">
-		<properties>
-			<from_parent type="ome.model.core.FilterSet"/>
-			<to_child type="ome.model.core.Filter"/>
-		</properties>
-	</link>
-
-	<type id="ome.model.meta.ExperimenterGroup" global="true" described="true" annotated="true">
-		<!-- Note: relates to Group in model-->
-		<properties>
-			<required name="name" type="String" unique="true"/><!-- unique required so not 'named' -->
-			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
-		<properties>
-			<parent name="groupExperimenterMap" ordered="true" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.ExperimenterGroup"/>
-			<!-- Note: in the model "at least one of firstName, lastName, email and omeName"
-			     must be completed. The restriction here is more rigid so empty strings may
-			     need to be used if importing data directly from the model. In most cases
-			     the user should either be on the system or it will be sufficient to provide
-			     as close a representation as practical to the imported data -->
-			<required name="omeName" type="String" unique="true"/>
-			<required name="firstName" type="String"/>
-			<optional name="middleName" type="String"/>
-			<!-- Note: middleName is not used model -->
-			<required name="lastName" type="String"/>
-			<optional name="institution" type="String"/>
-			<component id="ome.model.internal.Email" required="false">
-				<optional name="email" type="String"/>
-			</component>
-			<!-- TODO: ## add to dsl [email/] -->
-		</properties>
-	</type>
-	<link id="ome.model.meta.GroupExperimenterMap" global="true">
-		<!-- Note: GroupExperimenterMap is not in model-->
-		<properties>
-			<from_parent type="ome.model.meta.ExperimenterGroup"/>
-			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
-			<required name="owner" type="Boolean"/>
-		</properties>
-	</link>
-	<!-- EVENTS -->
-	<type id="ome.model.meta.Session" global="true" annotated="true">
-		<!-- Note: Session is not in model-->
-		<properties>
-			<!-- Type & Group are not really optional. Needed to bootstrap.
-                 Constraints are added later -->
-			<manyone name="node" type="ome.model.meta.Node"/>
-			<required name="uuid" type="String" unique="true"/>
-			<required name="owner" type="ome.model.meta.Experimenter"/>
-			<required name="timeToIdle" type="Long"/>
-			<required name="timeToLive" type="Long"/>
-			<required name="started" type="timestamp"/>
-			<optional name="closed" type="timestamp"/>
-			<optional name="message" type="text"/>
-			<required name="defaultEventType" type="String"/>
-			<optional name="userAgent" type="String"/>
-			<onemany name="events" type="ome.model.meta.Event" inverse="session"/>
-		</properties>
-	</type>
-
-	<type id="ome.model.meta.Node" global="true" annotated="true">
-		<properties>
-			<onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
-			<required name="uuid"  type="String" unique="true"/>
-			<required name="conn"  type="String"/>
-			<required name="up"    type="timestamp"/>
-			<optional name="down"  type="timestamp"/>
-			<optional name="scale" type="Integer"/>
-		</properties>
-	</type>
-
-	<enum id="ome.model.enums.EventType">
-		<!-- Note: EventType is not in model-->
-		<entry name="Import"/>
-		<entry name="Internal"/>
-		<entry name="Shoola"/>
-		<entry name="User"/>
-		<entry name="Task"/>
-		<entry name="Test"/>
-		<entry name="Processing"/>
-		<entry name="FullText"/>
-		<entry name="Sessions"/>
-	</enum>
-	<type id="ome.model.meta.Event" immutable="true" global="true">
-		<!-- Note: Event is not in model-->
-		<properties>
-<!-- Type & Group are not really optional. Needed to bootstrap.
-        Constraints are added later -->
-			<optional name="status" type="String"/>
-			<required name="time" type="timestamp"/>
-			<required name="experimenter" type="ome.model.meta.Experimenter"/>
-			<optional name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
-			<optional name="type" type="ome.model.enums.EventType"/>
-			<optional name="containingEvent" type="ome.model.meta.Event"/>
-            <onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
-			<manyone name="session" type="ome.model.meta.Session"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.EventLog" immutable="true" global="true">
-		<!-- Note: EventLog is not in model-->
-		<properties>
-			<required name="entityId" type="Long"/>
-			<required name="entityType" type="String"/>
-			<required name="action" type="String"/>
-			<manyone name="event" type="ome.model.meta.Event"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.ExternalInfo" immutable="true">
-		<!-- Note: ExternalInfo not in model-->
-		<properties>
-			<required name="entityId" type="Long" mutable="false"/>
-			<required name="entityType" type="String" mutable="false"/>
-			<optional name="lsid" type="String" mutable="false"/>
-			<optional name="uuid" type="String" mutable="false"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.DBPatch" immutable="true" global="true">
-		<!-- Note: DBPatch is not in model-->
-		<properties>
-			<required name="currentVersion" type="String" mutable="false"/>
-			<required name="currentPatch" type="Integer" mutable="false"/>
-			<required name="previousVersion" type="String" mutable="false"/>
-			<required name="previousPatch" type="Integer" mutable="false"/>
-			<optional name="finished" type="timestamp" mutable="false"/>
-			<optional name="message" type="String" mutable="false"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
-		<!-- Note: Share is not in model-->
-		<properties>
-			<required name="group" type="ome.model.meta.ExperimenterGroup"/>
-			<required name="itemCount" type="Long"/>
-			<required name="active" type="Boolean"/>
-			<required name="data" type="byte[]"/>
-		</properties>
-	</type>
-	<link id="ome.model.meta.ShareMember" global="true">
-		<!-- Note: ShareMember is not in model-->
-		<properties>
-			<from_parent type="ome.model.meta.Share"/>
-			<to_child type="ome.model.meta.Experimenter"/>
-		</properties>
-	</link>
-	<type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
-		<!-- Note: Namespace is not in model-->
-		<properties>
-
-                        <!-- Depending on the use of the name space,
-                        keywords are the valid String values -->
-			<optional name="keywords" type="String[]"/>
-
-                        <!-- Whether multiple keywords are supported.
-                        If a user adds multiple keywords to a type
-                        which does not support multiple, then the
-                        first value MAY be taken by clients -->
-			<optional name="multivalued" type="Boolean"/>
-
-                        <!-- Whether or not objects using this
-                        namespace are intended for display. Null
-                        values or false will lead to many clients
-                        hiding the objects -->
-			<optional name="display" type="Boolean"/>
-
-		</properties>
-	</type>
-	<link id="ome.model.core.ProjectDatasetLink">
-		<properties>
-			<from_parent type="ome.model.core.Project"/>
-			<to_child type="ome.model.core.Dataset"/>
-		</properties>
-	</link>
-	<link id="ome.model.core.DatasetImageLink">
-		<properties>
-			<from_parent type="ome.model.core.Dataset"/>
-			<to_child type="ome.model.core.Image"/>
-		</properties>
-	</link>
-	<type id="ome.model.core.StatsInfo">
-		<!-- Note: StatsInfo is not in model-->
-		<properties>
-			<required name="globalMin" type="Double"/>
-			<required name="globalMax" type="Double"/>
-		</properties>
-	</type>
-        <link id="ome.model.core.ImageMicrobeamManipulationLink">
-		<properties>
-			<from_parent type="ome.model.core.Image"/>
-			<to_child type="ome.model.core.MicrobeamManipulation"/>
-		</properties>
-	</link>
-        <link id="ome.model.roi.ImageROILink">
-		<properties>
-			<from_parent type="ome.model.core.Image"/>
-                        <to_child type="ome.model.roi.ROI"/>
-		</properties>
-	</link>
-        <link id="ome.model.roi.MicrobeamManipulationROILink">
-		<properties>
-			<from_parent type="ome.model.core.MicrobeamManipulation"/>
-                        <to_child type="ome.model.roi.ROI"/>
-		</properties>
-	</link>
-	<type id="ome.model.core.OriginalFile" named="true" annotated="true">
-		<properties>
-			<child name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.Pixels"/>
-			<!--
-			 path is the directory to the logical location of this file, i.e. `dirname <file>`
-			 name is the filename of the file, i.e. `basename <file>`
-			-->
-			<required name="path" type="text"/>
-			<required name="size" type="Long"/>
-			<optional name="atime" type="timestamp"/>
-			<optional name="mtime" type="timestamp"/>
-			<optional name="ctime" type="timestamp"/>
-			<required name="sha1" type="String"/>
-			<optional name="mimetype" type="String"/>
-			<!--
-			Has a default set at the DB level of application/octet-stream.
-			Internal values in use are:
-			 * Repository
-			 * Directory
-			 * OMERO.tables
-			-->
-		</properties>
-	</type>
-        <link id="ome.model.core.PixelsOriginalFileMap">
-                <properties>
-                        <from_parent type="ome.model.core.OriginalFile"/>
-                        <to_child type="ome.model.core.Pixels"/>
-                </properties>
-        </link>
-	<link id="ome.model.spw.ScreenPlateLink">
-		<properties>
-			<from_parent type="ome.model.spw.Screen"/>
-			<to_child type="ome.model.spw.Plate"/>
-		</properties>
-	</link>
-
-
-	<type id="ome.model.display.Thumbnail">
-		<!-- Note: Thumbnail differs from the Thumbnail in model -->
-		<properties>
-			<required name="pixels" type="ome.model.core.Pixels"/>
-			<required name="mimeType" type="String"/>
-			<required name="sizeX" type="Integer"/>
-			<required name="sizeY" type="Integer"/>
-			<optional name="ref" type="String"/>
-		</properties>
-	</type>
-	<type id="ome.model.display.RenderingDef">
-		<!-- Note: RenderingDef is not in model-->
-		<properties>
-			<manyone name="pixels" type="ome.model.core.Pixels"/>
-			<required name="defaultZ" type="Integer"/>
-			<required name="defaultT" type="Integer"/>
-			<required name="model" type="ome.model.enums.RenderingModel"/>
-			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" inverse="renderingDef" ordered="true"/>
-			<optional name="name" type="String"/>
-			<optional name="compression" type="Double"/>
-			<required name="quantization" type="ome.model.display.QuantumDef"/>
-			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
-		</properties>
-	</type>
-	<type id="ome.model.display.QuantumDef">
-		<!-- Note: QuantumDef is not in model-->
-		<properties>
-			<required name="cdStart" type="Integer"/>
-			<required name="cdEnd" type="Integer"/>
-			<required name="bitResolution" type="Integer"/>
-		</properties>
-	</type>
-	<type id="ome.model.display.ChannelBinding">
-		<!-- Note: ChannelBinding is not in model-->
-		<properties>
-			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
-			<required name="family" type="ome.model.enums.Family"/>
-			<required name="coefficient" type="Double"/>
-			<required name="inputStart" type="Double"/>
-			<required name="inputEnd" type="Double"/>
-			<required name="active" type="Boolean"/>
-			<required name="noiseReduction" type="Boolean"/>
-			<required name="color" type="ome.model.core.Color"/>
-		</properties>
-	</type>
-
-<!-- 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			Display Settings 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
--->
-	<abstract id="ome.model.display.CodomainMapContext">
-		<!-- Note: CodomainMapContext is not in model-->
-		<properties>
-			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
-		</properties>
-	</abstract>
-	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
-		<!-- Note: ReverseIntensityContext is not in model-->
-		<properties>
-			<required name="reverse" type="Boolean"/>
-		</properties>
-	</type>
-	<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
-		<!-- Note: PlaneSlicingContext is not in model-->
-		<properties>
-			<required name="upperLimit" type="Integer"/>
-			<required name="lowerLimit" type="Integer"/>
-			<required name="planeSelected" type="Integer"/>
-			<required name="planePrevious" type="Integer"/>
-			<required name="constant" type="Boolean"/>
-		</properties>
-	</type>
-	<type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext">
-		<!-- Note: ContrastStretchingContext is not in model-->
-		<properties>
-			<required name="xstart" type="Integer"/>
-			<required name="ystart" type="Integer"/>
-			<required name="xend" type="Integer"/>
-			<required name="yend" type="Integer"/>
-		</properties>
-	</type>
-<!-- 
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Display Settings Enumerations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
--->
-	<enum id="ome.model.enums.RenderingModel">
-		<!-- Note: RenderingModel is not in model-->
-		<entry name="rgb"/>
-		<entry name="greyscale"/>
-	</enum>
-	<enum id="ome.model.enums.Family">
-		<!-- Note: Family is not in model-->
-		<entry name="linear"/>
-		<entry name="polynomial"/>
-		<entry name="exponential"/>
-		<entry name="logarithmic"/>
-	</enum>
-	<!-- Job running -->
-		<enum id="ome.model.jobs.JobStatus">
-			<!-- Note: JobStatus is not in model-->
-			<entry name="Submitted"/>
-			<entry name="Resubmitted"/>
-			<entry name="Queued"/>
-			<entry name="Requeued"/>
-			<entry name="Running"/>
-			<entry name="Error"/>
-			<entry name="Waiting"/>
-			<entry name="Finished"/>
-			<entry name="Cancelled"/>
-		</enum>
-		<type id="ome.model.jobs.Job" abstract="true">
-			<!-- Note: Job is not in model-->
-			<properties>
-				<required name="username" type="String"/>
-				<required name="groupname" type="String"/>
-				<required name="type" type="String"/>
-				<required name="message" type="String"/>
-				<required name="status" type="ome.model.jobs.JobStatus"/>
-				<required name="submitted" type="timestamp"/>
-				<required name="scheduledFor" type="timestamp"/>
-				<optional name="started" type="timestamp"/>
-				<optional name="finished" type="timestamp"/>
-				<child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.core.OriginalFile"/>
-			</properties>
-		</type>
-		<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
-			<!-- Note: ImportJob is not in model-->
-			<properties>
-				<required name="imageName" type="String"/>
-				<required name="imageDescription" type="String"/>
-			</properties>
-		</type>
-		<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
-			<!-- Note: ScriptJob is not in model-->
-			<properties>
-				<optional name="description" type="String"/>
-			</properties>
-		</type>
-		<type id="ome.model.jobs.ParseJob" superclass="ome.model.jobs.Job">
-			<!-- Note: ScriptJob is not in model-->
-			<properties>
-				<!-- optional, so that it can be updated after the fact -->
-				<optional name="params" type="byte[]"/>
-			</properties>
-		</type>
-		<link id="ome.model.jobs.JobOriginalFileLink">
-			<!-- Note: JobOriginalFileLink is not in model-->
-			<properties>
-				<from_parent type="ome.model.jobs.Job"/>
-				<to_child type="ome.model.core.OriginalFile"/>
-			</properties>
-		</link>
     <enum id="ome.model.enums.Format">
-        <!-- Note: Format is not in model but used by OriginalFile-->
         <entry name="PNG"/>
         <entry name="Companion/PNG"/>
         <entry name="JPEG"/>
@@ -2178,6 +2270,255 @@
         <entry name="Companion/Openlab"/>
         <entry name="MIAS"/>
         <entry name="Companion/MIAS"/>
-        <!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
     </enum>
+
+    <enum id="ome.model.enums.IlluminationType">
+        <entry name="Transmitted"/>
+        <entry name="Epifluorescence"/>
+        <entry name="Oblique"/>
+        <entry name="NonLinear"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.Immersion">
+        <entry name="Oil"/>
+        <entry name="Water"/>
+        <entry name="WaterDipping"/>
+        <entry name="Air"/>
+        <entry name="Multi"/>
+        <entry name="Glycerol"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.JobStatus">
+        <entry name="Submitted"/>
+        <entry name="Resubmitted"/>
+        <entry name="Queued"/>
+        <entry name="Requeued"/>
+        <entry name="Running"/>
+        <entry name="Error"/>
+        <entry name="Waiting"/>
+        <entry name="Finished"/>
+        <entry name="Cancelled"/>
+    </enum>
+
+    <enum id="ome.model.enums.LaserMedium">
+        <entry name="Cu"/>
+        <entry name="Ag"/>
+        <entry name="ArFl"/>
+        <entry name="ArCl"/>
+        <entry name="KrFl"/>
+        <entry name="KrCl"/>
+        <entry name="XeFl"/>
+        <entry name="XeCl"/>
+        <entry name="XeBr"/>
+        <entry name="N"/>
+        <entry name="Ar"/>
+        <entry name="Kr"/>
+        <entry name="Xe"/>
+        <entry name="HeNe"/>
+        <entry name="HeCd"/>
+        <entry name="CO"/>
+        <entry name="CO2"/>
+        <entry name="H2O"/>
+        <entry name="HFl"/>
+        <entry name="NdGlass"/>
+        <entry name="NdYAG"/>
+        <entry name="ErGlass"/>
+        <entry name="ErYAG"/>
+        <entry name="HoYLF"/>
+        <entry name="HoYAG"/>
+        <entry name="Ruby"/>
+        <entry name="TiSapphire"/>
+        <entry name="Alexandrite"/>
+        <entry name="Rhodamine6G"/>
+        <entry name="CoumarinC30"/>
+        <entry name="GaAs"/>
+        <entry name="GaAlAs"/>
+        <entry name="EMinus"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.LaserType">
+        <entry name="Excimer"/>
+        <entry name="Gas"/>
+        <entry name="MetalVapor"/>
+        <entry name="SolidState"/>
+        <entry name="Dye"/>
+        <entry name="Semiconductor"/>
+        <entry name="FreeElectron"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.LineCap">
+        <entry name="Butt"/>
+        <entry name="Line"/>
+        <entry name="Square"/>
+    </enum>
+
+    <enum id="ome.model.enums.Marker">
+        <entry name="Arrow"/>
+        <entry name="Circle"/>
+        <entry name="Square"/>
+    </enum>
+
+    <enum id="ome.model.enums.Medium">
+        <entry name="Air"/>
+        <entry name="Oil"/>
+        <entry name="Water"/>
+        <entry name="Glycerol"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.MicrobeamManipulationType">
+        <entry name="FRAP"/>
+        <entry name="FLIP"/>
+        <entry name="InverseFRAP"/>
+        <entry name="Photoablation"/>
+        <entry name="Photoactivation"/>
+        <entry name="Uncaging"/>
+        <entry name="OpticalTrapping"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.MicroscopeType">
+        <entry name="Upright"/>
+        <entry name="Inverted"/>
+        <entry name="Dissection"/>
+        <entry name="Electrophysiology"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.NamingConvention">
+        <entry name="letter"/>
+        <entry name="number"/>
+    </enum>
+
+    <enum id="ome.model.enums.PixelType">
+        <entry name="int8"/>
+        <entry name="int16"/>
+        <entry name="int32"/>
+        <entry name="uint8"/>
+        <entry name="uint16"/>
+        <entry name="uint32"/>
+        <entry name="float"/>
+        <entry name="bit"/>
+        <entry name="double"/>
+        <entry name="complex"/>
+        <entry name="double-complex"/>
+    </enum>
+
+    <enum id="ome.model.enums.Pulse">
+        <entry name="CW"/>
+        <entry name="Single"/>
+        <entry name="QSwitched"/>
+        <entry name="Repetitive"/>
+        <entry name="ModeLocked"/>
+        <entry name="Other"/>
+    </enum>
+
+    <enum id="ome.model.enums.RenderingModel">
+        <entry name="RGB"/>
+        <entry name="Greyscale"/>
+    </enum>
+
+    <link id="ome.model.core.DatasetImageLink">
+        <properties>
+            <from_parent type="ome.model.core.Dataset"/>
+            <to_child type="ome.model.core.Image"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.ExperimenterGroupExperimenterLink" global="true">
+        <properties>
+            <from_parent type="ome.model.core.ExperimenterGroup"/>
+            <to_child type="ome.model.core.Experimenter" ordered="true"/>
+            <required name="owner" type="boolean"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.FilterSetEmissionFilterLink">
+        <properties>
+            <from_parent type="ome.model.core.FilterSet"/>
+            <to_child type="ome.model.core.Filter"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.FilterSetExcitationFilterLink">
+        <properties>
+            <from_parent type="ome.model.core.FilterSet"/>
+            <to_child type="ome.model.core.Filter"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.ImageMicrobeamManipulationLink">
+        <properties>
+            <from_parent type="ome.model.core.Image"/>
+            <to_child type="ome.model.core.MicrobeamManipulation"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.roi.ImageROILink">
+        <properties>
+            <from_parent type="ome.model.core.Image"/>
+            <to_child type="ome.model.roi.ROI"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.meta.JobOriginalFileLink">
+        <properties>
+            <from_parent type="ome.model.meta.Job"/>
+            <to_child type="ome.model.meta.OriginalFile"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.LightPathEmissionFilterLink">
+        <properties>
+            <from_parent type="ome.model.core.LightPath"/>
+            <to_child type="ome.model.core.Filter"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.LightPathExcitationFilterLink">
+        <properties>
+            <from_parent type="ome.model.core.LightPath" ordered="true"/>
+            <to_child type="ome.model.core.Filter"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.roi.MicrobeamManipulationROILink">
+        <properties>
+            <from_parent type="ome.model.core.MicrobeamManipulation"/>
+            <to_child type="ome.model.roi.ROI"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.OriginalFilePixelsLink">
+        <properties>
+            <from_parent type="ome.model.meta.OriginalFile"/>
+            <to_child type="ome.model.core.Pixels"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.ProjectDatasetLink">
+        <properties>
+            <from_parent type="ome.model.core.Project"/>
+            <to_child type="ome.model.core.Dataset"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.spw.ScreenPlateLink">
+        <properties>
+            <from_parent type="ome.model.spw.Screen"/>
+            <to_child type="ome.model.spw.Plate"/>
+        </properties>
+    </link>
+
+    <link id="ome.model.core.ShareExperimenterLink" global="true">
+        <properties>
+            <from_parent type="ome.model.meta.Share"/>
+            <to_child type="ome.model.core.Experimenter"/>
+        </properties>
+    </link>
+
 </types>
