@@ -29,7 +29,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
-import ome.model.meta.ShareMember;
+import ome.model.core.ShareExperimenterLink;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -88,10 +88,10 @@ public class SharingTest extends AbstractManagedContextTest {
         long id = share.createShare("before", null, null, Arrays.asList(e1),
                 Arrays.asList("guest"), false);
 
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         Set<Session> sessions = share.getMemberShares(false);
         assertEquals(1, sessions.size());
-        assertTrue(sessions.iterator().next().getOwner().isLoaded());
+        assertTrue(sessions.iterator().next().getExperimenter().isLoaded());
     }
 
     public void testSetOthers() {
@@ -175,7 +175,7 @@ public class SharingTest extends AbstractManagedContextTest {
         long id = share.createShare("disabled", null, null,
                 Arrays.asList(member),
                 null, false);
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         TextAnnotation annotation = share.addComment(id, "hello");
         assertEquals(member.getId(), annotation.getDetails().getOwner().getId());
     }
@@ -202,7 +202,7 @@ public class SharingTest extends AbstractManagedContextTest {
         share.addUser(id0, member);
         share.addUser(id1, member);
         share.addUser(id2, member);
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         share.addComment(id2, "hello");
 
         
@@ -215,7 +215,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(new Long(2), counts.get(id2));
 
         // as owner
-        loginUser(owner.getOmeName());
+        loginUser(owner.getUserName());
         counts = share.getCommentCount(new HashSet<Long>(Arrays
                 .asList(id0, id1, id2)));
         assertEquals(new Long(0), counts.get(id0));
@@ -223,7 +223,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(new Long(2), counts.get(id2));
 
         // as member
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         counts = share.getCommentCount(new HashSet<Long>(Arrays
                 .asList(id0, id1, id2)));
         assertEquals(new Long(0), counts.get(id0));
@@ -231,7 +231,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(new Long(2), counts.get(id2));
         
         // as non-member
-        loginUser(nonMember.getOmeName());
+        loginUser(nonMember.getUserName());
         // before ticket:1227, this method should have thrown
         counts = share.getCommentCount(new HashSet<Long>(Arrays
                 .asList(id0, id1, id2)));
@@ -257,11 +257,11 @@ public class SharingTest extends AbstractManagedContextTest {
 
         // Add a new user
         Experimenter member = loginNewUser();
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
         share.addUser(id, member);
 
         // Then as that user try to obtain the comments
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         annotations = share.getComments(id);
         assertContained(annotation, annotations);
 
@@ -287,7 +287,7 @@ public class SharingTest extends AbstractManagedContextTest {
         // share.addUser(id, member);
 
         // Then as that user try to obtain the comments
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         annotations = share.getComments(id);
         assertNotContained(annotation, annotations);
     }
@@ -343,7 +343,7 @@ public class SharingTest extends AbstractManagedContextTest {
         share.addUser(id, member);
 
         // Now as that user let's see how retrieval works
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
 
         shares = share.getOwnShares(true);
         assertShareNotReturned(id, shares);
@@ -360,7 +360,7 @@ public class SharingTest extends AbstractManagedContextTest {
         // As root, let's disable the share.
         loginRoot();
         share.setActive(id, false);
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
 
         // Now it should not be returned
         shares = share.getMemberShares(true);
@@ -477,16 +477,16 @@ public class SharingTest extends AbstractManagedContextTest {
         Set<String> names = share.getAllUsers(id);
         assertTrue(names.contains(firstGuest));
         assertTrue(names.contains(secondGuest));
-        assertTrue(names.contains(firstMember.getOmeName()));
-        assertTrue(names.contains(secondMember.getOmeName()));
+        assertTrue(names.contains(firstMember.getUserName()));
+        assertTrue(names.contains(secondMember.getUserName()));
 
         // Counts as different people
         assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
         loginRoot(); // ticket:1239
         assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
-        loginUser(firstMember.getOmeName());
+        loginUser(firstMember.getUserName());
         assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
-        loginUser(nonMember.getOmeName());
+        loginUser(nonMember.getUserName());
         try {
             share.getMemberCount(Collections.singleton(id)).get(id);
             fail("should throw");
@@ -541,15 +541,15 @@ public class SharingTest extends AbstractManagedContextTest {
                 .singletonList(d), Collections.singletonList(member), null,
                 true);
 
-        loginUser(owner.getOmeName());
+        loginUser(owner.getUserName());
         share.activate(id);
         iQuery.get(Dataset.class, d.getId());
 
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         share.activate(id);
         iQuery.get(Dataset.class, d.getId());
 
-        loginUser(nonMember.getOmeName());
+        loginUser(nonMember.getUserName());
         try {
             share.activate(id);
             fail("Should not be allowed");
@@ -579,7 +579,7 @@ public class SharingTest extends AbstractManagedContextTest {
                 .singletonList(d), Collections.singletonList(member), null,
                 true);
 
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         share.activate(id);
         iQuery.get(Dataset.class, d.getId());
     }
@@ -598,10 +598,10 @@ public class SharingTest extends AbstractManagedContextTest {
                 null, null, true);
 
         Experimenter member = loginNewUser();
-        loginUser(owner.getOmeName());
+        loginUser(owner.getUserName());
         share.addUser(id, member);
 
-        loginUser(member.getOmeName());
+        loginUser(member.getUserName());
         assertEquals(1, share.getContentSize(id));
 
         try {
@@ -633,8 +633,8 @@ public class SharingTest extends AbstractManagedContextTest {
 
         loginRoot();
 
-        List<ShareMember> res = iQuery
-                .findAllByQuery("select sm from ShareMember sm"
+        List<ShareExperimenterLink> res = iQuery
+                .findAllByQuery("select sm from ShareExperimenterLink sm"
                         + " where sm.parent.id = " + id, null);
         assertEquals(3, res.size()); // includes owner
     }
@@ -649,7 +649,7 @@ public class SharingTest extends AbstractManagedContextTest {
 
         iQuery.get(Share.class, id);
         
-        loginUser(nonowner.getOmeName());
+        loginUser(nonowner.getUserName());
         
         iQuery.get(Share.class, id);
     }
@@ -661,7 +661,7 @@ public class SharingTest extends AbstractManagedContextTest {
         long id = share.createShare("desc",null, null, null, null, true);
         assertNotNull(share.getShare(id));
         assertNull(share.getShare(-1));
-        loginUser(nonMember.getOmeName());
+        loginUser(nonMember.getUserName());
         assertNull(share.getShare(id));
         assertNull(share.getShare(-1));
     }

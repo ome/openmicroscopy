@@ -251,7 +251,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Returns a map from share id to the count of total members (including the
-     * owner). This is represented by {@link ome.model.meta.ShareMember} links.
+     * owner). This is represented by {@link ome.model.core.ShareExperimenterLink} links.
      *
      * @param shareIds Not null.
      * @return Map with all ids present.

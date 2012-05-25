@@ -29,7 +29,7 @@ import ome.model.meta.RenderingDef;
 import ome.model.meta.Thumbnail;
 import ome.model.core.Experimenter;
 import ome.model.meta.Share;
-import ome.model.meta.ShareMember;
+import ome.model.core.ShareExperimenterLink;
 import ome.model.meta.StatsInfo;
 import ome.model.core.Detector;
 import ome.model.core.DetectorSettings;
@@ -152,7 +152,7 @@ public class BlobShareStore extends ShareStore implements
         Session session = session();
         QueryBuilder qb = new QueryBuilder();
         qb.select("share.id");
-        qb.from("ShareMember", "sm");
+        qb.from("ShareExperimenterLink", "sm");
         qb.join("sm.parent", "share", false, false);
         qb.where();
         qb.and("sm.child.id = :userId");
@@ -406,12 +406,12 @@ public class BlobShareStore extends ShareStore implements
 
     private void synchronizeMembers(Session session, ShareData data) {
 
-        Query q = session.createQuery("select sm from ShareMember sm "
+        Query q = session.createQuery("select sm from ShareExperimenterLink sm "
                 + "where sm.parent = ?");
         q.setLong(0, data.id);
-        List<ShareMember> members = q.list();
-        Map<Long, ShareMember> lookup = new HashMap<Long, ShareMember>();
-        for (ShareMember sm : members) {
+        List<ShareExperimenterLink> members = q.list();
+        Map<Long, ShareExperimenterLink> lookup = new HashMap<Long, ShareExperimenterLink>();
+        for (ShareExperimenterLink sm : members) {
             lookup.put(sm.getChild().getId(), sm);
         }
 
@@ -423,7 +423,7 @@ public class BlobShareStore extends ShareStore implements
         Set<Long> added = new HashSet<Long>(intendedUserIds);
         added.removeAll(currentUserIds);
         for (Long toAdd : added) {
-            ShareMember sm = new ShareMember();
+        	ShareExperimenterLink sm = new ShareExperimenterLink();
             sm.link(new Share(data.id, false), new Experimenter(toAdd, false));
             session.merge(sm);
         }

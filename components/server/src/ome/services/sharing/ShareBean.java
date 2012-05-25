@@ -169,7 +169,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         
         final QueryBuilder qb = new QueryBuilder();
         qb.select("share2.id", "count(distinct links2.id)");
-        qb.from("ShareMember", "links2");
+        qb.from("ShareExperimenterLink", "links2");
         qb.join("links2.parent","share2", false, false);
         qb.where();
         qb.paramList("ids", shareIds);
@@ -178,7 +178,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         {
             QueryBuilder sub = new QueryBuilder();
             sub.select("share");
-            sub.from("ShareMember", "memberLinks");
+            sub.from("ShareExperimenterLink", "memberLinks");
             sub.join("memberLinks.parent", "share", false, false);
             sub.join("memberLinks.child", "user", false, false);
             sub.where();
@@ -477,7 +477,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
         final QueryBuilder qb = new QueryBuilder();
         qb.select("share.id","count(distinct sal)");
-        qb.from("ShareMember", "sm");
+        qb.from("ShareExperimenterLink", "sm");
         qb.join("sm.parent", "share", false, false);
         qb.join("share.annotationLinks","sal", false, false);
         qb.join("sal.child", "comment", false, false);
@@ -578,7 +578,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             @NotNull final String commentText) {
         
         getShareIfAccessible(shareId);
-        ExperimenterGroup group = iQuery.get(Share.class, shareId).getGroup();
+        ExperimenterGroup group = iQuery.get(Share.class, shareId).getExperimenterGroup();
         
         final CommentAnnotation[] rv = new CommentAnnotation[1];
         sec.runAsAdmin(group, new AdminAction(){
@@ -649,7 +649,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         List<Experimenter> members = loadMembers(data);
         Set<String> names = new HashSet<String>();
         for (Experimenter e : members) {
-            names.add(e.getOmeName());
+            names.add(e.getUserName());
         }
         for (String string : data.guests) {
             if (names.contains(string)) {
