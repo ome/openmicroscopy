@@ -407,7 +407,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
     }
 
     private void appendIfText(final OriginalFile file, final StringBuilder sb) {
-        if (file.getMimetype() != null && file.getMimetype().contains("text")) {
+        if (file.getMimeType() != null && file.getMimeType().contains("text")) {
             this.ex.execute(this.principal, new Executor.SimpleWork(this, "appendIfText", file) {
                 @Transactional(readOnly=true)
                 public Object doWork(org.hibernate.Session session,

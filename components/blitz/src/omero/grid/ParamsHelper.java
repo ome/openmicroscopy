@@ -97,7 +97,7 @@ public class ParamsHelper {
     }
 
     JobParams getParamsOrNull(final long scriptId, Current __current) {
-        ome.model.jobs.ParseJob job = getParseJobForScript(scriptId);
+        ome.model.meta.ParseJob job = getParseJobForScript(scriptId);
 
         if (job != null) {
             return parse(job.getParams(), __current);
@@ -105,8 +105,8 @@ public class ParamsHelper {
         return null;
     }
 
-    ome.model.jobs.ParseJob getParseJobForScript(final long scriptId) {
-        ome.model.jobs.ParseJob job = (ome.model.jobs.ParseJob) ex.execute(p,
+    ome.model.meta.ParseJob getParseJobForScript(final long scriptId) {
+        ome.model.meta.ParseJob job = (ome.model.meta.ParseJob) ex.execute(p,
                 new Executor.SimpleWork(this, "getParseJobForScript", scriptId) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -154,8 +154,8 @@ public class ParamsHelper {
         ex.execute(p, new Executor.SimpleWork(this, "saveScriptParams", job.getId().getValue()) {
             @Transactional(readOnly = false)
             public Object doWork(final Session session, final ServiceFactory sf) {
-                ome.model.jobs.ParseJob parseJob = sf.getQueryService().get(
-                        ome.model.jobs.ParseJob.class, job.getId().getValue());
+                ome.model.meta.ParseJob parseJob = sf.getQueryService().get(
+                        ome.model.meta.ParseJob.class, job.getId().getValue());
                 parseJob.setParams(data);
                 secSys.runAsAdmin(new AdminAction(){
                     public void runAsAdmin() {

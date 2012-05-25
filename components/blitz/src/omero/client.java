@@ -947,8 +947,8 @@ public class client {
             fileObject.setPath(rstring(path));
         }
 
-        if (fileObject.getMimetype() == null) {
-            fileObject.setMimetype(rstring("application/octet-stream"));
+        if (fileObject.getMimeType() == null) {
+            fileObject.setMimeType(rstring("application/octet-stream"));
         }
 
         IUpdatePrx up = sf.getUpdateService();

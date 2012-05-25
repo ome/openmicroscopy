@@ -18,7 +18,7 @@ import java.util.List;
 import static omero.rtypes.*;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
-import omero.model.GroupExperimenterMap;
+import omero.model.ExperimenterGroupExperimenterLink;
 
 /**
  * The data that makes up an <i>OME</i> Experimenter along with information
@@ -46,14 +46,14 @@ public class ExperimenterData extends DataObject {
     /** Identifies the {@link Experimenter#EMAIL} field. */
     public final static String EMAIL = ExperimenterI.EMAIL;
 
-    /** Identifies the {@link Experimenter#OMENAME} field. */
-    public final static String OMENAME = ExperimenterI.OMENAME;
+    /** Identifies the {@link Experimenter#USERNAME} field. */
+    public final static String USERNAME = ExperimenterI.USERNAME;
 
     /** Identifies the {@link Experimenter#INSTITUTION} field. */
     public final static String INSTITUTION = ExperimenterI.INSTITUTION;
 
-    /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterI.GROUPEXPERIMENTERMAP;
+    /** Identifies the {@link Experimenter#EXPERIMENTERGROUPLINKS} field. */
+    public final static String EXPERIMENTERGROUP_LINKS = ExperimenterI.EXPERIMENTERGROUPLINKS;
 
     /** The other Groups this Experimenter belongs in. */
     private List<GroupData> groups;
@@ -138,7 +138,7 @@ public class ExperimenterData extends DataObject {
      * @return see above.
      */
     public String getUserName() {
-        omero.RString n = asExperimenter().getOmeName();
+        omero.RString n = asExperimenter().getUserName();
         if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
@@ -200,11 +200,11 @@ public class ExperimenterData extends DataObject {
     public List<GroupData> getGroups() {
 
         if (groups == null
-                && asExperimenter().sizeOfGroupExperimenterMap() >= 0) {
+                && asExperimenter().sizeOfExperimenterGroupLinks() >= 0) {
             groups = new ArrayList<GroupData>();
-            List<GroupExperimenterMap> links = asExperimenter()
-                    .copyGroupExperimenterMap();
-            for (GroupExperimenterMap link : links) {
+            List<ExperimenterGroupExperimenterLink> links = asExperimenter()
+                    .copyExperimenterGroupLinks();
+            for (ExperimenterGroupExperimenterLink link : links) {
                 groups.add(new GroupData(link.getParent()));
             }
         }

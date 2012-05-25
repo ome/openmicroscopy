@@ -19,7 +19,7 @@ import java.util.Set;
 import static omero.rtypes.*;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.GroupExperimenterMap;
+import omero.model.ExperimenterGroupExperimenterLink;
 
 /**
  * The data that makes up an <i>OME</i> Group along with the various members of
@@ -41,9 +41,9 @@ public class GroupData extends DataObject {
     /** Identifies the {@link ExperimenterGroup#DESCRIPTION} field. */
     public final static String DESCRIPTION = ExperimenterGroupI.DESCRIPTION;
 
-    /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = 
-    	ExperimenterGroupI.GROUPEXPERIMENTERMAP;
+    /** Identifies the {@link ExperimenterGroup#EXPERIMENTERLINKS} field. */
+    public final static String EXPERIMENTER_LINKS =
+        ExperimenterGroupI.EXPERIMENTERLINKS;
 
     /** Identifies the <code>User</code> group. */
     public static final String	USER = "user";
@@ -150,11 +150,11 @@ public class GroupData extends DataObject {
      */
     public Set getLeaders() {
         if (leaders == null
-                && asGroup().sizeOfGroupExperimenterMap() >= 0) {
+                && asGroup().sizeOfExperimenterLinks() >= 0) {
         	leaders = new HashSet<ExperimenterData>();
-            List<GroupExperimenterMap> links = asGroup()
-                    .copyGroupExperimenterMap();
-            for (GroupExperimenterMap link : links) {
+            List<ExperimenterGroupExperimenterLink> links = asGroup()
+                    .copyExperimenterLinks();
+            for (ExperimenterGroupExperimenterLink link : links) {
             	if (link.getOwner().getValue())
             		leaders.add(new ExperimenterData(link.getChild()));
             }
@@ -170,11 +170,11 @@ public class GroupData extends DataObject {
      */
     public Set getExperimenters() {
         if (experimenters == null
-                && asGroup().sizeOfGroupExperimenterMap() >= 0) {
+                && asGroup().sizeOfExperimenterLinks() >= 0) {
             experimenters = new HashSet<ExperimenterData>();
-            List<GroupExperimenterMap> links = asGroup()
-                    .copyGroupExperimenterMap();
-            for (GroupExperimenterMap link : links) {
+            List<ExperimenterGroupExperimenterLink> links = asGroup()
+                    .copyExperimenterLinks();
+            for (ExperimenterGroupExperimenterLink link : links) {
                 experimenters.add(new ExperimenterData(link.getChild()));
             }
         }

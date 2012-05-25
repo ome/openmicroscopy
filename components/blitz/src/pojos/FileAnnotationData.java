@@ -294,8 +294,8 @@ public class FileAnnotationData extends AnnotationData {
     {
     	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
         String unknown = UNKNOWN;
-        String format = f == null ? unknown : (f.getMimetype() == null ? unknown
-                : (f.getMimetype().getValue()));
+        String format = f == null ? unknown : (f.getMimeType() == null ? unknown
+                : (f.getMimeType().getValue()));
         return format;
     }
     
