@@ -769,8 +769,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             rendDefObj.setDefaultT(old.getDefaultT());
             rendDefObj.setCompression(old.getCompression());
             rendDefObj.setName(old.getName());
-            QuantumDef qDefNew = rendDefObj.getQuantization();
-            QuantumDef qDefOld = old.getQuantization();
+            QuantumDef qDefNew = rendDefObj.getQuantumDef();
+            QuantumDef qDefOld = old.getQuantumDef();
             qDefNew.setId(qDefOld.getId());
             qDefNew.setBitResolution(qDefOld.getBitResolution());
             qDefNew.setCdStart(qDefOld.getCdStart());
@@ -798,7 +798,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             Family family;
             int index = 0;
             ChannelBinding cb;
-            for (ChannelBinding binding : old.unmodifiableWaveRendering()) {
+            for (ChannelBinding binding : old.unmodifiableChannelBindings()) {
                 family = new Family(binding.getFamily().getId(), false);
                 cb = rendDefObj.getChannelBinding(index);
                 cb.setFamily(family);
@@ -1062,7 +1062,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfNullRenderingDef();
-            return new ShallowCopy().copy(rendDefObj.getQuantization());
+            return new ShallowCopy().copy(rendDefObj.getQuantumDef());
         } finally {
             rwl.readLock().unlock();
         }

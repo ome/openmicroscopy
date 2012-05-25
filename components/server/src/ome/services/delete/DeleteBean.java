@@ -423,14 +423,14 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
        // p.eachLinkedOriginalFile(delete);
         p.collectPlanes(delete);
         for (RenderingDef rdef : p
-                .collectSettings((CBlock<RenderingDef>) null)) {
+                .collectRenderingDefs((CBlock<RenderingDef>) null)) {
 
             for (ChannelBinding binding : rdef
-                    .unmodifiableWaveRendering()) {
+                    .unmodifiableChannelBindings()) {
                 delete.call(binding);
             }
             delete.call(rdef);
-            delete.call(rdef.getQuantization());
+            delete.call(rdef.getQuantumDef());
         }
         
         //p.collectThumbnails(delete);
