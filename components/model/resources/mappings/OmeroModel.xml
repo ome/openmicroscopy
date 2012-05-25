@@ -284,7 +284,10 @@
         </properties>
     </type>
 
-    <!-- OME model object DetectorSettings -->
+    <!-- manually insert -->
+    <type id="ome.model.core.Settings">
+    </type>
+
     <type id="ome.model.core.DetectorSettings" superclass="ome.model.core.Settings">
         <properties>
             <!--
