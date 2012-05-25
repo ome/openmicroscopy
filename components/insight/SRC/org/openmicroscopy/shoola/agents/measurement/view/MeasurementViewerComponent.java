@@ -1035,12 +1035,15 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#deleteAllROIs()
      */
-	public void deleteAllROIs()
+	public void deleteAllROIs(int level)
 	{
 		if (!canDelete()) return;
 		List<ROIData> list;
 		if (model.isMember()) list = model.getROIData();
-		else list = model.getAllROIData();
+		else {
+			
+			list = model.getAllROIData();
+		}
 		//ROI owned by the current user.
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();

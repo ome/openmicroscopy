@@ -36,6 +36,8 @@ import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import pojos.WorkflowData;
+
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -62,6 +64,15 @@ public interface MeasurementViewer
 	extends ObservableComponent
 {
 
+	/** Identifies <code>all</code> the objects.*/
+	public static final int ALL = PermissionMenu.ALL;
+	
+	/** Identifies the objects added by current user.*/
+	public static final int ME = PermissionMenu.ME;
+	
+	/** Identifies the objects added by others.*/
+	public static final int OTHER = PermissionMenu.OTHER;
+	
 	/** Flag to denote the <i>New</i> state. */
     public static final int     NEW = 1;
     
@@ -359,8 +370,12 @@ public interface MeasurementViewer
 	 */
 	public void setWorkflowList(List<WorkflowData> workflows);
 
-	/** Deletes all ROIs owned by the user currently logged in. */
-	public void deleteAllROIs();
+	/** 
+	 * Deletes all ROIs owned by the user currently logged in. 
+	 * 
+	 * @param index One of the delete levels indicating by this class.
+	 */
+	public void deleteAllROIs(int index);
 	
 	/**
 	 * Returns <code>true</code> if the current user has ROI that can be deleted,

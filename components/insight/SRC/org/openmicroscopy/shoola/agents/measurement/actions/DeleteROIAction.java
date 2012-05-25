@@ -99,7 +99,7 @@ public class DeleteROIAction
     		MessageBox msg = new MessageBox(model.getUI(), "Delete ROI",
     				message);
         	if (msg.centerMsgBox() == MessageBox.YES_OPTION)
-        		model.deleteAllROIs(); 
+        		model.deleteAllROIs(MeasurementViewer.ME); 
     	}
     }
 

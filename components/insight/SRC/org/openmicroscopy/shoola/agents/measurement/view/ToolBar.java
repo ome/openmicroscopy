@@ -354,27 +354,12 @@ class ToolBar
 					deleteMenu.show((JComponent) e.getSource(), e.getX(),
 							e.getY());
 				}
-				
 			});
     	}
     	UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
     	bar.add(new JSeparator());
 		return bar;
-	}
-	
-	/**
-	 * Creates/recycles the delete menu.
-	 * 
-	 * @param src The menu to delete
-	 * @param p The mouse pressed location.
-	 */
-	private void createDeleteMenu(JComponent src, Point p)
-	{
-		if (deleteMenu == null) {
-			deleteMenu = new PermissionMenu(PermissionMenu.DELETE, "ROIs");
-			deleteMenu.addPropertyChangeListener(controller);
-		}
 	}
 	
 	/** Builds and lays out the UI. */
