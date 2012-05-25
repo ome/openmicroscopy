@@ -81,7 +81,7 @@ MOVIE_NS = omero.constants.metadata.NSMOVIE
 formatNSMap = {MPEG:MOVIE_NS, QT:MOVIE_NS, WMV:MOVIE_NS}
 formatExtensionMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
 formatMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
-formatMimetypes = {MPEG:"MPEG", QT:"QT", WMV:"WMV"}
+formatMimetypes = {MPEG:"video/mpeg", QT:"video/quicktime", WMV:"video/x-ms-wmv"}
 OVERLAYCOLOUR = "#666666"
     
 
@@ -512,8 +512,9 @@ def writeMovie(commandArgs, conn):
     figLegend = "\n".join(logLines)
     mimetype = formatMimetypes[format]
     
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/export_scripts/Make_Movie"
     fileAnnotation, annMessage = scriptUtil.createLinkFileAnnotation(conn, movieName, omeroImage,
-        output="Movie", parenttype="image", mimetype=mimetype)
+        output="Movie", ns=namespace, mimetype=mimetype)
     message += annMessage
     return fileAnnotation, message
 
