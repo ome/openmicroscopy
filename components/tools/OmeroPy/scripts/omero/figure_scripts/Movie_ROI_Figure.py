@@ -690,7 +690,7 @@ def roiFigure(conn, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    namespace = omero.constants.namespaces.NSCREATED+"/figure/movieROIFigure"
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/figure_scripts/Movie_ROI_Figure"
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
     output="Movie ROI figure", mimetype=mimetype, ns=namespace, desc=figLegend)
     message += faMessage

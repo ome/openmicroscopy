@@ -512,7 +512,7 @@ def movieFigure(conn, commandArgs):
         figure.save(output)
         mimetype = "image/jpeg"
     
-    namespace = omero.constants.namespaces.NSCREATED+"/figure/movieFigure"
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/figure_scripts/Movie_Figure"
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
     output="Movie figure", mimetype=mimetype, ns=namespace, desc=figLegend)
     message += faMessage

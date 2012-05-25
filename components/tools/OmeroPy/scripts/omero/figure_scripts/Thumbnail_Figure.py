@@ -289,7 +289,7 @@ def makeThumbnailFigure(conn, scriptParams):
         figure.save(output)
         mimetype = "image/jpeg"
 
-    namespace = omero.constants.namespaces.NSCREATED+"/figure/thumbnailFigure"
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/figure_scripts/Thumbnail_Figure"
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, parent,
         output="Thumbnail figure", mimetype=mimetype, ns=namespace, desc=figLegend)
     message += faMessage
