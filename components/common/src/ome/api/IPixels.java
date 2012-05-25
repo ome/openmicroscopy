@@ -12,7 +12,7 @@ import java.util.List;
 import ome.annotations.Validate;
 import ome.model.IObject;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.PixelType;
 
 /**

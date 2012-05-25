@@ -43,7 +43,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.Objective;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;

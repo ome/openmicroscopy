@@ -14,9 +14,9 @@ import junit.framework.TestCase;
 import ome.api.IQuery;
 import ome.api.JobHandle;
 import ome.conditions.SecurityViolation;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
-import ome.model.jobs.ScriptJob;
+import ome.model.meta.Job;
+import ome.model.enums.JobStatus;
+import ome.model.meta.ScriptJob;
 import ome.security.SecuritySystem;
 import ome.server.itests.ManagedContextFixture;
 import ome.services.JobBean;
@@ -93,10 +93,10 @@ public class JobHandleTest extends TestCase {
         ScriptJob job = new ScriptJob();
         job.setSubmitted(new Timestamp(System.currentTimeMillis()));
         job.setType("user");
-        job.setGroupname("default");
+        job.setGroupName("default");
         job.setMessage("test of override via iupdate");
         job.setStatus(new JobStatus("Submitted"));
-        job.setUsername("root");
+        job.setUserName("root");
         job.setScheduledFor(new Timestamp(System.currentTimeMillis() + 100L));
         fixture.managedSf.getUpdateService().saveObject(job);
     }
@@ -235,16 +235,16 @@ public class JobHandleTest extends TestCase {
 
     }
 
-    private ome.model.jobs.Job saveJob(Executor ex, Principal p,
+    private ome.model.meta.Job saveJob(Executor ex, Principal p,
             final Job job) {
 
         // First create the job with a status of WAITING.
         // The InteractiveProcessor will be responsible for its
         // further lifetime.
-        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) ex.execute(p,
+        final ome.model.meta.Job savedJob = (ome.model.meta.Job) ex.execute(p,
                 new Executor.SimpleWork(this, "submitJob") {
                     @Transactional(readOnly = false)
-                    public ome.model.jobs.Job doWork(Session session,
+                    public ome.model.meta.Job doWork(Session session,
                             ServiceFactory sf) {
 
                         final JobHandle handle = sf.createJobHandle();

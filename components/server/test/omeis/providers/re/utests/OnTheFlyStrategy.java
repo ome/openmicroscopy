@@ -11,7 +11,7 @@ package omeis.providers.re.utests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.model.display.QuantumDef;
+import ome.model.meta.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelType;
 import omeis.providers.re.quantum.PolynomialMap;

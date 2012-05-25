@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.ResourceError;
-import ome.model.display.Thumbnail;
+import ome.model.meta.Thumbnail;
 import ome.util.Utils;
 
 /**

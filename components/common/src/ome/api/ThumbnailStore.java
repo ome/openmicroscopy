@@ -64,7 +64,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * <code>null</code>.
      * 
      * @param renderingDefId
-     *            an {@link ome.model.display.RenderingDef} id.
+     *            an {@link ome.model.meta.RenderingDef} id.
      *            <code>null</code> specifies the user's currently active
      *            rendering settings to be used.
      * @throws ValidationException

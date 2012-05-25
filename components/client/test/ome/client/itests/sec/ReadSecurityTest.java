@@ -13,7 +13,7 @@ import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.Thumbnail;
+import ome.model.meta.Thumbnail;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 

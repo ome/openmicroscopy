@@ -17,7 +17,7 @@ import java.util.Map;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
 import ome.model.core.Pixels;
-import ome.model.display.QuantumDef;
+import ome.model.meta.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainMapContext;

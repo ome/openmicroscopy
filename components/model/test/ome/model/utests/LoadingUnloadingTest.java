@@ -16,7 +16,7 @@ import ome.model.core.Dataset;
 import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.Thumbnail;
+import ome.model.meta.Thumbnail;
 import ome.model.meta.Event;
 import ome.util.ModelMapper;
 

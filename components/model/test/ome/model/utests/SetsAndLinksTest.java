@@ -18,12 +18,12 @@ import ome.model.core.Image;
 import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
-import ome.model.display.Thumbnail;
-import ome.model.jobs.ImportJob;
-import ome.model.jobs.JobOriginalFileLink;
+import ome.model.meta.Thumbnail;
+import ome.model.meta.ImportJob;
+import ome.model.meta.JobOriginalFileLink;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -123,9 +123,9 @@ public class SetsAndLinksTest extends TestCase {
         experimenter.linkExperimenterGroup(defaultGroup);
         testIsDefault(experimenter, defaultGroup);
 
-        GroupExperimenterMap map = experimenter
+        ExperimenterGroupExperimenterLink map = experimenter
                 .linkExperimenterGroup(defaultGroup2);
-        experimenter.setPrimaryGroupExperimenterMap(map);
+        experimenter.setExperimenterGroupExperimenterLink(0, map);
         testIsDefault(experimenter, defaultGroup2);
     }
 
@@ -192,7 +192,8 @@ public class SetsAndLinksTest extends TestCase {
     // ~ Private helpers
     // ===========================================================================
     private void testIsDefault(Experimenter user, ExperimenterGroup group) {
-        ExperimenterGroup t = user.getPrimaryGroupExperimenterMap().parent();
+        ExperimenterGroup t = 
+        user.getExperimenterGroupExperimenterLink(0).parent();
         assertEquals(group, t);
     }
 

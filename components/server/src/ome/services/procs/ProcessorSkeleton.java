@@ -10,7 +10,7 @@ package ome.services.procs;
 import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
-import ome.model.jobs.Job;
+import ome.model.meta.Job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

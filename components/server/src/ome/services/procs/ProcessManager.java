@@ -16,8 +16,8 @@ import java.util.Map;
 
 import ome.api.JobHandle;
 import ome.model.IObject;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
+import ome.model.meta.Job;
+import ome.model.enums.JobStatus;
 import ome.parameters.Parameters;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;

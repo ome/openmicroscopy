@@ -10,8 +10,8 @@ import java.sql.Timestamp;
 
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
+import ome.model.meta.Job;
+import ome.model.enums.JobStatus;
 
 /**
  * Allows submission of asynchronous jobs.

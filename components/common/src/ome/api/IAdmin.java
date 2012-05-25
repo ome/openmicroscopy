@@ -14,12 +14,11 @@ import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
-import ome.model.meta.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.meta.OriginalFile;
 import ome.system.EventContext;
 import ome.system.Roles;
 
@@ -232,7 +231,7 @@ public interface IAdmin extends ServiceInterface {
     long uploadMyUserPhoto(String filename, String format, byte[] data);
 
     /**
-     * Retrieve the {@link ome.model.meta.OriginalFile} objectd attached to this
+     * Retrieve the {@link ome.model.meta.OriginalFile} object attached to this
      * user as specified by {@link #uploadMyUserPhoto(String, String, byte[]).
      * The return value is order by the most recently modified file first.
      *
@@ -261,7 +260,7 @@ public interface IAdmin extends ServiceInterface {
      * @param experimenter
      *            the Experimenter to update.
      * @param password
-     *            Not-null. Must pass validation in the security sub-system.           
+     *            Not-null. Must pass validation in the security sub-system.
      */
     void updateExperimenterWithPassword(@NotNull
     Experimenter experimenter, @Hidden
@@ -338,7 +337,7 @@ public interface IAdmin extends ServiceInterface {
     long createExperimenterWithPassword(@NotNull
     Experimenter experimenter, @Hidden
     String password, @NotNull
-    ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);    
+    ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);
     
     /**
      * create and return a new group. The {@link Details#setPermissions(Permissions)}

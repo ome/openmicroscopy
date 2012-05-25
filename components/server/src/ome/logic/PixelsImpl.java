@@ -23,7 +23,7 @@ import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelType;
 import ome.model.meta.StatsInfo;

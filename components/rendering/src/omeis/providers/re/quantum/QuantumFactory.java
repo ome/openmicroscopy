@@ -13,7 +13,7 @@ import java.util.List;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.model.display.QuantumDef;
+import ome.model.meta.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelType;
 

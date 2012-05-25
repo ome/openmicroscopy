@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,8 +40,8 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
-import ome.model.display.Thumbnail;
+import ome.model.meta.RenderingDef;
+import ome.model.meta.Thumbnail;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.parameters.Parameters;
@@ -746,8 +745,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#createThumbnail(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer,
+     * @see ome.api.ThumbnailStore#createThumbnail(java.lang.Integer,
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -823,8 +821,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#createThumbnails(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef)
+     * @see ome.api.ThumbnailStore#createThumbnails()
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
@@ -973,8 +970,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer,
+     * @see ome.api.ThumbnailStore#getThumbnail(java.lang.Integer,
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -1061,8 +1057,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer)
+     * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(Integer)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
@@ -1087,9 +1082,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#getThumbnailDirect(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer,
-     *      java.lang.Integer)
+     * @see ome.api.ThumbnailStore#getThumbnailDirect(Integer, Integer)
      */
     @RolesAllowed("user")
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
@@ -1168,8 +1161,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer)
+     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(java.lang.Integer)
      */
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
@@ -1197,7 +1189,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#thumbnailExists(ome.model.core.Pixels,
+     * @see ome.api.ThumbnailStore#thumbnailExists(
      *      java.lang.Integer, java.lang.Integer)
      */
     @RolesAllowed("user")

@@ -19,7 +19,7 @@ import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.model.IObject;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 
 
 /**

@@ -11,15 +11,15 @@ import ome.model.IEnum;
 import ome.model.IGlobal;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.jobs.Job;
+import ome.model.meta.Job;
 import ome.model.meta.DBPatch;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.model.meta.Node;
-import ome.model.meta.ShareMember;
+import ome.model.core.ShareExperimenterLink;
 import ome.system.Roles;
 
 /**
@@ -56,7 +56,7 @@ public class SystemTypes {
 
         if (ome.model.meta.Session.class.isAssignableFrom(klass)) {
             return true;
-        } else if (ShareMember.class.isAssignableFrom(klass)) {
+        } else if (ShareExperimenterLink.class.isAssignableFrom(klass)) {
             return true;
         } else if (Node.class.isAssignableFrom(klass)) {
             return true;
@@ -64,7 +64,7 @@ public class SystemTypes {
             return true;
         } else if (ExperimenterGroup.class.isAssignableFrom(klass)) {
             return true;
-        } else if (GroupExperimenterMap.class.isAssignableFrom(klass)) {
+        } else if (ExperimenterGroupExperimenterLink.class.isAssignableFrom(klass)) {
             return true;
         } else if (Event.class.isAssignableFrom(klass)) {
             return true;

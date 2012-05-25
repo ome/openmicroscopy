@@ -62,7 +62,7 @@ public class RepositoryTask {
 	 * @return List<Long> representing the ids for thumbnails that were deleted
 	 */
 	public List<Long> getThumbnailIds() {
-	    return sql.getDeletedIds("ome.model.display.Thumbnail");
+	    return sql.getDeletedIds("ome.model.meta.Thumbnail");
 	}
 
 	/**

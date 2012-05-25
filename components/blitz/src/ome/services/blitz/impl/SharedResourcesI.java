@@ -392,7 +392,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Check job
         final IceMapper mapper = new IceMapper();
-        final ome.model.jobs.Job savedJob = saveJob(submittedJob, mapper);
+        final ome.model.meta.Job savedJob = saveJob(submittedJob, mapper);
         if (savedJob == null) {
             throw new ApiUsageException(null, null, "Could not submit job. ");
         }
@@ -447,16 +447,16 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return sf.getIdentity(key);
     }
 
-    private ome.model.jobs.Job saveJob(final Job submittedJob,
+    private ome.model.meta.Job saveJob(final Job submittedJob,
             final IceMapper mapper) {
         // First create the job with a status of WAITING.
         // The InteractiveProcessor will be responsible for its
         // further lifetime.
-        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) sf.executor
+        final ome.model.meta.Job savedJob = (ome.model.meta.Job) sf.executor
                 .execute(sf.principal, new Executor.SimpleWork(this,
                         "submitJob") {
                     @Transactional(readOnly = false)
-                    public ome.model.jobs.Job doWork(Session session,
+                    public ome.model.meta.Job doWork(Session session,
                             ServiceFactory sf) {
 
                         final JobHandle handle = sf.createJobHandle();
@@ -465,7 +465,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             status.setValue(omero.rtypes
                                     .rstring(JobHandle.WAITING));
                             submittedJob.setStatus(status);
-                            handle.submit((ome.model.jobs.Job) mapper
+                            handle.submit((ome.model.meta.Job) mapper
                                     .reverse(submittedJob));
                             return handle.getJob();
                         } catch (ApiUsageException e) {

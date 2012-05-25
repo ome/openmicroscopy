@@ -33,7 +33,6 @@ import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
-import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import omeis.providers.re.RenderingEngine;
 
@@ -224,7 +223,7 @@ public class ServiceFactory {
     /**
      * create a new {@link JobHandle} proxy. This proxy will have to be
      * initialized using {@link JobHandle#attach(long)} or
-     * {@link JobHandle#submit(ome.model.jobs.Job)}.
+     * {@link JobHandle#submit(ome.model.meta.Job)}.
      */
     public JobHandle createJobHandle() {
         return getServiceByClass(JobHandle.class);

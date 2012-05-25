@@ -150,36 +150,36 @@
                         <required name="sha1" type="String"/>
                 </properties>
         </type>
-        <link id="ome.model.jobs.JobOriginalFileLink">
+        <link id="ome.model.meta.JobOriginalFileLink">
                 <!-- Note: JobOriginalFileLink is not in model-->
                 <properties>
-                        <from_parent type="ome.model.jobs.Job"/>
+                        <from_parent type="ome.model.meta.Job"/>
                         <to_child type="ome.model.meta.OriginalFile"/>
                 </properties>
         </link>
-        <type id="ome.model.jobs.Job" abstract="true">
+        <type id="ome.model.meta.Job" abstract="true">
                 <!-- Note: Job is not in model-->
                 <properties>
                         <required name="username" type="String"/>
                         <required name="groupname" type="String"/>
                         <required name="type" type="String"/>
                         <required name="message" type="String"/>
-                        <required name="status" type="ome.model.jobs.JobStatus"/>
+                        <required name="status" type="ome.model.meta.JobStatus"/>
                         <required name="submitted" type="timestamp"/>
                         <required name="scheduledFor" type="timestamp"/>
                         <optional name="started" type="timestamp"/>
                         <optional name="finished" type="timestamp"/>
-                        <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.meta.OriginalFile"/>
+                        <child name="originalFileLinks" type="ome.model.meta.JobOriginalFileLink" target="ome.model.meta.OriginalFile"/>
                 </properties>
         </type>
-        <type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
+        <type id="ome.model.jobs.ImportJob" superclass="ome.model.meta.Job">
                 <!-- Note: ImportJob is not in model-->
                 <properties>
                         <required name="imageName" type="String"/>
                         <required name="imageDescription" type="String"/>
                 </properties>
         </type>
-        <type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
+        <type id="ome.model.meta.ScriptJob" superclass="ome.model.meta.Job">
                 <!-- Note: ScriptJob is not in model-->
                 <properties>
                         <optional name="description" type="String"/>

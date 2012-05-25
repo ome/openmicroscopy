@@ -14,7 +14,7 @@ import ome.api.IPixels;
 import ome.api.IUpdate;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.core.Experimenter;

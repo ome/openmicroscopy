@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.model.display.QuantumDef;
+import ome.model.meta.QuantumDef;
 import ome.model.enums.PixelType;
 
 /**

@@ -293,7 +293,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
             Permissions perms, Pixels p) throws Exception {
         IceMapper mapper = new IceMapper();
         ome.model.core.Pixels _p = (ome.model.core.Pixels) mapper.reverse(p);
-        ome.model.display.Thumbnail _tb = ObjectFactory.createThumbnails(_p);
+        ome.model.meta.Thumbnail _tb = ObjectFactory.createThumbnails(_p);
         tb = (Thumbnail) mapper.map(_tb);
         
         tb.getDetails().setPermissions(new PermissionsI(perms.toString()));

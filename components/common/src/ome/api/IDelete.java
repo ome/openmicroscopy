@@ -20,8 +20,8 @@ import ome.model.core.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
-import ome.model.display.Thumbnail;
+import ome.model.meta.RenderingDef;
+import ome.model.meta.Thumbnail;
 
 /**
  * Provides simplified methods for deleting instances from the database. Various

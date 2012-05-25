@@ -21,7 +21,7 @@ import ome.model.core.Project;
 import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.core.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;

@@ -17,8 +17,8 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
+import ome.model.meta.Job;
+import ome.model.enums.JobStatus;
 import ome.parameters.Parameters;
 import ome.security.SecureAction;
 import ome.services.procs.IProcessManager;
@@ -125,8 +125,8 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         Timestamp now = new Timestamp(ms);
 
         // Values that can't be set by the user
-        newJob.setUsername(ec.getCurrentUserName());
-        newJob.setGroupname(ec.getCurrentGroupName());
+        newJob.setUserName(ec.getCurrentUserName());
+        newJob.setGroupName(ec.getCurrentGroupName());
         newJob.setType(ec.getCurrentEventType());
         newJob.setStarted(null);
         newJob.setFinished(null);

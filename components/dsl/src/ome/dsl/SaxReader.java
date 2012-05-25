@@ -288,7 +288,7 @@ class DSLHandler extends DefaultHandler {
 
         /*
          * Example: Pixels: <zeromany name="thumbnails"
-         * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail:
+         * type="ome.model.meta.Thumbnail" inverse="pixels"/> Thumnail:
          * <required name="pixels" type="ome.model.core.Pixels"/>
          * 
          * We want Thumbail.pixels to be given the inverse "thumbnails"

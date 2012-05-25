@@ -18,7 +18,7 @@ import ome.util.PixelData;
 import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;

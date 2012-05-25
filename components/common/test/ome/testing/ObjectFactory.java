@@ -15,11 +15,11 @@ import ome.model.core.Image;
 import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
-import ome.model.display.ChannelBinding;
-import ome.model.display.PlaneSlicingContext;
-import ome.model.display.QuantumDef;
-import ome.model.display.RenderingDef;
-import ome.model.display.Thumbnail;
+import ome.model.meta.ChannelBinding;
+import ome.model.meta.PlaneSlicingContext;
+import ome.model.meta.QuantumDef;
+import ome.model.meta.RenderingDef;
+import ome.model.meta.Thumbnail;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
@@ -44,7 +44,7 @@ public class ObjectFactory {
         ofile.setPath("/dev/null");
         ofile.setSha1("abc");
         ofile.setSize(1L);
-        ofile.setMimetype("text/plain");
+        ofile.setMimeType("text/plain");
 
         return ofile;
     }
@@ -194,7 +194,7 @@ public class ObjectFactory {
         def.setDefaultZ(new Integer(1));
         def.setModel(model);
         def.setPixels(ObjectFactory.createPixelGraph(null));
-        def.setQuantization(qdef);
+        def.setQuantumDef(qdef);
 
         return def;
     }

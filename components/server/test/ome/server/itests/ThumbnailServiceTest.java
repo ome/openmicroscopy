@@ -18,7 +18,7 @@ import ome.api.IRenderingSettings;
 import ome.api.ThumbnailStore;
 import ome.model.IObject;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;

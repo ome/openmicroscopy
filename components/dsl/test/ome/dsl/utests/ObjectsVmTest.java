@@ -118,7 +118,7 @@ public class ObjectsVmTest extends TestCase {
         Map<String, SemanticType> map = toMap(list);
         int counts = 0;
         
-        SemanticType job = map.get("ome.model.jobs.Job");
+        SemanticType job = map.get("ome.model.meta.Job");
         for (Property property: job.getPropertyClosure()) {
             if (isDetailsField(property)) {
                 continue;
@@ -130,7 +130,7 @@ public class ObjectsVmTest extends TestCase {
             }
         }
         
-        SemanticType script= map.get("ome.model.jobs.ScriptJob");
+        SemanticType script= map.get("ome.model.meta.ScriptJob");
         for (Property property: script.getPropertyClosure()) {
             if (isDetailsField(property)) {
                 continue;

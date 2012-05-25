@@ -7,7 +7,7 @@
 
 package omeis.providers.re.utests;
 
-import ome.model.display.QuantumDef;
+import ome.model.meta.QuantumDef;
 import ome.model.enums.PixelType;
 import omeis.providers.re.quantum.Quantization_8_16_bit;
 import omeis.providers.re.quantum.QuantumFactory;
