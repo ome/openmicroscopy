@@ -26,10 +26,8 @@ from integration.helpers import createTestImage
 class TestIShare(lib.ITest):
 
     def testThatPermissionsAreDefaultPrivate(self):
-        i = omero.model.ImageI()
-        i.name = rstring("name")
-        i.acquisitionDate = rtime(0)
-        i = self.client.sf.getUpdateService().saveAndReturnObject(i)
+        pix = self.pix(name="name", client=self.client)
+        i = pix.getImage()
         self.assert_( not i.details.permissions.isGroupRead() )
         self.assert_( not i.details.permissions.isGroupWrite() )
         self.assert_( not i.details.permissions.isWorldRead() )
@@ -135,10 +133,8 @@ class TestIShare(lib.ITest):
         update1 = client_share1.sf.getUpdateService()
         
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name='test1154-img-%s' % (uuid), client=client_share1)
+        img = pix.getImage()
         img.unload()
         
         # create share
@@ -184,10 +180,8 @@ class TestIShare(lib.ITest):
         update1 = client_share1.sf.getUpdateService()
         
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name='test1157-img-%s' % (uuid), client=client_share1)
+        img = pix.getImage()
         img.unload()
         
         # create share
@@ -236,10 +230,8 @@ class TestIShare(lib.ITest):
         ds.unload()
         
         # create image
-        img = ImageI()
-        img.setName(rstring('test-img in dataset-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
-        img = update.saveAndReturnObject(img)
+        pix = self.pix(name='test-img in dataset-%s' % (uuid), client=self.root)
+        img = pix.getImage()
         img.unload()
         
         dil = DatasetImageLinkI()
@@ -302,7 +294,7 @@ class TestIShare(lib.ITest):
         self.assert_(img)
         share.addObject(sid, img)
         share.addObjects(sid, img.copyDatasetLinks())
-        self.assertEquals(3, len(share.getContents(sid)))
+        self.assertEquals(6, len(share.getContents(sid)))
 
         #
         # And try again to load them
@@ -468,10 +460,8 @@ class TestIShare(lib.ITest):
         update1 = client_share1.sf.getUpdateService()
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test2327'))
-        img.setAcquisitionDate(rtime(0))
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name='test2327', client=client_share1)
+        img = pix.getImage()
         img.unload()
 
         # create share
@@ -517,8 +507,8 @@ class TestIShare(lib.ITest):
         update1 = client_share1.sf.getUpdateService()
 
         # create image
-        img = self.new_image("test2733")
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name="test2733", client=client_share1)
+        img = pix.getImage()
         img.unload()
 
         # create share
@@ -556,8 +546,8 @@ class TestIShare(lib.ITest):
         update1 = owner.sf.getUpdateService()
 
         # create image
-        img = self.new_image("test2733Access")
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name="test2733Access", client=owner)
+        img = pix.getImage()
         img.unload()
 
         # create share
@@ -595,8 +585,8 @@ class TestIShare(lib.ITest):
         update1 = owner.sf.getUpdateService()
 
         # create image
-        img = self.new_image("test2733Access")
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name='test3214', client=owner)
+        img = pix.getImage()
         img.unload()
 
         # create share
@@ -638,8 +628,8 @@ class TestIShare(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
 
-        image = self.new_image()
-        image = update.saveAndReturnObject(image)
+        pix = self.pix(client=self.client)
+        image = pix.getImage()
         objects = [image]
 
         self.share_id = share.createShare("", None, objects, [], [], True)
@@ -662,8 +652,8 @@ class TestIShare(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
 
-        image = self.new_image()
-        image = update.saveAndReturnObject(image)
+        pix = self.pix(client=self.client)
+        image = pix.getImage()
         objects = [image]
 
         self.share_id = share.createShare("", None, objects, [], [], True)
@@ -734,8 +724,8 @@ class TestIShare(lib.ITest):
         update1 = owner.sf.getUpdateService()
 
         # create image and share
-        img = self.new_image("testOSRegularUser")
-        img = update1.saveAndReturnObject(img)
+        pix = self.pix(name="testOSRegularUser", client=owner)
+        img = pix.getImage()
         img.unload()
         sid = self.create_share(share1, objects=[img],
                 experimenters=[owner_obj, member_obj])
@@ -797,12 +787,12 @@ class TestIShare(lib.ITest):
         self.assertFalse(owner_obj.id.val == member_obj.id.val) # just in case
 
         owner_update = owner.sf.getUpdateService()
-        image = self.new_image()
-        image = owner_update.saveAndReturnObject(image)
+        pix = self.pix(client=owner)
+        image = pix.getImage()
 
         member_update = member.sf.getUpdateService()
-        image2 = self.new_image()
-        image2 = member_update.saveAndReturnObject(image2)
+        pix2 = self.pix(client=member)
+        image2 = pix2.getImage()
 
         share = owner.sf.getShareService()
         sid = self.create_share(share, objects=[image], experimenters=[member_obj])
