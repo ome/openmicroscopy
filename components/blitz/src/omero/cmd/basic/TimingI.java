@@ -15,29 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.impl.commands;
+package omero.cmd.basic;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import ome.api.IUpdate;
-import ome.model.IObject;
-import omero.api.Save;
-import omero.api.SaveRsp;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
+import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.util.IceMapper;
+import omero.cmd.Timing;
 
 /**
- * Permits saving a single IObject instance.
- * 
+ * Diagnostic tool for testing call overhead.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
-public class SaveI extends Save implements IRequest {
+public class TimingI extends Timing implements IRequest {
 
-    private static final long serialVersionUID = -3434345656L;
+    private static final long serialVersionUID = -1L;
+
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     private Helper helper;
 
@@ -47,34 +48,39 @@ public class SaveI extends Save implements IRequest {
 
     public void init(Helper helper) {
         this.helper = helper;
-        this.helper.setSteps(1);
+        if (this.steps > 1000000) {
+            helper.cancel(new ERR(), null, "too-many-steps",
+            		"steps", ""+this.steps);
+        } else if (this.millisPerStep > 5*60*1000) {
+            helper.cancel(new ERR(), null, "too-long-steps",
+            		"millisPerStep", ""+millisPerStep);
+        } else if ((this.millisPerStep * this.steps) > 5*60*1000) {
+            helper.cancel(new ERR(), null, "too-long",
+            		"millisPerStep", ""+this.millisPerStep,
+            		"steps", ""+this.steps);
+        }
+        this.helper.setSteps(this.steps);
     }
 
     public Object step(int step) {
-        helper.assertStep(0, step);
+        helper.assertStep(step);
         try {
-            IceMapper mapper = new IceMapper();
-            IObject iobj = (IObject) mapper.reverse(this.obj);
-            IUpdate update = helper.getServiceFactory().getUpdateService();
-            return update.saveAndReturnObject(iobj);
-        }
-        catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "failed", "obj",
-                    String.format("%s", this.obj));
-        }
+			latch.await(millisPerStep, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			helper.debug("Interrupted");
+		}
+        return null;
     }
 
     public void buildResponse(int step, Object object) {
-        helper.assertStep(0, step);
+        helper.assertResponse(step);
         if (helper.isLast(step)) {
-            IceMapper mapper = new IceMapper();
-            SaveRsp rsp = new SaveRsp(
-                    (omero.model.IObject) mapper.map((IObject) object));
-            helper.setResponse(rsp);
+        	helper.setResponse(new OK());
         }
     }
 
     public Response getResponse() {
         return helper.getResponse();
     }
+
 }

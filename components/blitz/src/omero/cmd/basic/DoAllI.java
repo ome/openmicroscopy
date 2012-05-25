@@ -45,8 +45,6 @@ import omero.cmd.Status;
  */
 public class DoAllI extends DoAll implements IRequest {
 
-    private final Log log = LogFactory.getLog(DoAllI.class);
-
     private static final long serialVersionUID = -323423435135556L;
 
     /**
@@ -68,26 +66,30 @@ public class DoAllI extends DoAll implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session,
-            ome.system.ServiceFactory sf) {
-        this.helper = new Helper(this, status, sql, session, sf);
-        status.steps = 0;
-        for (Request req : this.requests) {
-            Status substatus = new Status();
-            if (req instanceof IRequest) {
-                IRequest ireq = (IRequest) req;
-                ireq.init(substatus, sql, session, sf);
-                status.steps += substatus.steps;
-                statuses.add(substatus);
-                offsets.add(status.steps);
+    public void init(Helper helper) {
+        this.helper = helper;
+        int steps = 0;
+        try {
+            for (Request req : this.requests) {
+                Status substatus = new Status();
+                if (req instanceof IRequest) {
+                    IRequest ireq = (IRequest) req;
+                    helper.subinit(ireq, substatus);
+                    steps += substatus.steps;
+                    statuses.add(substatus);
+                    offsets.add(steps);
+                }
+                else {
+                    helper.error("Bad request: %s", req);
+                    substatus.steps = 0;
+                    statuses.add(substatus);
+                    offsets.add(steps);
+                }
             }
-            else {
-                log.error("Bad request: " + req);
-                substatus.steps = 0;
-                statuses.add(substatus);
-                offsets.add(status.steps);
-            }
+        } catch (Exception e) {
+            helper.cancel(new ERR(), e, "bad-init");
         }
+        helper.setSteps(steps);
     }
 
     public Object step(int step) {

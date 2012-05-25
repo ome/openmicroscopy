@@ -140,7 +140,7 @@ public class DoAllITest extends AbstractGraphTest {
         block(handle, 5, 1000);
         DoAllRsp rsp = (DoAllRsp) assertSuccess(handle);
         assertSuccess(rsp.responses.get(0));
-        
+
         // Specifically check the save
         SaveRsp saveRsp = (SaveRsp) rsp.responses.get(1);
         assertSuccess(saveRsp);
@@ -150,10 +150,12 @@ public class DoAllITest extends AbstractGraphTest {
 
     class CheckSteps extends Request implements IRequest {
 
+        private static final long serialVersionUID = 1L;
+
         private Helper helper;
 
         private List<Integer> expected;
-        
+
         private List<Object> responses = new ArrayList<Object>();
 
         private String name;
@@ -170,10 +172,9 @@ public class DoAllITest extends AbstractGraphTest {
             return null;
         }
 
-        public void init(Status status, SqlAction sql, Session session,
-                ServiceFactory sf) throws Cancel {
-            status.steps = this.expected.size();
-            this.helper = new Helper(this, status, sql, session, sf);
+        public void init(Helper helper) throws Cancel {
+            this.helper = helper;
+            this.helper.setSteps(this.expected.size());
         }
 
         public Object step(int i) throws Cancel {

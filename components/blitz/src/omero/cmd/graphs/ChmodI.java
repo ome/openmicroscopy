@@ -20,18 +20,11 @@ package omero.cmd.graphs;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-
 import ome.api.IAdmin;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
 import omero.cmd.Chmod;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
@@ -39,7 +32,6 @@ import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.cmd.Status;
 
 /**
  * Chmod implementation like that in
@@ -52,8 +44,6 @@ import omero.cmd.Status;
 public class ChmodI extends Chmod implements IRequest {
 
     private static final long serialVersionUID = -33294230498203989L;
-
-    private static final Log log = LogFactory.getLog(ChmodI.class);
 
     private final ChmodStrategy strategy;
 
@@ -71,10 +61,9 @@ public class ChmodI extends Chmod implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session,
-            ServiceFactory sf) {
+    public void init(Helper helper) {
 
-        this.helper = new Helper(this, status, sql, session, sf);
+        this.helper = helper;
 
         // Handle exceptions internally.
         target = load();
@@ -87,7 +76,7 @@ public class ChmodI extends Chmod implements IRequest {
             throw helper.cancel(new ERR(), sv, "not permitted");
         }
 
-        status.steps = 1 + checks.length;
+        helper.setSteps(1 + checks.length);
 
     }
 

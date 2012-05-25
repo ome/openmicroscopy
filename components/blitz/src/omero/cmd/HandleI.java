@@ -15,8 +15,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import ome.api.local.LocalAdmin;
+import ome.conditions.InternalException;
+import ome.services.util.Executor;
+import ome.system.EventContext;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+import omero.LockTimeout;
+import omero.ServerError;
+
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
@@ -24,15 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 import Ice.Identity;
-
-import ome.conditions.InternalException;
-import ome.services.util.Executor;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
-import omero.LockTimeout;
-import omero.ServerError;
 
 /**
  * Servant for the handle proxy from the Command API. This is also a
@@ -62,8 +61,6 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     private static final long serialVersionUID = 15920349984928755L;
-
-    private static final Log log = LogFactory.getLog(HandleI.class);
 
     /**
      * Timeout in seconds that cancellation should wait.
@@ -128,6 +125,8 @@ public class HandleI implements _HandleOperations, IHandle,
 
     private/* final */IRequest req;
 
+    private/* final */Helper helper;
+
     //
     // INTIALIZATION
     //
@@ -159,6 +158,7 @@ public class HandleI implements _HandleOperations, IHandle,
     public void initialize(Identity id, IRequest req) {
         this.id = id;
         this.req = req;
+        this.helper = new Helper((Request)req, status, null, null, null);
     }
 
     //
@@ -168,6 +168,7 @@ public class HandleI implements _HandleOperations, IHandle,
     public void addCallback(CmdCallbackPrx cb, Current __current) {
         Ice.Identity id = cb.ice_getIdentity();
         String key = Ice.Util.identityToString(id);
+        helper.info("Add callback: %s", key);
         cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
         callbacks.put(key, cb);
     }
@@ -175,6 +176,7 @@ public class HandleI implements _HandleOperations, IHandle,
     public void removeCallback(CmdCallbackPrx cb, Current __current) {
         Ice.Identity id = cb.ice_getIdentity();
         String key = Ice.Util.identityToString(id);
+        helper.info("Remove callback: %s", key);
         cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
         callbacks.remove(key);
     }
@@ -191,12 +193,18 @@ public class HandleI implements _HandleOperations, IHandle,
         final boolean cancelled = state.equals(State.CANCELLED);
         for (final CmdCallbackPrx prx : callbacks.values()) {
             try {
-                if (finished) {
-                    prx.finished(rsp.get());
-                } else if (cancelled) {
-                    prx.cancelled(rsp.get());
+                Response rsp = this.rsp.get();
+                if (finished || cancelled) {
+                    if (cancelled) {
+                        helper.info("notify cancelled: %s/%s", rsp, status);
+                    } else {
+                        helper.info("notify finished: %s/%s", rsp, status);
+                    }
+                    prx.finished(rsp, status);
                 } else {
-                    prx.step(currentStep.get(), status.steps);
+                    int step = currentStep.get();
+                    helper.info("notify step %s of %s", step, status.steps);
+                    prx.step(step, status.steps);
                 }
             } catch (Exception e) {
                 sess.handleCallbackException(e);
@@ -209,14 +217,18 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     public Request getRequest(Current __current) {
+        helper.info("getRequest: %s",  req);
         return (Request) req;
     }
 
     public Response getResponse(Current __current) {
-        return rsp.get();
+        Response rsp = this.rsp.get();
+        helper.info("getResponse: %s", rsp);
+        return rsp;
     }
 
     public Status getStatus(Current __current) {
+        helper.info("getStatus: %s", status);
         return status;
     }
 
@@ -226,13 +238,21 @@ public class HandleI implements _HandleOperations, IHandle,
 
     public boolean cancel(Current __current) throws LockTimeout {
         try {
-            return cancelWithoutNotification();
+            boolean cancelled = cancelWithoutNotification();
+            if (cancelled) {
+                status.flags.add(omero.cmd.State.CANCELLED);
+                helper.info("Cancelled.");
+            }
+            return cancelled;
         } finally {
+            rsp.compareAndSet(null, new ERR());
             notifyCallbacks();
         }
     }
 
     private boolean cancelWithoutNotification() throws LockTimeout {
+
+        helper.info("Cancelling...");
 
         // If we can successfully catch the CREATED or READY state,
         // then there's no reason to wait for anything else.
@@ -279,7 +299,7 @@ public class HandleI implements _HandleOperations, IHandle,
         // return false, in which case we print out a warning so that in a later
         // version we can be more careful about retrying.
         if (!state.compareAndSet(State.CANCELLING, State.RUNNING)) {
-            log.warn("Can't reset to RUNNING. State already changed.\n"
+                helper.warn("Can't reset to RUNNING. State already changed.\n"
                     + "This could be caused either by another thread having\n"
                     + "already set the state back to RUNNING, or by the state\n"
                     + "having changed to CANCELLED. In either case, it is safe\n"
@@ -308,14 +328,15 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     private void closeWithoutNotification(Ice.Current current) {
+        helper.info("Closing...");
         final State s = state.get();
         if (!State.FINISHED.equals(s) && !State.CANCELLED.equals(s)) {
-            log.info("Handle closed before finished! State=" + state.get());
+            helper.info("Handle closed before finished! State=" + state.get());
             try {
                 cancel(current);
             }
             catch (LockTimeout e) {
-                log.warn("Cancel failed");
+                helper.warn("Cancel failed");
             }
         }
     }
@@ -339,18 +360,33 @@ public class HandleI implements _HandleOperations, IHandle,
         StopWatch sw = new CommonsLogStopWatch();
         try {
             Map<String, String> merged = mergeContexts();
-            
+
             @SuppressWarnings("unchecked")
             List<Object> rv = (List<Object>) executor.execute(merged, principal,
                     new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
                 public List<Object> doWork(Session session, ServiceFactory sf) {
+
+                        EventContext ec = ((LocalAdmin) sf.getAdminService())
+                            .getEventContextQuiet();
+                        // Mimics EventHandler's logging of "Auth:"
+                        helper.info(" Auth:\tuid=%s,gid=%s,eid=%s,sess=%s%s",
+                            ec.getCurrentUserId(),
+                            ec.getCurrentGroupId(),
+                            ec.getCurrentEventId(),
+                            ec.getCurrentSessionUuid(),
+                            (ec.getCurrentShareId() == null) ? "" :
+                                    "share:%s" + ec.getCurrentShareId());
+
                     try {
                         List<Object> rv = doRun(getSqlAction(), session, sf);
-                        state.compareAndSet(State.READY, State.FINISHED);
+                        state.set(State.FINISHED); // Regardless of current
                         return rv;
                     } catch (Cancel c) {
+                        // TODO: Perhaps remove local State enum and use solely
+                        // the slice defined one.
+                        status.flags.add(omero.cmd.State.CANCELLED);
                         state.set(State.CANCELLED);
                         throw c; // Exception intended to rollback transaction
                     }
@@ -365,9 +401,9 @@ public class HandleI implements _HandleOperations, IHandle,
 
         } catch (Throwable t) {
             if (t instanceof Cancel) {
-                log.debug("Request cancelled by " + t.getCause());
+                helper.debug("Request cancelled by %s", t.getCause());
             } else {
-                log.debug("Request rolled back by " + t.getCause());
+                helper.debug("Request rolled back by %s", t.getCause());
             }
         } finally {
             rsp.set(req.getResponse());
@@ -393,7 +429,6 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     public List<Object> doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
-        log.info("Running " + req);
         StopWatch sw = new CommonsLogStopWatch();
         try {
             return steps(sql, session, sf);
@@ -410,7 +445,9 @@ public class HandleI implements _HandleOperations, IHandle,
             // Initialize. Any exceptions should cancel the process
             List<Object> rv = new ArrayList<Object>();
             StopWatch sw = new CommonsLogStopWatch();
-            req.init(status, sql, session, sf);
+            // Now that we're in the transaction, replace the helper.
+            helper = new Helper((Request)req, status, sql, session, sf);
+            req.init(helper);
 
             int j = 0;
             while (j < status.steps) {
@@ -451,7 +488,7 @@ public class HandleI implements _HandleOperations, IHandle,
             throw cancel;
         } catch (Throwable t) {
             String msg = "Failure during Request.step:";
-            log.error(msg, t);
+            helper.error(t, msg);
             Cancel cancel = new Cancel("Cancelled by " + t.getClass().getName());
             cancel.initCause(t);
             throw cancel;

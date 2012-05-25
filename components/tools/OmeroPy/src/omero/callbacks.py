@@ -216,7 +216,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         response = cb.loop(5, 500)
     """
 
-    def __init__(self, adapter_or_client, handle, poll=True, category=None):
+    def __init__(self, adapter_or_client, handle, category=None):
 
         if adapter_or_client is None:
             raise omero.ClientError("Null client")
@@ -225,8 +225,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
             raise omero.ClientError("Null handle")
 
         self.event = omero.util.concurrency.get_event(name="CmdCallbackI")
-        self.result = None
-        self.poll = poll
+        self.state = (None, None)  # (Response, Status)
         self.handle = handle
         self.adapter, self.category = \
                 adapter_and_category(adapter_or_client, category)
@@ -237,13 +236,59 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         handle.addCallback(self.prx)
 
         # Now check just in case the process exited VERY quickly
-        rsp = handle.getResponse()
-        if rsp is not None:
-            self.finished(rsp) # Only time that current should be null
+        self.poll()
 
     #
     # Local invocations
     #
+
+    def getResponse(self):
+        """
+        Returns possibly null Response value. If null, then neither has
+        the remote server nor the local poll method called finish
+        with non-null values.
+        """
+        return self.state[0]
+
+    def getStatus(self):
+        """
+        Returns possibly null Status value. If null, then neither has
+        the remote server nor the local poll method called finish
+        with non-null values.
+        """
+        return self.state[1]
+
+    def getStatusOrThrow(self):
+        s = self.getStatus()
+        if not s:
+            raise omero.ClientError("Status not present!")
+        return s
+
+    def isCancelled(self):
+        """
+        Returns whether Status::CANCELLED is contained in
+        the flags variable of the Status instance. If no
+        Status is available, a ClientError will be thrown.
+        """
+        s = self.getStatusOrThrow()
+        try:
+            s.flags.index(omero.cmd.State.CANCELLED)
+            return True
+        except:
+            return False
+
+    def isFailure(self):
+        """
+        Returns whether Status::FAILURE is contained in
+        the flags variable of the Status instance. If no
+        Status is available, a ClientError will be thrown.
+        """
+        s = self.getStatusOrThrow()
+        try:
+            s.flags.index(omero.cmd.State.FAILURE)
+            return True
+        except:
+            return False
 
     def loop(self, loops, ms):
         """
@@ -259,24 +304,28 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         """
 
         count = 0
+        found = False
         rsp = None
-        while rsp is None and count < loops:
-            rsp = self.block(ms)
+        while count < loops:
             count += 1
+            found = self.block(ms)
+            if found:
+                break
 
-        if rsp is None:
+        if found:
+            return self.getResponse()
+        else:
             waited = (ms / 1000.0) * loops
             raise omero.LockTimeout(None, None,
                     "Command unfinished after %s seconds" % waited,
                     5000L, waited)
-        else:
-            return rsp
 
     def block(self, ms):
         """
-        Should only be used if the default logic of the handle methods is kept
-        in place. If "event.set" does not get called, this method will always
-        block for the given milliseconds.
+        Blocks for the given number of milliseconds unless
+        finished(Response, Status, Current) has been called in
+        which case it returns immediately with true. If false
+        is returned, then the timeout was reached.
         """
         self.event.wait(float(ms) / 1000)
         return self.event.isSet()
@@ -285,6 +334,19 @@ class CmdCallbackI(omero.cmd.CmdCallback):
     # Remote invocations
     #
 
+    def poll(self):
+        """
+        Calls HandlePrx#getResponse in order to check for a
+        non-null value. If so, {@link Handle#getStatus} is also called, and the
+        two non-null values are passed to finished(Response, Status, Current).
+        This should typically not be used. Instead, favor the use of block and
+        loop.
+        """
+        rsp = self.handle.getResponse()
+        if rsp is not None:
+            s = self.handle.getStatus()
+            self.finished(rsp, s, None) # Only time that current should be null
+
     def step(self, complete, total, current=None):
         """
         Called periodically by the server to signal that processing is
@@ -292,30 +354,16 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         """
         pass
 
-    def cancelled(self, rsp, current=None):
+    def finished(self, rsp, status, current=None):
         """
-        Called when cancelled successfully, i.e. handle.cancel would return
-        true.
+        Called when the command has completed whether with
+        a cancellation or a completion.
         """
+        self.state = (rsp, status)
         self.event.set()
-        self.onCancelled(rsp, current)
+        self.onFinished(rsp, status, current)
 
-    def onCancelled(self, rsp, current):
-        """
-        Method intended to be overridden by subclasses. Default logic does
-        nothing.
-        """
-        pass
-
-    def finished(self, rsp, current=None):
-        """
-        Called when the command has completed with anything other than
-        a cancellation.
-        """
-        self.event.set()
-        self.onFinished(rsp, current)
-
-    def onFinished(self, rsp, current):
+    def onFinished(self, rsp, status, current):
         """
         Method intended to be overridden by subclasses. Default logic does
         nothing.

@@ -88,18 +88,12 @@ module omero {
              void step(int complete, int total);
 
             /**
-             * Called when the command is either cancelled directly
-             * or when close is called before completion. In either
-             * case this method will only be called if cancellation
-             * returns with true.
+             * Called when the command has completed in any fashion
+             * including cancellation. The [Status::flags] list will
+             * contain information about whether or not the process
+             * was cancelled.
              */
-             void cancelled(Response rsp);
-
-            /**
-             * Called when the command has completed in any non-cancel
-             * fashion.
-             */
-             void finished(Response rsp);
+             void finished(Response rsp, Status s);
 
         };
 

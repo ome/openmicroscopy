@@ -25,14 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import ome.conditions.InternalException;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+import omero.cmd.HandleI.Cancel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
-import omero.cmd.HandleI.Cancel;
 
 /**
  * Helper object for all omero.cmd implementations.
@@ -46,7 +46,7 @@ import omero.cmd.HandleI.Cancel;
  */
 public class Helper {
 
-    private static final Log log = LogFactory.getLog(Helper.class);
+    private final Log log;
 
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
@@ -59,10 +59,12 @@ public class Helper {
     private final Session session;
 
     private final SqlAction sql;
-    
+
     private int assertSteps = 0;
-    
+
     private int assertResponses = 0;
+
+    private boolean stepsSet = false;
 
     public Helper(Request request, Status status, SqlAction sql,
             Session session, ServiceFactory sf) {
@@ -76,13 +78,44 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
+        this.log = LogFactory.getLog(this.request.toString());
+    }
+
+    /**
+     * Run {@link IRequest#init(Helper)} on a sub-command by creating a new
+     * Helper instance.
+     * @param ireq
+     * @param substatus
+     */
+    public void subinit(IRequest ireq, Status substatus) {
+        Helper helper = new Helper((Request) ireq, substatus, sql, session, sf);
+        ireq.init(helper);
+    }
+
+    private void requireStepsSet() {
+        if (!stepsSet) {
+            cancel(new ERR(), new InternalException("Steps unset!"), "steps-unset");
+        }
+    }
+
+    public void setSteps(int steps) {
+        if (stepsSet) {
+            cancel(new ERR(), new InternalException("Steps set!"), "steps-set");
+        }
+        status.steps = steps;
+        stepsSet = true;
+        if (steps == 0) {
+            cancel(new ERR(), null, "no-steps");
+        }
     }
 
     public int getSteps() {
+        requireStepsSet();
         return status.steps;
     }
 
     public Response getResponse() {
+        requireStepsSet();
         return rsp.get();
     }
 
@@ -95,11 +128,12 @@ public class Helper {
      * @return
      */
     public boolean setResponse(Response rsp) {
+        requireStepsSet();
         return this.rsp.compareAndSet(null, rsp);
     }
 
     //
-    // REPORTING
+    // Data access
     // =========================================================================
     //
 
@@ -109,6 +143,47 @@ public class Helper {
 
     public Session getSession() {
         return session;
+    }
+
+    public SqlAction getSql() {
+        return sql;
+    }
+
+    //
+    // Logging
+    // =========================================================================
+    //
+
+    public void debug(String fmt, Object...args) {
+        if (log.isDebugEnabled()) {
+            log.debug(String.format(fmt, args));
+        }
+    }
+
+    public void info(String fmt, Object...args) {
+        if (log.isInfoEnabled()) {
+            log.info(String.format(fmt, args));
+        }
+    }
+
+    public void warn(String fmt, Object...args) {
+        if (log.isWarnEnabled()) {
+            log.warn(String.format(fmt, args));
+        }
+    }
+
+    public void error(String fmt, Object...args) {
+        error(null, fmt, args);
+    }
+
+    public void error(Throwable t, String fmt, Object...args) {
+        if (log.isErrorEnabled()) {
+            if (t != null) {
+                log.error(String.format(fmt, args), t);
+            } else {
+                log.error(String.format(fmt, args));
+            }
+        }
     }
 
     //
@@ -208,7 +283,7 @@ public class Helper {
             t.printStackTrace(pw);
             String st = pw.toString();
             err.parameters.put("message", msg);
-            err.parameters.put("stacktrace", sw.toString());
+            err.parameters.put("stacktrace", st);
 
             cancel.initCause(t);
 
@@ -246,7 +321,7 @@ public class Helper {
         assertStep(this.assertSteps, step);
         this.assertSteps++;
     }
-    
+
     /**
      * Checks the given steps against the number of times that this method
      * has been called on this instance and then increments the call count.
@@ -262,4 +337,5 @@ public class Helper {
     public boolean isLast(int step) {
         return step == (status.steps - 1);
     }
+
 }

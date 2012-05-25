@@ -38,8 +38,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class GraphSpecListI extends GraphSpecList implements IRequest {
 
-    private final Log log = LogFactory.getLog(GraphSpecListI.class);
-
     private static final long serialVersionUID = -363984593874598374L;
 
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
@@ -56,9 +54,9 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
-        status.steps = 1;
-        helper = new Helper(this, status, sql, session, sf);
+    public void init(Helper helper) {
+        this.helper = helper;
+        helper.setSteps(1);
     }
 
     public Object step(int step) {

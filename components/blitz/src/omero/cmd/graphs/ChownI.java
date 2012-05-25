@@ -48,8 +48,6 @@ public class ChownI extends Chown implements IRequest {
 
     private static final long serialVersionUID = -3653063048111039L;
 
-    private static final Log log = LogFactory.getLog(ChownI.class);
-
     private final ChownStepFactory factory;
 
     private final ApplicationContext specs;
@@ -69,8 +67,8 @@ public class ChownI extends Chown implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
-        helper = new Helper(this, status, sql, session, sf);
+    public void init(Helper helper) {
+        this.helper = helper;
 
         //
         // initial security restrictions.
@@ -80,6 +78,7 @@ public class ChownI extends Chown implements IRequest {
         // (1) prevent certain coarse-grained actions from happening, like dropping
         // data in someone else's group like a Cuckoo
 
+        final ServiceFactory sf = helper.getServiceFactory();
         final EventContext ec = ((LocalAdmin)sf.getAdminService()).getEventContextQuiet();
         final Long userId = ec.getCurrentUserId();
         final boolean admin = ec.isCurrentUserAdmin();
@@ -97,39 +96,35 @@ public class ChownI extends Chown implements IRequest {
             this.spec.initialize(id, "", options);
 
             StopWatch sw = new CommonsLogStopWatch();
-            state = new GraphState(factory, sql, session, spec);
-            status.steps = state.getTotalFoundCount();
-            sw.stop("omero.chown.ids." + status.steps);
+            state = new GraphState(factory, helper.getSql(),
+                helper.getSession(), spec);
+            // Throws if steps == 0
+            helper.setSteps(state.getTotalFoundCount());
+            sw.stop("omero.chown.ids." + helper.getSteps());
 
-            if (status.steps == 0) {
-                helper.setResponse(new OK()); // TODO: Subclass
-            } else {
+            // security restrictions (#6620)
+            // (2) now that we have the id for the top-level object, we
+            // can check ownership, etc.
 
-                // security restrictions (#6620)
-                // (2) now that we have the id for the top-level object, we
-                // can check ownership, etc.
-
-                if (!admin) {
-                    final IObject obj = this.spec.load(session);
-                    obj.getDetails().getOwner();
-                    Long owner = HibernateUtils.nullSafeOwnerId(obj);
-                    if (owner != null && !owner.equals(userId)) {
-                        throw helper.cancel(new ERR(), null, "non-owner",
-                                "owner", ""+owner);
-                    } else {
-                        // SUCCESS
-                        log.info(String.format(
-                                "type=%s, id=%s options=%s [steps=%s]",
-                                type, id, options, status.steps));
-                    }
+            if (!admin) {
+                final IObject obj = this.spec.load(helper.getSession());
+                obj.getDetails().getOwner();
+                Long owner = HibernateUtils.nullSafeOwnerId(obj);
+                if (owner != null && !owner.equals(userId)) {
+                    throw helper.cancel(new ERR(), null, "non-owner",
+                            "owner", ""+owner);
+                } else {
+                    // SUCCESS
+                    helper.info(
+                            "type=%s, id=%s options=%s [steps=%s]",
+                            type, id, options, helper.getSteps());
                 }
             }
+
         } catch (NoSuchBeanDefinitionException nsbde) {
-            status.steps = 0;
             throw helper.cancel(new Unknown(), nsbde, "notype",
                     "Unknown type", type);
         } catch (Throwable t) {
-            status.steps = 0;
             throw helper.cancel(new ERR(), t, "INIT ERR");
         }
 

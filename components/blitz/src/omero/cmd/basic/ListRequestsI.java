@@ -13,29 +13,20 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.system.OmeroContext;
-import ome.util.SqlAction;
-
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.ListRequests;
 import omero.cmd.ListRequestsRsp;
 import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.util.ObjectFactoryRegistry;
 import omero.util.ObjectFactoryRegistry.ObjectFactory;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.3.2
  */
 public class ListRequestsI extends ListRequests implements IRequest {
-
-    private final Log log = LogFactory.getLog(ListRequestsI.class);
 
     private static final long serialVersionUID = -3653081139095111039L;
 
@@ -53,9 +44,9 @@ public class ListRequestsI extends ListRequests implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
-        status.steps = 1;
-        helper = new Helper(this, status, sql, session, sf);
+    public void init(Helper helper) {
+        helper.setSteps(1);
+        this.helper = helper;
     }
 
     public Object step(int i) {
@@ -85,7 +76,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
         helper.assertStep(0, step);
         helper.setResponse((Response) object);
     }
-    
+
     public Response getResponse() {
         return rsp.get();
     }

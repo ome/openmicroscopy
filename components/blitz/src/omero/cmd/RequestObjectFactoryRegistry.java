@@ -23,6 +23,7 @@ import ome.tools.hibernate.ExtendedMetadata;
 
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
+import omero.cmd.basic.TimingI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
@@ -56,6 +57,14 @@ public class RequestObjectFactoryRegistry extends
 
     public Map<String, ObjectFactory> createFactories() {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
+        factories.put(TimingI.ice_staticId(), new ObjectFactory(
+                TimingI.ice_staticId()) {
+            @Override
+            public Ice.Object create(String name) {
+                return new TimingI();
+            }
+
+        });
         factories.put(DoAllI.ice_staticId(), new ObjectFactory(
                 DoAllI.ice_staticId()) {
             @Override
