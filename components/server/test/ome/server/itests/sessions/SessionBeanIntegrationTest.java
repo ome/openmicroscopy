@@ -8,7 +8,7 @@ package ome.server.itests.sessions;
 
 import java.util.List;
 
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Principal;

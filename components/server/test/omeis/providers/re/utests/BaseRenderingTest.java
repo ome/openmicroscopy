@@ -22,7 +22,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
 

@@ -20,7 +20,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.XmlAnnotation;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.services.blitz.measurements.MeasurementStore;
 import ome.services.blitz.measurements.OmeroMeasurementStore;
 import omero.ApiUsageException;

@@ -21,7 +21,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.core.Pixels;
 import ome.model.enums.RenderingModel;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;

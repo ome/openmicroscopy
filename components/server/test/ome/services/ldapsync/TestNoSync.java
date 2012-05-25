@@ -9,7 +9,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.services.ldap.LdapTest.Fixture;
 import ome.services.util.Executor;
 import ome.system.EventContext;

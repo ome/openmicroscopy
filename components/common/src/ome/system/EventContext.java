@@ -21,8 +21,8 @@ import ome.model.internal.Permissions;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see ome.model.meta.Experimenter
- * @see ome.model.meta.ExperimenterGroup
+ * @see ome.model.core.Experimenter
+ * @see ome.model.core.ExperimenterGroup
  * @since 3.0
  */
 @RevisionDate("$Date$")

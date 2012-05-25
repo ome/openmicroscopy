@@ -23,7 +23,7 @@ import ome.model.annotations.TermAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.XmlAnnotation;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.system.ServiceFactory;

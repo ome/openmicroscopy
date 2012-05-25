@@ -14,11 +14,11 @@ import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.system.EventContext;
 import ome.system.Roles;
@@ -28,10 +28,10 @@ import ome.system.Roles;
  * as JMX-based server access and selected user functions. Most methods require
  * membership in privileged {@link ExperimenterGroup groups}.
  * 
- * Methods which return {@link ome.model.meta.Experimenter} or
- * {@link ome.model.meta.ExperimenterGroup} instances fetch and load all related
- * instances of {@link ome.model.meta.ExperimenterGroup} or
- * {@link ome.model.meta.Experimenter}, respectively.
+ * Methods which return {@link ome.model.core.Experimenter} or
+ * {@link ome.model.core.ExperimenterGroup} instances fetch and load all related
+ * instances of {@link ome.model.core.ExperimenterGroup} or
+ * {@link ome.model.core.Experimenter}, respectively.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -213,11 +213,11 @@ public interface IAdmin extends ServiceInterface {
 
     /**
      * Uploads a photo for the user which will be displayed on his/her profile.
-     * This photo will be saved as an {@link ome.model.core.OriginalFile} object
+     * This photo will be saved as an {@link ome.model.meta.OriginalFile} object
      * with the given format, and attached to the user's {@link Experimenter}
      * object via an {@link ome.model.annotations.FileAnnotation} with
      * the namespace: "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO).
-     * If such an {@link ome.model.core.OriginalFile} instance already exists,
+     * If such an {@link ome.model.meta.OriginalFile} instance already exists,
      * it will be overwritten. If more than one photo is present, the oldest
      * version will be modified (i.e. the highest updateEvent id).
      *
@@ -232,7 +232,7 @@ public interface IAdmin extends ServiceInterface {
     long uploadMyUserPhoto(String filename, String format, byte[] data);
 
     /**
-     * Retrieve the {@link ome.model.core.OriginalFile} objectd attached to this
+     * Retrieve the {@link ome.model.meta.OriginalFile} objectd attached to this
      * user as specified by {@link #uploadMyUserPhoto(String, String, byte[]).
      * The return value is order by the most recently modified file first.
      *

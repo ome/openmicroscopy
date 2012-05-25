@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.ResourceError;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 
 /**
  * Raw file service which provides access to <code>FileBuffers</code>.

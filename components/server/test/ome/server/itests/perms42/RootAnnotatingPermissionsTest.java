@@ -11,7 +11,7 @@ import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 

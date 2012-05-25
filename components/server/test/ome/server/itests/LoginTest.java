@@ -10,8 +10,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import ome.model.core.Image;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 

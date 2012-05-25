@@ -22,8 +22,8 @@ import java.util.Set;
 
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
-import ome.model.core.OriginalFile;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.OriginalFile;
+import ome.model.core.ExperimenterGroup;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.Roles;

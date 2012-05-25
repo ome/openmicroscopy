@@ -13,8 +13,8 @@ import java.util.Map;
 
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.system.EventContext;
 
 // Third-party libraries

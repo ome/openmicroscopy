@@ -11,7 +11,7 @@ import ome.conditions.SecurityViolation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 
 import org.testng.annotations.Test;
 

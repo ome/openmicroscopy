@@ -18,7 +18,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Dataset;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.spw.Plate;
 import ome.model.spw.Well;
 import ome.model.spw.WellSample;

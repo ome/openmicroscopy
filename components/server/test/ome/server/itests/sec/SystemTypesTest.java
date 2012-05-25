@@ -18,8 +18,8 @@ import ome.model.enums.AcquisitionMode;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 

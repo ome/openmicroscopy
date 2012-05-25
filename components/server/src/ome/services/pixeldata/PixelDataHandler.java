@@ -14,7 +14,7 @@ import ome.api.IUpdate;
 import ome.io.nio.PixelsService;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 import ome.model.meta.EventLog;
 import ome.parameters.Parameters; 
 import ome.services.util.Executor.SimpleWork;

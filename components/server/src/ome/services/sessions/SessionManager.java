@@ -61,7 +61,7 @@ public interface SessionManager {
 
     /**
      * Sets the context for the current session to the given value. If it is an
-     * {@link ome.model.meta.ExperimenterGroup} then the active group is
+     * {@link ome.model.core.ExperimenterGroup} then the active group is
      * changed, and any active shares are deactivated. If it is an
      * {@link ome.model.meta.Share} then the share is activate (the group is
      * left alone). Unless otherwise specified, the user's default group is used

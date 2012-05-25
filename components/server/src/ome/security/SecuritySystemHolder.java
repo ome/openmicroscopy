@@ -11,7 +11,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.sharing.SharingSecuritySystem;
 import ome.system.EventContext;

@@ -7,7 +7,7 @@
 package ome.server.itests.sec;
 
 import ome.conditions.InternalException;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 
 import org.testng.annotations.Test;

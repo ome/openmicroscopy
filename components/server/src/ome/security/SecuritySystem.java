@@ -20,7 +20,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;

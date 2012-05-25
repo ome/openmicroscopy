@@ -24,7 +24,7 @@ import Ice.Current;
 
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.services.procs.Processor;

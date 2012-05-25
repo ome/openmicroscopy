@@ -14,8 +14,8 @@ import java.util.Set;
 import ome.conditions.SecurityViolation;
 import ome.model.enums.Format;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
 import org.testng.annotations.Test;

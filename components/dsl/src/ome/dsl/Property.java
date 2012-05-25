@@ -106,9 +106,9 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String LONG = "Long";
 
-    public final static String TIMESTAMP = "timestamp";
+    public final static String TIMESTAMP = "Timestamp";
 
-    public final static String TEXT = "text";
+    public final static String TEXT = "Text";
 
     public final static String BYTES = "byte[]";
 
@@ -126,9 +126,13 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
 
+    public final static String NONNEGATIVELONG = "NonNegativeLong";
+
     public final static String PERCENTFRACTION = "PercentFraction";
 
-    public final static String COLOR = "ome.model.core.Color";
+    public final static String SHORTCOLOR = "Color";
+
+    public final static String FULLCOLOR = "ome.model.core.Color";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
@@ -138,6 +142,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(POSITIVEFLOAT, Double.class.getName());
         JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
+        JAVATYPES.put(NONNEGATIVELONG, Long.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
         JAVATYPES.put(PERCENTFRACTION, Double.class.getName());
         JAVATYPES.put(DOUBLE, Double.class.getName());
@@ -149,6 +154,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(STRINGS, "java.util.List<String>");
         JAVATYPES.put(STRINGS2, "java.util.List<String[]>");
         JAVATYPES.put(INTEGERS, INTEGERS);
+        JAVATYPES.put(SHORTCOLOR, FULLCOLOR);
     }
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();
@@ -332,7 +338,7 @@ public abstract class Property { // TODO need to define equality so that two
     public String getTypeAnnotation() {
         String T = "@org.hibernate.annotations.Type";
         String P = ", parameters=@org.hibernate.annotations.Parameter(name=\"profile\", value=\"@PROFILE@\"))";
-        if (type.equals("text")) {
+        if (type.equals(TEXT)) {
             return T + "(type=\"org.hibernate.type.TextType\")";
         } else if (type.equals("String[]")) {
             return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING\"" + P;
@@ -556,9 +562,9 @@ public abstract class Property { // TODO need to define equality so that two
         } else if (type.equals("byte[]")) {
             return "bytea";
         } else if (type.equals("String[]")) {
-            return "text[]";
+            return "Text[]";
         } else if (type.equals("String[][]")) {
-            return "text[][]";
+            return "Text[][]";
         } else {
             return "";
         }

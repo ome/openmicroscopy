@@ -1346,7 +1346,7 @@ implements java.io.Serializable, IObject
 #set($fkvalue = "FK${type.table}_owner_id_experimenter")
 #set($fkvalue = "${type.fk($fkvalue)}")
         @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
-        public ome.model.meta.Experimenter getOwner() {
+        public ome.model.core.Experimenter getOwner() {
             return super.getOwner();
         }
 
@@ -1368,7 +1368,7 @@ implements java.io.Serializable, IObject
 #set($fkvalue = "FK${type.table}_group_id_experimentergroup")
 #set($fkvalue = "${type.fk($fkvalue)}")
         @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
-        public ome.model.meta.ExperimenterGroup getGroup() {
+        public ome.model.core.ExperimenterGroup getGroup() {
             return super.getGroup();
         }
 

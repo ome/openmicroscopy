@@ -10,7 +10,7 @@ import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.ISession;
 import ome.conditions.SecurityViolation;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.util.Executor;

@@ -47,7 +47,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.model.roi.ROI;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
@@ -668,7 +668,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         init(IQuery.class, "findAll");
         method().will(
-                returnValue(Arrays.asList(new ome.model.meta.Experimenter())));
+                returnValue(Arrays.asList(new ome.model.core.Experimenter())));
         rv = invoke("Experimenter", new omero.sys.Filter());
         List l = (List) rv;
         rv = l.get(0);

@@ -19,8 +19,8 @@ import javax.persistence.Transient;
 
 import ome.model.IObject;
 import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
 import ome.util.Filter;
 import ome.util.Filterable;

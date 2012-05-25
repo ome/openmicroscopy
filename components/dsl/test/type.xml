@@ -123,7 +123,7 @@
     <type id="ome.model.annotations.Example" annotated="true"/>
     <abstract id="ome.model.annotations.Annotation" annotated="true">
         <properties>
-            <required name="ns" type="text"/>
+            <required name="ns" type="Text"/>
         </properties>
     </abstract>
    <type id="ome.model.annotations.BooAnnotation" annotated="true"
@@ -140,7 +140,7 @@
         <entry name="x4"/>
     </enum>
 
-        <type id="ome.model.core.OriginalFile" named="true" annotated="true">
+        <type id="ome.model.meta.OriginalFile" named="true" annotated="true">
                 <properties>
                         <required name="path" type="String"/>
                         <required name="size" type="Long"/>
@@ -154,7 +154,7 @@
                 <!-- Note: JobOriginalFileLink is not in model-->
                 <properties>
                         <from_parent type="ome.model.jobs.Job"/>
-                        <to_child type="ome.model.core.OriginalFile"/>
+                        <to_child type="ome.model.meta.OriginalFile"/>
                 </properties>
         </link>
         <type id="ome.model.jobs.Job" abstract="true">
@@ -169,7 +169,7 @@
                         <required name="scheduledFor" type="timestamp"/>
                         <optional name="started" type="timestamp"/>
                         <optional name="finished" type="timestamp"/>
-                        <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.core.OriginalFile"/>
+                        <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.meta.OriginalFile"/>
                 </properties>
         </type>
         <type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">

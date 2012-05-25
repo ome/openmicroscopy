@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;

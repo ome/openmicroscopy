@@ -13,10 +13,10 @@ import java.sql.Timestamp;
 
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.enums.Format;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
 

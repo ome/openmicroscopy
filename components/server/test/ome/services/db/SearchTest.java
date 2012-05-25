@@ -9,7 +9,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

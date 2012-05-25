@@ -8,7 +8,7 @@
 package ome.api;
 
 import ome.conditions.ResourceError;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 
 /**
  * Raw file gateway which provides access to the OMERO file repository.
@@ -24,7 +24,7 @@ public interface RawFileStore extends StatefulServiceInterface {
      * This method manages the state of the service.
      * 
      * @param fileId
-     *            an {@link ome.model.core.OriginalFile} id.
+     *            an {@link ome.model.meta.OriginalFile} id.
      */
     public void setFileId(long fileId);
     

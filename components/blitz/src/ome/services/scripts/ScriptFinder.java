@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.List;
 
 import ome.conditions.InternalException;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.Principal;

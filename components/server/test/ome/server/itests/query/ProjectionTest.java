@@ -12,7 +12,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 

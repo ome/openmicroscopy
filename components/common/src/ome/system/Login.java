@@ -79,7 +79,7 @@ public class Login {
      * standard constructor which leaves OMERO_GROUP and OMERO_EVENT null.
      * 
      * @param user
-     *            {@link ome.model.meta.Experimenter#getOmeName()}. Not null.
+     *            {@link ome.model.core.Experimenter#getOmeName()}. Not null.
      * @param password
      *            Cleartext password. Not null.
      */
@@ -97,7 +97,7 @@ public class Login {
      * password may not be null.
      * 
      * @param user
-     *            {@link ome.model.meta.Experimenter#getOmeName()}. Not null.
+     *            {@link ome.model.core.Experimenter#getOmeName()}. Not null.
      * @param password
      *            Cleartext password. Not null.
      * @param group
@@ -136,7 +136,7 @@ public class Login {
     /**
      * simple getter for the user name passed into the constructor
      * 
-     * @return {@link ome.model.meta.Experimenter#getOmeName() user name}. Not
+     * @return {@link ome.model.core.Experimenter#getOmeName() user name}. Not
      *         null unless Login == {@link Login#GUEST}.
      */
     public String getName() {
@@ -155,7 +155,7 @@ public class Login {
     /**
      * simple getter for the group name passed into the constructor
      * 
-     * @return {@link ome.model.meta.ExperimenterGroup#getName() group name}.
+     * @return {@link ome.model.core.ExperimenterGroup#getName() group name}.
      *         May be null.
      */
     public String getGroup() {

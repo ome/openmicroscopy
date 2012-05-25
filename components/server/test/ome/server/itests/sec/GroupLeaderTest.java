@@ -16,8 +16,8 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.testng.annotations.Test;
 
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 

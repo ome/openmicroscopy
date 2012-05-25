@@ -118,9 +118,9 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         Object rv = null;
         try {
             rv = ex.execute(p, new GetOrCreateRepo(this));
-            if (rv instanceof ome.model.core.OriginalFile) {
+            if (rv instanceof ome.model.meta.OriginalFile) {
 
-                ome.model.core.OriginalFile r = (ome.model.core.OriginalFile) rv;
+                ome.model.meta.OriginalFile r = (ome.model.core.OriginalFile) rv;
                 description = getDescription(r.getId());
 
                 // Success
@@ -222,7 +222,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         @Transactional(readOnly = false)
         public Object doWork(Session session, ServiceFactory sf) {
 
-            ome.model.core.OriginalFile r = null;
+            ome.model.meta.OriginalFile r = null;
 
             try {
 
@@ -239,7 +239,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 }
 
                 r = sf.getQueryService()
-                .findByString(ome.model.core.OriginalFile.class,
+                .findByString(ome.model.meta.OriginalFile.class,
                         "sha1", repoUuid);
 
                 if (r == null) {
@@ -249,7 +249,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     }
 
                     String path = FilenameUtils.normalize(new File(fileMaker.getDir()).getAbsolutePath());
-                    r = new ome.model.core.OriginalFile();
+                    r = new ome.model.meta.OriginalFile();
                     r.setSha1(repoUuid);
                     r.setName(FilenameUtils.getName(path));
                     r.setPath(FilenameUtils.getFullPath(path));
@@ -319,7 +319,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     protected OriginalFileI getDescription(final long id) throws ServerError {
-        ome.model.core.OriginalFile file = (ome.model.core.OriginalFile) ex
+        ome.model.meta.OriginalFile file = (ome.model.core.OriginalFile) ex
                 .execute(p,
                         new Executor.SimpleWork(this, "getDescription", id) {
                             @Transactional(readOnly = true)

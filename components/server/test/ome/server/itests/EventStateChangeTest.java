@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 import ome.model.core.Project;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.parameters.Parameters;
 
 public class EventStateChangeTest extends AbstractManagedContextTest {

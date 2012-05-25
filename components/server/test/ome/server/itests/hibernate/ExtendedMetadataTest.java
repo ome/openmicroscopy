@@ -22,7 +22,7 @@ import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 import ome.tools.hibernate.ExtendedMetadata;

@@ -14,7 +14,7 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IQuery;
 import ome.conditions.SessionException;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.Principal;

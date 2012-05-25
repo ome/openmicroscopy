@@ -25,8 +25,8 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

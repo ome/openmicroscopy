@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
 import ome.model.core.Pixels;
-import ome.model.meta.Experimenter;
+import ome.model.core.Experimenter;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import ome.testing.Report;

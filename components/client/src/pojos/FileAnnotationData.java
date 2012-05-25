@@ -31,7 +31,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import ome.model.annotations.FileAnnotation;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 
 /** 
  * Annotation to upload files to the server.

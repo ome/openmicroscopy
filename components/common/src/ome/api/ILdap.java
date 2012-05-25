@@ -13,18 +13,18 @@ import javax.naming.directory.Attributes;
 
 // Application-internal dependencies
 import ome.annotations.NotNull;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 
 /**
  * Administration interface providing access to admin-only functionality as well
  * as JMX-based server access and selected user functions. Most methods require
  * membership in privileged {@link ExperimenterGroup groups}.
  * 
- * Methods which return {@link ome.model.meta.Experimenter} or
- * {@link ome.model.meta.ExperimenterGroup} instances fetch and load all related
- * instances of {@link ome.model.meta.ExperimenterGroup} or
- * {@link ome.model.meta.Experimenter}, respectively.
+ * Methods which return {@link ome.model.core.Experimenter} or
+ * {@link ome.model.core.ExperimenterGroup} instances fetch and load all related
+ * instances of {@link ome.model.core.ExperimenterGroup} or
+ * {@link ome.model.core.Experimenter}, respectively.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -39,7 +39,7 @@ public interface ILdap extends ServiceInterface {
 	// =========================================================================
 
 	/**
-	 * Searchs all {@link ome.model.meta.Experimenter} list on LDAP for
+	 * Searchs all {@link ome.model.core.Experimenter} list on LDAP for
 	 * attribute objectClass = person.
 	 * 
 	 * @return all Experimenter list.
@@ -61,7 +61,7 @@ public interface ILdap extends ServiceInterface {
 	String value);
 
 	/**
-	 * Searchs all {@link ome.model.meta.Experimenter} in LDAP for specyfied
+	 * Searchs all {@link ome.model.core.Experimenter} in LDAP for specyfied
 	 * attribute
 	 * 
 	 * @param dn -
@@ -80,7 +80,7 @@ public interface ILdap extends ServiceInterface {
 	String value);
 
 	/**
-	 * Searchs all {@link ome.model.meta.Experimenter} in LDAP for specyfied
+	 * Searchs all {@link ome.model.core.Experimenter} in LDAP for specyfied
 	 * attributes. Attributes should be specyfied in String [] and their values
 	 * should be set in equivalets String [].
 	 * 
@@ -100,7 +100,7 @@ public interface ILdap extends ServiceInterface {
 	String[] values);
 
 	/**
-	 * Searchs one {@link ome.model.meta.Experimenter} in LDAP for specyfied
+	 * Searchs one {@link ome.model.core.Experimenter} in LDAP for specyfied
 	 * Distinguished Name - {@link java.lang.String}
 	 * 
 	 * @param userdn
@@ -141,7 +141,7 @@ public interface ILdap extends ServiceInterface {
     Experimenter findExperimenter(@NotNull String username);
     
 	/**
-	 * Searchs all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
+	 * Searchs all {@link ome.model.core.Experimenter} in LDAP for objectClass =
 	 * person
 	 * 
 	 * @param omeName

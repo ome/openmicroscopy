@@ -20,12 +20,12 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TermAnnotation;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.util.DetailsFieldBridge;
 import ome.util.Utils;
 

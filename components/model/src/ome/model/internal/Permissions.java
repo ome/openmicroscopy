@@ -46,7 +46,7 @@ public class Permissions implements Serializable {
      * used for any non-USER, non-GROUP user.
      * 
      * For more advanced, ACL, methods taking
-     * {@link ome.model.meta.Experimenter} references can be implemented.
+     * {@link ome.model.core.Experimenter} references can be implemented.
      */
     public enum Role {
         USER(8), GROUP(4), WORLD(0);

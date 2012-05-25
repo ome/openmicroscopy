@@ -23,7 +23,7 @@ import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.util.ShallowCopy;
 import ome.util.Utils;
 

@@ -15,14 +15,14 @@ import ome.model.core.Project;
 import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
 import ome.model.display.Thumbnail;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobOriginalFileLink;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
 import org.testng.annotations.BeforeMethod;

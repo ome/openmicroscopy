@@ -15,7 +15,7 @@ import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
 

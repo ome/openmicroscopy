@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionBean;

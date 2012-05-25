@@ -16,8 +16,8 @@ import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.services.SearchBean;
 import ome.tools.hibernate.QueryBuilder;
 

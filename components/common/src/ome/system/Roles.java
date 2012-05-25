@@ -12,8 +12,8 @@ import java.io.Serializable;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 
 /**
  * encapsulates the naming scheme for critical system groups and accounts.
@@ -22,8 +22,8 @@ import ome.model.meta.ExperimenterGroup;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see ome.model.meta.Experimenter
- * @see ome.model.meta.ExperimenterGroup
+ * @see ome.model.core.Experimenter
+ * @see ome.model.core.ExperimenterGroup
  * @since 3.0-M3
  */
 @RevisionDate("$Date$")

@@ -20,7 +20,7 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelType;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 

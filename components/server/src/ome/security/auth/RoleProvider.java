@@ -8,8 +8,8 @@
 package ome.security.auth;
 
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.security.SecuritySystem;
 
 /**

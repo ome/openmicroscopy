@@ -11,8 +11,8 @@ import java.util.UUID;
 import junit.framework.TestCase;
 import ome.api.IAdmin;
 import ome.api.IConfig;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Experimenter;
+import ome.model.core.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 

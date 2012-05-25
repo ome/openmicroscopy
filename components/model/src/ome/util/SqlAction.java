@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import ome.conditions.InternalException;
 import ome.model.core.Channel;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 import ome.model.internal.Details;
 
 import org.aopalliance.intercept.MethodInterceptor;
