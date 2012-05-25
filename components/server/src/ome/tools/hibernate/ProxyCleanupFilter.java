@@ -127,7 +127,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                 } else {
                     EventContext ec = currentDetails.getCurrentEventContext();
                     if (!ec.isCurrentUserAdmin()) {
-                        Long uid = session.getOwner().getId();
+                        Long uid = session.getExperimenter().getId();
                         if (!ec.getCurrentUserId().equals(uid)) {
                             return new Session(session.getId(), false);
                         }

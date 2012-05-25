@@ -62,7 +62,7 @@ public class NamespaceCheck extends OnContextRefreshedEventListener {
                         "select id from Namespace where name = :name", params);
                 if (rv.size() == 0) {
                     Namespace ns = new Namespace();
-                    ns.setKeywords(Arrays.asList("Cell", "Background"));
+                    ns.setKeywords("Cell, Background");
                     ns.setName(FLIM);
                     ns.setMultivalued(Boolean.FALSE);
                     ns.getDetails()
