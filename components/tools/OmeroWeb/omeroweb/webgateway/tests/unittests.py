@@ -7,6 +7,8 @@ from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
 
+from decorators import login_required
+
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
@@ -72,7 +74,8 @@ class WGTest (GTest):
             q = QueryDict('', mutable=True)
             q.update({'username': user.name, 'password': user.passwd})
             r.REQUEST.dicts += (q,)
-            self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
+            t = login_required(isAdmin=user.admin)
+            self.gateway = t.get_connection(1, r) #, group=user.groupname)
         if self.gateway is None:
             # If the login framework was customized (using this app outside omeroweb) the above fails
             super(WGTest, self).doLogin(user)
@@ -365,7 +368,7 @@ class JsonTest (WGTest):
 class UserProxyTest (WGTest):
     def test (self):
         self.loginAsAuthor()
-        user = self.gateway.user
+        user = self.gateway.getUser()
         self.assertEqual(user.isAdmin(), False)
         int(user.getId())
         self.assertEqual(user.getName(), self.AUTHOR.name)
