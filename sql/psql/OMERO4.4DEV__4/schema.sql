@@ -1872,6 +1872,12 @@
         theC int4,
         theT int4,
         theZ int4,
+        transform_a00 float8,
+        transform_a01 float8,
+        transform_a02 float8,
+        transform_a10 float8,
+        transform_a11 float8,
+        transform_a12 float8,
         version int4,
         visible bool,
         creation_id int8 not null,
@@ -1884,7 +1890,6 @@
         fontStyle int8,
         lineCap int8,
         roi int8 not null,
-        transform int8,
         roi_index int4 not null,
         primary key (id),
         check (fontSize >= 0 and theC >= 0 and theT >= 0 and theZ >= 0)
@@ -4825,11 +4830,6 @@
         add constraint FKshape_roi_roi 
         foreign key (roi) 
         references roi  ;;
-
-    alter table shape 
-        add constraint FKshape_transform_affinetransform 
-        foreign key (transform) 
-        references affinetransform  ;;
 
     alter table shape 
         add constraint FKshape_owner_id_experimenter 

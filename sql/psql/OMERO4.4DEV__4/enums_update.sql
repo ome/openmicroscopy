@@ -217,6 +217,42 @@ insert into microscopetype (id,permissions,value)
     select ome_nextval('seq_microscopetype'),-35,'Other' from microscopetype where not exists(
         select 1 from microscopetype where value = 'Other') limit 1;
 
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Submitted' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Submitted') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Resubmitted' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Resubmitted') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Queued' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Queued') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Requeued' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Requeued') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Running' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Running') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Error' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Error') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Waiting' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Waiting') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Finished' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Finished') limit 1;
+
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Cancelled' from jobstatus where not exists(
+        select 1 from jobstatus where value = 'Cancelled') limit 1;
+
 insert into filamenttype (id,permissions,value)
     select ome_nextval('seq_filamenttype'),-35,'Incandescent' from filamenttype where not exists(
         select 1 from filamenttype where value = 'Incandescent') limit 1;
@@ -1324,42 +1360,6 @@ insert into acquisitionmode (id,permissions,value)
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'Other' from acquisitionmode where not exists(
         select 1 from acquisitionmode where value = 'Other') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Submitted' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Submitted') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Resubmitted' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Resubmitted') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Queued' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Queued') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Requeued' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Requeued') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Running' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Running') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Error' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Error') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Waiting' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Waiting') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Finished' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Finished') limit 1;
-
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Cancelled' from jobstatus where not exists(
-        select 1 from jobstatus where value = 'Cancelled') limit 1;
 
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-35,'Brightfield' from contrastmethod where not exists(

@@ -385,6 +385,56 @@ implements java.io.Serializable, IObject
 ##  a real property but rather an enum value for the database. However, they
 ##  are not even returned by $type.classProperties only $type.properties
 ##
+#elseif($prop.fieldType == "ome.model.core.AffineTransform")#############################TYPE
+##
+##  AffineTransform is an embedded type
+##
+   /**
+    * AffineTransform object that will be stored in 6 double columns
+    */
+    @javax.persistence.Embedded
+    @javax.persistence.AttributeOverrides({
+        @javax.persistence.AttributeOverride(name="a00",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a00", nullable=${prop.nullable}
+            )
+        ),
+        @javax.persistence.AttributeOverride(name="a01",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a01", nullable=${prop.nullable}
+            )
+        ),
+        @javax.persistence.AttributeOverride(name="a10",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a10", nullable=${prop.nullable}
+            )
+        ),
+        @javax.persistence.AttributeOverride(name="a11",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a11", nullable=${prop.nullable}
+            )
+        ),
+        @javax.persistence.AttributeOverride(name="a02",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a02", nullable=${prop.nullable}
+            )
+        ),
+        @javax.persistence.AttributeOverride(name="a12",
+            column = @javax.persistence.Column(
+                name="${prop.name}_a12", nullable=${prop.nullable}
+            )
+        )
+    })
+    public ome.model.core.AffineTransform get${prop.nameCapped}() {
+        $errorIfUnloaded
+        return this.${prop.name};
+    }
+
+    public void set${prop.nameCapped}(ome.model.core.AffineTransform transform) {
+        $errorIfUnloaded
+        this.${prop.name} = transform;
+    }
+
 #elseif($prop.fieldType == "ome.model.core.Color")#############################TYPE
 ##
 ##  Color is an embedded type

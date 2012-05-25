@@ -411,14 +411,14 @@
   CREATE INDEX i_annotation_group ON annotation(group_id);
   CREATE INDEX i_ExperimenterGroupExperimenterLink_parent ON experimentergroupexperimenterlink(parent);
   CREATE INDEX i_ExperimenterGroupExperimenterLink_child ON experimentergroupexperimenterlink(child);
-  CREATE INDEX i_plateannotationlink_owner ON plateannotationlink(owner_id);
-  CREATE INDEX i_plateannotationlink_group ON plateannotationlink(group_id);
-  CREATE INDEX i_PlateAnnotationLink_parent ON plateannotationlink(parent);
-  CREATE INDEX i_PlateAnnotationLink_child ON plateannotationlink(child);
   CREATE INDEX i_experimenterannotationlink_owner ON experimenterannotationlink(owner_id);
   CREATE INDEX i_experimenterannotationlink_group ON experimenterannotationlink(group_id);
   CREATE INDEX i_ExperimenterAnnotationLink_parent ON experimenterannotationlink(parent);
   CREATE INDEX i_ExperimenterAnnotationLink_child ON experimenterannotationlink(child);
+  CREATE INDEX i_plateannotationlink_owner ON plateannotationlink(owner_id);
+  CREATE INDEX i_plateannotationlink_group ON plateannotationlink(group_id);
+  CREATE INDEX i_PlateAnnotationLink_parent ON plateannotationlink(parent);
+  CREATE INDEX i_PlateAnnotationLink_child ON plateannotationlink(child);
   CREATE INDEX i_renderingdef_owner ON renderingdef(owner_id);
   CREATE INDEX i_renderingdef_group ON renderingdef(group_id);
   CREATE INDEX i_RenderingDef_model ON renderingdef(model);
@@ -503,7 +503,6 @@
   CREATE INDEX i_Shape_fontFamily ON shape(fontFamily);
   CREATE INDEX i_Shape_fontStyle ON shape(fontStyle);
   CREATE INDEX i_Shape_lineCap ON shape(lineCap);
-  CREATE INDEX i_Shape_transform ON shape(transform);
   CREATE INDEX i_wellsample_owner ON wellsample(owner_id);
   CREATE INDEX i_wellsample_group ON wellsample(group_id);
   CREATE INDEX i_WellSample_image ON wellsample(image);
@@ -691,8 +690,8 @@ CREATE SEQUENCE seq_originalfile; INSERT INTO _lock_ids (name, id) SELECT 'seq_o
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
 CREATE SEQUENCE seq_dbpatch; INSERT INTO _lock_ids (name, id) SELECT 'seq_dbpatch', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimentergroupexperimenterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroupexperimenterlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimenterannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenterannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_renderingdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingdef', nextval('_lock_seq');
 CREATE SEQUENCE seq_experiment; INSERT INTO _lock_ids (name, id) SELECT 'seq_experiment', nextval('_lock_seq');
 CREATE SEQUENCE seq_microbeammanipulationtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulationtype', nextval('_lock_seq');

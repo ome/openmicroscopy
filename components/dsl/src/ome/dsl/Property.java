@@ -134,6 +134,10 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String FULLCOLOR = "ome.model.core.Color";
 
+    public final static String SHORTTRANSFORM = "AffineTransform";
+
+    public final static String FULLTRANSFORM = "ome.model.core.AffineTransform";
+
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
@@ -155,6 +159,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(STRINGS2, "java.util.List<String[]>");
         JAVATYPES.put(INTEGERS, INTEGERS);
         JAVATYPES.put(SHORTCOLOR, FULLCOLOR);
+        JAVATYPES.put(SHORTTRANSFORM, FULLTRANSFORM);
     }
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();
