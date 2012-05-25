@@ -12,7 +12,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 
 /**
  * Raw file buffer which provides I/O operations within the OMERO file

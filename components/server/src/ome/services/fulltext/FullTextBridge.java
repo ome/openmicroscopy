@@ -20,7 +20,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TermAnnotation;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;

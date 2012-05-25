@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.UUID;
 
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;

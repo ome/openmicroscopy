@@ -40,7 +40,7 @@ import ome.model.core.Objective;
 import ome.model.core.ObjectiveSettings;
 import ome.model.core.PixelsOriginalFileMap;
 import ome.model.core.StageLabel;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
 import ome.model.core.Experiment;

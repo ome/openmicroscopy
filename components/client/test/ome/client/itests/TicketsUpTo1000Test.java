@@ -26,7 +26,7 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.enums.Format;
 import ome.model.core.Experimenter;
 import ome.system.Login;

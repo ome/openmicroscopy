@@ -44,7 +44,7 @@ import ome.model.core.LightSourceSettings;
 import ome.model.core.LightSource;
 import ome.model.core.Project;
 import ome.model.core.Channel;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.spw.Screen;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;

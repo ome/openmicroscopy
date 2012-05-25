@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Experimenter;
 import ome.parameters.Parameters;

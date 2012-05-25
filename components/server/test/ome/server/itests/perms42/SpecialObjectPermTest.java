@@ -20,7 +20,7 @@ import ome.model.annotations.ExperimenterAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;

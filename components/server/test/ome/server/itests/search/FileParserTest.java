@@ -19,7 +19,7 @@ import java.util.UUID;
 import ome.api.Search;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.enums.Format;
 import ome.services.fulltext.FileParser;
 import ome.services.util.Executor;

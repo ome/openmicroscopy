@@ -17,7 +17,7 @@ import java.util.Map;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.OriginalFilesService;
 import ome.model.IObject;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.messages.ReindexMessage;
 

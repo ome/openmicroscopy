@@ -42,7 +42,7 @@ public class RepositoryTask {
 	 * @return List<Long> representing the ids for files that were deleted
 	 */
 	public List<Long> getFileIds() {
-	    return sql.getDeletedIds("ome.model.core.OriginalFile");
+	    return sql.getDeletedIds("ome.model.meta.OriginalFile");
 	}
 	
 	/**

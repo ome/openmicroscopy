@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.security.SecuritySystem;

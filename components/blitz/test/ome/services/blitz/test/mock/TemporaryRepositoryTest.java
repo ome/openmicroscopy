@@ -8,7 +8,7 @@ package ome.services.blitz.test.mock;
 
 import java.io.File;
 
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.TemporaryRepositoryI;

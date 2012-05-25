@@ -1178,7 +1178,7 @@
             <!--
             // Many-to-many reference PixelsRef
             -->
-            <child name="pixelsLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.core.Pixels"/>
+            <child name="pixelsLinks" type="ome.model.meta.OriginalFilePixelsLink" target="ome.model.core.Pixels"/>
             <!--
             // Property SHA1
             -->
@@ -1218,7 +1218,7 @@
             <!--
             // Many-to-many back reference OriginalFile_BackReference
             -->
-            <parent name="originalFileLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.meta.OriginalFile"/>
+            <parent name="originalFileLinks" type="ome.model.meta.OriginalFilePixelsLink" target="ome.model.meta.OriginalFile"/>
             <!--
             // Property PhysicalSizeX
             -->
@@ -2493,7 +2493,7 @@
         </properties>
     </link>
 
-    <link id="ome.model.core.OriginalFilePixelsLink">
+    <link id="ome.model.meta.OriginalFilePixelsLink">
         <properties>
             <from_parent type="ome.model.meta.OriginalFile"/>
             <to_child type="ome.model.core.Pixels"/>

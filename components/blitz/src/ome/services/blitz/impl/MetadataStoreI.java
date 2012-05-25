@@ -21,7 +21,7 @@ import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStore;
 import ome.io.nio.OriginalFilesService;
 import ome.model.IObject;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.Format;
 import ome.model.spw.Plate;

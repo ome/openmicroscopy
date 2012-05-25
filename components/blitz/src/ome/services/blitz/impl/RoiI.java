@@ -27,7 +27,7 @@ import javax.imageio.ImageIO;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;

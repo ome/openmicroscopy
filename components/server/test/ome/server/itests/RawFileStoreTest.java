@@ -7,7 +7,7 @@
 package ome.server.itests;
 
 import ome.api.RawFileStore;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.enums.Format;
 
 import org.testng.annotations.Test;

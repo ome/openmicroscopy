@@ -29,7 +29,7 @@ import ome.model.core.Project;
 import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;

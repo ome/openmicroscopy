@@ -338,7 +338,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getQueryService().get(
-                        ome.model.core.OriginalFile.class,
+                        ome.model.meta.OriginalFile.class,
                         file.getId().getValue());
 
             }

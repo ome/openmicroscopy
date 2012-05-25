@@ -61,7 +61,7 @@
 <!--  /type -->
 	<type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation">
 		<properties>
-			<optional name="file" type="ome.model.core.OriginalFile"/>
+			<optional name="file" type="ome.model.meta.OriginalFile"/>
 		</properties>
 	</type>
 </types>

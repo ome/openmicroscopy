@@ -102,8 +102,8 @@ public class RepositoryTaskTest extends TestCase {
 //		template = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
 //		
 //		String[] inserts = {
-//				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99000,63,'DELETE','ome.model.core.OriginalFile',-1,999)",
-//				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99001,100,'DELETE','ome.model.core.OriginalFile',-1,999)",
+//				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99000,63,'DELETE','ome.model.meta.OriginalFile',-1,999)",
+//				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99001,100,'DELETE','ome.model.meta.OriginalFile',-1,999)",
 //				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99002,2613,'DELETE','ome.model.core.Pixels',-1,999)",
 //				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99003,4189,'DELETE','ome.model.core.Pixels',-1,999)",
 //				"insert into eventlog (id, entityid, action, entitytype, permissions, event) values (99004,3331,'DELETE','ome.model.display.Thumbnail',-1,999)",

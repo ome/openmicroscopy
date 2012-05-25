@@ -24,7 +24,7 @@ import ome.model.core.Dataset;
 import ome.model.core.DatasetImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;

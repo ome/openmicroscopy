@@ -40,7 +40,7 @@ import ome.model.IObject;
 import ome.model.annotations.ExperimenterAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;

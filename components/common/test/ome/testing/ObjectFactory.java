@@ -12,7 +12,7 @@ import java.util.Iterator;
 import ome.model.core.Channel;
 import ome.model.core.Color;
 import ome.model.core.Image;
-import ome.model.core.OriginalFile;
+import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
 import ome.model.display.ChannelBinding;
