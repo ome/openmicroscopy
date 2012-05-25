@@ -38,7 +38,7 @@ import ome.model.core.LightSourceSettings;
 import ome.model.core.Microscope;
 import ome.model.core.Objective;
 import ome.model.core.ObjectiveSettings;
-import ome.model.core.PixelsOriginalFileMap;
+import ome.model.core.OriginalFilePixelsLink;
 import ome.model.core.StageLabel;
 import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
@@ -1135,8 +1135,8 @@ public class OMEROMetadataStore
      */
     private void handleReference(Pixels target, OriginalFile reference)
     {
-    	PixelsOriginalFileMap link = 
-    		new PixelsOriginalFileMap(target, reference);
+    	OriginalFilePixelsLink link = 
+    		new OriginalFilePixelsLink(target, reference);
     	reference.addPixelsOriginalFileMap(link);
     }
 
