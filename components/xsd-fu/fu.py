@@ -82,7 +82,7 @@ EXPLICIT_DEFINE_OVERRIDE = ('EmissionFilterRef', 'ExcitationFilterRef')
 
 # Back references that we do not want in the model either because they
 # conflict with other properties or do not make sense.
-BACK_REFERENCE_OVERRIDE = {'Annotation': ['Annotation']}
+BACK_REFERENCE_OVERRIDE = {'Annotation': ['Annotation'], 'Event': ['Event']}
 
 # Reference properties of a given type for which back reference link methods
 # should not be code generated for.
