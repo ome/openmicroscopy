@@ -7,10 +7,6 @@
 package integration;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,19 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import javax.xml.XMLConstants;
-
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
@@ -92,6 +75,9 @@ import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.QuantumDef;
+import omero.model.ROI;
+import omero.model.ROII;
+import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
@@ -109,15 +95,11 @@ import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.w3c.dom.Document;
 
 import spec.AbstractTest;
-//Application-internal dependencies
 
 /**
  * Base test for integration tests.
@@ -1573,9 +1555,34 @@ public class AbstractServerTest
 
 	protected Image createImage(int x, int y, int z, int time,
 			int channels, String name) throws Exception {
+		return createImageWithROI(x,y,z,time,channels,name, null);
+	}
+	
+    /**
+     * Returns an Image with a Roi and one Rect attached.
+     * @return
+     */
+    protected Image createImageWithROI() throws Exception
+    {
+    	RectangleI rect = new RectangleI();
+        rect.setHeight(omero.rtypes.rdouble(1.0));
+        rect.setWidth(omero.rtypes.rdouble(1.0));
+        rect.setX(omero.rtypes.rdouble(1.0));
+        rect.setY(omero.rtypes.rdouble(1.0));
+        
+        ROI roi = new ROII();
+        roi.addShape(rect);
+        
+        return createImageWithROI(1,1,1,1,1,null,roi);
+    }
+    
+	protected Image createImageWithROI(int x, int y, int z, int time,
+			int channels, String name, ROI roi) throws Exception {
 
 		Image image = mmFactory.createImage(x, y, z, time, channels);
-		
+        if(roi != null)
+        	image.linkROI(roi);
+        
 		if(name != null)
 			image.setName(omero.rtypes.rstring(name));
 			
