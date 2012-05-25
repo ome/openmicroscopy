@@ -1206,6 +1206,8 @@
     <!-- OME model object Pixels -->
     <type id="ome.model.core.Pixels" annotated="true">
         <properties>
+            <!-- added manually -->
+            <oneoneowner name="image" type="ome.model.core.Image"/>
             <!--
             // Property SHA1
             -->
