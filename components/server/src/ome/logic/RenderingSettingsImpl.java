@@ -55,7 +55,7 @@ import ome.model.spw.PlateAcquisition;
 import ome.model.spw.Screen;
 import ome.model.spw.Plate;
 import ome.model.spw.WellSample;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 import ome.parameters.Parameters;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;

@@ -130,7 +130,9 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String PERCENTFRACTION = "PercentFraction";
 
-    public final static String COLOR = "ome.model.core.Color";
+    public final static String SHORTCOLOR = "Color";
+
+    public final static String FULLCOLOR = "ome.model.core.Color";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
@@ -152,6 +154,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(STRINGS, "java.util.List<String>");
         JAVATYPES.put(STRINGS2, "java.util.List<String[]>");
         JAVATYPES.put(INTEGERS, INTEGERS);
+        JAVATYPES.put(SHORTCOLOR, FULLCOLOR);
     }
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();

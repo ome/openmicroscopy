@@ -26,7 +26,7 @@ import ome.model.enums.Family;
 import ome.model.enums.Format;
 import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
-import ome.model.core.StatsInfo;
+import ome.model.meta.StatsInfo;
 
 /**
  * these method serve as a both client and test data store. An object that has
