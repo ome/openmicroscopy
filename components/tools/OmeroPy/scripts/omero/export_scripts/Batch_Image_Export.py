@@ -309,32 +309,23 @@ def batchImageExport(conn, scriptParams):
                     tRange = (tStart, tEnd+1)
         return tRange
 
-    # images to export
+    # Get the images or datasets
     message = ""
-    images = []
-    objects = conn.getObjects(dataType, ids)    # images or datasets
-    parentToAttachZip = None
+    objects, logMessage = script_utils.getObjects(conn, scriptParams)
+    message += logMessage
+    if not objects:
+        return None, message
+    
+    # Attach figure to the first image
+    parent = objects[0]
+    
     if dataType == 'Dataset':
-        datasets = list(objects)
-        for ds in datasets:
-            if parentToAttachZip is None:
-                parentToAttachZip = ds
+        images = []
+        for ds in objects:
             images.extend( list(ds.listChildren()) )
-        if not images:
-            message += "No image found in dataset. "
-            return None, message
-        else:
-            if not len(datasets) == len(ids):
-                message += "Found %s out of %s dataset(s). " %  (len(datasets), len(ids))
     else:
-        images = list(objects)
-        if not images:
-            message += "No image found. "
-            return None, message
-        else:
-            if not len(images) == len(ids):
-                message += "Found %s out of %s image(s). " % (len(images), len(ids))
-        parentToAttachZip = images[0]
+        images = objects
+        
     log("Processing %s images" % len(images))
     
     # somewhere to put images
@@ -390,14 +381,15 @@ def batchImageExport(conn, scriptParams):
     # zip everything up (unless we've only got a single ome-tiff)
     if format == 'OME-TIFF' and len(os.listdir(exp_dir)) == 1:
         export_file = os.path.join(folder_name, os.listdir(exp_dir)[0])
-        mimetype = 'TIFF'
+        mimetype = 'image/tiff'
     else:
         export_file = "%s.zip" % folder_name
         compress(export_file, folder_name)
-        mimetype='zip'
+        mimetype='application/zip'
 
-    fileAnnotation, annMessage = script_utils.createLinkFileAnnotation(conn, export_file, parentToAttachZip, 
-        output="Batch export zip", parenttype=scriptParams["Data_Type"], mimetype=mimetype)
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/export_scripts/Batch_Image_Export"
+    fileAnnotation, annMessage = script_utils.createLinkFileAnnotation(conn, export_file, parent, 
+        output="Batch export zip", ns=namespace, mimetype=mimetype)
     message += annMessage
     return fileAnnotation, message
 
