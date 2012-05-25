@@ -211,7 +211,6 @@ class login_required(object):
         # to make a connection based on those credentials.
         try:
             omero_session_key = request['bsession']
-            connector = Connector(server_id, is_secure)
         except KeyError:
             # We do not have an OMERO session key in the current request.
             pass
@@ -225,6 +224,7 @@ class login_required(object):
             session['connector'] = connector
             return connection
 
+        connector = Connector(server_id, is_secure)
         # An OMERO session is not available, we're either trying to service
         # a request to a login page or an anonymous request.
         username = None
