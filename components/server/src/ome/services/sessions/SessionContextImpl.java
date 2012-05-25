@@ -93,7 +93,7 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public String getCurrentEventType() {
-        return session.getDefaultEventType();
+        return session.getDefaultEventType().getValue();
     }
 
     public Long getCurrentGroupId() {
@@ -113,7 +113,7 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public String getCurrentUserName() {
-        return session.getDetails().getOwner().getOmeName();
+        return session.getDetails().getOwner().getUserName();
     }
 
     public List<Long> getLeaderOfGroupsList() {
