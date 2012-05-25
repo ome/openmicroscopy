@@ -60,6 +60,7 @@ public class DeleteROIAction
 	private static final String DESCRIPTION = "Delete all your ROIs on " +
 			"this image.";
 	
+
 	/**
 	 * Sets the enabled flag
 	 * @see MeasurementViewerAction#onStateChange()
@@ -92,11 +93,14 @@ public class DeleteROIAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	String message = "Do you want to delete all ROIs on this image.";
-    	if (model.isMember())
-    		message = "Do you want to delete all your ROIs on this image.";
-    	MessageBox msg = new MessageBox(model.getUI(), "Delete ROI", message);
-    	if (msg.centerMsgBox() == MessageBox.YES_OPTION)
-    		model.deleteAllROIs(); 
+    	if (model.isMember()) {
+    		String message = 
+    			"Do you want to delete all your ROIs on this image.";
+    		MessageBox msg = new MessageBox(model.getUI(), "Delete ROI",
+    				message);
+        	if (msg.centerMsgBox() == MessageBox.YES_OPTION)
+        		model.deleteAllROIs(); 
+    	}
     }
+
 }

@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
@@ -495,6 +496,9 @@ class MeasurementViewerControl
 			view.setCellColor((Color) evt.getNewValue());
 		else if (LoadingWindow.CLOSED_PROPERTY.equals(name)) 
             model.discard();
+		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
+			int level = (Integer) evt.getNewValue();
+		}
 	}
 
 	/**
