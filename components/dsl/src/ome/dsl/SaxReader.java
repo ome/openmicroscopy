@@ -280,7 +280,7 @@ class DSLHandler extends DefaultHandler {
             if (descrd != null && descrd.booleanValue()) {
                 Properties p = new Properties();
                 p.setProperty("name", "description");
-                p.setProperty("type", "text");
+                p.setProperty("type", Property.TEXT);
                 OptionalField o = new OptionalField(namedOrDescribed, p);
                 namedOrDescribed.getProperties().add(o);
             }

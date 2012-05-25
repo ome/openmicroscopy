@@ -108,7 +108,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String TIMESTAMP = "Timestamp";
 
-    public final static String TEXT = "text";
+    public final static String TEXT = "Text";
 
     public final static String BYTES = "byte[]";
 
@@ -335,7 +335,7 @@ public abstract class Property { // TODO need to define equality so that two
     public String getTypeAnnotation() {
         String T = "@org.hibernate.annotations.Type";
         String P = ", parameters=@org.hibernate.annotations.Parameter(name=\"profile\", value=\"@PROFILE@\"))";
-        if (type.equals("text")) {
+        if (type.equals(TEXT)) {
             return T + "(type=\"org.hibernate.type.TextType\")";
         } else if (type.equals("String[]")) {
             return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING\"" + P;
@@ -559,9 +559,9 @@ public abstract class Property { // TODO need to define equality so that two
         } else if (type.equals("byte[]")) {
             return "bytea";
         } else if (type.equals("String[]")) {
-            return "text[]";
+            return "Text[]";
         } else if (type.equals("String[][]")) {
-            return "text[][]";
+            return "Text[][]";
         } else {
             return "";
         }

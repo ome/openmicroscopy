@@ -123,7 +123,7 @@
     <type id="ome.model.annotations.Example" annotated="true"/>
     <abstract id="ome.model.annotations.Annotation" annotated="true">
         <properties>
-            <required name="ns" type="text"/>
+            <required name="ns" type="Text"/>
         </properties>
     </abstract>
    <type id="ome.model.annotations.BooAnnotation" annotated="true"

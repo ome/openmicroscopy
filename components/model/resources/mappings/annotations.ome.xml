@@ -14,7 +14,7 @@
 	<abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true">
 		<properties>
 			<optional name="ns" type="String"/>
-			<optional name="description" type="text"/>
+			<optional name="description" type="Text"/>
 		</properties>
 	</abstract>
 <!-- top-level types -->
@@ -24,7 +24,7 @@
 <!-- /basic/text -->
 	<abstract id="ome.model.annotations.TextAnnotation" discriminator="/basic/text/" superclass="ome.model.annotations.Annotation">
 		<properties>
-			<optional name="textValue" type="text"/>
+			<optional name="textValue" type="Text"/>
 		</properties>
 	</abstract>
 	<type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation"/>
@@ -55,7 +55,7 @@
 	</type>
 	<type id="ome.model.annotations.TermAnnotation" discriminator="/basic/term/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
-			<optional name="termValue" type="text"/>
+			<optional name="termValue" type="Text"/>
 		</properties>
 	</type>
 <!--  /type -->
