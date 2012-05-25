@@ -3484,6 +3484,8 @@ class OMEROGateway
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link ");
 			sb.append("left outer join fetch link.child child ");
+			sb.append("left outer join fetch link.parent parent ");
+			sb.append("left outer join fetch parent.details.owner ");
 			sb.append("left outer join fetch child.details.owner ");
 			sb.append("left outer join fetch link.details.owner ");
 			sb.append("where link.child.id in (:childIDs)");

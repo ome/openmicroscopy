@@ -50,6 +50,16 @@ public class PermissionMenu
 {
 
 	/**
+	 * The term used to remove links.
+	 */
+	public static final String UNLINK = "Unlink";
+	
+	/**
+	 * The term used to remove links.
+	 */
+	public static final String DELETE = "Delete";
+	
+	/**
 	 * Bound property indicating the selected level.
 	 */
 	public static String SELECTED_LEVEL_PROPERTY = "selectedLevel";
@@ -66,19 +76,20 @@ public class PermissionMenu
 	/** 
 	 * Builds the menu.
 	 * 
-	 * @param type
+	 * @param action The action to perform.
+	 * @param type The type of objects to handle.
 	 */
-	private void buildMenu(String type)
+	private void buildMenu(String action, String type)
 	{
-		JMenuItem item = new JMenuItem("All "+type);
+		JMenuItem item = new JMenuItem(action+" All "+type);
 		item.addActionListener(this);
 		item.setActionCommand(""+ALL);
 		add(item);
-		item = new JMenuItem(type+" added by me");
+		item = new JMenuItem(action+" "+type+" added by me");
 		item.addActionListener(this);
 		item.setActionCommand(""+ME);
 		add(item);
-		item = new JMenuItem(type+" added by others");
+		item = new JMenuItem(action+" "+type+" added by others");
 		item.addActionListener(this);
 		item.setActionCommand(""+OTHER);
 		add(item);
@@ -87,11 +98,12 @@ public class PermissionMenu
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param action The action to perform.
 	 * @param type The type of objects to handle.
 	 */
-	public PermissionMenu(String type)
+	public PermissionMenu(String action, String type)
 	{
-		buildMenu(type);
+		buildMenu(action, type);
 	}
 
 	/** 

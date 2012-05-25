@@ -75,11 +75,13 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -140,6 +142,15 @@ import pojos.XMLAnnotationData;
  */
 class EditorModel 
 {
+	
+	/** Identifies <code>all</code> the objects.*/
+	static final int ALL = PermissionMenu.ALL;
+	
+	/** Identifies the objects added by current user.*/
+	static final int ME = PermissionMenu.ME;
+	
+	/** Identifies the objects added by others.*/
+	static final int OTHER = PermissionMenu.OTHER;
 	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
@@ -959,6 +970,51 @@ class EditorModel
 		return list;
 	}
 	
+	/**
+	 * Returns the links corresponding to the level and the annotation.
+	 * 
+	 * @param level The level to handle.
+	 * @param ho The annotation.
+	 * @return
+	 */
+	List<Object> getLinks(int level, AnnotationData ho)
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData d;
+		List<Object> results = new ArrayList<Object>();
+		long userID = getCurrentUser().getId();
+		switch (level) {
+			case ALL:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case ME:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID == d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case OTHER:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID != d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+		}
+		return results;
+	}
 	/**
 	 * Returns <code>true</code> if the annotation is already used by the 
 	 * current user, <code>false</code> otherwise.
@@ -2781,6 +2837,16 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
+	/**
+	 * Returns the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getCurrentUser()
+	{
+		return MetadataViewerAgent.getUserDetails();
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.

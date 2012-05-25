@@ -355,6 +355,7 @@ class GeneralPaneUI
 				loadParents(true);
 		}
 	}
+
 	
 	/** 
 	 * Returns the object hosting the annotation/link to save.

@@ -160,6 +160,36 @@ public class ModelMapper
     }
     
     /**
+     * Returns the child from the passed link.
+     * 
+     * @param link The link to handle.
+     * @return See above.
+     */
+    public static IObject getParentFromLink(IObject link)
+    {
+    	if (link == null) return null;
+    	if (link instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) link).getParent();
+    	if (link instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) link).getParent();
+    	if (link instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) link).getParent();
+    	if (link instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) link).getParent();
+    	if (link instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) link).getParent();
+    	if (link instanceof WellSampleAnnotationLink)
+    		return ((WellSampleAnnotationLink) link).getParent();
+    	if (link instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) link).getParent();
+    	if (link instanceof PlateAcquisitionAnnotationLink)
+    		return ((PlateAcquisitionAnnotationLink) link).getParent();
+    	if (link instanceof AnnotationAnnotationLink)
+    		return ((AnnotationAnnotationLink) link).getParent();
+    	return null;
+    }
+    
+    /**
      * Links the  {@link IObject child} to its {@link IObject parent}.
      * 
      * @param child     The child to handle. 

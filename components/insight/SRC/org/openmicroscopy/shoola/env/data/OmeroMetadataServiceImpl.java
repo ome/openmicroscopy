@@ -67,6 +67,7 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -203,7 +204,7 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		} else {
-			if (gateway.canDelete(ho)) {
+			if (gateway.canDelete(o)) {
 				try {
 					gateway.deleteObject(ctx, ho);
 				} catch (Exception e) {
@@ -759,15 +760,22 @@ class OmeroMetadataServiceImpl
 					Iterator j = links.iterator();
 					IObject link;
 					DataObject d;
+					List<AnnotationLinkData>
+					l = new ArrayList<AnnotationLinkData>();
+					IObject ho;
 					while (j.hasNext()) {
 						link = (IObject) j.next();
-						d = PojoMapper.asDataObject(
-								ModelMapper.getChildFromLink(link));
+						ho = ModelMapper.getChildFromLink(link);
+						d = PojoMapper.asDataObject(ho);
+						l.add(new AnnotationLinkData(link, d,
+								PojoMapper.asDataObject(
+										ModelMapper.getParentFromLink(link))));
 						if (d != null)
 							m.put(d, (ExperimenterData) PojoMapper.asDataObject(
 									link.getDetails().getOwner()));
 					}
 					results.setLinks(m);
+					results.setAnnotationLinks(l);
 				}
 			}
 			results.setOtherAnnotation(other);
