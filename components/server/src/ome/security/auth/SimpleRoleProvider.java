@@ -15,11 +15,9 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.tools.hibernate.HibernateUtils;
@@ -105,7 +103,7 @@ public class SimpleRoleProvider implements RoleProvider {
         e = sec.doAction(action, e);
         session.flush();
 
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e, false);
+        ExperimenterGroupExperimenterLink link = linkGroupAndUser(defaultGroup, e, false);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
                 linkGroupAndUser(group, e, false);
@@ -119,8 +117,8 @@ public class SimpleRoleProvider implements RoleProvider {
         Session session = sf.getSession();
         Experimenter foundUser = userById(user.getId(), session);
         ExperimenterGroup foundGroup = groupById(group.getId(), session);
-        Set<GroupExperimenterMap> foundMaps = foundUser
-                .findGroupExperimenterMap(foundGroup);
+        Set<ExperimenterGroupExperimenterLink> foundMaps = foundUser
+                .findExperimenterGroupExperimenterLink(foundGroup);
         if (foundMaps.size() < 1) {
             throw new ApiUsageException("Group " + group.getId() + " was not "
                     + "found for user " + user.getId());
@@ -129,7 +127,7 @@ public class SimpleRoleProvider implements RoleProvider {
                     + " found for " + foundUser);
         } else {
             // May throw an exception
-            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator()
+        	foundUser.addExperimenterGroupExperimenterLink(foundMaps.iterator()
                     .next());
         }
 
@@ -174,8 +172,8 @@ public class SimpleRoleProvider implements RoleProvider {
                 toRemove.add(g.getId());
             }
         }
-        for (GroupExperimenterMap map : foundUser
-                .<GroupExperimenterMap> collectGroupExperimenterMap(null)) {
+        for (ExperimenterGroupExperimenterLink map : foundUser
+                .<ExperimenterGroupExperimenterLink>collectExperimenterGroupLinks(null)) {
             Long pId = map.parent().getId();
             Long cId = map.child().getId();
             if (toRemove.contains(pId)) {
@@ -200,7 +198,7 @@ public class SimpleRoleProvider implements RoleProvider {
     // ~ Helpers
     // =========================================================================
 
-    protected GroupExperimenterMap linkGroupAndUser(ExperimenterGroup group,
+    protected ExperimenterGroupExperimenterLink linkGroupAndUser(ExperimenterGroup group,
             Experimenter e, boolean owned) {
 
         if (group == null || group.getId() == null) {
@@ -210,14 +208,14 @@ public class SimpleRoleProvider implements RoleProvider {
         group = new ExperimenterGroup(group.getId(), false);
 
         // ticket:1021 - check for already added groups
-        for (GroupExperimenterMap link : e.unmodifiableGroupExperimenterMap()) {
+        for (ExperimenterGroupExperimenterLink link : e.unmodifiableExperimenterGroupLinks()) {
             ExperimenterGroup test = link.parent();
             if (test.getId().equals(group.getId())) {
                 return link; // EARLY EXIT!
             }
         }
 
-        GroupExperimenterMap link = e.linkExperimenterGroup(group);
+        ExperimenterGroupExperimenterLink link = e.linkExperimenterGroup(group);
         // ticket:1434
         link.setOwner(owned);
 
@@ -231,11 +229,11 @@ public class SimpleRoleProvider implements RoleProvider {
     }
 
     protected Experimenter copyUser(Experimenter e) {
-        if (e.getOmeName() == null) {
+        if (e.getUserName() == null) {
             throw new ValidationException("OmeName may not be null.");
         }
         Experimenter copy = new Experimenter();
-        copy.setOmeName(e.getOmeName());
+        copy.setUserName(e.getUserName());
         copy.setFirstName(e.getFirstName());
         copy.setMiddleName(e.getMiddleName());
         copy.setLastName(e.getLastName());

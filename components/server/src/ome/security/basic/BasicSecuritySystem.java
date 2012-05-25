@@ -44,7 +44,7 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.model.roi.Shape;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
@@ -477,7 +477,7 @@ public class BasicSecuritySystem implements SecuritySystem,
             String a = log.getAction();
             if (Experimenter.class.getName().equals(t)
                     || ExperimenterGroup.class.getName().equals(t)
-                    || GroupExperimenterMap.class.getName().equals(t)) {
+                    || ExperimenterGroupExperimenterLink.class.getName().equals(t)) {
                 foundAdminType = true;
             }
             try {
@@ -680,7 +680,7 @@ public class BasicSecuritySystem implements SecuritySystem,
             }
             ome.model.meta.Session s = sf.getQueryService().get(
                     ome.model.meta.Session.class, shareId);
-            return s.getOwner().getId();
+            return s.getExperimenter().getId();
         }
         return ec.getCurrentUserId();
     }

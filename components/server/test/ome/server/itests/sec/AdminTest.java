@@ -21,7 +21,7 @@ import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Login;
 import ome.system.Roles;
@@ -65,10 +65,10 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
         assertNotNull(e.getEmail());
-        assertNotNull(e.getOmeName());
+        assertNotNull(e.getUserName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
-        int size = e.sizeOfGroupExperimenterMap();
+        int size = e.sizeOfExperimenterGroupLinks();
         assertTrue(String.format("%d not 2", size), size == 2);
     }
 
@@ -91,11 +91,11 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createSystemUser(e));
         assertNotNull(e.getEmail());
-        assertNotNull(e.getOmeName());
+        assertNotNull(e.getUserName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
         assertEquals(2, iAdmin.containedGroups(e.getId()).length);
-        assertEquals(2, e.sizeOfGroupExperimenterMap());
+        assertEquals(2, e.sizeOfExperimenterGroupLinks());
     }
 
     // ~ IAdmin.createExperimenter
@@ -118,10 +118,10 @@ public class AdminTest extends AbstractManagedContextTest {
         e = iAdmin.getExperimenter(iAdmin.createExperimenter(e,
                 new ExperimenterGroup(0L, false)));
         assertNotNull(e.getEmail());
-        assertNotNull(e.getOmeName());
+        assertNotNull(e.getUserName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
-        assertTrue(e.sizeOfGroupExperimenterMap() == 1);
+        assertTrue(e.sizeOfExperimenterGroupLinks() == 1);
     }
     
     @Test
@@ -130,18 +130,18 @@ public class AdminTest extends AbstractManagedContextTest {
         e = iAdmin.getExperimenter(iAdmin.createExperimenterWithPassword(e, "password", 
                 new ExperimenterGroup(0L, false)));
         assertNotNull(e.getEmail());
-        assertNotNull(e.getOmeName());
+        assertNotNull(e.getUserName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
-        assertTrue(e.sizeOfGroupExperimenterMap() == 1);
+        assertTrue(e.sizeOfExperimenterGroupLinks() == 1);
         
-        Login ul = new Login(e.getOmeName(), "password");
+        Login ul = new Login(e.getUserName(), "password");
         ServiceFactory usf = new ServiceFactory(ul);
         usf.getAdminService().getEventContext();
            
         iAdmin.updateExperimenterWithPassword(e, "password2");
         
-        Login ul2 = new Login(e.getOmeName(), "password2");
+        Login ul2 = new Login(e.getUserName(), "password2");
         ServiceFactory usf2 = new ServiceFactory(ul2);
         usf2.getAdminService().getEventContext();
     }
@@ -170,13 +170,13 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = testExperimenter();
         long id = iAdmin.createExperimenter(e, def, nonDef);
         assertEquals(2, iAdmin.containedGroups(id).length);
-        e = iAdmin.lookupExperimenter(e.getOmeName());
-        assertEquals("should be 2", 2, e.sizeOfGroupExperimenterMap());
+        e = iAdmin.lookupExperimenter(e.getUserName());
+        assertEquals("should be 2", 2, e.sizeOfExperimenterGroupLinks());
 
         e = testExperimenter();
         id = iAdmin.createExperimenter(e, def, nonDef, def);
-        e = iAdmin.lookupExperimenter(e.getOmeName());
-        assertEquals("should still be 2", 2, e.sizeOfGroupExperimenterMap());
+        e = iAdmin.lookupExperimenter(e.getUserName());
+        assertEquals("should still be 2", 2, e.sizeOfExperimenterGroupLinks());
 
     }
 
@@ -191,7 +191,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setEmail("blah");
         e.setFirstName("foo");
         e.setLastName("bar");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         return e;
     }
 
@@ -211,7 +211,7 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
 
         try {
-            iAdmin.changeOwner(i, e2.getOmeName());
+            iAdmin.changeOwner(i, e2.getUserName());
             fail("secvio!");
         } catch (SecurityViolation sv) {
         }
@@ -228,7 +228,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
         // guarantee that the client-side check for ticket:293 still holds.
         // see: TicketsUpTo500Test
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         iAdmin.changePermissions(i, Permissions.EMPTY);
         // iAdmin.changePermissions(i, Permissions.DEFAULT);
         loginRoot();
@@ -254,7 +254,7 @@ public class AdminTest extends AbstractManagedContextTest {
         g1.setId(iAdmin.createGroup(g1));
         g2.setId(iAdmin.createGroup(g2));
 
-        login(e1.getOmeName(), g.getName(), "Test");
+        login(e1.getUserName(), g.getName(), "Test");
 
         Image i = new Image();
         i.setName("test");
@@ -295,9 +295,9 @@ public class AdminTest extends AbstractManagedContextTest {
         ExperimenterGroup test = iQuery
                 .get(ExperimenterGroup.class, g1.getId());
         boolean found = false;
-        Iterator<GroupExperimenterMap> maps = test.iterateGroupExperimenterMap();
+        Iterator<ExperimenterGroupExperimenterLink> maps = test.iterateExperimenterLinks();
         while (maps.hasNext()) {
-            GroupExperimenterMap map = maps.next();
+        	ExperimenterGroupExperimenterLink map = maps.next();
             if (map.child().getId().equals(e1.getId())) {
                 if (map.getOwner()) {
                     found = true;
@@ -322,7 +322,7 @@ public class AdminTest extends AbstractManagedContextTest {
         g.setName(UUID.randomUUID().toString());
         g = iAdmin.getGroup(iAdmin.createGroup(g));
         iAdmin.addGroups(e, g);
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         // create a new image
         Image i = new Image();
@@ -360,7 +360,7 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = new Experimenter();
         e.setFirstName("user admin setters");
         e.setLastName("test");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
         // check current default group
@@ -419,7 +419,7 @@ public class AdminTest extends AbstractManagedContextTest {
             }
         }
         assertTrue(found);
-        assertEquals(g1.getId(), e.getGroupExperimenterMap(0).parent().getId());
+        assertEquals(g1.getId(), e.getExperimenterGroupExperimenterLink(0).parent().getId());
         return e;
     }
 
@@ -436,10 +436,10 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = new Experimenter();
         e.setFirstName("user admin setters");
         e.setLastName("test");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
 
-        int size = e.sizeOfGroupExperimenterMap();
+        int size = e.sizeOfExperimenterGroupLinks();
         assertTrue(String.format("%d not 2", size), size == 2);
 
         // two new test groups
@@ -453,11 +453,11 @@ public class AdminTest extends AbstractManagedContextTest {
         iAdmin.addGroups(e, g1, g2);
 
         // test
-        e = iAdmin.lookupExperimenter(e.getOmeName());
+        e = iAdmin.lookupExperimenter(e.getUserName());
         assertTrue(e.linkedExperimenterGroupList().size() == 4);
 
         iAdmin.removeGroups(e, g1);
-        e = iAdmin.lookupExperimenter(e.getOmeName());
+        e = iAdmin.lookupExperimenter(e.getUserName());
         assertTrue(e.linkedExperimenterGroupList().size() == 3);
     }
 
@@ -474,7 +474,7 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = new Experimenter();
         e.setFirstName("user admin setters");
         e.setLastName("test");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
 
         // two new test groups
@@ -513,12 +513,12 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = new Experimenter();
         e.setFirstName("user admin setters");
         e.setLastName("test");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e = iAdmin.getExperimenter(iAdmin.createSystemUser(e));
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
-        Experimenter test_e = iAdmin.lookupExperimenter(e.getOmeName());
+        Experimenter test_e = iAdmin.lookupExperimenter(e.getUserName());
         ExperimenterGroup test_g = iAdmin.getGroup(0L);
 
         assertTrue(test_e.linkedExperimenterGroupList().size() == 2);
@@ -533,7 +533,7 @@ public class AdminTest extends AbstractManagedContextTest {
         List<ExperimenterGroup> list = iAdmin.lookupGroups();
         ExperimenterGroup group = list.get(0);
         Experimenter exp = group.linkedExperimenterList().get(0);
-        assertNotNull(exp.getPrimaryGroupExperimenterMap());
+        assertNotNull(exp.getExperimenterGroupExperimenterLink(0));
     }
 
     // ~ Passwords
@@ -557,10 +557,10 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = new Experimenter();
         e.setFirstName("user admin setters");
         e.setLastName("test");
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         iAdmin.createUser(e, g.getName());
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
         try {
             iAdmin.changeUserPassword("root", "THIS SHOULD NOT BE VISIBLE.");
             fail("secvio!");
@@ -615,7 +615,7 @@ public class AdminTest extends AbstractManagedContextTest {
         long uid = iAdmin.createUser(e1, g.getName());
 
         // Now make something
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
         Image i = new Image();
         i.setAcquisitionDate(testTimestamp);
@@ -642,7 +642,8 @@ public class AdminTest extends AbstractManagedContextTest {
         assertWorldReadable(groups);
         groups = null;
         
-        List<GroupExperimenterMap> maps = iQuery.findAll(GroupExperimenterMap.class, null);
+        List<ExperimenterGroupExperimenterLink> maps =
+        	iQuery.findAll(ExperimenterGroupExperimenterLink.class, null);
         assertWorldReadable(maps);
         maps = null;
 
@@ -675,7 +676,7 @@ public class AdminTest extends AbstractManagedContextTest {
         g = new ExperimenterGroup( iAdmin.createGroup(g), false);
         iAdmin.addGroups(e, g);
         
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
      
         Set<Long> seen = new HashSet<Long>();
         List<Experimenter> list = iAdmin.lookupExperimenters();
@@ -697,8 +698,8 @@ public class AdminTest extends AbstractManagedContextTest {
             e.setEmail("test@localhost");
             iAdmin.updateExperimenter(e);
 
-            loginUser(e.getOmeName());
-            iAdmin.reportForgottenPassword(e.getOmeName(), e.getEmail());
+            loginUser(e.getUserName());
+            iAdmin.reportForgottenPassword(e.getUserName(), e.getEmail());
         } finally {
             setMailSender(old);
         }

@@ -34,7 +34,7 @@ import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
@@ -199,7 +199,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
-            if (e.getOmeName().equals(username)) {
+            if (e.getUserName().equals(username)) {
                 return p.get(0);
             }
         }
@@ -341,7 +341,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             log.info(String.format(
                     "%s groups for %s: %s",
                     add ? "Adding" : "Removing",
-                    e.getOmeName(), ids));
+                    e.getUserName(), ids));
             Set<ExperimenterGroup> grps = new HashSet<ExperimenterGroup>();
             for (Long id : ids) {
                 grps.add(new ExperimenterGroup(id, false));
@@ -357,10 +357,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // the "user" groupis at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
-                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfGroupExperimenterMap());
-                if (e.sizeOfGroupExperimenterMap() > 1) {
-                    GroupExperimenterMap primary = e.getGroupExperimenterMap(0);
-                    GroupExperimenterMap next = e.getGroupExperimenterMap(1);
+                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfExperimenterGroupLinks());
+                if (e.sizeOfExperimenterGroupLinks() > 1) {
+                    ExperimenterGroupExperimenterLink primary = e.getExperimenterGroupExperimenterLink(0);
+                    ExperimenterGroupExperimenterLink next = e.getExperimenterGroupExperimenterLink(1);
                     log.debug("primary=" + primary.parent().getId());
                     log.debug("next=" + next.parent().getId());
                     if (primary.parent().getId().equals(roles.getUserGroupId())) {

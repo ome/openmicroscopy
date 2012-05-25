@@ -15,7 +15,7 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,13 +71,13 @@ public class HibernateTest extends TestCase {
         createEvent();
 
         Experimenter e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e.setFirstName("Model");
         e.setLastName("Test");
         e = (Experimenter) s.merge(e);
         ExperimenterGroup g = (ExperimenterGroup) s.get(
                 ExperimenterGroup.class, 0L);
-        GroupExperimenterMap m = e.linkExperimenterGroup(g);
+        ExperimenterGroupExperimenterLink m = e.linkExperimenterGroup(g);
         setDetails(m);
         s.save(m);
         s.flush();

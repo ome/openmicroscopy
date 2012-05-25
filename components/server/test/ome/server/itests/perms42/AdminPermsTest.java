@@ -16,7 +16,7 @@ import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 
 import org.testng.annotations.Test;
 
@@ -260,13 +260,13 @@ public class AdminPermsTest extends PermissionsTest {
         iAdmin.changePassword("UserChangesPassword");
         fixture.log_in();
         try {
-            iAdmin.changeUserPassword(member.getOmeName(), "PIChangesPass");
+            iAdmin.changeUserPassword(member.getUserName(), "PIChangesPass");
             fail("secvio");
         } catch (SecurityViolation sv) {
             // good;
         }
         fixture.make_leader();
-        iAdmin.changeUserPassword(member.getOmeName(), "PIChangesPass");
+        iAdmin.changeUserPassword(member.getUserName(), "PIChangesPass");
     }
 
     @Test
@@ -449,7 +449,7 @@ public class AdminPermsTest extends PermissionsTest {
     protected void assertMembers(ExperimenterGroup group, Long...members) {
         Set<Long> toCheck = new HashSet<Long>(Arrays.asList(members));
         Set<Long> thatHas = new HashSet<Long>();
-        for (GroupExperimenterMap map : group.unmodifiableGroupExperimenterMap()) {
+        for (ExperimenterGroupExperimenterLink map : group.unmodifiableExperimenterLinks()) {
             thatHas.add(map.child().getId());
         }
         assertEqualSets(thatHas, toCheck);
@@ -458,7 +458,7 @@ public class AdminPermsTest extends PermissionsTest {
     protected void assertLeaders(ExperimenterGroup group, Long...members) {
         Set<Long> toCheck = new HashSet<Long>(Arrays.asList(members));
         Set<Long> thatHas = new HashSet<Long>();
-        for (GroupExperimenterMap map : group.unmodifiableGroupExperimenterMap()) {
+        for (ExperimenterGroupExperimenterLink map : group.unmodifiableExperimenterLinks()) {
             if (map.getOwner()) {
                 thatHas.add(map.child().getId());
             }
@@ -482,7 +482,7 @@ public class AdminPermsTest extends PermissionsTest {
 
     private Experimenter uuidUser() {
         Experimenter e = new Experimenter();
-        e.setOmeName(uuid());
+        e.setUserName(uuid());
         e.setFirstName(uuid());
         e.setLastName(uuid());
         return e;

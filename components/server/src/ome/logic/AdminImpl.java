@@ -47,7 +47,7 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -405,7 +405,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             Long id = (Long) dnId.get("experimenter_id");
             try {
                 Experimenter e = userProxy(id);
-                ldapUtil.synchronizeLdapUser(e.getOmeName());
+                ldapUtil.synchronizeLdapUser(e.getUserName());
             } catch (ApiUsageException aue) {
                 // User likely doesn't exist
                 log.debug("User not found: " + dn);
@@ -433,7 +433,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             }
         });
         getBeanHelper().getLogger().info(
-                "Updated own user info: " + self.getOmeName());
+                "Updated own user info: " + self.getUserName());
     }
 
     protected static final String NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
@@ -466,7 +466,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
             file.setSha1(Utils.bufferToSha1(data));
-            file.setMimetype(mimetype);
+            file.setMimeType(mimetype);
             FileAnnotation fa = new FileAnnotation();
             fa.setNs(NSEXPERIMENTERPHOTO);
             fa.setFile(file);
@@ -481,7 +481,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         } else {
             file.setName(filename);
             file.setPath(filename);
-            file.setMimetype(mimetype);
+            file.setMimeType(mimetype);
             file = iUpdate.saveAndReturnObject(file);
         }
 
@@ -505,7 +505,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         try {
             adminOrPiOfUser(experimenter);
-            String name = experimenter.getOmeName();
+            String name = experimenter.getUserName();
             copyAndSaveExperimenter(experimenter);
             getBeanHelper().getLogger().info("Updated user info for " + name);
         } catch (SecurityViolation sv) {
@@ -530,7 +530,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         adminOrPiOfUser(experimenter);
         copyAndSaveExperimenter(experimenter);
         final Experimenter orig = userProxy(experimenter.getId());
-        String name = orig.getOmeName();
+        String name = orig.getUserName();
         changeUserPassword(name, password);
         getBeanHelper().getLogger().info(
                 "Updated user info and password for " + name);
@@ -541,7 +541,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      */
     private void copyAndSaveExperimenter(final Experimenter experimenter) {
         final Experimenter orig = userProxy(experimenter.getId());
-        orig.setOmeName(experimenter.getOmeName());
+        orig.setUserName(experimenter.getUserName());
         orig.setEmail(experimenter.getEmail());
         orig.setFirstName(experimenter.getFirstName());
         orig.setMiddleName(experimenter.getMiddleName());
@@ -598,13 +598,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        
+
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
-        changeUserPassword(experimenter.getOmeName(), " ");
+        changeUserPassword(experimenter.getUserName(), " ");
         getBeanHelper().getLogger().info(
                 "Created user with blank password: "
-                + experimenter.getOmeName());
+                + experimenter.getUserName());
         return uid;
     }
 
@@ -619,9 +619,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         long uid = roleProvider.createExperimenter(experimenter,
                         defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
-        changeUserPassword(experimenter.getOmeName(), password);
+        changeUserPassword(experimenter.getUserName(), password);
         getBeanHelper().getLogger().info(
-                "Created user with password: " + experimenter.getOmeName());
+                "Created user with password: " + experimenter.getUserName());
         return uid;
     }
 
@@ -652,7 +652,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         getBeanHelper().getLogger().info(
                 String.format("Added user %s to groups %s", userProxy(
-                        user.getId()).getOmeName(), Arrays.asList(groups)));
+                        user.getId()).getUserName(), Arrays.asList(groups)));
     }
 
     @RolesAllowed("user")
@@ -759,7 +759,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     + "must be managed (i.e. have an id)");
         }
 
-        GroupExperimenterMap m = findLink(group, owner);
+        ExperimenterGroupExperimenterLink m = findLink(group, owner);
         if (m == null) {
             addGroups(owner, group);
             m = findLink(group, owner);
@@ -776,10 +776,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                                 owner.getId(), group.getId()));
     }
 
-    private GroupExperimenterMap findLink(ExperimenterGroup group,
+    private ExperimenterGroupExperimenterLink findLink(ExperimenterGroup group,
             Experimenter owner) {
-        GroupExperimenterMap m = iQuery.findByQuery(
-                "select m from GroupExperimenterMap m " +
+    	ExperimenterGroupExperimenterLink m = iQuery.findByQuery(
+                "select m from ExperimenterGroupExperimenterLink m " +
 			"where m.parent.id = :pid " +
 			"and m.child.id = :cid",
 			new Parameters()
@@ -816,7 +816,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         if (count == 0) {
             getBeanHelper().getLogger().info(
-                    "No password found for user " + e.getOmeName()
+                    "No password found for user " + e.getUserName()
                             + ". Cannot delete.");
         }
 
@@ -825,7 +825,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 iUpdate.deleteObject(e);
             }
         });
-        getBeanHelper().getLogger().info("Deleted user: " + e.getOmeName());
+        getBeanHelper().getLogger().info("Deleted user: " + e.getUserName());
     }
 
     @RolesAllowed("user")
@@ -1103,7 +1103,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     sendEmail(e, passwd);
                     // changeUserPassword checks adminOrPiOfUser
                     // Skipping that. See #7327
-                    _changePassword(e.getOmeName(), passwd);
+                    _changePassword(e.getUserName(), passwd);
                 }
             }
         });
@@ -1124,7 +1124,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         msg.setSubject("OMERO - Reset password");
         msg.setTo(e.getEmail());
         msg.setText("Dear " + e.getFirstName() + " " + e.getLastName() + " ("
-                + e.getOmeName() + ")" + " your new password is: "
+                + e.getUserName() + ")" + " your new password is: "
                 + newPassword);
         try {
             this.mailSender.send(msg);

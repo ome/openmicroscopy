@@ -15,7 +15,7 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.system.Login;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -180,8 +180,8 @@ public class AdminTest extends AbstractAccountTest {
         self.setEmail(uuid);
         self.setInstitution(uuid);
 
-        GroupExperimenterMap map = self.linkExperimenterGroup(grpPrx);
-        self.setPrimaryGroupExperimenterMap(map);
+        ExperimenterGroupExperimenterLink map = self.linkExperimenterGroup(grpPrx);
+        self.addExperimenterGroupExperimenterLink(0, map);
 
         // Update and reacquire
         ua.updateSelf(self);
