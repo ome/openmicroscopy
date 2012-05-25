@@ -1604,7 +1604,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
+        for e in tm.getMostRecentObjects(['Image'], p, False, self.CONFIG['SERVICE_OPTS'])["Image"]:
             yield ImageWrapper(self, e)
     
     def listMostRecentShares (self):
@@ -1623,7 +1623,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
             yield ShareWrapper(self, e.parent)
     
     def listMostRecentShareComments (self):
@@ -1642,7 +1642,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
             yield AnnotationWrapper(self, e.child, link=ShareWrapper(self, e.parent))
     
     def listMostRecentComments (self):
@@ -1662,7 +1662,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
+        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
             yield omero.gateway.BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
@@ -1682,7 +1682,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(200)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
+        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
             yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
     def getDataByPeriod (self, start, end, eid, otype=None, page=None):

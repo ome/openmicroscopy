@@ -2181,6 +2181,7 @@ def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwa
 @login_required()
 def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
+    # conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'     # This would allow cross-group viewing of thumbs
     return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
 @login_required()
