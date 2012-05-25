@@ -79,11 +79,13 @@ ${fully_qualified_link_class_name(o, prop)}\
     def sorted_and_filtered_objects():
         objects = sorted_objects()
         def f(x):
+            if x.isSettings:
+                return True
             if x.isReference or x.isAnnotation:
                 return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
                           'OME', 'TiffData', 'UUID', 'Union', 'FormatType',
-                          'StructuredAnnotations', 'Reference'):
+                          'StructuredAnnotations'):
                 return False
             return True
         return filter(f, objects)
