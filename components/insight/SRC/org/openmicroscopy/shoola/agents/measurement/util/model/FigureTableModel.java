@@ -223,6 +223,7 @@ public class FigureTableModel
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		int n;
+		if (rowIndex < 0) return null;
 		if (columnIndex == 0) {
 			n = fieldList.size();
 			if (rowIndex < n)
