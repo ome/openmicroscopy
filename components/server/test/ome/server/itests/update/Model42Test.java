@@ -35,7 +35,7 @@ public class Model42Test extends AbstractUpdateTest {
         ns.setDescription("Namespace used for testing\n"
                 + "If this were a real namespace \n"
                 + "you could explain to the user how \n" + "interpret values.");
-        ns.setKeywords(Arrays.asList("key1, key2"));
+        ns.setKeywords("key1, key2");
         ns.setDisplay(false); // This namespace is of interest to users
         ns.setMultivalued(false); // Users should pick one keyword
 
@@ -47,7 +47,7 @@ public class Model42Test extends AbstractUpdateTest {
     public void testRoiNamespace() {
         Image img = new_Image("model42");
         ROI roi = new ROI();
-        roi.setImage(img);
+        roi.linkImage(img);
         roi.setNamespace("ns0");
         roi = iUpdate.saveAndReturnObject(roi);
         assertEquals("ns0", roi.getNamespace());

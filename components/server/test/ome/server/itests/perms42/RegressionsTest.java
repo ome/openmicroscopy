@@ -28,7 +28,7 @@ public class RegressionsTest extends PermissionsTest {
     public void testSudo() throws Exception {
         setup(Permissions.USER_PRIVATE);
         loginRoot();
-        Principal p = new Principal(fixture.user.getOmeName(),
+        Principal p = new Principal(fixture.user.getUserName(),
                 fixture.groupName, "Test");
         iSession.createSessionWithTimeout(p, 1200000);
 

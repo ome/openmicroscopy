@@ -274,7 +274,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         loginRoot();
         iAdmin.setGroupOwner(new ExperimenterGroup(group.getId(), false), 
                              new Experimenter(user.getId(), false));
-        loginUser(user.getOmeName(), group.getName());
+        loginUser(user.getUserName(), group.getName());
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
         ThumbnailStore tbUser = sf.createThumbnailService();
@@ -763,7 +763,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
                 "left outer join fetch rdef.waveRendering " +
                 "where rdef.pixels.id = (:id)", params);
         params.addId(settings.getId());
-        for (int i = 0; i < settings.sizeOfWaveRendering(); i++)
+        for (int i = 0; i < settings.sizeOfChannelBindings(); i++)
         {
             ChannelBinding channelBinding = settings.getChannelBinding(i);
             iUpdate.deleteObject(channelBinding);

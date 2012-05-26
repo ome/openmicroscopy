@@ -183,7 +183,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
         deletes.add(p);
         deletes.addAll(p.linkedOriginalFileList());
         deletes.addAll(p.collectPlanes((CBlock<Plane>) null));
-        deletes.addAll(p.collectSettings((CBlock<RenderingDef>) null));
+        deletes.addAll(p.collectRenderingDefs((CBlock<RenderingDef>) null));
         deletes.addAll(p.collectThumbnails((CBlock<Thumbnail>) null));
 
     }

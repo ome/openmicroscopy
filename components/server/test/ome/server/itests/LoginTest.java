@@ -113,7 +113,7 @@ public class LoginTest extends AbstractManagedContextTest {
         Experimenter e = loginNewUser();
 
         try {
-            login(e.getOmeName(), gname, "Test");
+            login(e.getUserName(), gname, "Test");
             iQuery.find(Experimenter.class, 0l);
             Image i = new Image();
             i.setName("belongs to wrong group");

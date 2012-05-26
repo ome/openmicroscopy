@@ -31,7 +31,7 @@ public class SessionBeanIntegrationTest extends AbstractManagedContextTest {
     @Test
     public void testRootCreatesSession() throws Exception {
         Experimenter e = loginNewUser();
-        Principal p = new Principal(e.getOmeName() ,"user","User");
+        Principal p = new Principal(e.getUserName() ,"user","User");
         // TODO currently null for EventType is not allowed.
         loginRoot();
         factory.getSessionService().createSessionWithTimeout(p, 1000L);

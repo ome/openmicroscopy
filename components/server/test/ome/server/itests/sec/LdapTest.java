@@ -83,7 +83,7 @@ public class LdapTest extends AbstractManagedContextTest {
 			String dn = "cn=jsmith, ou=people"; //DN without base
 			Experimenter exp = iLdap.searchByDN(dn);
 			System.out.println("Experimenter: " + exp.getFirstName() + " "
-					+ exp.getLastName() + ", " + exp.getOmeName() + " "
+					+ exp.getLastName() + ", " + exp.getUserName() + " "
 					+ exp.getEmail());
 		}
 	}

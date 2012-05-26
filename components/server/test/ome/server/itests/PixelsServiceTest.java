@@ -90,7 +90,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         qd.setCdStart(1);
         qd.setCdEnd(1);
 
-        r.setQuantization(qd);
+        r.setQuantumDef(qd);
         return r;
     }
 

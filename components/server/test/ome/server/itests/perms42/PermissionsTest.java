@@ -79,7 +79,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
 
 
         void log_in() {
-            login(user.getOmeName(), groupName, "Test");
+            login(user.getUserName(), groupName, "Test");
         }
 
         void use_fixture_group() {

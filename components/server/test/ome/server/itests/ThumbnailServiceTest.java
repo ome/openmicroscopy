@@ -184,7 +184,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         loginRoot();
         makeDefaultGroupReadWrite(e1);
         // Experimenter1's interactions
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         ThumbnailStore ts = sf.createThumbnailService();
         IPixels ps = sf.getPixelsService();
         ts.setPixelsId(pix.getId());
@@ -250,7 +250,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         loginRoot();
         makeDefaultGroupReadWrite(e1);
         // Experimenter1's services
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         RenderingEngine re = sf.createRenderingEngine();
         ThumbnailStore ts = sf.createThumbnailService();
         IPixels psExp1 = sf.getPixelsService();
@@ -294,7 +294,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.saveCurrentSettings();
         settingsList = 
             psExp1.retrieveAllRndSettings(pix.getId(), -1);
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         thumbnails = retrieveAllThumbnailsBySettings(
                 settingsList, ts);
         assertEquals(2, thumbnails.length);

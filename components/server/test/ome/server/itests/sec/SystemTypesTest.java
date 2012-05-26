@@ -45,7 +45,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         iAdmin.createGroup(g);
 
         e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e.setFirstName(ticket156);
         e.setLastName(ticket156);
         e = factory.getAdminService().getExperimenter(
@@ -60,10 +60,10 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateExperimenter() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         Experimenter test = new Experimenter();
-        test.setOmeName(UUID.randomUUID().toString());
+        test.setUserName(UUID.randomUUID().toString());
         test.setFirstName(ticket156);
         test.setLastName(ticket156);
         factory.getUpdateService().saveObject(test);
@@ -72,7 +72,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateGroup() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         ExperimenterGroup test = new ExperimenterGroup();
         test.setName(UUID.randomUUID().toString());
@@ -85,7 +85,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEvents() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         String sid = iAdmin.getEventContext().getCurrentSessionUuid();
         Session sess = iSession.getSession(sid);
@@ -103,7 +103,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEventLogs() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         EventLog test = new EventLog();
         test.setAction("BOINK");
@@ -119,7 +119,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEnumsWithIUpdate() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         AcquisitionMode test = new AcquisitionMode();
         test.setValue("ticket:157");
@@ -139,7 +139,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     @Test
     public void testCanCreateEnumsWithITypes() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         AcquisitionMode test = new AcquisitionMode();
         test.setValue("ticket:157/" + uuid());

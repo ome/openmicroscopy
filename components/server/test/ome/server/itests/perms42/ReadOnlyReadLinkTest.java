@@ -152,7 +152,7 @@ public class ReadOnlyReadLinkTest extends PermissionsTest {
         Image i = fixture.saveImage();
 
         // Now other user tries to link
-        loginUser(e.getOmeName(), fixture.groupName);
+        loginUser(e.getUserName(), fixture.groupName);
         i.linkAnnotation(new TagAnnotation());
         iUpdate.saveAndReturnObject(i);
     }
@@ -162,7 +162,7 @@ public class ReadOnlyReadLinkTest extends PermissionsTest {
         Image i = fixture.saveImage();
 
         // Now other user tries to edit
-        loginUser(e.getOmeName(), fixture.groupName);
+        loginUser(e.getUserName(), fixture.groupName);
         i.setName(uuid());
         iUpdate.saveAndReturnObject(i);
     }

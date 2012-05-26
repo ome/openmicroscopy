@@ -2114,7 +2114,7 @@ public class SearchTest extends AbstractTest {
         update.indexObject(i);
 
         // Return to first user and see if it sees the TagAnnotation
-        loginUser(user1.getOmeName());
+        loginUser(user1.getUserName());
         Search search = this.factory.createSearchService();
         Class[] klass = new Class[1];
         klass[0] = TagAnnotation.class;
@@ -2229,7 +2229,7 @@ public class SearchTest extends AbstractTest {
         update.indexObject(i);
 
         // Return to first user and see if it sees the TagAnnotation
-        loginUser(user1.getOmeName());
+        loginUser(user1.getUserName());
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
         search.bySomeMustNone(new String[] { "an*" }, null, null);
@@ -2263,7 +2263,7 @@ public class SearchTest extends AbstractTest {
         tag.getDetails().setPermissions(Permissions.USER_PRIVATE);
         tag = this.iUpdate.saveAndReturnObject(tag);
 
-        loginUser(user1.getOmeName());
+        loginUser(user1.getUserName());
         String uuid = this.iAdmin.getEventContext().getCurrentSessionUuid();
         Principal p = new Principal(uuid, "user", "Test");
         ex.execute(p, new Executor.SimpleWork(this, "reproduce sec vio") {
@@ -2313,7 +2313,7 @@ public class SearchTest extends AbstractTest {
         assertTicket955(search, uuid, d_owner, 1);
 
         // Now let's add annotations and similar and see the results
-        loginUser(owner.getOmeName());
+        loginUser(owner.getUserName());
         ImageAnnotationLink link = new ImageAnnotationLink();
         link.setParent(new Image(i.getId(), false));
         link.setChild(new TagAnnotation());
@@ -2321,14 +2321,14 @@ public class SearchTest extends AbstractTest {
         loginRoot();
         this.iUpdate.indexObject(i);
 
-        loginUser(searcher.getOmeName());
+        loginUser(searcher.getUserName());
         // We stil shouldn't find any results
         assertTicket955(search, uuid, d_searcher, 0);
         // Now let's change to the owner and see the results
         assertTicket955(search, uuid, d_owner, 1);
 
         // Even searching as the owner should produce the same results
-        loginUser(owner.getOmeName());
+        loginUser(owner.getUserName());
         assertTicket955(search, uuid, d_searcher, 0);
         assertTicket955(search, uuid, d_owner, 1);
 

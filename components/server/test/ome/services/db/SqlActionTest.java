@@ -141,7 +141,7 @@ public class SqlActionTest extends AbstractManagedContextTest {
     @Test
     public void testEmptyPasswordSetting() {
         final Experimenter e = loginNewUser();
-        final String n = e.getOmeName();
+        final String n = e.getUserName();
         loginRoot();
         iAdmin.changeUserPassword(n, "");
         assertTrue(iAdmin.checkPassword(n, "anything", false));

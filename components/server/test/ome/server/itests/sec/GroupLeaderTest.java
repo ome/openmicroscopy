@@ -37,7 +37,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
         Experimenter e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e.setFirstName("group leader");
         e.setLastName("GroupLeaderTest");
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
@@ -65,7 +65,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
         Experimenter e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e.setFirstName("group leader");
         e.setLastName("GroupLeaderTest");
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));

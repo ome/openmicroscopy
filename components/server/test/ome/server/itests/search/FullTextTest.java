@@ -214,7 +214,7 @@ public class FullTextTest extends AbstractTest {
         Image i2 = newImageString(i.getName());
 
         iUpdate.indexObject(i2);
-        loginUser(e.getOmeName()); // After indexing, must relogin
+        loginUser(e.getUserName()); // After indexing, must relogin
         long id = iAdmin.getEventContext().getCurrentUserId();
 
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
@@ -416,7 +416,7 @@ public class FullTextTest extends AbstractTest {
         Image i = newImageString(uuid);
         loginRoot(); // now in a different group
         iUpdate.indexObject(i);
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
         List<? extends IObject> list;
         list = iQuery.findAllByFullText(Image.class, uuid, null);
         assertEquals(1, list.size());

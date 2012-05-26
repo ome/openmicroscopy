@@ -63,7 +63,7 @@ public class GraphConsistencyTest extends PermissionsTest {
         }
 
         // NO LINK
-        loginUser(e2.getOmeName(), fixture.groupName);
+        loginUser(e2.getUserName(), fixture.groupName);
         i = fixture.saveImage();
         fixture.log_in();
         try {

@@ -211,7 +211,7 @@ public class LdapTest extends MockObjectTestCase {
                 throw aue;
             }
             assertNotNull(dn);
-            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            assertEquals(user, ldap.findExperimenter(user).getUserName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertTrue(fixture.createUserFromLdap(user, "password"));
             fixture.login(user, users.get(user).get(0), "password");
@@ -235,7 +235,7 @@ public class LdapTest extends MockObjectTestCase {
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
                 assertTrue(fixture.createUserFromLdap(user, "password"));
                 // Parsing afterwards to force an explosion to reproduce #2557
-                assertEquals(user, ldap.findExperimenter(user).getOmeName());
+                assertEquals(user, ldap.findExperimenter(user).getUserName());
             } catch (ValidationException e) {
                 throw e; // This means that we couldn't insert.
                 // See the thread on case-senitivty in #2557

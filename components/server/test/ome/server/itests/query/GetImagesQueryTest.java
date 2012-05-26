@@ -179,7 +179,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
             group.setName(uuid());
             long gid = iAdmin.createGroup(group);
             user = new Experimenter();
-            user.setOmeName(uuid());
+            user.setUserName(uuid());
             user.setFirstName("Get");
             user.setLastName("Images");
             user = iAdmin.getExperimenter(iAdmin.createUser(user, group
@@ -210,7 +210,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         rootProjectMap.put(p1_root, i_d2_root);
         rootProjectMap.put(d2_root, i_d2_root);
 
-        loginUser(user.getOmeName());
+        loginUser(user.getUserName());
         Image i_d1_user = createImage();
         Image i_d2_user = createImage();
 

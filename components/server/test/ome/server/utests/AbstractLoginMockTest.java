@@ -130,7 +130,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         Session s = new Session();
         Details d = Details.create();
         d.setOwner(new Experimenter(0L, true));
-        d.getOwner().setOmeName("root");
+        d.getOwner().setUserName("root");
         d.setGroup(new ExperimenterGroup(0L, true));
         d.getGroup().setName("system");
         s.getDetails().copy(d);

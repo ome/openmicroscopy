@@ -195,7 +195,7 @@ public class AbstractManagedContextTest extends TestCase {
 
     protected void loginUserKeepGroup(Experimenter e) {
         String gname = iAdmin.getEventContext().getCurrentGroupName();
-        loginUser(e.getOmeName(), gname);
+        loginUser(e.getUserName(), gname);
     }
 
     public Experimenter loginNewUser() {
@@ -217,7 +217,7 @@ public class AbstractManagedContextTest extends TestCase {
         Experimenter e = new Experimenter();
         e.setFirstName("New");
         e.setLastName("User");
-        e.setOmeName(uuid);
+        e.setUserName(uuid);
 
         long uid = iAdmin.createUser(e, guid);
         user = iQuery.get(Experimenter.class, uid);
@@ -236,7 +236,7 @@ public class AbstractManagedContextTest extends TestCase {
         loginRoot();
         ExperimenterGroup g1 = iAdmin.getDefaultGroup(e1.getId());
         iAdmin.addGroups(e2, g1);
-        loginUser(e2.getOmeName(), g1.getName()); // ticket:1434, in same group
+        loginUser(e2.getUserName(), g1.getName()); // ticket:1434, in same group
         return e2;
     }
 
@@ -247,7 +247,7 @@ public class AbstractManagedContextTest extends TestCase {
         newGroup.setName(name);
         long gid = iAdmin.createGroup(newGroup);
         iAdmin.addGroups(e1, new ExperimenterGroup(gid, false));
-        login(e1.getOmeName(), name, "Test");
+        login(e1.getUserName(), name, "Test");
         return iAdmin.lookupGroup(name);
     }
 

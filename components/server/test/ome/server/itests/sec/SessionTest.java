@@ -30,7 +30,7 @@ public class SessionTest extends AbstractManagedContextTest {
         Experimenter e = loginNewUser();
 
         ISession service = this.factory.getServiceByClass(ISession.class);
-        Session s = service.createSession(new Principal(e.getOmeName(), "user",
+        Session s = service.createSession(new Principal(e.getUserName(), "user",
                 "Test"), "ome");
 
         // This is what then gets passed to the
@@ -38,7 +38,7 @@ public class SessionTest extends AbstractManagedContextTest {
 
         // Now we should be able to do something.
         EventContext ec = this.iAdmin.getEventContext();
-        assertEquals(ec.getCurrentUserName(), e.getOmeName());
+        assertEquals(ec.getCurrentUserName(), e.getUserName());
 
         service.closeSession(s);
     }
@@ -49,7 +49,7 @@ public class SessionTest extends AbstractManagedContextTest {
         loginRoot();
 
         ISession service = this.factory.getSessionService();
-        Principal p = new Principal(e.getOmeName(), "user", "Test");
+        Principal p = new Principal(e.getUserName(), "user", "Test");
         Session s = service.createSessionWithTimeout(p, 10 * 1000L);
 
     }
@@ -67,7 +67,7 @@ public class SessionTest extends AbstractManagedContextTest {
         loginRoot();
         a.addGroups(e, g);
         
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
         String uuid = a.getEventContext().getCurrentSessionUuid();
         sessionManager.setSecurityContext(new Principal(uuid), g);
         
@@ -93,7 +93,7 @@ public class SessionTest extends AbstractManagedContextTest {
         loginRoot();
         a.addGroups(e, g1, g2);
         
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
         String uuid = a.getEventContext().getCurrentSessionUuid();
         Principal principal = new Principal(uuid);
 

@@ -47,7 +47,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest {
             throws Exception {
 
         Experimenter e = loginNewUser();
-        e = getExperimenter(e.getOmeName());
+        e = getExperimenter(e.getUserName());
         expVersion = e.getVersion();
 
         p.setName(name);

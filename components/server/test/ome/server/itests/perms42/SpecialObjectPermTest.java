@@ -79,7 +79,7 @@ public class SpecialObjectPermTest extends PermissionsTest {
 
         setup(Permissions.PRIVATE); // New fixture for admin
         fixture.make_admin();
-        login(fixture.user.getOmeName(), gname, "User");
+        login(fixture.user.getUserName(), gname, "User");
 
         i.getDetails().setGroup(new ExperimenterGroup(roles.getUserGroupId(), false));
         i = iUpdate.saveAndReturnObject(i);
@@ -93,7 +93,7 @@ public class SpecialObjectPermTest extends PermissionsTest {
 
         setup(Permissions.PRIVATE); // New fixture for admin
         fixture.make_admin();
-        login(fixture.user.getOmeName(), gname, "User");
+        login(fixture.user.getUserName(), gname, "User");
         // FIXME: could possibly login to the group automatically in moveTo()
 
         iAdmin.moveToCommonSpace(i);
@@ -108,7 +108,7 @@ public class SpecialObjectPermTest extends PermissionsTest {
 
         setup(Permissions.PRIVATE); // New fixture for admin
         // OMIT THIS STEP fixture.make_admin();
-        login(fixture.user.getOmeName(), gname, "User");
+        login(fixture.user.getUserName(), gname, "User");
         // FIXME: could possibly login to the group automatically in moveTo()
 
         iAdmin.moveToCommonSpace(i);

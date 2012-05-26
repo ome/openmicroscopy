@@ -162,7 +162,7 @@ public class UpdateTest extends AbstractUpdateTest {
         ExperimenterGroup g_1 = new ExperimenterGroup();
         ExperimenterGroup g_2 = new ExperimenterGroup();
 
-        e.setOmeName("j.b." + System.currentTimeMillis());
+        e.setUserName("j.b." + System.currentTimeMillis());
         e.setFirstName(" Joe ");
         e.setLastName(" Brown ");
 
@@ -191,8 +191,8 @@ public class UpdateTest extends AbstractUpdateTest {
                         + " join fetch e.groupExperimenterMap m "
                         + " join fetch m.parent p " + " where e.id = :id "
                         + "and index(m) = 0", new Parameters().addId(e.getId()));
-        assertNotNull(test.getPrimaryGroupExperimenterMap());
-        assertTrue(test.getPrimaryGroupExperimenterMap().parent().getName()
+        assertNotNull(test.getPrimaryExperimenterGroupExperimenterLink());
+        assertTrue(test.getPrimaryExperimenterGroupExperimenterLink().parent().getName()
                 .startsWith("DEFAULT"));
 
     }
@@ -352,8 +352,8 @@ public class UpdateTest extends AbstractUpdateTest {
         job.linkOriginalFile(file);
         job.setImageDescription("test");
         job.setImageName("image name");
-        job.setUsername("root");
-        job.setGroupname("system");
+        job.setUserName("root");
+        job.setGroupName("system");
         job.setType("Test");
         job.setMessage("foo");
         job.setSubmitted(new Timestamp(System.currentTimeMillis()));
@@ -396,7 +396,7 @@ public class UpdateTest extends AbstractUpdateTest {
                         false));
         iUpdate.saveObject(link);
 
-        loginUser(e2.getOmeName());
+        loginUser(e2.getUserName());
         p1.linkDataset(new Dataset("d2"));
         iUpdate.saveObject(p1);
 
@@ -633,7 +633,7 @@ public class UpdateTest extends AbstractUpdateTest {
     public void testRoiShapeIndexIssue() {
         Image image = iUpdate.saveAndReturnObject(new_Image(""));
         ROI roi = new ROI();
-        roi.setImage(image);
+        roi.linkImage(image);
 
         roi = iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {

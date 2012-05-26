@@ -144,7 +144,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         session = mgr.doDefine();
         session.setId(1L);
 
-        user.setOmeName(principal.getName());
+        user.setUserName(principal.getName());
     }
 
     @AfterMethod

@@ -64,7 +64,7 @@ public class RootAnnotatingPermissionsTest extends PermissionsTest {
     private void makeGroupOwnerAndLogin(Experimenter piToBe) {
         loginRootKeepGroup();
         iAdmin.setGroupOwner(fixture.group(), piToBe);
-        loginUser(piToBe.getOmeName(), fixture.groupName);
+        loginUser(piToBe.getUserName(), fixture.groupName);
     }
 
     private void assertGraphCriticalIs(boolean value) {

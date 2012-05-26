@@ -144,7 +144,7 @@ public class LdapIntegrationTest extends LdapTest {
                                 }
 
                                 if (exp != null) {
-                                    exp.setOmeName(UUID.randomUUID().toString());
+                                    exp.setUserName(UUID.randomUUID().toString());
                                     sf.getAdminService()
                                             .updateExperimenter(exp);
                                 }

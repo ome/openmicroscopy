@@ -233,7 +233,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         tb.setPixelsId(p1.getId());
         tb.createThumbnails();
 
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         factory.getDeleteService().deleteImage(i1.getId(), false);
     }
 
@@ -251,7 +251,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         tb.setPixelsId(p1.getId());
         tb.createThumbnails();
 
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         factory.getDeleteService().deleteSettings(i1.getId());
     }
 
@@ -269,7 +269,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         tb.setPixelsId(p1.getId());
         tb.createThumbnails();
 
-        loginUser(e1.getOmeName());
+        loginUser(e1.getUserName());
         factory.getDeleteService().deleteSettings(i1.getId());
     }
 

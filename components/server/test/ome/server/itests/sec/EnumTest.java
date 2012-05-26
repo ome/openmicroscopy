@@ -38,7 +38,7 @@ public class EnumTest extends AbstractManagedContextTest {
         iAdmin.createGroup(g);
 
         e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
+        e.setUserName(UUID.randomUUID().toString());
         e.setFirstName("enums");
         e.setLastName("enums");
         e = factory.getAdminService().getExperimenter(
@@ -50,7 +50,7 @@ public class EnumTest extends AbstractManagedContextTest {
     @Test
     public void testEnumsAreReloaded() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         DimensionOrder test = new DimensionOrder();
         test.setValue("XYZCT");
@@ -61,7 +61,7 @@ public class EnumTest extends AbstractManagedContextTest {
     @Test
     public void testEvenWhenInAGraph() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         Pixels test = ObjectFactory.createPixelGraph(null);
         factory.getUpdateService().saveObject(test.getImage());
@@ -71,7 +71,7 @@ public class EnumTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:226")
     public void testStringConstructor() throws Exception {
 
-        loginUser(e.getOmeName());
+        loginUser(e.getUserName());
 
         EventType type = new EventType(uuid());
         factory.getTypesService().createEnumeration(type);
