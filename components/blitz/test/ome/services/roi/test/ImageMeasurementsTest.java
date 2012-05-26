@@ -71,7 +71,7 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
         file.setCtime(rtime(0));
         file.setMtime(rtime(0));
         file.setSize(rlong(0));
-        file.setMimetype(rstring("OMERO.tables"));
+        file.setMimeType(rstring("OMERO.tables"));
         fa.setFile(file);
         fa = assertSaveAndReturn(fa);
 

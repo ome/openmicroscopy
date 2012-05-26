@@ -34,13 +34,13 @@ public class AccountCreationTest extends AbstractAccountTest {
         removePasswordEntry(e);
         assertNull(getPasswordFromDb(e));
 
-        assertCannotLogin(e.getOmeName().getValue(), "ome");
-        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCannotLogin(e.getUserName().getValue(), "ome");
+        assertCannotLogin(e.getUserName().getValue(), "");
 
         doesNotHaveSystemPrivileges(e);
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring("test"));
-        assertCanLogin(e.getOmeName().getValue(), "test");
+        getSudoAdmin("ome").changeUserPassword(e.getUserName().getValue(), rstring("test"));
+        assertCanLogin(e.getUserName().getValue(), "test");
     }
 
     @Test(enabled=false)
@@ -49,14 +49,14 @@ public class AccountCreationTest extends AbstractAccountTest {
         g.setName(rstring(UUID.randomUUID().toString()));
         getSudoAdmin("ome").createGroup(g);
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(UUID.randomUUID().toString()));
+        e.setUserName(rstring(UUID.randomUUID().toString()));
         e.setFirstName(rstring("ticket:181"));
         e.setLastName(rstring("ticket:199"));
         e = getSudoAdmin("ome").getExperimenter(
                 getSudoAdmin("ome").createUser(e, g.getName().getValue()));
-        assertCanLogin(e.getOmeName().getValue(), "");
-        assertCanLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCanLogin(e.getUserName().getValue(), "");
+        assertCanLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
         doesNotHaveSystemPrivileges(e);
     }
@@ -64,66 +64,66 @@ public class AccountCreationTest extends AbstractAccountTest {
     @Test(enabled=false)
     public void testSudoCreatesSystemAccountThroughIAdmin() throws Exception {
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(UUID.randomUUID().toString()));
+        e.setUserName(rstring(UUID.randomUUID().toString()));
         e.setFirstName(rstring("ticket:181"));
         e.setLastName(rstring("ticket:199"));
         e = getSudoAdmin("ome").getExperimenter(
                 getSudoAdmin("ome").createSystemUser(e));
-        assertCanLogin(e.getOmeName().getValue(), "");
-        assertCanLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCanLogin(e.getUserName().getValue(), "");
+        assertCanLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
         hasSystemPrivileges(e);
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring("bob"));
+        getSudoAdmin("ome").changeUserPassword(e.getUserName().getValue(), rstring("bob"));
 
-        assertCannotLogin(e.getOmeName().getValue(), "");
-        assertCannotLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getUserName().getValue(), "");
+        assertCannotLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
     }
 
     @Test(enabled=false)
     public void testSudoCreatesAccountThroughIAdmin() throws Exception {
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(UUID.randomUUID().toString()));
+        e.setUserName(rstring(UUID.randomUUID().toString()));
         e.setFirstName(rstring("ticket:181"));
         e.setLastName(rstring("ticket:199"));
         e = getSudoAdmin("ome").getExperimenter(
                 getSudoAdmin("ome").createUser(e, "default"));
-        assertCanLogin(e.getOmeName().getValue(), "");
-        assertCanLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCanLogin(e.getUserName().getValue(), "");
+        assertCanLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
         doesNotHaveSystemPrivileges(e);
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring("bob"));
+        getSudoAdmin("ome").changeUserPassword(e.getUserName().getValue(), rstring("bob"));
 
-        assertCannotLogin(e.getOmeName().getValue(), "");
-        assertCannotLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getUserName().getValue(), "");
+        assertCannotLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
     }
 
     @Test(enabled=false)
     public void testSudoSysCreatesAccountThroughIAdmin() throws Exception {
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(UUID.randomUUID().toString()));
+        e.setUserName(rstring(UUID.randomUUID().toString()));
         e.setFirstName(rstring("ticket:181"));
         e.setLastName(rstring("ticket:199"));
         e = getSudoAdmin("ome").getExperimenter(
                 getSudoAdmin("ome").createSystemUser(e));
-        assertCanLogin(e.getOmeName().getValue(), "");
-        assertCanLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCanLogin(e.getUserName().getValue(), "");
+        assertCanLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
         hasSystemPrivileges(e);
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring("bob"));
+        getSudoAdmin("ome").changeUserPassword(e.getUserName().getValue(), rstring("bob"));
 
-        assertCannotLogin(e.getOmeName().getValue(), "");
-        assertCannotLogin(e.getOmeName().getValue(), "ome");
-        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getUserName().getValue(), "");
+        assertCannotLogin(e.getUserName().getValue(), "ome");
+        assertCanLogin(e.getUserName().getValue(), "bob");
 
     }
 
@@ -133,7 +133,7 @@ public class AccountCreationTest extends AbstractAccountTest {
     private void hasSystemPrivileges(Experimenter e) {
         try
         {
-            ServiceFactoryPrx sf = c.createSession(e.getOmeName().getValue(), "");
+            ServiceFactoryPrx sf = c.createSession(e.getUserName().getValue(), "");
             sf.getAdminService().synchronizeLoginCache();
         } catch (ServerError e1)
         {

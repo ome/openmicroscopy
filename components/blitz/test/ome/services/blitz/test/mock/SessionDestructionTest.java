@@ -242,7 +242,9 @@ public class SessionDestructionTest extends MockObjectTestCase {
                 .addApplicationListener(listener);
 
         // Setup all the necessary expectations
-        Experimenter exp = new Experimenter("joe", "joe", "blow");
+        Experimenter exp = new Experimenter("joe");
+        exp.setFirstName("joe");
+        exp.setLastName("blow");
         ExperimenterGroup grp = new ExperimenterGroup("cool");
         List<Long> grps = Arrays.asList(0L, 1L, 2L);
         List rv = new ArrayList();

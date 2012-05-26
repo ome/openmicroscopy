@@ -118,7 +118,7 @@ public class ManagedContextFixture {
         IAdmin admin = managedSf.getAdminService();
         Experimenter e = new Experimenter();
         String uuid = uuid();
-        e.setOmeName(uuid);
+        e.setUserName(uuid);
         e.setFirstName("managed");
         e.setMiddleName("context");
         e.setLastName("test");

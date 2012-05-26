@@ -35,7 +35,7 @@ public class RTypesObjectFactoryTest extends MockObjectTestCase {
         
         Experimenter e = new Experimenter();
         e.setId(1L);
-        e.setOmeName("name");
+        e.setUserName("name");
         fixture.mock("mock-ome.api.IAdmin").expects(once()).method(
                 "getExperimenter").will(returnValue(e));
         sf.getAdminService().getExperimenter(0L);

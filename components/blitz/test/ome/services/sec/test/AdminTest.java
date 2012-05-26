@@ -19,7 +19,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.GroupExperimenterMap;
+import omero.model.ExperimenterGroupExperimenterLink;
 import omero.model.Permissions;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -119,7 +119,7 @@ public class AdminTest extends AbstractAccountTest {
         newgrp.setId(rlong(gid));
 
         Experimenter user = createNewUser(rootAdmin); // in default group
-        Login ul = new Login(user.getOmeName().getValue(), "");
+        Login ul = new Login(user.getUserName().getValue(), "");
         ServiceFactoryPrx usf = c.createSession(ul.getName(), ul.getPassword());
         IAdminPrx ua = usf.getAdminService();
 
@@ -128,7 +128,7 @@ public class AdminTest extends AbstractAccountTest {
 
         // Let's make sure this still works properly
         Experimenter admin = createNewSystemUser(rootAdmin);
-        Login al = new Login(admin.getOmeName().getValue(), "");
+        Login al = new Login(admin.getUserName().getValue(), "");
         ServiceFactoryPrx asf =c.createSession(al.getName(), al.getPassword());
         IAdminPrx aa = asf.getAdminService();
         ExperimenterGroup currgrp = aa.getDefaultGroup(user.getId().getValue());
@@ -181,7 +181,7 @@ public class AdminTest extends AbstractAccountTest {
         Long id;
         String on, fn, mn, ln, em, in, uuid;
         id = self.getId().getValue();
-        on = self.getOmeName().getValue();
+        on = self.getUserName().getValue();
         fn = self.getFirstName().getValue();
         mn = self.getMiddleName().getValue();
         ln = self.getLastName().getValue();
@@ -191,15 +191,15 @@ public class AdminTest extends AbstractAccountTest {
         uuid = java.util.UUID.randomUUID().toString();
 
         self.setId(rlong(-1L));
-        self.setOmeName(rstring(uuid));
+        self.setUserName(rstring(uuid));
         self.setFirstName(rstring(uuid));
         self.setMiddleName(rstring(uuid));
         self.setLastName(rstring(uuid));
         self.setEmail(rstring(uuid));
         self.setInstitution(rstring(uuid));
 
-        GroupExperimenterMap map = self.linkExperimenterGroup(grpPrx);
-        self.setPrimaryGroupExperimenterMap(map);
+        ExperimenterGroupExperimenterLink map = self.linkExperimenterGroup(grpPrx);
+        self.setPrimaryExperimenterGroupExperimenterLink(map);
 
         // Update and reacquire
         ua.updateSelf(self);
@@ -207,7 +207,7 @@ public class AdminTest extends AbstractAccountTest {
 
         // Should be changed
         assertEquals(id, self.getId());
-        assertEquals(name, self.getOmeName());
+        assertEquals(name, self.getUserName());
         assertFalse(fn.equals(self.getFirstName()));
         assertNull(mn);
         assertNotNull(self.getMiddleName());
@@ -234,7 +234,7 @@ public class AdminTest extends AbstractAccountTest {
         ExperimenterGroup userGrp = new ExperimenterGroupI(1L, false);
 
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(UUID.randomUUID().toString()));
+        e.setUserName(rstring(UUID.randomUUID().toString()));
         e.setFirstName(rstring("ticket:1104"));
         e.setLastName(rstring("ticket:1104"));
         long eid = rootAdmin.createExperimenterWithPassword(e, rstring("password"),
@@ -259,7 +259,7 @@ public class AdminTest extends AbstractAccountTest {
         try
         {        
             Experimenter e = createNewUser(rootAdmin);
-            Login l = new Login(e.getOmeName().getValue(), "");
+            Login l = new Login(e.getUserName().getValue(), "");
             ServiceFactoryPrx u;
             u = c.createSession(l.getName(), l.getPassword());
             return u;

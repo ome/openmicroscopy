@@ -45,27 +45,27 @@ public class ModelTest extends TestCase {
     public void testMapper() throws Exception {
 
         Experimenter e = new Experimenter();
-        e.setOmeName("hi");
+        e.setUserName("hi");
         e.linkExperimenterGroup(new ExperimenterGroup("foo"));
 
         IceMapper mapper = new IceMapper();
         ExperimenterI ei = (ExperimenterI) mapper.map(e);
         assertEquals(new Integer(1), new Integer(ei
-                .sizeOfGroupExperimenterMap()));
+                .sizeOfExperimenterGroupLinks()));
 
     }
 
     @Test
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
-        e.setOmeName("hi");
+        e.setUserName("hi");
         e.linkExperimenterGroup(new ExperimenterGroup("foo"));
         ExperimenterI ei = new ExperimenterI();
         ei.copyObject(e, new IceMapper());
         // This may not hold without being called from the top level mapper
         // method
         // assertEquals(new Integer(1), new
-        // Integer(ei.sizeOfGroupExperimenterMap()));
+        // Integer(ei.sizeOfExperimenterGroupLinks()));
 
         Pixels p = new Pixels();
         Image i = new Image();
@@ -78,11 +78,11 @@ public class ModelTest extends TestCase {
     @Test
     public void testFillObject() throws Exception {
         ExperimenterI ei = new ExperimenterI();
-        ei.setOmeName(rstring("name"));
+        ei.setUserName(rstring("name"));
         ei.linkExperimenterGroup(new ExperimenterGroupI());
         Experimenter e = (Experimenter) ei.fillObject(new IceMapper());
         assertEquals(new Integer(1),
-                new Integer(e.sizeOfGroupExperimenterMap()));
+                new Integer(e.sizeOfExperimenterGroupLinks()));
 
         PixelsI p = new PixelsI();
         ImageI i = new ImageI();
@@ -115,12 +115,12 @@ public class ModelTest extends TestCase {
         Project p = new Project();
         p.getDetails().setOwner(e);
         e.linkExperimenterGroup(g);
-        assertEquals(1, e.sizeOfGroupExperimenterMap());
+        assertEquals(1, e.sizeOfExperimenterGroupLinks());
 
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
         ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
-        assertEquals(1, e.sizeOfGroupExperimenterMap());
+        assertEquals(1, e.sizeOfExperimenterGroupLinks());
 
     }
 
@@ -140,31 +140,31 @@ public class ModelTest extends TestCase {
 
         p.linkDataset(d); // Adding an extra object
 
-        assertEquals(1, e.sizeOfGroupExperimenterMap());
+        assertEquals(1, e.sizeOfExperimenterGroupLinks());
 
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
         ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
         ExperimenterGroupI gi = (ExperimenterGroupI) pi.getDetails().getGroup();
-        assertEquals(1, ei.sizeOfGroupExperimenterMap());
-        assertEquals(1, gi.sizeOfGroupExperimenterMap());
+        assertEquals(1, ei.sizeOfExperimenterGroupLinks());
+        assertEquals(1, gi.sizeOfExperimenterLinks());
 
     }
 
     @Test
     public void testLoadedness3() throws Exception {
         Experimenter e = new Experimenter();
-        e.putAt(Experimenter.GROUPEXPERIMENTERMAP, null);
+        e.putAt(Experimenter.EXPERIMENTERGROUPLINKS, null);
 
         Project p = new Project();
         p.getDetails().setOwner(e);
 
-        assertEquals(-1, e.sizeOfGroupExperimenterMap());
+        assertEquals(-1, e.sizeOfExperimenterGroupLinks());
 
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
         ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
-        assertEquals(-1, ei.sizeOfGroupExperimenterMap());
+        assertEquals(-1, ei.sizeOfExperimenterGroupLinks());
 
     }
 

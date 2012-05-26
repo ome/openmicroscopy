@@ -32,13 +32,13 @@ public class SecurityTest extends IceTest {
     private omero.client createUser() throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {
         omero.model.Experimenter e = new omero.model.ExperimenterI();
-        e.setOmeName(rstring(Ice.Util.generateUUID()));
+        e.setUserName(rstring(Ice.Util.generateUUID()));
         e.setFirstName(rstring("ticket"));
         e.setLastName(rstring("645"));
         root.getSession().getAdminService().createUser(e, "default");
 
         omero.client user = new omero.client();
-        user.createSession(e.getOmeName().getValue(), "");
+        user.createSession(e.getUserName().getValue(), "");
         return user;
     }
 

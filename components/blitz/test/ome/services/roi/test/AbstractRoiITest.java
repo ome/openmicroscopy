@@ -112,7 +112,7 @@ public class AbstractRoiITest extends AbstractServantTest {
     protected ROI createRoi(Image i, String name, Shape... shapes)
             throws Exception {
         ROI roi = new omero.model.ROII();
-        roi.setImage(i);
+        roi.linkImage(i);
         roi.addAllShapeSet(Arrays.asList(shapes));
         roi = assertSaveAndReturn(roi);
         roi = (ROI) assertFindByQuery(

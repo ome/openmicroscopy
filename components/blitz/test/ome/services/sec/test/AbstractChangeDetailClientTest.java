@@ -77,27 +77,27 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
         toUser = new ExperimenterI();
         toUser.setFirstName(rstring("test"));
         toUser.setLastName(rstring("test"));
-        toUser.setOmeName(rstring(user_name));
+        toUser.setUserName(rstring(user_name));
         toUser = new ExperimenterI(rootAdmin.createUser(toUser, pi_group), false);
 
         toOther = new ExperimenterI();
         toOther.setFirstName(rstring("test"));
         toOther.setLastName(rstring("test"));
-        toOther.setOmeName(rstring(other_name));
+        toOther.setUserName(rstring(other_name));
         toOther = new ExperimenterI(rootAdmin.createUser(toOther, pi_group),
                 false);
 
         toWorld = new ExperimenterI();
         toWorld.setFirstName(rstring("test"));
         toWorld.setLastName(rstring("test"));
-        toWorld.setOmeName(rstring(world_name));
+        toWorld.setUserName(rstring(world_name));
         toWorld = new ExperimenterI(rootAdmin.createUser(toWorld, other_grp),
                 false);
 
         toPI = new ExperimenterI();
         toPI.setFirstName(rstring("test"));
         toPI.setLastName(rstring("test"));
-        toPI.setOmeName(rstring(pi_name));
+        toPI.setUserName(rstring(pi_name));
         toPI = new ExperimenterI(rootAdmin.createUser(toPI, pi_group), false);
 
         rootAdmin.setGroupOwner(toPIGroup, toPI);
