@@ -10,12 +10,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.sql.Timestamp;
 
 import net.sf.ehcache.Ehcache;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
+import ome.model.enums.EventType;
 import ome.model.core.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
@@ -172,8 +174,9 @@ public class BlitzServerFixture extends MockObjectTestCase {
     }
 
     public void prepareLogin() {
-        session = new Session(new Node(0L, false), "uuid", new Experimenter(0L,
-                false), new Long(0), new Long(0), null, "Test");
+        session = new Session(new EventType(0L, false),
+                new Experimenter(0L, false), new Node(0L, false),
+                new Timestamp(0L), new Long(0L), new Long(0L), null);
         sc = new SessionContextImpl(session, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections
                         .singletonList("user"), new NullSessionStats(), null);
