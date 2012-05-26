@@ -342,6 +342,17 @@ class MeasurementViewerModel
     	return MeasurementAgent.getRegistry().getAdminService().getLoggingName();
     }
     
+	/**
+     * Returns the user currently logged in.
+     * 
+     * @return See above.
+     */
+	ExperimenterData getCurrentUser()
+    {
+    	return MeasurementAgent.getUserDetails();
+    }
+    
+    
     /**
      * Returns the name of the server the user is connected to.
      * 
@@ -1180,12 +1191,32 @@ class MeasurementViewerModel
 	 * Returns the collection of ROI on the image owned by the user currently
 	 * logged in
 	 * 
+	 * @param level One of the constants defined by the 
+	 * <code>MeasurementViewer</code>.
 	 * @return See above.
 	 */
-	List<ROIData> getAllROIData()
+	List<ROIData> getROIData(int level)
 	{
 		try {
-			return roiComponent.saveROI(getImage(), ROIComponent.ALL);
+			switch (level) {
+			case MeasurementViewer.ALL:
+				return roiComponent.saveROI(getImage(), ROIComponent.ALL);
+			case MeasurementViewer.ME:
+				return getROIData();
+			case MeasurementViewer.OTHER:
+				List<ROIData> l = roiComponent.saveROI(getImage(),
+						ROIComponent.ALL);
+				List<ROIData> results = new ArrayList<ROIData>();
+				Iterator<ROIData> i = l.iterator();
+				ROIData roi;
+				long userID = getCurrentUser().getId();
+				while (i.hasNext()) {
+					roi = i.next();
+					if (roi.getOwner().getId() != userID)
+						results.add(roi);
+				}
+				return results;
+			}
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
