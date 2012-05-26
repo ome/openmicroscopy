@@ -119,9 +119,9 @@ public class ScreenPlateWellTest extends TestCase {
         acq3.addWellSample(ws2_2a);
         acq4.addWellSample(ws2_2b);
 
-        reagentA.setScreens(screen);
-        reagentB.setScreens(screen);
-        reagentC.setScreens(screen);
+        reagentA.setScreen(screen);
+        reagentB.setScreen(screen);
+        reagentC.setScreen(screen);
 
         reagentA.setWells(well1_1);
         reagentA.setWells(well2_2);
