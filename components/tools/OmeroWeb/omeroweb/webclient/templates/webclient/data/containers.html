@@ -745,7 +745,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url webgateway_full_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

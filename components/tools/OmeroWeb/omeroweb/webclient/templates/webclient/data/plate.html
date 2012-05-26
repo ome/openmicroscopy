@@ -90,7 +90,7 @@
                     var $selected = $('td.ui-selected', wpv.self);
                     well_selection_changed($selected, {{ index }});       // ome.webclient.actions.js
                 }).bind('dblclick', function(){
-                    openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+                    openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
             wpv.load({{ manager.plate.id }}, {{ index }});

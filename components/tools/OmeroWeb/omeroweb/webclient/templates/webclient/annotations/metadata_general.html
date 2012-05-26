@@ -385,7 +385,7 @@
                     </div>
                 {% endif %}
 				
-				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')"
+				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"
 				        title="Open full image viewer in new window">
 					<span>
 	                {% trans "Launch full viewer" %} 
@@ -621,7 +621,7 @@
                    
             <h2 class="data_heading_id">Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong></h2>
             
-			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>
