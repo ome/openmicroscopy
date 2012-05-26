@@ -1094,7 +1094,7 @@ public class UpdateServiceTest
     {
         Image image = createBasicImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;

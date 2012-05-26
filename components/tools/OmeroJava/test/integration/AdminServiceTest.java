@@ -782,9 +782,9 @@ public class AdminServiceTest
 		p.addLong("groupId", groupId);
     	List l = (List) query.findAllByQuery(sql, p);
     	Iterator i = l.iterator();
-        GroupExperimenterMap map;
+    	ExperimenterGroupExperimenterLink map;
         while (i.hasNext()) {
-        	map = (GroupExperimenterMap) i.next();
+        	map = (ExperimenterGroupExperimenterLink) i.next();
 			assertTrue(map.getOwner().getValue());
 		}
     }
@@ -1192,16 +1192,16 @@ public class AdminServiceTest
 		p = new ParametersI();
 		p.addLongs("gids", ids);
 		List list = (List) query.findAllByQuery("select m " +
-				"from GroupExperimenterMap as m "
+				"from ExperimenterGroupExperimenterLink as m "
 				+ "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 		+" where m.parent.id in (:gids)", p);
 		assertNotNull(list);
 		Iterator i = list.iterator();
-		GroupExperimenterMap geMap;
+		ExperimenterGroupExperimenterLink geMap;
 		int count = 0;
 		while (i.hasNext()) {
-			geMap = (GroupExperimenterMap) i.next();
+			geMap = (ExperimenterGroupExperimenterLink) i.next();
 			if (geMap.getChild().getId().getValue() == id)
 				count++;
 		}

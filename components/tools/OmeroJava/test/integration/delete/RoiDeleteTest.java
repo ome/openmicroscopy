@@ -67,7 +67,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 
         newUserInGroup(owner);
         ROI roi = new ROII();
-        roi.setImage((Image) i1.proxy());
+        roi.linkImage((Image) i1.proxy());
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         disconnect();
 
@@ -94,7 +94,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -168,7 +168,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {

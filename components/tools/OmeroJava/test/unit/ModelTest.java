@@ -15,8 +15,6 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
-import omero.RFloat;
-import omero.RString;
 import omero.model.ArcI;
 import omero.model.Channel;
 import omero.model.ChannelI;
@@ -40,7 +38,7 @@ public class ModelTest extends TestCase {
     @Test
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
-        e.setOmeName("hi");
+        e.setUserName("hi");
         e.linkExperimenterGroup(new ExperimenterGroup("foo"));
         new ExperimenterI().copyObject(e, new IceMapper());
 
@@ -55,7 +53,7 @@ public class ModelTest extends TestCase {
     @Test
     public void testFillObject() throws Exception {
         ExperimenterI e = new ExperimenterI();
-        e.setOmeName(rstring("name"));
+        e.setUserName(rstring("name"));
         e.linkExperimenterGroup(new ExperimenterGroupI());
         e.fillObject(new IceMapper());
 
