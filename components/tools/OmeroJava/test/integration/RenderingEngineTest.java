@@ -250,7 +250,7 @@ public class RenderingEngineTest
 		assertEquals(def.getDefaultT().getValue(), re.getDefaultT());
 		assertTrue(def.getModel().getValue().getValue().equals( 
 				re.getModel().getValue().getValue()));
-		QuantumDef q1 = def.getQuantization();
+		QuantumDef q1 = def.getQuantumDef();
 		QuantumDef q2 = re.getQuantumDef();
 		assertNotNull(q1);
 		assertNotNull(q2);
@@ -260,7 +260,7 @@ public class RenderingEngineTest
 			q2.getCdStart().getValue());
 		assertEquals(q1.getCdEnd().getValue(),
 			q2.getCdEnd().getValue());
-		List<ChannelBinding> channels1 = def.copyWaveRendering();
+		List<ChannelBinding> channels1 = def.copyChannelBindings();
 		assertNotNull(channels1);
 		Iterator<ChannelBinding> i = channels1.iterator();
 		ChannelBinding c1;
@@ -351,13 +351,13 @@ public class RenderingEngineTest
 		}
     	re.setModel(model);
     	assertTrue(re.getModel().getId().getValue() == model.getId().getValue());
-    	QuantumDef qdef = def.getQuantization();
+    	QuantumDef qdef = def.getQuantumDef();
     	int start = qdef.getCdStart().getValue()+10;
     	int end = qdef.getCdEnd().getValue()-10;
     	re.setCodomainInterval(start, end);
     	assertTrue(re.getQuantumDef().getCdStart().getValue() == start);
     	assertTrue(re.getQuantumDef().getCdEnd().getValue() == end);
-    	List<ChannelBinding> channels1 = def.copyWaveRendering();
+    	List<ChannelBinding> channels1 = def.copyChannelBindings();
 		assertNotNull(channels1);
 		Iterator<ChannelBinding> j = channels1.iterator();
 		ChannelBinding c1;
