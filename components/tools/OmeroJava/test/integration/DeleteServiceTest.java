@@ -71,7 +71,8 @@ import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsOriginalFileMapI;
+import omero.model.OriginalFilePixelsLink;
+import omero.model.OriginalFilePixelsLinkI;
 import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -1087,7 +1088,7 @@ public class DeleteServiceTest
     {
     	Image image =  createTestImage(0);
     	ROI roi = new ROII();
-    	roi.setImage(image);
+    	roi.linkImage(image);
     	Rectangle rect;
     	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	for (int i = 0; i < 3; i++) {
@@ -1137,7 +1138,7 @@ public class DeleteServiceTest
     {
     	Image image =  createTestImage(0);
     	ROI roi = new ROII();
-    	roi.setImage(image);
+    	roi.linkImage(image);
     	Rectangle rect;
     	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	for (int i = 0; i < 3; i++) {
@@ -1380,7 +1381,7 @@ public class DeleteServiceTest
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -2104,7 +2105,6 @@ public class DeleteServiceTest
                 well.setReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
-                    sample.setIndex(omero.rtypes.rint(field));
                     sample.setImage(createTestImage(0));
                     well.addWellSample(sample);
                 }
@@ -3514,10 +3514,10 @@ public class DeleteServiceTest
     	f = (OriginalFile) iQuery.findByQuery(sql, param);
     	//upload file, method tested in RawFileStore
     	assertNotNull(f);
-    	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
+    	OriginalFilePixelsLink m = new OriginalFilePixelsLinkI();
     	m.setChild(new PixelsI(pixels.getId().getValue(), false));
     	m.setParent(f);
-    	m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
+    	m = (OriginalFilePixelsLink) iUpdate.saveAndReturnObject(m);
     	
     	
     	long imageID = image.getId().getValue();

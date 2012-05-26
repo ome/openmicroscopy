@@ -45,7 +45,7 @@ public class ClientUsageTest
     	IAdminPrx svc = root.getSession().getAdminService();
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
-    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setUserName(omero.rtypes.rstring(uuid));
     	e.setFirstName(omero.rtypes.rstring("integeration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();
@@ -69,7 +69,7 @@ public class ClientUsageTest
     	IAdminPrx svc = root.getSession().getAdminService();
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
-    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setUserName(omero.rtypes.rstring(uuid));
     	e.setFirstName(omero.rtypes.rstring("integeration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();
@@ -100,7 +100,7 @@ public class ClientUsageTest
         IAdminPrx svc = root.getSession().getAdminService();
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
-    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setUserName(omero.rtypes.rstring(uuid));
     	e.setFirstName(omero.rtypes.rstring("integeration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();

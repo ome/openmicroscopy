@@ -26,7 +26,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
-import omero.model.GroupExperimenterMap;
+import omero.model.ExperimenterGroupExperimenterLink;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
@@ -100,7 +100,7 @@ public class AdminServiceTest
 		//Test the conversion into the corresponding POJO
 		ExperimenterData data = new ExperimenterData(exp);
 		assertTrue(data.getId() == exp.getId().getValue());
-		assertTrue(data.getUserName() == exp.getOmeName().getValue());
+		assertEquals(data.getUserName(), exp.getUserName().getValue());
     }
 	
 	/**
@@ -229,7 +229,7 @@ public class AdminServiceTest
 		//First create a group.
 		String uuid = UUID.randomUUID().toString();
 		Experimenter e = new ExperimenterI();
-		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setUserName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring("user"));
 		e.setLastName(omero.rtypes.rstring("user"));
 		
@@ -260,7 +260,7 @@ public class AdminServiceTest
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
 		//now check if the user is in correct groups.
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(groupId);
@@ -274,10 +274,10 @@ public class AdminServiceTest
                 		+" where m.parent.id in (:gids)", p);
 		assertNotNull(list);
 		Iterator i = list.iterator();
-		GroupExperimenterMap geMap;
+		ExperimenterGroupExperimenterLink geMap;
 		int count = 0;
 		while (i.hasNext()) {
-			geMap = (GroupExperimenterMap) i.next();
+			geMap = (ExperimenterGroupExperimenterLink) i.next();
 			if (geMap.getChild().getId().getValue() == id)
 				count++;
 		}
@@ -296,7 +296,7 @@ public class AdminServiceTest
 		//First create a group.
 		String uuid = UUID.randomUUID().toString();
 		Experimenter e = new ExperimenterI();
-		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setUserName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring("user"));
 		e.setLastName(omero.rtypes.rstring("user"));
 		
@@ -328,7 +328,7 @@ public class AdminServiceTest
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
 		//now check if the user is in correct groups.
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(groupId);
@@ -342,10 +342,10 @@ public class AdminServiceTest
                 		+" where m.parent.id in (:gids)", p);
 		assertNotNull(list);
 		Iterator i = list.iterator();
-		GroupExperimenterMap geMap;
+		ExperimenterGroupExperimenterLink geMap;
 		int count = 0;
 		while (i.hasNext()) {
-			geMap = (GroupExperimenterMap) i.next();
+			geMap = (ExperimenterGroupExperimenterLink) i.next();
 			if (geMap.getChild().getId().getValue() == id)
 				count++;
 		}
@@ -362,7 +362,7 @@ public class AdminServiceTest
     {
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -382,7 +382,7 @@ public class AdminServiceTest
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
         //check if we are in the correct group i.e. user and uuid
 		//now check if the user is in correct groups.
 		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
@@ -398,10 +398,10 @@ public class AdminServiceTest
                 		+" where m.parent.id in (:gids)", p);
 		assertNotNull(list);
 		Iterator i = list.iterator();
-		GroupExperimenterMap geMap;
+		ExperimenterGroupExperimenterLink geMap;
 		int count = 0;
 		while (i.hasNext()) {
-			geMap = (GroupExperimenterMap) i.next();
+			geMap = (ExperimenterGroupExperimenterLink) i.next();
 			if (geMap.getChild().getId().getValue() == id)
 				count++;
 		}
@@ -420,7 +420,7 @@ public class AdminServiceTest
     {
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -443,7 +443,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -466,14 +466,14 @@ public class AdminServiceTest
 		
 		String name = "userModified";
 		uuid = UUID.randomUUID().toString();
-		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setUserName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
 		svc.updateExperimenter(e);
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
 		assertTrue(e.getFirstName().getValue().equals(name));
 		assertTrue(e.getLastName().getValue().equals(name));
     }
@@ -490,7 +490,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -513,7 +513,7 @@ public class AdminServiceTest
 		
 		String name = "userModified";
 		//uuid = UUID.randomUUID().toString();
-		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setUserName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
         //
@@ -525,7 +525,7 @@ public class AdminServiceTest
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
 		assertTrue(e.getFirstName().getValue().equals(name));
 		assertTrue(e.getLastName().getValue().equals(name));
     }
@@ -542,7 +542,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -565,7 +565,7 @@ public class AdminServiceTest
 		
 		String name = "userModified";
 		//uuid = UUID.randomUUID().toString();
-		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setUserName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
         //
@@ -577,7 +577,7 @@ public class AdminServiceTest
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
-		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getUserName().getValue().equals(uuid));
 		assertTrue(e.getFirstName().getValue().equals(name));
 		assertTrue(e.getLastName().getValue().equals(name));
     }
@@ -593,7 +593,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -651,7 +651,7 @@ public class AdminServiceTest
 				"select distinct g from ExperimenterGroup g where g.id = :id", 
 				p);
 		Experimenter e = new ExperimenterI();
-		e.setOmeName(omero.rtypes.rstring(uuid1));
+		e.setUserName(omero.rtypes.rstring(uuid1));
 		e.setFirstName(omero.rtypes.rstring("user"));
 		e.setLastName(omero.rtypes.rstring("user"));
 		
@@ -664,14 +664,14 @@ public class AdminServiceTest
 		
 		long id = svc.createExperimenter(e, eg1, groups);
 		e = svc.lookupExperimenter(uuid1);
-		List<GroupExperimenterMap> links = e.copyGroupExperimenterMap();
+		List<ExperimenterGroupExperimenterLink> links = e.copyExperimenterGroupLinks();
 		assertTrue(groups.get(0).getId().getValue() == eg1.getId().getValue());
 		svc.setDefaultGroup(e, eg2);
 		
 		e = svc.lookupExperimenter(uuid1);
-		links = e.copyGroupExperimenterMap();
+		links = e.copyExperimenterGroupLinks();
 		groups = new ArrayList<ExperimenterGroup>();
-		for (GroupExperimenterMap link : links) {
+		for (ExperimenterGroupExperimenterLink link : links) {
             groups.add(link.getParent());
         }
 		assertTrue(groups.get(0).getId().getValue() == eg2.getId().getValue());
@@ -688,7 +688,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -752,7 +752,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -801,7 +801,7 @@ public class AdminServiceTest
         //First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         
@@ -851,7 +851,7 @@ public class AdminServiceTest
         rwrw = prx.getGroup(rwrwID);
 
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid));
+        e.setUserName(rstring(uuid));
         e.setFirstName(rstring(uuid));
         e.setLastName(rstring(uuid));
         long userID = prx.createUser(e, rwrw.getName().getValue());
@@ -861,7 +861,7 @@ public class AdminServiceTest
 
         omero.client client = new omero.client(root.getPropertyMap());
         try {
-            client.createSession(e.getOmeName().getValue(), "foo");
+            client.createSession(e.getUserName().getValue(), "foo");
             prx = client.getSession().getAdminService();
             prx.uploadMyUserPhoto("/tmp/foto.jpg", "image/jpeg", new byte[]{1});
             client.getSession().setSecurityContext(
@@ -899,7 +899,7 @@ public class AdminServiceTest
 		String userName = iAdmin.getEventContext().userName;
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         //create the user.
@@ -1040,7 +1040,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -1069,7 +1069,7 @@ public class AdminServiceTest
         
         String uuid2 = UUID.randomUUID().toString();
         e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid2));
+        e.setUserName(omero.rtypes.rstring(uuid2));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         expId = svc.createUser(e, uuidGroup);
@@ -1096,7 +1096,7 @@ public class AdminServiceTest
 		//First create a new user.
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();
@@ -1119,7 +1119,7 @@ public class AdminServiceTest
         //create another group and user
         String uuid2 = UUID.randomUUID().toString();
         e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid2));
+        e.setUserName(omero.rtypes.rstring(uuid2));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         expId = svc.createUser(e, uuid);
@@ -1145,7 +1145,7 @@ public class AdminServiceTest
     {
 		String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
         IAdminPrx svc = root.getSession().getAdminService();

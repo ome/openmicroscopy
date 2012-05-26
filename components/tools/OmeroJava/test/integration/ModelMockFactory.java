@@ -294,7 +294,7 @@ public class ModelMockFactory
 		oFile.setPath(omero.rtypes.rstring("/omero"));
 		oFile.setSize(omero.rtypes.rlong(0));
 		oFile.setSha1(omero.rtypes.rstring("pending"));
-		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
+		oFile.setMimeType(omero.rtypes.rstring("application/octet-stream"));
 		return oFile;
     }
     
@@ -978,7 +978,6 @@ public class ModelMockFactory
                 if (pas.size() == 0) {
                 	for (int field = 0; field < fields; field++) {
                         sample = new WellSampleI();
-                        sample.setIndex(omero.rtypes.rint(field));
                         if (fullImage) sample.setImage(createImage());
                         else sample.setImage(simpleImage(0));
                         well.addWellSample(sample);
@@ -989,7 +988,6 @@ public class ModelMockFactory
 						pa = i.next();
 						for (int field = 0; field < fields; field++) {
 	                        sample = new WellSampleI();
-	                        sample.setIndex(omero.rtypes.rint(field));
 	                        if (fullImage) sample.setImage(createImage());
 	                        else sample.setImage(simpleImage(0));
 	                        well.addWellSample(sample);
@@ -1032,7 +1030,6 @@ public class ModelMockFactory
                 well.setReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
-                    sample.setIndex(omero.rtypes.rint(field * row * column));
                     sample.setImage(createImage());
                     well.addWellSample(sample);
                 }

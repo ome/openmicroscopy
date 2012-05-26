@@ -87,7 +87,7 @@ public class CreatePojosFixture2
 
         fixture.TESTER = "TESTER-" + UUID.randomUUID().toString();
         fixture.e = new ExperimenterI();
-        fixture.e.setOmeName( rstring(fixture.TESTER) );
+        fixture.e.setUserName( rstring(fixture.TESTER) );
         fixture.e.setFirstName(rstring("Mr.") );
         fixture.e.setLastName( rstring("Allen") );
         fixture.e = new ExperimenterI(rootAdmin.createUser(fixture.e, G_NAME),

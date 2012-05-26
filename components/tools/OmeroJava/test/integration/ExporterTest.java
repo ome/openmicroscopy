@@ -49,9 +49,10 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFilePixelsLinkI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsOriginalFileMapI;
+import omero.model.OriginalFilePixelsLink;
 import omero.sys.ParametersI;
 import spec.SchemaResolver;
 import spec.OmeValidator;
@@ -176,10 +177,10 @@ public class ExporterTest
     			"select i from OriginalFile i where i.id = :id", param);
     	//upload file, method tested in RawFileStore
     	
-    	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
+        OriginalFilePixelsLink m = new OriginalFilePixelsLinkI();
     	m.setChild(new PixelsI(pixels.getId().getValue(), false));
     	m.setParent(f);
-    	m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
+    	m = (OriginalFilePixelsLink) iUpdate.saveAndReturnObject(m);
     	return image;
 	}
 

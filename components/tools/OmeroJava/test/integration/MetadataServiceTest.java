@@ -611,11 +611,11 @@ public class MetadataServiceTest
     	String uuid = UUID.randomUUID().toString();
     	String uuid2 = UUID.randomUUID().toString();
     	Experimenter e1 = new ExperimenterI();
-    	e1.setOmeName(omero.rtypes.rstring(uuid));
+    	e1.setUserName(omero.rtypes.rstring(uuid));
     	e1.setFirstName(omero.rtypes.rstring("integration"));
     	e1.setLastName(omero.rtypes.rstring("tester"));
     	Experimenter e2 = new ExperimenterI();
-    	e2.setOmeName(omero.rtypes.rstring(uuid2));
+    	e2.setUserName(omero.rtypes.rstring(uuid2));
     	e2.setFirstName(omero.rtypes.rstring("integration"));
     	e2.setLastName(omero.rtypes.rstring("tester"));
     	

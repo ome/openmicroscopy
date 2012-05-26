@@ -489,7 +489,7 @@ public class AbstractServerTest
 
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setUserName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integeration"));
         e.setLastName(omero.rtypes.rstring("tester"));
         long id = rootAdmin.createUser(e, group.getName().getValue());
@@ -646,8 +646,8 @@ public class AbstractServerTest
 			def2.getDefaultT().getValue());
 		assertTrue(def1.getModel().getValue().getValue().equals( 
 			def2.getModel().getValue().getValue()));
-		QuantumDef q1 = def1.getQuantization();
-		QuantumDef q2 = def2.getQuantization();
+		QuantumDef q1 = def1.getQuantumDef();
+		QuantumDef q2 = def2.getQuantumDef();
 		assertNotNull(q1);
 		assertNotNull(q2);
 		assertTrue(q1.getBitResolution().getValue() == 
@@ -656,8 +656,8 @@ public class AbstractServerTest
 			q2.getCdStart().getValue());
 		assertTrue(q1.getCdEnd().getValue() == 
 			q2.getCdEnd().getValue());
-		List<ChannelBinding> channels1 = def1.copyWaveRendering();
-		List<ChannelBinding> channels2 = def2.copyWaveRendering();
+		List<ChannelBinding> channels1 = def1.copyChannelBindings();
+		List<ChannelBinding> channels2 = def2.copyChannelBindings();
 		assertNotNull(channels1);
 		assertNotNull(channels2);
 		assertTrue(channels1.size() == channels2.size());

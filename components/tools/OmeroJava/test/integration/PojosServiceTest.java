@@ -693,7 +693,7 @@ public class PojosServiceTest
 				"select distinct g from ExperimenterGroup g where g.id = :id", 
 				p);
 		Experimenter e = new ExperimenterI();
-		e.setOmeName(omero.rtypes.rstring(uuid1));
+		e.setUserName(omero.rtypes.rstring(uuid1));
 		e.setFirstName(omero.rtypes.rstring("user"));
 		e.setLastName(omero.rtypes.rstring("user"));
 		
