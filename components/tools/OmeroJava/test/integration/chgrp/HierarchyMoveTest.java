@@ -231,7 +231,7 @@ public class HierarchyMoveTest
 
     	Image image = createBasicImage();
     	ROI roi = new ROII();
-    	roi.setImage(image);
+    	roi.linkImage(image);
     	Rectangle rect;
     	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	for (int i = 0; i < 3; i++) {
@@ -770,7 +770,7 @@ public class HierarchyMoveTest
 		//create the roi.
 		Image image = well.copyWellSamples().get(0).getImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {

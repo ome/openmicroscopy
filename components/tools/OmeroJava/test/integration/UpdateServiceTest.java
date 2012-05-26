@@ -996,7 +996,7 @@ public class UpdateServiceTest
     {
     	Image image = createBasicImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROII) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
@@ -1047,7 +1047,7 @@ public class UpdateServiceTest
     {
         Image image = createBasicImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
@@ -1156,7 +1156,7 @@ public class UpdateServiceTest
      	Color fillColor = Color.RED;
      	Color strokeColor = Color.GREEN;
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double strokeWidth = 2;
@@ -1241,7 +1241,7 @@ public class UpdateServiceTest
     {
     	Image image = createBasicImage();
     	ROI roi = new ROII();
-    	roi.setImage(image);
+    	roi.linkImage(image);
     	String name = "roi name";
     	String description = "roi description";
     	String ns = "roi ns";
@@ -1267,7 +1267,7 @@ public class UpdateServiceTest
     {
        	Image image = createBasicImage();
        	ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
@@ -1317,7 +1317,7 @@ public class UpdateServiceTest
      	List<IObject> values = svc.getAllEnumerations(Marker.class.getName());
      	Marker marker = (Marker) values.get(0);
     	ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
@@ -1374,7 +1374,7 @@ public class UpdateServiceTest
     	Marker marker = (Marker) values.get(0);
     	
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
@@ -1432,7 +1432,7 @@ public class UpdateServiceTest
     {
         Image image = createBasicImage();
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.linkImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;

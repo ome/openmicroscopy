@@ -71,7 +71,7 @@ public class RoiServiceTest
     	
         ROI roi = new ROII();
         roi.setName(rstring("roi"));
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -106,7 +106,7 @@ public class RoiServiceTest
     	Image image = createBasicImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-    	roi.setImage(image);
+    	roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -161,7 +161,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -261,7 +261,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -353,7 +353,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.setImage(image);
+        roi.linkImage(image);
         Rectangle rect;
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
