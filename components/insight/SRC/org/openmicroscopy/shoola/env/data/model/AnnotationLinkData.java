@@ -100,4 +100,15 @@ public class AnnotationLinkData
 	 */
 	public IObject getLink() { return link; }
 	
+	/**
+	 * Returns <code>true</code> if the link can be deleted, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canDelete()
+	{
+		return link.getDetails().getPermissions().canDelete();
+	}
+
 }

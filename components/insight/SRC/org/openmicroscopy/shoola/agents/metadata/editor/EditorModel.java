@@ -761,10 +761,20 @@ class EditorModel
 	boolean canDeleteLink(Object data)
 	{ 
 		if (!(data instanceof DataObject)) return false;
+		
 		DataObject d = (DataObject) data;
-		boolean b = d.canDelete();
-		if (b) return b;
-		return isLinkOwner(data);
+		StructuredDataResults result = parent.getStructuredData();
+		if (data == null) return false;
+		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData link;
+		
+		while (i.hasNext()) {
+			link = i.next();
+			if (d.getId() == link.getChild().getId())
+				return link.canDelete();
+		}
+		return false;
 	}
 	
 	/**
@@ -826,24 +836,15 @@ class EditorModel
 	boolean canDeleteAnnotationLink()
 	{
 		if (!isMultiSelection()) return true;
-		if (MetadataViewerAgent.isAdministrator() || isGroupLeader())
-			return true;
-
+		
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
-		Map m = data.getLinks();
-		if (m == null) return false;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
-		ExperimenterData exp;
+		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
+		AnnotationLinkData link;
+		Iterator<AnnotationLinkData> i = list.iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			exp = (ExperimenterData) entry.getValue();
-			if (id == exp.getId())
-				return true;
+			link = i.next();
+			if (link.canDelete()) return true;
 		}
 		return false;
 	}

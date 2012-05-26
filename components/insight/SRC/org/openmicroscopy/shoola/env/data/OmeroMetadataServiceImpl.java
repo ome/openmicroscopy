@@ -188,7 +188,7 @@ class OmeroMetadataServiceImpl
 		else o = ((DataObject) annotation).asIObject();
 		IObject ho = gateway.findIObject(ctx, o);
 		if (ho == null) return;
-		long id = getUserDetails().getId();
+		long id = -1;//getUserDetails().getId();
 		if (ho instanceof Annotation) {
 			List links = gateway.findAnnotationLinks(ctx, object.getClass(),
 				   object.getId(), Arrays.asList(ho.getId().getValue()), id);
