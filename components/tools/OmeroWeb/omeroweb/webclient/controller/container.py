@@ -401,7 +401,6 @@ class BaseContainer(BaseController):
         if group is None:
             return False
         perms = str(group.getDetails().getPermissions())
-        print "canUseOthersAnns", perms, self.conn.isAdmin(), self.conn.isLeader(group.id)
         rv = False
         if perms in ("rwrw--", "rwra--"):
             return True
@@ -658,18 +657,25 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 if k.lower() == 'acquisitions':
-                    t = 'PlateAcquisition'
+                    parent_type = 'PlateAcquisition'
                 else:
-                    t = k.lower().title()
-                for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
+                    parent_type = k.lower().title()
+                parent_ids = [o.id for o in oids[k]]
+                # check for existing links
+                links = self.conn.getAnnotationLinks (parent_type, parent_ids=parent_ids, ann_ids=tids)
+                pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
+                # Create link between each object and annotation
+                for ob in self.conn.getObjects(parent_type, parent_ids):
                     parent_objs.append(ob)
                     for a in annotations:
+                        if (ob.id, a.id) in pcLinks:
+                            continue    # link already exists
                         if isinstance(ob._obj, omero.model.WellI):
-                            t = 'Image'
+                            parent_type = 'Image'
                             obj = ob.getWellSample(well_index).image()
                         else:
                             obj = ob
-                        l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                        l_ann = getattr(omero.model, parent_type+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
