@@ -33,7 +33,7 @@ public class PojosTest extends IceTest {
 
         IContainerPrx p = factoryIce.getContainerService();
         p.getCollectionCount(ExperimenterI.class.getName(),
-                ExperimenterI.GROUPEXPERIMENTERMAP, Arrays.asList(0L), null);
+                ExperimenterI.EXPERIMENTERGROUPLINKS, Arrays.asList(0L), null);
     }
 
     @Test(enabled = false)

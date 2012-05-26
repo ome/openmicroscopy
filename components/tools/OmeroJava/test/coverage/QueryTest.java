@@ -79,7 +79,7 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu
                 .findAll("Experimenter", f));
         assertTrue(l.size() == 1);
-        assertNotNull(l.get(0).getOmeName());
+        assertNotNull(l.get(0).getUserName());
 
     }
 
@@ -93,11 +93,11 @@ public class QueryTest extends IceTest {
 
         IQueryPrx qu = ice.getSession().getQueryService();
         ExperimenterI ex = new ExperimenterI();
-        ex.setOmeName(rstring("root"));
+        ex.setUserName(rstring("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu
                 .findAllByExample(ex, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).getOmeName().getValue().equals("root"));
+        assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);
 
     }
@@ -114,7 +114,7 @@ public class QueryTest extends IceTest {
         p.map.put("name", rstring("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str, p));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).getOmeName().getValue().equals("root"));
+        assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);
 
     }
@@ -126,7 +126,7 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).getOmeName().getValue().equals("root"));
+        assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);
 
     }
@@ -138,7 +138,7 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).getOmeName().getValue().equals("root"));
+        assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);
 
     }
