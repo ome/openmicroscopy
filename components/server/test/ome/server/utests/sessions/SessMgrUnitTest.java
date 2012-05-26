@@ -204,7 +204,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         Session rv = new Session();
 
         testCreateNewSession();
-        session.setDefaultEventType("somethingnew");
+        session.setDefaultEventType(new EventType("somethingnew"));
         sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
                 returnValue(rv));
 
