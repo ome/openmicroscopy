@@ -25,15 +25,15 @@ public class EventBacklogTest extends MockObjectTestCase {
 
     @Test
     public void testAddedOnlyOnce() {
-        EventLog log = new EventLog(1L, "Image", "INSERT", null);
+        EventLog log = new EventLog("Image", 1L, "INSERT", null);
         assertTrue(b.add(log));
         assertFalse(b.add(log));
     }
 
     @Test
     public void testOrdered() {
-        EventLog log1 = new EventLog(1L, "Image", "INSERT", null);
-        EventLog log2 = new EventLog(2L, "Image", "INSERT", null);
+        EventLog log1 = new EventLog("Image", 1L, "INSERT", null);
+        EventLog log2 = new EventLog("Image", 2L, "INSERT", null);
         assertTrue(b.add(log1));
         assertTrue(b.add(log2));
         assertEquals(new Long(1L), b.remove().getEntityId());
@@ -43,9 +43,9 @@ public class EventBacklogTest extends MockObjectTestCase {
 
     @Test
     public void testPop() {
-        EventLog log1 = new EventLog(1L, "Image", "INSERT", null);
-        EventLog log2 = new EventLog(1L, "Image", "UPDATE", null);
-        EventLog log3 = new EventLog(1L, "Dataset", "UPDATE", null);
+        EventLog log1 = new EventLog("Image", 1L, "INSERT", null);
+        EventLog log2 = new EventLog("Image", 1L, "UPDATE", null);
+        EventLog log3 = new EventLog("Dataset", 1L, "UPDATE", null);
         assertTrue(b.add(log1));
         assertTrue(b.add(log2));
         assertTrue(b.add(log3));
@@ -67,9 +67,9 @@ public class EventBacklogTest extends MockObjectTestCase {
     @Test(groups = "ticket:1102")
     public void testBacklogLockedWhileIndexingFromBacklog() {
 
-        EventLog currentIndex = new EventLog(1L, "Image", "UPDATE", null);
-        EventLog reindexed1 = new EventLog(1L, "Dataset", "UPDATE", null);
-        EventLog reindexed2 = new EventLog(2L, "Dataset", "UPDATE", null);
+        EventLog currentIndex = new EventLog("Image", 1L, "UPDATE", null);
+        EventLog reindexed1 = new EventLog("Dataset", 1L, "UPDATE", null);
+        EventLog reindexed2 = new EventLog("Dataset", 2L, "UPDATE", null);
 
         // Index is clear. We are currently processing currentIndex
         assertTrue(b.add(reindexed1));

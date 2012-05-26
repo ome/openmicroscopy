@@ -219,11 +219,11 @@ public class EventLogLoadersTest extends MockObjectTestCase {
     @Test(groups = "ticket:1102")
     public void testBacklogAdvanced() {
         list = new ArrayList<EventLog>();
-        list.add(new EventLog(1L, Project.class.getName(), "INSERT", null));
-        list.add(new EventLog(2L, Dataset.class.getName(), "INSERT", null));
-        list.add(new EventLog(3L, Dataset.class.getName(), "INSERT", null));
-        list.add(new EventLog(4L, Image.class.getName(), "INSERT", null));
-        list.add(new EventLog(5L, Image.class.getName(), "INSERT", null));
+        list.add(new EventLog(Project.class.getName(), 1L, "INSERT", null));
+        list.add(new EventLog(Dataset.class.getName(), 2L, "INSERT", null));
+        list.add(new EventLog(Dataset.class.getName(), 3L, "INSERT", null));
+        list.add(new EventLog(Image.class.getName(), 4L, "INSERT", null));
+        list.add(new EventLog(Image.class.getName(), 5L, "INSERT", null));
         ell = new EventLogLoader() {
             @Override
             protected EventLog query() {
