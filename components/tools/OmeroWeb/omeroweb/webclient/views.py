@@ -1981,10 +1981,9 @@ def activities(request, conn=None, **kwargs):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
                         logger.error("chgrp failed with: %s" % rsp_params)
-                        request.session['callback'][cbString]['results'] = "%s %s" % (rsp.name, rsp_params)
+                        request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
                     elif isinstance(rsp, omero.cmd.OK):
                         request.session['callback'][cbString]['status'] = "finished"
-                        request.session['callback'][cbString]['results'] = "Moved OK"
                 else:
                     in_progress+=1
 
