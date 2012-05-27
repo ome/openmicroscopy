@@ -949,22 +949,25 @@ class IntensityView
 	private void outputSummaryRow(ExcelWriter writer, int rowIndex, 
 			Integer channel, int z, int t) 
 	{
-		writer.writeElement(rowIndex, 0, channelName.get(channel));
+		String name = channelName.get(channel);
+		writer.writeElement(rowIndex, 0, name);
 		writer.writeElement(rowIndex, 1, z+"");
 		writer.writeElement(rowIndex, 2, t+"");
 		int col;
 		String v;
 		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
-			col = getColumn(channelName.get(channel));
+			col = getColumn(name);
 			if (col == -1)
 				continue;
 			v = (String) channelSummaryTable.getValueAt(y, col);
-			if (v.contains(".") && v.contains(",")) {
-				v = v.replace(".", "");
-				v = v.replace(",", ".");
+			if (v != null) {
+				if (v.contains(".") && v.contains(",")) {
+					v = v.replace(".", "");
+					v = v.replace(",", ".");
+				}
+				writer.writeElement(rowIndex, 3+y, new Double(v));
 			}
-			writer.writeElement(rowIndex, 3+y, new Double(v));
 		}
 	}
 	
