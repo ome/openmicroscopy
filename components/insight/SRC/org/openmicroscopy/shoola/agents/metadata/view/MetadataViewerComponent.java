@@ -1149,6 +1149,9 @@ class MetadataViewerComponent
 	public void onGroupSwitched(boolean success)
 	{
 		if (!success) return;
+		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		setRootObject(null, exp.getId(), model.getSecurityContext());
+		setParentRootObject(null, null);
 		model.getEditor().onGroupSwitched(success);
 	}
 	
