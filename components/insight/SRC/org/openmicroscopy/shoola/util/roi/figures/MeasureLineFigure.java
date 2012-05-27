@@ -794,6 +794,7 @@ public class MeasureLineFigure
 	 */
 	public void setBezierPath(BezierPath newValue) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setBezierPath(newValue);
 		this.setObjectDirty(true);
 	}
@@ -805,6 +806,7 @@ public class MeasureLineFigure
 	 */
 	public void setEndPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setEndPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -816,6 +818,7 @@ public class MeasureLineFigure
 	 */
 	public void setNode(int index, BezierPath.Node p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setNode(index, p);
 		this.setObjectDirty(true);
 	}
@@ -827,6 +830,7 @@ public class MeasureLineFigure
 	 */
 	public void setPoint(int index, int coord, Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setPoint(index, coord, p);
 		this.setObjectDirty(true);
 	}
@@ -838,6 +842,7 @@ public class MeasureLineFigure
 	 */
 	public void setStartPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setStartPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -849,6 +854,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split);
 	}
@@ -860,6 +866,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split, tolerance);
 	}
@@ -871,6 +878,7 @@ public class MeasureLineFigure
 	 */
 	public int joinSegments(Point2D.Double join, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}

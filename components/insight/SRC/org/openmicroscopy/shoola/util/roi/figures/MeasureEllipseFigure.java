@@ -727,5 +727,4 @@ public class MeasureEllipseFigure
 	 */
 	public boolean canInteract() { return interactable; }
 
-
 }
