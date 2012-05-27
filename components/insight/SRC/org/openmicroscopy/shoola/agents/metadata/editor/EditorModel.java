@@ -766,6 +766,7 @@ class EditorModel
 		StructuredDataResults result = parent.getStructuredData();
 		if (data == null) return false;
 		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		if (links == null) return false;
 		Iterator<AnnotationLinkData> i = links.iterator();
 		AnnotationLinkData link;
 		
@@ -840,6 +841,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
 		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
+		if (data == null) return false;
 		AnnotationLinkData link;
 		Iterator<AnnotationLinkData> i = list.iterator();
 		while (i.hasNext()) {
@@ -983,6 +985,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
+		if (links == null) return new ArrayList<Object>();
 		Iterator<AnnotationLinkData> i = links.iterator();
 		AnnotationLinkData d;
 		List<Object> results = new ArrayList<Object>();
