@@ -462,12 +462,7 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
-            if eid is not None:
-                params = omero.sys.Parameters()
-                params.theFilter = omero.sys.Filter()
-                params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return sort_file_anns(self.conn.listFileAnnotations(params=params))
-            return sort_file_anns(self.conn.listFileAnnotations())
+            return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
     # Creation
     
