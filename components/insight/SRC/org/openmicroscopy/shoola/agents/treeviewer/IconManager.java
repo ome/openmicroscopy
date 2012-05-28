@@ -736,8 +736,8 @@ public class IconManager
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";
-        relPaths[MOVE_22] = "nuvola_download_manager22.png";
-        relPaths[MOVE_FAILED_22] = "nuvola_download_manager22.png";
+        relPaths[MOVE_22] = "nuvola_apply22.png";
+        relPaths[MOVE_FAILED_22] = "nuvola_cancel22.png";
         relPaths[MOVE_48] = "nuvola_folder_image48.png";
     }
     

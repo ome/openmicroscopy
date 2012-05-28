@@ -290,7 +290,7 @@ public class MoveGroupSelectionDialog
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
 		moveButton = new JButton("Move");
-		moveButton.setEnabled(false);
+		moveButton.setEnabled(true);
 		moveButton.addActionListener(this);
 		moveButton.setActionCommand(""+MOVE);
 		Entry<SecurityContext, List<DataObject>> entry;
@@ -559,7 +559,7 @@ public class MoveGroupSelectionDialog
 	public void valueChanged(TreeSelectionEvent e)
 	{
 		TreePath[] paths = treeDisplay.getSelectionPaths();
-		moveButton.setEnabled(paths != null && paths.length > 0);
+		//moveButton.setEnabled(paths != null && paths.length > 0);
 	}
 
 }

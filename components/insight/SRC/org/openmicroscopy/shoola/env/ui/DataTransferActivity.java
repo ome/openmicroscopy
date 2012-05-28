@@ -49,7 +49,7 @@ public class DataTransferActivity
 	private static final String		DESCRIPTION_START = "Moving data ";
 		
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_END = "Moved completed";
+	private static final String		DESCRIPTION_END = "Move completed";
 	
 	/** The description of the activity when error occurred. */
 	private static final String		DESCRIPTION_ERROR =

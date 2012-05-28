@@ -2021,8 +2021,8 @@ class TreeViewerComponent
 					(List<DataObject>) entry.getValue(), trans);
 			t.setGroupName(getGroupName(id));
 			param = new TransferableActivityParam(
-					icons.getIcon(IconManager.APPLY_22), t);
-			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+					icons.getIcon(IconManager.MOVE_22), t);
+			param.setFailureIcon(icons.getIcon(IconManager.MOVE_FAILED_22));
 			un.notifyActivity(model.getSecurityContext(), param);
 		}
 	}
