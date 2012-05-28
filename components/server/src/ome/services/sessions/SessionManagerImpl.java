@@ -1039,6 +1039,12 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         // Have to copy values over due to unloaded
                         final Session s2 = copy(s);
 
+                        Long type = sql.findEventType(s.getDefaultEventType().getValue());
+                        if (type == null) {
+                            throw new ApiUsageException("Bad event type: " +
+                                    s.getDefaultEventType().getValue());
+                        }
+
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
                         // select nextval('seq_session'),-35,
@@ -1048,7 +1054,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         params.put("ttl", s.getTimeToLive());
                         params.put("tti", s.getTimeToIdle());
                         params.put("start", s.getStarted());
-                        params.put("type", s.getDefaultEventType());
+                        params.put("type", type);
                         params.put("uuid", s.getUuid());
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());

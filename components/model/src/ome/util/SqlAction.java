@@ -133,6 +133,8 @@ public interface SqlAction {
 
     int repoScriptCount(String uuid);
 
+    Long findEventType(String value);
+
     Long nextSessionId();
 
     List<Long> fileIdsInDb(String uuid);
@@ -369,6 +371,14 @@ public interface SqlAction {
         //
         // SECURITY
         //
+
+        public Long nextSessionId() {
+            return _jdbc().queryForLong(_lookup("next_session")); //$NON-NLS-1$
+        }
+
+        public Long findEventType(String value) {
+            return _jdbc().queryForLong(_lookup("find_eventtype"), value); //$NON-NLS-1$
+        }
 
         public int closeNodeSessions(String uuid) {
             return _jdbc().update(

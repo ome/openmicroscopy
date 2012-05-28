@@ -130,10 +130,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
         return _jdbc().queryForInt(_lookup("repo_script_count"), uuid); //$NON-NLS-1$
     }
 
-    public Long nextSessionId() {
-        return _jdbc().queryForLong(_lookup("next_session")); //$NON-NLS-1$
-    }
-
     public List<Long> fileIdsInDb(String uuid) {
         return _jdbc().query(_lookup("file_id_in_db"), //$NON-NLS-1$
                 new RowMapper<Long>() {
