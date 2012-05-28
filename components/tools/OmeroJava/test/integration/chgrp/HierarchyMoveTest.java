@@ -10,18 +10,23 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.api.Save;
 import omero.cmd.Chgrp;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Channel;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
@@ -40,6 +45,7 @@ import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
@@ -1075,4 +1081,121 @@ public class HierarchyMoveTest
 	assertNotNull(iQuery.findByQuery(sql, param));
     }
 
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProject()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	disconnect();
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+    //login into new group
+	EventContext targetCtx = loginUser(g);
+	Project p = (Project) iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject());
+	disconnect();
+	//back to original group
+	loginUser(ctx);
+
+	List<Request> list = new ArrayList<Request>();
+	list.add(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+			d.getId().getValue(), null, g.getId().getValue()));
+	
+	ProjectDatasetLink link = new ProjectDatasetLinkI();
+	link.setChild(new DatasetI(d.getId().getValue(), false));
+	link.setParent(new ProjectI(p.getId().getValue(), false));
+	Save cmd = new Save();
+	cmd.obj = link;
+	cmd.session = ctx.sessionUuid;
+	list.add(cmd);
+	DoAll all = new DoAll();
+	all.requests = list;
+	all.session = ctx.sessionUuid;
+    doChange(all);
+
+	//Check if objects have been deleted
+	ParametersI param = new ParametersI();
+	param.addId(d.getId().getValue());
+	String sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check the link
+	param = new ParametersI();
+	param.map.put("childID", d.getId());
+	param.map.put("parentID", p.getId());
+	sql = "select i from ProjectDatsasetLink as i where " +
+			"i.child.id = :childID and i.parent.id = :parentID";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to move a dataset to a new project contained in the target group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProject()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	disconnect();
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+
+
+	List<Request> list = new ArrayList<Request>();
+	list.add(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+			d.getId().getValue(), null, g.getId().getValue()));
+	
+	ProjectDatasetLink link = new ProjectDatasetLinkI();
+	link.setChild(new DatasetI(d.getId().getValue(), false));
+	link.setParent(new ProjectI(-1, false)); //new project to create.
+	Save cmd = new Save();
+	cmd.obj = link;
+	cmd.session = ctx.sessionUuid;
+	list.add(cmd);
+	DoAll all = new DoAll();
+	all.requests = list;
+	all.session = ctx.sessionUuid;
+    doChange(all);
+
+	//Check if objects have been deleted
+	ParametersI param = new ParametersI();
+	param.addId(d.getId().getValue());
+	String sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check the link
+	param = new ParametersI();
+	param.map.put("childID", d.getId());
+	sql = "select i from ProjectDatsasetLink as i where " +
+			"i.child.id = :childID";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
 }

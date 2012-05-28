@@ -54,6 +54,7 @@ import omero.cmd.ERR;
 import omero.cmd.GraphModify;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
+import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
@@ -1547,7 +1548,7 @@ public class AbstractServerTest
 	 * @return See above.
 	 * @throws Exception
 	 */
-	protected Response doChange(GraphModify change)
+	protected Response doChange(Request change)
 	    throws Exception {
 	    return doChange(client, factory, change, true);
 	}
@@ -1562,7 +1563,7 @@ public class AbstractServerTest
 	 * @throws Exception
 	 */
 	protected Response doChange(omero.client c, ServiceFactoryPrx f,
-			GraphModify change, boolean pass)
+			Request change, boolean pass)
 		throws Exception
 	{
 		final HandlePrx prx = f.submit(change);
