@@ -1179,7 +1179,9 @@ class MeasurementViewerModel
 	List<ROIData> getROIData()
 	{
 		try {
-			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE);
+			long userID = getCurrentUser().getId();
+			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE,
+					userID);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
@@ -1198,24 +1200,17 @@ class MeasurementViewerModel
 	List<ROIData> getROIData(int level)
 	{
 		try {
+			long userID = getCurrentUser().getId();
 			switch (level) {
 			case MeasurementViewer.ALL:
-				return roiComponent.saveROI(getImage(), ROIComponent.ALL);
+				return roiComponent.saveROI(getImage(), ROIComponent.DELETE,
+						userID);
 			case MeasurementViewer.ME:
-				return getROIData();
+				return roiComponent.saveROI(getImage(), ROIComponent.DELETE_MINE,
+						userID);
 			case MeasurementViewer.OTHER:
-				List<ROIData> l = roiComponent.saveROI(getImage(),
-						ROIComponent.ALL);
-				List<ROIData> results = new ArrayList<ROIData>();
-				Iterator<ROIData> i = l.iterator();
-				ROIData roi;
-				long userID = getCurrentUser().getId();
-				while (i.hasNext()) {
-					roi = i.next();
-					if (roi.getOwner().getId() != userID)
-						results.add(roi);
-				}
-				return results;
+				return roiComponent.saveROI(getImage(),
+						ROIComponent.DELETE_OTHERS, userID);
 			}
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();

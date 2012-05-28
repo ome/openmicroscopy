@@ -497,7 +497,7 @@ class MeasurementViewerControl
 		else if (LoadingWindow.CLOSED_PROPERTY.equals(name)) 
             model.discard();
 		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
-			int level = (Integer) evt.getNewValue();
+			model.deleteAllROIs((Integer) evt.getNewValue());
 		}
 	}
 

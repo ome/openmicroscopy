@@ -95,15 +95,16 @@ public class ServerROIStrategy
 	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
 	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception 
 	 */
 	public List<ROIData> write(ROIComponent component, ImageData image,
-			int index)
+			int index, long userID)
 		throws Exception
 	{
 		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component, image, index);
+		return outputStrategy.writeROI(component, image, index, userID);
 	}
 
 }

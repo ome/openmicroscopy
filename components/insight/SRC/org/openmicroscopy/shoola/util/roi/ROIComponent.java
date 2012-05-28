@@ -88,7 +88,13 @@ public class ROIComponent
 	public static final int DELETE = 1;
 	
 	/** Flag indicating to check if the roi can be annotated.*/
-	public static final int ALL = 2;
+	public static final int DELETE_MINE = 2;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_OTHERS = 3;
+	
+	/** Flag indicating to check if the roi can be deleted.*/
+	public static final int ALL = 4;
 	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
@@ -288,15 +294,16 @@ public class ROIComponent
 	 * 
 	 * @param image The image the ROI are on.
 	 * @param index One of the constants defined by this class.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, int index) 
+	public List<ROIData> saveROI(ImageData image, int index, long userID)
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, index);
+		return serverStrategy.write(this, image, index, userID);
 	}
 	
 	/**

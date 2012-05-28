@@ -94,9 +94,10 @@ class OutputServerStrategy
 	 * 
 	 * @param image The image the ROI is on.
 	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception 
 	 */
-	private void parseROI(ImageData image, int index) 
+	private void parseROI(ImageData image, int index, long userID) 
 		throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
@@ -115,9 +116,29 @@ class OutputServerStrategy
 				while (i.hasNext())
 				{
 					roi = i.next();
-					if (roi.canDelete())
+					if (roi.canDelete()) 
 						ROIList.add(createServerROI(roi, image));
 				}
+				break;
+			case ROIComponent.DELETE_MINE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete()) {
+						if (roi.getOwnerID() < 0 || roi.getOwnerID() == userID)
+							ROIList.add(createServerROI(roi, image));
+					}
+				}
+				break;
+			case ROIComponent.DELETE_OTHERS:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete() && roi.getOwnerID() >= 0 &&
+						roi.getOwnerID() != userID)
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;	
 			case ROIComponent.ALL:
 				while (i.hasNext())
 					ROIList.add(createServerROI(i.next(), image));
@@ -634,14 +655,16 @@ class OutputServerStrategy
 	 * @param component See above.
 	 * @param image The image the ROI is on.
 	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	List<ROIData> writeROI(ROIComponent component, ImageData image, int index)
+	List<ROIData> writeROI(ROIComponent component, ImageData image, int index,
+			long userID)
 		throws Exception
 	{
 		this.component = component;
 		ROIList = new ArrayList<ROIData>();
-		parseROI(image, index);
+		parseROI(image, index, userID);
 		return ROIList;
 	}
 

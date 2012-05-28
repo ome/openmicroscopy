@@ -1041,6 +1041,7 @@ class MeasurementViewerComponent
 		List<ROIData> list;
 		if (model.isMember()) list = model.getROIData();
 		else list = model.getROIData(level);
+		if (list.size() == 0) return;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
 		ROIData roi;
