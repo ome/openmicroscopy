@@ -479,7 +479,7 @@ class RendererModel
 	 */
 	List getCodomainMaps()
 	{ 
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList();
 		return rndControl.getCodomainMaps();
 	}
 
@@ -540,7 +540,7 @@ class RendererModel
 	 */
 	List getFamilies()
 	{ 
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList();
 		return rndControl.getFamilies();
 	}
 
@@ -551,7 +551,7 @@ class RendererModel
 	 */
 	String getFamily()
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return "";
 		return rndControl.getChannelFamily(selectedChannelIndex);
 	}
 
@@ -596,7 +596,7 @@ class RendererModel
 	 */
 	List<ChannelData> getChannelData()
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList<ChannelData>();
 		if (sortedChannel == null) {
 			ChannelData[] data = rndControl.getChannelData();
 			ViewerSorter sorter = new ViewerSorter();
@@ -841,8 +841,9 @@ class RendererModel
 	 */
 	List<Integer> getActiveChannels()
 	{
-		if (rndControl == null) return null;
 		List<Integer> active = new ArrayList<Integer>();
+		if (rndControl == null) return active;
+		
 		for (int i = 0; i < getMaxC(); i++) {
 			if (rndControl.isActive(i)) active.add(Integer.valueOf(i));
 		}
@@ -1436,7 +1437,7 @@ class RendererModel
 	Dimension getTileSize()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return new Dimension(0, 0);
 		return rndControl.getTileSize();
 	}
 	
