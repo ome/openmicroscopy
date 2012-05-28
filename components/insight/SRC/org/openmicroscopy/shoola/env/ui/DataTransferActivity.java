@@ -31,6 +31,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 
 /** 
@@ -106,14 +107,12 @@ public class DataTransferActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		Collection l = (Collection) result;
-		if (l.size() > 0) {
+		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);
 		}
-		//post an event to remove nodes
 	}
 	
 	/**
