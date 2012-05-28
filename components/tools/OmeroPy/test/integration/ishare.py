@@ -263,7 +263,7 @@ class TestIShare(lib.ITest):
         
         #members
         p.map["eid"] = rlong(user1.id.val)
-        sql = "select e from Experimenter e where e.id =:eid order by e.omeName"
+        sql = "select e from Experimenter e where e.id =:eid order by e.userName"
         ms = query.findAllByQuery(sql, p)
         sid = share.createShare(("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)) , items, ms, [], True)
         

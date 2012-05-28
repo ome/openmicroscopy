@@ -113,17 +113,17 @@ class ConnectionMethodsTest (lib.GTest):
         self.assertEqual(self.gateway.getObject("Dataset", dataset_id).getId(), dataset_id)
         ##
         # Test listExperimenters
-        #exps = map(lambda x: x.omeName, self.gateway.listExperimenters())  # removed from blitz gateway
-        exps = map(lambda x: x.omeName, self.gateway.getObjects("Experimenter"))
-        for omeName in (self.USER.name, self.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
-            self.assert_(omeName in exps)
-            self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'omeName':omeName}))) > 0)
+        #exps = map(lambda x: x.userName, self.gateway.listExperimenters())  # removed from blitz gateway
+        exps = map(lambda x: x.userName, self.gateway.getObjects("Experimenter"))
+        for userName in (self.USER.name, self.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
+            self.assert_(userName in exps)
+            self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'userName':userName}))) > 0)
         comboName = self.USER.name+self.AUTHOR.name+self.ADMIN.name
-        self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'omeName':comboName}))) ==  0)
+        self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'userName':comboName}))) ==  0)
         ##
         # Test lookupExperimenter
-        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'omeName':self.USER.name}).omeName, self.USER.name)
-        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'omeName':comboName}), None)
+        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'userName':self.USER.name}).userName, self.USER.name)
+        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'userName':comboName}), None)
         ##
         # still logged in as Author, test listImages(ns)
         def listImages(ns=None):
@@ -162,7 +162,7 @@ class ConnectionMethodsTest (lib.GTest):
 
     def testMiscellaneous (self):
         self.loginAsUser()
-        self.assertEqual(self.gateway.getUser().omeName, self.USER.name)
+        self.assertEqual(self.gateway.getUser().userName, self.USER.name)
 
 if __name__ == '__main__':
     unittest.main()

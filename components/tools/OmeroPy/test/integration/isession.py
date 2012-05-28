@@ -36,10 +36,10 @@ class TestISession(lib.ITest):
         p.theFilter = omero.sys.Filter()
         p.theFilter.limit = rint(1)
         user = self.root.sf.getQueryService().findByQuery("""
-            select e from Experimenter e where e.id > 0 and e.omeName != 'guest'
+            select e from Experimenter e where e.id > 0 and e.userName != 'guest'
             """, p)
         p = omero.sys.Principal()
-        p.name  = user.omeName.val
+        p.name  = user.userName.val
         p.group = "user"
         p.eventType = "Test"
         sess  = self.root.sf.getSessionService().createSessionWithTimeout(p, 10000) # 10 secs
@@ -58,7 +58,7 @@ class TestISession(lib.ITest):
 
         client = omero.client() # ok rather than new_client since has __del__
         try:
-            sf = client.createSession(test_user.omeName.val,"ome")
+            sf = client.createSession(test_user.userName.val,"ome")
             a = sf.getAdminService()
             suuid = a.getEventContext().sessionUuid
             sf.detachOnDestroy()

@@ -164,16 +164,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public Experimenter userProxy(final String omeName) {
-        if (omeName == null) {
-            throw new ApiUsageException("omeName argument cannot be null.");
+    public Experimenter userProxy(final String userName) {
+        if (userName == null) {
+            throw new ApiUsageException("userName argument cannot be null.");
         }
 
-        Experimenter e = iQuery.findByString(Experimenter.class, "omeName",
-                omeName);
+        Experimenter e = iQuery.findByString(Experimenter.class, "userName",
+                userName);
 
         if (e == null) {
-            throw new ApiUsageException("No such experimenter: " + omeName);
+            throw new ApiUsageException("No such experimenter: " + userName);
         }
 
         return e;
@@ -295,12 +295,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public Experimenter lookupExperimenter(final String omeName) {
+    public Experimenter lookupExperimenter(final String userName) {
         Experimenter e = iQuery.execute(new UserQ(new Parameters().addString(
-                "name", omeName)));
+                "name", userName)));
 
         if (e == null) {
-            throw new ApiUsageException("No such experimenter: " + omeName);
+            throw new ApiUsageException("No such experimenter: " + userName);
         }
 
         return e;
@@ -849,10 +849,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void changeOwner(IObject iObject, String omeName) {
+    public void changeOwner(IObject iObject, String userName) {
         // should take an Owner
         IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-        Experimenter owner = userProxy(omeName);
+        Experimenter owner = userProxy(userName);
         copy.getDetails().setOwner(owner);
         iUpdate.saveObject(copy);
     }
@@ -1086,7 +1086,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 Experimenter e = iQuery.findByString(Experimenter.class,
-                        "omeName", name);
+                        "userName", name);
                 if (e == null) {
                     throw new AuthenticationException("Unknown user.");
                 } else if (e.getEmail() == null) {
@@ -1259,7 +1259,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
             /* Should these calls be using g not c? - ajp */
             if (value("name") != null) {
-                c.add(Restrictions.eq("omeName", value("name")));
+                c.add(Restrictions.eq("userName", value("name")));
             }
 
             else if (value("id") != null) {

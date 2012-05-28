@@ -120,13 +120,13 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     }
 
     public void changeGroup_async(AMD_IAdmin_changeGroup __cb, IObject obj,
-            String omeName, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, obj, omeName);
+            String userName, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, obj, userName);
     }
 
     public void changeOwner_async(AMD_IAdmin_changeOwner __cb, IObject obj,
-            String omeName, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, obj, omeName);
+            String userName, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, obj, userName);
     }
 
     public void changePassword_async(AMD_IAdmin_changePassword __cb,
@@ -149,9 +149,9 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     }
 
     public void changeUserPassword_async(AMD_IAdmin_changeUserPassword __cb,
-            String omeName, RString newPassword, Current __current)
+            String userName, RString newPassword, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, omeName, newPassword);
+        callInvokerOnRawArgs(__cb, __current, userName, newPassword);
     }
 
     public void containedExperimenters_async(

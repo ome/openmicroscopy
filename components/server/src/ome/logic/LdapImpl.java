@@ -266,7 +266,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             return;
         }
 
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, "userName", username);
 
         Experimenter ldapExp = findExperimenter(username);
         String ldapDN = getContextMapper().getDn(ldapExp);

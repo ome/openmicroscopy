@@ -995,7 +995,7 @@ OMERO Diagnostics %s
                 rv.append(s.node.id)
                 rv.append(s.uuid)
                 rv.append(s.started)
-                rv.append(s.owner.omeName)
+                rv.append(s.owner.userName)
                 if s.userAgent is None:
                     rv.append("")
                 else:

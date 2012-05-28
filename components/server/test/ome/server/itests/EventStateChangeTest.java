@@ -66,7 +66,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest {
     // =========================================================================
     private Experimenter getExperimenter(String expName) {
         Experimenter e = iQuery.findByString(Experimenter.class,
-                "omeName", expName);
+                "userName", expName);
         return e;
     }
 

@@ -14,7 +14,7 @@ struct AllProjects {
         omero::sys::ParametersIPtr p = new omero::sys::ParametersI();
         p->add("name", rstring(username));
         omero::api::IObjectList rv = query->findAllByQuery(
-            "select p from Project p join fetch p.datasetLinks dil join fetch dil.child where p.details.owner.omeName = :name", p);
+            "select p from Project p join fetch p.datasetLinks dil join fetch dil.child where p.details.owner.userName = :name", p);
         return omero::cast<omero::model::ProjectPtr>(rv);
     }
 

@@ -4,5 +4,5 @@ from omero_sys_ParametersI import ParametersI
 
 def getProjects(query_prx, username):
     return query_prx.findAllByQuery(
-            "select p from Project p join fetch p.datasetLinks dil join fetch dil.child where p.details.owner.omeName = :name",
+            "select p from Project p join fetch p.datasetLinks dil join fetch dil.child where p.details.owner.userName = :name",
             ParametersI().add("name", rstring(username)))

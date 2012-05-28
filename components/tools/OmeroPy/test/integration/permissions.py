@@ -278,7 +278,7 @@ class TestPermissions(lib.ITest):
 
         #create user1
         new_exp1 = ExperimenterI()
-        new_exp1.omeName = rstring("user1_%s" % uuid)
+        new_exp1.userName = rstring("user1_%s" % uuid)
         new_exp1.firstName = rstring("New")
         new_exp1.lastName = rstring("Test")
         new_exp1.email = rstring("newtest@emaildomain.com")
@@ -453,7 +453,7 @@ class TestPermissions(lib.ITest):
             def client_and_user(this):
                 user = this.test.new_user()
                 props = this.test.client.getPropertyMap()
-                props["omero.user"] = user.omeName.val
+                props["omero.user"] = user.userName.val
                 props["omero.pass"] = "xxx"
                 client = omero.client(props, ["--omero.group=-1"])
                 self._ITest__clients.add(client)

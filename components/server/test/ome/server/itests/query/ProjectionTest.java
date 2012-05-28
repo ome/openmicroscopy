@@ -36,8 +36,8 @@ public class ProjectionTest extends AbstractManagedContextTest {
 
     @Test
     public void testCount() {
-        iQuery.projection("select count(e.omeName) "
-                + "from Experimenter e group by e.omeName", null);
+        iQuery.projection("select count(e.userName) "
+                + "from Experimenter e group by e.userName", null);
     }
 
     @Test
@@ -83,8 +83,8 @@ public class ProjectionTest extends AbstractManagedContextTest {
     public void testCollectionUsage() {
         loginNewUser();
         List<Object[]> rv = iQuery.projection(
-                "select e.omeName, size(e.groupExperimenterMap) "
-                        + "from Experimenter e group by e.omeName", null);
+                "select e.userName, size(e.groupExperimenterMap) "
+                        + "from Experimenter e group by e.userName", null);
         for (Object[] objects : rv) {
             assertTrue(((Integer) objects[1]).intValue() > 0);
         }

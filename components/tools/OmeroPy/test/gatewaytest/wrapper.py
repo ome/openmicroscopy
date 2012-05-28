@@ -111,14 +111,14 @@ class WrapperTest (lib.GTest):
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
-        e = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
-        self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
+        e = self.gateway.getObject("Experimenter", attributes={'userName': self.USER.name})
+        self.assertEqual(e.getDetails().getOwner().userName, self.USER.name)
 
     def testDetailsWrapper (self):
         self.loginAsAuthor()
         img = self.getTestImage()
         d = img.getDetails()
-        self.assertEqual(d.getOwner().omeName, self.AUTHOR.name)
+        self.assertEqual(d.getOwner().userName, self.AUTHOR.name)
         self.assertEqual(d.getGroup().name, img.getProject().getDetails().getGroup().name)
 
     def testSetters (self):

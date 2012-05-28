@@ -160,9 +160,9 @@ class BaseExperimenter(BaseController):
         defaultGroup = self.conn.getObject("ExperimenterGroup", long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup)
     
-    def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
+    def createExperimenter(self, userName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring(str(omeName))
+        new_exp.userName = rstring(str(userName))
         new_exp.firstName = rstring(str(firstName))
         new_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         new_exp.lastName = rstring(str(lastName))
@@ -199,9 +199,9 @@ class BaseExperimenter(BaseController):
                     listOfGroups.add(g._obj)
         return self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
     
-    def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None):
+    def updateExperimenter(self, userName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None):
         up_exp = self.experimenter._obj
-        up_exp.omeName = rstring(str(omeName))
+        up_exp.userName = rstring(str(userName))
         up_exp.firstName = rstring(str(firstName))
         up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         up_exp.lastName = rstring(str(lastName))

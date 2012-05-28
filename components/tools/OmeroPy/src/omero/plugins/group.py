@@ -178,7 +178,7 @@ class GroupControl(BaseControl):
         f_gid, f_grp = self.find_group(a, args.from_group)
         t_gid, t_grp = self.find_group(a, args.to_group)
 
-        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap()]
+        to_add = [(x.child.id.val, x.child.userName.val) for x in f_grp.copyGroupExperimenterMap()]
         already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
         for add in list(to_add):
             if add[0] in already:

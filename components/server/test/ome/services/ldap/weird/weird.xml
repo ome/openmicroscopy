@@ -18,7 +18,7 @@
       <constructor-arg index="1" value="ldap"/>
       <constructor-arg index="2" value="(objectClass=person)"/>
       <constructor-arg index="3" value="(objectClass=groupOfUniqueNames)"/>
-      <constructor-arg index="4" value="omeName=givenName,firstName=sn,lastName=uid,email=cn"/>
+      <constructor-arg index="4" value="userName=givenName,firstName=sn,lastName=uid,email=cn"/>
       <constructor-arg index="5" value="name=cn"/>
     </bean>
 

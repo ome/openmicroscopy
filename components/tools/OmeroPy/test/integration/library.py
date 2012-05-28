@@ -66,7 +66,7 @@ class ITest(unittest.TestCase):
             self.root.setAgent("OMERO.py.root_test")
             self.root.createSession("root", rootpass)
             newuser = self.new_user()
-            name = newuser.omeName.val
+            name = newuser.userName.val
             pasw = "1"
         else:
             self.root = None
@@ -274,7 +274,7 @@ class ITest(unittest.TestCase):
 
         # Create user
         e = omero.model.ExperimenterI()
-        e.omeName = rstring(name)
+        e.userName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
         uid = adminService.createUser(e, group)
@@ -308,11 +308,11 @@ class ITest(unittest.TestCase):
                 user, name = self.user_and_name(user)
             else:
                 user = self.new_user(group, perms, admin, system=system)
-            props["omero.user"] = user.omeName.val
+            props["omero.user"] = user.userName.val
             if password is not None:
                 props["omero.pass"] = password
             else:
-                props["omero.pass"] = user.omeName.val
+                props["omero.pass"] = user.userName.val
 
         client = omero.client(props)
         self.__clients.add(client)
@@ -364,11 +364,11 @@ class ITest(unittest.TestCase):
             user = admin.lookupExperimenter(name)
         elif isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
-                name = user.omeName.val
+                name = user.userName.val
                 user = admin.lookupExperimenter(name)
             else:
                 user = admin.getExperimenter(user.id.val)
-                name = user.omeName.val
+                name = user.userName.val
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)

@@ -81,7 +81,7 @@ class TestTickets2000(lib.ITest):
         gr1 = self.new_group()
         groups.append(gr1)
 
-        exp = admin.lookupExperimenter(test_user.omeName.val)
+        exp = admin.lookupExperimenter(test_user.userName.val)
         contained_grs = admin.containedGroups(exp.id.val);
         # if groupexperimetnermap contains text group should be remove
         for gr in contained_grs:
@@ -384,7 +384,7 @@ class TestTickets2000(lib.ITest):
 
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user_%s" % uuid)
+        new_exp.userName = rstring("user_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
         new_exp.email = rstring("newtest@emaildomain.com")

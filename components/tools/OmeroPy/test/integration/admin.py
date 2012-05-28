@@ -168,7 +168,7 @@ class TestAdmin(lib.ITest):
 
         # Initially, the test should fail.
         try:
-            admin.changeUserPassword(experimenter.omeName.val, new_password)
+            admin.changeUserPassword(experimenter.userName.val, new_password)
             self.fail("Should not pass!")
         except omero.SecurityViolation, sv:
             pass # Good!
@@ -177,7 +177,7 @@ class TestAdmin(lib.ITest):
         new_client.sf.setSecurityPassword(password)
 
         # And then it should succeed
-        admin.changeUserPassword(experimenter.omeName.val, new_password)
+        admin.changeUserPassword(experimenter.userName.val, new_password)
 
 if __name__ == '__main__':
     unittest.main()

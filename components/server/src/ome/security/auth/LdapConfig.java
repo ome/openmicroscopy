@@ -89,7 +89,7 @@ public class LdapConfig {
     // Helpers
 
     public Filter usernameFilter(String username) {
-        String attributeKey = getUserAttribute("omeName");
+        String attributeKey = getUserAttribute("userName");
         AndFilter filter = new AndFilter();
         filter.and(getUserFilter());
         filter.and(new EqualsFilter(attributeKey, username));

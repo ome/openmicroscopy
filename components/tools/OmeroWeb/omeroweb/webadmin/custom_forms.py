@@ -37,16 +37,16 @@ from django.utils.encoding import smart_unicode
 
 class OmeNameField(forms.CharField):
     def to_python(self, value):
-        omeName = value
+        userName = value
         if not value:
             raise forms.ValidationError('This field is required.')
-        if not self.is_valid_omeName(omeName):
-            raise forms.ValidationError('%s is not a valid Omename.' % omeName)
-        return omeName
+        if not self.is_valid_userName(userName):
+            raise forms.ValidationError('%s is not a valid Omename.' % userName)
+        return userName
 
-    def is_valid_omeName(self, omeName):
-        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
-        return omeName_pattern.match(omeName) is not None
+    def is_valid_userName(self, userName):
+        userName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
+        return userName_pattern.match(userName) is not None
 
 # Group queryset iterator for group form
 
@@ -235,11 +235,11 @@ class ExperimenterQuerySetIterator(object):
             # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
             # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
             if hasattr(obj, 'getFullName'):
-                name = "%s (%s)" % (obj.getFullName(), obj.omeName)
+                name = "%s (%s)" % (obj.getFullName(), obj.userName)
             else:
-                omeName = None
-                if hasattr(obj.omeName, 'val'):
-                    omeName = obj.omeName.val
+                userName = None
+                if hasattr(obj.userName, 'val'):
+                    userName = obj.userName.val
                 lastName = None
                 if hasattr(obj.lastName, 'val'):
                     lastName = obj.lastName.val
@@ -251,9 +251,9 @@ class ExperimenterQuerySetIterator(object):
                     middleName = obj.middleName.val
                 
                 if middleName != '' and middleName is not None:
-                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
+                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, userName)
                 else:
-                    name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
+                    name = "%s%s %s (%s)" % (myself, firstName, lastName, userName)
 
 
             l = len(name)

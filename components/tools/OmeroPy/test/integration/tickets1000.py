@@ -26,7 +26,7 @@ class TestTicket1000(lib.ITest):
         
     def test711(self):
         exp = omero.model.ExperimenterI()
-        exp.omeName = rstring("root")
+        exp.userName = rstring("root")
         list = self.client.sf.getQueryService().findAllByExample(exp, None)
         self.assertEquals(1, len(list))
 

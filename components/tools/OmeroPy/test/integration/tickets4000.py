@@ -21,7 +21,7 @@ class TestTickets4000(lib.ITest):
         Try multiple logins to see if they slow down
         """
         user = self.new_user()
-        name = user.omeName.val
+        name = user.userName.val
 
         self.root.sf.getAdminService().changeUserPassword(name, rstring("GOOD"))
 
@@ -143,23 +143,23 @@ class TestTickets4000(lib.ITest):
         
         client = self.new_client()
         admin = client.sf.getAdminService()
-        omeName = admin.getEventContext().userName
+        userName = admin.getEventContext().userName
         
         # change password as user
         admin.changePassword(rstring("aaa"))
 
-        testLogin(omeName, "aaa")
+        testLogin(userName, "aaa")
         
         # change password as root
-        admin_root.changeUserPassword(omeName, rstring("ome"))
+        admin_root.changeUserPassword(userName, rstring("ome"))
 
-        self.assertRaises(Glacier2.PermissionDeniedException, testLogin, omeName, "aaa")
+        self.assertRaises(Glacier2.PermissionDeniedException, testLogin, userName, "aaa")
         
-        testLogin(omeName, "ome")
+        testLogin(userName, "ome")
         
         admin.changePasswordWithOldPassword(rstring("ome"), rstring("ccc"))
         
-        testLogin(omeName, "ccc")
+        testLogin(userName, "ccc")
 
     def test3131(self):
         _ = omero.rtypes.rstring

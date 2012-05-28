@@ -66,14 +66,14 @@ public interface IAdmin extends ServiceInterface {
      * look up an {@link Experimenter} and all related
      * {@link ExperimenterGroup groups} by name.
      * 
-     * @param omeName
+     * @param userName
      *            Name of the Experimenter
      * @return an Experimenter. Never null.
      * @throws ome.conditions.ApiUsageException
-     *             if omeName does not exist.
+     *             if userName does not exist.
      */
     Experimenter lookupExperimenter(@NotNull
-    String omeName);
+    String userName);
 
     /**
      * Looks up all {@link Experimenter experimenters} present and all related
@@ -196,7 +196,7 @@ public interface IAdmin extends ServiceInterface {
     /**
      * Allows a user to update his/her own information. This is limited to the
      * fields on Experimenter, all other fields (groups, etc.) are ignored. The
-     * experimenter argument need not have the proper id nor the proper omeName
+     * experimenter argument need not have the proper id nor the proper userName
      * (which is immutable). To change the users default group (which is the
      * only other customizable option), use
      * {@link #setDefaultGroup(Experimenter, ExperimenterGroup)}
@@ -475,13 +475,13 @@ public interface IAdmin extends ServiceInterface {
      * 
      * @param iObject
      *            An entity or an unloaded reference to an entity. Not null.
-     * @param omeName
+     * @param userName
      *            The user name who should gain ownership of this entity. Not
      *            null.
      */
     void changeOwner(@NotNull
     IObject iObject, @NotNull
-    String omeName);
+    String userName);
 
     /**
      * call
@@ -594,7 +594,7 @@ public interface IAdmin extends ServiceInterface {
      *             if the new password is too weak.
      */
     void changeUserPassword(@NotNull
-    String omeName, @Hidden
+    String userName, @Hidden
     String newPassword);
 
     /**

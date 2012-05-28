@@ -29,7 +29,7 @@ class TestTickets6000(lib.ITest):
         """
         client, user = self.new_client_and_user()
         uuid = client.getSessionId()
-        name = user.omeName.val
+        name = user.userName.val
 
         admin = self.root.sf.getAdminService()
         admin.changeUserPassword(name, rstring("GOOD"))

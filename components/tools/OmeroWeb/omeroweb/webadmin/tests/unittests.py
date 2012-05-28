@@ -600,7 +600,7 @@ class WebAdminTest(WebTest):
         
         # check if experimenter created
         controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['omename'], controller.experimenter.userName)
         self.assertEquals(params['first_name'], controller.experimenter.firstName)
         self.assertEquals(params['middle_name'], controller.experimenter.middleName)
         self.assertEquals(params['last_name'], controller.experimenter.lastName)
@@ -630,7 +630,7 @@ class WebAdminTest(WebTest):
         
         # check if experimenter created
         controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['omename'], controller.experimenter.userName)
         self.assertEquals(params['first_name'], controller.experimenter.firstName)
         self.assertEquals(params['middle_name'], controller.experimenter.middleName)
         self.assertEquals(params['last_name'], controller.experimenter.lastName)
@@ -658,7 +658,7 @@ class WebAdminTest(WebTest):
         
         # check if experimenter created
         controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['omename'], controller.experimenter.userName)
         self.assertEquals(params['first_name'], controller.experimenter.firstName)
         self.assertEquals(params['middle_name'], controller.experimenter.middleName)
         self.assertEquals(params['last_name'], controller.experimenter.lastName)
@@ -731,7 +731,7 @@ class WebAdminTest(WebTest):
         
         # check if experimenter updated
         controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['omename'], controller.experimenter.userName)
         self.assertEquals(params['first_name'], controller.experimenter.firstName)
         self.assertEquals(params['middle_name'], controller.experimenter.middleName)
         self.assertEquals(params['last_name'], controller.experimenter.lastName)
@@ -762,7 +762,7 @@ class WebAdminTest(WebTest):
         
         # check if experimenter updated
         controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['omename'], controller.experimenter.userName)
         self.assertEquals(params['first_name'], controller.experimenter.firstName)
         self.assertEquals(params['middle_name'], controller.experimenter.middleName)
         self.assertEquals(params['last_name'], controller.experimenter.lastName)
@@ -842,7 +842,7 @@ def _changePassword(request, conn, eid=None):
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
             exp = conn.getObject("Experimenter", eid)
-            conn.changeUserPassword(exp.omeName, password, old_password)
+            conn.changeUserPassword(exp.userName, password, old_password)
         else:
             conn.changeMyPassword(password, old_password)
     else:
@@ -915,7 +915,7 @@ def _createExperimenter(request, conn):
 def _updateExperimenter(request, conn, eid):
     # update experimenter
     controller = BaseExperimenter(conn, eid)
-    name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
+    name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.userName)
     email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
     
     initial={'active':True}

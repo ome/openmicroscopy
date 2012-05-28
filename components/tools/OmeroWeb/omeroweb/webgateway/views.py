@@ -93,7 +93,7 @@ def _session_logout (request, server_id, force_key=None):
     if connectors.has_key(session_key):
         logger.debug('logout: killing connection "%s"' % (session_key))
         if connectors[session_key]:
-            logger.info('logout request for "%s"' % connectors[session_key].getUser().omeName)
+            logger.info('logout request for "%s"' % connectors[session_key].getUser().userName)
             connectors[session_key] and connectors[session_key].seppuku()
         del connectors[session_key]
 
@@ -156,7 +156,7 @@ class UserProxy (object):
         @rtype:     String
         """
         
-        return self._blitzcon._user.omeName
+        return self._blitzcon._user.userName
 
     def getFirstName (self):
         """ 

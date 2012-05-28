@@ -65,8 +65,8 @@ module omero {
                 idempotent void removeGroupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
                 idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
                 idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
-                idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
-                idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
+                idempotent void changeOwner(omero::model::IObject obj, string userName) throws ServerError;
+                idempotent void changeGroup(omero::model::IObject obj, string userName) throws ServerError;
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
@@ -88,7 +88,7 @@ module omero {
                  * case, a SecurityViolation will be thrown, in which case
                  * ServiceFactory.setSecurityPassword can be used.
                  **/
-                idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
+                idempotent void changeUserPassword(string userName, omero::RString newPassword) throws ServerError;
                 idempotent void synchronizeLoginCache() throws ServerError;
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
                 void reportForgottenPassword(string name, string email) throws ServerError;

@@ -55,7 +55,7 @@ public class SimpleRoleProvider implements RoleProvider {
     public String nameById(long id) {
         Session s = sf.getSession();
         return (String) s.createQuery(
-                "select omeName from Experimenter where id = :id")
+                "select userName from Experimenter where id = :id")
                 .setParameter("id", id).uniqueResult();
     }
 

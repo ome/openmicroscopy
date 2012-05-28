@@ -149,7 +149,7 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
                             data.add(String.format("user=%s", e.getUserName()));
                         } else {
                             e = q.findByString(Experimenter.class,
-                                    "omeName", userId);
+                                    "userName", userId);
                             if (e != null) {
                                 data.add(String.format("id=%s", e.getId()));
                             }

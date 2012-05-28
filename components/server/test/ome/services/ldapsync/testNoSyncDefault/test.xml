@@ -18,7 +18,7 @@
       <constructor-arg index="1" value=":query:(member=@{dn})"/>
       <constructor-arg index="2" value="(objectClass=person)"/>
       <constructor-arg index="3" value="(objectClass=groupOfNames)"/>
-      <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn,email=mail"/>
+      <constructor-arg index="4" value="userName=cn,firstName=givenName,lastName=sn,email=mail"/>
       <constructor-arg index="5" value="name=cn"/>
       <!--  using default false for sync_on_login -->
     </bean>
