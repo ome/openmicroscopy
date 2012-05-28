@@ -12,7 +12,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
-# Created by callan via xsd-fu on 2012-05-28 10:37:30+0100
+# Created by callan via xsd-fu on 2012-05-28 11:31:24+0100
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
@@ -122,9 +122,9 @@
             -->
             <optional name="pinholeSize" type="Double"/>
             <!--
-            // Back reference Pixels_BackReference
+            // Back reference Pixels_BackReference 1 1
             -->
-            <required name="pixels" type="ome.model.core.Pixels" ordered="true"/>
+            <manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
             <!--
             // Property PockelCellSetting
             -->
@@ -168,9 +168,9 @@
             -->
             <required name="noiseReduction" type="Boolean"/>
             <!--
-            // Back reference RenderingDef_BackReference
+            // Back reference RenderingDef_BackReference 1 1
             -->
-            <required name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
+            <manyone name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
         </properties>
     </type>
 
@@ -178,9 +178,9 @@
     <type id="ome.model.meta.CodomainMapContext">
         <properties>
             <!--
-            // Back reference RenderingDef_BackReference
+            // Back reference RenderingDef_BackReference 1 1
             -->
-            <required name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
+            <manyone name="renderingDef" type="ome.model.meta.RenderingDef" ordered="true"/>
         </properties>
     </type>
 
@@ -262,9 +262,9 @@
             -->
             <optional name="gain" type="Double"/>
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Property Offset
             -->
@@ -292,9 +292,9 @@
             -->
             <optional name="binning" type="ome.model.enums.Binning"/>
             <!--
-            // Back reference DetectorRef
+            // Back reference DetectorRef 1 1
             -->
-            <required name="detector" type="ome.model.core.Detector"/>
+            <manyone name="detector" type="ome.model.core.Detector"/>
             <!--
             // Property Gain
             -->
@@ -318,15 +318,15 @@
     <type id="ome.model.core.Dichroic" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
-            // Back reference FilterSet_BackReference
+            // Back reference FilterSet_BackReference 0 9999
             -->
             <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="dichroic"/>
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
             <!--
-            // Back reference LightPath_BackReference
+            // Back reference LightPath_BackReference 0 9999
             -->
             <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="dichroic"/>
         </properties>
@@ -374,9 +374,9 @@
             -->
             <required name="experimenter" type="ome.model.core.Experimenter"/>
             <!--
-            // Back reference Session_BackReference
+            // Back reference Session_BackReference 1 1
             -->
-            <required name="session" type="ome.model.meta.Session"/>
+            <manyone name="session" type="ome.model.meta.Session"/>
             <!--
             // Property Status
             -->
@@ -408,9 +408,9 @@
             -->
             <required name="entityType" type="String"/>
             <!--
-            // Back reference Event_BackReference
+            // Back reference Event_BackReference 1 1
             -->
-            <required name="event" type="ome.model.meta.Event"/>
+            <manyone name="event" type="ome.model.meta.Event"/>
         </properties>
     </type>
 
@@ -418,7 +418,7 @@
     <type id="ome.model.core.Experiment" described="true">
         <properties>
             <!--
-            // Back reference Image_BackReference
+            // Back reference Image_BackReference 0 9999
             -->
             <manyzero name="images" type="ome.model.core.Image" inverse="experiment"/>
             <!--
@@ -443,7 +443,7 @@
             -->
             <optional name="email" type="String"/>
             <!--
-            // Back reference Event_BackReference
+            // Back reference Event_BackReference 0 9999
             -->
             <manyzero name="events" type="ome.model.meta.Event" inverse="experimenter"/>
             <!--
@@ -479,7 +479,7 @@
             // Ignoring back reference Project_BackReference for global OMERO type.
             -->
             <!--
-            // Back reference Session_BackReference
+            // Back reference Session_BackReference 0 9999
             -->
             <manyzero name="sessions" type="ome.model.meta.Session" inverse="experimenter"/>
             <!--
@@ -500,7 +500,7 @@
             // Ignoring back reference Dataset_BackReference for global OMERO type.
             -->
             <!--
-            // Back reference Event_BackReference
+            // Back reference Event_BackReference 0 9999
             -->
             <manyzero name="events" type="ome.model.meta.Event" inverse="experimenterGroup"/>
             <!--
@@ -518,7 +518,7 @@
             // Ignoring back reference Project_BackReference for global OMERO type.
             -->
             <!--
-            // Back reference Share_BackReference
+            // Back reference Share_BackReference 0 9999
             -->
             <manyzero name="shares" type="ome.model.meta.Share" inverse="experimenterGroup"/>
         </properties>
@@ -572,9 +572,9 @@
             -->
             <optional name="filterWheel" type="String"/>
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Many-to-many back reference LightPath_BackReference
             -->
@@ -598,7 +598,7 @@
     <type id="ome.model.core.FilterSet" superclass="ome.model.core.ManufacturerSpec">
         <properties>
             <!--
-            // Back reference Channel_BackReference
+            // Back reference Channel_BackReference 0 9999
             -->
             <manyzero name="channels" type="ome.model.core.Channel" inverse="filterSet"/>
             <!--
@@ -614,9 +614,9 @@
             -->
             <child name="excitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.Filter"/>
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
@@ -668,7 +668,7 @@
             -->
             <optional name="stageLabel" type="ome.model.core.StageLabel"/>
             <!--
-            // Back reference WellSample_BackReference
+            // Back reference WellSample_BackReference 0 9999
             -->
             <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="image"/>
         </properties>
@@ -730,7 +730,7 @@
             -->
             <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="instrument"/>
             <!--
-            // Back reference Image_BackReference
+            // Back reference Image_BackReference 0 9999
             -->
             <manyzero name="images" type="ome.model.core.Image" inverse="instrument"/>
             <!--
@@ -884,9 +884,9 @@
             // *** WARNING *** Unhandled or skipped property Filament
             -->
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // *** WARNING *** Unhandled or skipped property Laser
             -->
@@ -908,13 +908,13 @@
             -->
             <optional name="attenuation" type="PercentFraction"/>
             <!--
-            // Back reference LightSourceRef
+            // Back reference LightSourceRef 1 1
             -->
-            <required name="lightSource" type="ome.model.core.LightSource"/>
+            <manyone name="lightSource" type="ome.model.core.LightSource"/>
             <!--
-            // Back reference MicrobeamManipulation_BackReference
+            // Back reference MicrobeamManipulation_BackReference 0 1
             -->
-            <optional name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
+            <manyzero name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
             <!--
             // Property Wavelength
             -->
@@ -1004,9 +1004,9 @@
     <type id="ome.model.core.MicrobeamManipulation" described="true">
         <properties>
             <!--
-            // Back reference Experiment_BackReference
+            // Back reference Experiment_BackReference 1 1
             -->
-            <required name="experiment" type="ome.model.core.Experiment"/>
+            <manyone name="experiment" type="ome.model.core.Experiment"/>
             <!--
             // Many-to-many back reference Image_BackReference
             -->
@@ -1100,9 +1100,9 @@
             -->
             <optional name="immersion" type="ome.model.enums.Immersion"/>
             <!--
-            // Back reference Instrument_BackReference
+            // Back reference Instrument_BackReference 1 1
             -->
-            <required name="instrument" type="ome.model.core.Instrument"/>
+            <manyone name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Property Iris
             -->
@@ -1134,9 +1134,9 @@
             -->
             <optional name="medium" type="ome.model.enums.Medium"/>
             <!--
-            // Back reference ObjectiveRef
+            // Back reference ObjectiveRef 1 1
             -->
-            <required name="objective" type="ome.model.core.Objective"/>
+            <manyone name="objective" type="ome.model.core.Objective"/>
             <!--
             // Property RefractiveIndex
             -->
@@ -1236,7 +1236,7 @@
             -->
             <zeromany name="planes" type="ome.model.core.Plane" inverse="pixels"/>
             <!--
-            // Back reference RenderingDef_BackReference
+            // Back reference RenderingDef_BackReference 0 9999
             -->
             <zeromany name="renderingDefs" type="ome.model.meta.RenderingDef" inverse="pixels"/>
             <!--
@@ -1260,7 +1260,7 @@
             -->
             <required name="sizeZ" type="PositiveInteger"/>
             <!--
-            // Back reference Thumbnail_BackReference
+            // Back reference Thumbnail_BackReference 0 9999
             -->
             <zeromany name="thumbnails" type="ome.model.meta.Thumbnail" inverse="pixels"/>
             <!--
@@ -1290,9 +1290,9 @@
             -->
             <optional name="hashSHA1" type="String"/>
             <!--
-            // Back reference Pixels_BackReference
+            // Back reference Pixels_BackReference 1 1
             -->
-            <required name="pixels" type="ome.model.core.Pixels"/>
+            <manyone name="pixels" type="ome.model.core.Pixels"/>
             <!--
             // Property PositionX
             -->
@@ -1412,9 +1412,9 @@
             -->
             <optional name="maximumFieldCount" type="PositiveInteger"/>
             <!--
-            // Back reference Plate_BackReference
+            // Back reference Plate_BackReference 1 1
             -->
-            <required name="plate" type="ome.model.spw.Plate"/>
+            <manyone name="plate" type="ome.model.spw.Plate"/>
             <!--
             // Property StartTime
             -->
@@ -1530,11 +1530,11 @@
             -->
             <optional name="reagentIdentifier" type="String"/>
             <!--
-            // Back reference Screen_BackReference
+            // Back reference Screen_BackReference 1 1
             -->
-            <required name="screen" type="ome.model.spw.Screen"/>
+            <manyone name="screen" type="ome.model.spw.Screen"/>
             <!--
-            // Back reference Well_BackReference
+            // Back reference Well_BackReference 0 9999
             -->
             <manyzero name="wells" type="ome.model.spw.Well" inverse="reagent"/>
         </properties>
@@ -1684,9 +1684,9 @@
             -->
             <optional name="message" type="Text"/>
             <!--
-            // Back reference Node_BackReference
+            // Back reference Node_BackReference 1 1
             -->
-            <required name="node" type="ome.model.meta.Node"/>
+            <manyone name="node" type="ome.model.meta.Node"/>
             <!--
             // Property Started
             -->
@@ -1944,9 +1944,9 @@
             -->
             <optional name="externalIdentifier" type="String"/>
             <!--
-            // Back reference Plate_BackReference
+            // Back reference Plate_BackReference 1 1
             -->
-            <required name="plate" type="ome.model.spw.Plate"/>
+            <manyone name="plate" type="ome.model.spw.Plate"/>
             <!--
             // Property ReagentRef
             -->
@@ -1974,7 +1974,7 @@
             -->
             <optional name="image" type="ome.model.core.Image"/>
             <!--
-            // Back reference PlateAcquisition_BackReference
+            // Back reference PlateAcquisition_BackReference 0 9999
             -->
             <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="wellSample"/>
             <!--
@@ -1990,9 +1990,9 @@
             -->
             <optional name="timepoint" type="Timestamp"/>
             <!--
-            // Back reference Well_BackReference
+            // Back reference Well_BackReference 1 1
             -->
-            <required name="well" type="ome.model.spw.Well" ordered="true"/>
+            <manyone name="well" type="ome.model.spw.Well" ordered="true"/>
         </properties>
     </type>
 
