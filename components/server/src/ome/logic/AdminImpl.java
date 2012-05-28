@@ -309,7 +309,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public List<Experimenter> lookupExperimenters() {
         return iQuery.findAllByQuery("select distinct e from Experimenter e "
-                + "left outer join fetch e.groupExperimenterMap m "
+                + "left outer join fetch e.experimenterGroupLinks m "
                 + "left outer join fetch m.parent g", null);
     }
 
@@ -352,7 +352,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return iQuery.findAllByQuery("select distinct g from ExperimenterGroup g "
                 + "left outer join fetch g.experimenterLinks m "
                 + "left outer join fetch m.child u "
-                + "left outer join fetch u.groupExperimenterMap m2 "
+                + "left outer join fetch u.experimenterGroupLinks m2 "
                 + "left outer join fetch m2.parent", null);
     }
 
@@ -360,7 +360,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public Experimenter[] containedExperimenters(long groupId) {
         List<Experimenter> experimenters = iQuery.findAllByQuery(
                 "select distinct e from Experimenter as e "
-                + "join fetch e.groupExperimenterMap as map "
+                + "join fetch e.experimenterGroupLinks as map "
                 + "join fetch map.parent g "
                 + "where e.id in "
                 + "  (select m.child from GroupExperimenterMap m "
@@ -377,7 +377,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         + "join fetch g.experimenterLinks as map "
                         + "join fetch map.parent e "
                         + "left outer join fetch map.child u "
-                        + "left outer join fetch u.groupExperimenterMap m2 "
+                        + "left outer join fetch u.experimenterGroupLinks m2 "
                         + "where g.id in "
                         + "  (select m.parent from GroupExperimenterMap m "
                         + "  where m.child.id = :id )",
@@ -793,7 +793,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     long experimenterId) {
         ExperimenterGroup g = iQuery.findByQuery(
                 "select g from ExperimenterGroup g, Experimenter e "
-                        + "join e.groupExperimenterMap m "
+                        + "join e.experimenterGroupLinks m "
                         + "where e.id = :id and m.parent = g.id "
                         + "and g.name != :userGroup and index(m) = 0",
                 new Parameters().addId(experimenterId).addString("userGroup",

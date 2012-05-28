@@ -151,7 +151,7 @@ public class QueryTest extends AbstractManagedContextTest {
         assertTrue(e.sizeOfExperimenterGroupLinks() < 0);
         // Now to get the groups, we have to ask for them.
         e = iQuery.findByQuery("select e from Experimenter e"
-                + " join fetch e.groupExperimenterMap m where e.id = 0", null);
+                + " join fetch e.experimenterGroupLinks m where e.id = 0", null);
         assertNotNull(e.getPrimaryExperimenterGroupExperimenterLink());
         assertNotNull(e.getPrimaryExperimenterGroupExperimenterLink().parent());
 

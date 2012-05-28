@@ -3648,7 +3648,7 @@ class OMEROGateway
                     + "join fetch g.experimenterLinks as map "
                     + "join fetch map.parent e "
                     + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch u.experimenterGroupLinks m2 "
                     + "left outer join fetch m2.parent p "
                     + "where g.id in "
                     + "  (select m.parent from GroupExperimenterMap m "
@@ -7296,7 +7296,7 @@ class OMEROGateway
 						"from ExperimenterGroup g "
 		                + "left outer join fetch g.experimenterLinks m "
 		                + "left outer join fetch m.child u "
-		                + "left outer join fetch u.groupExperimenterMap m2 "
+		                + "left outer join fetch u.experimenterGroupLinks m2 "
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
 			}

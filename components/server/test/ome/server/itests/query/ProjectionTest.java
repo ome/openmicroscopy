@@ -83,7 +83,7 @@ public class ProjectionTest extends AbstractManagedContextTest {
     public void testCollectionUsage() {
         loginNewUser();
         List<Object[]> rv = iQuery.projection(
-                "select e.userName, size(e.groupExperimenterMap) "
+                "select e.userName, size(e.experimenterGroupLinks) "
                         + "from Experimenter e group by e.userName", null);
         for (Object[] objects : rv) {
             assertTrue(((Integer) objects[1]).intValue() > 0);
