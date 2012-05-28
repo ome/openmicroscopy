@@ -40,10 +40,13 @@ import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -102,6 +105,53 @@ class ImporterModel
 		loaders = new HashMap<Integer, ImagesImporter>();
 	}
 
+	/**
+	 * Indicates to load all annotations available if the user can annotate
+	 * and is an administrator/group owner or to only load the user's
+	 * annotation.
+	 * 
+	 * @return See above
+	 */
+	private boolean canRetrieveAll()
+	{
+		GroupData group = getGroup(getGroupId());
+		if (group == null) return false;
+		if (GroupData.PERMISSIONS_GROUP_READ ==
+			group.getPermissions().getPermissionsLevel()) {
+			if (MetadataViewerAgent.isAdministrator()) return true;
+			Set leaders = group.getLeaders();
+			Iterator i = leaders.iterator();
+			long userID = getExperimenterId();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (exp.getId() == userID)
+					return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	private GroupData getGroup(long groupId)
+	{
+		Set groups = ImporterAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
+	
 	/** 
 	 * Creates a new instance.
 	 *
@@ -136,6 +186,7 @@ class ImporterModel
 		this.groupId = groupId;
 		ctx = new SecurityContext(groupId);
 		experimenterId = ImporterAgent.getUserDetails().getId();
+		tags = null;
 	}
 	
 	/**
@@ -284,7 +335,7 @@ class ImporterModel
 	void fireTagsLoading()
 	{
 		if (tags != null) return; //already loading tags
-		TagsLoader loader = new TagsLoader(component, ctx);
+		TagsLoader loader = new TagsLoader(component, ctx, canRetrieveAll());
 		loader.load();
 	}
 	

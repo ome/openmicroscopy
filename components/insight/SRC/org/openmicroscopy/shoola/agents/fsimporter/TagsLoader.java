@@ -60,16 +60,25 @@ public class TagsLoader
     private CallHandle	handle;
     
     /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean loadAll;
+    
+    /**
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 						annotations available if the user can annotate,
+     *                    <code>false</code> to only load the user's annotation.
      */
-	public TagsLoader(Importer viewer, SecurityContext ctx)
+	public TagsLoader(Importer viewer, SecurityContext ctx, boolean loadAll)
 	{
 		super(viewer, ctx);
-		setIds();
+		this.loadAll = loadAll;
 	}
 	
 	/** 
@@ -78,8 +87,10 @@ public class TagsLoader
 	 */
 	public void load()
 	{
+		long userID = getCurrentUserID();
+		if (loadAll) userID = -1;
 		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
-				userID, groupID, this);
+				userID, this);
 	}
 	
 	/** 

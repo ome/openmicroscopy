@@ -133,11 +133,10 @@ class MetadataHandlerViewImpl
 	 * 											AgentEventListener)
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
-		Class annotation, long userID, long groupID,
-		AgentEventListener observer)
+		Class annotation, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
-														userID, groupID);
+														userID);
 		return cmd.exec(observer);
 	}
 

@@ -1018,16 +1018,14 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, String, long, long)
+	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, String, long)
 	 */
 	public Collection loadAnnotations(SecurityContext ctx, Class annotationType,
-			String nameSpace, long userID, long groupID) 
+			String nameSpace, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		//if (groupID >= 0) po.grp(omero.rtypes.rlong(groupID));
-		//else po.grp(i)
 		List<String> toInclude = new ArrayList<String>();
 		List<String> toExclude = new ArrayList<String>();
 		if (nameSpace != null) 

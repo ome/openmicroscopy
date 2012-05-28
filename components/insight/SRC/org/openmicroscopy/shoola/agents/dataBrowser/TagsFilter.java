@@ -69,11 +69,11 @@ public class TagsFilter
     private Class					nodeType;
     
     /** The collection of tags to search for. */
-    private List<String> 			tags;
+    private List<String> tags;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle				handle;
-    
+    private CallHandle handle;
+
     /**
      * Creates a new instance.
      * 
@@ -112,12 +112,12 @@ public class TagsFilter
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Loads the tags for the specified nodes.
+	 * Filters by specified tags
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
+		long userID = -1;
 		handle = mhView.filterByAnnotation(ctx, nodeType, nodeIds, 
 							TagAnnotationData.class, tags, userID, this);
 	}

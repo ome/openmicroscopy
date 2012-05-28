@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -65,7 +63,7 @@ public abstract class DataBrowserLoader
 	extends DSCallAdapter
 {
 
-	 /** The viewer this data loader is for. */
+	/** The viewer this data loader is for. */
     protected final DataBrowser viewer;
     
     /** Convenience reference for subclasses. */
@@ -108,6 +106,16 @@ public abstract class DataBrowserLoader
      				registry.getDataServicesView(MetadataHandlerView.class);
         dmView = (DataManagerView) 
 			registry.getDataServicesView(DataManagerView.class);
+    }
+    
+    /**
+     * Returns the id of the user currently logged in.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUser()
+    {
+    	return DataBrowserAgent.getUserDetails().getId();
     }
     
     /**

@@ -85,27 +85,8 @@ public abstract class EditorLoader
     /** Convenience reference for subclasses. */
     protected final AdminView adminView;
     
-    /** The id of the user or <code>-1</code>. */
-    protected long userID;
-    
-    /** The id of the group or <code>-1</code>. */
-    protected long groupID;
-    
     /** The security context.*/
     protected final SecurityContext ctx;
-    
-    /** Sets the identifiers of the group and user. */
-    void setIds()
-    {
-    	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		userID = viewer.getUserID();
-		groupID = exp.getDefaultGroup().getId();
-		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
-				case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
-		}
-    }
     
     /**
      * Creates a new instance.
@@ -129,8 +110,16 @@ public abstract class EditorLoader
     	imView = (ImageDataView) 
     	registry.getDataServicesView(ImageDataView.class);
     	adminView = (AdminView) registry.getDataServicesView(AdminView.class);
-    	userID = -1;
-    	groupID = -1;
+    }
+    
+    /**
+     * Returns the id of the user currently logged in.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUser()
+    {
+    	return MetadataViewerAgent.getUserDetails().getId();
     }
     
     /**

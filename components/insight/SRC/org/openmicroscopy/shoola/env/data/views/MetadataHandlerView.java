@@ -178,8 +178,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
-			Class annotation, long userID, long groupID,
-			AgentEventListener observer);
+			Class annotation, long userID, AgentEventListener observer);
 
 	/**
 	 * Loads the existing annotations defined by the annotation type

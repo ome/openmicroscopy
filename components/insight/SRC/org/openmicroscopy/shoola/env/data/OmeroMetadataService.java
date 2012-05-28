@@ -330,7 +330,6 @@ public interface OmeroMetadataService
 	 * @param annotationType The type of annotation to retrieve.
 	 * @param nameSpace The name space of the annotation or <code>null</code>.
 	 * @param userID The id of the user the annotations are related to.
-	 * @param groupID The id of the group.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
@@ -338,7 +337,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadAnnotations(SecurityContext ctx, Class annotationType,
-			String nameSpace, long userID, long groupID)
+			String nameSpace, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

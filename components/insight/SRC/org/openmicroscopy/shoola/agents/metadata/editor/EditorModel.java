@@ -438,6 +438,36 @@ class EditorModel
 	}
 	
 	/**
+	 * Indicates to load all annotations available if the user can annotate
+	 * and is an administrator/group owner or to only load the user's
+	 * annotation.
+	 * 
+	 * @return See above
+	 */
+	private boolean canRetrieveAll()
+	{
+		if (!canAnnotate()) return false;
+		//check the group level
+		GroupData group = getGroup(getRefObjectGroupID());
+		if (group == null) return false;
+		if (GroupData.PERMISSIONS_GROUP_READ ==
+			group.getPermissions().getPermissionsLevel()) {
+			if (MetadataViewerAgent.isAdministrator()) return true;
+			Set leaders = group.getLeaders();
+			Iterator i = leaders.iterator();
+			long userID = getCurrentUser().getId();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (exp.getId() == userID)
+					return true;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param refObject	The object this editor is for.
@@ -618,6 +648,20 @@ class EditorModel
 		Object ref = getRefObject();
 		if (ref instanceof DataObject)
 			return ((DataObject) ref).getId();
+		return -1;
+	}
+	
+	/**
+	 * Returns the group's id of the reference object if it is an instance of 
+	 * <code>DataObject</code> or <code>-1</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	long getRefObjectGroupID()
+	{
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return ((DataObject) ref).getGroupId();
 		return -1;
 	}
 	
@@ -1767,7 +1811,7 @@ class EditorModel
 		}
 		if (exist) return;
 		TagsLoader loader = new TagsLoader(component,
-				parent.getSecurityContext());
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1790,7 +1834,7 @@ class EditorModel
 		}
 		if (exist) return;
 		AttachmentsLoader loader = new AttachmentsLoader(component,
-				parent.getSecurityContext());
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2917,8 +2961,7 @@ class EditorModel
     			Collection photos = svc.loadAnnotations(
     					parent.getSecurityContext(), 
     					FileAnnotationData.class,
-    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(),
-    					-1);
+    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId());
     			if (photos == null || photos.size() == 0) return;
     			List<DeletableObject> l = new ArrayList<DeletableObject>();
 	    		Iterator<AnnotationData> j = photos.iterator();
