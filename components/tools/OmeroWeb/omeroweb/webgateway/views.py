@@ -1718,6 +1718,7 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 
     if img is not None and img.resetRDefs():
         user_id = conn.getEventContext().userId
+        server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
         json_data = 'true'
