@@ -926,8 +926,7 @@ class OmeroDataServiceImpl
 				while (j.hasNext()) {
 					object = j.next();
 					if (object != null) {
-						link = ModelMapper.linkParentToChild(data.asIObject(),
-								object.asIObject());
+						link = ModelMapper.linkParentToChild(data, object);
 						if (link != null) l.add(link);
 					}
 				}

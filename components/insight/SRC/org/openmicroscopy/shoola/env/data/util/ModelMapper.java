@@ -95,6 +95,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
@@ -247,6 +248,70 @@ public class ModelMapper
              		false);
         	 Experimenter unloadedExp = 
         		 new ExperimenterI(child.getId().getValue(), false);
+             
+             GroupExperimenterMapI l = new GroupExperimenterMapI();
+             l.link(unloadedGroup, unloadedExp);
+             return l;
+        }
+        return null;
+    }
+    
+    /**
+     * Links the  {@link IObject child} to its {@link IObject parent}.
+     * 
+     * @param child     The child to handle. 
+     * @param parent    The parent to handle. 
+     * @return The link.
+     */
+    public static IObject linkParentToChild(pojos.DataObject child, 
+    		pojos.DataObject parent)
+    {
+        if (parent == null) return null;
+        if (child == null) throw new IllegalArgumentException("Child cannot" +
+                                "be null.");
+        if (parent instanceof ProjectData) {
+            if (!(child instanceof DatasetData))
+                throw new IllegalArgumentException("Child not valid.");
+            Project unloadedProject = new ProjectI(parent.getId(), 
+            		false);
+            Dataset unloadedDataset = new DatasetI(child.getId(), 
+            		false);
+            ProjectDatasetLink l = new ProjectDatasetLinkI();
+            l.link(unloadedProject, unloadedDataset);
+            return l;
+        } else if (parent instanceof DatasetData) {
+            if (!(child instanceof ImageData))
+                throw new IllegalArgumentException("Child not valid.");
+            Dataset unloadedDataset = new DatasetI(parent.getId(), 
+            		false);
+            Image unloadedImage = new ImageI(child.getId(), false);
+            
+            DatasetImageLink l = new DatasetImageLinkI();
+            l.link(unloadedDataset, unloadedImage);
+            return l;
+        } else if (parent instanceof ScreenData) {
+            if (!(child instanceof PlateData))
+                throw new IllegalArgumentException("Child not valid.");
+            Screen unloadedScreen = new ScreenI(parent.getId(), 
+            		false);
+            Plate unloadedPlate = new PlateI(child.getId(), false);
+            
+            ScreenPlateLink l = new ScreenPlateLinkI();
+            l.link(unloadedScreen, unloadedPlate);
+            return l;
+        } else if (parent instanceof TagAnnotationData) {
+        	if (!(child instanceof TagAnnotationData))
+                throw new IllegalArgumentException("Child not valid.");
+        	String ns = ((TagAnnotationData) parent).getNameSpace();
+        	if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+        		return null;
+        	return linkAnnotation(parent.asIObject(), child.asAnnotation());
+        } else if (parent instanceof GroupData) {
+        	 if (!(child instanceof ExperimenterData))
+                 throw new IllegalArgumentException("Child not valid.");
+        	 ExperimenterGroup unloadedGroup = 
+        		 new ExperimenterGroupI(parent.getId(), false);
+        	 Experimenter unloadedExp = new ExperimenterI(child.getId(), false);
              
              GroupExperimenterMapI l = new GroupExperimenterMapI();
              l.link(unloadedGroup, unloadedExp);
