@@ -958,6 +958,7 @@ def getObjects(request, conn=None):
     shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
+        index = int(request.REQUEST.get('index', 0))
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
