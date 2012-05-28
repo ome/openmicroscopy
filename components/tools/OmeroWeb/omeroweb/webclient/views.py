@@ -2190,6 +2190,7 @@ def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
 def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
+    kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')   # remove any trailing slash
     return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
 
 @login_required()
