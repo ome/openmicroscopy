@@ -12,7 +12,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
-# Created by callan via xsd-fu on 2012-05-28 11:31:24+0100
+# Created by callan via xsd-fu on 2012-05-28 14:20:50+0100
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
@@ -445,7 +445,7 @@
             <!--
             // Back reference Event_BackReference 0 9999
             -->
-            <manyzero name="events" type="ome.model.meta.Event" inverse="experimenter"/>
+            <zeromany name="events" type="ome.model.meta.Event" inverse="experimenter"/>
             <!--
             // Ignoring back reference Experiment_BackReference for global OMERO type.
             -->
@@ -481,7 +481,7 @@
             <!--
             // Back reference Session_BackReference 0 9999
             -->
-            <manyzero name="sessions" type="ome.model.meta.Session" inverse="experimenter"/>
+            <zeromany name="sessions" type="ome.model.meta.Session" inverse="experimenter"/>
             <!--
             // Many-to-many back reference Share_BackReference
             -->
@@ -502,7 +502,7 @@
             <!--
             // Back reference Event_BackReference 0 9999
             -->
-            <manyzero name="events" type="ome.model.meta.Event" inverse="experimenterGroup"/>
+            <zeromany name="events" type="ome.model.meta.Event" inverse="experimenterGroup"/>
             <!--
             // Many-to-many reference ExperimenterRef
             -->
@@ -520,7 +520,7 @@
             <!--
             // Back reference Share_BackReference 0 9999
             -->
-            <manyzero name="shares" type="ome.model.meta.Share" inverse="experimenterGroup"/>
+            <zeromany name="shares" type="ome.model.meta.Share" inverse="experimenterGroup"/>
         </properties>
     </type>
 
