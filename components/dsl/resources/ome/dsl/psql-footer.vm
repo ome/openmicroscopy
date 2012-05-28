@@ -181,6 +181,35 @@ CREATE SEQUENCE seq_${table}; INSERT INTO _lock_ids (name, id) SELECT 'seq_${tab
 -- END #1176/#2508
 --
 
+--
+-- Disable certain not-null constraints to allow proper bootstrapping.
+--
+alter table event alter column type drop not null;
+alter table event alter column experimentergroup drop not null;
+alter table pixeltype alter column bitsize drop not null;
+alter table pixeltype alter column issigned drop not null;
+alter table pixeltype alter column isfloat drop not null;
+
+--
+-- Now that sequences are in place, create all enumerations
+--
+
+-- Somewhat nasty book-keeping enums
+insert into eventtype (id,permissions,value) values
+        (0,-35,'PREVIOUSITEMS'),
+        (1,-35,'Bootstrap');
+select ome_nextval('seq_eventtype'); -- consume the "1"
+
+## ENUMS
+#foreach($enum in $types)
+#foreach($prop in $enum.properties)
+#set($table = ${enum.typeToColumn($enum.id)} )
+#if($prop.class.name == "ome.dsl.EntryField")
+insert into $table (id,permissions,value)
+    select ome_nextval('seq_$table'),-35,'$prop.name';
+#end
+#end
+#end
 
 --
 -- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
@@ -327,19 +356,23 @@ insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 --
 -- Here we will create the root account and the necessary groups
 --
-insert into experimenter (id,permissions,version,omename,firstname,lastname)
+insert into experimenter (id,permissions,version,username,firstname,lastname)
         values (0,0,0,'root','root','root');
-insert into experimenter (id,permissions,version,omename,firstname,lastname)
+insert into experimenter (id,permissions,version,username,firstname,lastname)
         values (ome_nextval('seq_experimenter'),0,0,'guest','Guest','Account');
 insert into node
         (id,permissions,uuid,conn,up,down)
         select 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
 insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select 0,-35,0,0,now(),now(),'BOOTSTRAP',0000, 0,0;
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,experimenter,node)
+        select 0,-35,0,0,now(),now(),et.id,0000, 0,0
+          from eventtype et
+         where value = 'Bootstrap';
 insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select ome_nextval('seq_session'),-35, 0,0,now(),now(),'PREVIOUSITEMS','1111',0,0;
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,experimenter,node)
+        select ome_nextval('seq_session'),-35, 0,0,now(),now(),et.id,'1111',0,0
+          from eventtype et
+         where value = 'PREVIOUSITEMS';
 insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
 
 --
@@ -356,38 +389,26 @@ insert into experimentergroup (id,permissions,version,name)
 insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-103,0,'guest');
 
-insert into eventtype (id,permissions,value) values
-        (0,-35,'Bootstrap');
-insert into groupexperimentermap
+insert into experimentergroupexperimenterlink
         (id,permissions,version, parent, child, child_index,owner)
         values
         (0,-35,0,0,0,0,true);
-insert into groupexperimentermap
+insert into experimentergroupexperimenterlink
         (id,permissions,version, parent, child, child_index,owner)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,1,0,1,false;
-insert into groupexperimentermap
+        select ome_nextval('seq_experimentergroupexperimenterlink'),-35,0,1,0,1,false;
+insert into experimentergroupexperimenterlink
         (id,permissions,version, parent, child, child_index,owner)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,2,1,0,false;
+        select ome_nextval('seq_experimentergroupexperimenterlink'),-35,0,2,1,0,false;
 
+--
+-- Now that all the objects exit, re-activate the non-nulls
+-- after filling in the columns.
+--
 update event set type = 0;
 update event set experimentergroup = 0;
 
 alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
-
-##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
-##  as name, next from (select ome_nextval('seq_event') as next) as nv;
-
-## ENUMS
-#foreach($enum in $types)
-#foreach($prop in $enum.properties)
-#set($table = ${enum.typeToColumn($enum.id)} )
-#if($prop.class.name == "ome.dsl.EntryField")
-insert into $table (id,permissions,value)
-    select ome_nextval('seq_$table'),-35,'$prop.name';
-#end
-#end
-#end
 
 -- Adding bit depth, etc. to pixelstype (#2724)
 
