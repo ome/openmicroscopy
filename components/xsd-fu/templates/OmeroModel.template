@@ -268,6 +268,9 @@ ${customContent[o.name]['properties']}\
 {% for value in o.possibleValues %}\
         <entry name="${value}"/>
 {% end %}\
+{% if o.javaType in customContent and 'properties' in customContent[o.javaType] %}\
+${customContent[o.javaType]['properties']}\
+{% end %}\
     </enum>
 
 {% end %}\
