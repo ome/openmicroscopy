@@ -38,7 +38,7 @@ import ome.model.core.LightSourceSettings;
 import ome.model.core.Microscope;
 import ome.model.core.Objective;
 import ome.model.core.ObjectiveSettings;
-import ome.model.meta.OriginalFilePixelsLink;
+import ome.model.core.OriginalFilePixelsLink;
 import ome.model.core.StageLabel;
 import ome.model.meta.OriginalFile;
 import ome.model.core.Pixels;
