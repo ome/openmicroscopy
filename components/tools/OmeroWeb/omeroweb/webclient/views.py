@@ -2212,6 +2212,16 @@ def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
+@login_required()
+def save_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.save_image_rdef_json(request, iid, share_id=share_id, **kwargs)
+
+@login_required()
+def reset_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.reset_image_rdef_json(request, iid, share_id=share_id, **kwargs)
+
 ####################################################################################
 # scripting service....
 @login_required()
