@@ -347,9 +347,9 @@ class GetObjectTest (lib.GTest):
         
         self.assertEqual(exp.getDetails().getOwner().userName, exp.getDetails().getOwner().userName)
         
-        # check groupExperimenterMap loaded for exp
+        # check experimenterGroupLinks loaded for exp
         groupIds = []
-        for groupExpMap in exp.copyGroupExperimenterMap():
+        for groupExpMap in exp.copyExperimenterGroupLinks():
             self.assertEqual(findExp.id, groupExpMap.child.id.val)
             groupIds.append(groupExpMap.parent.id.val)
         #for groupExpMap in experimenter.copyGroupExperimenterMap():

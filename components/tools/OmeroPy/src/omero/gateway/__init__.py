@@ -1359,7 +1359,7 @@ class _BlitzGateway (object):
                 e = self.getObject("Experimenter", attributes={'userName': username})
                 if e is None:
                     return
-                group = e._obj._groupExperimenterMapSeq[0].parent.name.val
+                group = e._obj._experimenterGroupLinksSeq[0].parent.name.val
             p = omero.sys.Principal()
             p.name = username
             p.group = group
@@ -4017,7 +4017,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """ 
         Returns string for building queries, loading Experimenters only. 
         """
-        return "select distinct obj from Experimenter as obj left outer join fetch obj.groupExperimenterMap " \
+        return "select distinct obj from Experimenter as obj left outer join fetch obj.experimenterGroupLinks " \
             "as map left outer join fetch map.parent g"
 
     def getRawPreferences (self):
@@ -4253,7 +4253,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         """ 
         Returns string for building queries, loading Experimenters for each group. 
         """
-        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap " \
+        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.experimenterLinks " \
             "as map left outer join fetch map.child e"
         return query
         

@@ -357,7 +357,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
                 + "left outer join fetch j.originalFileLinks links "
                 + "left outer join fetch links.child file "
                 + "left outer join fetch j.details.owner owner "
-                + "left outer join fetch owner.groupExperimenterMap map "
+                + "left outer join fetch owner.experimenterGroupLinks map "
                 + "left outer join fetch map.parent where j.id = :id",
                 new Parameters().addId(jobId));
         if (job == null) {

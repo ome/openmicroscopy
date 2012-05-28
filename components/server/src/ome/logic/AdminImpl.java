@@ -1253,7 +1253,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 SQLException {
             Criteria c = session.createCriteria(Experimenter.class);
 
-            Criteria m = c.createCriteria("groupExperimenterMap",
+            Criteria m = c.createCriteria("experimenterGroupLinks",
                     Query.LEFT_JOIN);
             Criteria g = m.createCriteria("parent", Query.LEFT_JOIN);
 
