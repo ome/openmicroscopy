@@ -122,7 +122,7 @@ public class DataObjectTransfer extends BatchCallTree
      * Returns the result.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.valueOf(true); }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.

@@ -76,7 +76,7 @@ public class RequestCallback
 			return Boolean.valueOf(true);
 		} else if (response instanceof ERR)
 			return new ProcessReport((ERR) response);
-		return null;
+		return Boolean.valueOf(false);
 	}
 	
 	/**
@@ -120,11 +120,12 @@ public class RequestCallback
 	{
 		super.onFinished(rsp, status, c);
 		finished = true;
+		response = rsp;
 		if (isFailure()) {
 			if (rsp == null) {
 				if (adapter != null) {
 					submitted = true;
-					adapter.handleResult(null);
+					adapter.handleResult(handleResponse());
 				}
 			}
 		}

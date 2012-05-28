@@ -149,10 +149,10 @@ public class DataObjectTransfer
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT, null); 
-    	else if (result instanceof Boolean) {
+    	if (result instanceof Boolean) {
     		boolean b = ((Boolean) result).booleanValue();
     		if (b) activity.endActivity("Transfer complete");
+    		else onException(MESSAGE_RESULT, null); 
     	} else activity.endActivity(result);
     }
 

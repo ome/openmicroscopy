@@ -112,6 +112,8 @@ public class DataTransferActivity
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);
+			Icon icon = parameters.getIcon();
+			if (icon != null) iconLabel.setIcon(icon);
 		}
 	}
 	
