@@ -366,6 +366,27 @@ def getObjects(conn, params):
             message += "Found %s out of %s %s%s(s). " % (len(objects), len(ids), dataType[0].lower(), dataType[1:])
     return objects, message
     
+def hasROI(conn, image, roitypes="Rect"):
+    """
+    Check if an image has a ROI of a given type
+
+    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param image:           The ImageI object
+    @param type:            A type of ROI ("Rect","Ellipse","Line",...)
+    @return:                True/false if a rectangular ROI is found
+    """
+    result = conn.getRoiService().findByImage(image.getId(),None)
+    for roi in result.rois:
+        for shape in roi.copyShapes():
+            if type(roitypes) == "list":
+                for roitype in roitypes:
+                    if isinstance(shape,getattr(omero.model,roitype)):
+                        return True
+            else:
+                if isinstance(shape,getattr(omero.model,roitypes)):
+                    return True
+    return False
+
 def addAnnotationToImage(updateService, image, annotation):
     """
     Add the annotation to an image.
