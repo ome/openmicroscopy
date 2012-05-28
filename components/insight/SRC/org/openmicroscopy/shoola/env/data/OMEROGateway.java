@@ -3651,7 +3651,7 @@ class OMEROGateway
                     + "left outer join fetch u.experimenterGroupLinks m2 "
                     + "left outer join fetch m2.parent p "
                     + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  (select m.parent from ExperimenterGroupExperimenterLink m "
                     + "  where m.child.id = :id )", p);
 
 			//List<ExperimenterGroup> groups = service.containedGroups(
@@ -7182,7 +7182,7 @@ class OMEROGateway
 			ParametersI p = new ParametersI();
 			p.addLongs("gids", groupIds);
 			List list = (List) svc.findAllByQuery("select m " +
-					"from GroupExperimenterMap as m"
+					"from ExperimenterGroupExperimenterLink as m"
 	                + " left outer join fetch m.parent"
 	                		+" where m.parent.id in (:gids)", p);
 			Iterator i = list.iterator();

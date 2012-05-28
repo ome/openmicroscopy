@@ -8,7 +8,7 @@
 #include <Ice/Initialize.h>
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>
-#include <omero/model/GroupExperimenterMapI.h>
+#include <omero/model/ExperimenterGroupExperimenterLinkI.h>
 #include <omero/model/ExperimenterGroupI.h>
 #include <omero/model/SessionI.h>
 #include <omero/fixture.h>
@@ -28,7 +28,7 @@ TEST(SessionsTest, RootCanCreateSessionForUser )
 
   omero::sys::PrincipalPtr p = new omero::sys::Principal();
   p->name = e->getOmeName()->getValue();
-  p->group = e->getPrimaryGroupExperimenterMap()->getParent()->getName()->getValue();
+  p->group = e->getPrimaryExperimenterGroupExperimenterLink()->getParent()->getName()->getValue();
   p->eventType = "Test";
   omero::model::SessionPtr session = sess->createSessionWithTimeout(p, 10000L);
 

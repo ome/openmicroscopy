@@ -594,7 +594,7 @@ public class PojosServiceTest extends TestCase {
                 null);
         Experimenter e = (Experimenter) m.get(fixture.TESTER);
         ExperimenterGroup g;
-        assertNotNull(g = e.getPrimaryGroupExperimenterMap().parent());
+        assertNotNull(g = e.getPrimaryExperimenterGroupExperimenterLink().parent());
         assertNotNull(g.getName());
         for (ExperimenterGroup gg : e.linkedExperimenterGroupList()) {
             assertNotNull(gg.getName());

@@ -62,7 +62,7 @@ class BaseGroup(BaseController):
             self.group = self.conn.getObject("ExperimenterGroup", gid)
         
             self.owners = list()
-            for gem in self.group.copyGroupExperimenterMap():
+            for gem in self.group.copyExperimenterGroupExperimenterLink():
                 if gem.owner.val == True:
                     self.owners.append(gem.child.id.val)
         self.experimenters = list(self.conn.getObjects("Experimenter"))
@@ -78,7 +78,7 @@ class BaseGroup(BaseController):
         self.members = list(self.conn.containedExperimenters(self.group.id))
         self.members.sort(key=lambda x: x.getOmeName().lower())
         for i, m in enumerate(self.members):
-            if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id:
+            if m.copyExperimenterGroupExperimenterLink()[0].parent.id.val == self.group.id:
                 self.members[i].setFirstName("*%s" % (m.firstName))
         
         self.available = list()
@@ -139,7 +139,7 @@ class BaseGroup(BaseController):
             permissions = self.setActualPermissions(perm, r)
         # old list of groups
         old_owners = list()
-        for oex in up_gr.copyGroupExperimenterMap():
+        for oex in up_gr.copyExperimenterGroupExperimenterLink():
             if oex.owner.val:
                 old_owners.append(oex.child)        
 

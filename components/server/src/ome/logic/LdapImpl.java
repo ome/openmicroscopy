@@ -357,7 +357,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // the "user" groupis at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
-                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfExperimenterGroupLinks());
+                log.debug("sizeOfExperimenterGroupExperimenterLink=" + e.sizeOfExperimenterGroupLinks());
                 if (e.sizeOfExperimenterGroupLinks() > 1) {
                     ExperimenterGroupExperimenterLink primary = e.getExperimenterGroupExperimenterLink(0);
                     ExperimenterGroupExperimenterLink next = e.getExperimenterGroupExperimenterLink(1);

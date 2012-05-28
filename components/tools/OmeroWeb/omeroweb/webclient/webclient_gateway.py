@@ -944,7 +944,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #def deleteExperimenter(self, experimenter):
     #    """
     #    Removes a user by removing the password information for that user as well
-    #    as all GroupExperimenterMap instances.
+    #    as all ExperimenterGroupExperimenterLink instances.
     #    
     #    @param user     Experimenter to be deleted. Not null.
     #    @type user      ExperimenterI

@@ -1773,11 +1773,11 @@ class _BlitzGateway (object):
         if gid is not None:
             if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self._user.copyExperimenterGroupExperimenterLink():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
         else:
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self._user.copyExperimenterGroupExperimenterLink():
                 if gem.owner.val == True:
                     return True
         return False
@@ -2300,7 +2300,7 @@ class _BlitzGateway (object):
                 
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or default.isLeader():
-            for d in default.copyGroupExperimenterMap():
+            for d in default.copyExperimenterGroupExperimenterLink():
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
 
@@ -2322,7 +2322,7 @@ class _BlitzGateway (object):
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
         if not default.isPrivate() or default.isLeader():
-            for d in default.copyGroupExperimenterMap():
+            for d in default.copyExperimenterGroupExperimenterLink():
                 if d.child.id.val == userId:
                     continue
                 if d.owner.val:
@@ -2349,7 +2349,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["gids"] = rlist([rlong(a) for a in set(self.getEventContext().leaderOfGroups)])
         sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
+                "exists ( select gem from ExperimenterGroupExperimenterLink as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.userName"
         for e in q.findAllByQuery(sql, p,self.CONFIG['SERVICE_OPTS']):
             if e.id.val != self.getEventContext().userId:
@@ -2364,7 +2364,7 @@ class _BlitzGateway (object):
         """
             
         exp = self.getUser()
-        for gem in exp.copyGroupExperimenterMap():
+        for gem in exp.copyExperimenterGroupExperimenterLink():
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
@@ -3999,7 +3999,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Experimenter'
-        self.LINK_CLASS = "GroupExperimenterMap"
+        self.LINK_CLASS = "ExperimenterGroupExperimenterLink"
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
 
@@ -4190,7 +4190,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "system":
                 return True
         return False
@@ -4203,7 +4203,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "user":
                 return True
         return False
@@ -4216,7 +4216,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "guest":
                 return True
         return False
@@ -4234,7 +4234,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'ExperimenterGroup'
-        self.LINK_CLASS = "GroupExperimenterMap"
+        self.LINK_CLASS = "ExperimenterGroupExperimenterLink"
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 

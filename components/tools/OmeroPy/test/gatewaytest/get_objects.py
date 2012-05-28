@@ -297,7 +297,7 @@ class GetObjectTest (lib.GTest):
         #eIds = [e.getId() for e in experimenters]
         for e in exps:
             #self.assertTrue(e.getId() in eIds)
-            for groupExpMap in e.copyGroupExperimenterMap():    # check iQuery has loaded groups
+            for groupExpMap in e.copyExperimenterGroupExperimenterLink():    # check iQuery has loaded groups
                 self.assertEqual(e.id, groupExpMap.child.id.val)
 
         # returns all experimenters except current user - now moved to webclient_gateway
@@ -310,7 +310,7 @@ class GetObjectTest (lib.GTest):
         #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( self.gateway.getObjects("ExperimenterGroup") )
         for grp in gps:
-            grpExpMap = grp.copyGroupExperimenterMap()
+            grpExpMap = grp.copyExperimenterGroupExperimenterLink()
         #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
         #gIds = [g.getId() for g in gps]
         #for g in groups:
@@ -323,7 +323,7 @@ class GetObjectTest (lib.GTest):
 
         # check we can find some groups
         exp = self.gateway.getObject("Experimenter", attributes={'userName': self.USER.name})
-        for groupExpMap in exp.copyGroupExperimenterMap():
+        for groupExpMap in exp.copyExperimenterGroupExperimenterLink():
             gName = groupExpMap.parent.name.val
             gId = groupExpMap.parent.id.val
             findG = self.gateway.getObject("ExperimenterGroup", attributes={'name': gName})
@@ -352,7 +352,7 @@ class GetObjectTest (lib.GTest):
         for groupExpMap in exp.copyExperimenterGroupLinks():
             self.assertEqual(findExp.id, groupExpMap.child.id.val)
             groupIds.append(groupExpMap.parent.id.val)
-        #for groupExpMap in experimenter.copyGroupExperimenterMap():
+        #for groupExpMap in experimenter.copyExperimenterGroupExperimenterLink():
         #    self.assertEqual(findExp.id, groupExpMap.child.id.val)
             
         groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
@@ -362,7 +362,7 @@ class GetObjectTest (lib.GTest):
         self.assertEqual(len(groups), len(groupIds))
         for g in groups:
             self.assertTrue(g.getId() in groupIds)
-            for m in g.copyGroupExperimenterMap():  # check exps are loaded
+            for m in g.copyExperimenterGroupExperimenterLink():  # check exps are loaded
                 ex = m.child
 
     def testGetAnnotations(self):

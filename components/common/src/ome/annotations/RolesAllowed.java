@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Experimenter by being a member of an ExperimenterGroup. I.e. for:
  * <code> @RolesAllowed({"user","system"}) </code> an Experimenter
  * must be linked to either the ExperimenterGroup "user" or "system"
- * by a GroupExperimenterMap.
+ * by a ExperimenterGroupExperimenterLink.
  *
  * This annotation replaces the previously used version with the same
  * semantics from the JavaEE spec.

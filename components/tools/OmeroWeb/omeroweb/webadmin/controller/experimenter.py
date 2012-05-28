@@ -23,7 +23,7 @@
 #
 
 from omero.rtypes import *
-from omero.model import ExperimenterI, GroupExperimenterMapI
+from omero.model import ExperimenterI, ExperimenterGroupExperimenterLinkI
 
 from webadmin.controller import BaseController
 
@@ -84,8 +84,8 @@ class BaseExperimenter(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getObject("Experimenter", eid)
             self.ldapAuth = self.conn.getLdapAuthExperimenter(eid)
-            geMap = self.experimenter.copyGroupExperimenterMap()
-            if self.experimenter.sizeOfGroupExperimenterMap() > 0:
+            geMap = self.experimenter.copyExperimenterGroupExperimenterLink()
+            if self.experimenter.sizeOfExperimenterGroupExperimenterLink() > 0:
                 self.defaultGroup = geMap[0].parent.id.val
             else:
                 self.defaultGroup = None
@@ -131,9 +131,9 @@ class BaseExperimenter(BaseController):
     def getMyDetails(self):
         self.experimenter = self.conn.getUser()
         self.ldapAuth = self.conn.getLdapAuthExperimenter(self.conn._userid)
-        self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
+        self.defaultGroup = self.experimenter.copyExperimenterGroupExperimenterLink()[0].parent.id.val
         self.otherGroups = list()
-        for gem in self.experimenter.copyGroupExperimenterMap():
+        for gem in self.experimenter.copyExperimenterGroupExperimenterLink():
             if gem.parent.name.val == "user":
                 pass
             else:
@@ -210,7 +210,7 @@ class BaseExperimenter(BaseController):
         
         # old list of groups
         old_groups = list()
-        for ogr in up_exp.copyGroupExperimenterMap():
+        for ogr in up_exp.copyExperimenterGroupExperimenterLink():
             old_groups.append(ogr.parent)
         
         # create list of new groups

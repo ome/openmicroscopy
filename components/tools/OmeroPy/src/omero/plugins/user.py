@@ -130,7 +130,7 @@ class UserControl(BaseControl):
             row.append(user.email and user.email.val or "")
             member_of = []
             leader_of = []
-            for x in user.copyGroupExperimenterMap():
+            for x in user.copyExperimenterGroupExperimenterLink():
                 if not x:
                     continue
                 gid = str(x.parent.id.val)

@@ -18,7 +18,7 @@ public class InvariantsTest extends AbstractManagedContextTest {
 
     /*
      * TODO: HibernateSystemException: More than one row with the given
-     * identifier was found: GroupExperimenterMap:Hash_3239879, for class:
+     * identifier was found: ExperimenterGroupExperimenterLink:Hash_3239879, for class:
      * ome.model.meta...
      * 
      * This is weird. Possible Hibernate bug.

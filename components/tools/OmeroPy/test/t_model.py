@@ -18,7 +18,7 @@ from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+from omero_model_ExperimenterGroupExperimenterLinkI import ExperimenterGroupExperimenterLinkI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
@@ -153,15 +153,15 @@ class TestModel(unittest.TestCase):
     def testLinkGroupAndUser(self):
         user = ExperimenterI()
         group = ExperimenterGroupI()
-        link = GroupExperimenterMapI()
+        link = ExperimenterGroupExperimenterLinkI()
 
         link.id = rlong(1)
         link.link(group,user)
-        user.addGroupExperimenterMap( link, False )
-        group.addGroupExperimenterMap( link, False )
+        user.addExperimenterGroupExperimenterLink( link, False )
+        group.addExperimenterGroupExperimenterLink( link, False )
 
         count = 0
-        for i in user.iterateGroupExperimenterMap():
+        for i in user.iterateExperimenterGroupExperimenterLink():
             count += 1
 
         self.assert_( count == 1 )
@@ -177,7 +177,7 @@ class TestModel(unittest.TestCase):
         
         group = ExperimenterGroupI()
         # TODOuser.linkExperimenterGroup(group)
-        link = GroupExperimenterMapI()
+        link = ExperimenterGroupExperimenterLinkI()
         link.parent = group
         link.child  = user
 

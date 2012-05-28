@@ -445,7 +445,7 @@ public interface IAdmin extends ServiceInterface {
 
     /**
      * removes a user by removing the password information for that user as well
-     * as all {@link GroupExperimenterMap} instances.
+     * as all {@link ExperimenterGroupExperimenterLink} instances.
      * 
      * @param user
      *            Experimenter to be deleted. Not null.

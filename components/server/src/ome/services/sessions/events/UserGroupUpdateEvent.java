@@ -16,7 +16,7 @@ import ome.util.messages.InternalMessage;
 /**
  * {@link InteralMessage} published by the {@link SecuritySystem} when an
  * {@link Experimenter}, {@link ExperimenterGroup}, or
- * {@link GroupExperimenterMap} is inserted or updated.
+ * {@link ExperimenterGroupExperimenterLink} is inserted or updated.
  * 
  * This is signals the {@link SessionManager} to update its cache.
  * 

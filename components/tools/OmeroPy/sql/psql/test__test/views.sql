@@ -88,7 +88,7 @@
   DROP TABLE count_ExperimenterGroup_groupExperimenterMap_by_owner;
 
   CREATE OR REPLACE VIEW count_ExperimenterGroup_groupExperimenterMap_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY parent, owner_id ORDER BY parent;
+    FROM ExperimenterGroupExperimenterLink GROUP BY parent, owner_id ORDER BY parent;
 
   DROP TABLE count_ExperimenterGroup_annotationLinks_by_owner;
 
@@ -260,7 +260,7 @@
   DROP TABLE count_Experimenter_groupExperimenterMap_by_owner;
 
   CREATE OR REPLACE VIEW count_Experimenter_groupExperimenterMap_by_owner (Experimenter_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY child, owner_id ORDER BY child;
+    FROM ExperimenterGroupExperimenterLink GROUP BY child, owner_id ORDER BY child;
 
   DROP TABLE count_Experimenter_annotationLinks_by_owner;
 

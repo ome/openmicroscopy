@@ -238,7 +238,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = session
-                        .createQuery("select m.parent.id from GroupExperimenterMap m "
+                        .createQuery("select m.parent.id from ExperimenterGroupExperimenterLink m "
                                 + "where m.child.id = :id");
                 q.setParameter("id", e.getId());
                 return q.list();
@@ -257,7 +257,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = session
-                        .createQuery("select m.parent.name from GroupExperimenterMap m "
+                        .createQuery("select m.parent.name from ExperimenterGroupExperimenterLink m "
                                 + "where m.child.id = :id");
                 q.setParameter("id", e.getId());
                 return q.list();
@@ -363,7 +363,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 + "join fetch e.experimenterGroupLinks as map "
                 + "join fetch map.parent g "
                 + "where e.id in "
-                + "  (select m.child from GroupExperimenterMap m "
+                + "  (select m.child from ExperimenterGroupExperimenterLink m "
                 + "  where m.parent.id = :id )", new Parameters()
                         .addId(groupId));
         return experimenters.toArray(new Experimenter[experimenters.size()]);
@@ -379,7 +379,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         + "left outer join fetch map.child u "
                         + "left outer join fetch u.experimenterGroupLinks m2 "
                         + "where g.id in "
-                        + "  (select m.parent from GroupExperimenterMap m "
+                        + "  (select m.parent from ExperimenterGroupExperimenterLink m "
                         + "  where m.child.id = :id )",
                         new Parameters().addId(experimenterId));
         return groups.toArray(new ExperimenterGroup[groups.size()]);
