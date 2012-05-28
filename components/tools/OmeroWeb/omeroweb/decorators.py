@@ -59,7 +59,7 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True):
+                 isGroupOwner=False, doConnectionCleanup=True, omero_group=None):
         """
         Initialises the decorator.
         """
@@ -67,6 +67,7 @@ class login_required(object):
         self.isAdmin = isAdmin
         self.isGroupOwner = isGroupOwner
         self.doConnectionCleanup = doConnectionCleanup
+        self.omero_group = omero_group
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -112,8 +113,14 @@ class login_required(object):
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request, conn):
-        """Called whenever the users is successfully logged in."""
-        pass
+        """
+        Called whenever the users is successfully logged in.
+        Sets the 'omero.group' option if specified in the constructor
+        """
+        if conn.CONFIG['SERVICE_OPTS'] is None:
+            conn.CONFIG['SERVICE_OPTS'] = {}
+        if self.omero_group is not None:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.omero_group)
 
     def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
