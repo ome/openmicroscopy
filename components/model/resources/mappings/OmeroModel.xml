@@ -12,7 +12,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
-# Created by moore via xsd-fu on 2012-05-25 09:11:40.483798
+# Created by callan via xsd-fu on 2012-05-28 08:55:36+0100
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
@@ -284,10 +284,7 @@
         </properties>
     </type>
 
-    <!-- manually insert -->
-    <type id="ome.model.core.Settings">
-    </type>
-
+    <!-- OME model object DetectorSettings -->
     <type id="ome.model.core.DetectorSettings" superclass="ome.model.core.Settings">
         <properties>
             <!--
@@ -360,6 +357,10 @@
     <!-- OME model object Event -->
     <type id="ome.model.meta.Event" global="true" immutable="true">
         <properties>
+            <!--
+            // Property EventRef (ContainingEvent)
+            -->
+            <optional name="containingEvent" type="ome.model.meta.Event"/>
             <!--
             // Property which occurs more than once EventLog
             -->
@@ -1173,7 +1174,7 @@
             <!--
             // Many-to-many reference PixelsRef
             -->
-            <child name="pixelsLinks" type="ome.model.meta.OriginalFilePixelsLink" target="ome.model.core.Pixels"/>
+            <child name="pixelsLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.core.Pixels"/>
             <!--
             // Property SHA1
             -->
@@ -1198,7 +1199,9 @@
     <!-- OME model object Pixels -->
     <type id="ome.model.core.Pixels" annotated="true">
         <properties>
-            <!-- added manually -->
+            <!--
+            // Property Image
+            -->
             <oneoneowner name="image" type="ome.model.core.Image"/>
             <!--
             // Property SHA1
@@ -1215,7 +1218,7 @@
             <!--
             // Many-to-many back reference OriginalFile_BackReference
             -->
-            <parent name="originalFileLinks" type="ome.model.meta.OriginalFilePixelsLink" target="ome.model.meta.OriginalFile"/>
+            <parent name="originalFileLinks" type="ome.model.core.OriginalFilePixelsLink" target="ome.model.meta.OriginalFile"/>
             <!--
             // Property PhysicalSizeX
             -->
@@ -1559,6 +1562,12 @@
         </properties>
     </type>
 
+    <!-- OME model object Reference -->
+    <abstract id="ome.model.core.Reference">
+        <properties>
+        </properties>
+    </abstract>
+
     <!-- OME model object RenderingDef -->
     <type id="ome.model.meta.RenderingDef">
         <properties>
@@ -1700,6 +1709,12 @@
             <required name="uuid" type="String" unique="true"/>
         </properties>
     </type>
+
+    <!-- OME model object Settings -->
+    <abstract id="ome.model.core.Settings" superclass="ome.model.core.Reference">
+        <properties>
+        </properties>
+    </abstract>
 
     <!-- OME model object Shape -->
     <abstract id="ome.model.roi.Shape">
@@ -2490,7 +2505,7 @@
         </properties>
     </link>
 
-    <link id="ome.model.meta.OriginalFilePixelsLink">
+    <link id="ome.model.core.OriginalFilePixelsLink">
         <properties>
             <from_parent type="ome.model.meta.OriginalFile"/>
             <to_child type="ome.model.core.Pixels"/>
