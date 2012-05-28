@@ -187,12 +187,14 @@ class ImageTest (lib.GTest):
         self.gateway.CONFIG['SERVICE_OPTS'] = sopts
         image = self.getTestImage()
         self.assertEqual(image.getId(), self.image.getId())
-        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        self.assert_(len(image.exportOmeTiff()) > 0)
         # what about a regular user?
-        admin = self.gateway.getAdminService()
-        g = image.getDetails().getGroup()
+        g = image.getDetails().getGroup()._obj
         self.loginAsUser()
-        admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [self.image.getDetails().getGroup()._obj])
+        uid = self.gateway._userid
+        self.loginAsAdmin()
+        admin = self.gateway.getAdminService()
+        admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
         self.loginAsUser()
         try:
             sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
@@ -202,7 +204,9 @@ class ImageTest (lib.GTest):
             self.assertEqual(image.getId(), self.image.getId())
             self.assert_(len(image.exportOmeTiff()) > 0)
         finally:
-            admin.removeGroups(omero.model.ExperimenterI(self.gateway._userid, False), [self.image.getDetails().getGroup()._obj])
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            admin.removeGroups(omero.model.ExperimenterI(uid, False), [g])
             
         
         

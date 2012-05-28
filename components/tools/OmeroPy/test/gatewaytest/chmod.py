@@ -142,7 +142,7 @@ class ChmodBaseTest (lib.GTest):
                 link.setParent(ds)
                 link.setChild(obj)
                 update = self.gateway.getUpdateService()
-                rv = update.saveObject(link)
+                rv = update.saveObject(link, self.gateway.CONFIG['SERVICE_OPTS'])
             elif isinstance(obj, omero.model.Project):
                 ds = omero.model.DatasetI()
                 ds.setName(omero.rtypes.rstring("assertCanEdit"))
@@ -150,7 +150,7 @@ class ChmodBaseTest (lib.GTest):
                 link.setParent(obj)
                 link.setChild(ds)
                 update = self.gateway.getUpdateService()
-                rv = update.saveObject(link)
+                rv = update.saveObject(link, self.gateway.CONFIG['SERVICE_OPTS'])
             else:
                 raise Exception("Unknown type: %s" % blitzObject)
             objectUsed = True
@@ -310,6 +310,7 @@ class CustomUsersTest (ChmodBaseTest):
 
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_ann_admin'])
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
