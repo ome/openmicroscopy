@@ -274,7 +274,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         List<Long> ldapGroups = loadLdapGroups(username, dn);
         List<Object[]> omeGroups = iQuery.projection(
                 "select g.id from ExperimenterGroup g " +
-			"join g.groupExperimenterMap m join m.child e where e.id = :id",
+			"join g.experimenterLinks m join m.child e where e.id = :id",
                 new Parameters().addId(omeExp.getId()));
 
         Set<Long> omeGroupIds = new HashSet<Long>();

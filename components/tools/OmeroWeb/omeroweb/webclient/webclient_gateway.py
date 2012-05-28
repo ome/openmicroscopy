@@ -318,7 +318,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    p.page(0,1)
     #    supervisor = self.getQueryService().findByQuery(\
     #        """select e from ExperimenterGroup as g 
-    #           join g.groupExperimenterMap as m join m.child as e
+    #           join g.experimenterLinks as m join m.child as e
     #           where m.owner = true and g.id = :id""", p)
     #    return ExperimenterWrapper(self, supervisor)
     

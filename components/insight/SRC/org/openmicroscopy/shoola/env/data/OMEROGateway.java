@@ -3645,7 +3645,7 @@ class OMEROGateway
 			IQueryPrx service = getQueryService(ctx);
 			List<IObject> groups = service.findAllByQuery(
                     "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch g.experimenterLinks as map "
                     + "join fetch map.parent e "
                     + "left outer join fetch map.child u "
                     + "left outer join fetch u.groupExperimenterMap m2 "
@@ -7247,7 +7247,7 @@ class OMEROGateway
 			p.addId(experimenterID);
 			groups = (List) svc.findAllByQuery("select distinct g " +
 					"from ExperimenterGroup g "
-	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch g.experimenterLinks m "
 	                + "left outer join fetch m.child u " +
 	                		" where u.id = :id", p);
 			ExperimenterGroup group;
@@ -7287,14 +7287,14 @@ class OMEROGateway
 			if (id < 0) {
 				groups = (List)
 				svc.findAllByQuery("select distinct g from ExperimenterGroup g "
-		               // + "left outer join fetch g.groupExperimenterMap m "
+		               // + "left outer join fetch g.experimenterLinks m "
 		                , null);
 			} else {
 				ParametersI p = new ParametersI();
 				p.addId(id);
 				groups = (List) svc.findAllByQuery("select distinct g " +
 						"from ExperimenterGroup g "
-		                + "left outer join fetch g.groupExperimenterMap m "
+		                + "left outer join fetch g.experimenterLinks m "
 		                + "left outer join fetch m.child u "
 		                + "left outer join fetch u.groupExperimenterMap m2 "
 		                + "left outer join fetch m2.parent" +

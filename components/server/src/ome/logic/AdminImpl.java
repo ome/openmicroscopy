@@ -212,7 +212,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         final QueryBuilder qb = new QueryBuilder();
         qb.select("g.id").from("ExperimenterGroup", "g");
-        qb.join("g.groupExperimenterMap", "m", false, false);
+        qb.join("g.experimenterLinks", "m", false, false);
         qb.where();
         qb.and("m.owner = true");
         qb.and("m.parent.id = g.id");
@@ -350,7 +350,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public List<ExperimenterGroup> lookupGroups() {
         return iQuery.findAllByQuery("select distinct g from ExperimenterGroup g "
-                + "left outer join fetch g.groupExperimenterMap m "
+                + "left outer join fetch g.experimenterLinks m "
                 + "left outer join fetch m.child u "
                 + "left outer join fetch u.groupExperimenterMap m2 "
                 + "left outer join fetch m2.parent", null);
@@ -374,7 +374,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         List<ExperimenterGroup> groups = iQuery
                 .findAllByQuery(
                         "select distinct g from ExperimenterGroup as g "
-                        + "join fetch g.groupExperimenterMap as map "
+                        + "join fetch g.experimenterLinks as map "
                         + "join fetch map.parent e "
                         + "left outer join fetch map.child u "
                         + "left outer join fetch u.groupExperimenterMap m2 "
@@ -1287,7 +1287,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             QueryBuilder qb = new QueryBuilder();
             qb.select("g");
             qb.from("ExperimenterGroup", "g");
-            qb.join("g.groupExperimenterMap","m",true, true);
+            qb.join("g.experimenterLinks","m",true, true);
             qb.join("m.child","user", true,true);
             qb.where();
             
