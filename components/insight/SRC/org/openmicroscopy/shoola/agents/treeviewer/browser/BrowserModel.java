@@ -914,7 +914,7 @@ class BrowserModel
 				return new SecurityContext(group.getId());
 			} else {
 				return new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getDefaultGroup().getId());
 			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
@@ -924,17 +924,22 @@ class BrowserModel
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					getUserDetails().getDefaultGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
+		if (parent == null) {
+			return new SecurityContext(
+					getUserDetails().getDefaultGroup().getId());
+		}
 		Object p = parent.getUserObject();
 		if (p instanceof GroupData) {
 			GroupData group = (GroupData) p;
 			return new SecurityContext(group.getId());
 		}
 		return new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getDefaultGroup().getId());
 	}
+	
 	
 	/**
 	 * Returns the selected group.
