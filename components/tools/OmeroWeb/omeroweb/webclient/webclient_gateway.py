@@ -1938,7 +1938,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     def getDefaultGroup(self):
         geMap = self.copyGroupExperimenterMap()
         if self.sizeOfGroupExperimenterMap() > 0:
-            return ExperimenterGroupWrapper(self, geMap[0].parent)
+            return ExperimenterGroupWrapper(self._conn, geMap[0].parent)
         return None
     
     def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
@@ -1949,7 +1949,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
             if gem.parent.id.val in excluded_ids:
                 flag = True
             if not flag:
-                yield ExperimenterGroupWrapper(self, gem.parent)
+                yield ExperimenterGroupWrapper(self._conn, gem.parent)
     
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
 
@@ -1979,7 +1979,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
             if gem.owner.val:
-                yield ExperimenterWrapper(self, gem.child)
+                yield ExperimenterWrapper(self._conn, gem.child)
     
     def getOwnersNames(self):
         owners = list()
@@ -1995,7 +1995,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             if gem.parent.id.val in excluded_ids:
                 flag = True
             if not flag:
-                yield ExperimenterWrapper(self, gem.child)
+                yield ExperimenterWrapper(self._conn, gem.child)
     
     def isLocked(self):
         if self.name == "user":
@@ -2245,6 +2245,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         @rtype:     L{ExperimenterWrapper}
         """
         
-        return omero.gateway.ExperimenterWrapper(self, self.owner)
+        return omero.gateway.ExperimenterWrapper(self._conn, self.owner)
 
 omero.gateway.refreshWrappers()
