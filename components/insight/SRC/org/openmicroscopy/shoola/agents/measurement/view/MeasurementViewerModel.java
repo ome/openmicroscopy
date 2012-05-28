@@ -864,7 +864,7 @@ class MeasurementViewerModel
 	 * @return See above.
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
-	List<ROIFigure> removeAllROI(long ownerID)
+	List<ROIFigure> removeAllROI(long ownerID, int level)
 		throws NoSuchROIException
 	{
 		Collection<ROI> rois = roiComponent.getROIMap().values();
@@ -872,13 +872,31 @@ class MeasurementViewerModel
 		List<ROI> ownedRois = new ArrayList<ROI>();
 		ROI roi;
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
-		while (i.hasNext()) {
-			roi = i.next();
-			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
-			if (roi.canDelete()) {
-				figures.addAll(roi.getAllFigures());
-				ownedRois.add(roi);
-			}
+		switch (level) {
+			case MeasurementViewer.ALL:
+				while (i.hasNext()) {
+					roi = i.next();
+					figures.addAll(roi.getAllFigures());
+					ownedRois.add(roi);
+				}
+				break;
+			case MeasurementViewer.ME:
+				while (i.hasNext()) {
+					roi = i.next();
+					if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+						figures.addAll(roi.getAllFigures());
+						ownedRois.add(roi);
+					}
+				}
+				break;
+			case MeasurementViewer.OTHER:
+				while (i.hasNext()) {
+					roi = i.next();
+					if (roi.getOwnerID() != ownerID) {
+						figures.addAll(roi.getAllFigures());
+						ownedRois.add(roi);
+					}
+				}
 		}
 		i = ownedRois.iterator();
 		while (i.hasNext()) {

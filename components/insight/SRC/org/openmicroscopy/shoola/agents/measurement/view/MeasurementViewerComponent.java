@@ -1039,8 +1039,8 @@ class MeasurementViewerComponent
 	{
 		if (!canDelete()) return;
 		List<ROIData> list;
-		if (model.isMember()) list = model.getROIData();
-		else list = model.getROIData(level);
+		if (model.isMember()) level = MeasurementViewer.ME;
+		list = model.getROIData(level);
 		if (list.size() == 0) return;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
@@ -1060,10 +1060,13 @@ class MeasurementViewerComponent
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			List<ROIFigure> figures = model.removeAllROI(exp.getId());
-			//clear all tables.
-			view.deleteROIs(figures);
-			model.getROIComponent().reset();
+			List<ROIFigure> figures = model.removeAllROI(exp.getId(), level);
+			if (figures != null) {
+				//clear all tables.
+				view.deleteROIs(figures);
+				model.getROIComponent().reset();
+			}
+			
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");
