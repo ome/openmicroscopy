@@ -126,13 +126,14 @@ class render_response(omeroweb.decorators.render_response):
         top_links = settings.TOP_LINKS
         links = []
         for tl in top_links:
+            label = tl[0]
+            link_id = tl[1]
             try:
-                label = tl[0]
-                link_id = tl[1]
                 link = reverse(link_id)
                 links.append( {"label":label, "link":link} )
             except:
-                logger.error("Failed to reverse() tab_link: %s" % tl)
+                # assume we've been passed a url
+                links.append( {"label":label, "link":link_id} )
         context['ome']['top_links'] = links
 
         right_plugins = settings.RIGHT_PLUGINS
