@@ -21,6 +21,7 @@ Copyright notice added to all files:
 
 #set( $p = "::omero::model::Permissions")
 #set( $d = "::omero::model::Details")
+#set( $c = "::omero::model::Color")
 
 [jav] package omero.util;
 [jav] import java.util.Map;
@@ -35,17 +36,20 @@ Copyright notice added to all files:
 [jav]         Map<String,Callable<Ice.Object>> __m = new HashMap<String,Callable<Ice.Object>();
 [jav]         __m.put("$p",omero.model.PermissionsI.generator());
 [jav]         __m.put("$d",omero.model.DetailsI.generator());
+[jav]         __m.put("$c",omero.model.ColorI.generator());
 
 [pyc] def map():
-[pyc]         import omero.model, omero_model_PermissionsI, omero_model_DetailsI
+[pyc]         import omero.model, omero_model_PermissionsI, omero_model_DetailsI, omero_model_ColorI
 [pyc]         __m = {}
 [pyc]         __m["$p"] = omero.model.PermissionsI.generator()
 [pyc]         __m["$d"] = omero.model.DetailsI.generator()
+[pyc]         __m["$c"] = omero.model.ColorI.generator()
 
 [cpp] map<string,Ice::Object> map() {
 [cpp]         map<string,Ice::Object> __m;
 [cpp]         __m["$p"] = omero::model::PermissionsI::generator();
 [cpp]         __m["$d"] = omero::model::DetailsI::generator();
+[cpp]         __m["$c"] = omero::model::ColorI::generator();
 
 #foreach($type in $types)
 #if(!$type.abstract)
