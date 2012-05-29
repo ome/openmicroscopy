@@ -102,7 +102,6 @@ public class ROIPopupMenu
 	private JMenu createROICreationOptions()
 	{
 		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
-		JMenuItem roiOption;
 		ROIAction action;
 		CreationActionType[] values = 
 			ROIActionController.CreationActionType.values();
@@ -110,8 +109,9 @@ public class ROIPopupMenu
 		{
 			action = new ROIAction(controller, values[indexCnt]);
 			actions.add(action);
-			roiOption = new JMenuItem(action);
-			roiOptionsParent.add(roiOption);
+			popupMenu.add(new JMenuItem(action));
+			//roiOption = ;
+			//roiOptionsParent.add(new JMenuItem(action));
 		}
 		return roiOptionsParent;
 	}
@@ -119,10 +119,14 @@ public class ROIPopupMenu
 	/** Creates the popup menu. */
 	private void createPopupMenu()
 	{
+		/*
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
 		popupMenu.add(new JMenuItem(POPUP_MENU_DESCRIPTION));
 		popupMenu.addSeparator();
 		popupMenu.add(createROICreationOptions());
+		*/
+		popupMenu = new JPopupMenu();
+		createROICreationOptions();
 		//popupMenu.add(createROIStatsOptions());
 	}
 

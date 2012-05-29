@@ -545,7 +545,7 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);
-		if (roiFigure.canAnnotate())
+		if (roiFigure.canEdit())
 			roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;

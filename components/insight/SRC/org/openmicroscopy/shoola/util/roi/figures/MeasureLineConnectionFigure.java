@@ -670,6 +670,7 @@ public class MeasureLineConnectionFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	

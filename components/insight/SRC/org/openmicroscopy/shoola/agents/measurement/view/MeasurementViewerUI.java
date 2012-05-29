@@ -635,14 +635,13 @@ class MeasurementViewerUI
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
-				if (roi.canEdit() && !roi.isReadOnly()) {
+				if (!roi.isReadOnly()) {
 					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 					if (newShape.getCoord3D().equals(model.getCurrentView()))
 					{
 						drawing.removeDrawingListener(controller);
 						drawing.add(newShape.getFigure());
-						if (roi.canAnnotate())
-							newShape.getFigure().addFigureListener(controller);
+						newShape.getFigure().addFigureListener(controller);
 						drawing.addDrawingListener(controller);
 					}
 					model.addShape(newROI.getID(), newShape.getCoord3D(),
