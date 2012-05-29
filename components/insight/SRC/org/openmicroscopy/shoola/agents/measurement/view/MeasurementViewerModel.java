@@ -1745,15 +1745,22 @@ class MeasurementViewerModel
     /** 
      * Adds the passed ROI to the collection of ROIs to delete.
      * 
-     * 
+     * @param id The id of the shape.
      * @param roi The ROI to add.
+     * @param force Pass <code>true</code> when the roi is removed via key.
      */
-    void markROIForDelete(long id, ROI roi)
+    void markROIForDelete(long id, ROI roi, boolean force)
     {
     	if (roi == null) return;
     	if (roiToDelete == null) roiToDelete = new ArrayList<ROI>();
-    	if (!roiComponent.containsROI(id) && !roi.isClientSide())
-    		roiToDelete.add(roi);
+    	if (id < 0) return;
+    	if (force) {
+    		if (!roi.isClientSide())
+        		roiToDelete.add(roi);
+    	} else {
+    		if (!roiComponent.containsROI(id) && !roi.isClientSide())
+        		roiToDelete.add(roi);
+    	}
     }
     
     /**

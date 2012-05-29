@@ -572,8 +572,18 @@ class MeasurementViewerControl
 	{
 		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);
-		model.setDataChanged();
+		if (f instanceof ROIFigure) {
+			ROIFigure roi = (ROIFigure) f;
+			if (roi.isReadOnly() || !roi.canDelete()) {
+				view.getDrawing().removeDrawingListener(this);
+				view.getDrawing().add(roi);
+				view.getDrawing().addDrawingListener(this);
+				return;
+			}
+			view.markROIForDelete(roi);
+			view.removeROI(roi);
+			model.setDataChanged();
+		}
 	}
 
 	/**
@@ -644,9 +654,9 @@ class MeasurementViewerControl
 	
 	/** 
 	 * Calculates the statistics for the selected shape.
-	 * @see KeyListener#keyTyped(KeyEvent)
+	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyTyped(KeyEvent e)
+	public void keyPressed(KeyEvent e)
 	{
 		char ANALYSECHAR = 'a';
 		if (e.getKeyChar() == ANALYSECHAR) {
@@ -730,7 +740,7 @@ class MeasurementViewerControl
 	 * in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyPressed(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {}
 
 	/**
 	 * Required by the {@link KeyListener} I/F but no-operation implementation

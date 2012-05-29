@@ -656,6 +656,20 @@ class MeasurementViewerUI
 		}
 	}
 	
+	void markROIForDelete(ROIFigure roi)
+	{
+		if (roi == null) return;
+		long id = roi.getROIShape().getID();
+		if (id < 0) return;
+		try {
+			//model.deleteShape(id, roi.getROIShape().getCoord3D());
+		} catch (Exception e) {
+			
+		}
+		
+		model.markROIForDelete(id, roi.getROI(), true);
+	}
+	
 	/**
 	 * Deletes the ROI with id and the ROIShapes selected in the shapeList.
 	 * 
@@ -682,7 +696,7 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					model.markROIForDelete(shape.getID(), r);
+					model.markROIForDelete(shape.getID(), r, false);
 				}
 			}
 			model.notifyDataChanged(b);
