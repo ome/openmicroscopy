@@ -115,7 +115,6 @@ public class Helper {
     }
 
     public Response getResponse() {
-        requireStepsSet();
         return rsp.get();
     }
 
@@ -214,23 +213,33 @@ public class Helper {
      * @param name
      * @param paramList
      */
-    protected void fail(ERR err, final String name, final String... paramList) {
-        fail(err, name, params(paramList));
+    public void fail(ERR err, Throwable t, final String name, final String... paramList) {
+        fail(err, t, name, params(paramList));
     }
 
     /**
-     * Sets the status.flags and the ERR properties appropriately.
+     * Sets the status.flags and the ERR properties appropriately and also
+     * stores the message and stacktrace of the throwable in the parameters. 
      *
      * @param err
      * @param name
      * @param params
      */
-    protected void fail(ERR err, final String name,
+    public void fail(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
         status.flags.add(State.FAILURE);
         err.category = request.ice_id();
         err.name = name;
         err.parameters = params;
+        if (t != null) {
+            String msg = t.getMessage();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            String st = sw.toString();
+            err.parameters.put("message", msg);
+            err.parameters.put("stacktrace", st);
+        }
         rsp.set(err);
     }
 
@@ -251,8 +260,7 @@ public class Helper {
     }
 
     /**
-     * Like {@link #fail(ERR, String, String...)} but also stores the message
-     * and stacktrace of the throwable in the parameters and throws a
+     * Like {@link #fail(ERR, String, String...)} throws a
      * {@link Cancel} exception.
      *
      * A {@link Cancel} is thrown, even though one is also specificed as the
@@ -272,22 +280,13 @@ public class Helper {
      */
     public Cancel cancel(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
-        fail(err, name, params);
-
+        fail(err, t, name, params);
+        status.flags.add(State.CANCELLED);
         Cancel cancel = new Cancel(name);
         if (t != null) {
-
-            String msg = t.getMessage();
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            String st = pw.toString();
-            err.parameters.put("message", msg);
-            err.parameters.put("stacktrace", st);
-
             cancel.initCause(t);
-
         }
+        info("Cancelled");
         throw cancel;
     }
 

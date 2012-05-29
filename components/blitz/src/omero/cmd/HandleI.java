@@ -240,12 +240,10 @@ public class HandleI implements _HandleOperations, IHandle,
         try {
             boolean cancelled = cancelWithoutNotification();
             if (cancelled) {
-                status.flags.add(omero.cmd.State.CANCELLED);
-                helper.info("Cancelled.");
+                helper.cancel(new ERR(), null, "cancel-called");
             }
             return cancelled;
         } finally {
-            rsp.compareAndSet(null, new ERR());
             notifyCallbacks();
         }
     }
@@ -386,7 +384,6 @@ public class HandleI implements _HandleOperations, IHandle,
                     } catch (Cancel c) {
                         // TODO: Perhaps remove local State enum and use solely
                         // the slice defined one.
-                        status.flags.add(omero.cmd.State.CANCELLED);
                         state.set(State.CANCELLED);
                         throw c; // Exception intended to rollback transaction
                     }
@@ -399,12 +396,13 @@ public class HandleI implements _HandleOperations, IHandle,
                 req.buildResponse(step, obj);
             }
 
+        } catch (Cancel cancel) {
+            helper.debug("Request cancelled by %s", cancel.getCause());
+            // If this is a cancel, then fail or similar has already
+            // been called and the response will be properly set.
         } catch (Throwable t) {
-            if (t instanceof Cancel) {
-                helper.debug("Request cancelled by %s", t.getCause());
-            } else {
-                helper.debug("Request rolled back by %s", t.getCause());
-            }
+            helper.warn("Request rolled back by %s", t.getCause());
+            helper.fail(new ERR(), t, "run-fail");
         } finally {
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
@@ -454,7 +452,7 @@ public class HandleI implements _HandleOperations, IHandle,
                 sw = new CommonsLogStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
-                        throw new Cancel("Not ready");
+                        throw helper.cancel(new ERR(), null, "not-ready");
                     }
                     rv.add(req.step(j));
                 } finally {
@@ -489,9 +487,7 @@ public class HandleI implements _HandleOperations, IHandle,
         } catch (Throwable t) {
             String msg = "Failure during Request.step:";
             helper.error(t, msg);
-            Cancel cancel = new Cancel("Cancelled by " + t.getClass().getName());
-            cancel.initCause(t);
-            throw cancel;
+            throw helper.cancel(new ERR(), t, "steps-cancel");
         }
 
     }
