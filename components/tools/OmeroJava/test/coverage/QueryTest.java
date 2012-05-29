@@ -106,7 +106,7 @@ public class QueryTest extends IceTest {
     public void testFindAllByQuery() throws Exception {
 
         IQueryPrx qu = ice.getSession().getQueryService();
-        String str = "select e from Experimenter e where e.omeName = :name";
+        String str = "select e from Experimenter e where e.userName = :name";
         Parameters p = new Parameters();
         p.theFilter = new Filter();
         p.theFilter.limit = rint(1);
@@ -124,7 +124,7 @@ public class QueryTest extends IceTest {
 
         IQueryPrx qu = ice.getSession().getQueryService();
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
-                "Experimenter", "omeName", "root", true, null));
+                "Experimenter", "userName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);
@@ -136,7 +136,7 @@ public class QueryTest extends IceTest {
 
         IQueryPrx qu = ice.getSession().getQueryService();
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
-                "Experimenter", "omeName", "root", true, null));
+                "Experimenter", "userName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).getUserName().getValue().equals("root"));
         assertTrue(l.get(0).getId().getValue() == 0L);

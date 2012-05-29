@@ -389,7 +389,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
-        initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+        initial={'omename': controller.experimenter.userName, 'first_name':controller.experimenter.firstName,
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
@@ -411,7 +411,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", controller.experimenter.id]))
         else:            
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
+            name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.userName)
             email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
             initial={'active':True}
             exclude = list()
@@ -480,7 +480,7 @@ def manage_password(request, eid, **kwargs):
             if conn.isAdmin():
                 exp = conn.getObject("Experimenter", eid)
                 try:
-                    conn.changeUserPassword(exp.omeName, password, old_password)
+                    conn.changeUserPassword(exp.userName, password, old_password)
                 except Exception, x:
                     error = x.message
                 else:
@@ -793,13 +793,13 @@ def my_account(request, action=None, **kwargs):
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
     else:
-        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.userName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
     
     photo_size = conn.getExperimenterPhotoSize()
-    form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+    form = MyAccountForm(initial={'omename': myaccount.experimenter.userName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})

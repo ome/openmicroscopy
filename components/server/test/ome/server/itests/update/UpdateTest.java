@@ -188,7 +188,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         Experimenter test = (Experimenter) iQuery
                 .findByQuery(" select e from Experimenter e "
-                        + " join fetch e.groupExperimenterMap m "
+                        + " join fetch e.experimenterGroupLinks m "
                         + " join fetch m.parent p " + " where e.id = :id "
                         + "and index(m) = 0", new Parameters().addId(e.getId()));
         assertNotNull(test.getPrimaryExperimenterGroupExperimenterLink());

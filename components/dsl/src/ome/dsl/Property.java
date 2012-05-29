@@ -643,6 +643,19 @@ public abstract class Property { // TODO need to define equality so that two
 class OptionalField extends Property {
     public OptionalField(SemanticType st, Properties attrs) {
         super(st, attrs);
+
+        /* see ch. 7 hibernate doc on association mappings */
+        if (getOrdered().booleanValue()) {
+            setRequired(Boolean.TRUE); // FIXME here we need to change the
+            // many2one!!
+            //
+            // Adding this since most of our back-references now
+            // use optiona/required instead of manyone/manyzero.
+            // These could possibly be removed in favor of always
+            // using the many* types.
+            setInsert(Boolean.FALSE);
+            setUpdate(Boolean.FALSE);
+        }
     }
 }
 
@@ -666,6 +679,13 @@ class ZeroManyField extends Property {
         if (getOrdered().booleanValue()) {
             setRequired(Boolean.TRUE); // FIXME here we need to change the
             // many2one!!
+            //
+            // Adding this since most of our back-references now
+            // use optiona/required instead of manyone/manyzero.
+            // These could possibly be removed in favor of always
+            // using the many* types.
+            setInsert(Boolean.FALSE);
+            setUpdate(Boolean.FALSE);
         }
     }
 

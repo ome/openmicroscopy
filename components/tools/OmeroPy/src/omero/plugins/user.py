@@ -124,13 +124,13 @@ class UserControl(BaseControl):
         c = self.ctx.conn(args)
         users = c.sf.getAdminService().lookupExperimenters()
         from omero.util.text import TableBuilder
-        tb = TableBuilder("id", "omeName", "firstName", "lastName", "email", "member of", "leader of")
+        tb = TableBuilder("id", "userName", "firstName", "lastName", "email", "member of", "leader of")
         for user in users:
-            row = [user.id.val, user.omeName.val, user.firstName.val, user.lastName.val]
+            row = [user.id.val, user.userName.val, user.firstName.val, user.lastName.val]
             row.append(user.email and user.email.val or "")
             member_of = []
             leader_of = []
-            for x in user.copyGroupExperimenterMap():
+            for x in user.copyExperimenterGroupExperimenterLink():
                 if not x:
                     continue
                 gid = str(x.parent.id.val)
@@ -167,7 +167,7 @@ class UserControl(BaseControl):
         c = self.ctx.conn(args)
         p = c.ic.getProperties()
         e = Exp()
-        e.omeName = rstring(login)
+        e.userName = rstring(login)
         e.firstName = rstring(first)
         e.lastName = rstring(last)
         e.middleName = rstring(middle)

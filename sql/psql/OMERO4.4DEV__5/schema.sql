@@ -1,0 +1,5105 @@
+
+    create table acquisitionmode (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table affinetransform (
+        id int8 not null,
+        a00 float8 not null,
+        a01 float8 not null,
+        a02 float8 not null,
+        a10 float8 not null,
+        a11 float8 not null,
+        a12 float8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table annotation (
+        discriminator varchar(31) not null,
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        ns varchar(255),
+        version int4,
+        timeValue timestamp,
+        textValue text,
+        boolValue bool,
+        termValue text,
+        longValue int8,
+        doubleValue float8,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        "file" int8,
+        primary key (id)
+    );;
+
+    create table annotationannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table arc (
+        lightsource_id int8 not null,
+        type int8,
+        primary key (lightsource_id)
+    );;
+
+    create table arctype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table binning (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table channel (
+        id int8 not null,
+        color int4,
+        permissions int8 not null,
+        emissionWavelength int4,
+        excitationWavelength int4,
+        fluor varchar(255),
+        name varchar(255),
+        ndFilter float8,
+        pinholeSize float8,
+        pockelCellSetting int4,
+        samplesPerPixel int4,
+        version int4,
+        acquisitionMode int8,
+        contrastMethod int8,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        detectorSettings int8,
+        filterSet int8,
+        illuminationType int8,
+        lightPath int8,
+        lightSourceSettings int8,
+        pixels int8 not null,
+        statsInfo int8,
+        pixels_index int4 not null,
+        primary key (id),
+        unique (pixels, pixels_index),
+        check (emissionWavelength > 0 and excitationWavelength > 0 and samplesPerPixel > 0)
+    );;
+
+    create table channelannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table channelbinding (
+        id int8 not null,
+        active bool not null,
+        coefficient float8 not null,
+        color int4 not null,
+        permissions int8 not null,
+        inputEnd float8 not null,
+        inputStart float8 not null,
+        noiseReduction bool not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        family int8 not null,
+        renderingDef int8 not null,
+        renderingDef_index int4 not null,
+        primary key (id),
+        unique (renderingDef, renderingDef_index)
+    );;
+
+    create table codomainmapcontext (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        renderingDef int8 not null,
+        renderingDef_index int4 not null,
+        primary key (id),
+        unique (renderingDef, renderingDef_index)
+    );;
+
+    create table contrastmethod (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table contraststretchingcontext (
+        xEnd int8 not null,
+        xStart int8 not null,
+        yEnd int8 not null,
+        yStart int8 not null,
+        codomainmapcontext_id int8 not null,
+        primary key (codomainmapcontext_id)
+    );;
+
+    create table correction (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table count_Annotation_annotationLinks_by_owner (
+        Annotation_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Annotation_id, owner_id)
+    );;
+
+    create table count_Channel_annotationLinks_by_owner (
+        Channel_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Channel_id, owner_id)
+    );;
+
+    create table count_Dataset_annotationLinks_by_owner (
+        Dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Dataset_id, owner_id)
+    );;
+
+    create table count_Dataset_imageLinks_by_owner (
+        Dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Dataset_id, owner_id)
+    );;
+
+    create table count_Dataset_projectLinks_by_owner (
+        Dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Dataset_id, owner_id)
+    );;
+
+    create table count_ExperimenterGroup_annotationLinks_by_owner (
+        ExperimenterGroup_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (ExperimenterGroup_id, owner_id)
+    );;
+
+    create table count_Experimenter_annotationLinks_by_owner (
+        Experimenter_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Experimenter_id, owner_id)
+    );;
+
+    create table count_FilterSet_emissionFilterLinks_by_owner (
+        FilterSet_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (FilterSet_id, owner_id)
+    );;
+
+    create table count_FilterSet_excitationFilterLinks_by_owner (
+        FilterSet_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (FilterSet_id, owner_id)
+    );;
+
+    create table count_Filter_filterSetEmissionFilterLinks_by_owner (
+        Filter_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Filter_id, owner_id)
+    );;
+
+    create table count_Filter_filterSetExcitationFilterLinks_by_owner (
+        Filter_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Filter_id, owner_id)
+    );;
+
+    create table count_Filter_lightPathEmissionFilterLinks_by_owner (
+        Filter_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Filter_id, owner_id)
+    );;
+
+    create table count_Filter_lightPathExcitationFilterLinks_by_owner (
+        Filter_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Filter_id, owner_id)
+    );;
+
+    create table count_Image_annotationLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
+    create table count_Image_datasetLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
+    create table count_Image_microbeamManipulationLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
+    create table count_Image_roiLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
+    create table count_Job_originalFileLinks_by_owner (
+        Job_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Job_id, owner_id)
+    );;
+
+    create table count_LightPath_emissionFilterLinks_by_owner (
+        LightPath_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (LightPath_id, owner_id)
+    );;
+
+    create table count_LightPath_excitationFilterLinks_by_owner (
+        LightPath_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (LightPath_id, owner_id)
+    );;
+
+    create table count_MicrobeamManipulation_imageLinks_by_owner (
+        MicrobeamManipulation_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (MicrobeamManipulation_id, owner_id)
+    );;
+
+    create table count_MicrobeamManipulation_roiLinks_by_owner (
+        MicrobeamManipulation_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (MicrobeamManipulation_id, owner_id)
+    );;
+
+    create table count_Namespace_annotationLinks_by_owner (
+        Namespace_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Namespace_id, owner_id)
+    );;
+
+    create table count_Node_annotationLinks_by_owner (
+        Node_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Node_id, owner_id)
+    );;
+
+    create table count_OriginalFile_annotationLinks_by_owner (
+        OriginalFile_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (OriginalFile_id, owner_id)
+    );;
+
+    create table count_OriginalFile_jobLinks_by_owner (
+        OriginalFile_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (OriginalFile_id, owner_id)
+    );;
+
+    create table count_OriginalFile_pixelsLinks_by_owner (
+        OriginalFile_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (OriginalFile_id, owner_id)
+    );;
+
+    create table count_Pixels_annotationLinks_by_owner (
+        Pixels_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Pixels_id, owner_id)
+    );;
+
+    create table count_Pixels_originalFileLinks_by_owner (
+        Pixels_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Pixels_id, owner_id)
+    );;
+
+    create table count_Plane_annotationLinks_by_owner (
+        Plane_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Plane_id, owner_id)
+    );;
+
+    create table count_PlateAcquisition_annotationLinks_by_owner (
+        PlateAcquisition_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (PlateAcquisition_id, owner_id)
+    );;
+
+    create table count_Plate_annotationLinks_by_owner (
+        Plate_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Plate_id, owner_id)
+    );;
+
+    create table count_Plate_screenLinks_by_owner (
+        Plate_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Plate_id, owner_id)
+    );;
+
+    create table count_Project_annotationLinks_by_owner (
+        Project_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Project_id, owner_id)
+    );;
+
+    create table count_Project_datasetLinks_by_owner (
+        Project_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Project_id, owner_id)
+    );;
+
+    create table count_ROI_annotationLinks_by_owner (
+        ROI_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (ROI_id, owner_id)
+    );;
+
+    create table count_ROI_imageLinks_by_owner (
+        ROI_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (ROI_id, owner_id)
+    );;
+
+    create table count_ROI_microbeamManipulationLinks_by_owner (
+        ROI_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (ROI_id, owner_id)
+    );;
+
+    create table count_Reagent_annotationLinks_by_owner (
+        Reagent_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Reagent_id, owner_id)
+    );;
+
+    create table count_Screen_annotationLinks_by_owner (
+        Screen_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Screen_id, owner_id)
+    );;
+
+    create table count_Screen_plateLinks_by_owner (
+        Screen_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Screen_id, owner_id)
+    );;
+
+    create table count_Session_annotationLinks_by_owner (
+        Session_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Session_id, owner_id)
+    );;
+
+    create table count_WellSample_annotationLinks_by_owner (
+        WellSample_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (WellSample_id, owner_id)
+    );;
+
+    create table count_Well_annotationLinks_by_owner (
+        Well_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Well_id, owner_id)
+    );;
+
+    create table dataset (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table datasetannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table datasetimagelink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table dbpatch (
+        id int8 not null,
+        currentPatch int4 not null,
+        currentVersion varchar(255) not null,
+        permissions int8 not null,
+        finished timestamp,
+        message varchar(255),
+        previousPatch int4 not null,
+        previousVersion varchar(255) not null,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table detector (
+        amplificationGain float8,
+        gain float8,
+        "offset" float8,
+        voltage float8,
+        zoom float8,
+        manufacturerspec_id int8 not null,
+        instrument int8 not null,
+        type int8,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table detectorsettings (
+        gain float8,
+        "offset" float8,
+        readOutRate float8,
+        voltage float8,
+        settings_id int8 not null,
+        binning int8,
+        detector int8 not null,
+        primary key (settings_id)
+    );;
+
+    create table detectortype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table dichroic (
+        manufacturerspec_id int8 not null,
+        filterSets int8,
+        instrument int8 not null,
+        lightPaths int8,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table dimensionorder (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table ellipse (
+        radiusX float8 not null,
+        radiusY float8 not null,
+        x float8 not null,
+        y float8 not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table event (
+        id int8 not null,
+        permissions int8 not null,
+        status varchar(255),
+        time timestamp not null,
+        containingEvent int8,
+        external_id int8 unique,
+        experimenter int8 not null,
+        experimenterGroup int8 not null,
+        "session" int8 not null,
+        type int8 not null,
+        primary key (id)
+    );;
+
+    create table eventlog (
+        id int8 not null,
+        action varchar(255) not null,
+        permissions int8 not null,
+        entityId int8 not null,
+        entityType varchar(255) not null,
+        external_id int8 unique,
+        event int8 not null,
+        primary key (id)
+    );;
+
+    create table eventtype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table experiment (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        images int8,
+        type int8,
+        primary key (id)
+    );;
+
+    create table experimenter (
+        id int8 not null,
+        permissions int8 not null,
+        email varchar(255),
+        firstName varchar(255),
+        institution varchar(255),
+        lastName varchar(255),
+        middleName varchar(255),
+        userName varchar(255) not null unique,
+        version int4,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table experimenterannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table experimentergroup (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null unique,
+        version int4,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table experimentergroupannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table experimentergroupexperimenterlink (
+        id int8 not null,
+        permissions int8 not null,
+        owner bool not null,
+        version int4,
+        child int8 not null,
+        external_id int8 unique,
+        parent int8 not null,
+        child_index int4 not null,
+        primary key (id),
+        unique (parent, child),
+        unique (child, child_index)
+    );;
+
+    create table experimenttype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table externalinfo (
+        id int8 not null,
+        permissions int8 not null,
+        entityId int8 not null,
+        entityType varchar(255) not null,
+        lsid varchar(255),
+        uuid varchar(255),
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        primary key (id)
+    );;
+
+    create table family (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table filament (
+        lightsource_id int8 not null,
+        type int8,
+        primary key (lightsource_id)
+    );;
+
+    create table filamenttype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table fillrule (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table filter (
+        filterWheel varchar(255),
+        manufacturerspec_id int8 not null,
+        instrument int8 not null,
+        transmittanceRange int8,
+        type int8,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table filterset (
+        manufacturerspec_id int8 not null,
+        channels int8,
+        dichroic int8,
+        instrument int8 not null,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table filtersetemissionfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table filtersetexcitationfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table filtertype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table fontfamily (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table fontstyle (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table format (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table illuminationtype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table image (
+        id int8 not null,
+        acquisitionDate timestamp,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        experiment int8,
+        format int8,
+        imagingEnvironment int8,
+        instrument int8,
+        objectiveSettings int8,
+        stageLabel int8,
+        wellSamples int8,
+        primary key (id)
+    );;
+
+    create table imageannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table imagemicrobeammanipulationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table imageroilink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table imagingenvironment (
+        id int8 not null,
+        airPressure float8,
+        co2Percent float8,
+        permissions int8 not null,
+        humidity float8,
+        temperature float8,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id),
+        check (co2Percent >= 0 and co2Percent <= 1 and humidity >= 0 and humidity <= 1)
+    );;
+
+    create table immersion (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table importjob (
+        imageDescription varchar(255) not null,
+        imageName varchar(255) not null,
+        job_id int8 not null,
+        primary key (job_id)
+    );;
+
+    create table instrument (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        images int8,
+        microscope int8,
+        primary key (id)
+    );;
+
+    create table job (
+        id int8 not null,
+        permissions int8 not null,
+        finished timestamp,
+        groupName varchar(255) not null,
+        message varchar(255) not null,
+        scheduledFor timestamp not null,
+        started timestamp,
+        submitted timestamp not null,
+        type varchar(255) not null,
+        userName varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        status int8 not null,
+        primary key (id)
+    );;
+
+    create table joboriginalfilelink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table jobstatus (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table label (
+        x float8 not null,
+        y float8 not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table laser (
+        frequencyMultiplication int4,
+        pockelCell bool,
+        repetitionRate float8,
+        tuneable bool,
+        wavelength int4,
+        lightsource_id int8 not null,
+        laserMedium int8,
+        pulse int8,
+        pump int8,
+        type int8,
+        primary key (lightsource_id),
+        check (frequencyMultiplication > 0 and wavelength > 0)
+    );;
+
+    create table lasermedium (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table lasertype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table lightemittingdiode (
+        lightsource_id int8 not null,
+        primary key (lightsource_id)
+    );;
+
+    create table lightpath (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        dichroic int8,
+        primary key (id)
+    );;
+
+    create table lightpathemissionfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table lightpathexcitationfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        parent_index int4 not null,
+        primary key (id),
+        unique (parent, parent_index),
+        unique (parent, child, owner_id)
+    );;
+
+    create table lightsource (
+        "power" float8,
+        manufacturerspec_id int8 not null,
+        instrument int8 not null,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table lightsourcesettings (
+        attenuation float8,
+        wavelength int4,
+        settings_id int8 not null,
+        lightSource int8 not null,
+        microbeamManipulation int8,
+        primary key (settings_id),
+        check (attenuation >= 0 and attenuation <= 1 and wavelength > 0)
+    );;
+
+    create table line (
+        x1 float8 not null,
+        x2 float8 not null,
+        y1 float8 not null,
+        y2 float8 not null,
+        shape_id int8 not null,
+        markerEnd int8,
+        markerStart int8,
+        primary key (shape_id)
+    );;
+
+    create table linecap (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table manufacturerspec (
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table marker (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table mask (
+        bytes bytea,
+        height float8 not null,
+        width float8 not null,
+        x float8 not null,
+        y float8 not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table medium (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table microbeammanipulation (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        experiment int8 not null,
+        type int8,
+        primary key (id)
+    );;
+
+    create table microbeammanipulationroilink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table microbeammanipulationtype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table microscope (
+        manufacturerspec_id int8 not null,
+        type int8,
+        primary key (manufacturerspec_id)
+    );;
+
+    create table microscopetype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table namespace (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        display bool,
+        keywords varchar(255),
+        multivalued bool,
+        name varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table namespaceannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table namingconvention (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table node (
+        id int8 not null,
+        conn varchar(255) not null,
+        permissions int8 not null,
+        down timestamp,
+        scale int4,
+        up timestamp not null,
+        uuid varchar(255) not null unique,
+        version int4,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table nodeannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table objective (
+        calibratedMagnification float8,
+        iris bool,
+        lensNA float8,
+        nominalMagnification int4,
+        workingDistance float8,
+        manufacturerspec_id int8 not null,
+        correction int8,
+        immersion int8,
+        instrument int8 not null,
+        primary key (manufacturerspec_id),
+        check (nominalMagnification > 0)
+    );;
+
+    create table objectivesettings (
+        correctionCollar float8,
+        refractiveIndex float8,
+        settings_id int8 not null,
+        medium int8,
+        objective int8 not null,
+        primary key (settings_id)
+    );;
+
+    create table originalfile (
+        id int8 not null,
+        atime timestamp,
+        ctime timestamp,
+        permissions int8 not null,
+        mimeType varchar(255),
+        mtime timestamp,
+        name varchar(255) not null,
+        path text not null,
+        sha1 varchar(255) not null,
+        "size" int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id),
+        check ("size" >= 0)
+    );;
+
+    create table originalfileannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table originalfilepixelslink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table parsejob (
+        params bytea,
+        job_id int8 not null,
+        primary key (job_id)
+    );;
+
+    create table pixels (
+        id int8 not null,
+        permissions int8 not null,
+        physicalSizeX float8,
+        physicalSizeY float8,
+        physicalSizeZ float8,
+        sha1 varchar(255) not null,
+        sizeC int4 not null,
+        sizeT int4 not null,
+        sizeX int4 not null,
+        sizeY int4 not null,
+        sizeZ int4 not null,
+        timeIncrement float8,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        dimensionOrder int8 not null,
+        image int8 not null,
+        type int8 not null,
+        primary key (id),
+        check (physicalSizeX > 0 and physicalSizeY > 0 and physicalSizeZ > 0 and sizeC > 0 and sizeT > 0 and sizeX > 0 and sizeY > 0 and sizeZ > 0)
+    );;
+
+    create table pixelsannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table pixeltype (
+        id int8 not null,
+        bitsize int4 not null,
+        permissions int8 not null,
+        isfloat bool not null,
+        issigned bool not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table plane (
+        id int8 not null,
+        deltaT float8,
+        permissions int8 not null,
+        exposureTime float8,
+        hashSHA1 varchar(255),
+        positionX float8,
+        positionY float8,
+        positionZ float8,
+        theC int4 not null,
+        theT int4 not null,
+        theZ int4 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        pixels int8 not null,
+        primary key (id),
+        check (theC >= 0 and theT >= 0 and theZ >= 0)
+    );;
+
+    create table planeannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table planeslicingcontext (
+        "constant" bool not null,
+        lowerLimit int4 not null,
+        planePrevious int4 not null,
+        planeSelected int4 not null,
+        upperLimit int4 not null,
+        codomainmapcontext_id int8 not null,
+        primary key (codomainmapcontext_id)
+    );;
+
+    create table plate (
+        id int8 not null,
+        columns int4,
+        description text,
+        permissions int8 not null,
+        externalIdentifier varchar(255),
+        fieldIndex int4,
+        name varchar(255) not null,
+        "rows" int4,
+        status varchar(255),
+        version int4,
+        wellOriginX float8,
+        wellOriginY float8,
+        columnNamingConvention int8,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        rowNamingConvention int8,
+        primary key (id),
+        check (columns > 0 and fieldIndex >= 0 and "rows" > 0)
+    );;
+
+    create table plateacquisition (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        endTime timestamp,
+        maximumFieldCount int4,
+        name varchar(255) not null,
+        startTime timestamp,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        plate int8 not null,
+        primary key (id),
+        check (maximumFieldCount > 0)
+    );;
+
+    create table plateacquisitionannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table plateannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table point (
+        x float8 not null,
+        y float8 not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table polygon (
+        points varchar(255) not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table polyline (
+        points varchar(255) not null,
+        shape_id int8 not null,
+        markerEnd int8,
+        markerStart int8,
+        primary key (shape_id)
+    );;
+
+    create table project (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table projectannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table projectdatasetlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table pulse (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table quantumdef (
+        id int8 not null,
+        bitResolution int4 not null,
+        cdEnd int4 not null,
+        cdStart int4 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table reagent (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        reagentIdentifier varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        screen int8 not null,
+        wells int8,
+        primary key (id)
+    );;
+
+    create table reagentannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table rectangle (
+        height float8 not null,
+        width float8 not null,
+        x float8 not null,
+        y float8 not null,
+        shape_id int8 not null,
+        primary key (shape_id)
+    );;
+
+    create table reference (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table renderingdef (
+        id int8 not null,
+        compression float8,
+        defaultT int4 not null,
+        defaultZ int4 not null,
+        permissions int8 not null,
+        name varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        model int8 not null,
+        pixels int8 not null,
+        quantumDef int8 not null,
+        primary key (id),
+        check (defaultT >= 0 and defaultZ >= 0)
+    );;
+
+    create table renderingmodel (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table reverseintensitycontext (
+        "reverse" bool not null,
+        codomainmapcontext_id int8 not null,
+        primary key (codomainmapcontext_id)
+    );;
+
+    create table roi (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255),
+        namespace varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table roiannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table screen (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        protocolDescription varchar(255),
+        protocolIdentifier varchar(255),
+        reagentSetDescription varchar(255),
+        reagentSetIdentifier varchar(255),
+        type varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table screenannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table screenplatelink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table scriptjob (
+        description text,
+        job_id int8 not null,
+        primary key (job_id)
+    );;
+
+    create table session (
+        id int8 not null,
+        closed timestamp,
+        permissions int8 not null,
+        message text,
+        started timestamp not null,
+        timeToIdle int8 not null,
+        timeToLive int8 not null,
+        userAgent varchar(255),
+        uuid varchar(255) not null unique,
+        version int4,
+        defaultEventType int8 not null,
+        external_id int8 unique,
+        experimenter int8 not null,
+        node int8 not null,
+        primary key (id),
+        check (timeToIdle >= 0 and timeToLive >= 0)
+    );;
+
+    create table sessionannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table settings (
+        reference_id int8 not null,
+        primary key (reference_id)
+    );;
+
+    create table shape (
+        id int8 not null,
+        permissions int8 not null,
+        fillColor int4,
+        fontSize int4,
+        locked bool,
+        strokeColor int4,
+        strokeDashArray varchar(255),
+        strokeWidth float8,
+        text varchar(255),
+        theC int4,
+        theT int4,
+        theZ int4,
+        transform_a00 float8,
+        transform_a01 float8,
+        transform_a02 float8,
+        transform_a10 float8,
+        transform_a11 float8,
+        transform_a12 float8,
+        version int4,
+        visible bool,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        fillRule int8,
+        fontFamily int8,
+        fontStyle int8,
+        lineCap int8,
+        roi int8 not null,
+        roi_index int4 not null,
+        primary key (id),
+        check (fontSize >= 0 and theC >= 0 and theT >= 0 and theZ >= 0)
+    );;
+
+    create table share (
+        active bool not null,
+        data bytea not null,
+        itemCount int8 not null,
+        session_id int8 not null,
+        experimenterGroup int8 not null,
+        primary key (session_id)
+    );;
+
+    create table shareexperimenterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        external_id int8 unique,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child)
+    );;
+
+    create table stagelabel (
+        id int8 not null,
+        permissions int8 not null,
+        name varchar(255) not null,
+        version int4,
+        x float8,
+        y float8,
+        z float8,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table statsinfo (
+        id int8 not null,
+        permissions int8 not null,
+        globalMax float8 not null,
+        globalMin float8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table thumbnail (
+        id int8 not null,
+        permissions int8 not null,
+        mimeType varchar(255) not null,
+        "ref" varchar(255),
+        sizeX int4 not null,
+        sizeY int4 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        pixels int8 not null,
+        primary key (id),
+        check (sizeX >= 0 and sizeY >= 0)
+    );;
+
+    create table transmittancerange (
+        id int8 not null,
+        cutIn int4,
+        cutInTolerance int4,
+        cutOut int4,
+        cutOutTolerance int4,
+        permissions int8 not null,
+        transmittance float8,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id),
+        check (cutIn > 0 and cutInTolerance >= 0 and cutOut > 0 and cutOutTolerance >= 0 and transmittance >= 0 and transmittance <= 1)
+    );;
+
+    create table well (
+        id int8 not null,
+        color int4,
+        "column" int4 not null,
+        permissions int8 not null,
+        externalDescription varchar(255),
+        externalIdentifier varchar(255),
+        "row" int4 not null,
+        type varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        plate int8 not null,
+        reagent int8,
+        primary key (id),
+        check ("column" >= 0 and "row" >= 0)
+    );;
+
+    create table wellannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table wellsample (
+        id int8 not null,
+        permissions int8 not null,
+        positionX float8,
+        positionY float8,
+        timepoint timestamp,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        image int8,
+        plateAcquisitions int8,
+        well int8 not null,
+        well_index int4 not null,
+        primary key (id),
+        unique (well, well_index)
+    );;
+
+    create table wellsampleannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    alter table acquisitionmode 
+        add constraint FKacquisitionmode_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table annotation 
+        add constraint FKannotation_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table annotation 
+        add constraint FKannotation_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table annotation 
+        add constraint FKannotation_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table annotation 
+        add constraint FKfileannotation_file_originalfile 
+        foreign key ("file") 
+        references originalfile  ;;
+
+    alter table annotation 
+        add constraint FKannotation_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table annotation 
+        add constraint FKannotation_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_parent_annotation 
+        foreign key (parent) 
+        references annotation  ;;
+
+    alter table arc 
+        add constraint FKarc_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table arc 
+        add constraint FKarc_type_arctype 
+        foreign key (type) 
+        references arctype  ;;
+
+    alter table arctype 
+        add constraint FKarctype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table binning 
+        add constraint FKbinning_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table channel 
+        add constraint FKchannel_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table channel 
+        add constraint FKchannel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table channel 
+        add constraint FKchannel_lightPath_lightpath 
+        foreign key (lightPath) 
+        references lightpath  ;;
+
+    alter table channel 
+        add constraint FKchannel_acquisitionMode_acquisitionmode 
+        foreign key (acquisitionMode) 
+        references acquisitionmode  ;;
+
+    alter table channel 
+        add constraint FKchannel_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table channel 
+        add constraint FKchannel_pixels_pixels 
+        foreign key (pixels) 
+        references pixels  ;;
+
+    alter table channel 
+        add constraint FKchannel_lightSourceSettings_lightsourcesettings 
+        foreign key (lightSourceSettings) 
+        references lightsourcesettings  ;;
+
+    alter table channel 
+        add constraint FKchannel_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table channel 
+        add constraint FKchannel_filterSet_filterset 
+        foreign key (filterSet) 
+        references filterset  ;;
+
+    alter table channel 
+        add constraint FKchannel_detectorSettings_detectorsettings 
+        foreign key (detectorSettings) 
+        references detectorsettings  ;;
+
+    alter table channel 
+        add constraint FKchannel_contrastMethod_contrastmethod 
+        foreign key (contrastMethod) 
+        references contrastmethod  ;;
+
+    alter table channel 
+        add constraint FKchannel_illuminationType_illuminationtype 
+        foreign key (illuminationType) 
+        references illuminationtype  ;;
+
+    alter table channel 
+        add constraint FKchannel_statsInfo_statsinfo 
+        foreign key (statsInfo) 
+        references statsinfo  ;;
+
+    alter table channel 
+        add constraint FKchannel_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_parent_channel 
+        foreign key (parent) 
+        references channel  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_family_family 
+        foreign key (family) 
+        references family  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table contrastmethod 
+        add constraint FKcontrastmethod_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table contraststretchingcontext 
+        add constraint FKcontraststretchingcontext_codomainmapcontext_id_codomainmapcontext 
+        foreign key (codomainmapcontext_id) 
+        references codomainmapcontext  ;;
+
+    alter table correction 
+        add constraint FKcorrection_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table count_Annotation_annotationLinks_by_owner 
+        add constraint FK_count_to_Annotation_annotationLinks 
+        foreign key (Annotation_id) 
+        references annotation  ;;
+
+    alter table count_Channel_annotationLinks_by_owner 
+        add constraint FK_count_to_Channel_annotationLinks 
+        foreign key (Channel_id) 
+        references channel  ;;
+
+    alter table count_Dataset_annotationLinks_by_owner 
+        add constraint FK_count_to_Dataset_annotationLinks 
+        foreign key (Dataset_id) 
+        references dataset  ;;
+
+    alter table count_Dataset_imageLinks_by_owner 
+        add constraint FK_count_to_Dataset_imageLinks 
+        foreign key (Dataset_id) 
+        references dataset  ;;
+
+    alter table count_Dataset_projectLinks_by_owner 
+        add constraint FK_count_to_Dataset_projectLinks 
+        foreign key (Dataset_id) 
+        references dataset  ;;
+
+    alter table count_ExperimenterGroup_annotationLinks_by_owner 
+        add constraint FK_count_to_ExperimenterGroup_annotationLinks 
+        foreign key (ExperimenterGroup_id) 
+        references experimentergroup  ;;
+
+    alter table count_Experimenter_annotationLinks_by_owner 
+        add constraint FK_count_to_Experimenter_annotationLinks 
+        foreign key (Experimenter_id) 
+        references experimenter  ;;
+
+    alter table count_FilterSet_emissionFilterLinks_by_owner 
+        add constraint FK_count_to_FilterSet_emissionFilterLinks 
+        foreign key (FilterSet_id) 
+        references filterset  ;;
+
+    alter table count_FilterSet_excitationFilterLinks_by_owner 
+        add constraint FK_count_to_FilterSet_excitationFilterLinks 
+        foreign key (FilterSet_id) 
+        references filterset  ;;
+
+    alter table count_Filter_filterSetEmissionFilterLinks_by_owner 
+        add constraint FK_count_to_Filter_filterSetEmissionFilterLinks 
+        foreign key (Filter_id) 
+        references filter  ;;
+
+    alter table count_Filter_filterSetExcitationFilterLinks_by_owner 
+        add constraint FK_count_to_Filter_filterSetExcitationFilterLinks 
+        foreign key (Filter_id) 
+        references filter  ;;
+
+    alter table count_Filter_lightPathEmissionFilterLinks_by_owner 
+        add constraint FK_count_to_Filter_lightPathEmissionFilterLinks 
+        foreign key (Filter_id) 
+        references filter  ;;
+
+    alter table count_Filter_lightPathExcitationFilterLinks_by_owner 
+        add constraint FK_count_to_Filter_lightPathExcitationFilterLinks 
+        foreign key (Filter_id) 
+        references filter  ;;
+
+    alter table count_Image_annotationLinks_by_owner 
+        add constraint FK_count_to_Image_annotationLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
+    alter table count_Image_datasetLinks_by_owner 
+        add constraint FK_count_to_Image_datasetLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
+    alter table count_Image_microbeamManipulationLinks_by_owner 
+        add constraint FK_count_to_Image_microbeamManipulationLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
+    alter table count_Image_roiLinks_by_owner 
+        add constraint FK_count_to_Image_roiLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
+    alter table count_Job_originalFileLinks_by_owner 
+        add constraint FK_count_to_Job_originalFileLinks 
+        foreign key (Job_id) 
+        references job  ;;
+
+    alter table count_LightPath_emissionFilterLinks_by_owner 
+        add constraint FK_count_to_LightPath_emissionFilterLinks 
+        foreign key (LightPath_id) 
+        references lightpath  ;;
+
+    alter table count_LightPath_excitationFilterLinks_by_owner 
+        add constraint FK_count_to_LightPath_excitationFilterLinks 
+        foreign key (LightPath_id) 
+        references lightpath  ;;
+
+    alter table count_MicrobeamManipulation_imageLinks_by_owner 
+        add constraint FK_count_to_MicrobeamManipulation_imageLinks 
+        foreign key (MicrobeamManipulation_id) 
+        references microbeammanipulation  ;;
+
+    alter table count_MicrobeamManipulation_roiLinks_by_owner 
+        add constraint FK_count_to_MicrobeamManipulation_roiLinks 
+        foreign key (MicrobeamManipulation_id) 
+        references microbeammanipulation  ;;
+
+    alter table count_Namespace_annotationLinks_by_owner 
+        add constraint FK_count_to_Namespace_annotationLinks 
+        foreign key (Namespace_id) 
+        references namespace  ;;
+
+    alter table count_Node_annotationLinks_by_owner 
+        add constraint FK_count_to_Node_annotationLinks 
+        foreign key (Node_id) 
+        references node  ;;
+
+    alter table count_OriginalFile_annotationLinks_by_owner 
+        add constraint FK_count_to_OriginalFile_annotationLinks 
+        foreign key (OriginalFile_id) 
+        references originalfile  ;;
+
+    alter table count_OriginalFile_jobLinks_by_owner 
+        add constraint FK_count_to_OriginalFile_jobLinks 
+        foreign key (OriginalFile_id) 
+        references originalfile  ;;
+
+    alter table count_OriginalFile_pixelsLinks_by_owner 
+        add constraint FK_count_to_OriginalFile_pixelsLinks 
+        foreign key (OriginalFile_id) 
+        references originalfile  ;;
+
+    alter table count_Pixels_annotationLinks_by_owner 
+        add constraint FK_count_to_Pixels_annotationLinks 
+        foreign key (Pixels_id) 
+        references pixels  ;;
+
+    alter table count_Pixels_originalFileLinks_by_owner 
+        add constraint FK_count_to_Pixels_originalFileLinks 
+        foreign key (Pixels_id) 
+        references pixels  ;;
+
+    alter table count_Plane_annotationLinks_by_owner 
+        add constraint FK_count_to_Plane_annotationLinks 
+        foreign key (Plane_id) 
+        references plane  ;;
+
+    alter table count_PlateAcquisition_annotationLinks_by_owner 
+        add constraint FK_count_to_PlateAcquisition_annotationLinks 
+        foreign key (PlateAcquisition_id) 
+        references plateacquisition  ;;
+
+    alter table count_Plate_annotationLinks_by_owner 
+        add constraint FK_count_to_Plate_annotationLinks 
+        foreign key (Plate_id) 
+        references plate  ;;
+
+    alter table count_Plate_screenLinks_by_owner 
+        add constraint FK_count_to_Plate_screenLinks 
+        foreign key (Plate_id) 
+        references plate  ;;
+
+    alter table count_Project_annotationLinks_by_owner 
+        add constraint FK_count_to_Project_annotationLinks 
+        foreign key (Project_id) 
+        references project  ;;
+
+    alter table count_Project_datasetLinks_by_owner 
+        add constraint FK_count_to_Project_datasetLinks 
+        foreign key (Project_id) 
+        references project  ;;
+
+    alter table count_ROI_annotationLinks_by_owner 
+        add constraint FK_count_to_ROI_annotationLinks 
+        foreign key (ROI_id) 
+        references roi  ;;
+
+    alter table count_ROI_imageLinks_by_owner 
+        add constraint FK_count_to_ROI_imageLinks 
+        foreign key (ROI_id) 
+        references roi  ;;
+
+    alter table count_ROI_microbeamManipulationLinks_by_owner 
+        add constraint FK_count_to_ROI_microbeamManipulationLinks 
+        foreign key (ROI_id) 
+        references roi  ;;
+
+    alter table count_Reagent_annotationLinks_by_owner 
+        add constraint FK_count_to_Reagent_annotationLinks 
+        foreign key (Reagent_id) 
+        references reagent  ;;
+
+    alter table count_Screen_annotationLinks_by_owner 
+        add constraint FK_count_to_Screen_annotationLinks 
+        foreign key (Screen_id) 
+        references screen  ;;
+
+    alter table count_Screen_plateLinks_by_owner 
+        add constraint FK_count_to_Screen_plateLinks 
+        foreign key (Screen_id) 
+        references screen  ;;
+
+    alter table count_Session_annotationLinks_by_owner 
+        add constraint FK_count_to_Session_annotationLinks 
+        foreign key (Session_id) 
+        references session  ;;
+
+    alter table count_WellSample_annotationLinks_by_owner 
+        add constraint FK_count_to_WellSample_annotationLinks 
+        foreign key (WellSample_id) 
+        references wellsample  ;;
+
+    alter table count_Well_annotationLinks_by_owner 
+        add constraint FK_count_to_Well_annotationLinks 
+        foreign key (Well_id) 
+        references well  ;;
+
+    alter table dataset 
+        add constraint FKdataset_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table dataset 
+        add constraint FKdataset_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table dataset 
+        add constraint FKdataset_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table dataset 
+        add constraint FKdataset_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table dataset 
+        add constraint FKdataset_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_parent_dataset 
+        foreign key (parent) 
+        references dataset  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_child_image 
+        foreign key (child) 
+        references image  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_parent_dataset 
+        foreign key (parent) 
+        references dataset  ;;
+
+    alter table dbpatch 
+        add constraint FKdbpatch_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table detector 
+        add constraint FKdetector_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table detector 
+        add constraint FKdetector_type_detectortype 
+        foreign key (type) 
+        references detectortype  ;;
+
+    alter table detector 
+        add constraint FKdetector_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table detectorsettings 
+        add constraint FKdetectorsettings_settings_id_settings 
+        foreign key (settings_id) 
+        references settings  ;;
+
+    alter table detectorsettings 
+        add constraint FKdetectorsettings_binning_binning 
+        foreign key (binning) 
+        references binning  ;;
+
+    alter table detectorsettings 
+        add constraint FKdetectorsettings_detector_detector 
+        foreign key (detector) 
+        references detector  ;;
+
+    alter table detectortype 
+        add constraint FKdetectortype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_lightPaths_lightpath 
+        foreign key (lightPaths) 
+        references lightpath  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_filterSets_filterset 
+        foreign key (filterSets) 
+        references filterset  ;;
+
+    alter table dimensionorder 
+        add constraint FKdimensionorder_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table ellipse 
+        add constraint FKellipse_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table event 
+        add constraint FKevent_experimenterGroup_experimentergroup 
+        foreign key (experimenterGroup) 
+        references experimentergroup  ;;
+
+    alter table event 
+        add constraint FKevent_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table event 
+        add constraint FKevent_session_session 
+        foreign key ("session") 
+        references session  ;;
+
+    alter table event 
+        add constraint FKevent_containingEvent_event 
+        foreign key (containingEvent) 
+        references event  ;;
+
+    alter table event 
+        add constraint FKevent_type_eventtype 
+        foreign key (type) 
+        references eventtype  ;;
+
+    alter table event 
+        add constraint FKevent_experimenter_experimenter 
+        foreign key (experimenter) 
+        references experimenter  ;;
+
+    alter table eventlog 
+        add constraint FKeventlog_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table eventlog 
+        add constraint FKeventlog_event_event 
+        foreign key (event) 
+        references event  ;;
+
+    alter table eventtype 
+        add constraint FKeventtype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_images_image 
+        foreign key (images) 
+        references image  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_type_experimenttype 
+        foreign key (type) 
+        references experimenttype  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table experimenter 
+        add constraint FKexperimenter_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_parent_experimenter 
+        foreign key (parent) 
+        references experimenter  ;;
+
+    alter table experimentergroup 
+        add constraint FKexperimentergroup_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_parent_experimentergroup 
+        foreign key (parent) 
+        references experimentergroup  ;;
+
+    alter table experimentergroupexperimenterlink 
+        add constraint FKexperimentergroupexperimenterlink_child_experimenter 
+        foreign key (child) 
+        references experimenter  ;;
+
+    alter table experimentergroupexperimenterlink 
+        add constraint FKexperimentergroupexperimenterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimentergroupexperimenterlink 
+        add constraint FKexperimentergroupexperimenterlink_parent_experimentergroup 
+        foreign key (parent) 
+        references experimentergroup  ;;
+
+    alter table experimenttype 
+        add constraint FKexperimenttype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table family 
+        add constraint FKfamily_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filament 
+        add constraint FKfilament_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table filament 
+        add constraint FKfilament_type_filamenttype 
+        foreign key (type) 
+        references filamenttype  ;;
+
+    alter table filamenttype 
+        add constraint FKfilamenttype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table fillrule 
+        add constraint FKfillrule_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filter 
+        add constraint FKfilter_transmittanceRange_transmittancerange 
+        foreign key (transmittanceRange) 
+        references transmittancerange  ;;
+
+    alter table filter 
+        add constraint FKfilter_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table filter 
+        add constraint FKfilter_type_filtertype 
+        foreign key (type) 
+        references filtertype  ;;
+
+    alter table filter 
+        add constraint FKfilter_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_channels_channel 
+        foreign key (channels) 
+        references channel  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_dichroic_dichroic 
+        foreign key (dichroic) 
+        references dichroic  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_parent_filterset 
+        foreign key (parent) 
+        references filterset  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_parent_filterset 
+        foreign key (parent) 
+        references filterset  ;;
+
+    alter table filtertype 
+        add constraint FKfiltertype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table fontfamily 
+        add constraint FKfontfamily_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table fontstyle 
+        add constraint FKfontstyle_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table format 
+        add constraint FKformat_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table illuminationtype 
+        add constraint FKilluminationtype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table image 
+        add constraint FKimage_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table image 
+        add constraint FKimage_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table image 
+        add constraint FKimage_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table image 
+        add constraint FKimage_wellSamples_wellsample 
+        foreign key (wellSamples) 
+        references wellsample  ;;
+
+    alter table image 
+        add constraint FKimage_imagingEnvironment_imagingenvironment 
+        foreign key (imagingEnvironment) 
+        references imagingenvironment  ;;
+
+    alter table image 
+        add constraint FKimage_experiment_experiment 
+        foreign key (experiment) 
+        references experiment  ;;
+
+    alter table image 
+        add constraint FKimage_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table image 
+        add constraint FKimage_format_format 
+        foreign key (format) 
+        references format  ;;
+
+    alter table image 
+        add constraint FKimage_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table image 
+        add constraint FKimage_stageLabel_stagelabel 
+        foreign key (stageLabel) 
+        references stagelabel  ;;
+
+    alter table image 
+        add constraint FKimage_objectiveSettings_objectivesettings 
+        foreign key (objectiveSettings) 
+        references objectivesettings  ;;
+
+    alter table image 
+        add constraint FKimage_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_parent_image 
+        foreign key (parent) 
+        references image  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_child_microbeammanipulation 
+        foreign key (child) 
+        references microbeammanipulation  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table imagemicrobeammanipulationlink 
+        add constraint FKimagemicrobeammanipulationlink_parent_image 
+        foreign key (parent) 
+        references image  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_child_roi 
+        foreign key (child) 
+        references roi  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table imageroilink 
+        add constraint FKimageroilink_parent_image 
+        foreign key (parent) 
+        references image  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table immersion 
+        add constraint FKimmersion_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table importjob 
+        add constraint FKimportjob_job_id_job 
+        foreign key (job_id) 
+        references job  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_images_image 
+        foreign key (images) 
+        references image  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_microscope_microscope 
+        foreign key (microscope) 
+        references microscope  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table job 
+        add constraint FKjob_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table job 
+        add constraint FKjob_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table job 
+        add constraint FKjob_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table job 
+        add constraint FKjob_status_jobstatus 
+        foreign key (status) 
+        references jobstatus  ;;
+
+    alter table job 
+        add constraint FKjob_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table job 
+        add constraint FKjob_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_child_originalfile 
+        foreign key (child) 
+        references originalfile  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_parent_job 
+        foreign key (parent) 
+        references job  ;;
+
+    alter table jobstatus 
+        add constraint FKjobstatus_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table label 
+        add constraint FKlabel_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table laser 
+        add constraint FKlaser_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table laser 
+        add constraint FKlaser_pump_lightsource 
+        foreign key (pump) 
+        references lightsource  ;;
+
+    alter table laser 
+        add constraint FKlaser_laserMedium_lasermedium 
+        foreign key (laserMedium) 
+        references lasermedium  ;;
+
+    alter table laser 
+        add constraint FKlaser_pulse_pulse 
+        foreign key (pulse) 
+        references pulse  ;;
+
+    alter table laser 
+        add constraint FKlaser_type_lasertype 
+        foreign key (type) 
+        references lasertype  ;;
+
+    alter table lasermedium 
+        add constraint FKlasermedium_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lasertype 
+        add constraint FKlasertype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKlightemittingdiode_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_dichroic_dichroic 
+        foreign key (dichroic) 
+        references dichroic  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_parent_lightpath 
+        foreign key (parent) 
+        references lightpath  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_parent_lightpath 
+        foreign key (parent) 
+        references lightpath  ;;
+
+    alter table lightsource 
+        add constraint FKlightsource_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table lightsource 
+        add constraint FKlightsource_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKlightsourcesettings_settings_id_settings 
+        foreign key (settings_id) 
+        references settings  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKlightsourcesettings_lightSource_lightsource 
+        foreign key (lightSource) 
+        references lightsource  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKlightsourcesettings_microbeamManipulation_microbeammanipulation 
+        foreign key (microbeamManipulation) 
+        references microbeammanipulation  ;;
+
+    alter table line 
+        add constraint FKline_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table line 
+        add constraint FKline_markerStart_marker 
+        foreign key (markerStart) 
+        references marker  ;;
+
+    alter table line 
+        add constraint FKline_markerEnd_marker 
+        foreign key (markerEnd) 
+        references marker  ;;
+
+    alter table linecap 
+        add constraint FKlinecap_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table manufacturerspec 
+        add constraint FKmanufacturerspec_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table manufacturerspec 
+        add constraint FKmanufacturerspec_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table manufacturerspec 
+        add constraint FKmanufacturerspec_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table manufacturerspec 
+        add constraint FKmanufacturerspec_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table manufacturerspec 
+        add constraint FKmanufacturerspec_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table marker 
+        add constraint FKmarker_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table mask 
+        add constraint FKmask_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table medium 
+        add constraint FKmedium_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_experiment_experiment 
+        foreign key (experiment) 
+        references experiment  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_type_microbeammanipulationtype 
+        foreign key (type) 
+        references microbeammanipulationtype  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_child_roi 
+        foreign key (child) 
+        references roi  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table microbeammanipulationroilink 
+        add constraint FKmicrobeammanipulationroilink_parent_microbeammanipulation 
+        foreign key (parent) 
+        references microbeammanipulation  ;;
+
+    alter table microbeammanipulationtype 
+        add constraint FKmicrobeammanipulationtype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microscope 
+        add constraint FKmicroscope_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table microscope 
+        add constraint FKmicroscope_type_microscopetype 
+        foreign key (type) 
+        references microscopetype  ;;
+
+    alter table microscopetype 
+        add constraint FKmicroscopetype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table namespace 
+        add constraint FKnamespace_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table namespace 
+        add constraint FKnamespace_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table namespace 
+        add constraint FKnamespace_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table namespace 
+        add constraint FKnamespace_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table namespace 
+        add constraint FKnamespace_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_parent_namespace 
+        foreign key (parent) 
+        references namespace  ;;
+
+    alter table namingconvention 
+        add constraint FKnamingconvention_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table node 
+        add constraint FKnode_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_parent_node 
+        foreign key (parent) 
+        references node  ;;
+
+    alter table objective 
+        add constraint FKobjective_immersion_immersion 
+        foreign key (immersion) 
+        references immersion  ;;
+
+    alter table objective 
+        add constraint FKobjective_manufacturerspec_id_manufacturerspec 
+        foreign key (manufacturerspec_id) 
+        references manufacturerspec  ;;
+
+    alter table objective 
+        add constraint FKobjective_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table objective 
+        add constraint FKobjective_correction_correction 
+        foreign key (correction) 
+        references correction  ;;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_settings_id_settings 
+        foreign key (settings_id) 
+        references settings  ;;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_medium_medium 
+        foreign key (medium) 
+        references medium  ;;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_objective_objective 
+        foreign key (objective) 
+        references objective  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_parent_originalfile 
+        foreign key (parent) 
+        references originalfile  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_child_pixels 
+        foreign key (child) 
+        references pixels  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table originalfilepixelslink 
+        add constraint FKoriginalfilepixelslink_parent_originalfile 
+        foreign key (parent) 
+        references originalfile  ;;
+
+    alter table parsejob 
+        add constraint FKparsejob_job_id_job 
+        foreign key (job_id) 
+        references job  ;;
+
+    alter table pixels 
+        add constraint FKpixels_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table pixels 
+        add constraint FKpixels_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table pixels 
+        add constraint FKpixels_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table pixels 
+        add constraint FKpixels_dimensionOrder_dimensionorder 
+        foreign key (dimensionOrder) 
+        references dimensionorder  ;;
+
+    alter table pixels 
+        add constraint FKpixels_type_pixeltype 
+        foreign key (type) 
+        references pixeltype  ;;
+
+    alter table pixels 
+        add constraint FKpixels_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table pixels 
+        add constraint FKpixels_image_image 
+        foreign key (image) 
+        references image  ;;
+
+    alter table pixels 
+        add constraint FKpixels_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table pixelsannotationlink 
+        add constraint FKpixelsannotationlink_parent_pixels 
+        foreign key (parent) 
+        references pixels  ;;
+
+    alter table pixeltype 
+        add constraint FKpixeltype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plane 
+        add constraint FKplane_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table plane 
+        add constraint FKplane_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table plane 
+        add constraint FKplane_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plane 
+        add constraint FKplane_pixels_pixels 
+        foreign key (pixels) 
+        references pixels  ;;
+
+    alter table plane 
+        add constraint FKplane_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plane 
+        add constraint FKplane_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table planeannotationlink 
+        add constraint FKplaneannotationlink_parent_plane 
+        foreign key (parent) 
+        references plane  ;;
+
+    alter table planeslicingcontext 
+        add constraint FKplaneslicingcontext_codomainmapcontext_id_codomainmapcontext 
+        foreign key (codomainmapcontext_id) 
+        references codomainmapcontext  ;;
+
+    alter table plate 
+        add constraint FKplate_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table plate 
+        add constraint FKplate_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table plate 
+        add constraint FKplate_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plate 
+        add constraint FKplate_columnNamingConvention_namingconvention 
+        foreign key (columnNamingConvention) 
+        references namingconvention  ;;
+
+    alter table plate 
+        add constraint FKplate_rowNamingConvention_namingconvention 
+        foreign key (rowNamingConvention) 
+        references namingconvention  ;;
+
+    alter table plate 
+        add constraint FKplate_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plate 
+        add constraint FKplate_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_plate_plate 
+        foreign key (plate) 
+        references plate  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_parent_plateacquisition 
+        foreign key (parent) 
+        references plateacquisition  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_parent_plate 
+        foreign key (parent) 
+        references plate  ;;
+
+    alter table point 
+        add constraint FKpoint_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table polygon 
+        add constraint FKpolygon_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table polyline 
+        add constraint FKpolyline_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table polyline 
+        add constraint FKpolyline_markerStart_marker 
+        foreign key (markerStart) 
+        references marker  ;;
+
+    alter table polyline 
+        add constraint FKpolyline_markerEnd_marker 
+        foreign key (markerEnd) 
+        references marker  ;;
+
+    alter table project 
+        add constraint FKproject_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table project 
+        add constraint FKproject_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table project 
+        add constraint FKproject_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table project 
+        add constraint FKproject_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table project 
+        add constraint FKproject_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_parent_project 
+        foreign key (parent) 
+        references project  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_child_dataset 
+        foreign key (child) 
+        references dataset  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_parent_project 
+        foreign key (parent) 
+        references project  ;;
+
+    alter table pulse 
+        add constraint FKpulse_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table reagent 
+        add constraint FKreagent_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table reagent 
+        add constraint FKreagent_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table reagent 
+        add constraint FKreagent_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table reagent 
+        add constraint FKreagent_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table reagent 
+        add constraint FKreagent_screen_screen 
+        foreign key (screen) 
+        references screen  ;;
+
+    alter table reagent 
+        add constraint FKreagent_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table reagent 
+        add constraint FKreagent_wells_well 
+        foreign key (wells) 
+        references well  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_parent_reagent 
+        foreign key (parent) 
+        references reagent  ;;
+
+    alter table rectangle 
+        add constraint FKrectangle_shape_id_shape 
+        foreign key (shape_id) 
+        references shape  ;;
+
+    alter table reference 
+        add constraint FKreference_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table reference 
+        add constraint FKreference_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table reference 
+        add constraint FKreference_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table reference 
+        add constraint FKreference_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table reference 
+        add constraint FKreference_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_model_renderingmodel 
+        foreign key (model) 
+        references renderingmodel  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_pixels_pixels 
+        foreign key (pixels) 
+        references pixels  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_quantumDef_quantumdef 
+        foreign key (quantumDef) 
+        references quantumdef  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table renderingmodel 
+        add constraint FKrenderingmodel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table reverseintensitycontext 
+        add constraint FKreverseintensitycontext_codomainmapcontext_id_codomainmapcontext 
+        foreign key (codomainmapcontext_id) 
+        references codomainmapcontext  ;;
+
+    alter table roi 
+        add constraint FKroi_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table roi 
+        add constraint FKroi_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table roi 
+        add constraint FKroi_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table roi 
+        add constraint FKroi_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table roi 
+        add constraint FKroi_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_parent_roi 
+        foreign key (parent) 
+        references roi  ;;
+
+    alter table screen 
+        add constraint FKscreen_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table screen 
+        add constraint FKscreen_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table screen 
+        add constraint FKscreen_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table screen 
+        add constraint FKscreen_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table screen 
+        add constraint FKscreen_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_parent_screen 
+        foreign key (parent) 
+        references screen  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_child_plate 
+        foreign key (child) 
+        references plate  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_parent_screen 
+        foreign key (parent) 
+        references screen  ;;
+
+    alter table scriptjob 
+        add constraint FKscriptjob_job_id_job 
+        foreign key (job_id) 
+        references job  ;;
+
+    alter table session 
+        add constraint FKsession_node_node 
+        foreign key (node) 
+        references node  ;;
+
+    alter table session 
+        add constraint FKsession_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table session 
+        add constraint FKsession_defaultEventType_eventtype 
+        foreign key (defaultEventType) 
+        references eventtype  ;;
+
+    alter table session 
+        add constraint FKsession_experimenter_experimenter 
+        foreign key (experimenter) 
+        references experimenter  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_parent_session 
+        foreign key (parent) 
+        references session  ;;
+
+    alter table settings 
+        add constraint FKsettings_reference_id_reference 
+        foreign key (reference_id) 
+        references reference  ;;
+
+    alter table shape 
+        add constraint FKshape_fontStyle_fontstyle 
+        foreign key (fontStyle) 
+        references fontstyle  ;;
+
+    alter table shape 
+        add constraint FKshape_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table shape 
+        add constraint FKshape_fontFamily_fontfamily 
+        foreign key (fontFamily) 
+        references fontfamily  ;;
+
+    alter table shape 
+        add constraint FKshape_lineCap_linecap 
+        foreign key (lineCap) 
+        references linecap  ;;
+
+    alter table shape 
+        add constraint FKshape_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table shape 
+        add constraint FKshape_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table shape 
+        add constraint FKshape_fillRule_fillrule 
+        foreign key (fillRule) 
+        references fillrule  ;;
+
+    alter table shape 
+        add constraint FKshape_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table shape 
+        add constraint FKshape_roi_roi 
+        foreign key (roi) 
+        references roi  ;;
+
+    alter table shape 
+        add constraint FKshape_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table share 
+        add constraint FKshare_experimenterGroup_experimentergroup 
+        foreign key (experimenterGroup) 
+        references experimentergroup  ;;
+
+    alter table share 
+        add constraint FKshare_session_id_session 
+        foreign key (session_id) 
+        references session  ;;
+
+    alter table shareexperimenterlink 
+        add constraint FKshareexperimenterlink_child_experimenter 
+        foreign key (child) 
+        references experimenter  ;;
+
+    alter table shareexperimenterlink 
+        add constraint FKshareexperimenterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table shareexperimenterlink 
+        add constraint FKshareexperimenterlink_parent_share 
+        foreign key (parent) 
+        references share  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_pixels_pixels 
+        foreign key (pixels) 
+        references pixels  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table well 
+        add constraint FKwell_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table well 
+        add constraint FKwell_reagent_reagent 
+        foreign key (reagent) 
+        references reagent  ;;
+
+    alter table well 
+        add constraint FKwell_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table well 
+        add constraint FKwell_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table well 
+        add constraint FKwell_plate_plate 
+        foreign key (plate) 
+        references plate  ;;
+
+    alter table well 
+        add constraint FKwell_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table well 
+        add constraint FKwell_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_parent_well 
+        foreign key (parent) 
+        references well  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_plateAcquisitions_plateacquisition 
+        foreign key (plateAcquisitions) 
+        references plateacquisition  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_well_well 
+        foreign key (well) 
+        references well  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_image_image 
+        foreign key (image) 
+        references image  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table wellsampleannotationlink 
+        add constraint FKwellsampleannotationlink_parent_wellsample 
+        foreign key (parent) 
+        references wellsample  ;;
+
+    create table seq_table (
+         sequence_name varchar(255) not null ,
+         next_val int8,
+        primary key ( sequence_name ) 
+    ) ;;

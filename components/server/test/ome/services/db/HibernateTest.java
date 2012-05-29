@@ -136,7 +136,7 @@ public class HibernateTest extends TestCase {
     public void testExperimenterIndexQuery() throws Exception {
 
         Query q = s
-                .createQuery("select g from ExperimenterGroup g, Experimenter e join e.groupExperimenterMap m "
+                .createQuery("select g from ExperimenterGroup g, Experimenter e join e.experimenterGroupLinks m "
                         + "where e.id = 0 and g.name != user and m.parent = g.id "
                         + "and m.child = e.id and index(m) = 0");
         ExperimenterGroup test = (ExperimenterGroup) q.uniqueResult();

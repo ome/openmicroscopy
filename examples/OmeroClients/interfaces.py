@@ -1,10 +1,10 @@
 import omero
 from omero_model_EventI import EventI
 from omero_model_ExperimenterI import ExperimenterI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+from omero_model_ExperimenterGroupExperimenterLinkI import ExperimenterGroupExperimenterLinkI
 
 assert ( not EventI().isMutable() )
 assert ExperimenterI().isMutable()
 assert ExperimenterI().isGlobal()
 assert ExperimenterI().isAnnotated()
-assert GroupExperimenterMapI().isLink()
+assert ExperimenterGroupExperimenterLinkI().isLink()

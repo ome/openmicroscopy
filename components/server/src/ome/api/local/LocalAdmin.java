@@ -37,7 +37,7 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * {@link Experimenter#getOmeName() user name}. Use of the
      * {@link Experimenter} instance will initial its values.
      */
-    Experimenter userProxy(String omeName);
+    Experimenter userProxy(String userName);
 
     /**
      * returns a possibly uninitialized proxy for the given

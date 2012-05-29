@@ -112,16 +112,16 @@ class FindObjectTest (lib.GTest):
 
         self.loginAsAdmin()
 
-        omeName = self.TESTIMG.getOwnerOmeName()
+        userName = self.TESTIMG.getOwnerOmeName()
         # findObjects
-        findAuthor = list (self.gateway.getObjects("Experimenter", None, attributes={"omeName":omeName}) )
-        self.assertTrue(len(findAuthor) == 1, "Did not find Experimenter by omeName")
-        self.assertEqual(findAuthor[0].omeName, omeName)
+        findAuthor = list (self.gateway.getObjects("Experimenter", None, attributes={"userName":userName}) )
+        self.assertTrue(len(findAuthor) == 1, "Did not find Experimenter by userName")
+        self.assertEqual(findAuthor[0].userName, userName)
 
         # findObject
-        author = self.gateway.getObject("Experimenter", None, attributes={"omeName":omeName})
+        author = self.gateway.getObject("Experimenter", None, attributes={"userName":userName})
         self.assertTrue(author != None)
-        self.assertEqual(author.omeName, omeName)
+        self.assertEqual(author.userName, userName)
 
         # find group
         group = self.TESTIMG.getDetails().getGroup()
@@ -297,7 +297,7 @@ class GetObjectTest (lib.GTest):
         #eIds = [e.getId() for e in experimenters]
         for e in exps:
             #self.assertTrue(e.getId() in eIds)
-            for groupExpMap in e.copyGroupExperimenterMap():    # check iQuery has loaded groups
+            for groupExpMap in e.copyExperimenterGroupExperimenterLink():    # check iQuery has loaded groups
                 self.assertEqual(e.id, groupExpMap.child.id.val)
 
         # returns all experimenters except current user - now moved to webclient_gateway
@@ -310,7 +310,7 @@ class GetObjectTest (lib.GTest):
         #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( self.gateway.getObjects("ExperimenterGroup") )
         for grp in gps:
-            grpExpMap = grp.copyGroupExperimenterMap()
+            grpExpMap = grp.copyExperimenterGroupExperimenterLink()
         #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
         #gIds = [g.getId() for g in gps]
         #for g in groups:
@@ -322,8 +322,8 @@ class GetObjectTest (lib.GTest):
             cName = e.getOmeName()
 
         # check we can find some groups
-        exp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
-        for groupExpMap in exp.copyGroupExperimenterMap():
+        exp = self.gateway.getObject("Experimenter", attributes={'userName': self.USER.name})
+        for groupExpMap in exp.copyExperimenterGroupExperimenterLink():
             gName = groupExpMap.parent.name.val
             gId = groupExpMap.parent.id.val
             findG = self.gateway.getObject("ExperimenterGroup", attributes={'name': gName})
@@ -334,10 +334,10 @@ class GetObjectTest (lib.GTest):
 
         # check that findExperimenter can be replaced by getObject()
         #e = self.gateway.findExperimenter(self.USER.name)          # now removed from blitz gateway
-        findExp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
-        #self.assertEqual(e.id, findExp.id, "Finding experimenter via omeName - should return single exp")
+        findExp = self.gateway.getObject("Experimenter", attributes={'userName': self.USER.name})
+        #self.assertEqual(e.id, findExp.id, "Finding experimenter via userName - should return single exp")
 
-        noExp = self.gateway.getObject("Experimenter", attributes={'omeName': "Dummy Fake Name"})
+        noExp = self.gateway.getObject("Experimenter", attributes={'userName': "Dummy Fake Name"})
         self.assertEqual(noExp, None, "Should not find any matching experimenter")
         #noE = self.gateway.findExperimenter("Dummy Fake Name")
         #self.assertEqual(noE, None, "Should not find any matching experimenter")
@@ -345,14 +345,14 @@ class GetObjectTest (lib.GTest):
         exp = self.gateway.getObject("Experimenter", findExp.id) # uses iQuery
         #experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
         
-        self.assertEqual(exp.getDetails().getOwner().omeName, exp.getDetails().getOwner().omeName)
+        self.assertEqual(exp.getDetails().getOwner().userName, exp.getDetails().getOwner().userName)
         
-        # check groupExperimenterMap loaded for exp
+        # check experimenterGroupLinks loaded for exp
         groupIds = []
-        for groupExpMap in exp.copyGroupExperimenterMap():
+        for groupExpMap in exp.copyExperimenterGroupLinks():
             self.assertEqual(findExp.id, groupExpMap.child.id.val)
             groupIds.append(groupExpMap.parent.id.val)
-        #for groupExpMap in experimenter.copyGroupExperimenterMap():
+        #for groupExpMap in experimenter.copyExperimenterGroupExperimenterLink():
         #    self.assertEqual(findExp.id, groupExpMap.child.id.val)
             
         groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
@@ -362,7 +362,7 @@ class GetObjectTest (lib.GTest):
         self.assertEqual(len(groups), len(groupIds))
         for g in groups:
             self.assertTrue(g.getId() in groupIds)
-            for m in g.copyGroupExperimenterMap():  # check exps are loaded
+            for m in g.copyExperimenterGroupExperimenterLink():  # check exps are loaded
                 ex = m.child
 
     def testGetAnnotations(self):
@@ -445,10 +445,10 @@ class GetObjectTest (lib.GTest):
         # links owned by author
         eid = self.gateway.getEventContext().userId
         params.theFilter.ownerId = omero.rtypes.rlong(eid) # owned by 'author'
-        omeName = self.gateway.getObject("Experimenter", eid).getName()
+        userName = self.gateway.getObject("Experimenter", eid).getName()
         annLinks = self.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()], params=params)
         for al in annLinks:
-            self.assertEqual(al.getOwnerOmeName(), omeName)
+            self.assertEqual(al.getOwnerOmeName(), userName)
             
         # all links on Image with specific ns
         annLinks = self.gateway.getAnnotationLinks("Image", ns=ns)

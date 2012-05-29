@@ -1953,13 +1953,13 @@ public class OMEROMetadataStoreClient
 			p.addId(eventContext.userId);
 			List<IObject> groups = iQuery.findAllByQuery(
                     "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch g.experimenterLinks as map "
                     + "join fetch map.parent e "
                     + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch u.experimenterGroupLinks m2 "
                     + "left outer join fetch m2.parent p "
                     + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  (select m.parent from ExperimenterGroupExperimenterLink m "
                     + "  where m.child.id = :id )", p);
 
 			ExperimenterGroup group;

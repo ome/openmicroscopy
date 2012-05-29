@@ -469,7 +469,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     private final static String findBy1 =
         "select s.id, s.uuid from Session s " +
         "join s.owner o where " +
-        "s.closed is null and o.omeName = :name ";
+        "s.closed is null and o.userName = :name ";
 
     private final static String findByOrder =
         "order by s.started desc";
@@ -1039,6 +1039,12 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         // Have to copy values over due to unloaded
                         final Session s2 = copy(s);
 
+                        Long type = sql.findEventType(s.getDefaultEventType().getValue());
+                        if (type == null) {
+                            throw new ApiUsageException("Bad event type: " +
+                                    s.getDefaultEventType().getValue());
+                        }
+
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
                         // select nextval('seq_session'),-35,
@@ -1048,7 +1054,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         params.put("ttl", s.getTimeToLive());
                         params.put("tti", s.getTimeToIdle());
                         params.put("start", s.getStarted());
-                        params.put("type", s.getDefaultEventType());
+                        params.put("type", type);
                         params.put("uuid", s.getUuid());
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());
@@ -1226,7 +1232,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(ServiceFactory sf, Principal p) {
-        List<Object[]> rv = sf.getQueryService().projection("select e.id from Experimenter e where e.omeName = :name",
+        List<Object[]> rv = sf.getQueryService().projection("select e.id from Experimenter e where e.userName = :name",
                 new Parameters().addString("name", p.getName()));
         if (rv.size() == 0) {
             throw new RemovedSessionException("Cannot find a user with name "

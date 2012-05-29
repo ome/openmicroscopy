@@ -358,13 +358,13 @@ class BlitzObjectWrapper (object):
         if self._conn.isAdmin():
             d = self.getDetails()
             if d.getOwner() and \
-                    d.getOwner().omeName == details.getOwner().omeName and \
+                    d.getOwner().userName == details.getOwner().userName and \
                     d.getGroup().name == details.getGroup().name:
                 return self.save()
             else:
-                newConn = self._conn.suConn(details.getOwner().omeName, details.getGroup().name)
+                newConn = self._conn.suConn(details.getOwner().userName, details.getGroup().name)
                 #p = omero.sys.Principal()
-                #p.name = details.getOwner().omeName
+                #p.name = details.getOwner().userName
                 #p.group = details.getGroup().name
                 #p.eventType = "User"
                 #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
@@ -878,16 +878,16 @@ class BlitzObjectWrapper (object):
             ad = ann.getDetails()
             if self._conn.isAdmin() and self._conn._userid != d.getOwner().id:
                 # Keep the annotation owner the same as the linked of object's
-                if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
+                if ad.getOwner() and d.getOwner().userName == ad.getOwner().userName and d.getGroup().name == ad.getGroup().name:
                     newConn = ann._conn
                 else:
                     #p = omero.sys.Principal()
-                    #p.name = d.getOwner().omeName
+                    #p.name = d.getOwner().userName
                     group = None
                     if d.getGroup():
                         group = d.getGroup().name
                     # TODO: Do you know that the object owner is same as ann owner??
-                    newConn = self._conn.suConn(d.getOwner().omeName, group)
+                    newConn = self._conn.suConn(d.getOwner().userName, group)
                     #p.eventType = "User"
                     #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
                     #newConn = self._conn.clone()
@@ -1122,11 +1122,11 @@ class BlitzObjectWrapper (object):
 
     def getOwnerOmeName (self):
         """
-        Gets omeName of the owner of this object.
+        Gets userName of the owner of this object.
         
         @return: String
         """
-        return self.getDetails().getOwner().omeName
+        return self.getDetails().getOwner().userName
 
     
     def creationEventDate(self):
@@ -1356,10 +1356,10 @@ class _BlitzGateway (object):
         """
         if self.isAdmin():
             if group is None:
-                e = self.getObject("Experimenter", attributes={'omeName': username})
+                e = self.getObject("Experimenter", attributes={'userName': username})
                 if e is None:
                     return
-                group = e._obj._groupExperimenterMapSeq[0].parent.name.val
+                group = e._obj._experimenterGroupLinksSeq[0].parent.name.val
             p = omero.sys.Principal()
             p.name = username
             p.group = group
@@ -1773,11 +1773,11 @@ class _BlitzGateway (object):
         if gid is not None:
             if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self._user.copyExperimenterGroupExperimenterLink():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
         else:
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self._user.copyExperimenterGroupExperimenterLink():
                 if gem.owner.val == True:
                     return True
         return False
@@ -2255,10 +2255,10 @@ class _BlitzGateway (object):
 
     def findExperimenters (self, start=''):
         """
-        Return a generator for all Experimenters whose omeName starts with 'start'.
-        Experimenters ordered by omeName.
+        Return a generator for all Experimenters whose userName starts with 'start'.
+        Experimenters ordered by userName.
         
-        @param start:   omeName must start with these letters
+        @param start:   userName must start with these letters
         @type start:    String
         @return:        Generator of experimenters
         @rtype:         L{ExperimenterWrapper} generator
@@ -2269,8 +2269,8 @@ class _BlitzGateway (object):
         params = omero.sys.Parameters()
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
-        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self.CONFIG['SERVICE_OPTS'])
-        rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
+        rv = q.findAllByQuery("from Experimenter e where lower(e.userName) like :start", params,self.CONFIG['SERVICE_OPTS'])
+        rv.sort(lambda x,y: cmp(x.userName.val,y.userName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
@@ -2300,7 +2300,7 @@ class _BlitzGateway (object):
                 
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or default.isLeader():
-            for d in default.copyGroupExperimenterMap():
+            for d in default.copyExperimenterGroupExperimenterLink():
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
 
@@ -2322,7 +2322,7 @@ class _BlitzGateway (object):
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
         if not default.isPrivate() or default.isLeader():
-            for d in default.copyGroupExperimenterMap():
+            for d in default.copyExperimenterGroupExperimenterLink():
                 if d.child.id.val == userId:
                     continue
                 if d.owner.val:
@@ -2349,8 +2349,8 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["gids"] = rlist([rlong(a) for a in set(self.getEventContext().leaderOfGroups)])
         sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
-                "and gem.parent.id in (:gids)) order by e.omeName"
+                "exists ( select gem from ExperimenterGroupExperimenterLink as gem where gem.child = e.id " \
+                "and gem.parent.id in (:gids)) order by e.userName"
         for e in q.findAllByQuery(sql, p,self.CONFIG['SERVICE_OPTS']):
             if e.id.val != self.getEventContext().userId:
                 yield ExperimenterWrapper(self, e)
@@ -2364,7 +2364,7 @@ class _BlitzGateway (object):
         """
             
         exp = self.getUser()
-        for gem in exp.copyGroupExperimenterMap():
+        for gem in exp.copyExperimenterGroupExperimenterLink():
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
@@ -3999,7 +3999,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Experimenter'
-        self.LINK_CLASS = "GroupExperimenterMap"
+        self.LINK_CLASS = "ExperimenterGroupExperimenterLink"
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
 
@@ -4017,7 +4017,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """ 
         Returns string for building queries, loading Experimenters only. 
         """
-        return "select distinct obj from Experimenter as obj left outer join fetch obj.groupExperimenterMap " \
+        return "select distinct obj from Experimenter as obj left outer join fetch obj.experimenterGroupLinks " \
             "as map left outer join fetch map.parent g"
 
     def getRawPreferences (self):
@@ -4124,13 +4124,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def getName (self):
         """
-        Returns Experimenter's omeName 
+        Returns Experimenter's userName 
         
         @return:    Name
         @rtype:     String
         """
         
-        return self.omeName
+        return self.userName
 
     def getDescription (self):
         """
@@ -4176,7 +4176,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             if self.firstName is not None and self.lastName is not None:
                 name = "%s. %s" % (self.firstName[:1], self.lastName)
             else:
-                name = self.omeName
+                name = self.userName
             return name
         except:
             logger.error(traceback.format_exc())
@@ -4190,7 +4190,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "system":
                 return True
         return False
@@ -4203,7 +4203,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "user":
                 return True
         return False
@@ -4216,7 +4216,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        for ob in self._obj.copyGroupExperimenterMap():
+        for ob in self._obj.copyExperimenterGroupExperimenterLink():
             if ob.parent.name.val == "guest":
                 return True
         return False
@@ -4234,7 +4234,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'ExperimenterGroup'
-        self.LINK_CLASS = "GroupExperimenterMap"
+        self.LINK_CLASS = "ExperimenterGroupExperimenterLink"
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
@@ -4253,7 +4253,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         """ 
         Returns string for building queries, loading Experimenters for each group. 
         """
-        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap " \
+        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.experimenterLinks " \
             "as map left outer join fetch map.child e"
         return query
         

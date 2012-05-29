@@ -18,7 +18,7 @@ from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+from omero_model_ExperimenterGroupExperimenterLinkI import ExperimenterGroupExperimenterLinkI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
@@ -81,7 +81,7 @@ class TestTickets2000(lib.ITest):
         gr1 = self.new_group()
         groups.append(gr1)
 
-        exp = admin.lookupExperimenter(test_user.omeName.val)
+        exp = admin.lookupExperimenter(test_user.userName.val)
         contained_grs = admin.containedGroups(exp.id.val);
         # if groupexperimetnermap contains text group should be remove
         for gr in contained_grs:
@@ -90,7 +90,7 @@ class TestTickets2000(lib.ITest):
 
         admin.addGroups(exp,groups)
 
-        admin.setDefaultGroup(exp,gr1) # thrown an exception because gr1 is not on the GroupExperimenterMap
+        admin.setDefaultGroup(exp,gr1) # thrown an exception because gr1 is not on the ExperimenterGroupExperimenterLink
 
     def test1027(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -384,7 +384,7 @@ class TestTickets2000(lib.ITest):
 
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user_%s" % uuid)
+        new_exp.userName = rstring("user_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
         new_exp.email = rstring("newtest@emaildomain.com")
@@ -405,22 +405,22 @@ class TestTickets2000(lib.ITest):
         # print "members of group %s %i" % (gr1.name.val, gr1.id.val)
         for m in indefault:
             if m.id.val == exp.id.val:
-                self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
-                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
+                self.assert_(m.copyExperimenterGroupExperimenterLink()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyExperimenterGroupExperimenterLink()[0].parent), m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
 
         gr2 = admin.getGroup(gid)
         members2 = admin.containedExperimenters(gr2.id.val)
         # print "members of group %s %i" % (gr2.name.val, gr2.id.val)
         for m in members2:
             if m.id.val == exp.id.val:
-                copied_id = m.copyGroupExperimenterMap()[0].parent.id.val
+                copied_id = m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
                 got_id = admin.getDefaultGroup(exp.id.val).id.val
                 contained = admin.containedGroups(m.id.val)
                 self.assertEquals(copied_id, got_id,\
                 """
                 %s != %s. Groups for experimenter %s = %s (graph) or %s (contained)
-                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] ))
-                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
+                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyExperimenterGroupExperimenterLink() ], [ y.id.val for y in contained ] ))
+                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyExperimenterGroupExperimenterLink()[0].parent), m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
 
     def test1163(self):
         uuid = self.uuid()

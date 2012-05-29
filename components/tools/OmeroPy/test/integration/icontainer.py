@@ -16,7 +16,7 @@ from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+from omero_model_ExperimenterGroupExperimenterLinkI import ExperimenterGroupExperimenterLinkI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
@@ -46,7 +46,7 @@ class TestIContainer(lib.ITest):
         
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.userName = rstring("user1_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
         
@@ -58,7 +58,7 @@ class TestIContainer(lib.ITest):
         
         #new user2
         new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
+        new_exp2.userName = rstring("user2_%s" % uuid)
         new_exp2.firstName = rstring("New2")
         new_exp2.lastName = rstring("Test2")
         
@@ -132,7 +132,7 @@ class TestIContainer(lib.ITest):
         i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i,None)
         o = i.getDetails().owner
-        self.assertEquals( -1, o.sizeOfGroupExperimenterMap() )
+        self.assertEquals( -1, o.sizeOfExperimenterGroupExperimenterLink() )
 
 if __name__ == '__main__':
     unittest.main()

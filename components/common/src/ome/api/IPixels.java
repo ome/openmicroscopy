@@ -59,12 +59,12 @@ public interface IPixels extends ServiceInterface
      * Retrieves the rendering settings for a given pixels set and the currently
      * logged in user with the following objects pre-linked:
      * <ul>
-     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.quantumDef</li>
      * <li>renderingDef.model</li>
-     * <li>renderingDef.waveRendering</li>
-     * <li>renderingDef.waveRendering.color</li>
-     * <li>renderingDef.waveRendering.family</li>
-     * <li>renderingDef.spatialDomainEnhancement</li>
+     * <li>renderingDef.channelBindings</li>
+     * <li>renderingDef.channelBindings.color</li>
+     * <li>renderingDef.channelBindings.family</li>
+     * <li>renderingDef.codomainMapContexts</li>
      * </ul>
      * 
      * @param pixelsId
@@ -77,12 +77,12 @@ public interface IPixels extends ServiceInterface
      * Retrieves the rendering settings for a given pixels set and the passed
      * user with the following objects pre-linked:
      * <ul>
-     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.quantumDef</li>
      * <li>renderingDef.model</li>
-     * <li>renderingDef.waveRendering</li>
-     * <li>renderingDef.waveRendering.color</li>
-     * <li>renderingDef.waveRendering.family</li>
-     * <li>renderingDef.spatialDomainEnhancement</li>
+     * <li>renderingDef.channelBindings</li>
+     * <li>renderingDef.channelBindings.color</li>
+     * <li>renderingDef.channelBindings.family</li>
+     * <li>renderingDef.codomainMapContexts</li>
      * </ul>
      * 
      * @param pixelsId
@@ -97,12 +97,12 @@ public interface IPixels extends ServiceInterface
      * Retrieves all the rendering settings for a given pixels set and the 
      * passed user with the following objects pre-linked:
      * <ul>
-     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.quantumDef</li>
      * <li>renderingDef.model</li>
-     * <li>renderingDef.waveRendering</li>
-     * <li>renderingDef.waveRendering.color</li>
-     * <li>renderingDef.waveRendering.family</li>
-     * <li>renderingDef.spatialDomainEnhancement</li>
+     * <li>renderingDef.channelBindings</li>
+     * <li>renderingDef.channelBindings.color</li>
+     * <li>renderingDef.channelBindings.family</li>
+     * <li>renderingDef.codomainMapContexts</li>
      * </ul>
      * 
      * @param pixelsId
@@ -117,12 +117,12 @@ public interface IPixels extends ServiceInterface
      * Loads a specific set of rendering settings with the following objects 
      * pre-linked:
      * <ul>
-     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.quantumDef</li>
      * <li>renderingDef.model</li>
-     * <li>renderingDef.waveRendering</li>
-     * <li>renderingDef.waveRendering.color</li>
-     * <li>renderingDef.waveRendering.family</li>
-     * <li>renderingDef.spatialDomainEnhancement</li>
+     * <li>renderingDef.channelBindings</li>
+     * <li>renderingDef.channelBindings.color</li>
+     * <li>renderingDef.channelBindings.family</li>
+     * <li>renderingDef.codomainMapContexts</li>
      * </ul>
      * 
      * @param renderingDefId

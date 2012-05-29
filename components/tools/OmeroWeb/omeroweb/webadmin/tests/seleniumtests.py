@@ -50,17 +50,17 @@ def createGroup(sel, groupName):
     return gId
     
 
-def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
+def createExperimenter(sel, userName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
     """
     Helper method for creating an experimenter in the specified group. 
     The group 'groupName' must already exist. 
-    Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
+    Returns the expId if experimenter created successfully (userName is found in table of experimenters)
     Otherwise returns 0
     """
     sel.open("/webadmin/experimenters")
     sel.click("link=Add new scientist")
     sel.wait_for_page_to_load("30000")
-    sel.type("id_omename", omeName)
+    sel.type("id_omename", userName)
     sel.type("id_first_name", firstName)
     sel.type("id_last_name", lastName)
     sel.type("id_password", password)
@@ -75,10 +75,10 @@ def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Sele
     sel.wait_for_page_to_load("30000")
     
     eId = 0
-    if sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName):
+    if sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % userName):
         # try to get experimenter ID, look in the table
         i = 0   # jquery selector uses 0-based index
-        while sel.get_text('jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' % i) != omeName:
+        while sel.get_text('jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' % i) != userName:
            i+=1
            # raises exception if out of bounds for the html table
         idTxt = sel.get_text("//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1) ) # 1-based index
@@ -153,7 +153,7 @@ class AdminTests (WebAdminTestBase):
         
         # uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         uuid = random()
-        omeName = 'OmeName%s' % uuid
+        userName = 'OmeName%s' % uuid
         firstName = 'Selenium'
         lastName = 'Test'
         password = 'secretPassword'
@@ -165,7 +165,7 @@ class AdminTests (WebAdminTestBase):
         sel.open("/webadmin/experimenters")
         sel.click("link=Add new scientist")
         sel.wait_for_page_to_load("30000")
-        # Don't fill out omeName here.
+        # Don't fill out userName here.
         sel.type("id_first_name", firstName)
         sel.type("id_last_name", lastName)
         sel.type("id_password", password)
@@ -180,16 +180,16 @@ class AdminTests (WebAdminTestBase):
         
         # check that we failed to create experimenter - ome-name wasn't filled out
         self.failUnless(sel.is_text_present("This field is required."))
-        sel.type("id_omename", omeName)
+        sel.type("id_omename", userName)
         sel.click("//input[@value='Save']")
         sel.wait_for_page_to_load("30000")
         
-        # check omeName and 'Full Name' are on the page of Scientists. 
+        # check userName and 'Full Name' are on the page of Scientists. 
         self.assertEqual("WebAdmin - Scientists", sel.get_title())
-        self.failUnless(sel.is_text_present(omeName))
+        self.failUnless(sel.is_text_present(userName))
         self.failUnless(sel.is_text_present("%s %s" % (firstName, lastName)))
         # better to check text in right place
-        self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName))
+        self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % userName))
     
     
     def testCreateGroup(self):
@@ -213,7 +213,7 @@ class AdminTests (WebAdminTestBase):
         groupName2 = "Sel-test2%s" % random()
         groupName3 = "Sel-test3%s" % random()
         
-        omeName = 'OmeName%s' % random()
+        userName = 'OmeName%s' % random()
         firstName = 'Selenium'
         lastName = 'Test'
         password = 'secretPassword'
@@ -228,7 +228,7 @@ class AdminTests (WebAdminTestBase):
         self.assertTrue(group2Id > 0)
         
         # create the experimenter in 2 groups
-        eId = createExperimenter(sel, omeName, [groupName1, groupName2])
+        eId = createExperimenter(sel, userName, [groupName1, groupName2])
         self.assertTrue(eId > 0)
         sel.open("/webadmin/experimenter/edit/%d" % eId)
         sel.wait_for_page_to_load("30000")
@@ -252,7 +252,7 @@ class AdminTests (WebAdminTestBase):
         
         # find experimenter in table - look for 'admin' icon
         i = 1
-        while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != omeName:
+        while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != userName:
            i+=1
            # raises exception if out of bounds for the html table
         self.assert_(sel.is_element_present("//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/img[@alt='admin']" % i))

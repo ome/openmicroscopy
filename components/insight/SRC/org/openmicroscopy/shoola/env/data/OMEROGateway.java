@@ -3645,13 +3645,13 @@ class OMEROGateway
 			IQueryPrx service = getQueryService(ctx);
 			List<IObject> groups = service.findAllByQuery(
                     "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch g.experimenterLinks as map "
                     + "join fetch map.parent e "
                     + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch u.experimenterGroupLinks m2 "
                     + "left outer join fetch m2.parent p "
                     + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  (select m.parent from ExperimenterGroupExperimenterLink m "
                     + "  where m.child.id = :id )", p);
 
 			//List<ExperimenterGroup> groups = service.containedGroups(
@@ -7182,7 +7182,7 @@ class OMEROGateway
 			ParametersI p = new ParametersI();
 			p.addLongs("gids", groupIds);
 			List list = (List) svc.findAllByQuery("select m " +
-					"from GroupExperimenterMap as m"
+					"from ExperimenterGroupExperimenterLink as m"
 	                + " left outer join fetch m.parent"
 	                		+" where m.parent.id in (:gids)", p);
 			Iterator i = list.iterator();
@@ -7247,7 +7247,7 @@ class OMEROGateway
 			p.addId(experimenterID);
 			groups = (List) svc.findAllByQuery("select distinct g " +
 					"from ExperimenterGroup g "
-	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch g.experimenterLinks m "
 	                + "left outer join fetch m.child u " +
 	                		" where u.id = :id", p);
 			ExperimenterGroup group;
@@ -7287,16 +7287,16 @@ class OMEROGateway
 			if (id < 0) {
 				groups = (List)
 				svc.findAllByQuery("select distinct g from ExperimenterGroup g "
-		               // + "left outer join fetch g.groupExperimenterMap m "
+		               // + "left outer join fetch g.experimenterLinks m "
 		                , null);
 			} else {
 				ParametersI p = new ParametersI();
 				p.addId(id);
 				groups = (List) svc.findAllByQuery("select distinct g " +
 						"from ExperimenterGroup g "
-		                + "left outer join fetch g.groupExperimenterMap m "
+		                + "left outer join fetch g.experimenterLinks m "
 		                + "left outer join fetch m.child u "
-		                + "left outer join fetch u.groupExperimenterMap m2 "
+		                + "left outer join fetch u.experimenterGroupLinks m2 "
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
 			}

@@ -106,7 +106,7 @@ user never had a password, one will need to be set!""")
                     except:
                         self.ctx.err("Bad experimenter: %s" % id)
 
-                    tb.row(count, *(id, exp.omeName.val, dn))
+                    tb.row(count, *(id, exp.userName.val, dn))
                     count += 1
             self.ctx.out(str(tb.build()))
 
@@ -184,36 +184,36 @@ user never had a password, one will need to be set!""")
             user_filter = cfg["user_filter"]
             user_mapping = cfg["user_mapping"]
             user_mapping = user_mapping.split(",")
-            omeName_mapping = None
+            userName_mapping = None
             for um in user_mapping:
                 parts = um.split("=")
-                if parts[0] == "omeName":
-                    omeName_mapping = parts[1]
+                if parts[0] == "userName":
+                    userName_mapping = parts[1]
             results = ld.search_s(basedn, ldap.SCOPE_SUBTREE, user_filter)
             for dn, entry in results:
-                omeName = entry[omeName_mapping]
-                if isinstance(omeName, (list, tuple)):
-                    if len(omeName) == 1:
-                        omeName = omeName[0]
+                userName = entry[userName_mapping]
+                if isinstance(userName, (list, tuple)):
+                    if len(userName) == 1:
+                        userName = userName[0]
                     else:
-                        self.ctx.err("Failed to unwrap omeName: %s" % omeName)
+                        self.ctx.err("Failed to unwrap userName: %s" % userName)
                         continue
                 try:
-                    exp = iadmin.lookupExperimenter(omeName)
+                    exp = iadmin.lookupExperimenter(userName)
                     olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
                 except omero.ApiUsageException:
                     continue # Unknown user
 
                 if olddn:
                     if olddn != dn:
-                        self.ctx.err("Found different DN for %s: %s" % (omeName, olddn))
+                        self.ctx.err("Found different DN for %s: %s" % (userName, olddn))
                     else:
-                        self.ctx.dbg("DN already set for %s: %s" % (omeName, olddn))
+                        self.ctx.dbg("DN already set for %s: %s" % (userName, olddn))
                 else:
                     if args.commands:
-                        self.ctx.out("%s ldap setdn %s %s" % (sys.argv[0], omeName, dn))
+                        self.ctx.out("%s ldap setdn %s %s" % (sys.argv[0], userName, dn))
                     else:
-                        self.ctx.out("Experimenter:%s\tomeName=%s\t%s" % (exp.id.val, omeName, dn))
+                        self.ctx.out("Experimenter:%s\tuserName=%s\t%s" % (exp.id.val, userName, dn))
 
 
 try:

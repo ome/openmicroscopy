@@ -15,7 +15,7 @@
 #include <omero/model/PixelsI.h>
 #include <omero/model/ChannelI.h>
 #include <omero/model/TagAnnotationI.h>
-#include <omero/model/GroupExperimenterMapI.h>
+#include <omero/model/ExperimenterGroupExperimenterLinkI.h>
 
 using namespace omero::rtypes;
 using namespace omero::model;
@@ -178,16 +178,16 @@ TEST(ModelTest, LinkGroupAndUser )
 
   ExperimenterIPtr user = new ExperimenterI();
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
-  GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
+  ExperimenterGroupExperimenterLinkIPtr map = new ExperimenterGroupExperimenterLinkI();
 
   map->setId( rlong(1) );
   map->link(group,user);
-  user->addGroupExperimenterMapToBoth( map, false );
-  group->addGroupExperimenterMapToBoth( map, false );
+  user->addExperimenterGroupExperimenterLinkToBoth( map, false );
+  group->addExperimenterGroupExperimenterLinkToBoth( map, false );
 
-  typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it; 
-  egm_it beg = user->beginGroupExperimenterMap();
-  egm_it end = user->endGroupExperimenterMap();
+  typedef ExperimenterExperimenterGroupExperimenterLinkSeq::iterator egm_it; 
+  egm_it beg = user->beginExperimenterGroupExperimenterLink();
+  egm_it end = user->endExperimenterGroupExperimenterLink();
   int count = 0 ;
   for( ; beg != end; beg++ ) {
     ++count;
@@ -209,7 +209,7 @@ TEST(ModelTest, LinkViaMap )
 
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   // TODOuser->linkExperimenterGroup(group);
-  GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
+  ExperimenterGroupExperimenterLinkIPtr map = new ExperimenterGroupExperimenterLinkI();
   map->setParent( group );
   map->setChild( user );
 }

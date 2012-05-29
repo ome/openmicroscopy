@@ -96,7 +96,7 @@ class TestThumbnailPerms(lib.ITest):
         
         #new user (group owner)
         owner = ExperimenterI()
-        owner.omeName = rstring(ownerName)
+        owner.userName = rstring(ownerName)
         owner.firstName = rstring("Group")
         owner.lastName = rstring("Owner")
         owner.email = rstring("owner@emaildomain.com")
@@ -109,7 +109,7 @@ class TestThumbnailPerms(lib.ITest):
         
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring(user1name)
+        new_exp.userName = rstring(user1name)
         new_exp.firstName = rstring("Will")
         new_exp.lastName = rstring("Moore")
         new_exp.email = rstring("newtest@emaildomain.com")
@@ -118,7 +118,7 @@ class TestThumbnailPerms(lib.ITest):
         
         #new user2
         new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring(user2name)
+        new_exp2.userName = rstring(user2name)
         new_exp2.firstName = rstring("User")
         new_exp2.lastName = rstring("Test2")
         new_exp2.email = rstring("newtest2@emaildomain.com")

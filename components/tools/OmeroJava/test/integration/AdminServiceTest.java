@@ -268,7 +268,7 @@ public class AdminServiceTest
 		p = new ParametersI();
 		p.addLongs("gids", ids);
 		List list = (List) query.findAllByQuery("select m " +
-				"from GroupExperimenterMap as m "
+				"from ExperimenterGroupExperimenterLink as m "
 				+ "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 		+" where m.parent.id in (:gids)", p);
@@ -336,7 +336,7 @@ public class AdminServiceTest
 		p = new ParametersI();
 		p.addLongs("gids", ids);
 		List list = (List) query.findAllByQuery("select m " +
-				"from GroupExperimenterMap as m "
+				"from ExperimenterGroupExperimenterLink as m "
 				+ "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 		+" where m.parent.id in (:gids)", p);
@@ -392,7 +392,7 @@ public class AdminServiceTest
 		p = new ParametersI();
 		p.addLongs("gids", ids);
 		List list = (List) query.findAllByQuery("select m " +
-				"from GroupExperimenterMap as m "
+				"from ExperimenterGroupExperimenterLink as m "
 				+ "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 		+" where m.parent.id in (:gids)", p);
@@ -771,7 +771,7 @@ public class AdminServiceTest
         //set the user as the group owner.
         svc.setGroupOwner(g, e);
         IQueryPrx query = root.getSession().getQueryService();
-        String sql = "select m from GroupExperimenterMap as m ";
+        String sql = "select m from ExperimenterGroupExperimenterLink as m ";
     	sql += "left outer join fetch m.child as c ";
     	sql += "left outer join fetch m.parent as p ";
     	sql += "where ";

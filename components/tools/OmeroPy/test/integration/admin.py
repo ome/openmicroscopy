@@ -16,7 +16,7 @@ from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+from omero_model_ExperimenterGroupExperimenterLinkI import ExperimenterGroupExperimenterLinkI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
 
@@ -26,7 +26,7 @@ class TestAdmin(lib.ITest):
         a = self.client.getSession().getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
-        self.assert_( 0 != g.sizeOfGroupExperimenterMap() )
+        self.assert_( 0 != g.sizeOfExperimenterGroupExperimenterLink() )
 
     def testSetGroup(self):
         a = self.client.getSession().getAdminService()
@@ -168,7 +168,7 @@ class TestAdmin(lib.ITest):
 
         # Initially, the test should fail.
         try:
-            admin.changeUserPassword(experimenter.omeName.val, new_password)
+            admin.changeUserPassword(experimenter.userName.val, new_password)
             self.fail("Should not pass!")
         except omero.SecurityViolation, sv:
             pass # Good!
@@ -177,7 +177,7 @@ class TestAdmin(lib.ITest):
         new_client.sf.setSecurityPassword(password)
 
         # And then it should succeed
-        admin.changeUserPassword(experimenter.omeName.val, new_password)
+        admin.changeUserPassword(experimenter.userName.val, new_password)
 
 if __name__ == '__main__':
     unittest.main()

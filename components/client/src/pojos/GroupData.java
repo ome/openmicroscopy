@@ -40,8 +40,8 @@ public class GroupData extends DataObject {
     /** Identifies the {@link ExperimenterGroup#DESCRIPTION} field. */
     public final static String DESCRIPTION = ExperimenterGroup.DESCRIPTION;
 
-    /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroup.GROUPEXPERIMENTERMAP;
+    /** Identifies the {@link ExperimenterGroup#EXPERIMENTERGROUPEXPERIMENTERLINK} field. */
+    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroup.EXPERIMENTERGROUPEXPERIMENTERLINK;
 
     /** All experimenters in this group */
     private Set experimenters;
@@ -103,7 +103,7 @@ public class GroupData extends DataObject {
      */
     public Set getExperimenters() {
         if (experimenters == null
-                && asGroup().sizeOfGroupExperimenterMap() >= 0) {
+                && asGroup().sizeOfExperimenterGroupExperimenterLink() >= 0) {
             experimenters = new HashSet(asGroup().eachLinkedExperimenter(
                     new CBlock() {
                         public Object call(IObject object) {

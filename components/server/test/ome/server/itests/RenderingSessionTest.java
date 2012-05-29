@@ -760,7 +760,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         params.addId(pix.getId());
         RenderingDef settings = iQuery.findByQuery(
                 "select rdef from RenderingDef as rdef " +
-                "left outer join fetch rdef.waveRendering " +
+                "left outer join fetch rdef.channelBindings " +
                 "where rdef.pixels.id = (:id)", params);
         params.addId(settings.getId());
         for (int i = 0; i < settings.sizeOfChannelBindings(); i++)

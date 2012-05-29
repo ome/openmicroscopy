@@ -606,7 +606,7 @@
         institution varchar(255),
         lastName varchar(255) not null,
         middleName varchar(255),
-        omeName varchar(255) not null unique,
+        userName varchar(255) not null unique,
         version int4,
         external_id int8 unique,
         primary key (id)

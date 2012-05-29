@@ -52,8 +52,8 @@ public class ExperimenterData extends DataObject {
     /** Identifies the {@link Experimenter#INSTITUTION} field. */
     public final static String INSTITUTION = Experimenter.INSTITUTION;
 
-    /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = Experimenter.GROUPEXPERIMENTERMAP;
+    /** Identifies the {@link Experimenter#EXPERIMENTERGROUPEXPERIMENTERLINK} field. */
+    public final static String GROUP_EXPERIMENTER_MAP = Experimenter.EXPERIMENTERGROUPEXPERIMENTERLINK;
 
     /** The other Groups this Experimenter belongs in. */
     private List<GroupData> groups;
@@ -172,7 +172,7 @@ public class ExperimenterData extends DataObject {
     public List<GroupData> getGroups() {
 
         if (groups == null
-                && asExperimenter().sizeOfGroupExperimenterMap() >= 0) {
+                && asExperimenter().sizeOfExperimenterGroupExperimenterLink() >= 0) {
             groups = asExperimenter().eachLinkedExperimenterGroup(
                     new CBlock() {
                         public Object call(IObject object) {

@@ -71,7 +71,7 @@ public class SearchTest extends TestCase {
 
         ht.setupSession();
         List<Experimenter> list = query(ht, "root", Experimenter.class,
-                "omeName");
+                "userName");
         assertTrue(list.toString(), list.size() == 1);
         ht.closeSession();
     }
@@ -82,7 +82,7 @@ public class SearchTest extends TestCase {
         ht.setupSession();
 
         String queryStr = "root OR manual";
-        QueryParser qp = new MultiFieldQueryParser(new String[] { "omeName",
+        QueryParser qp = new MultiFieldQueryParser(new String[] { "userName",
                 "status" }, new StandardAnalyzer());
         org.apache.lucene.search.Query lq = qp.parse(queryStr);
         FullTextSession fts = Search.getFullTextSession(ht.s);

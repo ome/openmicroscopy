@@ -110,7 +110,7 @@
     <!-- Testing inverse capped -->
     <type id="ic.RenderingDef">
         <properties>
-            <onemany name="waveRendering" type="ic.ChannelBinding" inverse="renderingDef" ordered="true"/>
+            <onemany name="channelBinding" type="ic.ChannelBinding" inverse="renderingDef" ordered="true"/>
         </properties>
     </type>
 

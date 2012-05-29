@@ -348,7 +348,7 @@ class TestEmanScripts(lib.ITest):
         commandArgs = []
         commandArgs.append("python %s" % export2emScriptPath)
         commandArgs.append("-h localhost")
-        #commandArgs.append("-u %s" % new_exp.omeName.val)
+        #commandArgs.append("-u %s" % new_exp.userName.val)
         commandArgs.append("-u root")
         commandArgs.append("-p omero")
         commandArgs.append("-i %s" % iId)

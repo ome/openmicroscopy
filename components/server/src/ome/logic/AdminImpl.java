@@ -164,16 +164,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public Experimenter userProxy(final String omeName) {
-        if (omeName == null) {
-            throw new ApiUsageException("omeName argument cannot be null.");
+    public Experimenter userProxy(final String userName) {
+        if (userName == null) {
+            throw new ApiUsageException("userName argument cannot be null.");
         }
 
-        Experimenter e = iQuery.findByString(Experimenter.class, "omeName",
-                omeName);
+        Experimenter e = iQuery.findByString(Experimenter.class, "userName",
+                userName);
 
         if (e == null) {
-            throw new ApiUsageException("No such experimenter: " + omeName);
+            throw new ApiUsageException("No such experimenter: " + userName);
         }
 
         return e;
@@ -212,7 +212,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         final QueryBuilder qb = new QueryBuilder();
         qb.select("g.id").from("ExperimenterGroup", "g");
-        qb.join("g.groupExperimenterMap", "m", false, false);
+        qb.join("g.experimenterLinks", "m", false, false);
         qb.where();
         qb.and("m.owner = true");
         qb.and("m.parent.id = g.id");
@@ -238,7 +238,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = session
-                        .createQuery("select m.parent.id from GroupExperimenterMap m "
+                        .createQuery("select m.parent.id from ExperimenterGroupExperimenterLink m "
                                 + "where m.child.id = :id");
                 q.setParameter("id", e.getId());
                 return q.list();
@@ -257,7 +257,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = session
-                        .createQuery("select m.parent.name from GroupExperimenterMap m "
+                        .createQuery("select m.parent.name from ExperimenterGroupExperimenterLink m "
                                 + "where m.child.id = :id");
                 q.setParameter("id", e.getId());
                 return q.list();
@@ -295,12 +295,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public Experimenter lookupExperimenter(final String omeName) {
+    public Experimenter lookupExperimenter(final String userName) {
         Experimenter e = iQuery.execute(new UserQ(new Parameters().addString(
-                "name", omeName)));
+                "name", userName)));
 
         if (e == null) {
-            throw new ApiUsageException("No such experimenter: " + omeName);
+            throw new ApiUsageException("No such experimenter: " + userName);
         }
 
         return e;
@@ -309,7 +309,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public List<Experimenter> lookupExperimenters() {
         return iQuery.findAllByQuery("select distinct e from Experimenter e "
-                + "left outer join fetch e.groupExperimenterMap m "
+                + "left outer join fetch e.experimenterGroupLinks m "
                 + "left outer join fetch m.parent g", null);
     }
 
@@ -350,9 +350,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public List<ExperimenterGroup> lookupGroups() {
         return iQuery.findAllByQuery("select distinct g from ExperimenterGroup g "
-                + "left outer join fetch g.groupExperimenterMap m "
+                + "left outer join fetch g.experimenterLinks m "
                 + "left outer join fetch m.child u "
-                + "left outer join fetch u.groupExperimenterMap m2 "
+                + "left outer join fetch u.experimenterGroupLinks m2 "
                 + "left outer join fetch m2.parent", null);
     }
 
@@ -360,10 +360,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public Experimenter[] containedExperimenters(long groupId) {
         List<Experimenter> experimenters = iQuery.findAllByQuery(
                 "select distinct e from Experimenter as e "
-                + "join fetch e.groupExperimenterMap as map "
+                + "join fetch e.experimenterGroupLinks as map "
                 + "join fetch map.parent g "
                 + "where e.id in "
-                + "  (select m.child from GroupExperimenterMap m "
+                + "  (select m.child from ExperimenterGroupExperimenterLink m "
                 + "  where m.parent.id = :id )", new Parameters()
                         .addId(groupId));
         return experimenters.toArray(new Experimenter[experimenters.size()]);
@@ -374,12 +374,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         List<ExperimenterGroup> groups = iQuery
                 .findAllByQuery(
                         "select distinct g from ExperimenterGroup as g "
-                        + "join fetch g.groupExperimenterMap as map "
+                        + "join fetch g.experimenterLinks as map "
                         + "join fetch map.parent e "
                         + "left outer join fetch map.child u "
-                        + "left outer join fetch u.groupExperimenterMap m2 "
+                        + "left outer join fetch u.experimenterGroupLinks m2 "
                         + "where g.id in "
-                        + "  (select m.parent from GroupExperimenterMap m "
+                        + "  (select m.parent from ExperimenterGroupExperimenterLink m "
                         + "  where m.child.id = :id )",
                         new Parameters().addId(experimenterId));
         return groups.toArray(new ExperimenterGroup[groups.size()]);
@@ -793,7 +793,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     long experimenterId) {
         ExperimenterGroup g = iQuery.findByQuery(
                 "select g from ExperimenterGroup g, Experimenter e "
-                        + "join e.groupExperimenterMap m "
+                        + "join e.experimenterGroupLinks m "
                         + "where e.id = :id and m.parent = g.id "
                         + "and g.name != :userGroup and index(m) = 0",
                 new Parameters().addId(experimenterId).addString("userGroup",
@@ -849,10 +849,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void changeOwner(IObject iObject, String omeName) {
+    public void changeOwner(IObject iObject, String userName) {
         // should take an Owner
         IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-        Experimenter owner = userProxy(omeName);
+        Experimenter owner = userProxy(userName);
         copy.getDetails().setOwner(owner);
         iUpdate.saveObject(copy);
     }
@@ -1086,7 +1086,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 Experimenter e = iQuery.findByString(Experimenter.class,
-                        "omeName", name);
+                        "userName", name);
                 if (e == null) {
                     throw new AuthenticationException("Unknown user.");
                 } else if (e.getEmail() == null) {
@@ -1253,13 +1253,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 SQLException {
             Criteria c = session.createCriteria(Experimenter.class);
 
-            Criteria m = c.createCriteria("groupExperimenterMap",
+            Criteria m = c.createCriteria("experimenterGroupLinks",
                     Query.LEFT_JOIN);
             Criteria g = m.createCriteria("parent", Query.LEFT_JOIN);
 
             /* Should these calls be using g not c? - ajp */
             if (value("name") != null) {
-                c.add(Restrictions.eq("omeName", value("name")));
+                c.add(Restrictions.eq("userName", value("name")));
             }
 
             else if (value("id") != null) {
@@ -1287,7 +1287,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             QueryBuilder qb = new QueryBuilder();
             qb.select("g");
             qb.from("ExperimenterGroup", "g");
-            qb.join("g.groupExperimenterMap","m",true, true);
+            qb.join("g.experimenterLinks","m",true, true);
             qb.join("m.child","user", true,true);
             qb.where();
             

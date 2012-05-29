@@ -144,11 +144,11 @@ public interface ILdap extends ServiceInterface {
 	 * Searchs all {@link ome.model.core.Experimenter} in LDAP for objectClass =
 	 * person
 	 * 
-	 * @param omeName
+	 * @param userName
 	 *            Name of the Experimenter
 	 * @return an Experimenter. Never null.
 	 * @throws ome.conditions.ApiUsageException
-	 *             if omeName does not exist.
+	 *             if userName does not exist.
 	 */
 	void setDN(@NotNull
 	Long experimenterID, @NotNull

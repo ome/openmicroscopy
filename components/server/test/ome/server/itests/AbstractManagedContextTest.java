@@ -251,12 +251,12 @@ public class AbstractManagedContextTest extends TestCase {
         return iAdmin.lookupGroup(name);
     }
 
-    protected void loginUser(String omeName) {
-        loginUser(omeName, roles.getUserGroupName());
+    protected void loginUser(String userName) {
+        loginUser(userName, roles.getUserGroupName());
     }
 
-    protected void loginUser(String omeName, String groupName) {
-        login(omeName, groupName, "Test");
+    protected void loginUser(String userName, String groupName) {
+        login(userName, groupName, "Test");
     }
 
     protected Principal login(EventContext ec) {

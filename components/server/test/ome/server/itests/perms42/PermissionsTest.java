@@ -63,7 +63,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
          */
         ExperimenterGroup group() {
             return iQuery.findByQuery("select eg from ExperimenterGroup eg " +
-            		"join fetch eg.groupExperimenterMap where eg.id = "+ _group.getId(),
+            		"join fetch eg.experimenterLinks where eg.id = "+ _group.getId(),
             		null);
         }
 

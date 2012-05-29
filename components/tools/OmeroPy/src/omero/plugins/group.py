@@ -163,11 +163,11 @@ class GroupControl(BaseControl):
         for group in groups:
             row = [group.id.val, group.name.val, str(group.details.permissions)]
             if args.long:
-                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if x.owner.val])))
-                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if not x.owner.val])))
+                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyExperimenterGroupExperimenterLink() if x.owner.val])))
+                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyExperimenterGroupExperimenterLink() if not x.owner.val])))
             else:
-                row.append(len([x for x in group.copyGroupExperimenterMap() if x.owner.val]))
-                row.append(len([x for x in group.copyGroupExperimenterMap() if not x.owner.val]))
+                row.append(len([x for x in group.copyExperimenterGroupExperimenterLink() if x.owner.val]))
+                row.append(len([x for x in group.copyExperimenterGroupExperimenterLink() if not x.owner.val]))
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
@@ -178,8 +178,8 @@ class GroupControl(BaseControl):
         f_gid, f_grp = self.find_group(a, args.from_group)
         t_gid, t_grp = self.find_group(a, args.to_group)
 
-        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap()]
-        already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
+        to_add = [(x.child.id.val, x.child.userName.val) for x in f_grp.copyExperimenterGroupExperimenterLink()]
+        already = [x.child.id.val for x in t_grp.copyExperimenterGroupExperimenterLink()]
         for add in list(to_add):
             if add[0] in already:
                 self.ctx.out("%s already in group %s" % (add[1], args.to_group))

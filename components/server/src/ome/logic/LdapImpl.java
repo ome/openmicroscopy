@@ -266,7 +266,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             return;
         }
 
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, "userName", username);
 
         Experimenter ldapExp = findExperimenter(username);
         String ldapDN = getContextMapper().getDn(ldapExp);
@@ -274,7 +274,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         List<Long> ldapGroups = loadLdapGroups(username, dn);
         List<Object[]> omeGroups = iQuery.projection(
                 "select g.id from ExperimenterGroup g " +
-			"join g.groupExperimenterMap m join m.child e where e.id = :id",
+			"join g.experimenterLinks m join m.child e where e.id = :id",
                 new Parameters().addId(omeExp.getId()));
 
         Set<Long> omeGroupIds = new HashSet<Long>();
@@ -357,7 +357,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // the "user" groupis at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
-                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfExperimenterGroupLinks());
+                log.debug("sizeOfExperimenterGroupExperimenterLink=" + e.sizeOfExperimenterGroupLinks());
                 if (e.sizeOfExperimenterGroupLinks() > 1) {
                     ExperimenterGroupExperimenterLink primary = e.getExperimenterGroupExperimenterLink(0);
                     ExperimenterGroupExperimenterLink next = e.getExperimenterGroupExperimenterLink(1);

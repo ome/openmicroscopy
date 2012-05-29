@@ -318,7 +318,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    p.page(0,1)
     #    supervisor = self.getQueryService().findByQuery(\
     #        """select e from ExperimenterGroup as g 
-    #           join g.groupExperimenterMap as m join m.child as e
+    #           join g.experimenterLinks as m join m.child as e
     #           where m.owner = true and g.id = :id""", p)
     #    return ExperimenterWrapper(self, supervisor)
     
@@ -793,14 +793,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ################################################
     ##   Validators     
     
-    def checkOmeName(self, ome_name, old_omeName=None):
-        if ome_name == old_omeName:
+    def checkOmeName(self, ome_name, old_userName=None):
+        if ome_name == old_userName:
             return False
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["omeName"] = rstring(smart_str(ome_name))
-        sql = "select e from Experimenter as e where e.omeName = (:omeName)"
+        p.map["userName"] = rstring(smart_str(ome_name))
+        sql = "select e from Experimenter as e where e.userName = (:userName)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
             return True
@@ -853,12 +853,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   Sets methods                           ##
     
-    def changeUserPassword(self, omeName, password, my_password):
+    def changeUserPassword(self, userName, password, my_password):
         """
         Change the password for the a given user.
         
-        @param omeName      Experimetner omename
-        @type omeName       String
+        @param userName      Experimetner omename
+        @type userName       String
         @param password     Must pass validation in the security sub-system.
         @type password      String
         @param my_password  Must pass validation in the security sub-system.
@@ -866,7 +866,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         admin_serv = self.getAdminService()
         self.c.sf.setSecurityPassword(my_password)
-        admin_serv.changeUserPassword(omeName, rstring(str(password)))
+        admin_serv.changeUserPassword(userName, rstring(str(password)))
         
     def changeMyPassword(self, password, old_password):
         """
@@ -944,7 +944,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #def deleteExperimenter(self, experimenter):
     #    """
     #    Removes a user by removing the password information for that user as well
-    #    as all GroupExperimenterMap instances.
+    #    as all ExperimenterGroupExperimenterLink instances.
     #    
     #    @param user     Experimenter to be deleted. Not null.
     #    @type user      ExperimenterI
@@ -1329,7 +1329,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
-                  "where e.id in (:ids) order by e.omeName"
+                  "where e.id in (:ids) order by e.userName"
             ms = q.findAllByQuery(sql, p)
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
@@ -1728,7 +1728,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     """
     
     def isEditable(self):
-        return self.omeName.lower() not in ('guest')
+        return self.userName.lower() not in ('guest')
 
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
 

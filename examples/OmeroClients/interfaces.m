@@ -8,7 +8,7 @@ assert( o.isMutable() );
 assert( o.isGlobal() );
 assert( o.isAnnotated() );
 
-o = GroupExperimenterMapI();
+o = ExperimenterGroupExperimenterLinkI();
 assert( o.isLink() );
 
 someObject = ExperimenterI();

@@ -82,7 +82,7 @@
                     </a>{% endif %}
                 </td>
                 <td class="link">{{ dict.experimenter.getFullName }}</td>
-                <td class="link">{{ dict.experimenter.omeName }}</td>
+                <td class="link">{{ dict.experimenter.userName }}</td>
                 <td class="desc">{{ dict.experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
                 <td class="roles">
                       {% if dict.admin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
