@@ -732,9 +732,7 @@ public class PojosServiceTest
         d = (Dataset) update.saveAndReturnObject(
         		mmFactory.simpleDatasetData().asIObject());
         long d2 = d.getId().getValue();
-        Image image2 = (Image) 
-        	f.getUpdateService().saveAndReturnObject(
-        			mmFactory.simpleImage(0));
+        Image image2 = createBasicImage();
         link = new DatasetImageLinkI();
     	link.setParent(d);
     	link.setChild(image2);
