@@ -22,6 +22,9 @@
 # Version: 1.0
 #
 
+import os
+from glob import glob
+
 from django.conf import settings
 from django.core import template_loader
 from django.template import RequestContext as Context
@@ -29,27 +32,21 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 
-from os import getcwd
-from os.path import abspath, basename, dirname, join, pardir
-
-from glob import glob
-
-
 def index(request):
     template = settings.INDEX_TEMPLATE
-    if template is None or len(template) < 1:
+    if template is None:
         template = 'webstart/index.html'
-    return render_to_response(template,None)
+    return render_to_response(template,{'insight_url':request.build_absolute_uri(reverse("webstart_insight"))})
 
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')
-    codebase = request.build_absolute_uri("jars/")
+    
+    codebase = request.build_absolute_uri(settings.STATIC_URL+'webstart/jars/')
     href = request.build_absolute_uri(reverse("webstart_insight"))
 
-    pattern = abspath(join(getcwd(), pardir, pardir, "insight", "*.jar"))
+    pattern = os.path.abspath(os.path.join(settings.OMERO_HOME, "lib", "insight",  "*.jar").replace('\\','/'))
     jarlist = glob(pattern)
-    jarlist = [basename(x) for x in jarlist]
-
+    jarlist = [os.path.basename(x) for x in jarlist]
     context = {'codebase': codebase, 'href': href, 'jarlist': jarlist}
     c = Context(request, context)
     return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")

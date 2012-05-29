@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -18,25 +20,9 @@
 -->
 {% endcomment %}
 
-<?xml version="1.0" encoding="utf-8"?>
-<jnlp codebase="{{ codebase }}" href="{{ href }}">
-  <information>
-    <title>OMERO.insight</title>
-    <vendor>The Open Microscopy Environment</vendor>
-    <homepage href="http://openmicroscopy.org"/>
-    <icon href="{% static 'webstart/img/icon-omero-insight.png' %}"/>
-    <shortcut online="false">
-      <desktop/>
-    </shortcut>
-    <offline-allowed/>
-  </information>
-  <security>
-      <all-permissions/>
-  </security>
-  <resources>
-    <j2se version="1.5+" max-heap-size="512m"/>{% for jar in jarlist %}
-    <jar href="{{jar}}"/>{% endfor %}
-  </resources>
-  <application-desc main-class="org.openmicroscopy.shoola.Main"/>
-</jnlp>
-
+<script src="http://www.java.com/js/deployJava.js"></script>
+<script>
+    deployJava.launchButtonPNG='{% static "webstart/img/icon-omero-insight.png" %}';
+    var url = "{{ insight_url }}";
+    deployJava.createWebStartLaunchButton(url, '1.6.0');
+</script>
