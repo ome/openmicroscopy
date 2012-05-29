@@ -87,9 +87,8 @@ public class Helper {
      * @param ireq
      * @param substatus
      */
-    public void subinit(IRequest ireq, Status substatus) {
-        Helper helper = new Helper((Request) ireq, substatus, sql, session, sf);
-        ireq.init(helper);
+    public Helper subhelper(Request req, Status substatus) {
+        return new Helper(req, substatus, sql, session, sf);
     }
 
     private void requireStepsSet() {

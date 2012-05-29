@@ -21,12 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-
-import ome.util.SqlAction;
-
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
@@ -45,22 +39,58 @@ import omero.cmd.Status;
  */
 public class DoAllI extends DoAll implements IRequest {
 
+    /**
+     * Pointer-like object which is saved for each
+     * sub-request. The logic for properly mapping
+     * from the global step number to the individual
+     * substep number is done here. In order to find
+     * the proper {@link X} instance, use the lookup
+     * table:
+     *
+     * <pre>
+     * X x = substeps.get(lookup[step]);
+     * </pre>
+     */
+    private static class X {
+        /** Number of steps that should be deducted from the global step
+         * count in order to have the proper substep number */
+        final int offset;
+        final Helper h;
+        final IRequest r;
+        X(int offset, Helper h, IRequest r) {
+            this.offset = offset;
+            this.h = h;
+            this.r = r;
+        }
+        Object step(int step) {
+            return r.step(step - offset);
+        }
+        void buildResponse(int step, Object object) {
+            r.buildResponse(step - offset, object);
+        }
+    }
+
     private static final long serialVersionUID = -323423435135556L;
 
+    private final List<Status> statuses = new ArrayList<Status>();
+
+    private final List<Response> responses = new ArrayList<Response>();
+
     /**
-     * Provides the offsets of each status into the total number
-     * of offsets. For each if there are 3 actions, each of which
-     * contain 3 steps, then the offsets list will contain 3, 6 and
-     * 9. Then if step 4 is requested, only 2 steps will need to be
-     * made through the offset list.
+     * Helper instance for this class. Will create a number of sub-helper
+     * instances for each request.
      */
-    private List<Integer> offsets = new ArrayList<Integer>();
-
-    private List<Status> statuses = new ArrayList<Status>();
-
-    private List<Response> responses = new ArrayList<Response>();
-
     private Helper helper;
+
+    /**
+     * State-objects for each subrequest
+     */
+    private final List<X> substeps = new ArrayList<X>();
+
+    /**
+     * Used to find the proper {@link X} instance in {@link #substeps}
+     */
+    private int[] lookup;
 
     public Map<String, String> getCallContext() {
         return null;
@@ -71,46 +101,58 @@ public class DoAllI extends DoAll implements IRequest {
         int steps = 0;
         try {
             for (Request req : this.requests) {
-                Status substatus = new Status();
+                final Status substatus = new Status();
+                final Helper subhelper = helper.subhelper(req, substatus);
                 if (req instanceof IRequest) {
-                    IRequest ireq = (IRequest) req;
-                    helper.subinit(ireq, substatus);
-                    steps += substatus.steps;
-                    statuses.add(substatus);
-                    offsets.add(steps);
+                    try {
+                        ((IRequest) req).init(subhelper);
+                        statuses.add(substatus);
+                        substeps.add(new X(steps, subhelper, (IRequest) req));
+                        steps += substatus.steps;
+                    } catch (Cancel c) {
+                        helper.setResponse(subhelper.getResponse());
+                        throw c;
+                    }
                 }
                 else {
-                    helper.error("Bad request: %s", req);
-                    substatus.steps = 0;
-                    statuses.add(substatus);
-                    offsets.add(steps);
+                    throw helper.cancel(new ERR(), null, "bad-request",
+                        "type", req.ice_id());
                 }
             }
-        } catch (Exception e) {
-            helper.cancel(new ERR(), e, "bad-init");
+            int count = 0;
+            lookup = new int[steps];
+            for (int i = 0; i < substeps.size(); i++) {
+                X x = substeps.get(i);
+                for (int j = 0; j < x.h.getSteps(); j++) {
+                    lookup[count] = i;
+                    count++;
+                }
+            }
+        }  catch (Cancel c) {
+            throw c; // just re-throw
+        } catch (Throwable t) {
+            helper.cancel(new ERR(), t, "bad-init");
         }
         helper.setSteps(steps);
     }
 
     public Object step(int step) {
         helper.assertStep(step);
-        Pointer p = new Pointer(this, step);
-
+        final X x = substeps.get(lookup[step]);
         try {
-            return p.step();
+            return x.step(step);
         }
         catch (Cancel c) {
-            // TODO: Better to have our own ERR here with the responses
-            // of all the other subrequests for partial results.
-            helper.cancel(new ERR(), c, "subrequest-cancel");
-            return null; // Never reached.
+            Response subrsp = x.h.getResponse();
+            helper.setResponse(subrsp);
+            throw c;
         }
     }
 
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        Pointer p = new Pointer(this, step);
-        p.buildResponse(object);
+        X x = substeps.get(lookup[step]);
+        x.buildResponse(step, object);
 
         if (helper.isLast(step)) {
             for (Request subreq : requests) {
@@ -127,60 +169,4 @@ public class DoAllI extends DoAll implements IRequest {
         return helper.getResponse();
     }
 
-    /**
-     * Class to calculate which subrequest is intended by a given top-level
-     * step. For example, if the subrequests have the steps:
-     * 
-     * <pre>
-     * [0,1,2], [0,1,2,3], [0,1,2]
-     * </pre>
-     * 
-     * these would map to:
-     * 
-     * <pre>
-     * [0,1,2,  3,4,5,6,    7,8,9]
-     * </pre>
-     * 
-     * And if 5 were mapped in for "step" then the {@link #req} instance would
-     * be the second from {@link DoAllI#list} and the substep value would be 2.
-     */
-    static class Pointer {
-        IRequest req;
-        int substep;
-
-        Pointer(DoAllI doall, int step) {
-            List<Integer> offsets = doall.offsets;
-            // Find the right offset
-            int i = 0;
-            int last = 0;
-            int current = 0;
-            while (i < offsets.size()) {
-                current = offsets.get(i);
-                if (step < current) {
-                    break;
-                }
-                ++i;
-                last = current;
-            }
-
-            if (i > offsets.size()) {
-                throw new RuntimeException(
-                        "Wrong step! This should never happen!");
-            }
-
-            // At this point, it must also be an IRequest, because otherwise the
-            // offset would have not changed.
-            Request subrequest = doall.requests.get(i);
-            req = (IRequest) subrequest;
-            substep = step - last;
-        }
-
-        Object step() {
-            return req.step(substep);
-        }
-
-        void buildResponse(Object object) {
-            req.buildResponse(substep, object);
-        }
-    }
 }

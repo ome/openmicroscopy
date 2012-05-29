@@ -26,17 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
-import org.testng.annotations.Test;
-
 import ome.api.IUpdate;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.services.blitz.impl.commands.SaveI;
 import ome.system.EventContext;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
 import omero.api.SaveRsp;
 import omero.cmd.Chgrp;
 import omero.cmd.DoAllRsp;
@@ -45,12 +39,15 @@ import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.graphs.ChgrpI;
 import omero.model.DatasetI;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.ImageI;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests around the changing of group-based permissions.
@@ -106,10 +103,20 @@ public class DoAllITest extends AbstractGraphTest {
     }
 
     @Test
+    public void testNoSteps() throws Exception {
+        Request cs1 = new CheckSteps("1");
+        DoAllI all = new DoAllI();
+        all.requests = Arrays.asList(cs1);
+        _HandleTie handle = submit(all);
+        block(handle, 5, 1000);
+        assertFailure(handle);
+    }
+
+    @Test
     public void testSteps() throws Exception {
         Request cs1 = new CheckSteps("1", 0, 1, 2, 3, 4);
         Request cs2 = new CheckSteps("2", 0);
-        Request cs3 = new CheckSteps("3");
+        Request cs3 = new CheckSteps("3", 0); // Can't be nothing.
         Request cs4 = new CheckSteps("4", 0, 1, 2, 3, 4, 5, 6, 7, 8);
         Request cs5 = new CheckSteps("5", 0);
         DoAllI all = new DoAllI();
