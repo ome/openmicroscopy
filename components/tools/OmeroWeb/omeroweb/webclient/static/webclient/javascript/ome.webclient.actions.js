@@ -132,10 +132,13 @@ var basket_selection_changed = function($selected) {
 }
 
 // called from click events on plate. Selected wells 
-var well_selection_changed = function($selected, well_index) {
+var well_selection_changed = function($selected, well_index, plate_class) {
     var selected_objs = [];
     $selected.each(function(i){
-        selected_objs.push( {"id":$(this).attr('id').replace("=","-"), "rel":$(this).attr('rel'), "index":well_index} );
+        selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
+                "rel":$(this).attr('rel'),
+                "index":well_index,
+                "class":plate_class} );     // assume every well has same permissions as plate
     });
     
     $("body")

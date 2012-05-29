@@ -46,7 +46,7 @@ $(function () {
             // handle batch annotation...
             var productListQuery = new Array();
             for (var i=0; i<selected.length; i++) {
-                // if any items don't have the canAnnotate class, we exit
+                // if any items don't have the canAnnotate class, we don't show batch annotation
                 if (typeof selected[i]['class'] != 'undefined' && selected[i]['class'].indexOf("canAnnotate") < 0) {
                     return;
                 }
