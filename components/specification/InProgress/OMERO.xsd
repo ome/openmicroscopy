@@ -105,8 +105,16 @@
                                 </xsd:annotation>
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
-                                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1"/>
+                                        <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1">
+                                            <xsd:annotation>
+                                                <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                                            </xsd:annotation>
+                                        </xsd:element>
+                                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1">
+                                            <xsd:annotation>
+                                                <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                                            </xsd:annotation>
+                                        </xsd:element>
                                         <xsd:element name="EventRef" minOccurs="0" maxOccurs="1">
                                             <xsd:complexType>
                                                 <xsd:complexContent>
@@ -136,7 +144,11 @@
                                     <xsd:attribute name="Type" use="required" type="EventType"/>
                                 </xsd:complexType>
                             </xsd:element>
-                            <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
+                            <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1">
+                                <xsd:annotation>
+                                    <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                                </xsd:annotation>
+                            </xsd:element>
                         </xsd:sequence>
                         <xsd:attribute name="Uuid" use="required" type="xsd:string">
                             <xsd:annotation>
@@ -179,7 +191,11 @@
                                 <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
                             </xsd:annotation>
                         </xsd:element>
-                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1"/>
+                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1">
+                            <xsd:annotation>
+                                <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
                         <xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
                     </xsd:sequence>
                     <xsd:attribute name="ItemCount" use="required" type="xsd:long"/>
