@@ -80,11 +80,11 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	public static final String RENDERING_DEF_QUERY_PREFIX =
 		"select rdef from RenderingDef as rdef " + 
 		"left outer join fetch rdef.details.owner " + 
-		"left outer join fetch rdef.quantization " + 
+		"left outer join fetch rdef.quantumDef " + 
 		"left outer join fetch rdef.model " +
-		"left outer join fetch rdef.waveRendering as cb " +
+		"left outer join fetch rdef.channelBindings as cb " +
 		"left outer join fetch cb.family " +
-		"left outer join fetch rdef.spatialDomainEnhancement where ";
+		"left outer join fetch rdef.codomainMapContexts where ";
 
 	// ~ Service methods
 	// =========================================================================

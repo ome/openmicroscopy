@@ -75,7 +75,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "where i.id = :id";
 
     public final static String SETTINGSID_QUERY = "select r.id, q.id from RenderingDef r "
-        + "join r.quantization q "
+        + "join r.quantumDef q "
         + "join r.pixels pix "
         + "join pix.image img where img.id = :id";
 
@@ -435,7 +435,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         
         //p.collectThumbnails(delete);
 
-        // Why do we set channel to null here and not waveRendering
+        // Why do we set channel to null here and not channelBinding
         // above?
         List<Channel> channels = p
                 .collectChannels((CBlock<Channel>) null);

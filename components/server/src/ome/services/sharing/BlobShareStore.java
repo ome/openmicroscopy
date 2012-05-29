@@ -268,8 +268,8 @@ public class BlobShareStore extends ShareStore implements
             + "left outer join fetch map.parent as ofile "
             + "left outer join fetch p.settings as setting "
             // rdef
-            + "left outer join fetch r.waveRendering "
-            + "left outer join fetch r.quantization "
+            + "left outer join fetch r.channelBindings "
+            + "left outer join fetch r.quantumDef "
         */
 
         List<Long> images = data.objectMap.get(Image.class.getName());
