@@ -79,7 +79,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
             tb.getThumbnailByLongestSideSet(96, pixelsIds);
         // Retrieve RGB rendering model
         List<RenderingModel> models = re.getAvailableModels();
-        RenderingModel rgbModel = getModel(models, "rgb");
+        RenderingModel rgbModel = getModel(models, "RGB");
         // Make pix1 red
         re.lookupPixels(pix1.getId());
         re.lookupRenderingDef(pix1.getId());
@@ -126,7 +126,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         assertTrue(re.lookupRenderingDef(pix.getId()));
         re.load();
         List<RenderingModel> models = re.getAvailableModels();
-        RenderingModel rgbModel = getModel(models, "rgb");
+        RenderingModel rgbModel = getModel(models, "RGB");
         RenderingModel greyscaleModel = getModel(models, "greyscale");
         assertEquals(greyscaleModel.getId(), re.getModel().getId());
         Map<Long, byte[]> thumbnails = tb.getThumbnailByLongestSideSet(
@@ -157,7 +157,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         assertTrue(re.lookupRenderingDef(pix.getId()));
         re.load();
         List<RenderingModel> models = re.getAvailableModels();
-        RenderingModel rgbModel = getModel(models, "rgb");
+        RenderingModel rgbModel = getModel(models, "RGB");
         RenderingModel greyscaleModel = getModel(models, "greyscale");
         assertEquals(greyscaleModel.getId(), re.getModel().getId());
         Map<Long, byte[]> thumbnails = tb.getThumbnailSet(
@@ -207,7 +207,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.load();
         ts.setPixelsId(pix.getId());
         List<RenderingModel> models = re.getAvailableModels();
-        re.setModel(getModel(models, "rgb"));
+        re.setModel(getModel(models, "RGB"));
         re.saveCurrentSettings();
         byte[] thumbExp2 = ts.getThumbnail(5, 5);
         assertNotNull(thumbExp2);
@@ -290,7 +290,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
                 settingsList, ts);
         assertEquals(2, thumbnails.length);
         // Switch rendering model to check the settings
-        re.setModel(getModel(models, "rgb"));
+        re.setModel(getModel(models, "RGB"));
         re.saveCurrentSettings();
         settingsList = 
             psExp1.retrieveAllRndSettings(pix.getId(), -1);

@@ -182,7 +182,7 @@ public class ObjectFactory {
     public static RenderingDef createRenderingDef() {
         // Prereqs for RenderingDef
         RenderingModel model = new RenderingModel();
-        model.setValue("rgb");
+        model.setValue("RGB");
 
         QuantumDef qdef = new QuantumDef();
         qdef.setBitResolution(new Integer(1));

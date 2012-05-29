@@ -112,7 +112,7 @@ public interface RenderingControl
     public static final int     DEPTH_8BIT = 255;
     
     /** Identifies the <code>RGB</code> color model. */
-    public static final String  RGB = "rgb";
+    public static final String  RGB = "RGB";
 
     /** Identifies the <code>Grey scale</code> color model. */
     public static final String  GREY_SCALE = "greyscale";

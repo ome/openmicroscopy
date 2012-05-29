@@ -6171,7 +6171,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         rm = self.getRenderingModels()
-        self._re.setModel(self._rm.get('rgb', rm[0])._obj)
+        self._re.setModel(self._rm.get('RGB', rm[0])._obj)
 
     def isGreyscaleRenderingModel (self):
         """
