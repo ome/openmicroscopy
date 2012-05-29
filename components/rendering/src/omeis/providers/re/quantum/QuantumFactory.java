@@ -66,7 +66,7 @@ public class QuantumFactory {
      * coefficients depend on the input and output (codomain) interval of the
      * map.
      */
-    public static final String LINEAR = "linear";
+    public static final String LINEAR = "Linear";
 
     /**
      * Flag to select a exponential map for the quantization process. The
@@ -75,7 +75,7 @@ public class QuantumFactory {
      * interval of the map. The <i>k</i> coefficient is the one specified by
      * the {@link QuantumDef context}.
      */
-    public static final String EXPONENTIAL = "exponential";
+    public static final String EXPONENTIAL = "Exponential";
 
     /**
      * Flag to select a logarithmic map for the quantization process. The
@@ -83,7 +83,7 @@ public class QuantumFactory {
      * and <i>b</i> coefficients depend on the input and output (codomain)
      * interval of the map.
      */
-    public static final String LOGARITHMIC = "logarithmic";
+    public static final String LOGARITHMIC = "Logarithmic";
 
     /**
      * Flag to select a polynomial map for the quantization process. The
@@ -94,7 +94,7 @@ public class QuantumFactory {
      * case of polynomial (<i>k = 1</i>). We keep the {@link #LINEAR} constant
      * for some UI reason but we apply the same algorithm.
      */
-    public static final String POLYNOMIAL = "polynomial";
+    public static final String POLYNOMIAL = "Polynomial";
 
     /** Default value. */
     public static final boolean NOISE_REDUCTION = true;

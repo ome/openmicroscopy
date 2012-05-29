@@ -20,7 +20,7 @@ import ome.model.enums.RenderingModel;
 public class TestPixelsMetadataService implements IPixels {
 	
 	private static final String[] FAMILIES =
-		new String[] { "linear", "polynomial", "exponential", "logarithmic" };
+		new String[] { "Linear", "Polynomial", "Exponential", "Logarithmic" };
 	
 	private static final String[] MODELS =
 		new String[] { "RGB", "Greyscale" };

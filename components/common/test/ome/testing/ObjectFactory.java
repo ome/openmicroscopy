@@ -165,7 +165,7 @@ public class ObjectFactory {
         // Prereqs for binding
 
         Family family = new Family();
-        family.setValue("linear");
+        family.setValue("Linear");
 
         ChannelBinding binding = new ChannelBinding();
         binding.setActive(Boolean.valueOf(false));

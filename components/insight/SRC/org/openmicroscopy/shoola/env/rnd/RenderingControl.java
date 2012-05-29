@@ -118,16 +118,16 @@ public interface RenderingControl
     public static final String  GREY_SCALE = "Greyscale";
     
     /** Identifies the <code>Linear</code> family. */
-    public static final String  LINEAR = "linear";
+    public static final String  LINEAR = "Linear";
     
     /** Identifies the <code>Polynomial</code> family. */
-    public static final String  POLYNOMIAL = "polynomial";
+    public static final String  POLYNOMIAL = "Polynomial";
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  EXPONENTIAL = "exponential";
+    public static final String  EXPONENTIAL = "Exponential";
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  LOGARITHMIC = "logarithmic";
+    public static final String  LOGARITHMIC = "Logarithmic";
     
     /**
      * Returns the number of pixels along the X-axis.
