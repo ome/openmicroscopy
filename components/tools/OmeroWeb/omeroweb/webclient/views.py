@@ -2161,43 +2161,45 @@ def avatar(request, oid=None, conn=None, **kwargs):
 # webgateway extention
 
 @login_required()
-def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
+def render_thumbnail_resize (request, size, iid, conn=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['conn'] = conn
-    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
 
 @login_required()
-def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
+def render_thumbnail (request, iid, conn=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['conn'] = conn
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
 
 @login_required()
-def render_image_region (request, iid, z, t, server_id=None, share_id=None, **kwargs):
+def render_image_region (request, iid, z, t, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
+    return webgateway_views.render_image_region(request, iid, z, t, **kwargs)
 
 @login_required()
-def render_birds_eye_view (request, iid, size=None, share_id=None, **kwargs):
+def render_birds_eye_view (request, iid, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
+    return webgateway_views.render_birds_eye_view(request, iid, **kwargs)
 
 @login_required()
-def render_image (request, iid, z, t, share_id=None, **kwargs):
+def render_image (request, iid, z, t, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
+    return webgateway_views.render_image(request, iid, z, t, **kwargs)
 
 @login_required()
 def image_viewer (request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
     kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')   # remove any trailing slash
-    return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
+    return webgateway_views.full_viewer(request, iid, **kwargs)
 
-@login_required()
-def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
+def imageData_json (request, iid, **kwargs):
+    """ 
+    Delegates to webgateway, using share connection if appropriate.
+    NB: uses webgateway @login_required so as not to conflict with @jsonp. See #8999
+    """
+    return webgateway_views.imageData_json(request, iid=iid, **kwargs)
 
 @login_required()
 def render_row_plot (request, iid, z, t, y, w=1, share_id=None, **kwargs):
@@ -2214,15 +2216,13 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
-@login_required()
-def save_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.save_image_rdef_json(request, iid, share_id=share_id, **kwargs)
+def save_image_rdef_json (request, iid, **kwargs):
+    """ Delegates to webgateway. NB: uses webgateway @login_required so as not to conflict with @jsonp. See #8999 """
+    return webgateway_views.save_image_rdef_json(request, iid, **kwargs)
 
-@login_required()
-def reset_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.reset_image_rdef_json(request, iid, share_id=share_id, **kwargs)
+def reset_image_rdef_json (request, iid, **kwargs):
+    """ Delegates to webgateway. NB: uses webgateway @login_required so as not to conflict with @jsonp. See #8999 """
+    return webgateway_views.reset_image_rdef_json(request, iid, **kwargs)
 
 ####################################################################################
 # scripting service....
