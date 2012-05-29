@@ -407,7 +407,7 @@ class IntensityView
 		JPanel channelPanel = 
 			UIUtilities.buildComponentPanel(channelSelection);
 		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
-		panel.add(channelPanel);
+		//panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
 			UIUtilities.buildComponentPanel(showIntensityTable);
@@ -693,6 +693,13 @@ class IntensityView
 	 */
 	private void interpretResults(Coord3D coord, int channel)
 	{
+		channelMin = minStats.get(coord);
+		channelMax = maxStats.get(coord);
+		channelMean = meanStats.get(coord);
+		channelStdDev = stdDevStats.get(coord);
+		channelSum = sumStats.get(coord);
+		shape = shapeMap.get(coord);
+		
 		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
 		if (pixels == null) return;
 		Iterator<Point> pixelIterator = pixels.keySet().iterator();
@@ -715,29 +722,23 @@ class IntensityView
 		sizeX = (int) (maxX-minX)+1;
 		sizeY = (int) ((maxY-minY)+1);
 		Double[][] data = new Double[sizeX][sizeY];
-		Iterator i = pixels.entrySet().iterator();
+		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
 		int x, y;
 		Double value;
-		Entry entry;
+		Entry<Point, Double> entry;
 		while (i.hasNext())
 		{
-			entry = (Entry) i.next();
-			point = (Point) entry.getKey();
+			entry = i.next();
+			point = entry.getKey();
 			x = (int) (point.getX()-minX);
 			y = (int) (point.getY()-minY);
 			if (x >= sizeX || y >= sizeY) continue;
 			
-			if (pixels.containsKey(point)) value = (Double) entry.getValue();
+			if (pixels.containsKey(point)) value = entry.getValue();
 			else value = new Double(0);
 			data[x][y] = value;
 		}
-		channelMin = minStats.get(coord);
-		channelMax = maxStats.get(coord);
-		channelMean = meanStats.get(coord);
-		channelStdDev = stdDevStats.get(coord);
-		channelSum = sumStats.get(coord);
 		tableModel = new IntensityModel(data);
-		shape = shapeMap.get(coord);
 		intensityDialog.setModel(tableModel);
 	}
 		
