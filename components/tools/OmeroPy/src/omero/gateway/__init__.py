@@ -7050,6 +7050,42 @@ class _ImageWrapper (BlitzObjectWrapper):
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
 
+    def getROICount(self, roitype=None, eid=None):
+        """
+        Count number of ROIs associated to an image
+        
+        @param roitype:     Specify a ROI type ("Rect",...) or any ROI if empty.
+        @param eid:         Filter ROIs by owner ID
+        @return:            True if any ROI of given type is present.
+        """
+          
+        # Create ROI owner validator (instead of roiOptions see #8990)
+        def isValidOwner(shape):
+            if not eid:
+                return True
+            else:
+                return shape.getDetails().getOwner().id.val == self._conn._userid
+        
+        # Create ROI type validator
+        def isValidType(shape):
+            if not roitype:
+                return True
+            elif isinstance(roitype,list):
+                for t in roitype:
+                    if isinstance(shape,getattr(omero.model,t)):
+                        return True
+            elif isinstance(shape,getattr(omero.model,roitype)):
+                return True
+            return False
+        
+        result = self._conn.getRoiService().findByImage(self.id, None)
+        count = 0
+        for roi in result.rois:
+            for shape in roi.copyShapes():
+                if isValidType(shape) and isValidOwner(shape): 
+                    count += 1
+        return count
+
 ImageWrapper = _ImageWrapper
 
 ## INSTRUMENT AND ACQUISITION ##
