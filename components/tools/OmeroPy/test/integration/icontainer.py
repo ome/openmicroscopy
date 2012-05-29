@@ -26,10 +26,9 @@ class TestIContainer(lib.ITest):
 
     def testFindAnnotations(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
-        i.setAcquisitionDate(rtime(0))
-        i = ipojo.createDataObject(i,None)
+        pix = self.pix(name="name")
+        img = pix.getImage()
+        pix = ipojo.createDataObject(pix,None)
 
     def testFindAndCountAnnotationsForSharedData(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -78,12 +77,12 @@ class TestIContainer(lib.ITest):
         ipojo1 = cl1.sf.getContainerService()
         
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
+        pix = self.pix(name='test1154-img-%s' % (uuid), client=cl1)
+        img = pix.getImage()
 
         # default permission 'rw----':
-        img = update1.saveAndReturnObject(img)
+        pix = update1.saveAndReturnObject(pix)
+        img = pix.getImage()
         img.unload()
 
         ann1 = CommentAnnotationI()
@@ -127,11 +126,12 @@ class TestIContainer(lib.ITest):
     
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
-        i.setAcquisitionDate(rtime(0))
-        i = ipojo.createDataObject(i,None)
-        o = i.getDetails().owner
+        pix = self.pix()
+        img = pix.getImage()
+        img.name = rstring('name')
+        img.acquisitionDate = rtime(0)
+        pix = ipojo.createDataObject(pix,None)
+        o = pix.getImage().getDetails().owner
         self.assertEquals( -1, o.sizeOfExperimenterGroupExperimenterLink() )
 
 if __name__ == '__main__':

@@ -26,6 +26,7 @@ from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime, rint, rdouble, unwrap
 from path import path
 
+import Glacier2
 
 class Clients(object):
 
@@ -142,10 +143,10 @@ class ITest(unittest.TestCase):
             prx.close()
         client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
 
-    def new_image(self, name = ""):
+    def new_image(self, name = "", acquisitionDate=0):
         img = omero.model.ImageI()
         img.name = rstring(name)
-        img.acquisitionDate = rtime(0)
+        img.acquisitionDate = rtime(acquisitionDate)
         return img
 
     def import_image(self, filename = None, client = None):
@@ -414,12 +415,12 @@ class ITest(unittest.TestCase):
         update = client.sf.getUpdateService()
         return update.saveAndReturnObject(pix)
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
+    def pix(self, x=10, y=10, z=10, c=3, t=50, name="", acquisitionDate=0, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
         """
-        image = self.new_image()
+        image = self.new_image(name=name, acquisitionDate=acquisitionDate)
         pixels = omero.model.PixelsI()
         pixels.sizeX = rint(x)
         pixels.sizeY = rint(y)

@@ -64,7 +64,7 @@ class TestChgrp(lib.ITest):
 
         # Import an image into the client context
         pixID = self.import_image(client=client)[0]
-        pixels = client.sf.getQueryService().get("Pixels", pixID)
+        pixels = client.sf.getQueryService().get("Pixels", long(pixID))
         imageId = pixels.getImage().getId().getValue()
 
         # Chgrp
@@ -93,8 +93,8 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
 
         # Data Setup (image in the current group)
-        img = self.new_image()
-        img = update.saveAndReturnObject(img)
+        pix = self.pix(client=client)
+        img = pix.getImage()
 
         # Move image to new group
         chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None, grp=gid)
@@ -122,8 +122,8 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
 
         # Data Setup (image in the P/D hierarchy)
-        img = self.new_image()
-        img = update.saveAndReturnObject(img)
+        pix = self.pix(client=client)
+        img = pix.getImage()
         project = omero.model.ProjectI()
         project.setName(rstring("chgrp-test"))
         project = update.saveAndReturnObject(project)
