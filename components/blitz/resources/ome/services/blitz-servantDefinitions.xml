@@ -340,12 +340,15 @@
     </constructor-arg>
   </bean>
 
-  <bean class="omero.cmd.RequestObjectFactoryRegistry">
+  <bean class="omero.cmd.RequestObjectFactoryRegistry" lazy-init="false">
       <constructor-arg ref="extendedMetadata"/>
       <constructor-arg ref="roles"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
-  <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"/>
+  <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"
+    lazy-init="false">
+      <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
 
 </beans>

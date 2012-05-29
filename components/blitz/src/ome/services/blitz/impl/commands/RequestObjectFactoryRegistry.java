@@ -46,7 +46,7 @@ public class RequestObjectFactoryRegistry extends
     public Map<String, ObjectFactory> createFactories() {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
         factories.put(SaveI.ice_staticId(), new ObjectFactory(
-                DoAllI.ice_staticId()) {
+                SaveI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
                 return new SaveI();
