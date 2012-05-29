@@ -90,6 +90,10 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_row_plot, name="web_render_row_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?saveImgRDef/(?P<iid>[^/]+)/$', views.save_image_rdef_json, name="web_save_image_rdef_json"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?resetImgRDef/(?P<iid>[^/]+)/$', views.reset_image_rdef_json, name="web_reset_image_rdef_json"),
+
+
 
     # chgrp - 'group_id', obj-types and ids in POST data
     url( r'^chgrp/$', views.chgrp, name="chgrp"),

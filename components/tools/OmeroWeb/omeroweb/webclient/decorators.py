@@ -55,21 +55,16 @@ class login_required(omeroweb.decorators.login_required):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
-        self.conn_config(request, conn)
+        if request.session.get('active_group'):
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
+        else:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
         """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
         if self.ignore_login_fail:
             return HttpResponse("Connection Failed")
         return super(login_required, self).on_not_logged_in(request, url, error)
-
-    def conn_config(self, request, conn):
-        if conn.CONFIG['SERVICE_OPTS'] is None:
-            conn.CONFIG['SERVICE_OPTS'] = {}
-        if request.session.get('active_group'):
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
-        else:
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
 
     def prepare_session(self, request):
         """Prepares various session variables."""

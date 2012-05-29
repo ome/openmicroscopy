@@ -2163,33 +2163,35 @@ def avatar(request, oid=None, conn=None, **kwargs):
 @login_required()
 def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
+    kwargs['conn'] = conn
     return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
 @login_required()
 def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    # conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'     # This would allow cross-group viewing of thumbs
+    kwargs['conn'] = conn
     return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
 @login_required()
-def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
+def render_image_region (request, iid, z, t, server_id=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
 
 @login_required()
-def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
+def render_birds_eye_view (request, iid, size=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
 
 @login_required()
-def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
+def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
 
 @login_required()
-def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
+def image_viewer (request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
+    kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')   # remove any trailing slash
     return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
 
 @login_required()
@@ -2198,19 +2200,29 @@ def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
     return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
 
 @login_required()
-def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
+def render_row_plot (request, iid, z, t, y, w=1, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
 
 @login_required()
-def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
+def render_col_plot (request, iid, z, t, x, w=1, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
 
 @login_required()
-def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
+def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
+
+@login_required()
+def save_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.save_image_rdef_json(request, iid, share_id=share_id, **kwargs)
+
+@login_required()
+def reset_image_rdef_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.reset_image_rdef_json(request, iid, share_id=share_id, **kwargs)
 
 ####################################################################################
 # scripting service....
