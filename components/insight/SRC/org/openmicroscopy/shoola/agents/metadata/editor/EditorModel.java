@@ -885,7 +885,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
 		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
-		if (data == null) return false;
+		if (list == null) return false;
 		AnnotationLinkData link;
 		Iterator<AnnotationLinkData> i = list.iterator();
 		while (i.hasNext()) {
