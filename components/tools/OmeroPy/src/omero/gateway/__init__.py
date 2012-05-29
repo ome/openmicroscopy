@@ -3693,7 +3693,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     String
         """
         
-        return self.getFile().name
+        return self.getFile() and self.getFile().name or None
     
     def getFileInChunks(self):
         """
