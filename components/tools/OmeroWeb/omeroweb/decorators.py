@@ -297,24 +297,26 @@ class login_required(object):
                 except Exception, x:
                     logger.error('Error retrieving connection.', exc_info=True)
                     error = str(x)
+                else:
+                    # various configuration & checks only performed on new 'conn'
+                    if conn is None:
+                        return ctx.on_not_logged_in(request, url, error)
+                    else:
+                        ctx.on_logged_in(request, conn)
+                    ctx.verify_is_admin(conn)
+                    ctx.verify_is_group_owner(conn, kwargs.get('gid'))
 
-            if conn is None:
-                return ctx.on_not_logged_in(request, url, error)
-            else:
-                ctx.on_logged_in(request, conn)
-            ctx.verify_is_admin(conn)
-            ctx.verify_is_group_owner(conn, kwargs.get('gid'))
+                    share_id = kwargs.get('share_id')
+                    conn_share = ctx.prepare_share_connection(request, conn, share_id)
+                    if conn_share is not None:
+                        ctx.on_share_connection_prepared(request, conn_share)
+                        kwargs['conn'] = conn_share
+                    else:
+                        kwargs['conn'] = conn
 
-            share_id = kwargs.get('share_id')
-            conn_share = ctx.prepare_share_connection(request, conn, share_id)
-            if conn_share is not None:
-                ctx.on_share_connection_prepared(request, conn_share)
-                kwargs['conn'] = conn_share
-            else:
-                kwargs['conn'] = conn
-                
-            #kwargs['error'] = request.REQUEST.get('error')
-            kwargs['url'] = url
+                    #kwargs['error'] = request.REQUEST.get('error')
+                    kwargs['url'] = url
+
             retval = f(request, *args, **kwargs)
             try:
                 logger.debug('Doing connection cleanup? %s' % \
