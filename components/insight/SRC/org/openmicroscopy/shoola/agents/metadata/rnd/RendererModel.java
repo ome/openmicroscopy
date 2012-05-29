@@ -261,7 +261,11 @@ class RendererModel
 	 *  
 	 * @return See above.
 	 */
-	Color getChannelColor(int index) { return rndControl.getRGBA(index); }
+	Color getChannelColor(int index)
+	{ 
+		if (rndControl == null) return Color.white;
+		return rndControl.getRGBA(index);
+	}
 
 	/**
 	 * Returns the status of the window.
