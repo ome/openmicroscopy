@@ -270,21 +270,13 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("distinct fa");
                 qb.from("Image", "i");
-                qb.append(", ROI roi ");
-                qb.join("roi.annotationLinks", "rlinks", false, false);
-                qb.join("rlinks.child", "rfa", false, false);
-                qb.join("roi.imageLinks", "ilinks", false, false);
-                qb.join("ilinks.parent", "roiimage", false, false);
-                qb.join("i.wellSamples", "ws", false, false);
-                qb.join("ws.well", "well", false, false);
-                qb.join("well.plate", "plate", false, false);
-                qb.join("plate.annotationLinks", "links", false, false);
-                qb.join("links.child", "fa", false, false);
+                qb.join("i.roiLinks", "i_roi_link", false, false);
+                qb.join("i_roi_link.child", "roi", false, false);
+                qb.join("roi.annotationLinks", "roi_ann_link", false, false);
+                qb.join("roi_ann_link.child", "fa", false, false);
                 qb.where();
                 qb.and("fa.ns = '" + NSMEASUREMENT.value + "'");
-                qb.and("rfa.id = fa.id");
                 qb.and("i.id = :id");
-                qb.and("i.id = roiimage.id");
                 qb.param("id", imageId);
                 qb.filter("fa", filter(opts));
                 return qb.query(session).list();
@@ -297,8 +289,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         Query q = session
                 .createQuery("select distinct r from ROI r "
                         + "join r.imageLinks i_link join i_link.parent i "
-                        + "join fetch r.shapes join i.wellSamples ws join ws.well well "
-                        + "join well.plate plate join plate.annotationLinks links "
+                        + "join fetch r.shapes join r.annotationLinks links "
                         + "join links.child a where a.id = :aid and i.id = :iid "
                         + "order by r.id");
         q.setParameter("iid", imageId);
