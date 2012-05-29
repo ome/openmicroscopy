@@ -559,7 +559,15 @@ public class MoveGroupSelectionDialog
 	public void valueChanged(TreeSelectionEvent e)
 	{
 		TreePath[] paths = treeDisplay.getSelectionPaths();
-		//moveButton.setEnabled(paths != null && paths.length > 0);
+		if (paths == null || paths.length == 0) {
+			moveButton.setEnabled(false);
+			return;
+		}
+		Object p = paths[0].getLastPathComponent();
+		if (p instanceof TreeImageDisplay) {
+			Object ho = ((TreeImageDisplay) p).getUserObject();
+			moveButton.setEnabled(ho.getClass().equals(containerType));
+		}
 	}
 
 }
