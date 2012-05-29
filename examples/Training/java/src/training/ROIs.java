@@ -35,10 +35,10 @@ import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.model.EllipseI;
 import omero.model.Image;
-import omero.model.Rect;
-import omero.model.RectI;
-import omero.model.Roi;
-import omero.model.RoiI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
+import omero.model.ROI;
+import omero.model.ROII;
 import omero.model.Shape;
 import pojos.EllipseData;
 import pojos.LineData;
@@ -80,7 +80,7 @@ public class ROIs
 	private void createROIs()
 		throws Exception
 	{
-		Roi roi = new RoiI();
+		ROI roi = new ROII();
         roi.setImage(image);
         Rect rect = new RectI();
         rect.setX(omero.rtypes.rdouble(10));
@@ -115,7 +115,7 @@ public class ROIs
         
         //Add the shape
         roi.addShape(ellipse);
-        roi = (Roi) entryUnencrypted.getUpdateService().saveAndReturnObject(roi);
+        roi = (ROI) entryUnencrypted.getUpdateService().saveAndReturnObject(roi);
         
         //now check that the shape has been added.
         ROIData roiData = new ROIData(roi);
@@ -149,11 +149,11 @@ public class ROIs
         		image.getId().getValue(), new RoiOptions());
         if (r == null)
         	throw new Exception("No rois linked to Image:"+image.getId().getValue());
-        List<Roi> rois = r.rois;
+        List<ROI> rois = r.rois;
         if (rois == null)
         	throw new Exception("No rois linked to Image:"+image.getId().getValue());
         List<Shape> list;
-        Iterator<Roi> j = rois.iterator();
+        Iterator<ROI> j = rois.iterator();
         while (j.hasNext()) {
 			roi = j.next();
 			list = roi.copyShapes();

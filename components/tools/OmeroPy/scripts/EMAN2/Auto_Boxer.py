@@ -256,7 +256,7 @@ class Target():
         height = self.box_size
 
         # create an ROI, add the rectangle and save
-        roi = omero.model.RoiI()
+        roi = omero.model.ROII()
         roi.setImage(self.image)
         if roiText:
             roi.description = rstring(roiText)        # use as a flag to identify ROI (e.g. to delete)

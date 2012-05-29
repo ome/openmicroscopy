@@ -22,7 +22,7 @@ class TestRois(lib.ITest):
         Checks for NPE when a shape is null
         """
         img = self.new_image("#3703")
-        roi = omero.model.RoiI()
+        roi = omero.model.ROII()
         roi.addShape(omero.model.RectangleI())
         roi.addShape(omero.model.RectangleI())
         roi.setShape(0, None)

@@ -10,8 +10,8 @@ public class Main {
         omero.client client = new omero.client();
         try {
             ServiceFactoryPrx sf = client.createSession();
-            Roi roi = createRoi();
-            roi = (Roi) sf.getUpdateService().saveAndReturnObject( roi );
+            ROI roi = createRoi();
+            roi = (ROI) sf.getUpdateService().saveAndReturnObject( roi );
             System.out.println("Roi:" + roi.getId().getValue());
             Image image = roi.getImage();
 
@@ -31,7 +31,7 @@ public class Main {
 
     }
 
-    public static Roi createRoi() {
+    public static ROI createRoi() {
 
 		RInt GREY = rint(11184810);
         CommentAnnotation comment = new CommentAnnotationI();
@@ -48,7 +48,7 @@ public class Main {
         ofile.setSize(rlong(0));
         ofile.setMimetype(rstring("text/xml"));
 
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setDescription(rstring("An example ROI with lots of shapes"));
         roi.setImage(image);              // Image container
         roi.linkAnnotation(comment);      // Annotated like Image

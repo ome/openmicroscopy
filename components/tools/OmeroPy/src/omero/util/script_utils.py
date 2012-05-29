@@ -674,7 +674,7 @@ def uploadCecogObjectDetails(updateService, imageId, filePath):
     for object, shapes in objects.items():
 
         # create an ROI, add the point and save
-        roi = omero.model.RoiI()
+        roi = omero.model.ROII()
         roi.setImage(omero.model.ImageI(imageId, False))
         roi.setDescription(omero.rtypes.rstring("objID: %s" % object))
 

@@ -533,7 +533,7 @@ def addRectangleRoi(updateService, x, y, width, height, image):
     """
 
     # create an ROI, add the rectangle and save
-    roi = omero.model.RoiI()
+    roi = omero.model.ROII()
     roi.setImage(image)
     r = updateService.saveAndReturnObject(roi) 
 

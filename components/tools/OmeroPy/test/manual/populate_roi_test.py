@@ -30,7 +30,7 @@ from omero.util.populate_roi import *
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
-from omero.model import OriginalFileI, PlateI, WellI, WellSampleI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
+from omero.model import OriginalFileI, PlateI, WellI, WellSampleI, PlateAnnotationLinkI, ImageI, FileAnnotationI, ROII, EllipseI
 
 class TestingServiceFactory(object):
     """

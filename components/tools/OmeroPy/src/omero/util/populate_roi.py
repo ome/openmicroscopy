@@ -39,7 +39,7 @@ from Queue import Queue
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
-                        FileAnnotationI, RoiI, EllipseI, PointI
+                        FileAnnotationI, ROII, EllipseI, PointI
 from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, DoubleColumn
 from omero.util.temp_files import create_path, remove_path
 from omero import client
@@ -798,7 +798,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         batches = dict()
         for i, image_id in enumerate(image_ids):
             unloaded_image = ImageI(image_id, False)
-            roi = RoiI()
+            roi = ROII()
             shape = EllipseI()
             values = columns[6].values
             diameter = rdouble(float(values[i]))
@@ -840,7 +840,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         batches = dict()
         for i, image_id in enumerate(image_ids):
             unloaded_image = ImageI(image_id, False)
-            roi = RoiI()
+            roi = ROII()
             shape = PointI()
             shape.theZ = rint(0)
             shape.theT = rint(0)
@@ -1158,7 +1158,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             unloaded_image = ImageI(image_id, False)
             if False in nuclei_expected:
                 # Cell centre of gravity
-                roi = RoiI()
+                roi = ROII()
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)
@@ -1170,7 +1170,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 rois.append(roi)
             elif False in cells_expected:
                 # Nucleus centre of gravity
-                roi = RoiI()
+                roi = ROII()
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)

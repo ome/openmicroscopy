@@ -42,7 +42,7 @@ try
     ellipse.setTheT(omero.rtypes.rint(0));
     
     % Create the roi.
-    roi = omero.model.RoiI;
+    roi = omero.model.ROII;
     % Attach the shape to the roi, several shapes can be added.
     roi.addShape(rect);
     roi.addShape(ellipse);
@@ -55,7 +55,7 @@ try
     numShapes = roi.sizeOfShapes;
     for ns = 1:numShapes
        shape = roi.getShape(ns-1);
-       if (isa(shape, 'omero.model.Rect'))
+       if (isa(shape, 'omero.model.Rectangle'))
            %handle rectangle
            rectangle = shape;
            rectangle.getX().getValue()

@@ -47,7 +47,7 @@ print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height
         (theZ, theT, x, y, width, height)
 
 # create an ROI, link it to Image
-roi = omero.model.RoiI()
+roi = omero.model.ROII()
 roi.setImage(image._obj)    # use the omero.model.ImageI that underlies the 'image' wrapper
 
 # create a rectangle shape and add to ROI
