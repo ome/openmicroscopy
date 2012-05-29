@@ -128,4 +128,7 @@ public class Color implements Serializable, ome.util.Filterable {
         return false;
     }
 
+    public Color shallowCopy() {
+        return new Color(this.color);
+    }
 }

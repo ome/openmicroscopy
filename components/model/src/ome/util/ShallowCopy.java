@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.conditions.InternalException;
+import ome.model.core.Color;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.util.Filter;
@@ -59,6 +60,10 @@ class SetValues implements Filter {
         }
         if (Details.class.isAssignableFrom(f.getClass())) {
             target.putAt(fieldId, ((Details) f).shallowCopy());
+        }
+
+        else if (Color.class.isAssignableFrom(f.getClass())) {
+            target.putAt(fieldId, ((Color) f).shallowCopy());
         }
 
         else if (IObject.class.isAssignableFrom(f.getClass())) {
