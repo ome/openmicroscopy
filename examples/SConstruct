@@ -28,6 +28,7 @@
 #     run_java=1         # Causes Java files to be executed
 #     run_cpp=1          # Causes C++ files to be executed
 #     no_cpp=1           # Prevents building the C++ files
+#     no_java=1          # Prevents building the Java files
 #     run_py=1           # Causes Python files to be executed
 #
 #
@@ -73,7 +74,24 @@ opts.Add(BoolVariable('run_java', 'Execute Java build artifacts', 0))
 opts.Add(BoolVariable('run_cpp', 'Execute C++ build artifacts', 0))
 opts.Add(BoolVariable('run_py', 'Execute Python build artifacts', 0))
 opts.Add(BoolVariable('no_cpp', 'Skip building all C++ artifacts', 0))
+opts.Add(BoolVariable('no_java', 'Skip building all Java artifacts', 0))
 
+# Adding to allow re-use of scons_py Ant macro
+AddOption('--release',
+            dest='release',
+            type='string',
+            nargs=1,
+            action='store',
+            metavar='RELEASE',
+            help='Release version [debug (default) or Os]')
+
+AddOption('--arch',
+            dest='arch',
+            type='string',
+            nargs=1,
+            action='store',
+            metavar='ARCH',
+            help='Architecture to build for [x86, x64, or detect (default)]')
 #
 # ENVIRONMENT: ===================================================
 #
@@ -170,14 +188,15 @@ def get_targets(env, subdir, name):
     targets = []
 
     # Java
-    javac = env.Java(".",".")
-    targets.append(javac)
-    if env["run"] or env["run_java"]:
-        env['ENV']['CLASSPATH'] = os.path.pathsep.join([ env['ENV']['CLASSPATH'], subdir ])
-        run = env.Alias(_(["%s"%subdir, "%s.class"%name]), [], "java -ea %s " % name)
-        Depends(run, javac)
-        env.AlwaysBuild(run)
-        targets.append(run)
+    if not env["no_java"]:
+        javac = env.Java(".",".")
+        targets.append(javac)
+        if env["run"] or env["run_java"]:
+            env['ENV']['CLASSPATH'] = os.path.pathsep.join([ env['ENV']['CLASSPATH'], subdir ])
+            run = env.Alias(_(["%s"%subdir, "%s.class"%name]), [], "java -ea %s " % name)
+            Depends(run, javac)
+            env.AlwaysBuild(run)
+            targets.append(run)
 
     # Python
     if env["run"] or env["run_py"]:
@@ -225,8 +244,9 @@ for src_dir in glob.glob("*"):
         #
         # Java
         #
-        javac = env.Java(src_dir, src_dir)
-        targets.append(javac)
+        if not env["no_java"]:
+            javac = env.Java(src_dir, src_dir)
+            targets.append(javac)
 
         if env["run"] or env["run_java"]:
             java_files = glob.glob(os.path.join(src_dir, "*.java"))
