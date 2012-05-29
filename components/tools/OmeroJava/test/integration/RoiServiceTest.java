@@ -18,6 +18,7 @@ import java.util.UUID;
 
 //Third-party libraries
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 //Application-internal dependencies
 import omero.api.IRoiPrx;
@@ -91,7 +92,7 @@ public class RoiServiceTest
         int n = shapes.size();
         roi = (ROII) iUpdate.saveAndReturnObject(roi);
         shapes = roi.copyShapes();
-        assertTrue(shapes.size() == (n-1));
+        Assert.assertEquals(shapes.size(), n - 1);
     }
 
 	/**
@@ -123,15 +124,15 @@ public class RoiServiceTest
         IRoiPrx svc = factory.getRoiService();
         RoiResult r = svc.findByImage(image.getId().getValue(), 
         		new RoiOptions());
-        assertNotNull(r);
+        Assert.assertNotNull(r);
         List<ROI> rois = r.rois;
-        assertTrue(rois.size() == 1);
+        Assert.assertEquals(rois.size(), 1);
         List<Shape> shapes;
         Iterator<ROI> i = rois.iterator();
         while (i.hasNext()) {
 			roi = i.next();
 			shapes = roi.copyShapes();
-			assertTrue(shapes.size() == 3);
+			Assert.assertEquals(shapes.size(), 3);
 		}
     }
 	
@@ -182,7 +183,7 @@ public class RoiServiceTest
 		IRoiPrx svc = factory.getRoiService();
 		List<Annotation> l = 
 			svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == 0);
+		Assert.assertEquals(l.size(), 0);
 		
 		//create measurements.
 		//First create a table
@@ -191,9 +192,9 @@ public class RoiServiceTest
 		Column[] columns = new Column[1];
 		columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
-		assertNotNull(table);
+		Assert.assertNotNull(table);
 		OriginalFile of = table.getOriginalFile();
-		assertTrue(of.getId().getValue() > 0);
+		Assert.assertTrue(of.getId().getValue() > 0);
 		FileAnnotation fa = new FileAnnotationI();
 		fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS)); 
 		fa.setFile(of);
@@ -211,8 +212,8 @@ public class RoiServiceTest
 		iUpdate.saveAndReturnArray(links);
 		
 		l = svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == 1);
-		assertTrue(l.get(0) instanceof FileAnnotation);
+		Assert.assertEquals(l.size(), 1);
+		Assert.assertTrue(l.get(0) instanceof FileAnnotation);
 		//Now create another file annotation linked to the ROI
 
 		links.clear();
@@ -232,7 +233,7 @@ public class RoiServiceTest
 		iUpdate.saveAndReturnArray(links);
 		//we should still have one
 		l = svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == 1);
+		Assert.assertEquals(l.size(), 1);
     }
     
 	/**
@@ -315,16 +316,16 @@ public class RoiServiceTest
 
 		List<Annotation> l = 
 			svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == n);
+		Assert.assertEquals(l.size(), n);
 		FileAnnotation f = (FileAnnotation) l.get(0);
 		
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(f.getId().getValue());
 		Map<Long, RoiResult> values = svc.getMeasuredRoisMap(
 				image.getId().getValue(), ids, options);
-		assertNotNull(values);
-		assertTrue(values.size() == 1);
-		assertNotNull(values.get(f.getId().getValue()));
+		Assert.assertNotNull(values);
+		Assert.assertEquals(values.size(), 1);
+		Assert.assertNotNull(values.get(f.getId().getValue()));
     }
     
 	/**
@@ -379,7 +380,7 @@ public class RoiServiceTest
 		columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
 		OriginalFile of = table.getOriginalFile();
-		assertTrue(of.getId().getValue() > 0);
+		Assert.assertTrue(of.getId().getValue() > 0);
 		FileAnnotation fa = new FileAnnotationI();
 		fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS)); 
 		fa.setFile(of);
@@ -400,9 +401,9 @@ public class RoiServiceTest
 		FileAnnotation f = (FileAnnotation) l.get(0);
 		
 		table = svc.getTable(f.getId().getValue());
-		assertNotNull(table);
+		Assert.assertNotNull(table);
 		Column[] cols = table.getHeaders();
-		assertTrue(cols.length == columns.length);
+		Assert.assertEquals(cols.length, columns.length);
     }
     
 }
