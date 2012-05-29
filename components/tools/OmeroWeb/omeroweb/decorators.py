@@ -59,7 +59,7 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True, omero_group=None):
+                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1'):
         """
         Initialises the decorator.
         """
