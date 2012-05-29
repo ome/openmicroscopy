@@ -351,6 +351,29 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
+    <target name="examples-cpp" description="Build and run OmeroCpp examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="builddir=${dist.dir}"/>
+            <arg value="run_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-java" description="Build and run OmeroJava examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="run_java=1"/>
+            <arg value="no_cpp=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-py" description="Build and run OmeroPy examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="run_py=1"/>
+            <arg value="no_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
+    </target>
+
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
