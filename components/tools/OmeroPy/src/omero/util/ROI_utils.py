@@ -340,7 +340,7 @@ class EllipseData(ShapeData, ROIDrawingI):
         visitor.drawEllipse(self.x.getValue(), self.y.getValue(), self.radiusX.getValue(), self.radiusY.getValue(), self.shapeSettings.getSettings());
         
 ##
-# The RectangleData class contains all the manipulation and create of RectI
+# The RectangleData class contains all the manipulation and create of RectangleI
 # types.
 # It also accepts the ROIDrawingUtils visitor for drawing rectangles.
 #

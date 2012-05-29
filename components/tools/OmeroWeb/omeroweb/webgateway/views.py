@@ -741,7 +741,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     shape = {}
     theT = s.getTheT().getValue()
     theZ = s.getTheZ().getValue()
-    if type(s) == omero.model.RectI:
+    if type(s) == omero.model.RectangleI:
         shape['type'] = 'Rectangle'
         shape['x'] = s.getX().getValue()
         shape['y'] = s.getY().getValue()

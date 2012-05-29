@@ -290,7 +290,7 @@ class TestEmanScripts(lib.ITest):
         rectCount = 0
         for roi in result.rois:
             for shape in roi.copyShapes():
-                if type(shape) == omero.model.RectI:
+                if type(shape) == omero.model.RectangleI:
                     width = shape.getWidth().getValue()
                     height = shape.getHeight().getValue()
                     self.assertEquals(330, width)
@@ -538,7 +538,7 @@ def addRectangleRoi(updateService, x, y, width, height, image):
     r = updateService.saveAndReturnObject(roi) 
 
     # create and save a rectangle shape
-    rect = omero.model.RectI()
+    rect = omero.model.RectangleI()
     rect.x = rdouble(x)
     rect.y = rdouble(y)
     rect.width = rdouble(width)

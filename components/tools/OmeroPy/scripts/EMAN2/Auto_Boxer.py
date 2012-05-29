@@ -264,7 +264,7 @@ class Target():
         
 
         # create and save a rectangle shape
-        rect = omero.model.RectI()
+        rect = omero.model.RectangleI()
         rect.x = rdouble(x)
         rect.y = rdouble(y)
         rect.width = rdouble(width)
@@ -314,7 +314,7 @@ def getRectangles(roiService, updateService, imageId, boxSize=None, deleteType=N
             updateService.deleteObject(roi)
             continue    # don't add this ROI to our list 
         for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
+            if type(shape) == omero.model.RectangleI:
                 x = shape.getX().getValue()
                 y = shape.getY().getValue()
                 width = int(shape.getWidth().getValue())

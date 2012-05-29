@@ -23,7 +23,7 @@ try
     %Create ROI. In this example, we create an ROI with a rectangular shape and
     %attach it to an image. 
     % First create a rectangular shape.
-    rect = omero.model.RectI;
+    rect = omero.model.RectangleI;
     rect.setX(omero.rtypes.rdouble(0));
     rect.setY(omero.rtypes.rdouble(0));
     rect.setWidth(omero.rtypes.rdouble(10));

@@ -82,7 +82,7 @@ public class ROIs
 	{
 		ROI roi = new ROII();
         roi.setImage(image);
-        Rect rect = new RectI();
+        Rectangle rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
         rect.setWidth(omero.rtypes.rdouble(10));
@@ -92,7 +92,7 @@ public class ROIs
         roi.addShape(rect);
         
         //Create a rectangular shape
-        rect = new RectI();
+        rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
         rect.setWidth(omero.rtypes.rdouble(10));
