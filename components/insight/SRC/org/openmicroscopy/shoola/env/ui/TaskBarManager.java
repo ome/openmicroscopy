@@ -505,7 +505,7 @@ public class TaskBarManager
 					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
-						reconnectDialog = null;
+						if (success) reconnectDialog = null;
 					}
 				}
 			}
@@ -835,6 +835,7 @@ public class TaskBarManager
 		uc.setGroup(lc.getGroup());
 		LoginService svc = (LoginService) 
 			container.getRegistry().lookup(LookupNames.LOGIN);
+		success = false;
 		switch (svc.login(uc)) {
 			case LoginService.CONNECTED:
 				//needed b/c need to retrieve user's details later.
