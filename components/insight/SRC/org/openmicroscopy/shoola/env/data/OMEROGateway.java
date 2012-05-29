@@ -7328,6 +7328,52 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Loads the groups the experimenters.
+	 * 
+	 * @param ctx The security context.
+	 * @param id The group identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<GroupData> loadGroupsForExperimenter(SecurityContext ctx, long id)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		List<GroupData> pojos = new ArrayList<GroupData>();
+		try {
+			IQueryPrx svc = getQueryService(ctx);
+			List<ExperimenterGroup> groups = null;
+			ParametersI p = new ParametersI();
+			p.addId(id);
+			groups = (List) svc.findAllByQuery("select distinct g " +
+					"from ExperimenterGroup g "
+	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch m.child u "
+	                + " where u.id = :id", p);
+			ExperimenterGroup group;
+			GroupData pojoGroup;
+			Iterator<ExperimenterGroup> i = groups.iterator();
+			while (i.hasNext()) {
+				group = i.next();
+				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
+				if (!isSystemGroup(group)) 
+					pojos.add(pojoGroup);	
+				else {
+					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
+						pojos.add(pojoGroup);	
+				}
+			}
+			return pojos;
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the available groups ");
+		}
+		return pojos;
+	}
+	
+	/**
 	 * Loads the experimenters contained in the specified group or all
 	 * experimenters if the value passed is <code>-1</code>.
 	 * 
