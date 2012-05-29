@@ -115,7 +115,7 @@ public interface RenderingControl
     public static final String  RGB = "RGB";
 
     /** Identifies the <code>Grey scale</code> color model. */
-    public static final String  GREY_SCALE = "greyscale";
+    public static final String  GREY_SCALE = "Greyscale";
     
     /** Identifies the <code>Linear</code> family. */
     public static final String  LINEAR = "linear";

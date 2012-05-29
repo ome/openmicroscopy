@@ -127,7 +127,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.load();
         List<RenderingModel> models = re.getAvailableModels();
         RenderingModel rgbModel = getModel(models, "RGB");
-        RenderingModel greyscaleModel = getModel(models, "greyscale");
+        RenderingModel greyscaleModel = getModel(models, "Greyscale");
         assertEquals(greyscaleModel.getId(), re.getModel().getId());
         Map<Long, byte[]> thumbnails = tb.getThumbnailByLongestSideSet(
                 96, Collections.singleton(pix.getId()));
@@ -158,7 +158,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.load();
         List<RenderingModel> models = re.getAvailableModels();
         RenderingModel rgbModel = getModel(models, "RGB");
-        RenderingModel greyscaleModel = getModel(models, "greyscale");
+        RenderingModel greyscaleModel = getModel(models, "Greyscale");
         assertEquals(greyscaleModel.getId(), re.getModel().getId());
         Map<Long, byte[]> thumbnails = tb.getThumbnailSet(
                 96, 96, Collections.singleton(pix.getId()));

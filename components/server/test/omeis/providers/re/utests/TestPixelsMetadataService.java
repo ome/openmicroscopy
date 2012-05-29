@@ -23,7 +23,7 @@ public class TestPixelsMetadataService implements IPixels {
 		new String[] { "linear", "polynomial", "exponential", "logarithmic" };
 	
 	private static final String[] MODELS =
-		new String[] { "RGB", "greyscale" };
+		new String[] { "RGB", "Greyscale" };
 
 	public Long copyAndResizeImage(long arg0, Integer arg1, Integer arg2,
 			Integer arg3, Integer arg4, List<Integer> arg5, String arg6,

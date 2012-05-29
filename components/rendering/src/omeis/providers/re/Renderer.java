@@ -84,7 +84,7 @@ public class Renderer {
     public static final int		MAX_CHANNELS = 8;
     
     /** Identifies the type used to store model values. */
-    public static final String MODEL_GREYSCALE = "greyscale";
+    public static final String MODEL_GREYSCALE = "Greyscale";
 
     /** Identifies the type used to store model values. */
     public static final String MODEL_RGB = "RGB";

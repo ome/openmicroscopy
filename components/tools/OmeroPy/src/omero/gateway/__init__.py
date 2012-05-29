@@ -6163,7 +6163,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         rm = self.getRenderingModels()
-        self._re.setModel(self._rm.get('greyscale', rm[0])._obj)
+        self._re.setModel(self._rm.get('Greyscale', rm[0])._obj)
 
     def setColorRenderingModel (self):
         """
@@ -6175,12 +6175,12 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def isGreyscaleRenderingModel (self):
         """
-        Returns True if the current rendering model is 'greyscale'
+        Returns True if the current rendering model is 'Greyscale'
         
         @return:    isGreyscale
         @rtype:     Boolean
         """
-        return self.getRenderingModel().value.lower() == 'greyscale'
+        return self.getRenderingModel().value.lower() == 'Greyscale'
 
     @assert_re()
     def renderBirdsEyeView (self, size):

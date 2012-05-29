@@ -226,7 +226,7 @@ abstract class RenderingStrategy {
         	//return new RGBStrategy();
         	return new HSBStrategy();
         }
-        log.warn("WARNING: Unknown model '" + value + "' using greyscale.");
+        log.warn("WARNING: Unknown model '" + value + "' using Greyscale.");
         return new GreyScaleStrategy();
     }
 
