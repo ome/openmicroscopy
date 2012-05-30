@@ -43,7 +43,6 @@ import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.graphs.ChgrpI;
 import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ImageI;
@@ -95,12 +94,9 @@ public class DoAllITest extends AbstractGraphTest {
      * @return
      */
     SaveI addImageToNewDataset(long newGroupID, Image i) throws Exception {
-        ExperimenterGroup g = new ExperimenterGroupI(newGroupID, false);
         DatasetI d = new DatasetI();
-        d.getDetails().setGroup(g);
         d.setName(rstring("NewDoAllData"));
-        DatasetImageLink link = d.linkImage(new ImageI(i.getId(), false));
-        link.getDetails().setGroup(g);	
+        d.linkImage(new ImageI(i.getId(), false));
         SaveI save = new SaveI();
         save.obj = d;
         return save;
@@ -147,7 +143,7 @@ public class DoAllITest extends AbstractGraphTest {
         Request save = addImageToNewDataset(newGroupID, data.i);
         all.requests = Arrays.asList(chgrp, save);
 
-        _HandleTie handle = submit(all);
+        _HandleTie handle = submit(all, newGroupID); // Login to newGroupID
         block(handle, 5, 1000);
         DoAllRsp rsp = (DoAllRsp) assertSuccess(handle);
         assertSuccess(rsp.responses.get(0));
