@@ -537,7 +537,13 @@ def roiFigure(conn, commandArgs):
     message += logMessage
     if not images:
         return None, message
-
+    
+    # Check for rectangular ROIs and filter images list
+    images = [image for image in images if image.getROICount("Rect")>0]
+    if not images:
+        message += "No rectangle ROI found."
+        return None, message
+    
     # Attach figure to the first image
     omeroImage = images[0]  
           
@@ -663,8 +669,10 @@ def roiFigure(conn, commandArgs):
     #fig.show()        # bug-fixing only
 
     if fig is None:
-        log("\nNo Figure produced - probably due to NO rectangle ROIs being found for the specified images")
-        return
+        logMessage = "No figure produced"
+        log("\n"+logMessage)
+        message += logMessage
+        return None, message
     figLegend = "\n".join(logStrings)
     
     #print figLegend    # bug fixing only

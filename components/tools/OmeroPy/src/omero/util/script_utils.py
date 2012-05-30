@@ -365,7 +365,7 @@ def getObjects(conn, params):
         if not len(objects) == len(ids):
             message += "Found %s out of %s %s%s(s). " % (len(objects), len(ids), dataType[0].lower(), dataType[1:])
     return objects, message
-    
+
 def addAnnotationToImage(updateService, image, annotation):
     """
     Add the annotation to an image.

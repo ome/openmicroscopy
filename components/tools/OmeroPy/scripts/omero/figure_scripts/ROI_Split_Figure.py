@@ -584,7 +584,13 @@ def roiFigure(conn, commandArgs):
     message += logMessage
     if not images:
         return None, message
-
+    
+    # Check for rectangular ROIs and filter images list
+    images = [image for image in images if image.getROICount("Rect")>0]
+    if not images:
+        message += "No rectangle ROI found."
+        return None, message
+    
     # Attach figure to the first image
     omeroImage = images[0]
     
@@ -726,8 +732,11 @@ def roiFigure(conn, commandArgs):
     fig = getSplitView(conn, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
             mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, roiLabel)
     
-    if fig == None:        # e.g. No ROIs found
-        return                                                
+    if fig is None:
+        logMessage = "No figure produced"
+        log("\n"+logMessage)
+        message += logMessage
+        return None, message
     #fig.show()        # bug-fixing only
     
     log("")
