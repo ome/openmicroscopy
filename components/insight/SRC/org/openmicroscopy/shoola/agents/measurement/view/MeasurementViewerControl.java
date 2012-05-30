@@ -173,6 +173,9 @@ class MeasurementViewerControl
     /** Maps actions identifiers onto actual <code>Action</code> object. */
     private Map<Integer, MeasurementViewerAction>	actionsMap;
     
+    /** Flag indicating that the shape is removed via the delete key.*/
+    private boolean keyRemove;
+    
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -571,18 +574,20 @@ class MeasurementViewerControl
 	public void figureRemoved(DrawingEvent e)
 	{
 		if (model.getState() != MeasurementViewer.READY) return;
+		System.err.println("remove");
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) {
 			ROIFigure roi = (ROIFigure) f;
-			/*
-			if (roi.isReadOnly() || !roi.canDelete()) {
-				view.getDrawing().removeDrawingListener(this);
-				view.getDrawing().add(roi);
-				view.getDrawing().addDrawingListener(this);
-				return;
+			if (keyRemove) {
+				if (roi.isReadOnly() || !roi.canDelete()) {
+					view.getDrawing().removeDrawingListener(this);
+					view.getDrawing().add(roi);
+					view.getDrawing().addDrawingListener(this);
+					return;
+				}
+				view.markROIForDelete(roi);
+				keyRemove = false;
 			}
-			view.markROIForDelete(roi);
-			*/
 			view.removeROI(roi);
 			model.setDataChanged();
 		}
@@ -660,6 +665,9 @@ class MeasurementViewerControl
 	 */
 	public void keyPressed(KeyEvent e)
 	{
+		keyRemove = false;
+		if (e.getKeyCode() == KeyEvent.VK_DELETE)
+			keyRemove = true;
 		char ANALYSECHAR = 'a';
 		if (e.getKeyChar() == ANALYSECHAR) {
 			Collection<Figure> selectedFigures = 
