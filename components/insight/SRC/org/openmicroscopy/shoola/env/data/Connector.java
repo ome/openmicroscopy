@@ -764,7 +764,6 @@ class Connector
 			return null;
 		DoAll all = new DoAll();
 		all.requests = commands;
-		all.session = getAdminService().getEventContext().sessionUuid;
 		if (entryUnencrypted != null) {
 			return new RequestCallback(getClient(), 
 					entryUnencrypted.submit(all));

@@ -24,6 +24,8 @@ module omero {
 
         dictionary<string, string> StringMap;
 
+        sequence<StringMap> StringMapList;
+
         enum State {
             ALL, ACTIVE, INACTIVE, SUCCESS, FAILURE, CANCELLED
         };
@@ -52,7 +54,6 @@ module omero {
         sequence<Status> StatusList;
 
         class Request {
-            string session;
         };
 
         ["java:type:java.util.ArrayList<omero.cmd.Request>:java.util.List<omero.cmd.Request>"]

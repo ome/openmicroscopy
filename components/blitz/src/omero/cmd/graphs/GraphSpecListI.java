@@ -75,7 +75,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
             for (GraphEntry entry : spec.entries()) {
                 options.put(entry.getName(), entry.getOpString());
             }
-            cmds.add(new GraphModify("", key, -1l, options));
+            cmds.add(new GraphModify(key, -1l, options));
         }
 
         rsp.list = cmds;

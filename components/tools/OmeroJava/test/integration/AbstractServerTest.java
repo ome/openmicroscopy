@@ -1029,12 +1029,11 @@ public class AbstractServerTest
      * @param perms
      * @return
      */
-    Chmod createChmodCommand(String session, String type, long id, 
-    		String perms)
+    Chmod createChmodCommand(String type, long id, String perms)
     {
-    	return new Chmod(session, type, id, null, perms);
+	return new Chmod(type, id, null, perms);
     }
-    
+
     /**
      * Asynchronous command for a single delete, this means a single 
      * report is returned for testing. 

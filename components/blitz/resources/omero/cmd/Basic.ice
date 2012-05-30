@@ -16,7 +16,15 @@ module omero {
     module cmd {
 
         class DoAll extends Request {
+
             RequestList requests;
+
+            /**
+             * List of call context objects which should get applied to each Request.
+             * The list need only be as large as necessary to apply to a given request.
+             * Null and empty [StringMap] instances will be ignored.
+             **/
+            StringMapList contexts;
         };
 
         class DoAllRsp extends OK {
