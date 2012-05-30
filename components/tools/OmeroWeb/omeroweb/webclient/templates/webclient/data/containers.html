@@ -105,6 +105,7 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
+                                  tree_selection_changed();   // clear center and right panels etc
                                   datatree.delete_node(selected);
                                   first_parent.children("a").click();
                                   refreshActivities();
