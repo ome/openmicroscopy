@@ -658,7 +658,7 @@ class ImporterComponent
 	 */
 	public GroupData getSelectedGroup()
 	{
-		Set m = ImporterAgent.getAvailableUserGroups();
+		Collection m = ImporterAgent.getAvailableUserGroups();
 		if (m == null) return null;
 		Iterator i = m.iterator();
 		long id = model.getGroupId();

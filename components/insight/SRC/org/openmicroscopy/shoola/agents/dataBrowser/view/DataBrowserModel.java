@@ -869,7 +869,7 @@ abstract class DataBrowserModel
 	 */
 	boolean isSingleGroup()
 	{
-		Set l = DataBrowserAgent.getAvailableUserGroups();
+		Collection l = DataBrowserAgent.getAvailableUserGroups();
 		return l.size() <= 1;
 	}
 	
@@ -881,7 +881,7 @@ abstract class DataBrowserModel
 	 */
 	GroupData getGroup(long groupId)
 	{
-		Set groups = DataBrowserAgent.getAvailableUserGroups();
+		Collection groups = DataBrowserAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;

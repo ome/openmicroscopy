@@ -896,7 +896,7 @@ class TreeViewerControl
 	List<GroupSelectionAction> getUserGroupAction(boolean add)
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Set m = TreeViewerAgent.getAvailableUserGroups();
+		Collection m = TreeViewerAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();

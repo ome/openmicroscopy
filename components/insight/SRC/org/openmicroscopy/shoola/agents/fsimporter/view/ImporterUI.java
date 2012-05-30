@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -676,7 +675,7 @@ class ImporterUI
      */
     JComponent buildToolBar()
     {
-        Set set = ImporterAgent.getAvailableUserGroups();
+    	Collection set = ImporterAgent.getAvailableUserGroups();
         if (set == null || set.size() <= 1) return null;
         
     	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);

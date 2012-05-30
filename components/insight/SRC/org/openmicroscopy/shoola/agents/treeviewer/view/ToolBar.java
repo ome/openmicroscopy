@@ -729,7 +729,7 @@ class ToolBar
 		groupContext.setText(group.getName());
 		groupContext.setToolTipText(desc);
 
-        Set set = TreeViewerAgent.getAvailableUserGroups();
+        Collection set = TreeViewerAgent.getAvailableUserGroups();
         boolean b = set != null && set.size() > 1;
         menuButton.setVisible(b);
     	groupContext.setVisible(b);

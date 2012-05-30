@@ -426,7 +426,7 @@ class EditorModel
 	 */
 	private GroupData getGroup(long groupId)
 	{
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;
@@ -1159,7 +1159,7 @@ class EditorModel
 	boolean isGroupLeader()
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return false;
 		long groupID = exp.getDefaultGroup().getId();
 		Iterator i = groups.iterator();

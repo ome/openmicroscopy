@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -258,9 +258,9 @@ public class MeasurementAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
     /**

@@ -25,9 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -108,9 +108,9 @@ public class MetadataViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -134,7 +134,7 @@ public class MetadataViewerAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Set groups = getAvailableUserGroups();
+		Collection groups = getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {

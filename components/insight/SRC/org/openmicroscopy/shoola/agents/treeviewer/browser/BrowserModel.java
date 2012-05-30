@@ -956,7 +956,7 @@ class BrowserModel
 	 */
 	boolean isSingleGroup()
 	{
-		Set l = TreeViewerAgent.getAvailableUserGroups();
+		Collection l = TreeViewerAgent.getAvailableUserGroups();
 		return l.size() <= 1;
 	}
 

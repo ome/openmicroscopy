@@ -2003,7 +2003,7 @@ public class ImportDialog
      */
     boolean isSingleGroup()
     { 
-    	Set l = ImporterAgent.getAvailableUserGroups();
+    	Collection l = ImporterAgent.getAvailableUserGroups();
     	return (l.size() <= 1);
     }
     

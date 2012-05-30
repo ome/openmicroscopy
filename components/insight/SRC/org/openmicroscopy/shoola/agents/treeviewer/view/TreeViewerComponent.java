@@ -181,7 +181,7 @@ class TreeViewerComponent
 	 */
 	private String getGroupName(long groupId)
 	{
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		Iterator j = groups.iterator();
 		GroupData group;
 		while (j.hasNext()) {
@@ -1461,7 +1461,7 @@ class TreeViewerComponent
 		if (experimenters == null) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		//Check that the group is displayed.
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups == null) return;
 		TreeImageDisplay refNode = null;
 		ExperimenterVisitor visitor;
@@ -2086,7 +2086,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (group == null) group = model.getSelectedGroup();
 		
 		int level = group.getPermissions().getPermissionsLevel();
@@ -4562,7 +4562,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups.size() <= 1) return;
 		
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);

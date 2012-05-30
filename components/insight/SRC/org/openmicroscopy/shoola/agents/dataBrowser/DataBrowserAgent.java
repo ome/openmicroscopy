@@ -86,9 +86,9 @@ public class DataBrowserAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class DataBrowserAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Set groups = getAvailableUserGroups();
+		Collection groups = getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {

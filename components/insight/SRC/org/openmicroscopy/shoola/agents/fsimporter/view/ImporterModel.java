@@ -141,7 +141,7 @@ class ImporterModel
 	 */
 	private GroupData getGroup(long groupId)
 	{
-		Set groups = ImporterAgent.getAvailableUserGroups();
+		Collection groups = ImporterAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;
@@ -384,7 +384,8 @@ class ImporterModel
      */
     boolean isSingleGroup()
     { 
-    	Set l = ImporterAgent.getAvailableUserGroups();
+    	Collection l = ImporterAgent.getAvailableUserGroups();
     	return (l.size() <= 1);
     }
+
 }

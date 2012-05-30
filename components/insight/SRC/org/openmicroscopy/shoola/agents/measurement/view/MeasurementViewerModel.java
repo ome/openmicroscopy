@@ -1834,7 +1834,7 @@ class MeasurementViewerModel
 	boolean isMember()
 	{
 		if (MetadataViewerAgent.isAdministrator()) return false;
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g, gRef = null;
 		long gId = getImage().getGroupId();

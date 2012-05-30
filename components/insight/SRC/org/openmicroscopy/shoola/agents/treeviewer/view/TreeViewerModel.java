@@ -1347,7 +1347,7 @@ class TreeViewerModel
 	 */
 	GroupData getSelectedGroup()
 	{
-		Set set = TreeViewerAgent.getAvailableUserGroups();
+		Collection set = TreeViewerAgent.getAvailableUserGroups();
 		Iterator i = set.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -1397,7 +1397,7 @@ class TreeViewerModel
 	 */
 	GroupData getGroup(long groupId)
 	{
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;

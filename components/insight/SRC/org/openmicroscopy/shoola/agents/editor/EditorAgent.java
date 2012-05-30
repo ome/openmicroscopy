@@ -26,8 +26,8 @@ package org.openmicroscopy.shoola.agents.editor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
@@ -105,8 +105,8 @@ public class EditorAgent implements Agent, AgentEventListener {
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups() {
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	public static Collection getAvailableUserGroups() {
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 
 	/**
