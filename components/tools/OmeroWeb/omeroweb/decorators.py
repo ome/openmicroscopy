@@ -253,6 +253,7 @@ class login_required(object):
             # and password via configureation. Use them to try and create a
             # new connection / OMERO session.
             logger.debug('Creating connection with username and password...')
+            connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
                     self.useragent, username, password)
 
