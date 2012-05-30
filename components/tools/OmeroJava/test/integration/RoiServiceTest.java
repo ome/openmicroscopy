@@ -32,6 +32,7 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -162,7 +163,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.linkImage(image);
+        roi.linkImage(new ImageI(image.getId().getValue(), false));
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -262,7 +263,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.linkImage(image);
+        roi.linkImage(new ImageI(image.getId().getValue(), false));
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -287,8 +288,8 @@ public class RoiServiceTest
 		TablePrx table;
 		Column[] columns = new Column[1];
 		columns[0] = new LongColumn("Uid", "", new long[1]);
-		OriginalFile of;
-		FileAnnotation fa;
+		OriginalFile of = null;
+		FileAnnotation fa = null;
 		ROIAnnotationLink rl;
 		PlateAnnotationLink il;
 		//link fa to ROI
@@ -297,6 +298,7 @@ public class RoiServiceTest
 		for (int i = 0; i < n; i++) {
 			uuid = "Measurement_"+UUID.randomUUID().toString();
 			table = factory.sharedResources().newTable(1, uuid);
+            Assert.assertNotNull(table);
 			table.initialize(columns);
 			of = table.getOriginalFile();
 			fa = new FileAnnotationI();
@@ -316,7 +318,12 @@ public class RoiServiceTest
 
 		List<Annotation> l = 
 			svc.getRoiMeasurements(image.getId().getValue(), options);
-		Assert.assertEquals(l.size(), n);
+		Assert.assertEquals(l.size(), n, String.format(
+                    "Could not find any measurements for Image:%d and " +
+                    "Roi:%d with FileAnnotation:%d linked to " +
+                    "OriginalFile:%d ", image.getId().getValue(),
+                    roi.getId().getValue(), fa.getId().getValue(),
+                    of.getId().getValue()));
 		FileAnnotation f = (FileAnnotation) l.get(0);
 		
 		List<Long> ids = new ArrayList<Long>();
@@ -354,7 +361,7 @@ public class RoiServiceTest
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
-        roi.linkImage(image);
+        roi.linkImage(new ImageI(image.getId().getValue(), false));
         Rectangle rect;
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
