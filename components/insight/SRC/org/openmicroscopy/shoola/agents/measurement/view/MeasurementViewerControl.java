@@ -574,6 +574,7 @@ class MeasurementViewerControl
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) {
 			ROIFigure roi = (ROIFigure) f;
+			/*
 			if (roi.isReadOnly() || !roi.canDelete()) {
 				view.getDrawing().removeDrawingListener(this);
 				view.getDrawing().add(roi);
@@ -581,6 +582,7 @@ class MeasurementViewerControl
 				return;
 			}
 			view.markROIForDelete(roi);
+			*/
 			view.removeROI(roi);
 			model.setDataChanged();
 		}
