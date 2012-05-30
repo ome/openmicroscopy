@@ -241,7 +241,7 @@ class ToolBar
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
-        bar.add(b);
+        //bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();

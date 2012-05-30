@@ -2167,5 +2167,40 @@ class BrowserComponent
 		if (group == null) return;
 		view.removeGroup(group);
 	}
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#canLink(Object)
+	 */
+	public boolean canLink(Object ho)
+	{
+		return model.getParentModel().canLink(ho);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getDataToCopy()
+	 */
+	public List<DataObject> getDataToCopy()
+	{ 
+		return model.getParentModel().getDataToCopy();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#paste(TreeImageDisplay[])
+	 */
+	public void paste(TreeImageDisplay[] parents)
+	{
+		model.getParentModel().paste(parents);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setNodesToCopy(TreeImageDisplay[], int)
+	 */
+	public void setNodesToCopy(TreeImageDisplay[] nodes, int index)
+	{
+		model.getParentModel().setNodesToCopy(nodes, index);
+	}
 
 }
