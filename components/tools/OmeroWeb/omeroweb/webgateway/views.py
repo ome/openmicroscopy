@@ -1063,7 +1063,7 @@ def jsonp (f):
             kwargs['server_id'] = server_id
             conn = kwargs.get('conn', None)
             rv = f(request, *args, **kwargs)
-            if conn is not None and kwargs.get('_internal', False):
+            if kwargs.get('_raw', False):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
@@ -1071,28 +1071,20 @@ def jsonp (f):
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
-            if conn is not None or kwargs.get('_internal', False):
+            if kwargs.get('_internal', False):
                 return rv
             return HttpResponse(rv, mimetype='application/javascript')
         except omero.ServerError:
-            if kwargs.get('_internal', False):
+            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
         except:
             logger.debug(traceback.format_exc())
-            if kwargs.get('_internal', False):
+            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
     wrap.func_name = f.func_name
     return wrap
-
-#def json_error_catch (f):
-#    def wrap (*args, **kwargs):
-#        try:
-#            return f(*args, **kwargs)
-#        except omero.ServerError:
-#            return HttpResponseServerError('"error in call"', mimetype='application/javascript')
-#    return wrap
 
 @debug
 @login_required()
