@@ -52,8 +52,6 @@ public class ChgrpStep extends GraphStep {
 
     final private long grp;
 
-    final private ShareBean share;
-
     public ChgrpStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long grp) {
@@ -62,7 +60,6 @@ public class ChgrpStep extends GraphStep {
         this.em = em;
         this.grp = grp;
         this.userGroup = roles.getUserGroupId();
-        this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
     }
 
     @SuppressWarnings("unchecked")

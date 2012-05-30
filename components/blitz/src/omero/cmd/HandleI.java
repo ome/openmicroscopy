@@ -365,18 +365,6 @@ public class HandleI implements _HandleOperations, IHandle,
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
                 public List<Object> doWork(Session session, ServiceFactory sf) {
-
-                        EventContext ec = ((LocalAdmin) sf.getAdminService())
-                            .getEventContextQuiet();
-                        // Mimics EventHandler's logging of "Auth:"
-                        helper.info(" Auth:\tuid=%s,gid=%s,eid=%s,sess=%s%s",
-                            ec.getCurrentUserId(),
-                            ec.getCurrentGroupId(),
-                            ec.getCurrentEventId(),
-                            ec.getCurrentSessionUuid(),
-                            (ec.getCurrentShareId() == null) ? "" :
-                                    "share:%s" + ec.getCurrentShareId());
-
                     try {
                         List<Object> rv = doRun(getSqlAction(), session, sf);
                         state.set(State.FINISHED); // Regardless of current
@@ -416,10 +404,12 @@ public class HandleI implements _HandleOperations, IHandle,
         final Map<String, String> reqCctx = req.getCallContext();
 
         if (callContext != null) {
+            helper.debug("User callContext: %s", callContext);
             merged.putAll(callContext);
         }
 
         if (reqCctx != null) {
+            helper.debug("Request callContext: %s", reqCctx);
             merged.putAll(reqCctx);
         }
 

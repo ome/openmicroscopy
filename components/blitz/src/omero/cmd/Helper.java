@@ -78,7 +78,8 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
-        this.log = LogFactory.getLog(this.request.toString());
+        this.log = LogFactory.getLog(
+            this.request.toString().replaceAll("@", ".@"));
     }
 
     /**

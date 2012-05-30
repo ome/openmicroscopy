@@ -109,8 +109,10 @@ public class ChgrpI extends Chgrp implements IRequest {
             // (2) now that we have the id for the top-level object, we
             // can check ownership, etc.
 
+            final IObject obj = this.spec.load(helper.getSession());
+            helper.info("chgrp of %s to %s", obj, grp);
+
             if (!admin) {
-                final IObject obj = this.spec.load(helper.getSession());
                 obj.getDetails().getOwner();
                 Long owner = HibernateUtils.nullSafeOwnerId(obj);
                 if (owner != null && !owner.equals(userId)) {

@@ -61,7 +61,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public Object step(int step) {
         helper.assertStep(0, step);
-        
+
         final GraphSpecListRsp rsp = new GraphSpecListRsp();
         final ApplicationContext ctx = new ClassPathXmlApplicationContext(
             new String[]{"classpath:ome/services/spec.xml"}, this.ctx);

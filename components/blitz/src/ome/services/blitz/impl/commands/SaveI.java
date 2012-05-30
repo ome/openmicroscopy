@@ -56,6 +56,7 @@ public class SaveI extends Save implements IRequest {
             IceMapper mapper = new IceMapper();
             IObject iobj = (IObject) mapper.reverse(this.obj);
             IUpdate update = helper.getServiceFactory().getUpdateService();
+            helper.info("saveAndReturnObject(%s)", iobj);
             return update.saveAndReturnObject(iobj);
         }
         catch (Throwable t) {
