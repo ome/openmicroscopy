@@ -21,23 +21,22 @@
 .img_panel {
     border-width: 0px;
     margin: 3px;
+    {% if size %} max-height:{{ size }}px; max-width:{{ size }}px;{% endif %}
 }
 </style>
 
 <table>
     <tr>
-        <td>
-    {% for image in images %}<img style="{% if size.height %} max-height: {{ size.height }}px;{% endif %}{% if size.width %} max-width: {{ size.width }}px;{% endif %}"
-        class="img_panel"
-        src="{% url web_render_image image.id image.z 0 %}?c={{c_left}}" />{% endfor %}
-    
-        </td>
         <td align="center">
-        
-    {% for image in images %}<img style="{% if size.height %} max-height: {{ size.height }}px;{% endif %}{% if size.width %} max-width: {{ size.width }}px;{% endif %}"
-        class="img_panel"
-        src="{% url web_render_image image.id image.z 0 %}?c={{c_right}}" />{% endfor %}
-    
+            {% for image in images %}
+                <img class="img_panel" src="{% url web_render_image image.id image.z 0 %}?c={{c_left}}" />
+            {% endfor %}
+        </td>
+
+        <td align="center">
+            {% for image in images %}
+                <img class="img_panel" src="{% url web_render_image image.id image.z 0 %}?c={{c_right}}" />
+            {% endfor %}
         </td>
     </tr>
 </table>
