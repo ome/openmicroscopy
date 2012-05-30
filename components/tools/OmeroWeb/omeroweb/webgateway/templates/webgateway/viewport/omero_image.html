@@ -1066,9 +1066,11 @@
           </div>
 {% block roi_buttons %}
           <div id="roi_controls">
-                ROIs:
-                <a href="#" onclick="show_rois()">Show</a> |
-                <a href="#" onclick="hide_rois()">Hide</a>
+                <h1>ROI Count: {{ roiCount }}</h1>
+                {% ifnotequal roiCount 0 %}
+                    <a href="#" onclick="show_rois()">Show ROIs</a> |
+                    <a href="#" onclick="hide_rois()">Hide</a>
+                {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
           {% block current_image_tools %}{% endblock %}

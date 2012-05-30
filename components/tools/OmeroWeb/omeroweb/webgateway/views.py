@@ -1745,6 +1745,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
+             'roiCount': image.getROICount(),
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
