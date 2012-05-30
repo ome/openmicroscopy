@@ -821,7 +821,7 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalInitalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = createImage(1,1,1,1,totalInitalChannels, "testChannelMoveWithFullArrayGoesToEnd");
+        Image image = createImage(1,1,1,1,totalInitalChannels, "testChannelMoveWithFullArrayGoesToEnd");
         Pixels pixels = image.getPixels();
 
         assertEquals(totalInitalChannels, pixels.sizeOfChannels());
@@ -866,39 +866,39 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelMoveWithSpaceFillsSpace");
+        Image image = createImage(1, 1, 1, 1, totalChannels, "testChannelMoveWithSpaceFillsSpace");
         
         Pixels pixels = image.getPixels();
-        pixels.copyChannels().add(1, null);
+        pixels.setChannel(1, null);
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);      
 
         Set<Long> ids = new HashSet<Long>();
-        Channel old = pixels.copyChannels().get(0);
+        Channel old = pixels.getChannel(0);
         assertEquals(totalChannels, pixels.sizeOfChannels());
         assertNotNull(old);
-        ids.add(pixels.copyChannels().get(0).getId().getValue());
+        ids.add(pixels.getChannel(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(pixels.copyChannels().get(1));
+        assertNull(pixels.getChannel(1));
 
-        assertNotNull(pixels.copyChannels().get(2));
-        ids.add(pixels.copyChannels().get(2).getId().getValue());
+        assertNotNull(pixels.getChannel(2));
+        ids.add(pixels.getChannel(2).getId().getValue());
 
         // Now add a channel to the front
         
         //extra = (Channel) iUpdate.saveAndReturnObject(extra);
         //p.setChannel(0, extra);
-        pixels.copyChannels().add(1, old);
+        pixels.setChannel(1, old);
         
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
         Channel extra =  mmFactory.createChannel(0);
-        pixels.copyChannels().add(0, extra);
+        pixels.setChannel(0, extra);
         
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		pixels.sizeOfChannels());
-        assertFalse(ids.contains(pixels.copyChannels().get(0).getId().getValue()));
+        assertFalse(ids.contains(pixels.getChannel(0).getId().getValue()));
     }
 
     /**
@@ -910,33 +910,33 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelToSpaceChangesNothing");
+        Image image = createImage(1, 1, 1, 1, totalChannels, "testChannelToSpaceChangesNothing");
 
         Pixels p = image.getPixels();
-        p.copyChannels().add(1, null);
+        p.setChannel(1, null);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
-        assertNotNull(p.copyChannels().get(0));
-        ids.add(p.copyChannels().get(0).getId().getValue());
+        assertNotNull(p.getChannel(0));
+        ids.add(p.getChannel(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.copyChannels().get(1));
+        assertNull(p.getChannel(1));
 
-        assertNotNull(p.copyChannels().get(2));
-        ids.add(p.copyChannels().get(2).getId().getValue());
+        assertNotNull(p.getChannel(2));
+        ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the space
         Channel extra =  mmFactory.createChannel(0);
-        p.copyChannels().add(1, extra);
+        p.setChannel(1, extra);
 
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
-        assertFalse(ids.contains(p.copyChannels().get(1).getId().getValue()));
+        assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
     
     /**
