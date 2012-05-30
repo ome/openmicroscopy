@@ -159,7 +159,8 @@ public class DataBrowserAgent
 	public static Set getGroupsLeaderOf()
 	{
 		Set values = new HashSet();
-		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		Collection groups = (Collection)
+		registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		Iterator i = groups.iterator();
 		GroupData g;
 		Set leaders;
