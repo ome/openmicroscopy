@@ -51,6 +51,7 @@ class WrapperTest (lib.GTest):
     def testProjectWrapper (self):
         self.loginAsAuthor()
         p = self.getTestProject()
+        pid = p.getId()
         m = p.simpleMarshal()
         self.assertEqual(m['name'], p.getName())
         self.assertEqual(m['description'], p.getDescription())
@@ -71,14 +72,18 @@ class WrapperTest (lib.GTest):
         self.assert_('parents' not in m)
         self.assertEqual(m['child_count'], p.countChildren_cached())
         # Verify canOwnerWrite
-        # self.loginAsAdmin()
-        p = self.getTestProject()
+        self.loginAsAdmin()
+        admin = self.gateway.getAdminService()
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        p = self.gateway.getObject('project', pid)
+        perms = str(p.getDetails().getGroup().getDetails().permissions)
+        admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI('rw' + perms[2:]))
+        p = self.gateway.getObject('project', pid)
         self.assertEqual(p.canOwnerWrite(), True)
-        p.getDetails().permissions.setUserWrite(False)
+        admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI('r-' + perms[2:]))
+        p = self.gateway.getObject('project', pid)
         self.assertEqual(p.canOwnerWrite(), False)
-        # we did not save, but revert anyway
-        p.getDetails().permissions.setUserWrite(True)
-        self.assertEqual(p.canOwnerWrite(), True)
+        admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI(perms))
 
     def testDatasetWrapper (self):
         self.loginAsAuthor()
@@ -112,7 +117,7 @@ class WrapperTest (lib.GTest):
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
         e = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
-        self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
+        self.assertEqual(e.getName(), self.USER.name)
 
     def testDetailsWrapper (self):
         self.loginAsAuthor()
