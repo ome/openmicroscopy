@@ -780,6 +780,26 @@ public class ModelMockFactory
 	public Pixels createPixels(int sizeX, int sizeY, int sizeZ, int sizeT, int sizeC)
 		throws Exception
 	{
+        if (sizeX < 1) {
+            throw new IllegalArgumentException(String.format(
+                        "sizeX:%d cannot be less than one.", sizeX));
+        }
+        if (sizeY < 1) {
+            throw new IllegalArgumentException(String.format(
+                        "sizeY:%d cannot be less than one.", sizeY));
+        }
+        if (sizeZ < 1) {
+            throw new IllegalArgumentException(String.format(
+                        "sizeZ:%d cannot be less than one.", sizeZ));
+        }
+        if (sizeC < 1) {
+            throw new IllegalArgumentException(String.format(
+                        "sizeC:%d cannot be less than one.", sizeC));
+        }
+        if (sizeT < 1) {
+            throw new IllegalArgumentException(String.format(
+                        "sizeT:%d cannot be less than one.", sizeT));
+        }
 		List<IObject> types = pixelsService.getAllEnumerations(
     			PixelType.class.getName());
 		Iterator<IObject> i = types.iterator();
