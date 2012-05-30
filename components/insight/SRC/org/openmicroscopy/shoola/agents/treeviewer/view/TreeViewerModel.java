@@ -1381,11 +1381,13 @@ class TreeViewerModel
 	 * @param ctx The security context.
 	 * @param dialog The dialog where to display the result.
 	 * @param type The node type.
+	 * @param userID The id of the user to move the data to.
 	 */
 	void fireMoveDataLoading(SecurityContext ctx,
-			MoveGroupSelectionDialog dialog, Class type)
+			MoveGroupSelectionDialog dialog, Class type, long userID)
 	{
-		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog);
+		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog,
+				userID);
 		loader.load();
 	}
 

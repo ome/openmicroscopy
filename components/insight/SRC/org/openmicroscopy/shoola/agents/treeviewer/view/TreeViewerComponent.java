@@ -4516,12 +4516,15 @@ class TreeViewerComponent
 		long gid;
 		List<DataObject> l;
 		long refgid = group.getId();
+		List<Long> userIDs = new ArrayList<Long>();
 		while (i.hasNext()) {
 			data = i.next();
 		    if (canChgrp(data)) {
 		    	if (data instanceof ProjectData || data instanceof ScreenData)
 					b = data.getClass();
 				gid = data.getGroupId();
+				if (!userIDs.contains(data.getOwner().getId()))
+					userIDs.add(data.getOwner().getId());
 				if (gid != refgid) {
 					ctx = getKey(map, gid);
 					if (ctx == null) {
@@ -4534,6 +4537,12 @@ class TreeViewerComponent
 				}
 		    }
 		}
+		if (userIDs.size() != 1) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Move Data ", "You can only move the data of one " +
+					"member at a time.");
+			return;
+		}
 		if (map.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Move Data ", "No data to move to "+group.getName());
@@ -4544,10 +4553,12 @@ class TreeViewerComponent
 			moveData(ctx, null, map);
 		} else { //load the collection for the specified group
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
+			long userID = userIDs.get(0);
+			System.err.println(userID == exp.getId());
 			MoveGroupSelectionDialog dialog = new MoveGroupSelectionDialog(view,
-					exp.getId(), group,  map);
+					userID, group, map, userID == exp.getId());
 			UIUtilities.centerAndShow(dialog);
-			model.fireMoveDataLoading(ctx, dialog, b);
+			model.fireMoveDataLoading(ctx, dialog, b, userID);
 		}
 	}
 	
