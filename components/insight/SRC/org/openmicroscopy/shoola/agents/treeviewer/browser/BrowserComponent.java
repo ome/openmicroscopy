@@ -1904,9 +1904,11 @@ class BrowserComponent
 	public void reActivate()
 	{
 		view.reActivate();
-		if (!model.isSelected()) return;
-		//model.setState(NEW);
-		//activate();
+		if (model.isSelected() && 
+				model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+			model.setState(NEW);
+			activate();
+		}
 	}
 
 	/**

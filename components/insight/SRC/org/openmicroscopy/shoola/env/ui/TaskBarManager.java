@@ -515,8 +515,8 @@ public class TaskBarManager
 		reconnectDialog.requestFocusOnField();
 		reconnectDialog.setAlwaysOnTop(true);
 		if (success) {
-			container.getRegistry().getEventBus().post(new ReconnectedEvent());
-			success = false;
+			//container.getRegistry().getEventBus().post(new ReconnectedEvent());
+			//success = false;
 		}
 	}
 	
