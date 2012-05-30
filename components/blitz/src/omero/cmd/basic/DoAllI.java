@@ -18,9 +18,12 @@
 package omero.cmd.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.services.messages.ContextMessage;
+import ome.system.OmeroContext;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
@@ -31,46 +34,193 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 /**
  * Permits performing multiple operations
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
-public class DoAllI extends DoAll implements IRequest {
+public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
+
+    private static final long serialVersionUID = -323423435135556L;
+
+    //
+    // Mapping from steps to subrequests
+    //
 
     /**
      * Pointer-like object which is saved for each
      * sub-request. The logic for properly mapping
      * from the global step number to the individual
      * substep number is done here. In order to find
-     * the proper {@link X} instance, use the lookup
-     * table:
+     * the proper {@link X} instance, use the current
+     * index:
      *
      * <pre>
-     * X x = substeps.get(lookup[step]);
+     * X x = substeps.get(current);
      * </pre>
      */
     private static class X {
-        /** Number of steps that should be deducted from the global step
-         * count in order to have the proper substep number */
+
+        /**
+         * Number of steps that should be deducted from the global step
+         * count in order to have the proper substep number
+         */
         final int offset;
+
+        /**
+         * Sub-{@link Helper} instance for the {@link #r}
+         */
         final Helper h;
+
+        /**
+         * Sub-{@link Request} instance which is to be run.
+         */
         final IRequest r;
-        X(int offset, Helper h, IRequest r) {
+
+        final OmeroContext ctx;
+
+        /**
+         * Calculated context which should be in effect for {@link #r}.
+         */
+        Map<String, String> c = null;
+
+        X(int offset, Helper h, IRequest r, OmeroContext ctx) {
             this.offset = offset;
             this.h = h;
             this.r = r;
+            this.ctx = ctx;
         }
+
+        /**
+         * Run the {@link IRequest#step(int)} passing in the proper substep
+         * value after being calculated via {@link #offset}
+         */
         Object step(int step) {
             return r.step(step - offset);
         }
+
+        /**
+         * Run the {@link IRequest#buildResponse(int, Object)} passing in the
+         * proper substep value after being calculated via {@link #offset}
+         */
         void buildResponse(int step, Object object) {
             r.buildResponse(step - offset, object);
         }
+
+        /**
+         * Fill in the call context for this instance ignoring nulls and empty
+         * maps.
+         * @param classContext The return value of {@link IRequest#getCallContext()}
+         * @param callContext The corresponding instance from {@link DoAll#contexts}
+         */
+        void calculateContext(Map<String, String> classContext,
+            Map<String, String> callContext) {
+            putAll(classContext);
+            putAll(callContext);
+        }
+
+        /**
+         * Helper
+         */
+        private void putAll(Map<String, String> context) {
+            if (context != null && context.size() > 0) {
+                if (c == null) {
+                    c = new HashMap<String, String>();
+                }
+                c.putAll(context);
+            }
+        }
+
+        /**
+         * Send a {@link PushContextMessage} to apply this context if not null.
+         */
+        void login() throws Throwable {
+            if (c !=  null) {
+                h.debug("Login: %s", c);
+                ctx.publishMessage(new ContextMessage.Push(this, c));
+            }
+        }
+
+        /**
+         * If a {@link PushContextMessage} was sent, send a {@link PopContextMessage}
+         * so that the context for following actions are not polluted.
+         */
+        void logout() throws Throwable {
+            if (c != null) {
+                ctx.publishMessage(new ContextMessage.Pop(this ,c));
+            }
+        }
     }
 
-    private static final long serialVersionUID = -323423435135556L;
+    /**
+     * State-objects for each subrequest
+     */
+    private final List<X> substeps = new ArrayList<X>();
+
+    /**
+     * current substep.
+     */
+    private int current = -1;
+
+    /**
+     * step at which we flip to the next current.
+     */
+    private int nextAt = 0;
+
+    /**
+     * Looks up the current substep based on the total step count using
+     * {@link #nextAt} to determine if {@link #current} needs to be incremented.
+     * If login is true, then {@link X#login()} and {@link X#logout} will be
+     * called as appropriate.
+     *
+     * @param step
+     * @param login
+     * @return
+     */
+    private X substep(final int step, final boolean login) {
+        X x = null;
+        try {
+            if (step == 0) {
+                // Restart
+                x = substeps.get(0);
+                current = 0;
+                nextAt = x.offset + x.h.getSteps();
+                if (login) {
+                    x.login();
+                }
+            } else if (step == nextAt) {
+                // Flip to next substep. We should never have
+                // a step which makes current >= substeps.size()
+
+                X prev = substeps.get(current);
+                if (login) {
+                    prev.logout();
+                }
+
+                current += 1;
+                x = substeps.get(current);
+                nextAt = x.offset + x.h.getSteps();
+                if (login) {
+                    x.login();
+                }
+            } else {
+                x = substeps.get(current);
+            }
+            return x;
+        } catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "substep-lookup-failed", "step",
+                ""+step, "req", (x==null ? "null" : ""+x.r));
+        }
+    }
+
+    //
+    // Primary state
+    //
 
     private final List<Status> statuses = new ArrayList<Status>();
 
@@ -82,15 +232,22 @@ public class DoAllI extends DoAll implements IRequest {
      */
     private Helper helper;
 
-    /**
-     * State-objects for each subrequest
-     */
-    private final List<X> substeps = new ArrayList<X>();
+    //
+    // For publishing messages
+    //
+    //
 
-    /**
-     * Used to find the proper {@link X} instance in {@link #substeps}
-     */
-    private int[] lookup;
+    private OmeroContext ctx;
+
+    @Override
+    public void setApplicationContext(ApplicationContext arg0)
+        throws BeansException {
+        this.ctx = (OmeroContext) arg0;
+    }
+
+    //
+    // IRequest methods
+    //
 
     public Map<String, String> getCallContext() {
         return null;
@@ -100,32 +257,34 @@ public class DoAllI extends DoAll implements IRequest {
         this.helper = helper;
         int steps = 0;
         try {
-            for (Request req : this.requests) {
+            for (int i = 0; i < this.requests.size(); i++) {
+                final Request req = requests.get(i);
                 final Status substatus = new Status();
                 final Helper subhelper = helper.subhelper(req, substatus);
                 if (req instanceof IRequest) {
+                    IRequest ireq = (IRequest) req;
                     try {
-                        ((IRequest) req).init(subhelper);
-                        statuses.add(substatus);
-                        substeps.add(new X(steps, subhelper, (IRequest) req));
-                        steps += substatus.steps;
+                        X x = new X(steps, subhelper, ireq, ctx);
+                        x.calculateContext(ireq.getCallContext(),
+                                (contexts == null || contexts.length <= i)
+                                    ? null : contexts[i]);
+                        x.login();
+                        try {
+                            ireq.init(subhelper);
+                            statuses.add(substatus);
+                            substeps.add(x);
+                            steps += substatus.steps;
+                        } finally {
+                            x.logout();
+                        }
                     } catch (Cancel c) {
-                        helper.setResponse(subhelper.getResponse());
+                        helper.setResponseIfNull(subhelper.getResponse());
                         throw c;
                     }
                 }
                 else {
                     throw helper.cancel(new ERR(), null, "bad-request",
                         "type", req.ice_id());
-                }
-            }
-            int count = 0;
-            lookup = new int[steps];
-            for (int i = 0; i < substeps.size(); i++) {
-                X x = substeps.get(i);
-                for (int j = 0; j < x.h.getSteps(); j++) {
-                    lookup[count] = i;
-                    count++;
                 }
             }
         }  catch (Cancel c) {
@@ -138,20 +297,20 @@ public class DoAllI extends DoAll implements IRequest {
 
     public Object step(int step) {
         helper.assertStep(step);
-        final X x = substeps.get(lookup[step]);
+        final X x = substep(step, true);
         try {
             return x.step(step);
         }
         catch (Cancel c) {
             Response subrsp = x.h.getResponse();
-            helper.setResponse(subrsp);
+            helper.setResponseIfNull(subrsp);
             throw c;
         }
     }
 
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        X x = substeps.get(lookup[step]);
+        final X x = substep(step, false);
         x.buildResponse(step, object);
 
         if (helper.isLast(step)) {
@@ -161,7 +320,7 @@ public class DoAllI extends DoAll implements IRequest {
                 responses.add(ireq.getResponse());
             }
             DoAllRsp rsp = new DoAllRsp(responses, statuses);
-            helper.setResponse(rsp);
+            helper.setResponseIfNull(rsp);
         }
     }
 

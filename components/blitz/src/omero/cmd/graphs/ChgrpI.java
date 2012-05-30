@@ -125,7 +125,8 @@ public class ChgrpI extends Chgrp implements IRequest {
                             type, id, options, helper.getSteps());
                 }
             }
-
+        } catch (Cancel c) {
+            throw c;
         } catch (NoSuchBeanDefinitionException nsbde) {
             throw helper.cancel(new Unknown(), nsbde, "notype",
                     "message", "Unknown type:" + type);

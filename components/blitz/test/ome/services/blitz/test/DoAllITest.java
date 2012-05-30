@@ -106,6 +106,7 @@ public class DoAllITest extends AbstractGraphTest {
     public void testNoSteps() throws Exception {
         Request cs1 = new CheckSteps("1");
         DoAllI all = new DoAllI();
+        all.setApplicationContext(ctx);
         all.requests = Arrays.asList(cs1);
         _HandleTie handle = submit(all);
         block(handle, 5, 1000);
@@ -120,6 +121,7 @@ public class DoAllITest extends AbstractGraphTest {
         Request cs4 = new CheckSteps("4", 0, 1, 2, 3, 4, 5, 6, 7, 8);
         Request cs5 = new CheckSteps("5", 0);
         DoAllI all = new DoAllI();
+        all.setApplicationContext(ctx);
         all.requests = Arrays.asList(cs1, cs2, cs3, cs4, cs5);
 
         _HandleTie handle = submit(all);
@@ -139,6 +141,7 @@ public class DoAllITest extends AbstractGraphTest {
         assertEquals(before.getCurrentGroupId(), after.getCurrentGroupId());
         Data data = new Data(user); // Data in oldGroupID
         DoAllI all = new DoAllI();
+        all.setApplicationContext(ctx);
         Request chgrp = chgrp(data.i.getId(), newGroupID); // Image in newGroupID
         Request save = addImageToNewDataset(newGroupID, data.i);
         all.requests = Arrays.asList(chgrp, save);
