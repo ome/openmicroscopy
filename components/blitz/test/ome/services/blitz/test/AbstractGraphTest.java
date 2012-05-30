@@ -120,8 +120,13 @@ public class AbstractGraphTest extends AbstractServantTest {
                         msgs, printErr(err)), msgs.contains(err.name));
             }
         }
+        assertFlag(handle, State.FAILURE);
+    }
 
-        assertTrue(handle.getStatus().flags.contains(State.FAILURE));
+    protected void assertFlag(_HandleTie handle, State s) {
+        Status status = handle.getStatus();
+        assertTrue(String.format("Looking for %s. Found: %s", s, status.flags),
+            status.flags.contains(s));
     }
 
     protected void assertDoesExist(String table, long id) throws Exception {

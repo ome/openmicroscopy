@@ -114,6 +114,10 @@ public class Helper {
         return status.steps;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
     public Response getResponse() {
         return rsp.get();
     }
@@ -229,7 +233,11 @@ public class Helper {
         status.flags.add(State.FAILURE);
         err.category = request.ice_id();
         err.name = name;
-        err.parameters = params;
+        if (err.parameters == null) {
+            err.parameters = params;
+        } else {
+            err.parameters.putAll(params);
+        }
         if (t != null) {
             String msg = t.getMessage();
             StringWriter sw = new StringWriter();

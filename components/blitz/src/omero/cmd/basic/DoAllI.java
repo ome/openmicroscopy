@@ -263,8 +263,8 @@ public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
                 final Helper subhelper = helper.subhelper(req, substatus);
                 if (req instanceof IRequest) {
                     IRequest ireq = (IRequest) req;
+                    final X x = new X(steps, subhelper, ireq, ctx);
                     try {
-                        X x = new X(steps, subhelper, ireq, ctx);
                         x.calculateContext(ireq.getCallContext(),
                                 (contexts == null || contexts.length <= i)
                                     ? null : contexts[i]);
@@ -278,8 +278,7 @@ public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
                             x.logout();
                         }
                     } catch (Cancel c) {
-                        helper.setResponseIfNull(subhelper.getResponse());
-                        throw c;
+                        throw subcancel(c, x);
                     }
                 }
                 else {
@@ -302,9 +301,7 @@ public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
             return x.step(step);
         }
         catch (Cancel c) {
-            Response subrsp = x.h.getResponse();
-            helper.setResponseIfNull(subrsp);
-            throw c;
+            throw subcancel(c, x);
         }
     }
 
@@ -328,4 +325,21 @@ public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
         return helper.getResponse();
     }
 
+    protected Cancel subcancel(Cancel c, X x) {
+        final Response subrsp = x.h.getResponse();
+        final Status substatus = x.h.getStatus();
+        final Status status = helper.getStatus();
+        helper.setResponseIfNull(subrsp);
+        status.flags.addAll(substatus.flags);
+        if (status.parameters == null) {
+            status.parameters = new HashMap<String, String>();
+        }
+        if (substatus.parameters != null) {
+            status.parameters.putAll(substatus.parameters);
+        }
+        status.parameters.put("subrequest", ""+subrsp);
+        status.category = ice_id();
+        status.name = "subcancel";
+        throw c;
+    }
 }

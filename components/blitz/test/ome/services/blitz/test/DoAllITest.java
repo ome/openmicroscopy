@@ -39,6 +39,7 @@ import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.cmd.State;
 import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.graphs.ChgrpI;
@@ -110,7 +111,7 @@ public class DoAllITest extends AbstractGraphTest {
         all.requests = Arrays.asList(cs1);
         _HandleTie handle = submit(all);
         block(handle, 5, 1000);
-        assertFailure(handle);
+        assertFlag(handle, State.CANCELLED);
     }
 
     @Test
