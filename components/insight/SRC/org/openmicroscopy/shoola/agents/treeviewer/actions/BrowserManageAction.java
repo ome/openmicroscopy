@@ -41,11 +41,6 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -106,29 +101,19 @@ public class BrowserManageAction
 
     /** The description of the action. */
     private static final String DESCRIPTION_ADMIN = "Create new Group or User.";
-    
-    /** The default name of the action if the index is {@link #COPY}. */
-    private static final String NAME_COPY = "Copy";
-    
+
     /** The description of the action if the index is {@link #COPY}. */
     private static final String DESCRIPTION_COPY = 
     											"Copy the selected elements.";
-    
-    /** The default name of the action if the index is {@link #PASTE}. */
-    private static final String NAME_PASTE = "Paste";
-    
+
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE = 
     									"Paste the selected elements.";
-	
-    /** The default name of the action if the index is {@link #CUT}. */
-    private static final String NAME_CUT = "Cut";
-    
+
     /** The description of the action if the index is {@link #CUT}. */
     private static final String DESCRIPTION_CUT = 
     								"Cut the selected elements.";
-    
-    
+
     /** The location of the mouse pressed. */
     private Point 	point;
     
@@ -165,19 +150,16 @@ public class BrowserManageAction
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_COPY));
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
-				setEnabled(false);
 				break;
 			case PASTE:
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
-				setEnabled(false);
 				break;
 			case CUT:
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_CUT));
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CUT));
-				setEnabled(false);
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -192,7 +174,7 @@ public class BrowserManageAction
     private void handleExperimenter(TreeImageDisplay display)
     {
     	if (display == null) {
-    		setEnabled(true);
+    		setEnabled(false);
     	} else {
     		Object ho = display.getUserObject();
         	long id = TreeViewerAgent.getUserDetails().getId();
@@ -371,7 +353,7 @@ public class BrowserManageAction
 	    		handleSelection(selectedDisplay);
 	    		break;
 	    	default:
-	    		setEnabled(model.canAnnotate(ho));
+	    		setEnabled(model.canLink(ho));
 		}
     }
     
@@ -386,7 +368,7 @@ public class BrowserManageAction
 		super(model);
 		checkIndex(index);
 		this.index = index;
-		setEnabled(true);
+		setEnabled(false);
 		userID = TreeViewerAgent.getUserDetails().getId();
 	}
 	

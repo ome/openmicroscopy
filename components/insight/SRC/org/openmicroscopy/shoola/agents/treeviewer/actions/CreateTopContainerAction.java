@@ -38,6 +38,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -235,34 +237,31 @@ public class CreateTopContainerAction
         	if (selectedDisplay != null) {
         		Object ho = selectedDisplay.getUserObject();
         		if (ho instanceof ExperimenterData) {
-					ExperimenterData data = (ExperimenterData) ho;
-					long id = TreeViewerAgent.getUserDetails().getId();
-					setEnabled(data.getId() == id);
+        			setEnabled(model.canLink(ho));
 					return;
 				}
-        		/*
+        		if (ho instanceof GroupData) {
+        			setEnabled(false);
+        			return;
+        		}
         		switch (nodeType) {
 					case TAG:
 						if (ho instanceof TagAnnotationData) {
 							TagAnnotationData tag = (TagAnnotationData) ho;
 							String ns = tag.getNameSpace();
 							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-								setEnabled(model.isUserOwner(ho));
+								setEnabled(model.canLink(ho));
 							} else setEnabled(false);
-						}
-						//setEnabled(model.isUserOwner(ho));
+						} else setEnabled(model.canLink(ho));
 						break;
 					case DATASET:
-						if (ho instanceof DatasetData) {
-							setEnabled(false);
-						} else
-							setEnabled(model.isUserOwner(ho));
+						if (ho instanceof DatasetData) setEnabled(false);
+						else setEnabled(model.canLink(ho));
 						break;
 					default:
-						setEnabled(true);
+						setEnabled(model.canLink(ho));
 				}
-				*/
-        		setEnabled(true);
+        		//setEnabled(true);
         	}
         } else {
         	Browser browser = model.getSelectedBrowser();
