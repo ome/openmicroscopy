@@ -292,14 +292,14 @@ public class MeasureRectangleFigure
      * @return see above.
      */
     public double getWidth() { return rectangle.getWidth(); }
-    
+
     /** 
      * Get the height of the figure. 
      * 
      * @return see above.
      */
     public double getHeight() { return rectangle.getHeight(); }
-    
+
     /**
      * Draw the figure on the graphics context.
      * @param g the graphics context.

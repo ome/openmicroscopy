@@ -29,6 +29,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -38,6 +40,7 @@ import javax.swing.table.TableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 
 /** 
  * Displays the figures in a table.
@@ -54,11 +57,16 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
  */
 public class FigureTable
 	extends JTable
+	implements DocumentListener
 {
+	
+	/** Indicates that a value has been modified in text field.*/
+	public static final String VALUE_CHANGED_PROPERTY = "valueChanged";
 	
 	/** The model for the table. */
 	private FigureTableModel tableModel;
 	
+	/** The renderer.*/
 	private TableCellRenderer renderer;
 	
 	/**
@@ -92,7 +100,7 @@ public class FigureTable
 		if (renderer == null) renderer = new InspectorCellRenderer();
         return renderer;
     }
-
+	
 	/**
 	 * Overridden to return the editor corresponding to the specified cell.
 	 * @see JTable#getCellEditor(int, int)
@@ -110,9 +118,22 @@ public class FigureTable
 					getValueAt(row, col), false, false, row, col));
 		} else if (v instanceof Double || v instanceof Integer || 
 				v instanceof Long || v instanceof String) {
-			return new DefaultCellEditor((JTextField) renderer.
+			DefaultCellEditor editor =
+				new DefaultCellEditor((JTextField) renderer.
 				getTableCellRendererComponent(this,
 					getValueAt(row, col), false, false, row, col));
+			JTextField f = (JTextField) editor.getComponent();
+			f.getDocument().addDocumentListener(this);
+			return editor;
+		} else if (v instanceof Double || v instanceof Integer || 
+					v instanceof Long) {
+			DefaultCellEditor editor =
+				new DefaultCellEditor((NumericalTextField) renderer.
+						getTableCellRendererComponent(this,
+								getValueAt(row, col), false, false, row, col));
+			JTextField f = (JTextField) editor.getComponent();
+			f.getDocument().addDocumentListener(this);
+			return editor;
 		} else if (v instanceof Boolean) {
 			return new DefaultCellEditor((JCheckBox) renderer.
 				getTableCellRendererComponent(this,
@@ -121,5 +142,37 @@ public class FigureTable
 		return super.getCellEditor(row, col);
 	}
 	
+	/**
+	 * Indicates that the text has been modified
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) {
+		try {
+			String text = e.getDocument().getText(0, 
+					e.getDocument().getLength());
+			firePropertyChange(VALUE_CHANGED_PROPERTY, null, text);
+		} catch (Exception ex) {
+		}
+	}
+	
+	/**
+	 * Indicates that the text has been modified
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e) {
+		try {
+			String text = e.getDocument().getText(0, 
+					e.getDocument().getLength());
+			firePropertyChange(VALUE_CHANGED_PROPERTY, null, text);
+		} catch (Exception ex) {
+		}
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in this case.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+	
 }
-
