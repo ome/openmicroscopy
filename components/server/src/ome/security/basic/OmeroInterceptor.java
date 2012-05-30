@@ -579,7 +579,7 @@ public class OmeroInterceptor implements Interceptor {
             }
 
             // ticket:3529
-            else if ((bec.getCurrentGroupId() < 0) &&
+            else if (/*(bec.getCurrentGroupId() < 0) &&*/
                     (isAdmin || bec.getMemberOfGroupsList()
                         .contains(sourceGroupId))) {
                 newDetails.setGroup(source.getGroup());
