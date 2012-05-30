@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -2320,9 +2321,8 @@ class ImViewerComponent
 		}
 		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		List<Long> l = new ArrayList<Long>();
-		l.add(model.getImageID());
-		bus.post(new RndSettingsCopied(l, getPixelsID()));
+		bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
+				getPixelsID()));
 		fireStateChange();
     }
     
