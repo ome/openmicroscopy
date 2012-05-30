@@ -33,8 +33,6 @@ from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                 ContainedExperimentersForm, ChangePassword
 
-from webadmin.controller.experimenter import BaseExperimenter
-from webadmin.controller.group import BaseGroup
 from webadmin_test_library import WebTest, WebAdminClientTest
 
 from webadmin.custom_models import Server

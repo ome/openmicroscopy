@@ -107,6 +107,17 @@ class Server(ServerBase):
                (port is not None and port != s.port) or \
                (server is not None and server != s.server): 
                 continue
+            return s
+        return None
+    
+    @classmethod
+    def findAll(cls, host=None, port=None, server=None):
+        rv = []
+        for s in cls._registry.values():
+            if (host is not None and host != s.host) or \
+               (port is not None and port != s.port) or \
+               (server is not None and server != s.server): 
+                continue
             rv.append(s)
         return rv
 
