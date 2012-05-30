@@ -84,7 +84,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public void buildResponse(int i, Object object) {
         helper.assertStep(0, i);
-        helper.setResponse((Response) object);
+        helper.setResponseIfNull((Response) object);
     }
 
     public Response getResponse() {

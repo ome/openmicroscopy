@@ -151,10 +151,10 @@ public class ChgrpI extends Chgrp implements IRequest {
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (helper.isLast(step)) {
-            helper.setResponse(new OK());
+            helper.setResponseIfNull(new OK());
         }
     }
-    
+
     public Response getResponse() {
         return helper.getResponse();
     }

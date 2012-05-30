@@ -126,8 +126,7 @@ public class Helper {
      *            Can be null.
      * @return
      */
-    public boolean setResponse(Response rsp) {
-        requireStepsSet();
+    public boolean setResponseIfNull(Response rsp) {
         return this.rsp.compareAndSet(null, rsp);
     }
 

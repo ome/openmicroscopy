@@ -71,7 +71,7 @@ public class SaveI extends Save implements IRequest {
             IceMapper mapper = new IceMapper();
             SaveRsp rsp = new SaveRsp(
                     (omero.model.IObject) mapper.map((IObject) object));
-            helper.setResponse(rsp);
+            helper.setResponseIfNull(rsp);
         }
     }
 
