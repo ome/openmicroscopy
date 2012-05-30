@@ -2161,19 +2161,6 @@ def avatar(request, oid=None, conn=None, **kwargs):
 # webgateway extention
 
 @login_required()
-def render_thumbnail_resize (request, size, iid, conn=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    kwargs['conn'] = conn
-    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
-
-@login_required()
-def render_thumbnail (request, iid, conn=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    kwargs['conn'] = conn
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
-
-
-@login_required()
 def image_viewer (request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")

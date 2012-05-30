@@ -28,6 +28,7 @@ from django.conf.urls.defaults import *
 
 from omeroweb.webclient import views
 from omeroweb.webgateway import views as webgateway
+from omeroweb.webclient.webclient_gateway import defaultThumbnail
 
 urlpatterns = patterns('django.views.generic.simple',
 
@@ -79,8 +80,8 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^metadata_preview/(?P<c_type>((?i)image|well))/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_preview, name="load_metadata_preview" ),
     url( r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_hierarchy, name="load_metadata_hierarchy" ),
     
-    url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
-    url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
+    url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', webgateway.render_thumbnail, {'w':80, '_defcb':defaultThumbnail}, name="render_thumbnail" ),
+    url( r'^render_thumbnail/size/(?P<w>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', webgateway.render_thumbnail, {'_defcb':defaultThumbnail}, name="render_thumbnail_resize" ),
 
     #image webgateway extention
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image_region, name="web_render_image_region"),
