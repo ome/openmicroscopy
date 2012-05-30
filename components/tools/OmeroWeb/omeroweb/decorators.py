@@ -88,12 +88,12 @@ class login_required(object):
     
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
+        try:
+            # we always need to clear any dirty 'omero.share' values from previous calls
+            del conn.CONFIG['SERVICE_OPTS']['omero.share']
+        except:
+            pass
         if share_id is None:
-            if conn.getEventContext().shareId > 0:
-                try:
-                    del conn.CONFIG['SERVICE_OPTS']['omero.share']
-                except:
-                    pass
             return None
         share = conn.getShare(share_id)
         try:
