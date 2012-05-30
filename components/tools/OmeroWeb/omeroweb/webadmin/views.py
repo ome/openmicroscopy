@@ -199,14 +199,23 @@ def getActualPermissions(group):
 
 # getters
 def getSelectedGroups(conn, ids):
-    if len(ids)>0:
+    if ids is not None and len(ids)>0:
         return list(conn.getObjects("ExperimenterGroup", ids))
     return list()
 
 def getSelectedExperimenters(conn, ids):
-    if len(ids)>0:
+    if ids is not None and len(ids)>0:
         return list(conn.getObjects("Experimenter", ids))
     return list()
+
+def mergeLists(list1,list2):
+    if not list1 and not list2: return list()
+    if not list1: return list(list2)
+    if not list2: return list(list1)
+    result = list()
+    result.extend(list1)
+    result.extend(list2)
+    return set(result)
 
 # Drivespace helpers
 def _bytes_per_pixel(pixel_type):
@@ -541,11 +550,15 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
+                members = form.cleaned_data['members']
                 permissions = form.cleaned_data['permissions']
                 
                 perm = setActualPermissions(permissions)
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.createGroup(name, perm, listOfOwners, description)
+                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                conn.setMembersOfGroup(group, new_members)
+                
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'form':form}
     elif action == 'edit':
@@ -597,7 +610,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
                 
-                new_members = getSelectedExperimenters(conn, members)
+                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
                 conn.setMembersOfGroup(group, new_members)
                 
                 return HttpResponseRedirect(reverse("wagroups"))
