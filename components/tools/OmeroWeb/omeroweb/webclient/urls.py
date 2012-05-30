@@ -27,6 +27,7 @@ import os.path
 from django.conf.urls.defaults import *
 
 from omeroweb.webclient import views
+from omeroweb.webgateway import views as webgateway
 
 urlpatterns = patterns('django.views.generic.simple',
 
@@ -82,16 +83,16 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
 
     #image webgateway extention
-    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image_region, name="web_render_image_region"),
-    url( r'^(?:(?P<share_id>[0-9]+)/)?render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', views.render_birds_eye_view, name="web_render_birds_eye_view"),
-    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="web_render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image_region, name="web_render_image_region"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', webgateway.render_birds_eye_view, name="web_render_birds_eye_view"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image, name="web_render_image"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
-    url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="web_imageData_json"),
-    url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_row_plot, name="web_render_row_plot"),
-    url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
-    url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
-    url(r'^(?:(?P<share_id>[0-9]+)/)?saveImgRDef/(?P<iid>[^/]+)/$', views.save_image_rdef_json, name="web_save_image_rdef_json"),
-    url(r'^(?:(?P<share_id>[0-9]+)/)?resetImgRDef/(?P<iid>[^/]+)/$', views.reset_image_rdef_json, name="web_reset_image_rdef_json"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', webgateway.imageData_json, name="web_imageData_json"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', webgateway.render_row_plot, name="web_render_row_plot"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', webgateway.render_col_plot, name="web_render_col_plot"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', webgateway.render_split_channel, name="web_render_split_channel"),
+    url(r'^saveImgRDef/(?P<iid>[^/]+)/$', webgateway.save_image_rdef_json, name="web_save_image_rdef_json"),
+    url(r'^resetImgRDef/(?P<iid>[^/]+)/$', webgateway.reset_image_rdef_json, name="web_reset_image_rdef_json"),
 
 
 
