@@ -234,6 +234,8 @@
   CREATE INDEX i_lightpath_owner ON lightpath(owner_id);
   CREATE INDEX i_lightpath_group ON lightpath(group_id);
   CREATE INDEX i_LightPath_dichroic ON lightpath(dichroic);
+  CREATE INDEX i_objective_owner ON objective(owner_id);
+  CREATE INDEX i_objective_group ON objective(group_id);
   CREATE INDEX i_Objective_correction ON objective(correction);
   CREATE INDEX i_Objective_immersion ON objective(immersion);
   CREATE INDEX i_Objective_instrument ON objective(instrument);
@@ -280,6 +282,8 @@
   CREATE INDEX i_transmittancerange_group ON transmittancerange(group_id);
   CREATE INDEX i_screen_owner ON screen(owner_id);
   CREATE INDEX i_screen_group ON screen(group_id);
+  CREATE INDEX i_arc_owner ON arc(owner_id);
+  CREATE INDEX i_arc_group ON arc(group_id);
   CREATE INDEX i_Arc_type ON arc(type);
   CREATE INDEX i_plate_owner ON plate(owner_id);
   CREATE INDEX i_plate_group ON plate(group_id);
@@ -297,6 +301,8 @@
   CREATE INDEX i_Image_objectiveSettings ON image(objectiveSettings);
   CREATE INDEX i_Image_stageLabel ON image(stageLabel);
   CREATE INDEX i_Image_wellSamples ON image(wellSamples);
+  CREATE INDEX i_dichroic_owner ON dichroic(owner_id);
+  CREATE INDEX i_dichroic_group ON dichroic(group_id);
   CREATE INDEX i_Dichroic_filterSets ON dichroic(filterSets);
   CREATE INDEX i_Dichroic_instrument ON dichroic(instrument);
   CREATE INDEX i_Dichroic_lightPaths ON dichroic(lightPaths);
@@ -316,6 +322,8 @@
   CREATE INDEX i_channelannotationlink_group ON channelannotationlink(group_id);
   CREATE INDEX i_ChannelAnnotationLink_parent ON channelannotationlink(parent);
   CREATE INDEX i_ChannelAnnotationLink_child ON channelannotationlink(child);
+  CREATE INDEX i_lightemittingdiode_owner ON lightemittingdiode(owner_id);
+  CREATE INDEX i_lightemittingdiode_group ON lightemittingdiode(group_id);
   CREATE INDEX i_projectdatasetlink_owner ON projectdatasetlink(owner_id);
   CREATE INDEX i_projectdatasetlink_group ON projectdatasetlink(group_id);
   CREATE INDEX i_ProjectDatasetLink_parent ON projectdatasetlink(parent);
@@ -329,7 +337,6 @@
   CREATE INDEX i_Pixels_image ON pixels(image);
   CREATE INDEX i_Pixels_dimensionOrder ON pixels(dimensionOrder);
   CREATE INDEX i_Pixels_type ON pixels(type);
-  CREATE INDEX i_LightSource_instrument ON lightsource(instrument);
   CREATE INDEX i_externalinfo_owner ON externalinfo(owner_id);
   CREATE INDEX i_externalinfo_group ON externalinfo(group_id);
   CREATE INDEX i_FileAnnotation_file ON annotation("file");
@@ -377,14 +384,14 @@
   CREATE INDEX i_microbeammanipulationroilink_group ON microbeammanipulationroilink(group_id);
   CREATE INDEX i_MicrobeamManipulationROILink_parent ON microbeammanipulationroilink(parent);
   CREATE INDEX i_MicrobeamManipulationROILink_child ON microbeammanipulationroilink(child);
-  CREATE INDEX i_manufacturerspec_owner ON manufacturerspec(owner_id);
-  CREATE INDEX i_manufacturerspec_group ON manufacturerspec(group_id);
   CREATE INDEX i_lightpathexcitationfilterlink_owner ON lightpathexcitationfilterlink(owner_id);
   CREATE INDEX i_lightpathexcitationfilterlink_group ON lightpathexcitationfilterlink(group_id);
   CREATE INDEX i_LightPathExcitationFilterLink_parent ON lightpathexcitationfilterlink(parent);
   CREATE INDEX i_LightPathExcitationFilterLink_child ON lightpathexcitationfilterlink(child);
   CREATE INDEX i_roi_owner ON roi(owner_id);
   CREATE INDEX i_roi_group ON roi(group_id);
+  CREATE INDEX i_laser_owner ON laser(owner_id);
+  CREATE INDEX i_laser_group ON laser(group_id);
   CREATE INDEX i_Laser_laserMedium ON laser(laserMedium);
   CREATE INDEX i_Laser_pulse ON laser(pulse);
   CREATE INDEX i_Laser_pump ON laser(pump);
@@ -404,6 +411,8 @@
   CREATE INDEX i_plane_owner ON plane(owner_id);
   CREATE INDEX i_plane_group ON plane(group_id);
   CREATE INDEX i_Plane_pixels ON plane(pixels);
+  CREATE INDEX i_filament_owner ON filament(owner_id);
+  CREATE INDEX i_filament_group ON filament(group_id);
   CREATE INDEX i_Filament_type ON filament(type);
   CREATE INDEX i_originalfile_owner ON originalfile(owner_id);
   CREATE INDEX i_originalfile_group ON originalfile(group_id);
@@ -435,9 +444,13 @@
   CREATE INDEX i_thumbnail_owner ON thumbnail(owner_id);
   CREATE INDEX i_thumbnail_group ON thumbnail(group_id);
   CREATE INDEX i_Thumbnail_pixels ON thumbnail(pixels);
+  CREATE INDEX i_filterset_owner ON filterset(owner_id);
+  CREATE INDEX i_filterset_group ON filterset(group_id);
   CREATE INDEX i_FilterSet_channels ON filterset(channels);
   CREATE INDEX i_FilterSet_dichroic ON filterset(dichroic);
   CREATE INDEX i_FilterSet_instrument ON filterset(instrument);
+  CREATE INDEX i_microscope_owner ON microscope(owner_id);
+  CREATE INDEX i_microscope_group ON microscope(group_id);
   CREATE INDEX i_Microscope_type ON microscope(type);
   CREATE INDEX i_microbeammanipulation_owner ON microbeammanipulation(owner_id);
   CREATE INDEX i_microbeammanipulation_group ON microbeammanipulation(group_id);
@@ -475,6 +488,8 @@
   CREATE INDEX i_plateacquisitionannotationlink_group ON plateacquisitionannotationlink(group_id);
   CREATE INDEX i_PlateAcquisitionAnnotationLink_parent ON plateacquisitionannotationlink(parent);
   CREATE INDEX i_PlateAcquisitionAnnotationLink_child ON plateacquisitionannotationlink(child);
+  CREATE INDEX i_detector_owner ON detector(owner_id);
+  CREATE INDEX i_detector_group ON detector(group_id);
   CREATE INDEX i_Detector_instrument ON detector(instrument);
   CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_project_owner ON project(owner_id);
@@ -483,6 +498,8 @@
   CREATE INDEX i_imageroilink_group ON imageroilink(group_id);
   CREATE INDEX i_ImageROILink_parent ON imageroilink(parent);
   CREATE INDEX i_ImageROILink_child ON imageroilink(child);
+  CREATE INDEX i_filter_owner ON filter(owner_id);
+  CREATE INDEX i_filter_group ON filter(group_id);
   CREATE INDEX i_Filter_instrument ON filter(instrument);
   CREATE INDEX i_Filter_transmittanceRange ON filter(transmittanceRange);
   CREATE INDEX i_Filter_type ON filter(type);

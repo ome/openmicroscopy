@@ -52,11 +52,15 @@
 -- Indexes
 --
 #foreach($type in $types)
+#if(!$type.isWithoutTable())
+####################################
 #set( $tbl_name = $type.tableName() )
-#if((!$type.superclass && !$type.global && $type.id != 'ome.model.core.Reference')||($type.superclass == 'ome.model.core.Settings'))
+#set( $regular_concrete_type = (!$type.superclass && !$type.global) )
+#if($regular_concrete_type || $type.isTablePerClass())
   CREATE INDEX i_${tbl_name}_owner ON $tbl_name(owner_id);
   CREATE INDEX i_${tbl_name}_group ON $tbl_name(group_id);
 #end
+##----------------------------------
 #foreach($prop in $type.classProperties)
 #if( $prop.foreignKey && ! $prop.name.equals("details")  && ! $prop.one2Many && $prop.class.name != "ome.dsl.OneOneField")
 #set( $tbl_name = $prop.actualType.tableName() )
@@ -64,7 +68,9 @@
   CREATE INDEX $type.indexName($prop) ON $tbl_name($col_name);
 #end
 #end
-#end
+####################################
+#end##WITHTABLE
+#end##FOREACH
 
 --
 -- Finally, a function for showing our permissions

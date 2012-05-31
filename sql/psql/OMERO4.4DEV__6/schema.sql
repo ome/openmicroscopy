@@ -63,9 +63,22 @@
     );;
 
     create table arc (
-        lightsource_id int8 not null,
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        "power" float8,
+        instrument int8 not null,
         type int8,
-        primary key (lightsource_id)
+        primary key (id)
     );;
 
     create table arctype (
@@ -560,15 +573,26 @@
     );;
 
     create table detector (
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         amplificationGain float8,
         gain float8,
         "offset" float8,
         voltage float8,
         zoom float8,
-        manufacturerspec_id int8 not null,
         instrument int8 not null,
         type int8,
-        primary key (manufacturerspec_id)
+        primary key (id)
     );;
 
     create table detectorsettings (
@@ -598,11 +622,22 @@
     );;
 
     create table dichroic (
-        manufacturerspec_id int8 not null,
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         filterSets int8,
         instrument int8 not null,
         lightPaths int8,
-        primary key (manufacturerspec_id)
+        primary key (id)
     );;
 
     create table dimensionorder (
@@ -769,9 +804,22 @@
     );;
 
     create table filament (
-        lightsource_id int8 not null,
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        "power" float8,
+        instrument int8 not null,
         type int8,
-        primary key (lightsource_id)
+        primary key (id)
     );;
 
     create table filamenttype (
@@ -791,20 +839,42 @@
     );;
 
     create table filter (
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         filterWheel varchar(255),
-        manufacturerspec_id int8 not null,
         instrument int8 not null,
         transmittanceRange int8,
         type int8,
-        primary key (manufacturerspec_id)
+        primary key (id)
     );;
 
     create table filterset (
-        manufacturerspec_id int8 not null,
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         channels int8,
         dichroic int8,
         instrument int8 not null,
-        primary key (manufacturerspec_id)
+        primary key (id)
     );;
 
     create table filtersetemissionfilterlink (
@@ -1042,17 +1112,30 @@
     );;
 
     create table laser (
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        "power" float8,
+        instrument int8 not null,
         frequencyMultiplication int4,
         pockelCell bool,
         repetitionRate float8,
         tuneable bool,
         wavelength int4,
-        lightsource_id int8 not null,
         laserMedium int8,
         pulse int8,
         pump int8,
         type int8,
-        primary key (lightsource_id),
+        primary key (id),
         check (frequencyMultiplication > 0 and wavelength > 0)
     );;
 
@@ -1073,8 +1156,21 @@
     );;
 
     create table lightemittingdiode (
-        lightsource_id int8 not null,
-        primary key (lightsource_id)
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        "power" float8,
+        instrument int8 not null,
+        primary key (id)
     );;
 
     create table lightpath (
@@ -1122,13 +1218,6 @@
         unique (parent, child, owner_id)
     );;
 
-    create table lightsource (
-        "power" float8,
-        manufacturerspec_id int8 not null,
-        instrument int8 not null,
-        primary key (manufacturerspec_id)
-    );;
-
     create table lightsourcesettings (
         id int8 not null,
         permissions int8 not null,
@@ -1162,22 +1251,6 @@
         permissions int8 not null,
         value varchar(255) not null unique,
         external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table manufacturerspec (
-        id int8 not null,
-        permissions int8 not null,
-        lotNumber varchar(255),
-        manufacturer varchar(255),
-        model varchar(255),
-        serialNumber varchar(255),
-        version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );;
 
@@ -1246,9 +1319,20 @@
     );;
 
     create table microscope (
-        manufacturerspec_id int8 not null,
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         type int8,
-        primary key (manufacturerspec_id)
+        primary key (id)
     );;
 
     create table microscopetype (
@@ -1328,16 +1412,27 @@
     );;
 
     create table objective (
+        id int8 not null,
+        permissions int8 not null,
+        lotNumber varchar(255),
+        manufacturer varchar(255),
+        model varchar(255),
+        serialNumber varchar(255),
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         calibratedMagnification float8,
         iris bool,
         lensNA float8,
         nominalMagnification int4,
         workingDistance float8,
-        manufacturerspec_id int8 not null,
         correction int8,
         immersion int8,
         instrument int8 not null,
-        primary key (manufacturerspec_id),
+        primary key (id),
         check (nominalMagnification > 0)
     );;
 
@@ -2158,14 +2253,39 @@
         references annotation  ;;
 
     alter table arc 
-        add constraint FKarc_lightsource_id_lightsource 
-        foreign key (lightsource_id) 
-        references lightsource  ;;
+        add constraint FKmanufacturerspec_creation_id_eventa080f4b117a52 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table arc 
+        add constraint FKmanufacturerspec_update_id_eventa080f4b117a52 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table arc 
+        add constraint FKmanufacturerspec_external_id_externalinfoa080f4b117a52 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table arc 
+        add constraint FKlightsource_instrument_instrument17a52 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table arc 
+        add constraint FKmanufacturerspec_group_id_experimentergroupa080f4b117a52 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table arc 
         add constraint FKarc_type_arctype 
         foreign key (type) 
         references arctype  ;;
+
+    alter table arc 
+        add constraint FKmanufacturerspec_owner_id_experimentera080f4b117a52 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table arctype 
         add constraint FKarctype_external_id_externalinfo 
@@ -2683,9 +2803,24 @@
         references externalinfo  ;;
 
     alter table detector 
-        add constraint FKdetector_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_creation_id_event3e7b17c6 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table detector 
+        add constraint FKmanufacturerspec_external_id_externalinfo3e7b17c6 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table detector 
+        add constraint FKmanufacturerspec_update_id_event3e7b17c6 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table detector 
+        add constraint FKmanufacturerspec_group_id_experimentergroup3e7b17c6 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table detector 
         add constraint FKdetector_type_detectortype 
@@ -2696,6 +2831,11 @@
         add constraint FKdetector_instrument_instrument 
         foreign key (instrument) 
         references instrument  ;;
+
+    alter table detector 
+        add constraint FKmanufacturerspec_owner_id_experimenter3e7b17c6 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table detectorsettings 
         add constraint FKreference_creation_id_event5582bc23bbe4ade9 
@@ -2738,14 +2878,29 @@
         references externalinfo  ;;
 
     alter table dichroic 
+        add constraint FKmanufacturerspec_creation_id_eventf542a6c1 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table dichroic 
         add constraint FKdichroic_lightPaths_lightpath 
         foreign key (lightPaths) 
         references lightpath  ;;
 
     alter table dichroic 
-        add constraint FKdichroic_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_external_id_externalinfof542a6c1 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table dichroic 
+        add constraint FKmanufacturerspec_update_id_eventf542a6c1 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table dichroic 
+        add constraint FKmanufacturerspec_group_id_experimentergroupf542a6c1 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table dichroic 
         add constraint FKdichroic_instrument_instrument 
@@ -2756,6 +2911,11 @@
         add constraint FKdichroic_filterSets_filterset 
         foreign key (filterSets) 
         references filterset  ;;
+
+    alter table dichroic 
+        add constraint FKmanufacturerspec_owner_id_experimenterf542a6c1 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table dimensionorder 
         add constraint FKdimensionorder_external_id_externalinfo 
@@ -2973,14 +3133,39 @@
         references externalinfo  ;;
 
     alter table filament 
-        add constraint FKfilament_lightsource_id_lightsource 
-        foreign key (lightsource_id) 
-        references lightsource  ;;
+        add constraint FKmanufacturerspec_creation_id_eventa080f4b1d3fb8ed6 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filament 
+        add constraint FKmanufacturerspec_update_id_eventa080f4b1d3fb8ed6 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table filament 
+        add constraint FKmanufacturerspec_external_id_externalinfoa080f4b1d3fb8ed6 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filament 
+        add constraint FKlightsource_instrument_instrumentd3fb8ed6 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table filament 
+        add constraint FKmanufacturerspec_group_id_experimentergroupa080f4b1d3fb8ed6 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table filament 
         add constraint FKfilament_type_filamenttype 
         foreign key (type) 
         references filamenttype  ;;
+
+    alter table filament 
+        add constraint FKmanufacturerspec_owner_id_experimentera080f4b1d3fb8ed6 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table filamenttype 
         add constraint FKfilamenttype_external_id_externalinfo 
@@ -2993,14 +3178,29 @@
         references externalinfo  ;;
 
     alter table filter 
+        add constraint FKmanufacturerspec_creation_id_eventb408cb78 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filter 
+        add constraint FKmanufacturerspec_external_id_externalinfob408cb78 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filter 
+        add constraint FKmanufacturerspec_update_id_eventb408cb78 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table filter 
         add constraint FKfilter_transmittanceRange_transmittancerange 
         foreign key (transmittanceRange) 
         references transmittancerange  ;;
 
     alter table filter 
-        add constraint FKfilter_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_group_id_experimentergroupb408cb78 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table filter 
         add constraint FKfilter_type_filtertype 
@@ -3012,10 +3212,30 @@
         foreign key (instrument) 
         references instrument  ;;
 
+    alter table filter 
+        add constraint FKmanufacturerspec_owner_id_experimenterb408cb78 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
     alter table filterset 
-        add constraint FKfilterset_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_creation_id_eventcb779dea 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filterset 
+        add constraint FKmanufacturerspec_external_id_externalinfocb779dea 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filterset 
+        add constraint FKmanufacturerspec_update_id_eventcb779dea 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table filterset 
+        add constraint FKmanufacturerspec_group_id_experimentergroupcb779dea 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table filterset 
         add constraint FKfilterset_instrument_instrument 
@@ -3031,6 +3251,11 @@
         add constraint FKfilterset_dichroic_dichroic 
         foreign key (dichroic) 
         references dichroic  ;;
+
+    alter table filterset 
+        add constraint FKmanufacturerspec_owner_id_experimentercb779dea 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table filtersetemissionfilterlink 
         add constraint FKfiltersetemissionfilterlink_creation_id_event 
@@ -3438,14 +3663,19 @@
         references shape  ;;
 
     alter table laser 
-        add constraint FKlaser_lightsource_id_lightsource 
-        foreign key (lightsource_id) 
-        references lightsource  ;;
+        add constraint FKmanufacturerspec_creation_id_eventa080f4b161fbecb 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table laser 
-        add constraint FKlaser_pump_lightsource 
-        foreign key (pump) 
-        references lightsource  ;;
+        add constraint FKmanufacturerspec_update_id_eventa080f4b161fbecb 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table laser 
+        add constraint FKmanufacturerspec_external_id_externalinfoa080f4b161fbecb 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table laser 
         add constraint FKlaser_laserMedium_lasermedium 
@@ -3458,9 +3688,24 @@
         references pulse  ;;
 
     alter table laser 
+        add constraint FKlightsource_instrument_instrument61fbecb 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table laser 
+        add constraint FKmanufacturerspec_group_id_experimentergroupa080f4b161fbecb 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table laser 
         add constraint FKlaser_type_lasertype 
         foreign key (type) 
         references lasertype  ;;
+
+    alter table laser 
+        add constraint FKmanufacturerspec_owner_id_experimentera080f4b161fbecb 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table lasermedium 
         add constraint FKlasermedium_external_id_externalinfo 
@@ -3473,9 +3718,34 @@
         references externalinfo  ;;
 
     alter table lightemittingdiode 
-        add constraint FKlightemittingdiode_lightsource_id_lightsource 
-        foreign key (lightsource_id) 
-        references lightsource  ;;
+        add constraint FKmanufacturerspec_creation_id_eventa080f4b1fcb4b494 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKmanufacturerspec_update_id_eventa080f4b1fcb4b494 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKmanufacturerspec_external_id_externalinfoa080f4b1fcb4b494 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKlightsource_instrument_instrumentfcb4b494 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKmanufacturerspec_group_id_experimentergroupa080f4b1fcb4b494 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightemittingdiode 
+        add constraint FKmanufacturerspec_owner_id_experimentera080f4b1fcb4b494 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table lightpath 
         add constraint FKlightpath_creation_id_event 
@@ -3577,16 +3847,6 @@
         foreign key (parent) 
         references lightpath  ;;
 
-    alter table lightsource 
-        add constraint FKlightsource_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
-
-    alter table lightsource 
-        add constraint FKlightsource_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
-
     alter table lightsourcesettings 
         add constraint FKreference_creation_id_event5582bc2333206fd4 
         foreign key (creation_id) 
@@ -3601,11 +3861,6 @@
         add constraint FKreference_external_id_externalinfo5582bc2333206fd4 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table lightsourcesettings 
-        add constraint FKlightsourcesettings_lightSource_lightsource 
-        foreign key (lightSource) 
-        references lightsource  ;;
 
     alter table lightsourcesettings 
         add constraint FKreference_group_id_experimentergroup5582bc2333206fd4 
@@ -3641,31 +3896,6 @@
         add constraint FKlinecap_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table manufacturerspec 
-        add constraint FKmanufacturerspec_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table manufacturerspec 
-        add constraint FKmanufacturerspec_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table manufacturerspec 
-        add constraint FKmanufacturerspec_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table manufacturerspec 
-        add constraint FKmanufacturerspec_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table manufacturerspec 
-        add constraint FKmanufacturerspec_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
 
     alter table marker 
         add constraint FKmarker_external_id_externalinfo 
@@ -3758,14 +3988,34 @@
         references externalinfo  ;;
 
     alter table microscope 
-        add constraint FKmicroscope_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_creation_id_event51de9a10 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table microscope 
+        add constraint FKmanufacturerspec_external_id_externalinfo51de9a10 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microscope 
+        add constraint FKmanufacturerspec_update_id_event51de9a10 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table microscope 
+        add constraint FKmanufacturerspec_group_id_experimentergroup51de9a10 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table microscope 
         add constraint FKmicroscope_type_microscopetype 
         foreign key (type) 
         references microscopetype  ;;
+
+    alter table microscope 
+        add constraint FKmanufacturerspec_owner_id_experimenter51de9a10 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table microscopetype 
         add constraint FKmicroscopetype_external_id_externalinfo 
@@ -3878,14 +4128,29 @@
         references node  ;;
 
     alter table objective 
+        add constraint FKmanufacturerspec_creation_id_eventa736b939 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table objective 
+        add constraint FKmanufacturerspec_external_id_externalinfoa736b939 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table objective 
+        add constraint FKmanufacturerspec_update_id_eventa736b939 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table objective 
         add constraint FKobjective_immersion_immersion 
         foreign key (immersion) 
         references immersion  ;;
 
     alter table objective 
-        add constraint FKobjective_manufacturerspec_id_manufacturerspec 
-        foreign key (manufacturerspec_id) 
-        references manufacturerspec  ;;
+        add constraint FKmanufacturerspec_group_id_experimentergroupa736b939 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table objective 
         add constraint FKobjective_instrument_instrument 
@@ -3896,6 +4161,11 @@
         add constraint FKobjective_correction_correction 
         foreign key (correction) 
         references correction  ;;
+
+    alter table objective 
+        add constraint FKmanufacturerspec_owner_id_experimentera736b939 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table objectivesettings 
         add constraint FKreference_creation_id_event5582bc23de2d2c5c 

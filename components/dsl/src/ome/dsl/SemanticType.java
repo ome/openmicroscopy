@@ -147,6 +147,54 @@ public abstract class SemanticType {
     }
 
     /**
+     * Walk up through all of our superclasses (if any) and if the id for any
+     * of them is equal to the type given, then return true. Otherwise, false.
+     */
+    public boolean isSubclassOf(String type) {
+        SemanticType sc = superclass;
+        while (sc != null) {
+            if (sc.getId().equals(type)) {
+                return true;
+            }
+            sc = sc.superclass;
+        }
+        return false;
+    }
+
+    private final static String REF = "ome.model.core.Reference";
+    private final static String MSP = "ome.model.core.ManufacturerSpec";
+
+    /**
+     * Defines the TABLE_PER_CLASS implementations as required by ticket:9013.
+     *
+     * TODO: If we continue with the DSL, then this should be changed to a flag
+     * on the items themselves.
+     */
+    public boolean isTablePerClass() {
+        boolean refHierarchy = isSubclassOf(REF);
+        boolean manuHierarchy = isSubclassOf(MSP);
+        return !abstrakt && (refHierarchy || manuHierarchy);
+    }
+
+    /**
+     * The complement of {@link #isTablePerClass()}: all the abstract classes
+     * whose concrete subclasses would return true for {@link #isTablePerClass()}
+     * will return true for this method.
+     */
+    public boolean isWithoutTable() {
+        boolean refHierarchy = (id.equals(REF) || isSubclassOf(REF));
+        boolean manuHierarchy = (id.equals(MSP) || isSubclassOf(MSP));
+        System.out.println(id);
+        System.out.println(REF);
+        System.out.println(MSP);
+        System.out.println("A:" + abstrakt);
+        System.out.println("R:" + refHierarchy);
+        System.out.println("M:" + manuHierarchy);
+        System.out.println("O:" + (abstrakt && (refHierarchy || manuHierarchy)));
+        return abstrakt && (refHierarchy || manuHierarchy);
+    }
+
+    /**
      * A database is "restrictive" if it prevents the use of certain columns
      * and table names, both keywords and lengths.
      */
