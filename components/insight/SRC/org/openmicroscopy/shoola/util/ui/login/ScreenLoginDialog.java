@@ -125,14 +125,14 @@ public class ScreenLoginDialog
 		getRootPane().setDefaultButton(view.getRootPane().getDefaultButton());
 		setCursor(view.getCursor());
 	}
-
-	/**
-	 * Resets the login text.
-	 * 
-	 * @param value The value to set.
-	 */
-	public void resetLoginText(String value) { view.resetLoginText(value); }
 	
+	/** 
+     * Shows or hides the progress bar and the tasks label. 
+     * 
+     * @param b Pass <code>true</code> to show, <code>false</code> to hide.
+     */
+    public void setStatusVisible(boolean b) { view.setStatusVisible(b); }
+    
 	/** 
 	 * Modifies the text and the tool tip of the <code>Quit</code> button.
 	 * 

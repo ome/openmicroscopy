@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -59,6 +60,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
@@ -66,7 +68,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.StringComparator;
@@ -110,7 +111,7 @@ public class ScreenLogin
 	public static final String		DEFAULT_SERVER = "Add a new server ->";
 
 	/** The font color for text. */
-	static final Color      		TEXT_COLOR = Color.WHITE;
+	static final Color      		TEXT_COLOR = new Color(156, 165, 174);
 
 	/** The default size of the window. */
 	static final Dimension			DEFAULT_SIZE = new Dimension(551, 113);
@@ -134,6 +135,9 @@ public class ScreenLogin
 	 */
 	private static final String  	OMERO_TRANSFER_ENCRYPTED = 
 		"omeroTransferEncrypted";
+	
+	/** Indent value for text. */
+	private static final int			TEXT_INDENT = 15;
 	
 	/** The size of the font for the version. */
 	private static final float		VERSION_FONT_SIZE = 14;
@@ -244,6 +248,15 @@ public class ScreenLogin
 	
 	/** The map hosting the real group names.*/
 	private Map<Integer, String> groupNames;
+	
+	/** The layered hosting the various UI components. */
+	private JLayeredPane layers;
+	
+	/** Displays the name of the task that is currently being executed. */
+	private JLabel currentTask;
+	
+	/** Provides feedback on the state of the initialization process. */
+	private JProgressBar progressBar;
 	
 	/** Quits the application. */
 	private void quit()
@@ -486,6 +499,16 @@ public class ScreenLogin
 	 */
 	private void initialize(String userName, String hostName)
 	{
+		//status update.
+		currentTask = new JLabel();
+		Font newFont = currentTask.getFont().deriveFont(8);
+		currentTask.setFont(newFont);
+		currentTask.setForeground(ScreenLogin.TEXT_COLOR);
+		progressBar = new JProgressBar();
+		progressBar.setVisible(false);
+		progressBar.setStringPainted(false);
+		progressBar.setFont(newFont);
+		
 		originalName = userName;
 		user = new JTextField();
 		user.setText(userName);
@@ -549,6 +572,8 @@ public class ScreenLogin
 		connectionSpeedText.setBorder(
 				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
+		Font font = serverText.getFont();
+		serverText.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
 		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
@@ -560,6 +585,7 @@ public class ScreenLogin
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
 		setButtonDefault(login);
+		login.setEnabled(false);
 		UIUtilities.enterPressesWhenFocused(login);
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
@@ -598,7 +624,6 @@ public class ScreenLogin
 		else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
 		getRootPane().setDefaultButton(login);
 		enableControls();
-		
 	}
 
 	/** 
@@ -622,127 +647,120 @@ public class ScreenLogin
 		mainPanel.validate();
 		mainPanel.repaint();
 	}
-	
+
 	/**
 	 * Builds the UI component hosting the buttons.
 	 * 
-	 * @param version The version of the software.
 	 * @return See above.
 	 */
-	private JPanel buildMainPanel(String version)
+	private JPanel buildLogin()
 	{
-		mainPanel = new JPanel();
-		int g = 10;
-		int t = 10;
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(t, g, t, g));
-		mainPanel.setOpaque(false);
-		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL, 
-			TableLayout.PREFERRED, 
-			TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-				TableLayout.PREFERRED, TableLayout.PREFERRED}};
-		TableLayout layout = new TableLayout(size);
-		mainPanel.setLayout(layout);
-		Font f;
-		JTextPane l;
-		pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
-				TEXT_COLOR);
-		f = pleaseLogIn.getFont();
-		pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
-		mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
-		
-		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
-		f = versionInfo.getFont();
-		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, 
-				VERSION_FONT_SIZE));
-		
+		//server information
 		JPanel p = new JPanel();
 		p.setOpaque(false);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(serverTextPane);
 		p.add(connectionSpeedText);
-		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
-				"0, 0, 4, 0");
+		
 		JToolBar bar = new JToolBar();
 		bar.setOpaque(false);
 		bar.setBorder(null);
 		bar.setFloatable(false);
 		bar.add(encryptedButton);
 		bar.add(configButton);
-		mainPanel.add(bar, "5, 0, LEFT, TOP");
 		
-		//second row
-		l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
-		mainPanel.add(l, "0, 1, LEFT, CENTER");
-		ref.add(l);
-		if (groupsBox != null) {
-			JPanel gp = UIUtilities.buildComponentPanel(groupsBox, 0, 0);
-			gp.setBorder(null);
-			gp.setOpaque(false);
-			mainPanel.add(gp, "1, 1, 5, 1");
-			ref.add(groupsBox);
-		}
-		//third row
-		l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
+		JPanel row = new JPanel();
+		row.setOpaque(false);
+		row.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		row.add(p);
+		row.add(bar);
 		
-		mainPanel.add(l, "0, 2, LEFT, CENTER");
-		mainPanel.add(user, "1, 2, 2, 2");
+		mainPanel.add(row);
+		
+		//user name
+		JPanel group = new JPanel();
+		group.setOpaque(false);
+		group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
+		row = new JPanel();
+		row.setOpaque(false);
+		row.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(l);
+		row.add(user);
+		group.add(row);
+		
+		//password
 		l = UIUtilities.buildTextPane(" "+PASSWORD_TEXT, TEXT_COLOR);
-		mainPanel.add(l, "3, 2, RIGHT, CENTER");
-		mainPanel.add(pass, "4, 2, 5, 2");
-		//4th row
+		row = new JPanel();
+		row.setOpaque(false);
+		row.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(l);
+		row.add(pass);
+		group.add(row);
 		
-		JPanel cPanel = new JPanel();
-		cPanel.setOpaque(false);
-		cPanel.add(Box.createHorizontalGlue());
-		cPanel.add(login);
-		cPanel.add(cancel);
+		mainPanel.add(group);
+		//controls
+		JPanel controls = new JPanel();
+		controls.setOpaque(false);
+		controls.add(Box.createHorizontalGlue());
+		controls.add(login);
+		controls.add(cancel);
+		mainPanel.add(UIUtilities.buildComponentPanelCenter(controls, 0, 0,
+				false));
 		
-		double[][] s = {{TableLayout.FILL, TableLayout.PREFERRED},
-				{TableLayout.PREFERRED}};
-		p = new JPanel();
-		p.setOpaque(false);
-		p.setLayout(new TableLayout(s));
-		p.add(versionInfo, "0, 0, LEFT, CENTER");
-		p.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false), 
-				"1, 0, RIGHT, CENTER");
-		mainPanel.add(p, "0, 3, 5, 3");
+
 		
-		layout(groups != null);
 		return mainPanel;
 	}
-
+	
 	/** 
 	 * Lays out the widgets and positions the window in the middle of
 	 * the screen.
 	 * 
 	 * @param logo 		The Frame's background logo. 
 	 * @param version	The version of the software.
+	 * @param serverAvailable Pass <code>true</code> if the client needs to 
+	 * connect to a server, <code>false</code> otherwise.
 	 */
-	private void buildGUI(Icon logo, String version)
+	private void buildGUI(Icon logo, String version, boolean serverAvailable)
 	{
-		JLabel background;
-		JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
-		int width;
-		int height;
-		if (logo != null) {
-			background = new JLabel(logo);
-			width = logo.getIconWidth();
-			height = logo.getIconHeight();
-		} else {
-			background = new JLabel();
-			width = DEFAULT_SIZE.width;
-			height = DEFAULT_SIZE.height;
-		}
-		background.setBorder(BorderFactory.createEmptyBorder());
+		JLabel splash = new JLabel(logo);
+		layers = new JLayeredPane(); 
+		layers.add(splash, Integer.valueOf(0));
+		getContentPane().add(layers);
+		int width = logo.getIconWidth();
+		int height = logo.getIconHeight();
 		layers.setBounds(0, 0, width, height);
-		JPanel p = buildMainPanel(version);
-		background.setBounds(0, 0, width, height);
-		p.setBounds(0, 0, width, height);
-
-		layers.add(background, Integer.valueOf(0));
-		layers.add(p, Integer.valueOf(1));
-		getContentPane().add(layers); 
+		splash.setBounds(0, 0, width, height);
+		int h = progressBar.getFontMetrics(progressBar.getFont()).getHeight();
+		int top = 120;
+		int bottom = 100;
+		currentTask.setBounds(TEXT_INDENT, top, width-2*TEXT_INDENT, h);
+		top += 20;
+		progressBar.setBounds(TEXT_INDENT, top, width-2*TEXT_INDENT, h);
+		
+		addToLayer(currentTask);
+		addToLayer(progressBar);
+		
+		mainPanel = new JPanel();
+		mainPanel.setOpaque(false);
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		Font f;
+		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
+		f = versionInfo.getFont();
+		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, f.getSize()-4));
+		versionInfo.setOpaque(false);
+		//Add login details.
+		int y = height-bottom-10;
+		if (serverAvailable) {
+			y = top+2*h;
+			buildLogin();
+		}
+		
+		mainPanel.add(UIUtilities.buildComponentPanelCenter(
+				versionInfo, 0, 0, false));
+		mainPanel.setBounds(0, y, width, height-top-bottom);
+		addToLayer(mainPanel);
 	}
 
 	/** 
@@ -993,16 +1011,17 @@ public class ScreenLogin
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param title		 The frame's title.
-	 * @param logo		 The frame's background logo. 
-	 * 					 Mustn't be <code>null</code>.
-	 * @param frameIcon  The image icon for the window.
-	 * @param version	 The version of the software.
+	 * @param title The frame's title.
+	 * @param logo The frame's background logo. Mustn't be <code>null</code>.
+	 * @param frameIcon The image icon for the window.
+	 * @param version The version of the software.
 	 * @param defaultPort The default port.
-	 * @param hostName   The default host name.
+	 * @param hostName The default host name.
+	 * @param serverAvailable Pass <code>true</code> if the client needs to 
+	 * connect to a server, <code>false</code> otherwise.
 	 */
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
-			String defaultPort, String hostName)
+			String defaultPort, String hostName, boolean serverAvailable)
 	{
 		super();
 		selectedPort = -1;
@@ -1018,7 +1037,7 @@ public class ScreenLogin
 		speedIndex = retrieveConnectionSpeed();
 		initialize(getUserName(), hostName);
 		initListeners();
-		buildGUI(logo, version);
+		buildGUI(logo, version, serverAvailable);
 		encrypt();
 		setProperties(frameIcon);
 		showConnectionSpeed(false);
@@ -1050,7 +1069,7 @@ public class ScreenLogin
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
 			String defaultPort)
 	{
-		this(title, logo, frameIcon, version, defaultPort, null);
+		this(title, logo, frameIcon, version, defaultPort, null, true);
 	}
 
 	/**
@@ -1089,17 +1108,6 @@ public class ScreenLogin
 	public ScreenLogin(Icon logo, Image frameIcon)
 	{
 		this(null, logo, frameIcon, null, null);
-	}
-
-	/**
-	 * Resets the login text.
-	 * 
-	 * @param value The value to set.
-	 */
-	void resetLoginText(String value)
-	{
-		if (value == null || value.trim().length() == 0) return;
-		pleaseLogIn.setText(value);
 	}
 	
 	/** 
@@ -1226,6 +1234,56 @@ public class ScreenLogin
 		cancel.setMnemonic(mnemonic);
 	}
 
+	/**
+	 * Sets the total number of initialization tasks that have to be
+     * performed.
+     * 
+	 * @param maxTask The total number of tasks.
+	 */
+	public void initProgressBar(int maxTask)
+	{
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(maxTask);
+		progressBar.setValue(0);
+	}
+	
+	/**
+	 * Adds the specified component to the layeredPane.
+	 * 
+	 * @param c The component to add.
+	 */
+	public void addToLayer(JComponent c)
+	{
+		if (c == null) return;
+		layers.add(c, Integer.valueOf(1));
+	}
+	
+	/**
+     * Sets the value of the progress bar and the status message.
+     * 
+     * @param value	The status message.
+     * @param perc	The value to set.
+     */
+    public void setStatus(String value, int perc)
+    {
+    	currentTask.setText(value);
+    	progressBar.setValue(perc);
+    }
+    
+    /** 
+     * Shows or hides the progress bar and the tasks label. 
+     * 
+     * @param b Pass <code>true</code> to show, <code>false</code> to hide.
+     */
+    public void setStatusVisible(boolean b)
+    {
+    	currentTask.setVisible(b);
+    	progressBar.setVisible(b);
+    	if (!b) {
+    		login.setEnabled(true);
+    	}
+    }
+    
 	/**
 	 * Registers the passed groups.
 	 * 

@@ -163,6 +163,33 @@ public class TaskBarManager
     /** Dialog to reconnect to server.*/
     private ScreenLoginDialog reconnectDialog;
     
+    /**
+     * Returns the icon for the splash screen if none set.
+     * 
+     * @param splashScreen The icon or <code>null</code>.
+     * @return See above.
+     */
+    private Icon getSplashScreen(Icon splashScreen)
+    {
+    	if (splashScreen == null) {
+    		Integer v = (Integer) container.getRegistry().lookup(
+    				LookupNames.ENTRY_POINT);
+    		if (v != null) {
+    			switch (v.intValue()) {
+    			case LookupNames.EDITOR_ENTRY:
+    				splashScreen = IconManager.getEditorSplashScreen();
+    				break;
+    			case LookupNames.IMPORTER_ENTRY:
+    				splashScreen = IconManager.getImporterSplashScreen();
+    				break;
+    			default:
+    				splashScreen = IconManager.getSplashScreen();
+    			}
+    		}
+		}
+    	return splashScreen;
+    }
+    
 	/** 
 	 * Parses the passed file to determine the value of the URL.
 	 * 
@@ -481,17 +508,12 @@ public class TaskBarManager
     	String port = ""+omeroInfo.getPortSSL();
     	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
 
-		String n = (String) container.getRegistry().lookup(
-				LookupNames.SPLASH_SCREEN_LOGIN);
-		
-		Icon splashLogin = Factory.createIcon(n, f);
-		if (splashLogin == null)
-			splashLogin = IconManager.getLoginBackground();
-    	
-    	
+    	String n = (String) container.getRegistry().lookup(
+				LookupNames.SPLASH_SCREEN_LOGO);
+
 		reconnectDialog = new ScreenLoginDialog(Container.TITLE, 
-				splashLogin, img, v, port);
-		reconnectDialog.resetLoginText("Reconnect");
+				getSplashScreen(Factory.createIcon(n, f)), img, v, port);
+		reconnectDialog.setStatusVisible(false);
 		reconnectDialog.showConnectionSpeed(true);
 		reconnectDialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
@@ -956,16 +978,12 @@ public class TaskBarManager
 		    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
 
 				String n = (String) container.getRegistry().lookup(
-						LookupNames.SPLASH_SCREEN_LOGIN);
-				
-				Icon splashLogin = Factory.createIcon(n, f);
-				if (splashLogin == null)
-					splashLogin = IconManager.getLoginBackground();
-		    	
-		    	
-		    	login = new ScreenLoginDialog(Container.TITLE, splashLogin, 
-		    			img, v, port);
+						LookupNames.SPLASH_SCREEN_LOGO);
+
+		    	login = new ScreenLoginDialog(Container.TITLE,
+		    		getSplashScreen(Factory.createIcon(n, f)), img, v, port);
 		    	//login.setModal(true);
+		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
 				login.addPropertyChangeListener(this);
 	    	}
