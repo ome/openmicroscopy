@@ -132,7 +132,7 @@ class TestIContainer(lib.ITest):
         img.acquisitionDate = rtime(0)
         pix = ipojo.createDataObject(pix,None)
         o = pix.getImage().getDetails().owner
-        self.assertEquals( -1, o.sizeOfExperimenterGroupExperimenterLink() )
+        self.assertEquals( -1, o.sizeOfExperimenterGroupLinks() )
 
 if __name__ == '__main__':
     unittest.main()

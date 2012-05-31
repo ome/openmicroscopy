@@ -24,7 +24,7 @@ class TestModel42(lib.ITest):
         img = pix.getImage()
         roi = omero.model.ROII()
         roi.namespace = rstring(self.uuid())
-        roi.image = img
+        roi.linkImage(img)
         roi = self.update.saveAndReturnObject(roi)
 
 
@@ -38,7 +38,7 @@ class TestTicket2290(lib.ITest):
         pix = self.update.saveAndReturnObject( pix )
         img = pix.getImage()
         roi = omero.model.ROII()
-        roi.image = img
+        roi.linkImage(img)
         roi = self.update.saveAndReturnObject(roi)
         # Then resave
         roi = self.update.saveAndReturnObject(roi)
@@ -51,7 +51,7 @@ class TestTicket2290(lib.ITest):
         pix = self.update.saveAndReturnObject( pix )
         img = pix.getImage()
         roi = omero.model.ROII()
-        roi.image = img
+        roi.linkImage(img)
         roi = self.update.saveAndReturnObject(roi)
         # Then resave
         roi = self.update.saveAndReturnObject(roi)
@@ -64,7 +64,7 @@ class TestTicket2290(lib.ITest):
         pix = self.update.saveAndReturnObject( pix )
         img = pix.getImage()
         roi = omero.model.ROII()
-        roi.image = img
+        roi.linkImage(img)
         rect = self.new_rectangle()
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)
@@ -77,7 +77,7 @@ class TestTicket2290(lib.ITest):
         pix = self.update.saveAndReturnObject( pix )
         img = pix.getImage()
         roi = omero.model.ROII()
-        roi.image = img
+        roi.linkImage(img)
         roi = self.update.saveAndReturnObject(roi)
         rect = self.new_rectangle()
         roi.addShape(rect)
@@ -92,7 +92,7 @@ class TestTicket2290(lib.ITest):
         pix = self.update.saveAndReturnObject( pix )
         img = pix.getImage()
         roi = omero.model.ROII()
-        roi.image = img
+        roi.linkImage(img)
         roi = self.update.saveAndReturnObject(roi)
         rect = self.new_rectangle()
         roi.addShape(rect)
