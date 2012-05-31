@@ -101,7 +101,7 @@ public class ChgrpI extends Chgrp implements IRequest {
                 helper.getSession(), spec);
 
             // Throws on no steps
-            this.helper.setSteps(state.getTotalFoundCount());
+            this.helper.setSteps(state.getTotalFoundCount()+1); // +1 refresh;
             sw.stop("omero.chgrp.ids." + helper.getSteps());
 
 
@@ -132,17 +132,27 @@ public class ChgrpI extends Chgrp implements IRequest {
                     "message", "Unknown type:" + type);
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "INIT ERR");
+        } finally {
+            // helper.getSession().refresh(obj);
         }
 
     }
 
     public Object step(int i) throws Cancel {
-        if (i < 0 || i >= helper.getSteps()) {
-            throw helper.cancel(new ERR(), null, "bad-step", "step", ""+i);
-        }
+        helper.assertStep(i);
 
         try {
-            return state.execute(i);
+            if ((i+1) == helper.getSteps()) {
+                // The dataset was loaded in order to check its permissions.
+                // Since these have been changed "in the background" (via SQL)
+                // it's important that we refresh that object for later cmds.
+                Session s = helper.getSession();
+                IObject obj = spec.load(s);
+                s.refresh(obj);
+                return null;
+            } else {
+                return state.execute(i);
+            }
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "STEP ERR", "step", ""+i, "id", ""+id);
         }
