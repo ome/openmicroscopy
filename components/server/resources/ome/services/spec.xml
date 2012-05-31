@@ -190,8 +190,8 @@
             <list>
                 <value>/ImageROILink/ROI;SOFT;/Image</value>
                 <value>/ImageROILink;FORCE;/Image</value>
-                <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
+                <value>/Image/Pixels/OriginalFilePixelsLink;REAP</value>
+                <value>/OriginalFile;SOFT;/Image/Pixels/OriginalFilePixelsLink</value><!-- #5273 -->
                 <value>/Image/Pixels/Plane/PlaneAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/Pixels/Plane/PlaneAnnotationLink</value>
                 <value>/Image/Pixels/Plane</value>
@@ -317,7 +317,7 @@
     <bean parent="delSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
-                <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
+                <value>/OriginalFile/OriginalFilePixelsLink;FORCE</value>
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile</value>
