@@ -203,7 +203,8 @@ public class LineData
 	 */
 	public String getMarkerStart()
 	{
-		return "";
+        Line shape = (Line) asIObject();
+		return shape.getMarkerStart().getValue().getValue();
 	}
 	
 	/**
@@ -213,7 +214,8 @@ public class LineData
 	 */
 	public String getMarkerEnd()
 	{
-		return "";
+        Line shape = (Line) asIObject();
+		return shape.getMarkerEnd().getValue().getValue();
 	}
 	
 	/**
@@ -223,7 +225,7 @@ public class LineData
 	 */
 	public void setMarkerStart(String markerStart)
 	{
-		
+        throw new UnsupportedOperationException("Not yet implemented.");
 	}
 	
 	/**
@@ -233,7 +235,7 @@ public class LineData
 	 */
 	public void setMarkerEnd(String markerEnd)
 	{
-		
+        throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
 }
