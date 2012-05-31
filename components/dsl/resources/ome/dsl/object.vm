@@ -109,7 +109,10 @@ import ome.model.core.*;
 #end
 })
 @org.hibernate.annotations.Entity( selectBeforeUpdate = true )
-#if(!$type.discriminator)
+#if($type.id == "ome.model.core.Settings" || $type.id == "ome.model.core.Reference")
+## ...OF CONCRETE TABLES
+@javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.TABLE_PER_CLASS)
+#elseif(!$type.discriminator)
 ## ...OF JOINED TABLES
 @javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.JOINED)
 #else

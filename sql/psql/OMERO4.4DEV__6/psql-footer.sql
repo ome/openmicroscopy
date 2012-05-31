@@ -270,8 +270,6 @@
   CREATE INDEX i_originalfileannotationlink_group ON originalfileannotationlink(group_id);
   CREATE INDEX i_OriginalFileAnnotationLink_parent ON originalfileannotationlink(parent);
   CREATE INDEX i_OriginalFileAnnotationLink_child ON originalfileannotationlink(child);
-  CREATE INDEX i_ExperimenterGroup_events ON experimentergroup(events);
-  CREATE INDEX i_ExperimenterGroup_shares ON experimentergroup(shares);
   CREATE INDEX i_ShareExperimenterLink_parent ON shareexperimenterlink(parent);
   CREATE INDEX i_ShareExperimenterLink_child ON shareexperimenterlink(child);
   CREATE INDEX i_dataset_owner ON dataset(owner_id);
@@ -302,14 +300,16 @@
   CREATE INDEX i_Dichroic_filterSets ON dichroic(filterSets);
   CREATE INDEX i_Dichroic_instrument ON dichroic(instrument);
   CREATE INDEX i_Dichroic_lightPaths ON dichroic(lightPaths);
+  CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
+  CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
   CREATE INDEX i_originalfilepixelslink_owner ON originalfilepixelslink(owner_id);
   CREATE INDEX i_originalfilepixelslink_group ON originalfilepixelslink(group_id);
   CREATE INDEX i_OriginalFilePixelsLink_parent ON originalfilepixelslink(parent);
   CREATE INDEX i_OriginalFilePixelsLink_child ON originalfilepixelslink(child);
-  CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
-  CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
   CREATE INDEX i_statsinfo_owner ON statsinfo(owner_id);
   CREATE INDEX i_statsinfo_group ON statsinfo(group_id);
+  CREATE INDEX i_objectivesettings_owner ON objectivesettings(owner_id);
+  CREATE INDEX i_objectivesettings_group ON objectivesettings(group_id);
   CREATE INDEX i_ObjectiveSettings_medium ON objectivesettings(medium);
   CREATE INDEX i_ObjectiveSettings_objective ON objectivesettings(objective);
   CREATE INDEX i_channelannotationlink_owner ON channelannotationlink(owner_id);
@@ -369,6 +369,8 @@
   CREATE INDEX i_projectannotationlink_group ON projectannotationlink(group_id);
   CREATE INDEX i_ProjectAnnotationLink_parent ON projectannotationlink(parent);
   CREATE INDEX i_ProjectAnnotationLink_child ON projectannotationlink(child);
+  CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
+  CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
   CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
   CREATE INDEX i_microbeammanipulationroilink_owner ON microbeammanipulationroilink(owner_id);
@@ -405,6 +407,8 @@
   CREATE INDEX i_Filament_type ON filament(type);
   CREATE INDEX i_originalfile_owner ON originalfile(owner_id);
   CREATE INDEX i_originalfile_group ON originalfile(group_id);
+  CREATE INDEX i_lightsourcesettings_owner ON lightsourcesettings(owner_id);
+  CREATE INDEX i_lightsourcesettings_group ON lightsourcesettings(group_id);
   CREATE INDEX i_LightSourceSettings_lightSource ON lightsourcesettings(lightSource);
   CREATE INDEX i_LightSourceSettings_microbeamManipulation ON lightsourcesettings(microbeamManipulation);
   CREATE INDEX i_annotation_owner ON annotation(owner_id);
@@ -446,8 +450,6 @@
   CREATE INDEX i_screenannotationlink_group ON screenannotationlink(group_id);
   CREATE INDEX i_ScreenAnnotationLink_parent ON screenannotationlink(parent);
   CREATE INDEX i_ScreenAnnotationLink_child ON screenannotationlink(child);
-  CREATE INDEX i_Experimenter_events ON experimenter(events);
-  CREATE INDEX i_Experimenter_sessions ON experimenter(sessions);
   CREATE INDEX i_quantumdef_owner ON quantumdef(owner_id);
   CREATE INDEX i_quantumdef_group ON quantumdef(group_id);
   CREATE INDEX i_pixelsannotationlink_owner ON pixelsannotationlink(owner_id);
@@ -481,8 +483,6 @@
   CREATE INDEX i_imageroilink_group ON imageroilink(group_id);
   CREATE INDEX i_ImageROILink_parent ON imageroilink(parent);
   CREATE INDEX i_ImageROILink_child ON imageroilink(child);
-  CREATE INDEX i_settings_owner ON settings(owner_id);
-  CREATE INDEX i_settings_group ON settings(group_id);
   CREATE INDEX i_Filter_instrument ON filter(instrument);
   CREATE INDEX i_Filter_transmittanceRange ON filter(transmittanceRange);
   CREATE INDEX i_Filter_type ON filter(type);
@@ -511,8 +511,7 @@
   CREATE INDEX i_codomainmapcontext_owner ON codomainmapcontext(owner_id);
   CREATE INDEX i_codomainmapcontext_group ON codomainmapcontext(group_id);
   CREATE INDEX i_CodomainMapContext_renderingDef ON codomainmapcontext(renderingDef);
-  CREATE INDEX i_Event_event ON event(event);
-  CREATE INDEX i_Event_events ON event(events);
+  CREATE INDEX i_Event_containingEvent ON event(containingEvent);
   CREATE INDEX i_Event_experimenterGroup ON event(experimenterGroup);
   CREATE INDEX i_Event_experimenter ON event(experimenter);
   CREATE INDEX i_Event_session ON event("session");
@@ -648,9 +647,9 @@ CREATE SEQUENCE seq_renderingmodel; INSERT INTO _lock_ids (name, id) SELECT 'seq
 CREATE SEQUENCE seq_namespace; INSERT INTO _lock_ids (name, id) SELECT 'seq_namespace', nextval('_lock_seq');
 CREATE SEQUENCE seq_image; INSERT INTO _lock_ids (name, id) SELECT 'seq_image', nextval('_lock_seq');
 CREATE SEQUENCE seq_fillrule; INSERT INTO _lock_ids (name, id) SELECT 'seq_fillrule', nextval('_lock_seq');
-CREATE SEQUENCE seq_originalfilepixelslink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfilepixelslink', nextval('_lock_seq');
 CREATE SEQUENCE seq_affinetransform; INSERT INTO _lock_ids (name, id) SELECT 'seq_affinetransform', nextval('_lock_seq');
 CREATE SEQUENCE seq_eventtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventtype', nextval('_lock_seq');
+CREATE SEQUENCE seq_originalfilepixelslink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfilepixelslink', nextval('_lock_seq');
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_microscopetype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microscopetype', nextval('_lock_seq');
 CREATE SEQUENCE seq_jobstatus; INSERT INTO _lock_ids (name, id) SELECT 'seq_jobstatus', nextval('_lock_seq');
@@ -689,6 +688,7 @@ CREATE SEQUENCE seq_plane; INSERT INTO _lock_ids (name, id) SELECT 'seq_plane', 
 CREATE SEQUENCE seq_originalfile; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfile', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
 CREATE SEQUENCE seq_dbpatch; INSERT INTO _lock_ids (name, id) SELECT 'seq_dbpatch', nextval('_lock_seq');
+CREATE SEQUENCE seq_reference; INSERT INTO _lock_ids (name, id) SELECT 'seq_reference', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimentergroupexperimenterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroupexperimenterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimenterannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenterannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateannotationlink', nextval('_lock_seq');
@@ -716,7 +716,6 @@ CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', ne
 CREATE SEQUENCE seq_plateacquisitionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateacquisitionannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_project; INSERT INTO _lock_ids (name, id) SELECT 'seq_project', nextval('_lock_seq');
 CREATE SEQUENCE seq_imageroilink; INSERT INTO _lock_ids (name, id) SELECT 'seq_imageroilink', nextval('_lock_seq');
-CREATE SEQUENCE seq_settings; INSERT INTO _lock_ids (name, id) SELECT 'seq_settings', nextval('_lock_seq');
 CREATE SEQUENCE seq_sessionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_sessionannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_linecap; INSERT INTO _lock_ids (name, id) SELECT 'seq_linecap', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetexcitationfilterlink', nextval('_lock_seq');
@@ -733,344 +732,24 @@ CREATE SEQUENCE seq_contrastmethod; INSERT INTO _lock_ids (name, id) SELECT 'seq
 -- END #1176/#2508
 --
 
+--
+-- Disable certain not-null constraints to allow proper bootstrapping.
+--
+alter table event alter column type drop not null;
+alter table event alter column experimentergroup drop not null;
+alter table pixeltype alter column bitsize drop not null;
+alter table pixeltype alter column issigned drop not null;
+alter table pixeltype alter column isfloat drop not null;
 
 --
--- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+-- Now that sequences are in place, create all enumerations
 --
 
-CREATE OR REPLACE FUNCTION _prepare_session(_event_id int8, _user_id int8, _group_id int8) RETURNS void
-    AS '
-    BEGIN
-
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
-            CREATE TEMP TABLE _current_session ("event_id" int8, "user_id" int8, "group_id" int8) ON COMMIT DELETE ROWS;
-            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
-        ELSE
-            DELETE FROM _current_session;
-            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
-        END IF;
-    END;'
-LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION _current_event() RETURNS int8
-    AS '
-    DECLARE
-        eid int8;
-    BEGIN
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
-            RETURN 0;
-        END IF;
-        SELECT INTO eid event_id FROM _current_session;
-        RETURN eid;
-
-    END;'
-LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
-    AS '
-    DECLARE
-        eid int8;
-    BEGIN
-        SELECT INTO eid _current_event();
-        IF eid = 0 OR eid IS NULL THEN
-            SELECT INTO eid ome_nextval(''seq_event'');
-            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
-                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
-        END IF;
-        RETURN eid;
-    END;'
-LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
-    AS '
-    DECLARE
-        rec RECORD;
-        eid int8;
-        cnt int8;
-    BEGIN
-
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
-            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
-        END IF;
-
-
-        FOR rec IN SELECT id, parent FROM channelannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Channel'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM reagentannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Reagent'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM experimentergroupannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.ExperimenterGroup'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM datasetannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Dataset'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM screenannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Screen'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM plateannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Plate'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM namespaceannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Namespace'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM pixelsannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Pixels'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM roiannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.roi.ROI'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM planeannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Plane'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.OriginalFile'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM annotationannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.annotations.Annotation'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM sessionannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Session'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Experimenter'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM nodeannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Node'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM plateacquisitionannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.PlateAcquisition'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM wellannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Well'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM projectannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Project'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM wellsampleannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.WellSample'');
-        END LOOP;
-
-        SELECT INTO cnt count(*) FROM _updated_annotations;
-        IF cnt <> 0 THEN
-            SELECT INTO eid _current_or_new_event();
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, entityid, entitytype, eid
-                   FROM _updated_annotations;
-        END IF;
-
-        RETURN new;
-
-    END;'
-LANGUAGE plpgsql;
-
-CREATE TRIGGER annotation_trigger
-        AFTER UPDATE ON annotation
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_update_event_trigger();
-
-
-CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
-    AS '
-    DECLARE
-        eid int8;
-    BEGIN
-
-        SELECT INTO eid _current_or_new_event();
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, TG_ARGV[0], eid;
-
-        RETURN new;
-
-    END;'
-LANGUAGE plpgsql;
-
-CREATE TRIGGER channel_annotation_link_event_trigger
-        AFTER UPDATE ON channelannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Channel');
-CREATE TRIGGER reagent_annotation_link_event_trigger
-        AFTER UPDATE ON reagentannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Reagent');
-CREATE TRIGGER experimentergroup_annotation_link_event_trigger
-        AFTER UPDATE ON experimentergroupannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.ExperimenterGroup');
-CREATE TRIGGER dataset_annotation_link_event_trigger
-        AFTER UPDATE ON datasetannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Dataset');
-CREATE TRIGGER screen_annotation_link_event_trigger
-        AFTER UPDATE ON screenannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Screen');
-CREATE TRIGGER plate_annotation_link_event_trigger
-        AFTER UPDATE ON plateannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Plate');
-CREATE TRIGGER namespace_annotation_link_event_trigger
-        AFTER UPDATE ON namespaceannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Namespace');
-CREATE TRIGGER image_annotation_link_event_trigger
-        AFTER UPDATE ON imageannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
-CREATE TRIGGER pixels_annotation_link_event_trigger
-        AFTER UPDATE ON pixelsannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Pixels');
-CREATE TRIGGER roi_annotation_link_event_trigger
-        AFTER UPDATE ON roiannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.ROI');
-CREATE TRIGGER plane_annotation_link_event_trigger
-        AFTER UPDATE ON planeannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Plane');
-CREATE TRIGGER originalfile_annotation_link_event_trigger
-        AFTER UPDATE ON originalfileannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.OriginalFile');
-CREATE TRIGGER annotation_annotation_link_event_trigger
-        AFTER UPDATE ON annotationannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.annotations.Annotation');
-CREATE TRIGGER session_annotation_link_event_trigger
-        AFTER UPDATE ON sessionannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
-CREATE TRIGGER experimenter_annotation_link_event_trigger
-        AFTER UPDATE ON experimenterannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Experimenter');
-CREATE TRIGGER node_annotation_link_event_trigger
-        AFTER UPDATE ON nodeannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Node');
-CREATE TRIGGER plateacquisition_annotation_link_event_trigger
-        AFTER UPDATE ON plateacquisitionannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.PlateAcquisition');
-CREATE TRIGGER well_annotation_link_event_trigger
-        AFTER UPDATE ON wellannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Well');
-CREATE TRIGGER project_annotation_link_event_trigger
-        AFTER UPDATE ON projectannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Project');
-CREATE TRIGGER wellsample_annotation_link_event_trigger
-        AFTER UPDATE ON wellsampleannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.WellSample');
-
-
---
--- END #1390
---
-
-
-
-
--- First, we install a unique constraint so that it is only possible
--- to go from versionA/patchA to versionB/patchB once.
---
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
-
---
--- Since this is a table that we will be using in DB-specific ways, we're also going
--- to make working with it a bit simpler.
---
-alter table dbpatch alter id set default ome_nextval('seq_dbpatch');
-alter table dbpatch alter permissions set default -35;
-alter table dbpatch alter message set default 'Updating';
-
---
--- Then, we insert into the patch table the patch (initialization) which we are currently
--- running so that if anything goes wrong, we'll have some record.
---
-insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO4.4DEV',  4,    'OMERO4.4DEV',   0,             'Initializing');
-
---
--- Here we will create the root account and the necessary groups
---
-insert into experimenter (id,permissions,version,omename,firstname,lastname)
-        values (0,0,0,'root','root','root');
-insert into experimenter (id,permissions,version,omename,firstname,lastname)
-        values (ome_nextval('seq_experimenter'),0,0,'guest','Guest','Account');
-insert into node
-        (id,permissions,uuid,conn,up,down)
-        select 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
-insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select 0,-35,0,0,now(),now(),'BOOTSTRAP',0000, 0,0;
-insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select ome_nextval('seq_session'),-35, 0,0,now(),now(),'PREVIOUSITEMS','1111',0,0;
-insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
-
---
--- Default group permissions (ticket:1783)
--- * "system" is private, so that administrators do not share by accident
--- * "user" is public by default since its purpose is to share objects (ticket:1794)
--- * "guest" is private by default so that it doesn't show up on any lists,
---    though nothing should be created there.
---
-insert into experimentergroup (id,permissions,version,name)
-        values (0,-103,0,'system');
-insert into experimentergroup (id,permissions,version,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,'user');
-insert into experimentergroup (id,permissions,version,name)
-        values (ome_nextval('seq_experimentergroup'),-103,0,'guest');
-
+-- Somewhat nasty book-keeping enums
 insert into eventtype (id,permissions,value) values
-        (0,-35,'Bootstrap');
-insert into groupexperimentermap
-        (id,permissions,version, parent, child, child_index,owner)
-        values
-        (0,-35,0,0,0,0,true);
-insert into groupexperimentermap
-        (id,permissions,version, parent, child, child_index,owner)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,1,0,1,false;
-insert into groupexperimentermap
-        (id,permissions,version, parent, child, child_index,owner)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,2,1,0,false;
-
-update event set type = 0;
-update event set experimentergroup = 0;
-
-alter table event alter column type set not null;
-alter table event alter column experimentergroup set not null;
-
+        (0,-35,'PREVIOUSITEMS'),
+        (1,-35,'Bootstrap');
+select ome_nextval('seq_eventtype'); -- consume the "1"
 
 insert into filtertype (id,permissions,value)
     select ome_nextval('seq_filtertype'),-35,'Dichroic';
@@ -1769,6 +1448,349 @@ insert into contrastmethod (id,permissions,value)
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-35,'Other';
 
+--
+-- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+--
+
+CREATE OR REPLACE FUNCTION _prepare_session(_event_id int8, _user_id int8, _group_id int8) RETURNS void
+    AS '
+    BEGIN
+
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
+            CREATE TEMP TABLE _current_session ("event_id" int8, "user_id" int8, "group_id" int8) ON COMMIT DELETE ROWS;
+            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
+        ELSE
+            DELETE FROM _current_session;
+            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
+        END IF;
+    END;'
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION _current_event() RETURNS int8
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
+            RETURN 0;
+        END IF;
+        SELECT INTO eid event_id FROM _current_session;
+        RETURN eid;
+
+    END;'
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+        SELECT INTO eid _current_event();
+        IF eid = 0 OR eid IS NULL THEN
+            SELECT INTO eid ome_nextval(''seq_event'');
+            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
+        END IF;
+        RETURN eid;
+    END;'
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        rec RECORD;
+        eid int8;
+        cnt int8;
+    BEGIN
+
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
+            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
+        END IF;
+
+
+        FOR rec IN SELECT id, parent FROM channelannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Channel'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM reagentannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Reagent'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM experimentergroupannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.ExperimenterGroup'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM datasetannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Dataset'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM screenannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Screen'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM plateannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Plate'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM namespaceannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Namespace'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM pixelsannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Pixels'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM roiannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.roi.ROI'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM planeannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Plane'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.OriginalFile'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM annotationannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.annotations.Annotation'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM sessionannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Session'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Experimenter'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM nodeannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Node'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM plateacquisitionannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.PlateAcquisition'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM wellannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Well'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM projectannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Project'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM wellsampleannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.WellSample'');
+        END LOOP;
+
+        SELECT INTO cnt count(*) FROM _updated_annotations;
+        IF cnt <> 0 THEN
+            SELECT INTO eid _current_or_new_event();
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, entityid, entitytype, eid
+                   FROM _updated_annotations;
+        END IF;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_trigger
+        AFTER UPDATE ON annotation
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_update_event_trigger();
+
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+
+        SELECT INTO eid _current_or_new_event();
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, TG_ARGV[0], eid;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER channel_annotation_link_event_trigger
+        AFTER UPDATE ON channelannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Channel');
+CREATE TRIGGER reagent_annotation_link_event_trigger
+        AFTER UPDATE ON reagentannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Reagent');
+CREATE TRIGGER experimentergroup_annotation_link_event_trigger
+        AFTER UPDATE ON experimentergroupannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.ExperimenterGroup');
+CREATE TRIGGER dataset_annotation_link_event_trigger
+        AFTER UPDATE ON datasetannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Dataset');
+CREATE TRIGGER screen_annotation_link_event_trigger
+        AFTER UPDATE ON screenannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Screen');
+CREATE TRIGGER plate_annotation_link_event_trigger
+        AFTER UPDATE ON plateannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Plate');
+CREATE TRIGGER namespace_annotation_link_event_trigger
+        AFTER UPDATE ON namespaceannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Namespace');
+CREATE TRIGGER image_annotation_link_event_trigger
+        AFTER UPDATE ON imageannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
+CREATE TRIGGER pixels_annotation_link_event_trigger
+        AFTER UPDATE ON pixelsannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Pixels');
+CREATE TRIGGER roi_annotation_link_event_trigger
+        AFTER UPDATE ON roiannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.ROI');
+CREATE TRIGGER plane_annotation_link_event_trigger
+        AFTER UPDATE ON planeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Plane');
+CREATE TRIGGER originalfile_annotation_link_event_trigger
+        AFTER UPDATE ON originalfileannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.OriginalFile');
+CREATE TRIGGER annotation_annotation_link_event_trigger
+        AFTER UPDATE ON annotationannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.annotations.Annotation');
+CREATE TRIGGER session_annotation_link_event_trigger
+        AFTER UPDATE ON sessionannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
+CREATE TRIGGER experimenter_annotation_link_event_trigger
+        AFTER UPDATE ON experimenterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Experimenter');
+CREATE TRIGGER node_annotation_link_event_trigger
+        AFTER UPDATE ON nodeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Node');
+CREATE TRIGGER plateacquisition_annotation_link_event_trigger
+        AFTER UPDATE ON plateacquisitionannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.PlateAcquisition');
+CREATE TRIGGER well_annotation_link_event_trigger
+        AFTER UPDATE ON wellannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Well');
+CREATE TRIGGER project_annotation_link_event_trigger
+        AFTER UPDATE ON projectannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Project');
+CREATE TRIGGER wellsample_annotation_link_event_trigger
+        AFTER UPDATE ON wellsampleannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.WellSample');
+
+
+--
+-- END #1390
+--
+
+
+
+
+-- First, we install a unique constraint so that it is only possible
+-- to go from versionA/patchA to versionB/patchB once.
+--
+alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+
+--
+-- Since this is a table that we will be using in DB-specific ways, we're also going
+-- to make working with it a bit simpler.
+--
+alter table dbpatch alter id set default ome_nextval('seq_dbpatch');
+alter table dbpatch alter permissions set default -35;
+alter table dbpatch alter message set default 'Updating';
+
+--
+-- Then, we insert into the patch table the patch (initialization) which we are currently
+-- running so that if anything goes wrong, we'll have some record.
+--
+insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
+             values ('OMERO4.4DEV',  6,    'OMERO4.4DEV',   0,             'Initializing');
+
+--
+-- Here we will create the root account and the necessary groups
+--
+insert into experimenter (id,permissions,version,username,firstname,lastname)
+        values (0,0,0,'root','root','root');
+insert into experimenter (id,permissions,version,username,firstname,lastname)
+        values (ome_nextval('seq_experimenter'),0,0,'guest','Guest','Account');
+insert into node
+        (id,permissions,uuid,conn,up,down)
+        select 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
+insert into session
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,experimenter,node)
+        select 0,-35,0,0,now(),now(),et.id,0000, 0,0
+          from eventtype et
+         where value = 'Bootstrap';
+insert into session
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,experimenter,node)
+        select ome_nextval('seq_session'),-35, 0,0,now(),now(),et.id,'1111',0,0
+          from eventtype et
+         where value = 'PREVIOUSITEMS';
+insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
+
+--
+-- Default group permissions (ticket:1783)
+-- * "system" is private, so that administrators do not share by accident
+-- * "user" is public by default since its purpose is to share objects (ticket:1794)
+-- * "guest" is private by default so that it doesn't show up on any lists,
+--    though nothing should be created there.
+--
+insert into experimentergroup (id,permissions,version,name)
+        values (0,-103,0,'system');
+insert into experimentergroup (id,permissions,version,name)
+        values (ome_nextval('seq_experimentergroup'),-35,0,'user');
+insert into experimentergroup (id,permissions,version,name)
+        values (ome_nextval('seq_experimentergroup'),-103,0,'guest');
+
+insert into experimentergroupexperimenterlink
+        (id,permissions,version, parent, child, child_index,owner)
+        values
+        (0,-35,0,0,0,0,true);
+insert into experimentergroupexperimenterlink
+        (id,permissions,version, parent, child, child_index,owner)
+        select ome_nextval('seq_experimentergroupexperimenterlink'),-35,0,1,0,1,false;
+insert into experimentergroupexperimenterlink
+        (id,permissions,version, parent, child, child_index,owner)
+        select ome_nextval('seq_experimentergroupexperimenterlink'),-35,0,2,1,0,false;
+
+--
+-- Now that all the objects exit, re-activate the non-nulls
+-- after filling in the columns.
+--
+update event set type = 0;
+update event set experimentergroup = 0;
+
+alter table event alter column type set not null;
+alter table event alter column experimentergroup set not null;
+
 -- Adding bit depth, etc. to pixelstype (#2724)
 
 update pixeltype set (bitsize, issigned, isfloat) = (  1, false, false) where value = 'bit';
@@ -1846,7 +1868,7 @@ insert into password values (1,'');
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = now()
   where currentVersion = 'OMERO4.4DEV' and
-        currentPatch = 4 and
+        currentPatch = 6 and
         previousVersion = 'OMERO4.4DEV' and
         previousPatch = 0;
 

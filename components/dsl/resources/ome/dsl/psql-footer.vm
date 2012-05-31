@@ -52,8 +52,8 @@
 -- Indexes
 --
 #foreach($type in $types)
-#if(!$type.superclass && !$type.global)
 #set( $tbl_name = $type.tableName() )
+#if((!$type.superclass && !$type.global && $type.id != 'ome.model.core.Reference')||($type.superclass == 'ome.model.core.Settings'))
   CREATE INDEX i_${tbl_name}_owner ON $tbl_name(owner_id);
   CREATE INDEX i_${tbl_name}_group ON $tbl_name(group_id);
 #end

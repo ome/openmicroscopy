@@ -572,14 +572,21 @@
     );;
 
     create table detectorsettings (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         gain float8,
         "offset" float8,
         readOutRate float8,
         voltage float8,
-        settings_id int8 not null,
         binning int8,
         detector int8 not null,
-        primary key (settings_id)
+        primary key (id)
     );;
 
     create table detectortype (
@@ -1123,12 +1130,19 @@
     );;
 
     create table lightsourcesettings (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         attenuation float8,
         wavelength int4,
-        settings_id int8 not null,
         lightSource int8 not null,
         microbeamManipulation int8,
-        primary key (settings_id),
+        primary key (id),
         check (attenuation >= 0 and attenuation <= 1 and wavelength > 0)
     );;
 
@@ -1328,12 +1342,19 @@
     );;
 
     create table objectivesettings (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
         correctionCollar float8,
         refractiveIndex float8,
-        settings_id int8 not null,
         medium int8,
         objective int8 not null,
-        primary key (settings_id)
+        primary key (id)
     );;
 
     create table originalfile (
@@ -1695,18 +1716,6 @@
         primary key (shape_id)
     );;
 
-    create table reference (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        primary key (id)
-    );;
-
     create table renderingdef (
         id int8 not null,
         compression float8,
@@ -1858,11 +1867,6 @@
         parent int8 not null,
         primary key (id),
         unique (parent, child, owner_id)
-    );;
-
-    create table settings (
-        reference_id int8 not null,
-        primary key (reference_id)
     );;
 
     create table shape (
@@ -2694,9 +2698,19 @@
         references instrument  ;;
 
     alter table detectorsettings 
-        add constraint FKdetectorsettings_settings_id_settings 
-        foreign key (settings_id) 
-        references settings  ;;
+        add constraint FKreference_creation_id_event5582bc23bbe4ade9 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table detectorsettings 
+        add constraint FKreference_update_id_event5582bc23bbe4ade9 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table detectorsettings 
+        add constraint FKreference_external_id_externalinfo5582bc23bbe4ade9 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_binning_binning 
@@ -2704,9 +2718,19 @@
         references binning  ;;
 
     alter table detectorsettings 
+        add constraint FKreference_group_id_experimentergroup5582bc23bbe4ade9 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table detectorsettings 
         add constraint FKdetectorsettings_detector_detector 
         foreign key (detector) 
         references detector  ;;
+
+    alter table detectorsettings 
+        add constraint FKreference_owner_id_experimenter5582bc23bbe4ade9 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table detectortype 
         add constraint FKdetectortype_external_id_externalinfo 
@@ -3564,9 +3588,19 @@
         references instrument  ;;
 
     alter table lightsourcesettings 
-        add constraint FKlightsourcesettings_settings_id_settings 
-        foreign key (settings_id) 
-        references settings  ;;
+        add constraint FKreference_creation_id_event5582bc2333206fd4 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKreference_update_id_event5582bc2333206fd4 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKreference_external_id_externalinfo5582bc2333206fd4 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table lightsourcesettings 
         add constraint FKlightsourcesettings_lightSource_lightsource 
@@ -3574,9 +3608,19 @@
         references lightsource  ;;
 
     alter table lightsourcesettings 
+        add constraint FKreference_group_id_experimentergroup5582bc2333206fd4 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightsourcesettings 
         add constraint FKlightsourcesettings_microbeamManipulation_microbeammanipulation 
         foreign key (microbeamManipulation) 
         references microbeammanipulation  ;;
+
+    alter table lightsourcesettings 
+        add constraint FKreference_owner_id_experimenter5582bc2333206fd4 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table line 
         add constraint FKline_shape_id_shape 
@@ -3854,9 +3898,9 @@
         references correction  ;;
 
     alter table objectivesettings 
-        add constraint FKobjectivesettings_settings_id_settings 
-        foreign key (settings_id) 
-        references settings  ;;
+        add constraint FKreference_creation_id_event5582bc23de2d2c5c 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table objectivesettings 
         add constraint FKobjectivesettings_medium_medium 
@@ -3864,9 +3908,29 @@
         references medium  ;;
 
     alter table objectivesettings 
+        add constraint FKreference_update_id_event5582bc23de2d2c5c 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table objectivesettings 
+        add constraint FKreference_external_id_externalinfo5582bc23de2d2c5c 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table objectivesettings 
         add constraint FKobjectivesettings_objective_objective 
         foreign key (objective) 
         references objective  ;;
+
+    alter table objectivesettings 
+        add constraint FKreference_group_id_experimentergroup5582bc23de2d2c5c 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table objectivesettings 
+        add constraint FKreference_owner_id_experimenter5582bc23de2d2c5c 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table originalfile 
         add constraint FKoriginalfile_creation_id_event 
@@ -4478,31 +4542,6 @@
         foreign key (shape_id) 
         references shape  ;;
 
-    alter table reference 
-        add constraint FKreference_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table reference 
-        add constraint FKreference_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table reference 
-        add constraint FKreference_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table reference 
-        add constraint FKreference_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table reference 
-        add constraint FKreference_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
     alter table renderingdef 
         add constraint FKrenderingdef_creation_id_event 
         foreign key (creation_id) 
@@ -4767,11 +4806,6 @@
         add constraint FKsessionannotationlink_parent_session 
         foreign key (parent) 
         references session  ;;
-
-    alter table settings 
-        add constraint FKsettings_reference_id_reference 
-        foreign key (reference_id) 
-        references reference  ;;
 
     alter table shape 
         add constraint FKshape_fontStyle_fontstyle 
