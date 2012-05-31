@@ -14,18 +14,24 @@ from omero.rtypes import *
 
 class TestRepository(lib.ITest):
 
-    def testBasicUsage(self):
+    def testAcquireRepo(self):
+
+        repoMap = self.client.sf.sharedResources().repositories().proxies
+        self.assert_( len(repoMap) > 1 )
+
+        repoPrx = repoMap[1]
+        self.assert_( repoPrx ) # Could be None
+
+    # This disabled test needs rewriting/splitting as the usage is developed.
+    def disabled_testBasicUsage(self):
 
         test_file = "FIXME.dv"
         remote_file = "/root/dir1/test.dv"
 
+        repoMap = self.client.sf.sharedResources().repositories().proxies
+        repoPrx = repoMap[1]
+
         write_start = time.time()
-
-        repoMap = self.client.sf.acquireRepositories()
-        self.assert_( len(repoMap) > 1 )
-
-        repoPrx = repoMap.values()[0]
-        self.assert_( repoPrx ) # Could be None
 
         # This is a write-only (no read, no config)
         # version of this service.
