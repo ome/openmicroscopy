@@ -90,6 +90,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.UnitsObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -1317,35 +1318,46 @@ class ImViewerUI
 	/** Sets the default text of the status bar. */
 	void setLeftStatus()
 	{
-		String text = "";
 		int n;
 		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
+		UnitsObject o;
+		String units;
+		StringBuffer buffer = new StringBuffer();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
 			int m = getProjectionEndZ();
-			text += "Z range:"+(n+1);
-			text += "-"+(getProjectionEndZ()+1);
-			if (d > 0 && max > 0)
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+"-"+
-				UIUtilities.roundTwoDecimals(m*d)+" "+
-				EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z range:"+(n+1));
+			buffer.append("-"+(getProjectionEndZ()+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append("-");
+				o = EditorUtil.transformSize(m*d);
+				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(" "+units+")");
+			}
+			buffer.append("/"+(model.getMaxZ()+1));
 			controlPane.setRangeSliderToolTip(n, m);
 		} else {
 			n = model.getDefaultZ();
-			text += "Z="+(n+1);
-			if (d > 0 && max > 0) 
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+
-					EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z="+(n+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(units+")");
+			}
+				
+			buffer.append("/"+(model.getMaxZ()+1));
 		}
-		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
+		buffer.append(" T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1));
 		if (model.isNumerousChannel()) {
-			text += " L="+(model.getSelectedBin()+1);
-			text += "/"+(model.getMaxLifetimeBin());
+			buffer.append(" L="+(model.getSelectedBin()+1));
+			buffer.append("/"+(model.getMaxLifetimeBin()));
 		}
-		setLeftStatus(text);
+		setLeftStatus(buffer.toString());
 	}
 	
 	/**

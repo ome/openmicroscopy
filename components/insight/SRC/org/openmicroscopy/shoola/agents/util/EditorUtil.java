@@ -192,10 +192,10 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
-    public static final String 	MICRONS_NO_BRACKET = "\u00B5m";
+    public static final String 	MICRONS_NO_BRACKET = UnitsObject.MICRONS;
     
     /** String to represent the micron symbol. */
-    public static final String 	MICRONS = "(\u00B5m)";
+    public static final String 	MICRONS = "("+UnitsObject.MICRONS+")";
     
     /** String to represent the celcius symbol. */
     public static final String 	CELCIUS = "(\u2103)";
@@ -213,13 +213,13 @@ public class EditorUtil
     public static final String 	SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    public static final String 	PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    public static final String 	PIXEL_SIZE_X = "Pixel size X ";
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    public static final String 	PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    public static final String 	PIXEL_SIZE_Y = "Pixel size Y ";
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    public static final String 	PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    public static final String 	PIXEL_SIZE_Z = "Pixel size Z ";
     
     /** Identifies the <code>Sections</code> field. */
     public static final String 	SECTIONS = "Number of sections";
@@ -562,6 +562,40 @@ public class EditorUtil
 	private static final EditorFileFilter editorFilter = new EditorFileFilter();
 	
 	/**
+	 * Transforms the size and returns the value and units.
+	 * 
+	 * @param value The value to transform.
+	 * @return See above.
+	 */
+	public static UnitsObject transformSize(Double value)
+	{
+		double v = value.doubleValue();
+		String units = UnitsObject.MICRONS;
+		if (v < 1) {
+			units = UnitsObject.NANOMETER;
+			v *= 1000;
+			if (v < 1) {
+				units = UnitsObject.ANGSTROM;
+				v *= 10;
+			}
+			return new UnitsObject(units, v);
+		}
+		if (v > 1000) {
+			units = UnitsObject.MILLIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.CENTIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.METER;
+			v /= 1000;
+		}
+		return new UnitsObject(units, v);
+	}
+	
+	/**
      * Returns the pixels size as a string.
      * 
      * @param details The map to convert.
@@ -569,26 +603,33 @@ public class EditorUtil
      */
     private static String formatPixelsSize(Map details)
     {
+    	String units = null;
+    	UnitsObject o;
     	String x = (String) details.get(PIXEL_SIZE_X);
     	String y = (String) details.get(PIXEL_SIZE_Y);
     	String z = (String) details.get(PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
-    	boolean number = true;
     	NumberFormat nf = NumberFormat.getInstance();
     	try {
 			dx = Double.parseDouble(x);
+			o = transformSize(dx);
+			units = o.getUnits();
+			dx = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		try {
 			dy = Double.parseDouble(y);
+			o = transformSize(dy);
+			if (units == null) units = o.getUnits();
+			dy = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		try {
 			dz = Double.parseDouble(z);
+			o = transformSize(dz);
+			if (units == null) units = o.getUnits();
+			dz = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		
     	String label = "<b>Pixels Size (";
@@ -609,7 +650,8 @@ public class EditorUtil
     	}
     	label += ") ";
     	if (value.length() == 0) return null;
-    	return label+MICRONS+": </b>"+value;
+    	if (units == null) units = UnitsObject.MICRONS;
+    	return label+units+": </b>"+value;
     }
     
 	/**
