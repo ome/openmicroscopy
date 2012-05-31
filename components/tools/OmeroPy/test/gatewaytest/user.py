@@ -58,15 +58,22 @@ class UserTest (lib.GTest):
                 self.assertEqual(len(anns), 0)
 
     def testCrossGroupSave (self):
-        self.loginAsAuthor()
+        self.loginAsUser()
+        uid = self.gateway._userid
+        self.loginAsAdmin()
         d = self.getTestDataset()
         did = d.getId()
-        self.loginAsAdmin()
+        g = d.getDetails().getGroup()
         admin = self.gateway.getAdminService()
+        admin.addGroups(omero.model.ExperimenterI(uid, False), [g._obj])
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        # make sure the group is groupwrite enabled
+        perms = str(d.getDetails().getGroup().getDetails().permissions)
+        admin.changePermissions(g._obj, omero.model.PermissionsI('rwrw--'))
+        d = self.getTestDataset()
         g = d.getDetails().getGroup()
         self.assert_(g.getDetails().permissions.isGroupWrite())
-        self.loginAsUser()
-        admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [g._obj])
+
         self.loginAsUser()
         # User is now a member of the group to which testDataset belongs, which has groupWrite==True
         # But the default group for User is diferent
@@ -84,7 +91,11 @@ class UserTest (lib.GTest):
             d = self.gateway.getObject('dataset', did)
             self.assertEqual(d.getName(), n)
         finally:
-            admin.removeGroups(omero.model.ExperimenterI(self.gateway._userid, False), [g._obj])
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            # Revert group permissions and remove user from group
+            admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
+            admin.removeGroups(omero.model.ExperimenterI(uid, False), [g._obj])
 
     def testCrossGroupRead (self):
         self.loginAsAuthor()
@@ -101,8 +112,6 @@ class UserTest (lib.GTest):
     def testGroupOverObjPermissions (self):
         """ Object accesss must be dependent only of group permissions """
         ns = 'omero.test.ns'
-        self.loginAsAdmin()
-        admin = self.gateway.getAdminService()
         # Author
         self.loginAsAuthor()
         # create group with rw----
@@ -111,14 +120,21 @@ class UserTest (lib.GTest):
         try:
             p = p.create(self.gateway)
         except dbhelpers.BadGroupPermissionsException:
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
             admin.changePermissions(admin.lookupGroup('testAnnotationPermissions'), omero.model.PermissionsI('rw----'))
+            self.loginAsAuthor()
             p = p.create(self.gateway)
         pid = p.getId()
+        g = p.getDetails().getGroup()._obj
         try:
             # Admin
             # add User to group
             self.loginAsUser()
-            admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [p.getDetails().getGroup()._obj])
+            uid = self.gateway._userid
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
             # User
             # try to read project and annotation, which fails
             self.loginAsUser()
@@ -126,7 +142,9 @@ class UserTest (lib.GTest):
             self.assertEqual(self.gateway.getObject('project', pid), None)
             # Admin
             # Chmod project to rwrw--
-            admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI('rwrw--'))
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            admin.changePermissions(g, omero.model.PermissionsI('rwrw--'))
             # Author
             # check project has proper permissions
             self.loginAsAuthor()
@@ -137,8 +155,9 @@ class UserTest (lib.GTest):
             # read project and annotation
             self.loginAsUser()
             self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
-            self.assertEqual(self.gateway.getObject('project', pid), None)
+            self.assertNotEqual(self.gateway.getObject('project', pid), None)
         finally:
+            self.loginAsAuthor()
             self.gateway.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
 
         
