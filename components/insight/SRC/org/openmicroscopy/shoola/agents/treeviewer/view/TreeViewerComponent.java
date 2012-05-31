@@ -4554,7 +4554,6 @@ class TreeViewerComponent
 		} else { //load the collection for the specified group
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
 			long userID = userIDs.get(0);
-			System.err.println(userID == exp.getId());
 			MoveGroupSelectionDialog dialog = new MoveGroupSelectionDialog(view,
 					userID, group, map, userID == exp.getId());
 			UIUtilities.centerAndShow(dialog);
