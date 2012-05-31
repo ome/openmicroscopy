@@ -468,7 +468,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     private final static String findBy1 =
         "select s.id, s.uuid from Session s " +
-        "join s.owner o where " +
+        "join s.experimenter o where " +
         "s.closed is null and o.userName = :name ";
 
     private final static String findByOrder =

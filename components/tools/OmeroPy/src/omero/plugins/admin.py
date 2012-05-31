@@ -978,7 +978,7 @@ OMERO Diagnostics %s
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
         params = omero.sys.ParametersI()
-        query = "select s from Session s join fetch s.node n join fetch s.owner o where s.closed is null and n.id != 0"
+        query = "select s from Session s join fetch s.node n join fetch s.experimenter o where s.closed is null and n.id != 0"
         results = service.findAllByQuery(query, params)
         mapped = list()
         for s in results:
@@ -995,7 +995,7 @@ OMERO Diagnostics %s
                 rv.append(s.node.id)
                 rv.append(s.uuid)
                 rv.append(s.started)
-                rv.append(s.owner.userName)
+                rv.append(s.experimenter.userName)
                 if s.userAgent is None:
                     rv.append("")
                 else:
