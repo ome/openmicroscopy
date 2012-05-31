@@ -83,6 +83,18 @@ public class ChgrpStep extends GraphStep {
         Query q = qb.query(session);
         int count = q.executeUpdate();
 
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s, grp=%s",
+                    count, qb.queryString(), id, grp));
+        }
+
+        if (stack.size() <= 1) {
+            if (count == 0) {
+                throw new GraphException("No top-level item found: " +
+                    String.format("%s (id=%s, grp=%s)", qb.queryString(), id, grp));
+            }
+        }
+
         // ticket:6422 - validation of graph
         // =====================================================================
         // Immediately we check that an object moved from GroupA to GroupB
