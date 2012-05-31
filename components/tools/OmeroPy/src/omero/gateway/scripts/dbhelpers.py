@@ -114,7 +114,7 @@ class UserEntry (object):
         if groupperms is not None:
             if isinstance(group, StringTypes):
                 a = client.getAdminService()
-                g = a.lookupGroup(groupname)
+                g = a.lookupGroup(group)
             else:
                 g = group
             p = g.getDetails().getPermissions()
