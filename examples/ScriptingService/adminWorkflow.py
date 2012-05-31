@@ -279,7 +279,7 @@ def cleanUpScriptFiles(session, scriptService):
     In the case where official script files have been manually deleted (from /lib/scripts/ ) 
     they will not be returned by getScripts(), but they are still in the OriginalFiles table in DB
     which means that uploadScript(path, text) will fail. 
-    This can be fixed by setting the mimetype to 'text/x-python' for all scripts that are still in the 
+    This can be fixed by setting the mimeType to 'text/x-python' for all scripts that are still in the
     OriginalFiles table, but not returned by getScripts() or getUserScripts() so that they become disabled,
     allowing uploadScript(path, text) to work again. 
     """
@@ -301,7 +301,7 @@ def cleanUpScriptFiles(session, scriptService):
         print s.id.val, s.path.val + s.name.val
     
     # get all script files in the DB
-    query_string = "select o from OriginalFile o where o.mimetype='text/x-python'"
+    query_string = "select o from OriginalFile o where o.mimeType='text/x-python'"
     scriptFiles = queryService.findAllByQuery(query_string, None)
     
     print "\n DISABLING invalid scripts.... "
@@ -400,7 +400,7 @@ def doWorkflow(client, commandArgs):
     if "run" in args:
         runScript(session, scriptService, commandArgs["script"])
 
-    # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
+    # disables script by changing the OriginalFile mimeType, from 'text/x-python' to 'text/plain'
     if "disable" in args:
         disableScript(session, commandArgs["script"])
     
