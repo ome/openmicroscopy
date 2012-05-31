@@ -1205,16 +1205,16 @@ public class UpdateServiceTest
         	assertEquals(settings.getFontStyle(), style.getValue().getValue());
         	assertEquals(settings.getLineCapAsString(), lineCap.getValue().getValue());
         	color = settings.getFill();
-        	assertTrue(color.getRed() == fillColor.getRed());
-        	assertTrue(color.getGreen() == fillColor.getBlue());
-        	assertTrue(color.getBlue() == fillColor.getGreen());
-        	assertTrue(color.getAlpha() == fillColor.getAlpha());
+            assertEquals(color.getRed(), fillColor.getRed());
+            assertEquals(color.getGreen(), fillColor.getBlue());
+            assertEquals(color.getBlue(), fillColor.getGreen());
+            assertEquals(color.getAlpha(), fillColor.getAlpha());
         	color = settings.getStroke();
-        	assertTrue(color.getRed() == fillColor.getRed());
-        	assertTrue(color.getGreen() == fillColor.getBlue());
-        	assertTrue(color.getBlue() == fillColor.getGreen());
-        	assertTrue(color.getAlpha() == fillColor.getAlpha());
-        	assertTrue(settings.getStrokeWidth() == strokeWidth);
+            assertEquals(color.getRed(), strokeColor.getRed());
+            assertEquals(color.getGreen(), strokeColor.getGreen());
+            assertEquals(color.getBlue(), strokeColor.getBlue());
+            assertEquals(color.getAlpha(), strokeColor.getAlpha());
+            assertEquals(settings.getStrokeWidth(), strokeWidth);
 		}
     }
     /**
