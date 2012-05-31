@@ -323,7 +323,7 @@ class ITest(unittest.TestCase):
 
     def new_client_and_user(self, group = None, perms = None,
             admin = False, system = False):
-        user = self.new_user(group, system=system)
+        user = self.new_user(group, system=system, admin=admin)
         client = self.new_client(group, user, perms, admin, system=system)
         return client, user
 
