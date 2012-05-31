@@ -47,36 +47,32 @@
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
 
+
                 // handle submit of Add Comment form
-                $("#add_comment_form").submit(function() {
-                    var $form = $(this);
-                    var add_comment_url = $form.attr('action');
-                    var postData = $form.serialize();
-                    var textArea = $('textarea', $form);
-                    if (textArea.val().trim().length == 0) {
-                        show_batch_msg("Comment field was empty");
-                        return false;
-                    }
-                    $("#comment_spinner").show();
-                    $.ajax({
-                        type: "POST",
-                        url: add_comment_url,
-                        data:postData,
-                        contentType:'html',
-                        success: function(html){
-                            $("#comment_spinner").hide();
-                            var $comment = $(html)
-                            $('#comments_container').prepend( $comment ).show();
-                            $(".removeComment", $comment).hide();
-                            textArea.val('');
-                            show_batch_msg("Comment added to Objects");
-                        },
-                        error: function(html) {
-                            $("#comment_spinner").hide();
+                $("#add_comment_form").ajaxForm({
+                    beforeSubmit: function(data) {
+                        var textArea = $('#add_comment_form textarea');
+                        if ($.trim(textArea.val()).length == 0) {
+                            show_batch_msg("Comment field was empty");
+                            return false;
                         }
-                    });
-                    return false;
+                        $("#comment_spinner").show();
+                    },
+                    success: function(html) {
+                        $("#comment_spinner").hide();
+                        var $comment = $(html)
+                        $('#comments_container').prepend( $comment ).show();
+                        $(".removeComment", $comment).hide();
+                        var textArea = $('#add_comment_form textarea');
+                        textArea.val('');
+                        show_batch_msg("Comment added to Objects");
+                    },
+                    error: function(html) {
+                        show_batch_msg(html);
+                        $("#comment_spinner").hide();
+                    }
                 });
+
 
 
                 $(".dropdown_menu .menu_launch").click(function(e){
