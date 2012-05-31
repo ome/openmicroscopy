@@ -555,8 +555,9 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 
                 perm = setActualPermissions(permissions)
                 listOfOwners = getSelectedExperimenters(conn, owners)
-                conn.createGroup(name, perm, listOfOwners, description)
+                gid = conn.createGroup(name, perm, listOfOwners, description)
                 new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                group = conn.getObject("ExperimenterGroup", gid)
                 conn.setMembersOfGroup(group, new_members)
                 
                 return HttpResponseRedirect(reverse("wagroups"))
