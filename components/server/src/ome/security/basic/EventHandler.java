@@ -98,6 +98,7 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
        final CurrentDetails cd = secSys.cd;
        final Session session = factory.getSession();
        if (msg instanceof ContextMessage.Pop){
+           secSys.disableReadFilter(session); // Disable old name
            cd.logout();
            secSys.enableReadFilter(session); // With old context
        } else if (msg instanceof ContextMessage.Push) {
@@ -108,8 +109,9 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
            // here we try to reproduce what's done in invoke
             // with the addition of having a call context
             // ourselves
-            cd.setContext(msg.context);
+            secSys.disableReadFilter(session); // Disable old name
             cd.login(cd.getLast()); // Login with same principal
+            cd.setContext(msg.context);
             if (!doLogin(readOnly, isClose)) {
                 throw new InternalException("Failed to login on Push: " +
                     msg.context);
