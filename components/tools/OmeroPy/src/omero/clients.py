@@ -666,10 +666,10 @@ class BaseClient(object):
             if not ofile.path:
                 ofile.path = omero.rtypes.rstring(str(abspath.dirname())+os.path.sep)
 
-            if not ofile.mimetype:
+            if not ofile.mimeType:
                 if type:
-                    # ofile.mimetype = 'application/octet-stream' by default
-                    ofile.mimetype = omero.rtypes.rstring(type)
+                    # ofile.mimeType = 'application/octet-stream' by default
+                    ofile.mimeType = omero.rtypes.rstring(type)
 
             # Disabled with group permissions #1434
             # if permissions:

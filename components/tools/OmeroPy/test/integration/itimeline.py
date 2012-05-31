@@ -30,12 +30,8 @@ class TestITimeline(lib.ITest):
         for i in range(0,10):
             # create image
             acquired = long(time.time()*1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (uuid)))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = update.saveAndReturnObject(img)
+            pix = self.pix(name='test-img-%s' % (uuid),acquisitionDate=acquired,client=client)
+            img = pix.getImage()
             img.unload()
 
             im_ids[i] = [img.id.val, acquired]
@@ -83,7 +79,7 @@ class TestITimeline(lib.ITest):
     def testCollaborativeTimeline(self):
         """ Create some images as one user - test if another user can see these events in timeline. """
 
-        group = self.new_group(perms = "rw----")
+        group = self.new_group(perms = "rwr---")
         client1 = self.new_client(group = group)
         client2 = self.new_client(group = group)
 
@@ -96,12 +92,8 @@ class TestITimeline(lib.ITest):
         for i in range(0,10):
             # create image
             acquired = long(time.time()*1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (client1.sf)))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = update1.saveAndReturnObject(img)
+            pix = self.pix(name='test-img-%s' % (client1.sf),acquisitionDate=acquired,client=client1)
+            img = pix.getImage()
             img.unload()
 
             im_ids[i] = [img.id.val, acquired]
@@ -189,37 +181,6 @@ class TestITimeline(lib.ITest):
         
         self.root.sf.closeOnDestroy()
     
-    def test1175(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        update = self.root.sf.getUpdateService()
-        timeline = self.root.sf.getTimelineService()
-        
-        # create dataset
-        ds = omero.model.DatasetI()
-        ds.setName(rstring('test1154-ds-%s' % (uuid)))
-        ds = update.saveAndReturnObject(ds)
-        ds.unload()
-        
-        # create tag
-        ann = omero.model.TagAnnotationI()
-        ann.textValue = rstring('tag-%s' % (uuid))
-        ann.setDescription(rstring('tag-%s' % (uuid)))
-        t_ann = omero.model.DatasetAnnotationLinkI()
-        t_ann.setParent(ds)
-        t_ann.setChild(ann)
-        update.saveObject(t_ann)
-        
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(0)
-        f.limit = rint(10)
-        p.theFilter = f
-        res = timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)
-        self.assert_(len(res) > 0)
-        
-        self.root.sf.closeOnDestroy()
-    
     def test1225(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()
@@ -266,9 +227,9 @@ class TestITimeline(lib.ITest):
             t_ann.setParent(ds1)
             t_ann.setChild(ann1)
             update.saveObject(t_ann)
-        
+
         tids = set([e.child.id.val for e in timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)])
-        self.assertEquals(len(tids), 10)
+        self.assertEquals(len(tids), 1)
         
         self.root.sf.closeOnDestroy()
 
