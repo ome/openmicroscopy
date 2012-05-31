@@ -1538,7 +1538,7 @@ public class AbstractServerTest
 		if (pass) {
 		    if (rsp instanceof ERR) {
 		        ERR err = (ERR) rsp;
-		        fail(String.format("Found ERR when pass==true: %s (%s) params=",
+		        fail(String.format("Found ERR when pass==true: %s (%s) params=%s",
 		                err.category, err.name, err.parameters));
 		    }
 		    assertFalse(status.flags.contains(State.FAILURE));
