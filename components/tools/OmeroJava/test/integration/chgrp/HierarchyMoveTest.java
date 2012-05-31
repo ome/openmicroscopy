@@ -1174,7 +1174,9 @@ public class HierarchyMoveTest
 	
 	ProjectDatasetLink link = new ProjectDatasetLinkI();
 	link.setChild(new DatasetI(d.getId().getValue(), false));
-	link.setParent(new ProjectI(-1, false)); //new project to create.
+	Project prj = new ProjectI();
+	prj.setName(omero.rtypes.rstring("new project"));
+	link.setParent(prj);
 	Save cmd = new Save();
 	cmd.obj = link;
 	list.add(cmd);
