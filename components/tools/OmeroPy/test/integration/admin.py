@@ -26,7 +26,7 @@ class TestAdmin(lib.ITest):
         a = self.client.getSession().getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
-        self.assert_( 0 != g.sizeOfExperimenterGroupExperimenterLink() )
+        self.assert_( 0 != g.sizeOfExperimenterLinks() )
 
     def testSetGroup(self):
         a = self.client.getSession().getAdminService()
