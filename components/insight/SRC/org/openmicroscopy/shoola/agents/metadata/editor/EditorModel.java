@@ -805,7 +805,6 @@ class EditorModel
 	boolean canDeleteLink(Object data)
 	{ 
 		if (!(data instanceof DataObject)) return false;
-		
 		DataObject d = (DataObject) data;
 		StructuredDataResults result = parent.getStructuredData();
 		if (result == null) return false;

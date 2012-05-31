@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -104,6 +105,9 @@ class ImporterUI
 	extends TopWindow
 {
 
+	/** Indicates the percentage of the screen to use to display the viewer. */
+	private static final double SCREEN_RATIO = 0.8;
+	
 	/** The window's title. */
 	private static final String TITLE = "Import Data";
 	
@@ -359,6 +363,29 @@ class ImporterUI
     	return bar;
     }
     
+    /** Packs the window and resizes it if the screen is too small. */
+	private void packWindow()
+	{
+		pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension size = getSize();
+		int width = (int) (screenSize.width*SCREEN_RATIO);
+		int height = (int) (screenSize.height*SCREEN_RATIO);
+		int w = size.width;
+		int h = size.height;
+		boolean reset = false;
+		if (w > width) {
+			reset = true;
+		}
+		if (h > height) {
+			reset = true;
+			h = height;
+		} 
+		if (reset) {
+			setSize(h, h);
+		}
+	}
+	
 	/** Creates a new instance. */
 	ImporterUI()
 	{
@@ -722,6 +749,16 @@ class ImporterUI
 		ImporterUIElement element = getSelectedPane();
 		if (element == null) return false;
 		return element.hasFailuresToReimport();
+	}
+	
+	/** 
+	 * Overridden to the set the location of the {@link ImViewer}.
+	 * @see TopWindow#setOnScreen() 
+	 */
+	public void setOnScreen()
+	{
+		packWindow();
+		UIUtilities.centerAndShow(this);
 	}
 
 }
