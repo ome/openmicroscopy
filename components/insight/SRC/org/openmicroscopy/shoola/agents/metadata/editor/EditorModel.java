@@ -808,7 +808,7 @@ class EditorModel
 		
 		DataObject d = (DataObject) data;
 		StructuredDataResults result = parent.getStructuredData();
-		if (data == null) return false;
+		if (result == null) return false;
 		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
 		if (links == null) return false;
 		Iterator<AnnotationLinkData> i = links.iterator();
