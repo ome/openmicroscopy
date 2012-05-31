@@ -143,9 +143,9 @@ public class CmdCallbackTest extends AbstractServerTest {
 	TestCB doAllTiming(int count) throws Exception {
 		Timing[] timings = new Timing[count];
 		for (int i = 0; i < count; i++) {
-			timings[i] = new Timing(null, 3, 2); // 6 ms
+			timings[i] = new Timing(3, 2); // 6 ms
 		}
-		return run(new DoAll(null, Arrays.<Request> asList(timings)));
+		return run(new DoAll(Arrays.<Request> asList(timings), null));
 	}
 
 	@Test

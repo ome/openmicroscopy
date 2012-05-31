@@ -101,7 +101,7 @@ public class ChgrpI extends Chgrp implements IRequest {
                 helper.getSession(), spec);
 
             // Throws on no steps
-            this.helper.setSteps(state.getTotalFoundCount());
+            this.helper.setSteps(state.getTotalFoundCount()+1); // +1 refresh;
             sw.stop("omero.chgrp.ids." + helper.getSteps());
 
 
@@ -109,8 +109,10 @@ public class ChgrpI extends Chgrp implements IRequest {
             // (2) now that we have the id for the top-level object, we
             // can check ownership, etc.
 
+            final IObject obj = this.spec.load(helper.getSession());
+            helper.info("chgrp of %s to %s", obj, grp);
+
             if (!admin) {
-                final IObject obj = this.spec.load(helper.getSession());
                 obj.getDetails().getOwner();
                 Long owner = HibernateUtils.nullSafeOwnerId(obj);
                 if (owner != null && !owner.equals(userId)) {
@@ -123,23 +125,34 @@ public class ChgrpI extends Chgrp implements IRequest {
                             type, id, options, helper.getSteps());
                 }
             }
-
+        } catch (Cancel c) {
+            throw c;
         } catch (NoSuchBeanDefinitionException nsbde) {
             throw helper.cancel(new Unknown(), nsbde, "notype",
                     "message", "Unknown type:" + type);
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "INIT ERR");
+        } finally {
+            // helper.getSession().refresh(obj);
         }
 
     }
 
     public Object step(int i) throws Cancel {
-        if (i < 0 || i >= helper.getSteps()) {
-            throw helper.cancel(new ERR(), null, "bad-step", "step", ""+i);
-        }
+        helper.assertStep(i);
 
         try {
-            return state.execute(i);
+            if ((i+1) == helper.getSteps()) {
+                // The dataset was loaded in order to check its permissions.
+                // Since these have been changed "in the background" (via SQL)
+                // it's important that we refresh that object for later cmds.
+                Session s = helper.getSession();
+                IObject obj = spec.load(s);
+                s.refresh(obj);
+                return null;
+            } else {
+                return state.execute(i);
+            }
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "STEP ERR", "step", ""+i, "id", ""+id);
         }
@@ -148,10 +161,10 @@ public class ChgrpI extends Chgrp implements IRequest {
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (helper.isLast(step)) {
-            helper.setResponse(new OK());
+            helper.setResponseIfNull(new OK());
         }
     }
-    
+
     public Response getResponse() {
         return helper.getResponse();
     }

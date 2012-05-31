@@ -61,7 +61,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public Object step(int step) {
         helper.assertStep(0, step);
-        
+
         final GraphSpecListRsp rsp = new GraphSpecListRsp();
         final ApplicationContext ctx = new ClassPathXmlApplicationContext(
             new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
@@ -75,7 +75,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
             for (GraphEntry entry : spec.entries()) {
                 options.put(entry.getName(), entry.getOpString());
             }
-            cmds.add(new GraphModify("", key, -1l, options));
+            cmds.add(new GraphModify(key, -1l, options));
         }
 
         rsp.list = cmds;
@@ -84,7 +84,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public void buildResponse(int i, Object object) {
         helper.assertStep(0, i);
-        helper.setResponse((Response) object);
+        helper.setResponseIfNull((Response) object);
     }
 
     public Response getResponse() {

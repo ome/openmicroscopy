@@ -96,10 +96,11 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -127,6 +128,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
 	Pixels pixels = img.getPrimaryPixels();
@@ -156,7 +158,7 @@ public class HierarchyMoveTest
 		}
 
 	//Move the image
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -261,6 +263,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image image = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.simpleImage(0));
@@ -286,7 +289,7 @@ public class HierarchyMoveTest
 		shapeIds.add(shape.getId().getValue());
 	}
 	//Move the image.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE,
 			image.getId().getValue(), null, g.getId().getValue()));
 
 	//check if the objects have been delete.
@@ -329,6 +332,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -371,7 +375,7 @@ public class HierarchyMoveTest
 		}
         //Now delete the plate
       //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -456,6 +460,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -492,7 +497,7 @@ public class HierarchyMoveTest
 		}
         //Now delete the plate
       //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -561,6 +566,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen screen = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -582,7 +588,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			screen.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -627,6 +633,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -654,7 +661,7 @@ public class HierarchyMoveTest
 	p = link.getChild();
 	long plateID = p.getId().getValue();
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			screenId, null, g.getId().getValue()));
 
 	sql = "select r from Screen as r ";
@@ -708,6 +715,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -736,7 +744,7 @@ public class HierarchyMoveTest
 	long plateID = p.getId().getValue();
 	Map<String, String> options = new HashMap<String, String>();
 	options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			plateID, null, g.getId().getValue()));
 
 	sql = "select r from Screen as r ";
@@ -790,6 +798,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p = (Plate) iUpdate.saveAndReturnObject(
 				mmFactory.createPlate(1, 1, 1, 0, false));
@@ -837,7 +846,7 @@ public class HierarchyMoveTest
 		links.add(il);
 		iUpdate.saveAndReturnArray(links);
 
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+		doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
 		//Shouldn't have measurements
@@ -863,6 +872,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
@@ -894,7 +904,7 @@ public class HierarchyMoveTest
 	ids.add(image2.getId().getValue());
 
 
-        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PROJECT,
+        doChange(new Chgrp(DeleteServiceTest.REF_PROJECT,
 			p.getId().getValue(), null, g.getId().getValue()));
 
 	//Check if objects have been deleted
@@ -946,6 +956,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -969,7 +980,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			s1.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -1020,6 +1031,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject());
@@ -1043,7 +1055,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET,
 			s1.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -1098,15 +1110,12 @@ public class HierarchyMoveTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 	
     //login into new group
-	EventContext targetCtx = loginUser(g);
+	loginUser(g);
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
-	disconnect();
-	//back to original group
-	loginUser(ctx);
 
 	List<Request> list = new ArrayList<Request>();
-	list.add(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
 			d.getId().getValue(), null, g.getId().getValue()));
 	
 	ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -1114,14 +1123,13 @@ public class HierarchyMoveTest
 	link.setParent(new ProjectI(p.getId().getValue(), false));
 	Save cmd = new Save();
 	cmd.obj = link;
-	cmd.session = ctx.sessionUuid;
 	list.add(cmd);
 	DoAll all = new DoAll();
 	all.requests = list;
-	all.session = ctx.sessionUuid;
-    doChange(all);
+	doChange(all, g.getId().getValue());
 
-	//Check if objects have been deleted
+	//Check if objects have been removed from the original group
+	loginUser(ctx);
 	ParametersI param = new ParametersI();
 	param.addId(d.getId().getValue());
 	String sql = "select i from Dataset as i where i.id = :id";
@@ -1139,7 +1147,7 @@ public class HierarchyMoveTest
 	param = new ParametersI();
 	param.map.put("childID", d.getId());
 	param.map.put("parentID", p.getId());
-	sql = "select i from ProjectDatsasetLink as i where " +
+	sql = "select i from ProjectDatasetLink as i where " +
 			"i.child.id = :childID and i.parent.id = :parentID";
 	assertNotNull(iQuery.findByQuery(sql, param));
     }
@@ -1157,25 +1165,24 @@ public class HierarchyMoveTest
 	
 	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject());
-	disconnect();
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
+	iAdmin.getEventContext(); // Refresh
 
 	List<Request> list = new ArrayList<Request>();
-	list.add(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
 			d.getId().getValue(), null, g.getId().getValue()));
 	
 	ProjectDatasetLink link = new ProjectDatasetLinkI();
 	link.setChild(new DatasetI(d.getId().getValue(), false));
-	link.setParent(new ProjectI(-1, false)); //new project to create.
+	Project prj = new ProjectI();
+	prj.setName(omero.rtypes.rstring("new project"));
+	link.setParent(prj);
 	Save cmd = new Save();
 	cmd.obj = link;
-	cmd.session = ctx.sessionUuid;
 	list.add(cmd);
 	DoAll all = new DoAll();
 	all.requests = list;
-	all.session = ctx.sessionUuid;
-    doChange(all);
+	doChange(all, g.getId().getValue());
 
 	//Check if objects have been deleted
 	ParametersI param = new ParametersI();
@@ -1194,7 +1201,7 @@ public class HierarchyMoveTest
 	//Check the link
 	param = new ParametersI();
 	param.map.put("childID", d.getId());
-	sql = "select i from ProjectDatsasetLink as i where " +
+	sql = "select i from ProjectDatasetLink as i where " +
 			"i.child.id = :childID";
 	assertNotNull(iQuery.findByQuery(sql, param));
     }

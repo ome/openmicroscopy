@@ -4079,8 +4079,7 @@ class OMEROGateway
 		try {
 			IAdminPrx svc = getAdminService(ctx);
 			svc.updateGroup(group);
-			Chmod chmod = new Chmod(svc.getEventContext().sessionUuid,
-					REF_GROUP, 
+			Chmod chmod = new Chmod(REF_GROUP,
 					group.getId().getValue(), null, permissions);
 			List<Request> l = new ArrayList<Request>();
 			l.add(chmod);
@@ -7943,15 +7942,14 @@ class OMEROGateway
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
 				id = data.getId();
-				cmd = new Chgrp(sessionUuid, createDeleteCommand(
-					data.getClass().getName()), id, options, 
+				cmd = new Chgrp(createDeleteCommand(
+					data.getClass().getName()), id, options,
 					target.getGroupID());
 				commands.add(cmd);
 				j = l.iterator();
 				while (j.hasNext()) {
 					save = new Save();
 					save.obj = j.next();
-					save.session = sessionUuid;
 					commands.add(save);
 				}
 			}

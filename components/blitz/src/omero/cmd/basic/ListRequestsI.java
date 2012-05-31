@@ -74,7 +74,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
     public void buildResponse(int step, Object object) {
         helper.assertStep(0, step);
-        helper.setResponse((Response) object);
+        helper.setResponseIfNull((Response) object);
     }
 
     public Response getResponse() {

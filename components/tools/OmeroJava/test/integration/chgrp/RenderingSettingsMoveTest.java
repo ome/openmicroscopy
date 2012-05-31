@@ -74,7 +74,7 @@ public class RenderingSettingsMoveTest
 
 	long id = img.getId().getValue();
 	//Move the image
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	//check if the settings have been deleted.
@@ -166,7 +166,7 @@ public class RenderingSettingsMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 
@@ -278,7 +278,7 @@ public class RenderingSettingsMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 

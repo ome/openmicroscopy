@@ -78,7 +78,8 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
-        this.log = LogFactory.getLog(this.request.toString());
+        this.log = LogFactory.getLog(
+            this.request.toString().replaceAll("@", ".@"));
     }
 
     /**
@@ -87,9 +88,8 @@ public class Helper {
      * @param ireq
      * @param substatus
      */
-    public void subinit(IRequest ireq, Status substatus) {
-        Helper helper = new Helper((Request) ireq, substatus, sql, session, sf);
-        ireq.init(helper);
+    public Helper subhelper(Request req, Status substatus) {
+        return new Helper(req, substatus, sql, session, sf);
     }
 
     private void requireStepsSet() {
@@ -114,8 +114,11 @@ public class Helper {
         return status.steps;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
     public Response getResponse() {
-        requireStepsSet();
         return rsp.get();
     }
 
@@ -127,8 +130,7 @@ public class Helper {
      *            Can be null.
      * @return
      */
-    public boolean setResponse(Response rsp) {
-        requireStepsSet();
+    public boolean setResponseIfNull(Response rsp) {
         return this.rsp.compareAndSet(null, rsp);
     }
 
@@ -214,23 +216,37 @@ public class Helper {
      * @param name
      * @param paramList
      */
-    protected void fail(ERR err, final String name, final String... paramList) {
-        fail(err, name, params(paramList));
+    public void fail(ERR err, Throwable t, final String name, final String... paramList) {
+        fail(err, t, name, params(paramList));
     }
 
     /**
-     * Sets the status.flags and the ERR properties appropriately.
+     * Sets the status.flags and the ERR properties appropriately and also
+     * stores the message and stacktrace of the throwable in the parameters. 
      *
      * @param err
      * @param name
      * @param params
      */
-    protected void fail(ERR err, final String name,
+    public void fail(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
         status.flags.add(State.FAILURE);
         err.category = request.ice_id();
         err.name = name;
-        err.parameters = params;
+        if (err.parameters == null) {
+            err.parameters = params;
+        } else {
+            err.parameters.putAll(params);
+        }
+        if (t != null) {
+            String msg = t.getMessage();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            String st = sw.toString();
+            err.parameters.put("message", msg);
+            err.parameters.put("stacktrace", st);
+        }
         rsp.set(err);
     }
 
@@ -251,8 +267,7 @@ public class Helper {
     }
 
     /**
-     * Like {@link #fail(ERR, String, String...)} but also stores the message
-     * and stacktrace of the throwable in the parameters and throws a
+     * Like {@link #fail(ERR, String, String...)} throws a
      * {@link Cancel} exception.
      *
      * A {@link Cancel} is thrown, even though one is also specificed as the
@@ -272,22 +287,13 @@ public class Helper {
      */
     public Cancel cancel(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
-        fail(err, name, params);
-
+        fail(err, t, name, params);
+        status.flags.add(State.CANCELLED);
         Cancel cancel = new Cancel(name);
         if (t != null) {
-
-            String msg = t.getMessage();
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            String st = pw.toString();
-            err.parameters.put("message", msg);
-            err.parameters.put("stacktrace", st);
-
             cancel.initCause(t);
-
         }
+        info("Cancelled");
         throw cancel;
     }
 
