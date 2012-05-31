@@ -69,7 +69,7 @@ public class RequestObjectFactoryRegistry extends
                 DoAllI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
-                return new DoAllI();
+                return new DoAllI(ctx);
             }
 
         });

@@ -34,17 +34,13 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 /**
  * Permits performing multiple operations
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
-public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
+public class DoAllI extends DoAll implements IRequest {
 
     private static final long serialVersionUID = -323423435135556L;
 
@@ -237,12 +233,10 @@ public class DoAllI extends DoAll implements IRequest, ApplicationContextAware {
     //
     //
 
-    private OmeroContext ctx;
+    private final OmeroContext ctx;
 
-    @Override
-    public void setApplicationContext(ApplicationContext arg0)
-        throws BeansException {
-        this.ctx = (OmeroContext) arg0;
+    public DoAllI(OmeroContext ctx) {
+        this.ctx = ctx;
     }
 
     //
