@@ -1149,7 +1149,7 @@ public class HierarchyMoveTest
 	param = new ParametersI();
 	param.map.put("childID", d.getId());
 	param.map.put("parentID", p.getId());
-	sql = "select i from ProjectDatsasetLink as i where " +
+	sql = "select i from ProjectDatasetLink as i where " +
 			"i.child.id = :childID and i.parent.id = :parentID";
 	assertNotNull(iQuery.findByQuery(sql, param));
     }
@@ -1202,7 +1202,7 @@ public class HierarchyMoveTest
 	//Check the link
 	param = new ParametersI();
 	param.map.put("childID", d.getId());
-	sql = "select i from ProjectDatsasetLink as i where " +
+	sql = "select i from ProjectDatasetLink as i where " +
 			"i.child.id = :childID";
 	assertNotNull(iQuery.findByQuery(sql, param));
     }
