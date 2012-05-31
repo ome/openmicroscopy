@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -1161,7 +1160,6 @@ class MeasurementViewerModel
 	{
 		try {
 			List<ROIData> roiList = getROIData();
-			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (roiList.size() == 0) return;

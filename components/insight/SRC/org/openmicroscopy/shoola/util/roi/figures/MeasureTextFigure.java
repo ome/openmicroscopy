@@ -162,7 +162,6 @@ public class MeasureTextFigure
     	setAttribute(MeasurementAttributes.FONT_FACE, ROIFigure.DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
     	willChange();
-    	setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
     	changed();
     	shape = null;
    		roi = null;
@@ -173,6 +172,7 @@ public class MeasureTextFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
    }
 	
 	/**
