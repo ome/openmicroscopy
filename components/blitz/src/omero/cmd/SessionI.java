@@ -200,7 +200,7 @@ public class SessionI implements _SessionOperations {
 
             // Init
             try {
-                handle.initialize(id, (IRequest) req);
+                handle.initialize(id, (IRequest) req, current.ctx);
                 executor.submit(current.ctx, Executors.callable(handle));
                 __cb.ice_response(prx);
             } catch (Throwable e) {

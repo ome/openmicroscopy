@@ -101,7 +101,7 @@ public class HandleI implements _HandleOperations, IHandle,
      * {@link Executor#execute(Map, Principal, ome.services.util.Executor.Work)}
      * for properly setting the call context.
      */
-    private final Map<String, String> callContext;
+    private/* final */Map<String, String> callContext;
 
     /**
      * The principal, i.e. the session information, about the current users
@@ -132,20 +132,11 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     /**
-     * Calls {@link #HandleI(int, Map)} with a null call context.
+     * Create a {@link HandleI} in the {@link State#CREATED} state with the
+     * given cancel timeout in milliseconds.
      */
     public HandleI(int cancelTimeoutMs) {
-        this(cancelTimeoutMs, null);
-    }
-
-    /**
-     * Create and
-     *
-     * @param cancelTimeoutMs
-     */
-    public HandleI(int cancelTimeoutMs, Map<String, String> callContext) {
         this.cancelTimeoutMs = cancelTimeoutMs;
-        this.callContext = callContext;
         this.state.set(State.CREATED);
     }
 
@@ -155,9 +146,10 @@ public class HandleI implements _HandleOperations, IHandle,
         this.executor = sess.getExecutor();
     }
 
-    public void initialize(Identity id, IRequest req) {
+    public void initialize(Identity id, IRequest req, Map<String, String> ctx) {
         this.id = id;
         this.req = req;
+        this.callContext = ctx;
         this.helper = new Helper((Request)req, status, null, null, null);
     }
 
