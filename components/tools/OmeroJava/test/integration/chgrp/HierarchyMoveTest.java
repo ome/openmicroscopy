@@ -96,6 +96,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
 	long id = img.getId().getValue();
@@ -127,6 +128,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
 	Pixels pixels = img.getPrimaryPixels();
@@ -261,6 +263,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image image = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.simpleImage(0));
@@ -329,6 +332,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -456,6 +460,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -561,6 +566,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen screen = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -627,6 +633,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -708,6 +715,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -790,6 +798,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p = (Plate) iUpdate.saveAndReturnObject(
 				mmFactory.createPlate(1, 1, 1, 0, false));
@@ -863,6 +872,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
@@ -946,6 +956,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -1020,6 +1031,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject());
