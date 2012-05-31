@@ -186,7 +186,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
     // Public interface
     // =========================================================================
 
-    static String QUERY = "select o from OriginalFile o where o.mimetype = 'Repository'";
+    static String QUERY = "select o from OriginalFile o where o.mimeType = 'Repository'";
 
     public RepositoryPrx getScriptRepository(Current __current)
             throws ServerError {
