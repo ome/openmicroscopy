@@ -1110,12 +1110,9 @@ public class HierarchyMoveTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 	
     //login into new group
-	EventContext targetCtx = loginUser(g);
+	loginUser(g);
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
-	disconnect();
-	//back to original group
-	loginUser(ctx);
 
 	List<Request> list = new ArrayList<Request>();
 	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
@@ -1129,9 +1126,10 @@ public class HierarchyMoveTest
 	list.add(cmd);
 	DoAll all = new DoAll();
 	all.requests = list;
-        doChange(all);
+	doChange(all, g.getId().getValue());
 
-	//Check if objects have been deleted
+	//Check if objects have been removed from the original group
+	loginUser(ctx);
 	ParametersI param = new ParametersI();
 	param.addId(d.getId().getValue());
 	String sql = "select i from Dataset as i where i.id = :id";
@@ -1167,9 +1165,8 @@ public class HierarchyMoveTest
 	
 	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject());
-	disconnect();
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
+	iAdmin.getEventContext(); // Refresh
 
 	List<Request> list = new ArrayList<Request>();
 	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
@@ -1183,7 +1180,7 @@ public class HierarchyMoveTest
 	list.add(cmd);
 	DoAll all = new DoAll();
 	all.requests = list;
-        doChange(all);
+	doChange(all, g.getId().getValue());
 
 	//Check if objects have been deleted
 	ParametersI param = new ParametersI();
