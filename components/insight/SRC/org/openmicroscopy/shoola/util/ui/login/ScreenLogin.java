@@ -576,7 +576,7 @@ public class ScreenLogin
 		login.setToolTipText("Login");
 		setButtonDefault(login);
 		login.setEnabled(false);
-		UIUtilities.enterPressesWhenFocused(login);
+		//UIUtilities.enterPressesWhenFocused(login);
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
 		cancel.setMnemonic('Q');
@@ -1270,6 +1270,7 @@ public class ScreenLogin
     	progressBar.setVisible(b);
     	if (!b) {
     		login.setEnabled(true);
+    		requestFocusOnField();
     	}
     }
     
