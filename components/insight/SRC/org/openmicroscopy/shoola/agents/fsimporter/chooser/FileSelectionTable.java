@@ -605,7 +605,7 @@ class FileSelectionTable
 					value = f.getName();
 					v = fad;
 					if (model.getType() == Importer.SCREEN_TYPE) {
-						//v = false;
+						a = false;
 						value = null;
 					}
 				} else {
@@ -614,6 +614,8 @@ class FileSelectionTable
 						v = true;
 						element.setToggleContainer(v);
 					}
+					if (model.getType() == Importer.SCREEN_TYPE)
+						a = false;
 				}
 				if (multi) {
 					dtm.addRow(new Object[] {element, 
@@ -759,6 +761,7 @@ class FileSelectionTable
 		 */
 		public boolean isCellEditable(int row, int column)
 		{ 
+			FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 			switch (column) {
 				case FILE_INDEX: 
 				case CONTAINER_INDEX:
@@ -768,11 +771,14 @@ class FileSelectionTable
 					if (getColumnCount() == 
 						COLUMNS_NO_GROUP.size())
 						return archivedTunable;
-					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;
 					return false;//f.isDirectory();
-				case ARCHIVED_INDEX: return archivedTunable;
+				case ARCHIVED_INDEX: {
+					if (f.getType() == Importer.SCREEN_TYPE)
+						return false;
+					return archivedTunable;
+				}
 			}
 			return false; 
 		}
