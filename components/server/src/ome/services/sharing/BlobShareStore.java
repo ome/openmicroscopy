@@ -158,9 +158,9 @@ public class BlobShareStore extends ShareStore implements
         qb.and("sm.child.id = :userId");
         qb.param("userId", userId);
         if (own) {
-            qb.and("share.owner.id = sm.child.id");
+            qb.and("share.experimenter.id = sm.child.id");
         } else {
-            qb.and("share.owner.id != sm.child.id");
+            qb.and("share.experimenter.id != sm.child.id");
         }
         if (activeOnly) {
             qb.and("share.active is true");

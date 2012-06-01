@@ -821,7 +821,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
         List<Session> list = iQuery.findAllByQuery(
                 "select sh from Session sh "
-                        + "join fetch sh.owner where sh.id in (:ids) ",
+                        + "join fetch sh.experimenter where sh.id in (:ids) ",
                 new Parameters().addIds(ids));
         for (Session session : list) {
             if (session!= null) {
@@ -833,7 +833,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     protected Share shareToSession(ShareData data) {
         Share share = iQuery.findByQuery("select sh from Share sh "
-                + "join fetch sh.owner where sh.id = :id ", new Parameters()
+                + "join fetch sh.experimenter where sh.id = :id ", new Parameters()
                 .addId(data.id));
         if (share != null) {
             share.putAt("#2733", "ALLOW");
@@ -902,7 +902,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         if ( ! ec.isCurrentUserAdmin()) {
             qb.param("userId", ec.getCurrentUserId());
             qb.and("(");
-            qb.append("share.owner.id = :userId" );
+            qb.append("share.experimenter.id = :userId" );
             qb.append(" OR ");
             qb.append("user.id = :userId" );
             qb.append(" ) ");
