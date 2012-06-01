@@ -237,7 +237,10 @@ public class CreateTopContainerAction
         	if (selectedDisplay != null) {
         		Object ho = selectedDisplay.getUserObject();
         		if (ho instanceof ExperimenterData) {
-        			setEnabled(model.canLink(ho));
+        			long id = TreeViewerAgent.getUserDetails().getId();
+	    			ExperimenterData exp = (ExperimenterData) ho;
+	    			setEnabled(exp.getId() == id);
+        			//setEnabled(model.canLink(ho));
 					return;
 				}
         		if (ho instanceof GroupData) {

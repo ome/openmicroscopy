@@ -353,7 +353,11 @@ public class BrowserManageAction
 	    		handleSelection(selectedDisplay);
 	    		break;
 	    	default:
-	    		setEnabled(model.canLink(ho));
+	    		if (ho instanceof ExperimenterData) {
+	    			long id = TreeViewerAgent.getUserDetails().getId();
+	    			ExperimenterData exp = (ExperimenterData) ho;
+	    			setEnabled(exp.getId() == id);
+	    		} else setEnabled(model.canLink(ho));
 		}
     }
     
