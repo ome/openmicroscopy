@@ -33,6 +33,7 @@ thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
 splitViewFigurePath = "scripts/omero/figure_scripts/Split_View_Figure.py"
 roiFigurePath = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
 movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
+movieROIFigurePath = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
 
 
 class TestFigureExportScripts(lib.ITest):
@@ -117,13 +118,13 @@ class TestFigureExportScripts(lib.ITest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot1, True, parentType="Dataset")
         checkFileAnnotation(self,fileAnnot2, True)
         
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}        
         fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
-        args = {"Data_Type": omero.rtypes.rstring("Image"), "Dataset": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        args = {"Data_Type": omero.rtypes.rstring("Dataset"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
         fileAnnot4 = runScript(client, scriptId, args, "File_Annotation")
     
         # should have no annotation
@@ -327,6 +328,99 @@ class TestFigureExportScripts(lib.ITest):
         
         checkFileAnnotation(self,fileAnnot3, False)        
     
+    def testMovieRoiFigure(self):
+
+        print "testMovieRoiFigure"
+
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+
+        session = self.root.sf
+        client = self.root
+        services = {}
+        renderingEngine = session.createRenderingEngine()
+        queryService = session.getQueryService()
+        pixelsService = session.getPixelsService()
+        rawPixelStore = session.createRawPixelsStore()
+        updateService = session.getUpdateService()
+
+        services["containerService"] = session.getContainerService()
+        services["renderingEngine"] = renderingEngine
+        services["queryService"] = queryService
+        services["pixelsService"] = pixelsService
+        services["rawPixelStore"] = rawPixelStore
+
+        # upload script 
+        scriptService = session.getScriptService()
+        scriptId = uploadScript(scriptService, movieROIFigurePath)
+
+        # create several test images in a dataset
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("roiFig-test")
+        dataset = updateService.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("roiFig-test")
+        project = updateService.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        updateService.saveAndReturnObject(link)
+        # put some images in dataset
+        imageIds = []
+        for i in range(5):
+            imageId = self.createTestImage(256,256,10,3,1).getId().getValue()    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(imageId))
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(imageId, False)
+            updateService.saveAndReturnObject(dlink)
+            # add roi
+            addRectangleRoi(updateService, 50 + (i*10), 100 - (i*10), 50+(i*5), 100-(i*5), imageId) # x, y, width, height
+
+        # run the script twice. First with all args...
+        cNamesMap = omero.rtypes.rmap({'0':omero.rtypes.rstring("DAPI"),
+            '1':omero.rtypes.rstring("GFP"), 
+            '2':omero.rtypes.rstring("Red"), 
+            '3':omero.rtypes.rstring("ACA")})
+        blue = omero.rtypes.rint(255)
+        red = omero.rtypes.rint(16711680)
+        mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
+        argMap = {
+            "Data_Type": omero.rtypes.rstring("Image"),
+           "IDs": omero.rtypes.rlist(imageIds),
+           "ROI_Zoom":omero.rtypes.rfloat(3),
+           "Max_Columns": omero.rtypes.rint(10),
+           "Resize_Images": omero.rtypes.rbool(True),
+           "Width": omero.rtypes.rint(200),
+           "Height": omero.rtypes.rint(200),
+           "Image_Labels": omero.rtypes.rstring("Datasets"),
+           "Show_ROI_Duration": omero.rtypes.rbool(True),
+           "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
+           "Scalebar_Colour": omero.rtypes.rstring("White"), # will be ignored since no pixelsize set
+           "Roi_Selection_Label": omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
+           "Algorithm": omero.rtypes.rstring("Mean Intensity"),
+           "Figure_Name": omero.rtypes.rstring("movieROITest") 
+           }
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+
+        # ...then with bare minimum args
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+
+        # should have figures attached to project and first image. 
+        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot2, True)
+
+        # Run the script with invalid IDs
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+
+        checkFileAnnotation(self,fileAnnot3, False)        
+
     def testMovieFigure(self):
 
         print "testMovieFigure"
