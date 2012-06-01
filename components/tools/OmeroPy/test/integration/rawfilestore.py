@@ -19,11 +19,11 @@ class TestRFS(lib.ITest):
 
     def file(self):
         ofile = omero.model.OriginalFileI()
-        ofile.mimetype = rstring("application/octet-stream")
+        ofile.mimeType = rstring("application/octet-stream")
         ofile.name = rstring("test")
         ofile.path = rstring("/tmp/test")
         ofile.sha1 = rstring("")
-        ofile.size = rlong(-1)
+        ofile.size = rlong(1)
         ofile = self.update.saveAndReturnObject(ofile)
         return ofile
 
