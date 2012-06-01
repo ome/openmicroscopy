@@ -1569,7 +1569,7 @@ public class AbstractServerTest
 			callContext.put("omero.group", ""+groupID);
 		}
 		final HandlePrx prx = f.submit(change, callContext);
-		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
 		new CmdCallbackI(c, prx).loop(20, 500);
 		assertNotNull(prx.getResponse());
 
