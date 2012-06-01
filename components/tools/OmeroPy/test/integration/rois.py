@@ -33,35 +33,53 @@ class TestRois(lib.ITest):
         svc = self.client.sf.getRoiService()
         res = svc.findByImage(img.id.val, None)
     
-    def testROICountTypes(self):
+    def testGetROICountNoROI(self):
         """
-        Test ROI counting method
+        Test no ROI couting method
         """
         
         img = self.new_image("")
-        roi1 = omero.model.RoiI()
-        roi1.addShape(omero.model.RectI())
-        roi1.addShape(omero.model.EllipseI())
-        img.addRoi(roi1)
-        roi2 = omero.model.RoiI()
-        roi2.addShape(omero.model.RectI())
-        img.addRoi(roi2)
         img = self.update.saveAndReturnObject(img)
 
+        from omero.gateway import ImageWrapper, BlitzGateway
+
+        conn = BlitzGateway(client_obj = self.client)
+        wrapper = ImageWrapper(conn, img)
+        self.assertEqual(wrapper.getROICount(),0)
+    
+    def testGetROICountShape(self):
+        """
+        Test shape filter in ROI counting method
+        """
+        
+        img = self.new_image("")
+        img = self.update.saveAndReturnObject(img)
+        
+        roi1 = omero.model.RoiI()
+        roi1.addShape(omero.model.RectI())
+        roi1.addShape(omero.model.RectI())
+        roi1.setImage(img)
+        roi1  = self.update.saveAndReturnObject(roi1)
+        roi2 = omero.model.RoiI()
+        roi2.addShape(omero.model.RectI())
+        roi2.addShape(omero.model.EllipseI())
+        roi2.setImage(img)
+        roi2  = self.update.saveAndReturnObject(roi2)        
+        
         from omero.gateway import ImageWrapper, BlitzGateway
         
         conn = BlitzGateway(client_obj = self.client)
         wrapper = ImageWrapper(conn, img)
         
-        self.assertEqual(wrapper.getROICount(),3)
+        self.assertEqual(wrapper.getROICount(),2)
         self.assertEqual(wrapper.getROICount("Rect"),2)
         self.assertEqual(wrapper.getROICount("Ellipse"),1)
         self.assertEqual(wrapper.getROICount("Line"),0)
-        self.assertEqual(wrapper.getROICount(["Rect","Ellipse"]),3)
-
-    def testROICountPermissions(self):
+        self.assertEqual(wrapper.getROICount(["Rect","Ellipse"]),2)
+    
+    def testGetROICountPermission(self):
         """
-        Test ROI counting method with permissions level
+        Test permission filter for ROI counting
         """
         
         # Create group with two member and one image

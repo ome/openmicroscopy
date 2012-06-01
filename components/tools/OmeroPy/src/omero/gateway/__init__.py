@@ -7051,13 +7051,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
 
-    def getROICount(self, roitype=None, eid=None):
+    def getROICount(self, shapeType=None, eid=None):
         """
         Count number of ROIs associated to an image
         
-        @param roitype:     Specify a ROI type ("Rect",...) or any ROI if empty.
-        @param eid:         Filter ROIs by owner ID
-        @return:            True if any ROI of given type is present.
+        @param shapeType:   Filter by shape type ("Rect",...).
+        @param eid:         Filter by owner ID.
+        @return:            Number of ROIs found
         """
           
         # Create ROI owner validator (instead of roiOptions see #8990)
@@ -7067,24 +7067,26 @@ class _ImageWrapper (BlitzObjectWrapper):
             else:
                 return shape.getDetails().getOwner().id.val == self._conn._userid
         
-        # Create ROI type validator
+        # Create ROI shape validator (return True if at least one shape is found)
         def isValidType(shape):
-            if not roitype:
+            if not shapeType:
                 return True
-            elif isinstance(roitype,list):
-                for t in roitype:
+            elif isinstance(shapeType,list):
+                for t in shapeType:
                     if isinstance(shape,getattr(omero.model,t)):
                         return True
-            elif isinstance(shape,getattr(omero.model,roitype)):
+            elif isinstance(shape,getattr(omero.model,shapeType)):
                 return True
             return False
         
-        result = self._conn.getRoiService().findByImage(self.id, None)
-        count = 0
-        for roi in result.rois:
+        def isValidROI(roi):
             for shape in roi.copyShapes():
-                if isValidType(shape) and isValidOwner(shape): 
-                    count += 1
+                if isValidType(shape) and isValidOwner(shape):
+                    return True
+            return False
+        
+        result = self._conn.getRoiService().findByImage(self.id, None)
+        count = sum(1 for roi in result.rois if isValidROI(roi))
         return count
 
 ImageWrapper = _ImageWrapper
