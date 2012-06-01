@@ -395,15 +395,10 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     dataset = conn.getObject("Dataset", datasetId)
     
     try:
-        w = request.REQUEST.get('width', 100)
-        width = int(w)
+        size = request.REQUEST.get('size', 100)
+        size = int(size)
     except:
-        width = 100
-    try:
-        h = request.REQUEST.get('height', 100)
-        height = int(h)
-    except:
-        height = 100
+        size = 100
         
     # returns a list of channel info from the image, overridden if values in request
     def getChannelData(image):
@@ -435,9 +430,10 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":image.getId(), "z":default_z, "name": image.getName() })
-    
-    size = {'width':width, 'height':height}
-    
+
+    if channels is None:
+        return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
+
     indexes = range(1, len(channels)+1)
     c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
 

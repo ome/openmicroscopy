@@ -952,7 +952,7 @@ public class AdminServiceTest
         //change permissions
         representation = "rwrw--";
         
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         doChange(root, root.getSession(), mod, true);
         //prx.changePermissions(g, permissions);
@@ -993,7 +993,7 @@ public class AdminServiceTest
         //change permissions
         representation = "rwra--";
         
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         doChange(root, root.getSession(), mod, true);
         //prx.changePermissions(g, permissions);
@@ -1034,7 +1034,7 @@ public class AdminServiceTest
         //change permissions
         representation = "rwrw--";
         
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         doChange(root, root.getSession(), mod, true);
         //prx.changePermissions(g, permissions);
@@ -1073,7 +1073,7 @@ public class AdminServiceTest
         //change permissions
         representation = "rwr--";
         
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         doChange(root, root.getSession(), mod, true);
         //prx.changePermissions(g, permissions);
@@ -1106,7 +1106,7 @@ public class AdminServiceTest
         Permissions permissions = g.getDetails().getPermissions();
         //change permissions and promote the group
         representation = "rwrw--";
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);
@@ -1143,7 +1143,7 @@ public class AdminServiceTest
         
         //change permissions and promote the group
         representation = "rwr---";
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);
@@ -1154,7 +1154,7 @@ public class AdminServiceTest
         g = prx.getGroup(id);
         //now try to turn it back to rw----
         representation = "rw----";
-        mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);

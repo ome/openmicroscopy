@@ -96,7 +96,7 @@ public class SaveROIAction
      */
     public void actionPerformed(ActionEvent e) 
     { 
-    	model.saveROIToServer(); 
+    	model.saveROIToServer(false); 
     }
 
     /**

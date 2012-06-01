@@ -55,21 +55,16 @@ class login_required(omeroweb.decorators.login_required):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
-        self.conn_config(request, conn)
+        if request.session.get('active_group'):
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
+        else:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
         """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
         if self.ignore_login_fail:
             return HttpResponse("Connection Failed")
         return super(login_required, self).on_not_logged_in(request, url, error)
-
-    def conn_config(self, request, conn):
-        if conn.CONFIG['SERVICE_OPTS'] is None:
-            conn.CONFIG['SERVICE_OPTS'] = {}
-        if request.session.get('active_group'):
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
-        else:
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
 
     def prepare_session(self, request):
         """Prepares various session variables."""
@@ -115,7 +110,7 @@ class render_response(omeroweb.decorators.render_response):
         context['ome'] = {}
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
-        context['ome']['basket_counter'] = request.session.get('basekt_counter', 0)
+        context['ome']['basket_counter'] = request.session.get('basket_counter', 0)
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
         self.load_settings(request, context, conn)
@@ -131,13 +126,14 @@ class render_response(omeroweb.decorators.render_response):
         top_links = settings.TOP_LINKS
         links = []
         for tl in top_links:
+            label = tl[0]
+            link_id = tl[1]
             try:
-                label = tl[0]
-                link_id = tl[1]
                 link = reverse(link_id)
                 links.append( {"label":label, "link":link} )
             except:
-                logger.error("Failed to reverse() tab_link: %s" % tl)
+                # assume we've been passed a url
+                links.append( {"label":label, "link":link_id} )
         context['ome']['top_links'] = links
 
         right_plugins = settings.RIGHT_PLUGINS

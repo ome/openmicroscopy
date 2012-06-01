@@ -105,6 +105,7 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
+                                  tree_selection_changed();   // clear center and right panels etc
                                   datatree.delete_node(selected);
                                   first_parent.children("a").click();
                                   refreshActivities();
@@ -654,6 +655,7 @@
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                             } else {
                                 // otherwise the options depend on type of node...
                                 var to_paste = this.data.crrm.cp_nodes || this.data.crrm.ct_nodes || false;
@@ -744,7 +746,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url webgateway_full_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

@@ -644,7 +644,7 @@ public class IconManager
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
         relPaths[PLATE_ANNOTATED] = "plate_annotated16.png";
         relPaths[PLATE] = "plate16.png";
-        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[EDITOR] = "omeroEditor16.png";
         relPaths[FILES_EXPLORER] = "nuvola_attach16.png";
         relPaths[FILE] = "nuvola_attach16.png";
         relPaths[FILE_PDF] = "nuvola_acroread16.png";
@@ -654,8 +654,8 @@ public class IconManager
         relPaths[FILE_EXCEL] = "alienOSX_Microsoft_Excel16.png";
         relPaths[FILE_XML] = "txt_xml16.png";
         relPaths[FILE_HTML] = "txt_html16.png";
-        relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
-        relPaths[IMPORTER] = "omeroImporterLink16.png";
+        relPaths[FILE_EDITOR] = "omeroEditor16.png";
+        relPaths[IMPORTER] = "omeroImporter16.png";
         relPaths[REMOVE_48] = "nuvola_trashcan_full48.png";
         relPaths[TAG_48] = "nuvola_knotes48.png";
         relPaths[TAG_SET_48] = "nuvola_knotes_red48.png";
@@ -736,8 +736,8 @@ public class IconManager
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";
-        relPaths[MOVE_22] = "nuvola_download_manager22.png";
-        relPaths[MOVE_FAILED_22] = "nuvola_download_manager22.png";
+        relPaths[MOVE_22] = "nuvola_apply22.png";
+        relPaths[MOVE_FAILED_22] = "nuvola_cancel22.png";
         relPaths[MOVE_48] = "nuvola_folder_image48.png";
     }
     

@@ -74,6 +74,21 @@ try:
 except:
     PAGE = 200
 
+
+def defaultThumbnail(size=(120,120)):
+    if isinstance(size, int):
+        size = (size,size)
+    if len(size) == 1:
+        size = (size[0],size[0])
+    img = Image.open(settings.DEFAULT_IMG)
+    img.thumbnail(size, Image.ANTIALIAS)
+    draw = ImageDraw.Draw(img)
+    f = cStringIO.StringIO()
+    img.save(f, "PNG")
+    f.seek(0)
+    return f.read()
+
+
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def __init__ (self, *args, **kwargs):
@@ -791,19 +806,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return True
         else:
             return False
-    
-    def defaultThumbnail(self, size=(120,120)):
-        if isinstance(size, int):
-            size = (size,size)
-        if len(size) == 1:
-            size = (size[0],size[0])
-        img = Image.open(settings.DEFAULT_IMG)
-        img.thumbnail(size, Image.ANTIALIAS)
-        draw = ImageDraw.Draw(img)
-        f = cStringIO.StringIO()
-        img.save(f, "PNG")
-        f.seek(0)
-        return f.read()
     
     ##############################################
     ##   Sets methods                           ##
@@ -1604,7 +1606,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
+        for e in tm.getMostRecentObjects(['Image'], p, False, self.CONFIG['SERVICE_OPTS'])["Image"]:
             yield ImageWrapper(self, e)
     
     def listMostRecentShares (self):
@@ -1623,7 +1625,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
             yield ShareWrapper(self, e.parent)
     
     def listMostRecentShareComments (self):
@@ -1642,7 +1644,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
             yield AnnotationWrapper(self, e.child, link=ShareWrapper(self, e.parent))
     
     def listMostRecentComments (self):
@@ -1662,7 +1664,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
+        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
             yield omero.gateway.BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
@@ -1682,7 +1684,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(200)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
+        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
             yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
     def getDataByPeriod (self, start, end, eid, otype=None, page=None):
@@ -1715,24 +1717,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ds_list = list()
         pr_list = list()
         
-        if otype == 'image':
-            try:
-                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Image']:
-                    im_list.append(ImageWrapper(self, e))
-            except:
-                pass
-        elif otype == 'dataset':
-            try:
-                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Dataset']:
-                    ds_list.append(DatasetWrapper(self, e))
-            except:
-                pass
-        elif otype == 'project':
-            try:
-                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Project']:
-                    pr_list.append(ImageWrapper(self, e))
-            except:
-                pass
+        if otype is not None and otype in ("Image", "Dataset", "Project"):
+            otype = otype.title()
+            for e in tm.getByPeriod([otype], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])[otype]:
+                wrapper = KNOWN_WRAPPERS.get(otype.title(), None)
+                im_list.append(wrapper(self, e))
         else:
             res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])
             try:
@@ -1800,10 +1789,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.limit = rint(100000)
-        f.ownerId = rlong(eid)
-        #f.groupId = rlong(self.getEventContext().groupId)
+        try:
+            f.groupId = rlong(self.CONFIG['SERVICE_OPTS']['omero.group'])
+        except:
+            f.groupId = rlong(self.getEventContext().groupId)
+        f.ownerId = rlong(eid or self.getEventContext().userId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, self.CONFIG['SERVICE_OPTS'])
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, {'omero.group': "-1"})
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway
@@ -1868,19 +1860,15 @@ class OmeroWebObjectWrapper (object):
             return 'unknown'
         else:
             p = self.details.getPermissions()
-
-        if p.isUserRead() and p.isUserWrite():
-            flag = 'Private'
-        elif p.isUserRead() and not p.isUserWrite():
-            flag = 'Private (read-only)'
-        if p.isGroupRead() and p.isGroupWrite():
-            flag = 'Collaborative'
-        elif p.isGroupRead() and not p.isGroupWrite():
-            flag = 'Collaborative (read-only)'
-        if p.isWorldRead() and p.isWorldWrite():
+        
+        if p.isWorldRead():
             flag = 'Public'
-        elif p.isWorldRead() and not p.isWorldWrite():
-            flag = 'Public (read-only)'
+        elif p.isGroupRead():
+            flag = 'Collaborative'
+        elif p.isUserRead():
+            flag = 'Private'
+        else:
+            flag = p
         return flag
     
     def warpName(self):
@@ -1952,7 +1940,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     def getDefaultGroup(self):
         geMap = self.copyGroupExperimenterMap()
         if self.sizeOfGroupExperimenterMap() > 0:
-            return ExperimenterGroupWrapper(self, geMap[0].parent)
+            return ExperimenterGroupWrapper(self._conn, geMap[0].parent)
         return None
     
     def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
@@ -1963,7 +1951,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
             if gem.parent.id.val in excluded_ids:
                 flag = True
             if not flag:
-                yield ExperimenterGroupWrapper(self, gem.parent)
+                yield ExperimenterGroupWrapper(self._conn, gem.parent)
     
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
 
@@ -1993,7 +1981,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
             if gem.owner.val:
-                yield ExperimenterWrapper(self, gem.child)
+                yield ExperimenterWrapper(self._conn, gem.child)
     
     def getOwnersNames(self):
         owners = list()
@@ -2009,7 +1997,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             if gem.parent.id.val in excluded_ids:
                 flag = True
             if not flag:
-                yield ExperimenterWrapper(self, gem.child)
+                yield ExperimenterWrapper(self._conn, gem.child)
     
     def isLocked(self):
         if self.name == "user":
@@ -2259,6 +2247,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         @rtype:     L{ExperimenterWrapper}
         """
         
-        return omero.gateway.ExperimenterWrapper(self, self.owner)
+        return omero.gateway.ExperimenterWrapper(self._conn, self.owner)
 
 omero.gateway.refreshWrappers()

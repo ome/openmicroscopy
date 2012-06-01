@@ -258,7 +258,7 @@ public class MeasurementViewerFactory
 			comp = (MeasurementViewerComponent) i.next();
 			comp.onROIDeleted(imageID);
 			if (comp.hasROIToSave())	
-				comp.saveROIToServer();
+				comp.saveROIToServer(false);
 		}
 	}
 

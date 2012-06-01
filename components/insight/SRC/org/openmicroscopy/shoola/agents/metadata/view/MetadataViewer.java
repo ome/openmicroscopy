@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -305,18 +306,15 @@ public interface MetadataViewer
 	/**
 	 * Saves the annotations back to the server.
 	 * 
-	 * @param toAdd		The annotations to add or update.
-	 * @param toRemove	The annotations to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param toDelete	The annotations to delete.
 	 * @param metadata	The metadata to save.
 	 * @param data		The data object to annotate.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	public void saveData(List<AnnotationData> toAdd, 
-						List<AnnotationData> toRemove, 
-						List<AnnotationData> toDelete, List<Object> metadata,
-						DataObject data, boolean asynch);
+	public void saveData(DataToSave object, List<AnnotationData> toDelete,
+			List<Object> metadata, DataObject data, boolean asynch);
 	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>

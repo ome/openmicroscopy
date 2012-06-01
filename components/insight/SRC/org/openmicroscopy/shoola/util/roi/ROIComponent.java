@@ -90,6 +90,21 @@ public class ROIComponent
 	
 	/** Identifies the font family enumeration.*/
 	public static final Integer LINE_CAP = Integer.valueOf(2);
+
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int ANNOTATE = 0;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE = 1;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_MINE = 2;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_OTHERS = 3;
+	
+	/** Flag indicating to check if the roi can be deleted.*/
+	public static final int ALL = 4;
 	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
@@ -288,18 +303,19 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
+	 * @param index One of the constants defined by this class.
 	 * @param ownerID The identifier of the owner.
 	 * @param enumerations The enumerations to use for shape settings.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, long ownerID, 
+	public List<ROIData> saveROI(ImageData image, int index, long userID
 			Map<Integer, List<EnumerationObject>> enumerations)
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, ownerID, enumerations);
+		return serverStrategy.write(this, image, index, userID, enumerations);
 	}
 	
 	/**

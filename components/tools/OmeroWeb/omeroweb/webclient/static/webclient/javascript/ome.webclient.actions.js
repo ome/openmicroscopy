@@ -53,6 +53,7 @@ var handle_tree_selection = function(data) {
         }
         selected.each(function(){
             var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
+            selected_obj["class"] = $(this).attr('class');
             if (share_id) selected_obj["share"] = share_id;
             selected_objs.push(selected_obj);
         });
@@ -131,10 +132,13 @@ var basket_selection_changed = function($selected) {
 }
 
 // called from click events on plate. Selected wells 
-var well_selection_changed = function($selected, well_index) {
+var well_selection_changed = function($selected, well_index, plate_class) {
     var selected_objs = [];
     $selected.each(function(i){
-        selected_objs.push( {"id":$(this).attr('id').replace("=","-"), "rel":$(this).attr('rel'), "index":well_index} );
+        selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
+                "rel":$(this).attr('rel'),
+                "index":well_index,
+                "class":plate_class} );     // assume every well has same permissions as plate
     });
     
     $("body")
@@ -142,11 +146,13 @@ var well_selection_changed = function($selected, well_index) {
         .trigger("selection_change.ome");
 }
 
+// multiple selection in the history & search tables
 var multipleAnnotation = function(selected, index, prefix){
     if (selected != null && selected.length > 0) {
         var productListQuery = new Array(); 
         selected.each( function(i){
             productListQuery[i] = {"id":$(this).attr('id').replace("-","=")};
+            productListQuery[i]['class'] = $(this).attr('class');
         });
         var query = prefix+"?"+productListQuery.join("&")
         if (index != null && index > -1) {

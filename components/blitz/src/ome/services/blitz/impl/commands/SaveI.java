@@ -19,21 +19,14 @@ package ome.services.blitz.impl.commands;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-
 import ome.api.IUpdate;
 import ome.model.IObject;
-import ome.util.SqlAction;
-
 import omero.api.Save;
 import omero.api.SaveRsp;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.util.IceMapper;
 
 /**
@@ -44,8 +37,6 @@ import omero.util.IceMapper;
  */
 public class SaveI extends Save implements IRequest {
 
-    private final Log log = LogFactory.getLog(SaveI.class);
-
     private static final long serialVersionUID = -3434345656L;
 
     private Helper helper;
@@ -54,10 +45,9 @@ public class SaveI extends Save implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session,
-            ome.system.ServiceFactory sf) {
-        this.helper = new Helper(this, status, sql, session, sf);
-        status.steps = 1;
+    public void init(Helper helper) {
+        this.helper = helper;
+        this.helper.setSteps(1);
     }
 
     public Object step(int step) {
@@ -66,6 +56,7 @@ public class SaveI extends Save implements IRequest {
             IceMapper mapper = new IceMapper();
             IObject iobj = (IObject) mapper.reverse(this.obj);
             IUpdate update = helper.getServiceFactory().getUpdateService();
+            helper.info("saveAndReturnObject(%s)", iobj);
             return update.saveAndReturnObject(iobj);
         }
         catch (Throwable t) {
@@ -80,7 +71,7 @@ public class SaveI extends Save implements IRequest {
             IceMapper mapper = new IceMapper();
             SaveRsp rsp = new SaveRsp(
                     (omero.model.IObject) mapper.map((IObject) object));
-            helper.setResponse(rsp);
+            helper.setResponseIfNull(rsp);
         }
     }
 

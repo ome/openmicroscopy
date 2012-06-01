@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineTextFigure;
 
@@ -382,7 +383,7 @@ public class MeasureLineFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -394,7 +395,7 @@ public class MeasureLineFigure
 	{
 		if (shape == null) return str;
 		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+UnitsObject.MICRONS;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 					
@@ -774,6 +775,7 @@ public class MeasureLineFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	/*
@@ -794,6 +796,7 @@ public class MeasureLineFigure
 	 */
 	public void setBezierPath(BezierPath newValue) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setBezierPath(newValue);
 		this.setObjectDirty(true);
 	}
@@ -805,6 +808,7 @@ public class MeasureLineFigure
 	 */
 	public void setEndPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setEndPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -816,6 +820,7 @@ public class MeasureLineFigure
 	 */
 	public void setNode(int index, BezierPath.Node p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setNode(index, p);
 		this.setObjectDirty(true);
 	}
@@ -827,6 +832,7 @@ public class MeasureLineFigure
 	 */
 	public void setPoint(int index, int coord, Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setPoint(index, coord, p);
 		this.setObjectDirty(true);
 	}
@@ -838,6 +844,7 @@ public class MeasureLineFigure
 	 */
 	public void setStartPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setStartPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -849,6 +856,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split);
 	}
@@ -860,6 +868,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split, tolerance);
 	}
@@ -871,6 +880,7 @@ public class MeasureLineFigure
 	 */
 	public int joinSegments(Point2D.Double join, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}

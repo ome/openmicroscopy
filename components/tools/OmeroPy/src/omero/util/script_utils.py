@@ -42,11 +42,6 @@ from struct import *
 import omero.clients
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
-from omero.util.OmeroPopo import EllipseData as EllipseData
-from omero.util.OmeroPopo import RectangleData as RectangleData
-from omero.util.OmeroPopo import MaskData as MaskData
-from omero.util.OmeroPopo import ROIData as ROIData
-
 
 try:
     import hashlib
@@ -318,8 +313,59 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, local
     uploadFile(rawFileStore, originalFile, localName)
     fileLink = attachFileToParent(updateService, parent, originalFile, description, namespace)
     return fileLink.getChild()
+
+def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttype="Image", mimetype=None, desc=None, ns=None, origFilePathAndName=None):
+    """
+    Uploads a local file to the server, as an Original File and attaches it to the 
+    parent (Project, Dataset or Image)
+
+    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param parent:          The ProjectI or DatasetI or ImageI to attach file to
+    @param localPath:       Full Name (and path) of the file location to upload. String
+    @param mimetype:        The original file mimetype. E.g. "PNG". String
+    @param description:     Optional description for the file annotation. String
+    @param namespace:       Namespace to set for the original file
+    @param 
+    @param origFilePathName:    The /path/to/file/fileName.ext you want on the server. If none, use output as name
+    @return:                The originalFileLink child (FileAnnotationI) and a log message
+    """
+    if os.path.exists(localPath):
+        fileAnnotation = conn.createFileAnnfromLocalFile(localPath, origFilePathAndName=origFilePathAndName, mimetype=mimetype, ns=ns, desc=desc)
+        message = "%s created" % output
+        if parent is not None:
+            if parent.canAnnotate():
+                parentClass = parent.OMERO_CLASS
+                message += " and attached to %s%s %s."  % (parentClass[0].lower(), parentClass[1:], parent.getName())                
+                parent.linkAnnotation(fileAnnotation)
+            else:
+                message += " but could not be attached."
+    else:
+        message = "%s not created." % output
+        fileAnnotation = None
+    return fileAnnotation, message
     
-    
+def getObjects(conn, params):
+    """
+    Get the objects specified by the script parameters. 
+    Assume the parameters contain the keys IDs and Data_Type
+
+    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param params:          The script parameters
+    @return:                The valid objects and a log message
+    """
+  
+    dataType = params["Data_Type"]
+    ids = params["IDs"]
+    objects = list(conn.getObjects(dataType,ids))
+
+    message = ""
+    if not objects:
+        message += "No %s%s found. " % (dataType[0].lower(), dataType[1:])
+    else:
+        if not len(objects) == len(ids):
+            message += "Found %s out of %s %s%s(s). " % (len(objects), len(ids), dataType[0].lower(), dataType[1:])
+    return objects, message
+
 def addAnnotationToImage(updateService, image, annotation):
     """
     Add the annotation to an image.
@@ -1107,6 +1153,32 @@ def toList(csvString):
     for index in range(len(list)):
         list[index] = list[index].strip();
     return list;
+  
+def registerNamespace(iQuery, iUpdate, namespace, keywords):
+    """
+    Register a workflow with the server, if the workflow does not exist create it and returns it,
+    otherwise it returns the already created workflow.
+    @param iQuery The query service.
+    @param iUpdate The update service.
+    @param namespace The namespace of the workflow.
+    @param keywords The keywords associated with the workflow.
+    @return see above.
+    """
+    from omero.util.OmeroPopo import WorkflowData as WorkflowData
+    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace.val+"'", None);
+    workflowData = WorkflowData();
+    if(workflow!=None):
+        workflowData = WorkflowData(workflow);
+    else:
+        workflowData.setNamespace(namespace.val);
+    splitKeywords = keywords.val.split(',');
+
+    SU_LOG.debug(workflowData.asIObject())
+    for keyword in splitKeywords:
+        workflowData.addKeyword(keyword);
+    SU_LOG.debug(workflowData.asIObject())
+    workflow = iUpdate.saveAndReturnObject(workflowData.asIObject());
+    return WorkflowData(workflow);
 
 def findROIByImage(roiService, image, namespace):
     """
@@ -1116,6 +1188,7 @@ def findROIByImage(roiService, image, namespace):
     @param namespace The namespace of the ROI.
     @return see above.
     """
+    from omero.util.OmeroPopo import ROIData as ROIData
     roiOptions = omero.api.RoiOptions();
     roiOptions.namespace = omero.rtypes.rstring(namespace);
     results = roiService.findByImage(image, roiOptions);

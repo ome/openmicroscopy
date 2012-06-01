@@ -242,17 +242,6 @@ class ActiveGroupForm(forms.Form):
             self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
         self.fields.keyOrder = ['active_group']
 
-class HistoryTypeForm(forms.Form):
-    HISTORY_CHOICES = (
-        ('all', '---------'),
-        ('project', 'Projects'),
-        ('dataset', 'Datasets'),
-        ('image', 'Images'),
-        #('renderdef', 'Views'),
-    )
-    
-    data_type = forms.ChoiceField(choices=HISTORY_CHOICES,  widget=forms.Select(attrs={'onchange':'window.location.href=\'?history_type=\'+this.options[this.selectedIndex].value'}))
-
 
 class WellIndexForm(forms.Form):
     

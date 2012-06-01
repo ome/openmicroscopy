@@ -229,7 +229,7 @@ public class DomainPane
      * 					slider changes value, as well as the label shown at 
      * 					the end of the text. 
      */
-    private void initSlider(OneKnobSlider slider, int max, int v, 
+    private void initSlider(OneKnobSlider slider, int max, int v,
     						String toolTip, String endLabel)
     {
     	slider.setEnabled(max > 0);
@@ -268,11 +268,8 @@ public class DomainPane
                 if (v >= 0)
                     controller.setSelectedXYPlane(v,  model.getDefaultT());
             }
-        } else {
-     
         }
         graphicsPane.setSelectedPlane();
-        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /**
@@ -294,11 +291,8 @@ public class DomainPane
                 if (v >= 0)
                     controller.setSelectedXYPlane(model.getDefaultZ(), v);
             }
-        } else {
-            
         }
         graphicsPane.setSelectedPlane();
-        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /** Initializes the components composing the display. */
@@ -314,11 +308,11 @@ public class DomainPane
         familyBox.setActionCommand(""+FAMILY);
         
         double k = model.getCurveCoefficient();
-        gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_GAMMA, 
+        gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_GAMMA,
         							MAX_GAMMA, (int) (k*FACTOR));
         gammaSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaSlider.setShowArrows(false);
-        gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) || 
+        gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) ||
                 family.equals(RendererModel.POLYNOMIAL));
         gammaSlider.addChangeListener(this);
         gammaSlider.addMouseListener(new MouseAdapter() {
@@ -327,7 +321,7 @@ public class DomainPane
 				double v = (double) gammaSlider.getValue()/FACTOR;
 	            gammaLabel.setText(""+v);
 	            firePropertyChange(GAMMA_PROPERTY, 
-	            			new Double(model.getCurveCoefficient()), 
+	            			new Double(model.getCurveCoefficient()),
 	                        new Double(v));
 			}
 		
@@ -337,7 +331,7 @@ public class DomainPane
         gammaLabel.setEnabled(false);
         gammaLabel.setEditable(false);
         int v = model.getBitResolution();
-        bitDepthSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH, 
+        bitDepthSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH,
                                 MAX_BIT_DEPTH, convertBitResolution(v));
         bitDepthSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         bitDepthSlider.setShowArrows(false);
@@ -346,8 +340,8 @@ public class DomainPane
 			public void mouseReleased(MouseEvent e) {
 				int v = convertUIBitResolution(bitDepthSlider.getValue());
 	            bitDepthLabel.setText(""+v);
-	            firePropertyChange(BIT_RESOLUTION_PROPERTY, 
-	            		Integer.valueOf(model.getBitResolution()), 
+	            firePropertyChange(BIT_RESOLUTION_PROPERTY,
+	            		Integer.valueOf(model.getBitResolution()),
 	            		Integer.valueOf(v));
 			}
 		
@@ -401,7 +395,6 @@ public class DomainPane
         			}
         		}
         	});
-        	//previewToolBar = new PreviewToolBar(controller, model);
         }
         
         if (!model.isLifetimeImage())
@@ -418,7 +411,6 @@ public class DomainPane
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
         graphicsPane.setSelectedPlane();
-        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
    
         if (model.getChannelData().size() > 1) {
         	channelsBox = new JComboBox();
@@ -440,14 +432,14 @@ public class DomainPane
  		int selected = 0;
  		while (i.hasNext()) {
  			data = i.next();
- 			channelCols[index] = new Object[]{ 
- 					model.getChannelColor(data.getIndex()), 
+ 			channelCols[index] = new Object[]{
+ 					model.getChannelColor(data.getIndex()),
  					data.getChannelLabeling() };
  			if (data.getIndex() == model.getSelectedChannel())
  				selected = index;
  			index++;
  		}
- 		channelsBox.setModel(new DefaultComboBoxModel(channelCols));	
+ 		channelsBox.setModel(new DefaultComboBoxModel(channelCols));
  		channelsBox.removeActionListener(this);
  		channelsBox.setSelectedIndex(selected);
  		channelsBox.addActionListener(this);
@@ -531,7 +523,7 @@ public class DomainPane
         if (channelList.size() > Renderer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), c);
         else controls.add(p, c);
-        JPanel content = UIUtilities.buildComponentPanel(controls);  
+        JPanel content = UIUtilities.buildComponentPanel(controls);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;  
     }
@@ -549,17 +541,9 @@ public class DomainPane
     	if (model.isGeneralIndex()) {
     		p.add(buildViewerPane(), BorderLayout.WEST);
     		p.add(graphicsPane, BorderLayout.SOUTH);
-    		/*
-    		JPanel bar = new JPanel();
-    		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
-    		bar.add(previewToolBar);
-    		bar.add(new JSeparator());
-    		*/
     		JPanel content = new JPanel();
     		content.setLayout(new BorderLayout());
     		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		//content.add(bar, BorderLayout.NORTH);
     		content.add(p, BorderLayout.CENTER);
     		return content;
     	} 
@@ -613,7 +597,6 @@ public class DomainPane
         slider.removeChangeListener(this);
         slider.setValue(v);
         slider.addChangeListener(this);
-        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
         graphicsPane.setSelectedPlane();
     }
     
@@ -641,18 +624,18 @@ public class DomainPane
      * @param comp	The component to be added.
      * @param p		The panel the component is added to.
      */
-    private void addComponent(GridBagConstraints c, String l, JComponent comp, 
+    private void addComponent(GridBagConstraints c, String l, JComponent comp,
     						JPanel p)
     {
     	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.fill = GridBagConstraints.NONE;
 		c.weightx = 0.0; 
 		c.gridx = 0;
 		
 		if (l != null && l.length() > 0) {
 			p.add(new JLabel(l), c);
 			c.gridx++;
-			p.add(Box.createHorizontalStrut(5), c); 
+			p.add(Box.createHorizontalStrut(5), c);
 			c.gridx++;
 		}
 		
@@ -734,8 +717,7 @@ public class DomainPane
             case 6: return RendererModel.DEPTH_6BIT;
             case 7: return RendererModel.DEPTH_7BIT;
             case 8: 
-            default:
-                    return RendererModel.DEPTH_8BIT;
+            default: return RendererModel.DEPTH_8BIT;
         }
     }
     
@@ -756,8 +738,7 @@ public class DomainPane
             case RendererModel.DEPTH_6BIT: return 6;
             case RendererModel.DEPTH_7BIT: return 7;
             case RendererModel.DEPTH_8BIT: 
-            default:
-                    return 8;
+            default: return 8;
         }
     }
 
@@ -908,6 +889,7 @@ public class DomainPane
         Iterator<ChannelButton> i = channelList.iterator();
         ChannelButton btn;
         List<Integer> active = model.getActiveChannels();
+        if (active == null) return;
         int index;
         int c = model.getSelectedChannel();
         boolean gs = model.isGreyScale();
@@ -1095,9 +1077,8 @@ public class DomainPane
                 	int v = channelsBox.getSelectedIndex();
                 	List<ChannelData> channels = model.getChannelData();
                 	ChannelData data = channels.get(v);
-                	controller.setChannelSelection(data.getIndex(), 
+                	controller.setChannelSelection(data.getIndex(),
                 			model.isChannelActive(data.getIndex()));
-                	
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+index, nfe);
@@ -1118,5 +1099,5 @@ public class DomainPane
         else if (source == lifetimeSlider && lifetimeSlider.isEnabled())
             mouseWheelMovedLifetime(e);
 	}
-	
+
 }

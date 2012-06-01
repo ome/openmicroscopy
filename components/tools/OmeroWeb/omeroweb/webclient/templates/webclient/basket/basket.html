@@ -130,6 +130,17 @@
                 }
             });
             
+            // AJAX handling of create-share form
+            $("#create_share_form").ajaxForm({
+                success: function(html) {
+                    if (html == "success") {
+                        $("#create_share_form").dialog( "close" );
+                        document.location.href = "{% url load_template 'public' %}";
+                    } else {
+                        $("#create_share_form").html(html);
+                    }
+                },
+            });
             
             $("#create_share_form").dialog({
                 autoOpen: false,
@@ -141,7 +152,6 @@
                     "Accept": function() {
                         // simply submit the form
                         $("#create_share_form").submit();
-                        $( this ).dialog( "close" );
                     },
                     "Cancel": function() {
                         $( this ).dialog( "close" );

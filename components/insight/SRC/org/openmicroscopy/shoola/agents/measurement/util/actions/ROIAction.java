@@ -122,6 +122,16 @@ public class ROIAction
 	}
 	
 	/**
+	 * Returns the type of this action.
+	 * 
+	 * @return See above.
+	 */
+	public CreationActionType getCreationActionType()
+	{
+		return action;
+	}
+	
+	/**
 	 * Manipulates the ROI.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */

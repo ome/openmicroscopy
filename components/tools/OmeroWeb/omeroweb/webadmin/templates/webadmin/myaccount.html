@@ -321,7 +321,7 @@
 <div id="admin">
     
     <ul id="settings_tabs">
-        <li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Profile</a></li>
+        <li id="personal_settings_tab"><a href="#personal_settings" title="User Settings">User</a></li>
 
         {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>{% endif %}
 
@@ -435,17 +435,15 @@
                 </tr> 
             </thead> 
             <tbody>
-            {% for dict in ownedGroups %}
+            {% for group in ownedGroups %}
                 <tr>
-                    <td><strong>{{ dict.group.name }}</strong></td>
-                    <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                    <td>{{ dict.group.description|default:"-"|truncatewords:"5" }}</td>
+                    <td><strong>{{ group.name }}</strong></td>
+                    <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
+                    <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
-                        {% if not dict.locked %}
-                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
+                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
                             <span></span>
                         </a>
-                        {% endif %}                    
                     </td>
                 </tr>
             {% endfor %}

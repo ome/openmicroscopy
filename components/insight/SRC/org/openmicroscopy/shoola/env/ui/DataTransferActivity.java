@@ -31,6 +31,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 
 /** 
@@ -48,7 +49,7 @@ public class DataTransferActivity
 	private static final String		DESCRIPTION_START = "Moving data ";
 		
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_END = "Moved completed";
+	private static final String		DESCRIPTION_END = "Move completed";
 	
 	/** The description of the activity when error occurred. */
 	private static final String		DESCRIPTION_ERROR =
@@ -106,14 +107,14 @@ public class DataTransferActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		Collection l = (Collection) result;
-		if (l.size() > 0) {
+		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);
+			Icon icon = parameters.getIcon();
+			if (icon != null) iconLabel.setIcon(icon);
 		}
-		//post an event to remove nodes
 	}
 	
 	/**

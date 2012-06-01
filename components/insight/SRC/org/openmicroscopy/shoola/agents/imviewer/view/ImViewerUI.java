@@ -98,6 +98,7 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
@@ -474,7 +475,7 @@ class ImViewerUI
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Scale bar length " +
-				"(in "+UIUtilities.NANOMETER+")");
+				"(in "+UnitsObject.MICRONS+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();
@@ -1317,35 +1318,46 @@ class ImViewerUI
 	/** Sets the default text of the status bar. */
 	void setLeftStatus()
 	{
-		String text = "";
 		int n;
 		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
+		UnitsObject o;
+		String units;
+		StringBuffer buffer = new StringBuffer();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
 			int m = getProjectionEndZ();
-			text += "Z range:"+(n+1);
-			text += "-"+(getProjectionEndZ()+1);
-			if (d > 0 && max > 0)
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+"-"+
-				UIUtilities.roundTwoDecimals(m*d)+" "+
-				EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z range:"+(n+1));
+			buffer.append("-"+(getProjectionEndZ()+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append("-");
+				o = EditorUtil.transformSize(m*d);
+				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(" "+units+")");
+			}
+			buffer.append("/"+(model.getMaxZ()+1));
 			controlPane.setRangeSliderToolTip(n, m);
 		} else {
 			n = model.getDefaultZ();
-			text += "Z="+(n+1);
-			if (d > 0 && max > 0) 
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+
-					EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z="+(n+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(units+")");
+			}
+				
+			buffer.append("/"+(model.getMaxZ()+1));
 		}
-		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
+		buffer.append(" T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1));
 		if (model.isNumerousChannel()) {
-			text += " L="+(model.getSelectedBin()+1);
-			text += "/"+(model.getMaxLifetimeBin());
+			buffer.append(" L="+(model.getSelectedBin()+1));
+			buffer.append("/"+(model.getMaxLifetimeBin()));
 		}
-		setLeftStatus(text);
+		setLeftStatus(buffer.toString());
 	}
 	
 	/**

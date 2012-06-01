@@ -60,7 +60,7 @@ public class AnnotationMoveTest
 	List<Long> annotationIds = createNonSharableAnnotation(img, null);
 	//now move the image.
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -100,7 +100,7 @@ public class AnnotationMoveTest
 	List<Long> annotationIds = createSharableAnnotation(img, null);
 	//now move the image.
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -140,7 +140,7 @@ public class AnnotationMoveTest
 	List<Long> annotationIds = createSharableAnnotation(img, null);
 	//now move the image.
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			DeleteServiceTest.SHARABLE_TO_KEEP, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -199,7 +199,7 @@ public class AnnotationMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	//Annotation of user1 should be removed
@@ -267,7 +267,7 @@ public class AnnotationMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	//Annotation of user1 should be removed
@@ -333,7 +333,7 @@ public class AnnotationMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	//Annotation of user1 should be removed
@@ -397,7 +397,7 @@ public class AnnotationMoveTest
 	init(clientUser1);
 	//now move the image.
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	//Annotation of user1 should be removed
@@ -459,7 +459,7 @@ public class AnnotationMoveTest
 		iUpdate.saveAndReturnArray(links);
 
 		long id = img1.getId().getValue();
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+		doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 				DeleteServiceTest.SHARABLE_TO_KEEP, g.getId().getValue()));
 
 		ParametersI param = new ParametersI();

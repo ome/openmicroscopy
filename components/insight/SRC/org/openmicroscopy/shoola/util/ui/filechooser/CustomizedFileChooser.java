@@ -306,6 +306,7 @@ class CustomizedFileChooser
 				return f;
 			
 			String fileName = f.getAbsolutePath();
+			if (fileName.endsWith("."+format)) return new File(fileName);
 			return new File(fileName+"."+format);
 		}
 		return f;

@@ -9,9 +9,11 @@ package integration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,13 +32,12 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
-import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
-import omero.cmd.GraphModify;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
+import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
@@ -1017,12 +1018,11 @@ public class AbstractServerTest
      * @param perms
      * @return
      */
-    Chmod createChmodCommand(String session, String type, long id, 
-    		String perms)
+    Chmod createChmodCommand(String type, long id, String perms)
     {
-    	return new Chmod(session, type, id, null, perms);
+	return new Chmod(type, id, null, perms);
     }
-    
+
     /**
      * Asynchronous command for a single delete, this means a single 
      * report is returned for testing. 
@@ -1536,9 +1536,28 @@ public class AbstractServerTest
 	 * @return See above.
 	 * @throws Exception
 	 */
-	protected Response doChange(GraphModify change)
+	protected Response doChange(Request change)
 	    throws Exception {
-	    return doChange(client, factory, change, true);
+	    return doChange(client, factory, change, true, null);
+	}
+
+	/**
+	 * Modifies the graph.
+	 *
+	 * @param change The object hosting information about data to modify.
+	 * @return See above.
+	 * @throws Exception
+	 */
+	protected Response doChange(Request change, long groupID)
+	    throws Exception {
+	    return doChange(client, factory, change, true, groupID);
+	}
+
+	protected Response doChange(omero.client c, ServiceFactoryPrx f,
+			Request change, boolean pass)
+		throws Exception
+	{
+		return doChange(c, f, change, pass, null);
 	}
 
 	/**
@@ -1551,11 +1570,15 @@ public class AbstractServerTest
 	 * @throws Exception
 	 */
 	protected Response doChange(omero.client c, ServiceFactoryPrx f,
-			GraphModify change, boolean pass)
+			Request change, boolean pass, Long groupID)
 		throws Exception
 	{
-		final HandlePrx prx = f.submit(change);
-		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		final Map<String, String> callContext = new HashMap<String, String>();
+		if (groupID != null) {
+			callContext.put("omero.group", ""+groupID);
+		}
+		final HandlePrx prx = f.submit(change, callContext);
+		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
 		new CmdCallbackI(c, prx).loop(20, 500);
 		assertNotNull(prx.getResponse());
 

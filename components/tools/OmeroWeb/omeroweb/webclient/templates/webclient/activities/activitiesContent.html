@@ -51,25 +51,29 @@
                     <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
-                            {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
+                            {% else %} <img class="icon" src="{% static "webgateway/img/success.png" %}" />
                             {% endifequal %}
                         </td>
-                        <td width="50%">
-                            <div class="activity_title">
-                                Move Group:
-                                <span class="status">{{ j.status }}</span>
-                            </div>
-                            <div class="message">
-                                Move {{ j.dtype }} {{ j.obj_id }} to Group {{ j.group }}
-                            </div>
+                        <td class="script_description">
+                            <span class="activity_title">
+                                Move {{ j.dtype }} to Group
+                            </span>
+                            <span class="message" {% if j.error %}title="{{ j.error }}"{% endif %}>
+                                {% ifequal j.status "in progress" %}
+                                    Moving {{ j.dtype }} to Group '{{ j.group }}'...
+                                {% else %}
+                                    {% ifequal j.status "finished" %}
+                                        {{ j.dtype }} moved to Group '{{ j.group }}'{% ifequal j.dtype "Image" %}.
+                                            Will be 'ophaned' in new group
+                                        {% endifequal %}
+                                    {% endifequal %}
+                                    {% if j.error %}
+                                        {{ j.error|truncateafter:"30" }}
+                                    {% endif %}
+                                {% endifequal %}
+                            </span>
                         </td>
-                        <td class="action">
-                                {{ j.results }}
-                        </td>
-                        <td width="16px">
-                            <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
-                        </td>
-                        <td width="40px">{{ j.start_time|date:"H:i" }}</td>
+                        <td></td>
                     </tr>
                 {% endifequal %}
 

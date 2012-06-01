@@ -178,8 +178,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
-			Class annotation, long userID, long groupID,
-			AgentEventListener observer);
+			Class annotation, long userID, AgentEventListener observer);
 
 	/**
 	 * Loads the existing annotations defined by the annotation type
@@ -210,7 +209,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveData(SecurityContext ctx, Collection<DataObject> data,
-		List<AnnotationData> toAdd, List<AnnotationData> toRemove,
+		List<AnnotationData> toAdd, List<Object> toRemove,
 		List<Object> metadata,	long userID, AgentEventListener observer);
 	
 	/**
@@ -228,7 +227,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**
@@ -246,7 +245,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**

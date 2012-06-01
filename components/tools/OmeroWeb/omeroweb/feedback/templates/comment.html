@@ -1,11 +1,42 @@
 {% extends "base_error.html" %}
 {% load i18n %}
 
-{% block content %}
-    <div>
-        <h1>{% trans "Comment." %}</h1>
+{% block title %}
+    {% trans "OMERO.web - Help" %}
+{% endblock %}
 
-        <p>{% trans "Thank you for taking the time to send us your comments. Your feedback will be used to further the development of the OMERO.web and improve our software. Any personal details you provide are purely optional, and will only be used for development purpose." %}</p>
+{% block body %}
+    <div class="bodyWrapper">
+        <h1>{% trans "OMERO.web Help" %}</h1>
+
+        
+        <p>
+            You may find the following resources useful.
+            If you have any further questions, comments or suggestions, please use the
+            feedback form below.
+        
+        <ul style="list-style: disc inside none">
+            <li>
+                <a href="http://www.openmicroscopy.org/site">Open Microscopy Environment</a>:
+                Home page of the OME project.
+            </li>
+            <li>
+                <a href="http://www.openmicroscopy.org/site/products/omero">About OMERO</a>:
+                Background and introduction to OMERO
+            </li>
+            <li>
+                <a href="http://www.openmicroscopy.org/site/products/feature-list">Feature List</a>:
+                More info and demonstration movies of OMERO in action
+            </li>
+        </ul>
+        </p>
+
+        <hr />
+
+        <h1>Send Feedback</h1>
+        <p>Any feedback you provide will be used to further the development of the OMERO.web and improve our software. 
+            Any personal details you provide are purely optional, and will only be used for development purposes.</p>
+
         {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
         
         <form action="{% url csend %}" method="post">

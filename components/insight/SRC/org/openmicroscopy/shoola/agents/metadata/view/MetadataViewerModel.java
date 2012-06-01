@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -535,16 +536,21 @@ class MetadataViewerModel
 	 * Fires an asynchronous call to save the data, add (resp. remove)
 	 * annotations to (resp. from) the object.
 	 * 
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+	void fireSaving(DataToSave object, 
 			List<Object> metadata, Collection<DataObject> data, boolean asynch)
 	{
+		List<AnnotationData> toAdd = null;
+		List<Object> toRemove = null;
+		if (object != null) {
+			toAdd = object.getToAdd();
+			toRemove = object.getToRemove();
+		}
 		if (asynch) {
 			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
 					toRemove, metadata);
@@ -738,7 +744,7 @@ class MetadataViewerModel
 	 * @param toRemove	Collection of annotations to remove.
 	 * @param toSave    Collection of data objects to handle.
 	 */
-	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
+	void fireBatchSaving(List<AnnotationData> toAdd, List<Object> 
 						toRemove, Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, ctx,

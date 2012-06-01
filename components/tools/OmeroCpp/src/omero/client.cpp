@@ -306,6 +306,9 @@ namespace omero {
 	return getSession()->ice_getIdentity().name;
     }
 
+    std::string client::getCategory() const {
+        return getRouter(getCommunicator())->getCategoryForClient();
+    }
 
     // --------------------------------------------------------------------
     omero::api::ServiceFactoryPrx client::getSession() const {

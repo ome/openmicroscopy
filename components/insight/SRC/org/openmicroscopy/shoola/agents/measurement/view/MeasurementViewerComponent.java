@@ -208,7 +208,7 @@ class MeasurementViewerComponent
     /** Saves the ROI (not asynchronously) and discards. */
     void saveAndDiscard()
     {
-    	model.saveROIToServer(false);
+    	model.saveROIToServer(false, false);
     	discard();
     }
     
@@ -509,9 +509,9 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#saveROIToServer()
+     * @see MeasurementViewer#saveROIToServer(boolean)
      */
-	public void saveROIToServer()
+	public void saveROIToServer(boolean close)
 	{
 		if (!canAnnotate()) return;
 		List<ROI> l = model.getROIToDelete();
@@ -534,13 +534,13 @@ class MeasurementViewerComponent
 				}
 			}
 			if (objects.size() == 0) {
-				model.saveROIToServer(true);
+				model.saveROIToServer(true, close);
 				//model.saveWorkflowToServer(true);
 			} else {
 				model.deleteAllROIs(objects);
 			}
 		} else {
-			model.saveROIToServer(true);
+			model.saveROIToServer(true, close);
 			//model.saveWorkflowToServer(true);
 		}
 		fireStateChange();
@@ -956,16 +956,47 @@ class MeasurementViewerComponent
 		}
 		return false;
 	}
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#canDelete()
+     */
+	public boolean canDelete()
+	{
+		if (model.getState() == DISCARDED) return false;
+		//Check if current user can write in object
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long id = exp.getId();
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
+		if (b) return b;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canDelete();
+		}
+		return false;
+	}
+	
+	/** 
+	 * Overridden to return the name of the instance to save.
+	 * @see #toString()
+	 */
+	public String toString()
+	{ 
+		return "ROI for: "+EditorUtil.truncate(model.getImageName());
+	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#deleteAllROIs()
      */
-	public void deleteAllROIs()
+	public void deleteAllROIs(int level)
 	{
-		if (!canAnnotate()) return;
-		List<ROIData> list = model.getROIData();
-		//ROI owned by the current user.
+		if (!canDelete()) return;
+		List<ROIData> list;
+		if (model.isMember()) level = MeasurementViewer.ME;
+		list = model.getROIData(level);
+		if (list.size() == 0) return;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
 		ROIData roi;
@@ -984,10 +1015,13 @@ class MeasurementViewerComponent
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			List<ROIFigure> figures = model.removeAllROI(exp.getId());
-			//clear all tables.
-			view.deleteROIs(figures);
-			model.getROIComponent().reset();
+			List<ROIFigure> figures = model.removeAllROI(exp.getId(), level);
+			if (figures != null) {
+				//clear all tables.
+				view.deleteROIs(figures);
+				model.getROIComponent().reset();
+			}
+			
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");
@@ -1016,14 +1050,10 @@ class MeasurementViewerComponent
 	{
 		model.setROIEnumerations(result);
 	}
-	
+
 	/** 
-	 * Overridden to return the name of the instance to save.
-	 * @see #toString()
-	 */
-	public String toString()
-	{ 
-		return "ROI for: "+EditorUtil.truncate(model.getImageName());
-	}
+     * @see MeasurementViewer#isMember()
+     */
+	public boolean isMember() { return model.isMember(); }
 
 }

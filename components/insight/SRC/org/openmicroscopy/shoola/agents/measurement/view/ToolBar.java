@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -52,6 +54,7 @@ import org.jhotdraw.draw.DrawingEditor;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -184,6 +187,9 @@ class ToolBar
     /** The component to show/hide the text. */
     private JCheckBox					showTextButton;
    
+    /** Menu offering the delete option for Admin/group owner.*/
+    private PermissionMenu deleteMenu;
+    
     /**
      * Sets the property of the toggle button.
      * 
@@ -324,6 +330,20 @@ class ToolBar
     	bar.add(assistantButton);
     	button = new JButton(controller.getAction(
     			MeasurementViewerControl.DELETE));
+    	if (!model.isMember()) {
+    		button.addMouseListener(new MouseAdapter() {
+				
+				public void mousePressed(MouseEvent e) {
+					if (deleteMenu == null) {
+						deleteMenu = new PermissionMenu(PermissionMenu.DELETE, 
+								"ROIs");
+						deleteMenu.addPropertyChangeListener(controller);
+					}
+					deleteMenu.show((JComponent) e.getSource(), e.getX(),
+							e.getY());
+				}
+			});
+    	}
     	UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
     	bar.add(new JSeparator());

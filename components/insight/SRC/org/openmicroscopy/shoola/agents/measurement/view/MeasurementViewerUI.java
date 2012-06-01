@@ -576,14 +576,13 @@ class MeasurementViewerUI
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
-				if (roi.canEdit() && !roi.isReadOnly()) {
+				if (!roi.isReadOnly()) {
 					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 					if (newShape.getCoord3D().equals(model.getCurrentView()))
 					{
 						drawing.removeDrawingListener(controller);
 						drawing.add(newShape.getFigure());
-						if (roi.canAnnotate())
-							newShape.getFigure().addFigureListener(controller);
+						newShape.getFigure().addFigureListener(controller);
 						drawing.addDrawingListener(controller);
 					}
 					model.addShape(newROI.getID(), newShape.getCoord3D(),
@@ -596,6 +595,20 @@ class MeasurementViewerUI
 		{
 			handleROIException(e, CREATE_MSG);
 		}
+	}
+	
+	void markROIForDelete(ROIFigure roi)
+	{
+		if (roi == null) return;
+		long id = roi.getROIShape().getID();
+		if (id < 0) return;
+		try {
+			//model.deleteShape(id, roi.getROIShape().getCoord3D());
+		} catch (Exception e) {
+			
+		}
+		
+		model.markROIForDelete(id, roi.getROI(), true);
 	}
 	
 	/**
@@ -624,7 +637,7 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					model.markROIForDelete(shape.getID(), r);
+					model.markROIForDelete(shape.getID(), r, false);
 				}
 			}
 			model.notifyDataChanged(b);

@@ -67,7 +67,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -106,7 +106,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -143,7 +143,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -180,7 +180,7 @@ public class HierarchyMoveAndPermissionsTest
         //Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
 
-        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
                 null, g.getId().getValue()));
         //Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -218,7 +218,7 @@ public class HierarchyMoveAndPermissionsTest
         //Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, oldGroupOwner.userId, false);
 
-        doChange(new Chgrp(oldGroupOwner.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
                 null, g.getId().getValue()));
         //Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -256,7 +256,7 @@ public class HierarchyMoveAndPermissionsTest
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser("rwr---", ctx.userId, true);
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -294,7 +294,7 @@ public class HierarchyMoveAndPermissionsTest
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser("rw----", ctx.userId, true);
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -332,7 +332,7 @@ public class HierarchyMoveAndPermissionsTest
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -370,7 +370,7 @@ public class HierarchyMoveAndPermissionsTest
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -410,7 +410,7 @@ public class HierarchyMoveAndPermissionsTest
 	//admin logs into first group
 	disconnect();
 	logRootIntoGroup(ctx);
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 
 	ParametersI param = new ParametersI();
@@ -460,7 +460,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
 	//loginUser(ctx);
 	//Now try to move the dataset.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -523,7 +523,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
 	//loginUser(ctx);
 	//Now try to move the dataset.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -592,7 +592,7 @@ public class HierarchyMoveAndPermissionsTest
 	ExperimenterGroup g = newGroupAddUser(perms, users, false);
 	//loginUser(ctx);
 	//Now try to move the dataset.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -670,7 +670,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//loginUser(ctx);
 	//Now try to move the dataset.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -737,7 +737,7 @@ public class HierarchyMoveAndPermissionsTest
 	users.add(ctx2.userId);
 	ExperimenterGroup g = newGroupAddUser("rwrw--", users, false);
 	//user2 tries to move it.
-	doChange(new Chgrp(ctx2.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();

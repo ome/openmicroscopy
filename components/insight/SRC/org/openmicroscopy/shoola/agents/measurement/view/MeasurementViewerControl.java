@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAct
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
@@ -150,6 +151,9 @@ class MeasurementViewerControl
 
     /** Maps actions identifiers onto actual <code>Action</code> object. */
     private Map<Integer, MeasurementViewerAction>	actionsMap;
+    
+    /** Flag indicating that the shape is removed via the delete key.*/
+    private boolean keyRemove;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -471,6 +475,9 @@ class MeasurementViewerControl
 			view.setCellColor((Color) evt.getNewValue());
 		else if (LoadingWindow.CLOSED_PROPERTY.equals(name)) 
             model.discard();
+		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
+			model.deleteAllROIs((Integer) evt.getNewValue());
+		}
 	}
 
 	/**
@@ -517,7 +524,7 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);
-		if (roiFigure.canAnnotate())
+		if (roiFigure.canEdit())
 			roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;
@@ -544,8 +551,21 @@ class MeasurementViewerControl
 	{
 		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);
-		model.setDataChanged();
+		if (f instanceof ROIFigure) {
+			ROIFigure roi = (ROIFigure) f;
+			if (keyRemove) {
+				if (roi.isReadOnly() || !roi.canDelete()) {
+					view.getDrawing().removeDrawingListener(this);
+					view.getDrawing().add(roi);
+					view.getDrawing().addDrawingListener(this);
+					return;
+				}
+				view.markROIForDelete(roi);
+				keyRemove = false;
+			}
+			view.removeROI(roi);
+			model.setDataChanged();
+		}
 	}
 
 	/**
@@ -616,10 +636,13 @@ class MeasurementViewerControl
 	
 	/** 
 	 * Calculates the statistics for the selected shape.
-	 * @see KeyListener#keyTyped(KeyEvent)
+	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyTyped(KeyEvent e)
+	public void keyPressed(KeyEvent e)
 	{
+		keyRemove = false;
+		if (e.getKeyCode() == KeyEvent.VK_DELETE)
+			keyRemove = true;
 		char ANALYSECHAR = 'a';
 		if (e.getKeyChar() == ANALYSECHAR) {
 			Collection<Figure> selectedFigures = 
@@ -702,7 +725,7 @@ class MeasurementViewerControl
 	 * in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyPressed(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {}
 
 	/**
 	 * Required by the {@link KeyListener} I/F but no-operation implementation

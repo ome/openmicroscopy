@@ -161,6 +161,13 @@
             $.post("{% url activities_update action='clean' %}");
             $("#activities_content").empty();
         });
+
+        // close panels on 'ESCAPE'
+        $("body").bind('keyup', function(event){
+            if (event.keyCode === $.ui.keyCode.ESCAPE) {
+                $(".info_panel").hide();
+            }
+        });
     });
 </script>
 

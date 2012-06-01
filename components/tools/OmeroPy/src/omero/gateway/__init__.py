@@ -537,9 +537,10 @@ class BlitzObjectWrapper (object):
     def canChgrp(self):
         """
         Specifies whether the current user can move this object to another group. 
-        This is allowed for the owner of the data or admin
+        Web client will only allow this for the data Owner.
+        Admin CAN move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned() or self._conn.isAdmin()
+        return self.isOwned() # or self._conn.isAdmin() #8974
 
     def countChildren (self):
         """
@@ -1814,15 +1815,19 @@ class _BlitzGateway (object):
         """
         
         return self.getEventContext().isAdmin
-    
-    def isLeader(self):
+
+    def isLeader(self, gid=None):
         """
-        Is the current group led by the current user? 
-        
+        Is the current group (or a specified group) led by the current user? 
+
         @return:    True if user leads the current group
         @rtype:     Boolean
         """
-        if self.getEventContext().groupId in self.getEventContext().leaderOfGroups:
+        if gid is None:
+            gid = self.getEventContext().groupId
+        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
+            gid = long(gid)
+        if gid in self.getEventContext().leaderOfGroups:
             return True
         return False
 
@@ -1834,28 +1839,6 @@ class _BlitzGateway (object):
         """
         return 0 in self.getEventContext().memberOfGroups
 
-    def isOwner (self, gid=None):
-        """
-        Checks if a user has owner privileges of a particular group
-        or any group if gid is not specified. 
-        
-        @param gid:     ID of group to check for ownership
-        @type gid:      Long
-        @return:    True if gid specified and owner belongs to that group
-                    Otherwise True if owner belongs to any group
-        """
-        if gid is not None:
-            if not isinstance(gid, LongType) or not isinstance(gid, IntType):
-                gid = long(gid)
-            for gem in self.getUser().copyExperimenterGroupLinks():
-                if gem.parent.id.val == gid and gem.owner.val == True:
-                    return True
-        else:
-            for gem in self.getUser()._user.copyExperimenterGroupLinks():
-                if gem.owner.val == True:
-                    return True
-        return False
-    
     def canWrite (self, obj):
         """
         Checks if a user has write privileges to the given object.
@@ -2787,16 +2770,19 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
-    def createOriginalFileFromFileObj (self, fo, name, path, fileSize, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromFileObj (self, fo, path, name, fileSize, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
         Returns a new L{OriginalFileWrapper}
 
         @param conn:                    Blitz connection
-        @param localPath:               Location to find the local file to upload
-        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param fo:                      The file object
+        @param path:                    The file path
+        @param name:                    The file name
+        @param fileSize:                The file size
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The file namespace
         @return:                        New L{OriginalFileWrapper}
         """
         updateService = self.getUpdateService()
@@ -2838,7 +2824,7 @@ class _BlitzGateway (object):
             rawFileStore.write(block, pos, blockSize)
         return OriginalFileWrapper(self, originalFile)
         
-    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -2848,6 +2834,7 @@ class _BlitzGateway (object):
         @param localPath:               Location to find the local file to upload
         @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The namespace of the file.
         @return:                        New L{OriginalFileWrapper}
         """
         if origFilePathAndName is None:
@@ -2856,7 +2843,7 @@ class _BlitzGateway (object):
         fileSize = os.path.getsize(localPath)
         fileHandle = open(localPath, 'rb')
         try:
-            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns, desc)
+            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns)
         finally:
             fileHandle.close()
 
@@ -2870,12 +2857,14 @@ class _BlitzGateway (object):
         @param localPath:               Location to find the local file to upload
         @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The namespace of the file.
+        @param desc:                    A description for the file annotation.
         @return:                        New L{FileAnnotationWrapper}
         """
         updateService = self.getUpdateService()
 
         # create and upload original file
-        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns, desc)
+        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns)
         
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
@@ -3710,7 +3699,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     String
         """
         
-        return self.getFile().name
+        return self.getFile() and self.getFile().name or None
     
     def getFileInChunks(self):
         """
@@ -7067,6 +7056,44 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
+
+    def getROICount(self, shapeType=None, eid=None):
+        """
+        Count number of ROIs associated to an image
+        
+        @param shapeType:   Filter by shape type ("Rect",...).
+        @param eid:         Filter by owner ID.
+        @return:            Number of ROIs found
+        """
+          
+        # Create ROI owner validator (instead of roiOptions see #8990)
+        def isValidOwner(shape):
+            if not eid:
+                return True
+            else:
+                return shape.getDetails().getOwner().id.val == self._conn._userid
+        
+        # Create ROI shape validator (return True if at least one shape is found)
+        def isValidType(shape):
+            if not shapeType:
+                return True
+            elif isinstance(shapeType,list):
+                for t in shapeType:
+                    if isinstance(shape,getattr(omero.model,t)):
+                        return True
+            elif isinstance(shape,getattr(omero.model,shapeType)):
+                return True
+            return False
+        
+        def isValidROI(roi):
+            for shape in roi.copyShapes():
+                if isValidType(shape) and isValidOwner(shape):
+                    return True
+            return False
+        
+        result = self._conn.getRoiService().findByImage(self.id, None)
+        count = sum(1 for roi in result.rois if isValidROI(roi))
+        return count
 
 ImageWrapper = _ImageWrapper
 

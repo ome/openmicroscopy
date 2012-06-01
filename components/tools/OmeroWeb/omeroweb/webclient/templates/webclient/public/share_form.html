@@ -28,17 +28,19 @@
     <div>
         <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' share.share.id %}" method="post">
         
-            <table>
             {% for field in form %}
                 {% ifequal field.label_tag form.enable.label_tag %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+                <div>
+                    {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+                    {{ field }} {{ field.help_text|safe }}
+                    {% if field.errors %}{{ field.errors }}{% endif %}
+                </div>
                 {% else %}                
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
-                <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-                <tr><td>{{ field }}</td></tr>
+                <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</div>
+                <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
+                <div>{{ field }}</div>
                 {% endifequal %}
             {% endfor %}
-            </table>
         </form>
     </div>
 

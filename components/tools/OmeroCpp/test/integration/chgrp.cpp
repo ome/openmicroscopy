@@ -50,7 +50,7 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     chgrp->options = options;
 
     HandlePrx handle = sf->submit( chgrp );
-    CmdCallbackIPtr cb = new CmdCallbackI(c->getObjectAdapter(), handle);
+    CmdCallbackIPtr cb = new CmdCallbackI(c, handle);
     ResponsePtr rsp = cb->loop(10, 500);
     ERRPtr err = ERRPtr::dynamicCast(rsp);
     if (err) {

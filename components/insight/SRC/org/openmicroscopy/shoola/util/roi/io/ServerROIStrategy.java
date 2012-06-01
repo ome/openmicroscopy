@@ -96,17 +96,19 @@ public class ServerROIStrategy
 	 * 
 	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @param enumerations The enumerations to use for shape settings.
 	 * @throws Exception 
 	 */
-	public List<ROIData> write(ROIComponent component, ImageData image, 
-			long ownerID, Map<Integer, List<EnumerationObject>> enumerations)
+	public List<ROIData> write(ROIComponent component, ImageData image,
+			int index, long userID, Map<Integer,
+            List<EnumerationObject>> enumerations)
 		throws Exception
 	{
 		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component, image, ownerID, enumerations);
+		return outputStrategy.writeROI(component, image, index, userID, enumerations);
 	}
-	
+
 }

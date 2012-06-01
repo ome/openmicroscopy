@@ -368,17 +368,6 @@ public class AdvancedFinder
 				LookupNames.CURRENT_USER_DETAILS);
 	}
 	
-	/**
-	 * Returns the available groups.
-	 * 
-	 * @return See above.
-	 */
-	private Set getAvailableGroups()
-	{
-		return (Set) FinderFactory.getRegistry().lookup(
-				LookupNames.USER_GROUP_DETAILS);
-	}
-	
 	/** Displays the widget allowing the select users. */
 	private void showUserSelection()
 	{

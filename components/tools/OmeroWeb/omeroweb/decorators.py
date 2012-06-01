@@ -59,7 +59,7 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True):
+                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1'):
         """
         Initialises the decorator.
         """
@@ -67,6 +67,7 @@ class login_required(object):
         self.isAdmin = isAdmin
         self.isGroupOwner = isGroupOwner
         self.doConnectionCleanup = doConnectionCleanup
+        self.omero_group = omero_group
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -87,12 +88,12 @@ class login_required(object):
     
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
+        try:
+            # we always need to clear any dirty 'omero.share' values from previous calls
+            del conn.CONFIG['SERVICE_OPTS']['omero.share']
+        except:
+            pass
         if share_id is None:
-            if conn.getEventContext().shareId > 0:
-                try:
-                    del conn.CONFIG['SERVICE_OPTS']['omero.share']
-                except:
-                    pass
             return None
         share = conn.getShare(share_id)
         try:
@@ -112,8 +113,14 @@ class login_required(object):
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request, conn):
-        """Called whenever the users is successfully logged in."""
-        pass
+        """
+        Called whenever the users is successfully logged in.
+        Sets the 'omero.group' option if specified in the constructor
+        """
+        if conn.CONFIG['SERVICE_OPTS'] is None:
+            conn.CONFIG['SERVICE_OPTS'] = {}
+        if self.omero_group is not None:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.omero_group)
 
     def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
@@ -136,10 +143,10 @@ class login_required(object):
         if not self.isGroupOwner:
             return
         if gid is not None:
-            if not conn.isOwner(gid):
+            if not conn.isLeader(gid):
                 raise Http404
         else:
-            if not conn.isOwner():
+            if not conn.isLeader():
                 raise Http404
 
     def is_valid_public_url(self, server_id, request):
@@ -246,6 +253,7 @@ class login_required(object):
             # and password via configureation. Use them to try and create a
             # new connection / OMERO session.
             logger.debug('Creating connection with username and password...')
+            connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
                     self.useragent, username, password)
 
@@ -290,24 +298,26 @@ class login_required(object):
                 except Exception, x:
                     logger.error('Error retrieving connection.', exc_info=True)
                     error = str(x)
+                else:
+                    # various configuration & checks only performed on new 'conn'
+                    if conn is None:
+                        return ctx.on_not_logged_in(request, url, error)
+                    else:
+                        ctx.on_logged_in(request, conn)
+                    ctx.verify_is_admin(conn)
+                    ctx.verify_is_group_owner(conn, kwargs.get('gid'))
 
-            if conn is None:
-                return ctx.on_not_logged_in(request, url, error)
-            else:
-                ctx.on_logged_in(request, conn)
-            ctx.verify_is_admin(conn)
-            ctx.verify_is_group_owner(conn, kwargs.get('gid'))
+                    share_id = kwargs.get('share_id')
+                    conn_share = ctx.prepare_share_connection(request, conn, share_id)
+                    if conn_share is not None:
+                        ctx.on_share_connection_prepared(request, conn_share)
+                        kwargs['conn'] = conn_share
+                    else:
+                        kwargs['conn'] = conn
 
-            share_id = kwargs.get('share_id')
-            conn_share = ctx.prepare_share_connection(request, conn, share_id)
-            if conn_share is not None:
-                ctx.on_share_connection_prepared(request, conn_share)
-                kwargs['conn'] = conn_share
-            else:
-                kwargs['conn'] = conn
-                
-            #kwargs['error'] = request.REQUEST.get('error')
-            kwargs['url'] = url
+                    #kwargs['error'] = request.REQUEST.get('error')
+                    kwargs['url'] = url
+
             retval = f(request, *args, **kwargs)
             try:
                 logger.debug('Doing connection cleanup? %s' % \

@@ -11,6 +11,9 @@
 #include<omero/SharedResources.h>
 #include<omero/Scripts.h>
 #include<omero/Tables.h>
+#include<omero/cmd/API.h>
+#include<omero/cmd/Basic.h>
+#include<omero/cmd/Graphs.h>
 #include<omero/api/Gateway.h>
 #include<omero/api/IAdmin.h>
 #include<omero/api/IConfig.h>

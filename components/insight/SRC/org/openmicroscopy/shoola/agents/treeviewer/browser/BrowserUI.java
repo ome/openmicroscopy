@@ -266,6 +266,15 @@ class BrowserUI
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
 		}
+        button = new JButton(controller.getAction(BrowserControl.CUT));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
+        button = new JButton(controller.getAction(BrowserControl.COPY));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
+        button = new JButton(controller.getAction(BrowserControl.PASTE));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.DELETE));
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);

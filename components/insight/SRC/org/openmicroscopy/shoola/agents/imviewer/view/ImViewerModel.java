@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -2828,7 +2827,7 @@ class ImViewerModel
      */
     GroupData getSelectedGroup()
     {
-    	Set set = (Set) ImViewerAgent.getRegistry().lookup(
+    	Collection set = (Collection) ImViewerAgent.getRegistry().lookup(
     			LookupNames.USER_GROUP_DETAILS);
     	if (set == null || set.size() <= 1)
     		return null;
