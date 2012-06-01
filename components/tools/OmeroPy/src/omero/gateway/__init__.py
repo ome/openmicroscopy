@@ -2770,16 +2770,19 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
-    def createOriginalFileFromFileObj (self, fo, name, path, fileSize, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromFileObj (self, fo, path, name, fileSize, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
         Returns a new L{OriginalFileWrapper}
 
         @param conn:                    Blitz connection
-        @param localPath:               Location to find the local file to upload
-        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param fo:                      The file object
+        @param path:                    The file path
+        @param name:                    The file name
+        @param fileSize:                The file size
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The file namespace
         @return:                        New L{OriginalFileWrapper}
         """
         updateService = self.getUpdateService()
@@ -2821,7 +2824,7 @@ class _BlitzGateway (object):
             rawFileStore.write(block, pos, blockSize)
         return OriginalFileWrapper(self, originalFile)
         
-    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -2831,6 +2834,7 @@ class _BlitzGateway (object):
         @param localPath:               Location to find the local file to upload
         @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The namespace of the file.
         @return:                        New L{OriginalFileWrapper}
         """
         if origFilePathAndName is None:
@@ -2839,7 +2843,7 @@ class _BlitzGateway (object):
         fileSize = os.path.getsize(localPath)
         fileHandle = open(localPath, 'rb')
         try:
-            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns, desc)
+            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns)
         finally:
             fileHandle.close()
 
@@ -2853,12 +2857,14 @@ class _BlitzGateway (object):
         @param localPath:               Location to find the local file to upload
         @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @param ns:                      The namespace of the file.
+        @param desc:                    A description for the file annotation.
         @return:                        New L{FileAnnotationWrapper}
         """
         updateService = self.getUpdateService()
 
         # create and upload original file
-        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns, desc)
+        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns)
         
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
