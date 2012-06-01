@@ -265,6 +265,7 @@ def makeThumbnailFigure(conn, scriptParams):
         figWidth = max(figWidth, imageCanvas.size[0])
     
     if len(dsCanvases) == 0:
+        message += "No figure created"
         return None, message
         
     figure = Image.new("RGB", (figWidth, figHeight), WHITE)

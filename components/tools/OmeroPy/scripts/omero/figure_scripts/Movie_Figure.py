@@ -432,7 +432,7 @@ def movieFigure(conn, commandArgs):
     tIndexes = []
     if "T_Indexes" in commandArgs:
         for t in commandArgs["T_Indexes"]:
-            tIndexes.append(t.getValue())
+            tIndexes.append(t)
         print "T_Indexes", tIndexes
     if len(tIndexes) == 0:      # if no t-indexes given, use all t-indices
         tIndexes = range(sizeT)

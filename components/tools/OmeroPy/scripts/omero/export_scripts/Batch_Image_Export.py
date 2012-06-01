@@ -323,6 +323,9 @@ def batchImageExport(conn, scriptParams):
         images = []
         for ds in objects:
             images.extend( list(ds.listChildren()) )
+        if not images:
+            message += "No image found in dataset(s)"
+            return None, message
     else:
         images = objects
         

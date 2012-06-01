@@ -650,7 +650,7 @@ def roiFigure(conn, commandArgs):
     if "Merged_Colours" in commandArgs:
         cColourMap = commandArgs["Merged_Colours"]
         for c in cColourMap:
-            rgb = cColourMap[c].getValue()
+            rgb = cColourMap[c]
             rgba = imgUtil.RGBIntToRGBA(rgb)
             mergedColours[int(c)] = rgba
             mergedIndexes.append(int(c))
@@ -670,7 +670,7 @@ def roiFigure(conn, commandArgs):
         cNameMap = commandArgs["Channel_Names"]
         for c in range(sizeC):
             if str(c) in cNameMap:
-                channelNames[c] = cNameMap[str(c)].getValue()
+                channelNames[c] = cNameMap[str(c)]
             else: 
                 channelNames[c] = str(c)
     else:
@@ -681,7 +681,7 @@ def roiFigure(conn, commandArgs):
     splitIndexes = []
     if "Split_Indexes" in commandArgs:
         for index in commandArgs["Split_Indexes"]:
-            splitIndexes.append(index.getValue())
+            splitIndexes.append(index)
             
     colourChannels = True
     if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
