@@ -80,10 +80,10 @@ class TestSearch(lib.ITest):
         search.onlyType("TagAnnotation")
 
         # Sanity check
-        for tag in tags:
-            search.byFullText(tag)
-            res = search.results()
-            self.assertEquals(tag, res[0].ns.val)
+       # for tag in tags:
+       #     search.byFullText(tag)
+       #     res = search.results()
+       #     self.assertEquals(tag, res[0].ns.val)
 
         boost_query = "%s^10 OR %s^1"
 
@@ -106,14 +106,13 @@ class TestSearch(lib.ITest):
 
         images = list()
         for i in range(0,5):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("search_test_%i.tif" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            pix = self.pix(name="search_test_%i.tif" % i, client=owner)
+            img = pix.getImage()
             tag = omero.model.TagAnnotationI()
             tag.textValue = omero.rtypes.rstring("tag %i" % i)
             img.linkAnnotation( tag )
-
-            images.append(owner.sf.getUpdateService().saveAndReturnObject( img ))
+            pix = owner.sf.getUpdateService().saveAndReturnObject(pix)
+            images.append(pix.getImage())
             self.index(images[-1])
 
         p = omero.sys.Parameters()
