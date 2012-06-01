@@ -618,10 +618,13 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     updateService.saveAndReturnObject(rect)
 
 def checkFileAnnotation(self, fileAnnotation, hasFileAnnotation=True, parentType="Image", isLinked=True, client=None):
+    """
+    Check validity of file annotation. If hasFileAnnotation, check the size, name and number of objects linked to the original file.
+    """
     if hasFileAnnotation:
         self.assertNotEqual(fileAnnotation,None)
         self.assertTrue(fileAnnotation.val._file._size._val>0)
-        self.assertFalse(fileAnnotation.val._file._name._val,None)
+        self.assertNotEqual(fileAnnotation.val._file._name._val,None)
 
         if client is None: client = self.root
         conn = BlitzGateway(client_obj = client)
