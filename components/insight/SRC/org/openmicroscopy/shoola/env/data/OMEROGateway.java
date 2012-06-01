@@ -3995,8 +3995,9 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
-			store.save();
+			OriginalFile f = store.save();
 			closeService(ctx, store);
+			if (f != null) save = f;
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
