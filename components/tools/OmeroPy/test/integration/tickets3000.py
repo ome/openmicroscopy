@@ -18,9 +18,7 @@ class TestTickets3000(lib.ITest):
         uuid = self.uuid()
 
         # create image
-        img = self.new_image()
-        img.setName(rstring('test2396-img-%s' % (uuid)))
-        img = self.update.saveAndReturnObject(img)
+        img = self.pix().image
         img.unload()
 
         format = "txt"
@@ -30,7 +28,7 @@ class TestTickets3000(lib.ITest):
         oFile.setPath(rstring(str("txt-name")));
         oFile.setSize(rlong(len(binary)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
+        oFile.setMimeType(rstring(str(format)));
 
         of = self.update.saveAndReturnObject(oFile);
 
