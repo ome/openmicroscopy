@@ -399,7 +399,6 @@ class MetadataViewerModel
 	{
 		Object uo = refNode.getUserObject();
 		//if (!(uo instanceof DataObject)) return;
-		
 		if (uo instanceof ExperimenterData) return;
 		if ((uo instanceof DataObject)) {
 			//DataObject data = (DataObject) uo;

@@ -289,7 +289,9 @@ class MetadataViewerComponent
 		if (result instanceof StructuredDataResults) {
 			StructuredDataResults data = (StructuredDataResults) result;
 			Object object = data.getRelatedObject();
-			if (object == model.getParentRefObject()) {
+			if (object == model.getParentRefObject() ||
+				(object instanceof PlateData && userObject 
+						instanceof WellSampleData)) {
 				model.setParentDataResults((StructuredDataResults) result,
 						node);
 				loadMetadata(node);
@@ -298,6 +300,7 @@ class MetadataViewerComponent
 						node);
 				browser.setParents(node, 
 						model.getStructuredData().getParents());
+				
 				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
 			}
