@@ -146,6 +146,7 @@ public class BrowserManageAction
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_ADMIN));
+				break;
 			case COPY:
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_COPY));
