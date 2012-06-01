@@ -127,6 +127,7 @@ public class RequestCallback
 				if (rsp == null)
 					adapter.handleResult(Boolean.valueOf(false));
 				else adapter.handleResult(handleResponse());
+				return;
 			}
 		}
 		try {
