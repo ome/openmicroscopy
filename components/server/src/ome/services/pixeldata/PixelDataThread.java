@@ -9,6 +9,8 @@ package ome.services.pixeldata;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -203,7 +205,9 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
     private EventLog makeEvent(final EventContext ec,
                                final MissingPyramidMessage mpm) {
-        return (EventLog) this.executor.execute(new Principal(uuid),
+        Map<String, String> callContext = new HashMap<String, String>();
+        callContext.put("omero.group", "-1");
+        return (EventLog) this.executor.execute(callContext, new Principal(uuid),
                     new Executor.SimpleWork(this, "createEvent") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
