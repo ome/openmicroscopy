@@ -46,8 +46,8 @@ class CallContextFixture(object):
         """
         self.client, self.user = self.client_and_user()
         self.sf = self.client.sf
-        self.img = self.test.new_image()
-        self.img = self.sf.getUpdateService().saveAndReturnObject(self.img)
+        pix = self.test.pix(client=self.client)
+        self.img = pix.getImage()
 
         self.group2 = self.test.new_group([self.user])
         self.sf.getAdminService().getEventContext() # Refresh
@@ -520,7 +520,8 @@ class TestPermissions(lib.ITest):
         admin.getEventContext() # Refresh
 
         # Create a new object with a bad link
-        image = self.new_image()
+        pix = self.pix(client=client)
+        image = pix.getImage()
         image.details.group = group1
         tag = omero.model.TagAnnotationI()
         tag.details.group = group2
@@ -578,8 +579,8 @@ class TestPermissions(lib.ITest):
         client, user = self.new_client_and_user(system=False, perms="rw----")
         ec = client.sf.getAdminService().getEventContext()
         group = omero.model.ExperimenterGroupI(ec.groupId, False)
-        image = self.new_image()
-        image = client.sf.getUpdateService().saveAndReturnObject(image)
+        pix = self.pix(client=client)
+        image = pix.getImage()
         return image, user, group
 
     def testOmeroUserAsAdmin(self):
