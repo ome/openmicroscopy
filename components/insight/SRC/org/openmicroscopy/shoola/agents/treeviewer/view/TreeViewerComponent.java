@@ -4554,10 +4554,12 @@ class TreeViewerComponent
 		} else { //load the collection for the specified group
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
 			long userID = userIDs.get(0);
-			MoveGroupSelectionDialog dialog = new MoveGroupSelectionDialog(view,
-					userID, group, map, userID == exp.getId());
-			UIUtilities.centerAndShow(dialog);
-			model.fireMoveDataLoading(ctx, dialog, b, userID);
+			if (userID == exp.getId()) {
+				MoveGroupSelectionDialog dialog = 
+					new MoveGroupSelectionDialog(view, userID, group, map, true);
+				UIUtilities.centerAndShow(dialog);
+				model.fireMoveDataLoading(ctx, dialog, b, userID);
+			} else moveData(ctx, null, map);
 		}
 	}
 	
