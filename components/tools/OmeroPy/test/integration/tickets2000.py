@@ -150,10 +150,7 @@ class TestTickets2000(lib.ITest):
         ds3.unload()
         
         #images
-        im2 = ImageI()
-        im2.setName(rstring('test1071-im2-%s' % (uuid)))
-        im2.acquisitionDate = rtime(0)
-        im2 = update.saveAndReturnObject(im2)
+        im2 = self.pix(client=self.root).image
         im2.unload()
         
         #links
@@ -249,10 +246,7 @@ class TestTickets2000(lib.ITest):
         ds2.unload()
 
         #images
-        im2 = ImageI()
-        im2.setName(rstring('test1071-im2-%s' % (c2_uuid)))
-        im2.acquisitionDate = rtime(0)
-        im2 = c2_update.saveAndReturnObject(im2)
+        im2 = self.pix(client=c2).image
         im2.unload()
 
         #links
@@ -413,13 +407,13 @@ class TestTickets2000(lib.ITest):
         # print "members of group %s %i" % (gr2.name.val, gr2.id.val)
         for m in members2:
             if m.id.val == exp.id.val:
-                copied_id = m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
+                copied_id = m.copyExperimenterGroupLinks()[0].parent.id.val
                 got_id = admin.getDefaultGroup(exp.id.val).id.val
                 contained = admin.containedGroups(m.id.val)
                 self.assertEquals(copied_id, got_id,\
                 """
                 %s != %s. Groups for experimenter %s = %s (graph) or %s (contained)
-                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyExperimenterGroupExperimenterLink() ], [ y.id.val for y in contained ] ))
+                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyExperimenterGroupLinks() ], [ y.id.val for y in contained ] ))
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyExperimenterGroupExperimenterLink()[0].parent), m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
 
     def test1163(self):
@@ -430,12 +424,8 @@ class TestTickets2000(lib.ITest):
         search1 = client_share1.sf.createSearchService()
 
         # create image and index
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
-        img = update1.saveAndReturnObject(img)
-        img.unload()
-        self.index(img)
+        pix = self.pix(client=client_share1)
+        self.index(ImageI(pix.image.id.val, False))
 
         # search
         search1.onlyType('Image')
@@ -459,15 +449,13 @@ class TestTickets2000(lib.ITest):
         ds.setName(rstring('test1184-ds-%s' % (uuid)))
 
         for i in range(1,2001):
-            img = ImageI()
-            img.setName(rstring('img1184-%s' % (uuid)))
-            img.setAcquisitionDate(rtime(time.time()))
+            pix = self.pix(client=client)
             # Saving in one go
             #dil = DatasetImageLinkI()
             #dil.setParent(ds)
             #dil.setChild(img)
             #update.saveObject(dil)
-            ds.linkImage(img)
+            ds.linkImage(ImageI(pix.image.id.val, False))
         ds = update.saveAndReturnObject(ds)
 
         c = cont.getCollectionCount(ds.__class__.__name__, ("imageLinks"), [ds.id.val], None)
