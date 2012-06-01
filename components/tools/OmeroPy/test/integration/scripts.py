@@ -439,7 +439,8 @@ client.closeSession()
             while cb.block(500) is None:
                 pass
             results = process.getResults(0)
-            self.assertEquals(0, results["gid"].val)
+            ec = self.client.sf.getAdminService().getEventContext()
+            self.assertEquals(ec.groupId, results["gid"].val)
         finally:
             impl.cleanup()
 
