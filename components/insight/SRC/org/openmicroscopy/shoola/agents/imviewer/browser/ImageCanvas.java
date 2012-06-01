@@ -119,7 +119,7 @@ class ImageCanvas
 	void paintScaleBar(Graphics2D g2D, int width, int height, 
 					JViewport viewPort)
 	{
-		if (!(model.isUnitBar())) return;
+		if (!model.isUnitBar()) return;
 
 		String value = model.getUnitBarValue(); 
 		if (value == null) return;

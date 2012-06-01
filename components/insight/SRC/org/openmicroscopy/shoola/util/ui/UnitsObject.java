@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.UnitsObject 
+ * org.openmicroscopy.shoola.util.UnitsObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
@@ -21,7 +21,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util;
+package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 
@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.agents.util;
 //Application-internal dependencies
 
 /** 
- * 
+ * Helper class used to display units.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -39,6 +39,9 @@ package org.openmicroscopy.shoola.agents.util;
 public class UnitsObject 
 {
 
+	/** Unicode for the degrees symbol. */
+	public final static String DEGREES = "\u00B0";
+	
 	/** String to represent the picometer symbol. */
     public static final String PICOMETER = "pm";
     

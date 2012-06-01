@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -436,7 +437,7 @@ public class MeasureBezierFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -449,7 +450,7 @@ public class MeasureBezierFigure
 	{
 		if (shape == null) return str;
 		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+UnitsObject.MICRONS;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
@@ -463,7 +464,7 @@ public class MeasureBezierFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons())
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+			return str+UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	

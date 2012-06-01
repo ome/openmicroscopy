@@ -90,7 +90,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.UnitsObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -99,6 +98,7 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
@@ -475,7 +475,7 @@ class ImViewerUI
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Scale bar length " +
-				"(in "+UIUtilities.NANOMETER+")");
+				"(in "+UnitsObject.MICRONS+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();

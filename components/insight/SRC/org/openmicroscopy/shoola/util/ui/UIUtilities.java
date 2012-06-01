@@ -226,13 +226,6 @@ public class UIUtilities
 
 	/** A day in milliseconds. */
 	public static final long				DAY = 86400000;
-	
-	/** Unicode for the degrees symbol. */
-	public final static String 				DEGREES_SYMBOL = "\u00B0";
-	
-	
-	/** Unicode for the microns symbol. */
-	public final static String  			MICRONS_SYMBOL = "\u00B5m";
 
 	/** Unicode for the squared symbol. */
 	public final static String  			SQUARED_SYMBOL =  "\u00B2";
@@ -242,12 +235,6 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
-	
-    /** String to representing the nanometer symbol. */
-    public static final String              NANOMETER = " \u00B5m";
-    
-    /** String to represent the micron symbol. */
-    public static final String 				MICRONS = "(in \u00B5)";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 

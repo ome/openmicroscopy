@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 //Java imports
@@ -64,7 +65,7 @@ public class AttributeUnits
 		units = new HashMap<String, Map<UnitType, String>>();
 		Map <UnitType, String> unitMap;
 		unitMap = new HashMap<UnitType, String>();
-		unitMap.put(UnitType.MICRONS, UIUtilities.MICRONS_SYMBOL);
+		unitMap.put(UnitType.MICRONS, UnitsObject.MICRONS);
 		unitMap.put(UnitType.PIXELS, UIUtilities.PIXELS_SYMBOL);
 		units.put(AnnotationKeys.HEIGHT.getKey(), unitMap);
 		units.put(AnnotationKeys.WIDTH.getKey(), unitMap);
@@ -79,12 +80,12 @@ public class AttributeUnits
 		units.put(AnnotationKeys.POINTARRAYX.getKey(), unitMap);
 		units.put(AnnotationKeys.POINTARRAYY.getKey(), unitMap);
 		unitMap = new HashMap<UnitType, String>();
-		unitMap.put(UnitType.PIXELS, UIUtilities.DEGREES_SYMBOL);
-		unitMap.put(UnitType.MICRONS, UIUtilities.DEGREES_SYMBOL);
+		unitMap.put(UnitType.PIXELS, UnitsObject.DEGREES);
+		unitMap.put(UnitType.MICRONS, UnitsObject.DEGREES);
 		units.put(AnnotationKeys.ANGLE.getKey(), unitMap);			
 		unitMap = new HashMap<UnitType, String>();
 		unitMap.put(UnitType.PIXELS, UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL);
-		unitMap.put(UnitType.MICRONS, UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.MICRONS, UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL);
 		units.put(AnnotationKeys.AREA.getKey(), unitMap);			
 	}
 	
