@@ -265,7 +265,7 @@ client.closeSession()
         self.assertEqual(-1, getId, "getScriptID() didn't return '-1' for invalid script")
         scripts = scriptService.getScripts()   
         for s in scripts:
-            self.assertEquals(s.mimetype.val, "text/x-python")
+            self.assertEquals(s.mimeType.val, "text/x-python")
             self.assertNotEqual(s.path.val + s.name.val, invalidPath, "getScripts() returns invalid script")
 
         # upload a valid script - then edit
@@ -292,7 +292,7 @@ client.closeSession()
         self.assertEqual(-1, getId, "getScriptID() didn't return 'None' for invalid script")
         scripts = scriptService.getScripts()   
         for s in scripts:
-            self.assertEquals(s.mimetype.val, "text/x-python")
+            self.assertEquals(s.mimeType.val, "text/x-python")
             self.assertNotEqual(s.path.val + s.name.val, validPath, "getScripts() returns invalid script")
 
 

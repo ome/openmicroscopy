@@ -741,7 +741,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 imdata=StringIO()
                 region.save(imdata, format=im.format)
-                self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimetype.val, imdata.getvalue())
+                self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimeType.val, imdata.getvalue())
             
     def getExperimenterDefaultPhoto(self):
         """

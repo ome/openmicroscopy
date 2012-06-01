@@ -1994,7 +1994,7 @@ def get_original_file(request, fileId, **kwargs):
         return handlerInternalError("Original File does not exists (id:%s)." % (iid))
     
     rsp = HttpResponse(orig_file.getFileInChunks())
-    mimetype = orig_file.mimetype
+    mimetype = orig_file.mimeType
     if mimetype == "text/x-python": 
         mimetype = "text/plain" # allows display in browser
     rsp['Content-Type'] =  mimetype
@@ -2713,8 +2713,8 @@ def activities(request, **kwargs):
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
                                     mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
-                                    if v.file.mimetype.val in mimetypes:
-                                        obj_data['fileType'] = mimetypes[v.file.mimetype.val]
+                                    if v.file.mimeType.val in mimetypes:
+                                        obj_data['fileType'] = mimetypes[v.file.mimeType.val]
                                         obj_data['fileId'] = v.file.id.val
                                     obj_data['name'] = v.file.name.val
                                     #except:

@@ -538,7 +538,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private boolean parseAcceptsList(final QueryBuilder qb,
             final List<IObject> acceptsList) {
         qb.where();
-        qb.and("o.mimetype = '" + ParamsHelper.PYTHONSCRIPT + "'");
+        qb.and("o.mimeType = '" + ParamsHelper.PYTHONSCRIPT + "'");
 
         if (acceptsList != null && acceptsList.size() > 0) {
             for (IObject object : acceptsList) {
@@ -683,7 +683,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private OriginalFile getOriginalFileOrNull(long id) {
 
         try {
-            final String queryString = "from OriginalFile as o where o.mimetype = '"
+            final String queryString = "from OriginalFile as o where o.mimeType = '"
                     + ParamsHelper.PYTHONSCRIPT + "' and o.id = " + id;
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.SimpleWork(this,

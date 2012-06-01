@@ -461,7 +461,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
     private String getScriptIdQuery = "select f from Job s "
             + "join s.originalFileLinks links "
             + "join links.child f "
-            + "where s.id = :id and f.mimetype = :fmt";
+            + "where s.id = :id and f.mimeType = :fmt";
 
     private long getScriptId(final Job job) throws omero.ValidationException {
         final Parameters p = new Parameters();

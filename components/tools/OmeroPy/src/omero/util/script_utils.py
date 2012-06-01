@@ -194,7 +194,7 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
         # handle the string we expect 
         mt = mimetype
     if mt:
-        originalFile.mimetype = omero.rtypes.rstring(mt)
+        originalFile.mimeType = omero.rtypes.rstring(mt)
     originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
     originalFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
     return updateService.saveAndReturnObject(originalFile); 

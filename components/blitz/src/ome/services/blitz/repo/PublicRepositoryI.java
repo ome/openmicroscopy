@@ -161,19 +161,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * @param path
      *            Absolute path of the file to be registered.
-     * @param mimetype
-     *            Mimetype as an RString
+     * @param mimeType
+     *            MimeType as an RString
      * @param __current
      *            ice context.
      * @return The OriginalFile with id set (unloaded)
      *
      */
-    public OriginalFile register(String path, omero.RString mimetype, Current __current)
+    public OriginalFile register(String path, omero.RString mimeType, Current __current)
             throws ServerError {
 
         File file = new File(path).getAbsoluteFile();
         OriginalFile omeroFile = new OriginalFileI();
-        omeroFile = createOriginalFile(file, mimetype);
+        omeroFile = createOriginalFile(file, mimeType);
 
         IceMapper mapper = new IceMapper();
         final ome.model.meta.OriginalFile omeFile = (ome.model.meta.OriginalFile) mapper
@@ -531,13 +531,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
 
     /**
-     * Get the mimetype for a file.
+     * Get the mimeType for a file.
      *
      * @param path
      *            A path on a repository.
      * @param __current
      *            ice context.
-     * @return mimetype
+     * @return mimeType
      *
      */
     public String mimetype(String path, Current __current) throws ServerError {
@@ -545,7 +545,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         if (!file.exists()) {
             throw new ValidationException(null, null, "Path does not exist");
         }
-        return getMimetype(file);
+        return getMimeType(file);
     }
 
     /**
@@ -854,15 +854,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Get the mimetype for a file.
+     * Get the mimeType for a file.
      *
      * @param file
      *            A File in a repository.
-     * @return A String representing the mimetype.
+     * @return A String representing the mimeType.
      *
      * TODO Return the correct Format object in place of a dummy one
      */
-    private String getMimetype(File file) {
+    private String getMimeType(File file) {
 
         final String contentType = new MimetypesFileTypeMap().getContentType(file);
         return contentType;
@@ -1070,7 +1070,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     private OriginalFile createOriginalFile(File f) {
-        String mimetype = getMimetype(f);
+        String mimetype = getMimeType(f);
         return createOriginalFile(f, rstring(mimetype));
     }
 
@@ -1081,7 +1081,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @param f
      *            A File object.
      * @param mimetype
-     *            Mimetype as an RString
+     *            MimeType as an RString
      * @return An OriginalFile object
      *
      * TODO populate more attribute fields than the few set here?

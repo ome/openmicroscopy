@@ -263,7 +263,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         files based on regular expression matching.
         """
         for original_file in self.original_files:
-            if original_file.mimetype.val != self.companion_format:
+            if original_file.mimeType.val != self.companion_format:
                 continue
             name = original_file.name.val
             match = self.log_regex.match(name)
@@ -304,7 +304,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     
     def is_this_type(klass, original_files):
         for original_file in original_files:
-            format = original_file.mimetype.val
+            format = original_file.mimeType.val
             if format == klass.companion_format \
                and klass.log_regex.match(original_file.name.val):
                 return True
@@ -345,7 +345,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             path = original_file.path.val
             name = original_file.name.val
-            format = original_file.mimetype.val
+            format = original_file.mimeType.val
             if format == self.companion_format and name.endswith('.res'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
@@ -357,7 +357,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     def is_this_type(klass, original_files):
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.mimetype.val
+            format = original_file.mimeType.val
             name = original_file.name.val
             if format == klass.companion_format and name.endswith('.res'):
                 return True
@@ -397,7 +397,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             path = original_file.path.val
             name = original_file.name.val
-            format = original_file.mimetype.val
+            format = original_file.mimeType.val
             if format == self.companion_format and name.endswith('.xml'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
@@ -409,7 +409,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     def is_this_type(klass, original_files):
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.mimetype.val
+            format = original_file.mimeType.val
             name = original_file.name.val
             if format == klass.companion_format and name.endswith('.xml'):
                 return True

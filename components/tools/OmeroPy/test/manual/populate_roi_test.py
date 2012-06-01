@@ -85,14 +85,14 @@ class MIASParseRoiTest(unittest.TestCase):
         o = OriginalFileI(1L, True)
         o.name = rstring(self.LOG_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.LOG_FILE))
-        o.mimetype = format
+        o.mimeType = format
         original_files.append(o) #[1L] = o
         original_file_image_map[1L] = images[0]
         # Create original file representing the result file
         o = OriginalFileI(2L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.mimetype = format
+        o.mimeType = format
         original_files.append(o) # [2L] = o
         original_file_image_map[2L] = images[0]
         sf = TestingServiceFactory()
@@ -152,7 +152,7 @@ class FlexParseRoiTest(unittest.TestCase):
         o = OriginalFileI(1L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.mimetype = format
+        o.mimeType = format
         original_files.append(o) # [1L] = o
         original_file_image_map[1L] = images[0]
         sf = TestingServiceFactory()
@@ -201,7 +201,7 @@ class InCellParseRoiTest(unittest.TestCase):
         o = OriginalFileI(1L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.mimetype = format
+        o.mimeType = format
         original_files.append(o) #[1L] = o
         original_file_image_map[1L] = image
         sf = TestingServiceFactory()
