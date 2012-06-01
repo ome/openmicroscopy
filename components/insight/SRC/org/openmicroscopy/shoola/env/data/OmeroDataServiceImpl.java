@@ -918,7 +918,6 @@ class OmeroDataServiceImpl
 		Iterator<DataObject> j;
 		DataObject object;
 		IObject link;
-		IObject obj;
 		while (i.hasNext()) {
 			data = i.next();
 			l = new ArrayList<IObject>();
@@ -927,11 +926,6 @@ class OmeroDataServiceImpl
 				while (j.hasNext()) {
 					object = j.next();
 					if (object != null) {
-						if (object.getId() < 0) {
-							obj = ModelMapper.createIObject(object, null);
-							object = PojoMapper.asDataObject(
-									gateway.createObject(target, obj));
-						}
 						link = ModelMapper.linkParentToChild(data.asIObject(),
 								object.asIObject());
 						if (link != null) l.add(link);

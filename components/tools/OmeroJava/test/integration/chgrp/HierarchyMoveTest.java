@@ -1095,10 +1095,11 @@ public class HierarchyMoveTest
 
     /**
      * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetToProject()
+    public void testMoveDatasetToProjectRWtoRWByAdmin()
 	throws Exception
     {
 	String perms = "rw----";
@@ -1109,11 +1110,11 @@ public class HierarchyMoveTest
 	disconnect();
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 	
-    //login into new group
-	loginUser(g);
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
 
+	disconnect();
+	logRootIntoGroup(ctx);
 	List<Request> list = new ArrayList<Request>();
 	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
 			d.getId().getValue(), null, g.getId().getValue()));
@@ -1129,13 +1130,200 @@ public class HierarchyMoveTest
 	doChange(all, g.getId().getValue());
 
 	//Check if objects have been removed from the original group
-	loginUser(ctx);
+	
 	ParametersI param = new ParametersI();
 	param.addId(d.getId().getValue());
 	String sql = "select i from Dataset as i where i.id = :id";
 	assertNull(iQuery.findByQuery(sql, param));
 
 	//Log in to other group
+	disconnect();
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check the link
+	param = new ParametersI();
+	param.map.put("childID", d.getId());
+	param.map.put("parentID", p.getId());
+	sql = "select i from ProjectDatasetLink as i where " +
+			"i.child.id = :childID and i.parent.id = :parentID";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWtoRW()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	disconnect();
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+	Project p = (Project) iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject());
+
+	disconnect();
+	loginUser(ctx);
+	List<Request> list = new ArrayList<Request>();
+	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
+			d.getId().getValue(), null, g.getId().getValue()));
+	
+	ProjectDatasetLink link = new ProjectDatasetLinkI();
+	link.setChild(new DatasetI(d.getId().getValue(), false));
+	link.setParent(new ProjectI(p.getId().getValue(), false));
+	Save cmd = new Save();
+	cmd.obj = link;
+	list.add(cmd);
+	DoAll all = new DoAll();
+	all.requests = list;
+	doChange(all, g.getId().getValue());
+
+	//Check if objects have been removed from the original group
+	
+	ParametersI param = new ParametersI();
+	param.addId(d.getId().getValue());
+	String sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	disconnect();
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check the link
+	param = new ParametersI();
+	param.map.put("childID", d.getId());
+	param.map.put("parentID", p.getId());
+	sql = "select i from ProjectDatasetLink as i where " +
+			"i.child.id = :childID and i.parent.id = :parentID";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWR---</code>
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRWR()
+	throws Exception
+    {
+	String perms = "rwr---";
+	EventContext ctx = newUserAndGroup(perms);
+	
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	disconnect();
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+    //login into new group
+	Project p = (Project) iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject());
+
+	disconnect();
+	loginUser(ctx);
+	List<Request> list = new ArrayList<Request>();
+	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
+			d.getId().getValue(), null, g.getId().getValue()));
+	
+	ProjectDatasetLink link = new ProjectDatasetLinkI();
+	link.setChild(new DatasetI(d.getId().getValue(), false));
+	link.setParent(new ProjectI(p.getId().getValue(), false));
+	Save cmd = new Save();
+	cmd.obj = link;
+	list.add(cmd);
+	DoAll all = new DoAll();
+	all.requests = list;
+	doChange(all, g.getId().getValue());
+
+	//Check if objects have been removed from the original group
+	
+	ParametersI param = new ParametersI();
+	param.addId(d.getId().getValue());
+	String sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	disconnect();
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check the link
+	param = new ParametersI();
+	param.map.put("childID", d.getId());
+	param.map.put("parentID", p.getId());
+	sql = "select i from ProjectDatasetLink as i where " +
+			"i.child.id = :childID and i.parent.id = :parentID";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RW----</code>
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRW()
+	throws Exception
+    {
+	String perms = "rwr---";
+	EventContext ctx = newUserAndGroup(perms);
+	
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	disconnect();
+	perms = "rw----";
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+    //login into new group
+	Project p = (Project) iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject());
+
+	disconnect();
+	loginUser(ctx);
+	List<Request> list = new ArrayList<Request>();
+	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
+			d.getId().getValue(), null, g.getId().getValue()));
+	
+	ProjectDatasetLink link = new ProjectDatasetLinkI();
+	link.setChild(new DatasetI(d.getId().getValue(), false));
+	link.setParent(new ProjectI(p.getId().getValue(), false));
+	Save cmd = new Save();
+	cmd.obj = link;
+	list.add(cmd);
+	DoAll all = new DoAll();
+	all.requests = list;
+	doChange(all, g.getId().getValue());
+
+	//Check if objects have been removed from the original group
+	
+	ParametersI param = new ParametersI();
+	param.addId(d.getId().getValue());
+	String sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	disconnect();
 	loginUser(g);
 
 	param = new ParametersI();

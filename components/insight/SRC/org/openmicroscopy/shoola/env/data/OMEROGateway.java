@@ -7927,7 +7927,6 @@ class OMEROGateway
 		IAdminPrx svc = getAdminService(ctx);
 		
 		try {
-			String sessionUuid = svc.getEventContext().sessionUuid;
 			Entry entry;
 			Iterator i = map.entrySet().iterator();
 			DataObject data;
