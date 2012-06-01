@@ -300,6 +300,9 @@ class ImViewerUI
 	/** The magnification factor for the big image.*/
 	private double								bigImageMagnification;
 	
+	/** Item used to show or hide the unit bar. */
+	private JCheckBoxMenuItem unitBatItem;
+	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
 	 * hierarchy.
@@ -546,10 +549,10 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Display");
 		menu.setMnemonic(KeyEvent.VK_V);
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-		item.setSelected(model.isUnitBar());
-		item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
-		menu.add(item);
+		unitBatItem = new JCheckBoxMenuItem();
+		unitBatItem.setSelected(model.isUnitBar());
+		unitBatItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		menu.add(unitBatItem);
 		menu.add(createScaleBarLengthSubMenu(pref));
 		menu.add(createScaleBarColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -558,6 +561,15 @@ class ImViewerUI
 		return menu;
 	}
 
+	/** Synchronizes the unit bar selection. */
+	void handleUnitBar()
+	{
+		unitBatItem.removeActionListener(
+				controller.getAction(ImViewerControl.UNIT_BAR));
+		unitBatItem.setSelected(model.isUnitBar());
+		unitBatItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+	}
+	
 	/**
 	 * Helper method to create the controls menu.
 	 * 

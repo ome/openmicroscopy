@@ -907,7 +907,7 @@ class ImViewerComponent
 			originalImage = model.getOriginalImage();
 			model.setImage((BufferedImage) image);
 		}
-		
+		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
