@@ -111,7 +111,10 @@ public class ScreenLogin
 	public static final String		DEFAULT_SERVER = "Add a new server ->";
 
 	/** The font color for text. */
-	static final Color      		TEXT_COLOR = new Color(156, 165, 174);
+	static final Color      		TEXT_COLOR = new Color(110, 102, 96);
+	
+	/** The font color for foot note. */
+	static final Color      		FOOT_NOTE_COLOR = new Color(156, 165, 174);
 
 	/** The default size of the window. */
 	static final Dimension			DEFAULT_SIZE = new Dimension(551, 113);
@@ -139,21 +142,9 @@ public class ScreenLogin
 	/** Indent value for text. */
 	private static final int			TEXT_INDENT = 15;
 	
-	/** The size of the font for the version. */
-	private static final float		VERSION_FONT_SIZE = 14;
-
 	/** The style of the font for the version. */
 	private static final int		VERSION_FONT_STYLE = Font.BOLD;
 
-	/** The size of the font for the text. */
-	private static final int      	TEXT_FONT_SIZE = 16;
-
-	/** The login text. */
-	private static final String		TEXT_LOGIN = "Log In";
-
-	/** The group name text. */
-	private static final String		GROUP_TEXT = "Group: ";
-	
 	/** The user name text. */
 	private static final String		USER_TEXT = "Username: ";
 
@@ -572,8 +563,7 @@ public class ScreenLogin
 		connectionSpeedText.setBorder(
 				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
-		Font font = serverText.getFont();
-		serverText.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+		
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
 		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
@@ -671,7 +661,7 @@ public class ScreenLogin
 		
 		JPanel row = new JPanel();
 		row.setOpaque(false);
-		row.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		row.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		row.add(p);
 		row.add(bar);
 		
@@ -746,7 +736,7 @@ public class ScreenLogin
 		mainPanel.setOpaque(false);
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		Font f;
-		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
+		versionInfo = UIUtilities.buildTextPane(version, FOOT_NOTE_COLOR);
 		f = versionInfo.getFont();
 		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, f.getSize()-4));
 		versionInfo.setOpaque(false);
@@ -762,7 +752,6 @@ public class ScreenLogin
 		mainPanel.setBounds(0, y, width, height-top-bottom);
 		addToLayer(mainPanel);
 	}
-
 	/** 
 	 * Returns the server's name.
 	 * 
