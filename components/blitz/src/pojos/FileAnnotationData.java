@@ -307,6 +307,7 @@ public class FileAnnotationData extends AnnotationData {
     public void setDescription(String description)
     {
     	 if (description == null || description.trim().length() == 0) return;
+    	 setDirty(true);
          asAnnotation().setDescription(rstring(description));
     }
     
@@ -551,6 +552,7 @@ public class FileAnnotationData extends AnnotationData {
                     + "Original file");
         }
         if (content instanceof OriginalFile) {
+        	setDirty(true);
             ((FileAnnotation) asAnnotation()).setFile((OriginalFile) content);
         } else {
             throw new IllegalArgumentException("Content must be an "

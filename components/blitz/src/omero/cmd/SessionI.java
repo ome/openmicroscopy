@@ -287,25 +287,8 @@ public class SessionI implements _SessionOperations {
                     ClientCallbackPrx oneway = ClientCallbackPrxHelper
                             .uncheckedCast(prx);
                     oneway.sessionClosed();
-                } catch (Ice.NotRegisteredException nre) {
-                    log.warn(clientId + "'s callback not registered -"
-                            + " perhaps wrong proxy?");
-                } catch (ConnectionRefusedException cre) {
-                    log.warn(clientId + "'s callback refused connection -"
-                            + " did the client die?");
-                } catch (ConnectionLostException cle) {
-                    log.debug(clientId + "'s connection lost as expected");
-                } catch (ConnectTimeoutException cte) {
-                    log.warn("ConnectTimeoutException on callback:" + clientId);
-                } catch (Ice.SocketException se) {
-                    log.warn("SocketException on callback: " + clientId);
                 } catch (Exception e) {
-                    log.error(
-                            "Unknown error on oneway "
-                                    + "ClientCallback.sessionClosed to "
-                                    + this.adapter.getCommunicator()
-                                            .identityToString(
-                                                    copy.ice_getIdentity()), e);
+                    handleCallbackException(e);
                 }
             }
 
@@ -325,6 +308,28 @@ public class SessionI implements _SessionOperations {
 
     }
 
+    /**
+     * Reusable method for logging an exception that occurs on one-way
+     * communication with clients during callback notification.
+     */
+    public void handleCallbackException(Exception e) {
+        if (e instanceof Ice.NotRegisteredException) {
+            log.warn(clientId + "'s callback not registered -"
+                    + " perhaps wrong proxy?");
+        } else if (e instanceof ConnectionRefusedException) {
+            log.warn(clientId + "'s callback refused connection -"
+                + " did the client die?");
+        } else if (e instanceof ConnectionLostException) {
+            log.debug(clientId + "'s connection lost as expected");
+        } else if (e instanceof ConnectTimeoutException) {
+            log.warn("ConnectTimeoutException on callback:" + clientId);
+        } else if (e instanceof Ice.SocketException ) {
+            log.warn("SocketException on callback: " + clientId);
+        } else {
+            log.error(
+                "Unknown error on callback method for client: " + clientId, e);
+        }
+    }
 
     /**
      * Performs the actual cleanup operation on all the resources shared between

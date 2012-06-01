@@ -65,13 +65,13 @@ public class ROITableCellRenderer
 	private static Icon ROI_ICON;
 	
 	/** Reference to the ROI owned by other users icon. */
-	private static Icon ROI__OTHER_OWNER_ICON;
+	private static Icon ROI_OTHER_OWNER_ICON;
 	
 	static {
 		IconManager icons = IconManager.getInstance();
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
-		ROI__OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
+		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
 	}
 	
 	/** The identifier of the user currently logged in. */
@@ -102,7 +102,7 @@ public class ROITableCellRenderer
 			ROI roi = (ROI) thisObject;
 			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(ROI_ICON);
-			else setIcon(ROI__OTHER_OWNER_ICON);
+			else setIcon(ROI_OTHER_OWNER_ICON);
 			TreeMap map = roi.getShapes();
 			if (map == null) setText("[0]");
 			else setText("["+map.size()+"]");

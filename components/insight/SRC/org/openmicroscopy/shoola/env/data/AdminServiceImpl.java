@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
-import omero.model.Permissions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -356,43 +355,6 @@ class AdminServiceImpl
 
 	/**
 	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getPermissionLevel(GroupData)
-	 */
-	public int getPermissionLevel(GroupData group)
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-		if (group == null) {
-			group = exp.getDefaultGroup();
-		}
-		PermissionData perm = group.getPermissions();
-		if (perm.isGroupRead()) {
-			if (perm.isGroupWrite())  
-				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
-			return AdminObject.PERMISSIONS_GROUP_READ;
-		}
-		if (perm.isWorldRead()) {
-			if (perm.isWorldWrite())  
-				return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-			return AdminObject.PERMISSIONS_PUBLIC_READ;
-		}
-		return AdminObject.PERMISSIONS_PRIVATE;
-	}
-	
-	/**
-	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getPermissionLevel()
-	 */
-	public int getPermissionLevel()
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-		GroupData g = exp.getDefaultGroup();
-		return getPermissionLevel(g);
-	}
-
-	/**
-	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#updateGroup(SecurityContext, GroupData, int)
 	 */
 	public GroupData updateGroup(SecurityContext ctx, GroupData group,
@@ -402,12 +364,22 @@ class AdminServiceImpl
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
 		ExperimenterGroup g = group.asGroup();
-		Permissions p = null;
-		if (permissions != -1) {
-			p = g.getDetails().getPermissions();
-			gateway.setPermissionsLevel(p, permissions);
+		String r = "rw----";
+		switch (permissions) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				r = "rwr---";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				r = "rwra--";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				r = "rwrw--";
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				r = "rwrwr-";
+				break;
 		}
-		return gateway.updateGroup(ctx, g, p);
+		return gateway.updateGroup(ctx, g, r);
 	}
 
 	/**

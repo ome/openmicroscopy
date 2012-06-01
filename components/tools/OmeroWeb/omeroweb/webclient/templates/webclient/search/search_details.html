@@ -24,8 +24,7 @@
     
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
-    
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -61,9 +60,9 @@
                 else {
                     rows.removeClass("ui-selected");
                     $clickedRow.addClass("ui-selected");
-                    var obj = $clickedRow.attr('id').split("-");
-                    loadMetadataPanel('{% url load_metadata_details %}'+obj[0]+'/'+obj[1]+'/');
+                    //var obj = $clickedRow.attr('id').split("-");
                     primaryIndex = selIndex;
+                    search_selection_changed($clickedRow);
                 }
             }
             
@@ -90,81 +89,71 @@
     </script>
 
 
-    <div class="clear"> </div>
+	
+    
 
     <div>
         {% if manager.c_size %}
         
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-        
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
-                    <th class="action">{% trans "Object" %}</th> 
-                    <th class="desc">{% trans "Name" %}</th> 
-                    <th class="roles">{% trans "Date" %}</th> 
+                    <th class="table_images">{% trans "Object" %}</th> 
+                    <th class="table_desc">{% trans "Name" %}</th> 
+                    <th class="table_date">{% trans "Date" %}</th> 
                 </tr> 
             </thead>
             <tbody>
             {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}">
-                    <td class="action">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                    <td class="image">
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
                 <tr id="screen-{{ c.id }}">
-                    <td class="action">
+                    <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
                 <tr id="dataset-{{ c.id }}">
-                    <td class="action">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                    <td class="image">
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
                 <tr id="plate-{{ c.id }}">
-                    <td class="action">
+                    <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}">
-                    <td class="action">
+                    <td class="image">
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
             </tbody>
         </table>
         
         {% else %}
-            <p>{% trans "No data." %}</p>
+            <p class="center_message message_nodata">{% trans "No results found" %}</p>
         {% endif %}
-
-        {% if manager.c_size %}<div>
-            <p>{% trans "Legend" %}: 
-                <img src="{% static "webclient/image/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; 
-                <img src="{% static "webclient/image/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %};
-                <img src="{% static "webclient/image/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %};
-                <img src="{% static "webclient/image/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};
-            </p>
-        </div>{% endif %}
 
     </div>

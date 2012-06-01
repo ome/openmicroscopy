@@ -143,6 +143,19 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, Class, 
+	 * long, AgentEventListener)
+	 */
+	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx, 
+		Class annotation, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
+														userID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#saveData(SecurityContext, Collection, List, List, long, 
 	 * 									AgentEventListener)
 	 */

@@ -1532,6 +1532,8 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
+		long id = pixs.getDetails().getGroup().getId().getValue();
+		if (id != pixels.getGroupId()) return false;
 		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
@@ -1764,7 +1766,7 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
-		if (def.getCompression() != rndDef.getCompression()) return false;
+		//if (def.getCompression() != rndDef.getCompression()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;

@@ -333,7 +333,6 @@ $.fn.viewportImage = function(options) {
       e.preventDefault();
     });
 
-
     /**
      * Handle panning by mouse drag
      */

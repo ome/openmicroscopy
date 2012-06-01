@@ -68,6 +68,15 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
+
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
 	
 	/** Is this figure read only. */
 	private boolean 			readOnly;
@@ -96,10 +105,13 @@ public class MeasureEllipseFigure
 	 */
 	private int 				status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
+		this(DEFAULT_TEXT);
 	}
 	
 	/** 
@@ -111,10 +123,14 @@ public class MeasureEllipseFigure
 	 * @param width	The width of the figure. 
 	 * @param height The height of the figure. 
 	 * @param readOnly The figure is read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
 	public MeasureEllipseFigure(String text, double x, double y, double width,
-			double height, boolean readOnly, boolean clientObject)
+			double height, boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
@@ -125,6 +141,10 @@ public class MeasureEllipseFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
 	}
 	
 	/** 
@@ -134,7 +154,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(String text)
 	{
-		this(text, 0, 0, 0, 0, false, true);
+		this(text, 0, 0, 0, 0, false, true, true, true, true);
 	}
 
 	/** 
@@ -142,11 +162,16 @@ public class MeasureEllipseFigure
 	 * 
 	 * @param readOnly Pass <code>true</code> if the ROI is read only, 
 	 * 				   <code>false</code> otherwise.
-     * @param isClientObject the figure is a client object
+     * @param isClientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject)
+	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(ROIFigure.DEFAULT_TEXT, 0, 0, 0, 0, readOnly, isClientObject);
+		this(ROIFigure.DEFAULT_TEXT, 0, 0, 0, 0, readOnly, isClientObject, 
+				editable, deletable, annotatable);
 	}
 	
 	/** 
@@ -159,7 +184,8 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(double x, double y, double width, double height)
 	{
-		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false, true);
+		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false, true,
+				true, true, true);
 	}
 	
 	/** 
@@ -527,7 +553,7 @@ public class MeasureEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.transform(tx);
@@ -540,7 +566,7 @@ public class MeasureEllipseFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.setBounds(anchor, lead);
@@ -667,4 +693,39 @@ public class MeasureEllipseFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
+
 }

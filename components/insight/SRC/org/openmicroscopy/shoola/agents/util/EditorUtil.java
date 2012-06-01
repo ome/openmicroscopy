@@ -42,7 +42,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -77,7 +76,6 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.ObjectiveData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -790,7 +788,13 @@ public class EditorUtil
 	public static String formatExperimenter(ExperimenterData exp)
 	{
 		if (exp == null) return "";
-		return exp.getFirstName()+" "+exp.getLastName();
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		return s1+" "+s2;
 	}
     
 	/**
@@ -1043,11 +1047,7 @@ public class EditorUtil
     		ho instanceof String)
         	return false;
     	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserRead();
-        return permissions.isGroupRead();
+    	return true; //change in permissions.
     }
     
     /**
@@ -1067,11 +1067,33 @@ public class EditorUtil
     	DataObject data = (DataObject) ho;
         try {
         	if (userID == data.getOwner().getId())
-                return true; // data.getPermissions().isUserWrite();
+                return true;
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}
         
+        return false;
+    }
+    
+    /**
+     * Returns <code>true</code> if the user is an owner of the passed group,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param group The group to check.
+     * @param userID The id of the current user.
+     * @return See above.
+     */
+    public static boolean isUserGroupOwner(GroupData group, long userID)
+    {
+    	if (group == null) return false;
+    	Set<ExperimenterData> owners = group.getLeaders();
+    	if (owners == null) return false;
+    	Iterator<ExperimenterData> i = owners.iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == userID) return true;
+		}
         return false;
     }
     
@@ -2160,18 +2182,6 @@ public class EditorUtil
     	return UIUtilities.setTextFont(value);
     }
 
-    /**
-     * Returns the name of the experimenter.
-     * 
-     * @param exp The experimenter to handle.
-     * @return See above.
-     */
-    public static String getExperimenterName(ExperimenterData exp)
-    {
-    	if (exp == null) return "";
-    	return exp.getFirstName()+" "+exp.getLastName();
-    }
-    
 	/**
 	 * Returns the date.
 	 * 
@@ -2334,6 +2344,28 @@ public class EditorUtil
     	ho = parent.getUserObject();
     	if (ho instanceof ExperimenterData) return parent;
     	return getDataOwner(parent);
+    }
+	
+	/**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+	public static TreeImageDisplay getDataGroup(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof GroupData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof GroupData) return parent;
+    	return getDataGroup(parent);
     }
 	
 	/**

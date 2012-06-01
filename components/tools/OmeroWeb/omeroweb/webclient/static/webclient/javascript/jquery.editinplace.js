@@ -121,8 +121,6 @@
                                 $( self ).bind( opt.edit_event, function( e ) {
                                     _editMode( self );
                                 } );
-                                alert(responce.responceText);
-                                
                             }
                         });
                         
@@ -132,7 +130,6 @@
                     $( self ).bind( opt.edit_event, function( e ) {
                         _editMode( self );
                     } );
-                    alert("Internal server error. Cannot edit.");
                 }
             });
         

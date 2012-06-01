@@ -180,13 +180,11 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (annotation == null || object == null) return;
-		ExperimenterData exp = getUserDetails();
-		if (exp == null) return;
 		IObject ho = gateway.findIObject(ctx, annotation.asIObject());
-		if (ho == null) return;
+		if (ho == null || !gateway.canDelete(ho)) return;
 		IObject link = gateway.findAnnotationLink(ctx, object.getClass(),
-				       object.getId(), ho.getId().getValue(), exp.getId());
-		if (ho != null && link != null) {
+				       object.getId(), ho.getId().getValue(), -1);
+		if (link != null) {
 			try {
 				gateway.deleteObject(ctx, link);
 			} catch (Exception e) {
@@ -455,6 +453,7 @@ class OmeroMetadataServiceImpl
 	{			
 		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, data.getId());
+		if (ho == null) return;
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
 		boolean exist = false;
@@ -510,7 +509,6 @@ class OmeroMetadataServiceImpl
 		long id;
 		String ioType;
 		TagAnnotation ho;
-		IObject link = null;
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();

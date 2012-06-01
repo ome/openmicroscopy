@@ -632,6 +632,15 @@
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
+	
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/image
+		components/tools/OmeroWeb/omeroweb/webgateway/static/webgateway/img
+		components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/image
+  Project:      IconSweets
+  Website:      http://www.iconsweets.com/
+  License:      Free for Commercial and Personal Use
+  License File: iconsweets_license.txt
+
 
   Artifacts:    components/tools/OmeroCpp/test/gtest
   Project:      Google's framework for writing C++ tests on a variety of platforms
@@ -779,6 +788,20 @@
   License File: jquery.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/chosen/*
+  Project:      Chosen
+  Web Site:     http://harvesthq.github.com/chosen/
+  License:      MIT license.
+  License File: jquery.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webgateway/pie/*
+  Project:      CSS3 PIE
+  Web Site:     http://css3pie.com
+  License:      Dual-licensed for use under the Apache License Version 2.0 or the General Public License (GPL) Version 2.
+  License File: apache-v2.0.txt gpl.txt
+
+
   //
   // Used but not distributed
   //
@@ -861,7 +884,12 @@
   Web Site:     http://www.eclipse.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html
-
+  
+  Artifacts:    jna.jar, platform.jar
+  Project:      Java Native Access (JNA), used for calling platform specific methods.
+  Web Site:     https://github.com/twall/jna
+  License:      LGPL, version 2.1 (or later)
+  License File: lgpl.txt
 
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.

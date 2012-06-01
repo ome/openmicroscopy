@@ -130,28 +130,19 @@ public class ROIAction
 		switch (action)
 		{
 			case DUPLICATE:
-				this.
-				setName("Duplicate");
 				controller.duplicateROI();
 				break;
 			case DELETE:
-				setName("Delete");
 				controller.deleteROI();
 				break;
 			case MERGE:
-				setName("Merge");
 				controller.mergeROI();
 				break;
 			case SPLIT:
-				setName("Split");
 				controller.splitROI();
 				break;
 			case PROPAGATE:
-				setName("Propagate");
 				controller.propagateROI();
-				break;
 		}
 	}	
 }
-
-

@@ -94,7 +94,7 @@ public class UpdateITest extends AbstractServantTest {
     public void testDeleteImageNotPixels() throws Exception {
         final long iid = makeImage();
         final RV rv = new RV();
-        user_update.deleteObject_async(new AMD_IUpdate_deleteObject() {
+        user.update.deleteObject_async(new AMD_IUpdate_deleteObject() {
             public void ice_response() {
                 rv.rv = Boolean.TRUE;
             }

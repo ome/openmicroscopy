@@ -125,8 +125,7 @@ public class ModelMapper
      */
     public static void unloadCollections(IObject object)
     {
-        if (object == null)
-            throw new IllegalArgumentException("The object mustn't be null.");
+        if (object == null) return;
         if (object.isLoaded())
         	object.unloadCollections();
     }

@@ -86,6 +86,9 @@ public class MovieExportParam
 	/** The extension corresponding to the {@link #QT} movie. */
 	private static final String QT_EXTENSION = ".avi";
 	
+	/** The minimum value of the scale bar.*/
+	private static final int SCALE_BAR = 1;
+	
 	static {
 		FORMATS = new LinkedHashMap<Integer, String>(3);
 		FORMATS.put(WMV, "Windows Media Player");
@@ -208,10 +211,10 @@ public class MovieExportParam
 		if (fps <= 0) fps = DEFAULT_FPS;
 		this.fps = fps;
 		this.format = format;
-		if (scaleBar < 0) scaleBar = 0;
+		if (scaleBar < 0) scaleBar = SCALE_BAR;
 		this.scaleBar = scaleBar;
 		labelVisible = false;
-		color = null;//Color.LIGHT_GRAY.getRGB();
+		color = null;
 		initialize();
 	}
 	
@@ -304,16 +307,12 @@ public class MovieExportParam
 	 * 
 	 * @return See above.
 	 */
-	public int getScaleBar() { return scaleBar; }
+	public int getScaleBar()
+	{
+		if (scaleBar < SCALE_BAR) scaleBar = SCALE_BAR;
+		return scaleBar;
+	}
 	
-	/**
-	 * Returns <code>true</code> if the scale bar is visible, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isScaleBarVisible() { return scaleBar <= 0; }
-
 	/**
 	 * Returns the lower bound of the time interval.
 	 * 

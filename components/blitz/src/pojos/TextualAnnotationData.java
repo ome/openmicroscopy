@@ -132,6 +132,7 @@ public class TextualAnnotationData extends AnnotationData {
             throw new IllegalArgumentException(
                     "Annotation value cannot be null.");
         }
+        setDirty(true);
         ((CommentAnnotation) asAnnotation()).setTextValue(rstring(value));
     }
 

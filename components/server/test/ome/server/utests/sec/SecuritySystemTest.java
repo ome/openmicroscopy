@@ -55,7 +55,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // don't need ready sec.sys.
         sec.isReady();
         sec.isSystemType(null);
-        aclVoter.allowLoad(user.getClass(), Details.create(), 1L);
+        aclVoter.allowLoad(null, user.getClass(), Details.create(), 1L);
         sec.getSecurityRoles();
         sf.mockQuery.expects(atLeastOnce()).method("contains").will(
                 returnValue(true));
@@ -263,7 +263,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // uses Springs assert
         try {
-            aclVoter.allowLoad(null, null, 1L);
+            aclVoter.allowLoad(null, null, null, 1L);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
@@ -551,13 +551,13 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         d.setPermissions(new Permissions());
 
         sec.loadEventContext(false);
-        assertTrue(aclVoter.allowLoad(Image.class, d, 1L));
+        assertTrue(aclVoter.allowLoad(null, Image.class, d, 1L));
         d.setPermissions(new Permissions().revoke(WORLD, READ));
-        assertFalse(aclVoter.allowLoad(Image.class, d, 1L));
+        assertFalse(aclVoter.allowLoad(null, Image.class, d, 1L));
         // now in my group where i'm PI
         d.setPermissions(new Permissions().revoke(GROUP, READ));
         d.setGroup(group);
-        assertTrue(aclVoter.allowLoad(Image.class, d, 1L));
+        assertTrue(aclVoter.allowLoad(null, Image.class, d, 1L));
 
         sec.invalidateEventContext();
 

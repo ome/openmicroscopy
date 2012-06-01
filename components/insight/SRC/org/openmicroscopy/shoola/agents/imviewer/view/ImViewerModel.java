@@ -78,7 +78,6 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -2501,11 +2500,10 @@ class ImViewerModel
 	{ 
 		boolean b = isUserOwner();
 		if (b) return b;
-		int level = 
-			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+		GroupData g = ImViewerAgent.getUserDetails().getDefaultGroup();
+		switch (g.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return false;

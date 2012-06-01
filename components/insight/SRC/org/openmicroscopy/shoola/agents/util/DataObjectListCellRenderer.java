@@ -194,6 +194,24 @@ public class DataObjectListCellRenderer
     	return false;
     }
 	
+    /**
+     * Returns the text displayed when the object is a tag.
+     * 
+     * @param tag The tag to handle.
+     * @return See above.
+     */
+    private String getTagName(TagAnnotationData tag)
+    {
+    	String v = model.getGroupName(tag.getGroupId());
+    	if (v == null) return tag.getTagValue();
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(tag.getTagValue());
+    	buffer.append(" [");
+    	buffer.append(v);
+    	buffer.append("]");
+    	return buffer.toString();
+    }
+    
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -229,7 +247,7 @@ public class DataObjectListCellRenderer
 										cellHasFocus);
 		if (value instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) value;
-			setText(tag.getTagValue());
+			setText(getTagName(tag));
 			String ns = tag.getNameSpace();
 			ExperimenterData exp;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
@@ -315,7 +333,7 @@ public class DataObjectListCellRenderer
 			setIcon(GROUP_ICON);
 		} else if (value instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) value;
-			setText(EditorUtil.getExperimenterName(exp));
+			setText(EditorUtil.formatExperimenter(exp));
 			setIcon(OWNER_ICON);
 		}
 		setEnabled(!isImmutable(value));

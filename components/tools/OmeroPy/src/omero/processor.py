@@ -43,7 +43,7 @@ class WithGroup(object):
     """
     Wraps a ServiceInterfacePrx instance and applies
     a "omero.group" to the passed context on every
-    invotation.
+    invocation.
 
     For example, using a job handle as root requires logging
     manually into the group. (ticket:2044)

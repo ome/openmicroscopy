@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -485,7 +486,7 @@ class MetadataViewerModel
 		else if (ref instanceof ScreenData)
 			return ((ScreenData) ref).getName();
 		else if (ref instanceof ExperimenterData)
-			return EditorUtil.getExperimenterName((ExperimenterData) ref);
+			return EditorUtil.formatExperimenter((ExperimenterData) ref);
 		else if (ref instanceof GroupData)
 			return ((GroupData) ref).getName();
 		return "";
@@ -520,7 +521,7 @@ class MetadataViewerModel
 			v = "Screen's Data: ";
 			v += EditorUtil.truncate(((ScreenData) ref).getName());
 		} else if (ref instanceof ExperimenterData) {
-			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
+			v = EditorUtil.formatExperimenter((ExperimenterData) ref);
 			v += "'s details";
 		} if (ref instanceof GroupData) {
 			v = ((GroupData) ref).getName();
@@ -620,11 +621,14 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
-					loader = new GroupEditor(component, ctx, group, 
-							data.getPermissions());
+					loader = new GroupEditor(component, getAdminContext(),
+							group, data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					loader = new AdminEditor(component, ctx, data.getGroup(),
+					SecurityContext c = ctx;
+					if (MetadataViewerAgent.isAdministrator())
+						c = getAdminContext();
+					loader = new AdminEditor(component, c, data.getGroup(),
 							data.getExperimenters());
 			}	
 			if (loader != null) {
@@ -639,13 +643,14 @@ class MetadataViewerModel
 				case AdminObject.UPDATE_GROUP:
 					try {
 						GroupData group = data.getGroup();
-						GroupData g = svc.lookupGroup(ctx, group.getName());
+						GroupData g = svc.lookupGroup(getAdminContext(),
+								group.getName());
 						if (g == null || group.getId() == g.getId())
-							svc.updateGroup(ctx, data.getGroup(),
+							svc.updateGroup(getAdminContext(), data.getGroup(),
 									data.getPermissions());
 						else {
 							UserNotifier un = 
-								MetadataViewerAgent.getRegistry().getUserNotifier();
+							MetadataViewerAgent.getRegistry().getUserNotifier();
 							un.notifyInfo("Update Group", "A group with the " +
 									"same name already exists.");
 						}
@@ -879,12 +884,20 @@ class MetadataViewerModel
 	 */
 	void setViewedBy(Map viewedBy)
 	{ 
-		Map m = new HashMap();
+		Map m = new LinkedHashMap();
 		if (viewedBy != null) {
 			long id = MetadataViewerAgent.getUserDetails().getId();
 			Entry entry;
 			Iterator i = viewedBy.entrySet().iterator();
 			ExperimenterData exp;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (ExperimenterData) entry.getKey();
+				if (exp.getId() == id) {
+					m.put(exp, entry.getValue());
+				}
+			}
+			i = viewedBy.entrySet().iterator();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (ExperimenterData) entry.getKey();
@@ -944,15 +957,39 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable()
+	boolean canEdit()
 	{
 		if (editor == null) return false;
-		return editor.isWritable();
+		return editor.canEdit();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate()
+	{
+		if (editor == null) return false;
+		return editor.canAnnotate();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be hard linked,
+	 * i.e. image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canLink()
+	{
+		if (editor == null) return false;
+		return editor.canLink();
 	}
 	
 	/** 

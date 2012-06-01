@@ -37,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -60,6 +61,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DataObject;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -392,6 +394,16 @@ public class SelectionWizard
 		}
 		TitlePanel titlePanel = new TitlePanel(title, text, titleIcon);
 		getContentPane().add(titlePanel, BorderLayout.NORTH);
+	}
+	
+	/**
+	 * Sets the groups.
+	 * 
+	 * @param groups The groups to set.
+	 */
+	public void setGroups(Collection<GroupData> groups)
+	{
+		uiDelegate.setGroups(groups);
 	}
 	
 	/**

@@ -90,6 +90,8 @@ public interface LocalAdmin extends ome.api.IAdmin {
 
     /**
      * Like {@link #getEventContext()} but will not reload the context.
+     * This also has the result that values from the current call context
+     * will be applied as simply the session context.
      */
     EventContext getEventContextQuiet();
 }

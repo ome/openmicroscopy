@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -202,7 +203,7 @@ public class ManageRndSettingsAction
 				if (selected.size() > 1) setEnabled(false);
 	    		else {
 	    			if (ho instanceof WellSampleData || ho instanceof ImageData)
-	    				setEnabled(true);//setEnabled(model.isUserOwner(ho));
+	    				setEnabled(model.canAnnotate(ho));
 	    			else setEnabled(false);
 	    		}
 				break;
@@ -220,10 +221,13 @@ public class ManageRndSettingsAction
 						ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateAcquisitionData) {
 						i = selected.iterator();
+						DataObject data;
 						while (i.hasNext()) {
 							obj = i.next();
-							//if (model.isUserOwner(obj)) count++;
-							if (model.isWritable(obj)) count++;
+							data = (DataObject) obj;
+							if (model.canAnnotate(obj) &&
+								model.areSettingsCompatible(data.getGroupId()))
+								count++;
 						}
 						setEnabled(count == selected.size());
 					} else setEnabled(true);
@@ -239,7 +243,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.isWritable(obj)) count++;
+						if (model.canAnnotate(obj)) count++;
 					}
 					setEnabled(count == selected.size());
 				}
@@ -253,8 +257,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						//if (model.isUserOwner(obj)) count++;
-						if (model.isWritable(obj) && !model.isUserOwner(ho)) 
+						if (model.canAnnotate(obj))
 							count++;
 					}
 					setEnabled(count == selected.size());

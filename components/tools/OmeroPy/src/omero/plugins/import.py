@@ -54,6 +54,11 @@ class ImportControl(BaseControl):
         parser.add_argument("--email", dest="java_email", help="Email for reported errors (**)", metavar="EMAIL")
         parser.add_argument("--debug", dest="java_debug", help="Turn debug logging on (**; must be preceded by '--')",\
                 choices=["ALL","DEBUG","ERROR","FATAL","INFO","TRACE","WARN"], metavar="LEVEL")
+
+        parser.add_argument("--annotation_ns", dest="java_ns", help="Namespace to use for subsequent annotation")
+        parser.add_argument("--annotation_text", dest="java_text", help="Content for a text annotation (requires namespace)")
+        parser.add_argument("--annotation_link", dest="java_link", help="Comment annotation ID to link all images to")
+
         parser.add_argument("arg", nargs="*", help="Arguments to be passed to the Java process")
         parser.set_defaults(func=self.importer)
 
@@ -105,7 +110,10 @@ class ImportControl(BaseControl):
                 "java_upload": "--upload",
                 "java_logs": "--logs",
                 "java_email": "--email",
-                "java_debug": "--debug" }
+                "java_debug": "--debug",
+                "java_ns": "--annotation_ns",
+                "java_text": "--annotation_text",
+                "java_link": "--annotation_link" }
 
         for attr_name, arg_name in java_args.items():
             arg_value = getattr(args, attr_name)

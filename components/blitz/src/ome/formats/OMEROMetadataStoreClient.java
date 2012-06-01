@@ -227,9 +227,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Begins empty to allow access to all groups. Once a target object
-     * has been chosen, the map will be updated to reflect the chosen target.
+     * has been chosen, the id will be set to reflect the target.
      */
-    private final Map<String, String> callCtx = new HashMap<String, String>();
+    private Long groupID = null;
 
     /** Our IObject container cache. */
     private Map<LSID, IObjectContainer> containerCache =
@@ -372,15 +372,6 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Delegates to {@link initializeService(boolean, Long)}
-     * passing null for "group"
-     */
-    private void initializeServices(boolean manageLifecycle)
-        throws ServerError
-    {
-        initializeServices(manageLifecycle, null);
-    }
-    /**
      * Initialize all services needed
      *
      * @param manageLifecylce
@@ -399,16 +390,15 @@ public class OMEROMetadataStoreClient
      *
      * @throws ServerError
      */
-    private void initializeServices(boolean manageLifecycle, Long group)
+    private void initializeServices(boolean manageLifecycle)
         throws ServerError
     {
 
         closeServices();
-        if (group == null) {
-            callCtx.clear();
-        } else {
-            callCtx.put("omero.group", group.toString());
-            log.info(String.format("Call context: {omero.group:%s}", group));
+        Map<String, String> callCtx = new HashMap<String, String>();
+        if (groupID != null) {
+            callCtx.put("omero.group", groupID.toString());
+            log.info(String.format("Call context: {omero.group:%s}", groupID));
         }
 
         // Blitz services
@@ -484,7 +474,21 @@ public class OMEROMetadataStoreClient
 		return encryptedConnection;
 	}
 
-    /**
+	/**
+	 * Sets the id which will be used by {@link #initializeServices(boolean)}
+	 * to set the call context for all services. If null, the call context
+	 * will be left which will then use the context of the session.
+	 *
+	 * @param groupID
+	 * @return
+	 */
+	public Long setGroup(Long groupID) {
+	    Long old = this.groupID;
+	    this.groupID = groupID;
+	    return old;
+	}
+
+	/**
      * Initializes the MetadataStore with an already logged in, ready to go
      * service factory. When finished with this instance, close stateful
      * services via {@link #closeServices()}.
@@ -601,8 +605,8 @@ public class OMEROMetadataStoreClient
 	{
 	    unsecure();
 	}
-
-        initializeServices(true, group);
+	    setGroup(group);
+        initializeServices(true);
 	}
 
     /**
@@ -1053,7 +1057,7 @@ public class OMEROMetadataStoreClient
         try
         {
             log.debug("Creating root!");
-            initializeServices(false, null); // Reset group
+            initializeServices(false); // Reset group
             authoritativeContainerCache =
 		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
             containerCache =
@@ -1934,7 +1938,8 @@ public class OMEROMetadataStoreClient
 	public void setCurrentGroup(long groupID)
 		throws ServerError
 	{
-                initializeServices(false, groupID);
+	    setGroup(groupID);
+	    initializeServices(false);
 	}
 
 	/**
@@ -2204,7 +2209,7 @@ public class OMEROMetadataStoreClient
                             klass.getName(), id));
             }
             long grpID = obj.getDetails().getGroup().getId().getValue();
-            initializeServices(false, grpID);
+            setCurrentGroup(grpID);
             return obj;
         }
         catch (ServerError e)

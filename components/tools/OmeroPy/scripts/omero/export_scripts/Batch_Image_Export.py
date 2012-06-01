@@ -318,8 +318,12 @@ def batchImageExport(conn, scriptParams):
             if parentToAttachZip is None:
                 parentToAttachZip = ds
             images.extend( list(ds.listChildren()) )
+        if not images:
+            raise Exception('No images found in dataset')
     else:
         images = list(objects)
+        if not images:
+            raise Exception('No images found')
         parentToAttachZip = images[0]
     log("Processing %s images" % len(images))
     
@@ -385,8 +389,11 @@ def batchImageExport(conn, scriptParams):
     if os.path.exists(export_file):
         fileAnn = conn.createFileAnnfromLocalFile(export_file, mimetype=mimetype, desc=None)
         if parentToAttachZip is not None:
-            log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
-            parentToAttachZip.linkAnnotation(fileAnn)
+            if parentToAttachZip.canAnnotate():
+                log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
+                parentToAttachZip.linkAnnotation(fileAnn)
+            else:
+                return fileAnn, None
         return fileAnn, parentToAttachZip
 
 def runScript():
@@ -481,7 +488,13 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
             scriptParams[key] = client.getInput(key, unwrap=True)
     log(scriptParams)
     # call the main script - returns a file annotation wrapper
-    result = batchImageExport(conn, scriptParams)
+    try:
+        result = batchImageExport(conn, scriptParams)
+    except Exception, e:
+        message = "Failed. "
+        message += str(e)
+        client.setOutput("Message", rstring(message))
+        result = None
 
     stopTime = datetime.now()
     log("Duration: %s" % str(stopTime-startTime))
@@ -491,9 +504,9 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         fileAnnWrapper, parentToAttachZip = result
         message = "Batch Export zip created"
         if parentToAttachZip is not None:
-            message += " and attached to %s %s"  % (scriptParams['Data_Type'], parentToAttachZip.getName())
-        client.setOutput("Message", rstring(message))
+            message += " and attached to %s %s"  % (scriptParams['Data_Type'], parentToAttachZip.getName())        
         client.setOutput("File_Annotation", robject(fileAnnWrapper._obj))
+        client.setOutput("Message", rstring(message))
     
 
 if __name__ == "__main__":

@@ -26,8 +26,13 @@
 <head>
 
     {% block link %}
-        <!-- block for css <link> elements etc -->
-        {% include "webgateway/base/includes/css_link_body.html" %}
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="{% static "webgateway/css/reset.css" %}" type="text/css" />   
+		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css" %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "webclient/css/dusty.css" %}" type="text/css" media="screen"/>
+		
     {% endblock %}
 
 

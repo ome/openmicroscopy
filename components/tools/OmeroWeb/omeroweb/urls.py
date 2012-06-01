@@ -36,7 +36,8 @@ handler500 = "omeroweb.feedback.views.handler500"
 # url patterns
 urlpatterns = patterns('',
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/common/image/ome.ico'}),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '%swebgateway/img/ome.ico' % settings.STATIC_URL}),
+    
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),

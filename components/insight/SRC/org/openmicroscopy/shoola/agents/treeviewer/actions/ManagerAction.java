@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -100,14 +101,8 @@ public class ManagerAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof String || ho instanceof ExperimenterData) // root
-            setEnabled(false);
-        else if (ho instanceof ProjectData) 
-            setEnabled(model.isObjectWritable(ho));
-        else if (ho instanceof DatasetData) 
-            setEnabled(model.isObjectWritable(ho));
-        else 
-            setEnabled(false);
+        setEnabled(!(ho instanceof String || ho instanceof ExperimenterData ||
+        	ho instanceof GroupData));
     }
     
     /**

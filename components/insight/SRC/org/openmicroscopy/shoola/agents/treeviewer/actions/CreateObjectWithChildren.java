@@ -138,7 +138,7 @@ public class CreateObjectWithChildren
 			case DATASET:
 				if (ho instanceof ImageData) {
 					for (int i = 0; i < selection.length; i++) {
-						if (model.isUserOwner(selection[i].getUserObject()))
+						if (model.canAnnotate(selection[i].getUserObject()))
 								count++;
 					}
 					setEnabled(count == selection.length);

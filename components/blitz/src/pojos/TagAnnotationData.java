@@ -253,6 +253,7 @@ public class TagAnnotationData extends AnnotationData {
         if (value == null || value.trim().length() == 0) {
             return;
         }
+        setDirty(true);
         asAnnotation().setDescription(rstring(value));
     }
 
@@ -327,6 +328,7 @@ public class TagAnnotationData extends AnnotationData {
         if (tag.trim().length() == 0) {
             throw new IllegalArgumentException("Tag value cannot be null.");
         }
+        setDirty(true);
         ((TagAnnotation) asAnnotation()).setTextValue(rstring(tag));
     }
 

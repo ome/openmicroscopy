@@ -69,6 +69,15 @@ public class MeasureLineConnectionFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
@@ -107,13 +116,13 @@ public class MeasureLineConnectionFigure
 	 */
 	private int 					status;
 	
-	/**
-	 * Create instance of line connection figure. 
-	 *
-	 */
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
+	/** Creates instance of line connection figure.*/
 	public MeasureLineConnectionFigure()
 	{
-		this(DEFAULT_TEXT, false);
+		this(DEFAULT_TEXT, false, true, true, true);
 	}
 	
 	/**
@@ -121,8 +130,12 @@ public class MeasureLineConnectionFigure
 	 * 
 	 * @param text text to assign to the figure. 
 	 * @param readOnly The figure is read only.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineConnectionFigure(String text, boolean readOnly)
+	public MeasureLineConnectionFigure(String text, boolean readOnly,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -136,6 +149,10 @@ public class MeasureLineConnectionFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
 	}
 
 	 /**
@@ -230,7 +247,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 			super.transform(tx);
 	}
 		
@@ -240,7 +257,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 			super.setBounds(anchor, lead);
 	}
 	
@@ -669,4 +686,38 @@ public class MeasureLineConnectionFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+	
 }

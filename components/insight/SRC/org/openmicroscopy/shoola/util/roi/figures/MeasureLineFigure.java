@@ -74,6 +74,15 @@ public class MeasureLineFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -113,6 +122,9 @@ public class MeasureLineFigure
 	 */
 	private int 					status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -133,7 +145,7 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this(DEFAULT_TEXT, false, true);
+		this(DEFAULT_TEXT, false, true, true, true, true);
 	}
 
 
@@ -141,11 +153,16 @@ public class MeasureLineFigure
 	 * Creates a new instance.
 	 *  
 	 * @param readOnly the figure is read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineFigure(boolean readOnly, boolean clientObject)
+	public MeasureLineFigure(boolean readOnly, boolean clientObject, 
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(DEFAULT_TEXT, readOnly, clientObject);
+		this(DEFAULT_TEXT, readOnly, clientObject, editable, deletable, 
+				annotatable);
 	}
 	
 	/**
@@ -153,9 +170,14 @@ public class MeasureLineFigure
 	 * 
 	 * @param text The text to add to the figure.
 	 * @param readOnly the figure is read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineFigure(String text, boolean readOnly, boolean clientObject)
+	public MeasureLineFigure(String text, boolean readOnly,
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -170,6 +192,10 @@ public class MeasureLineFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
 	}
 	
 	/**
@@ -292,7 +318,7 @@ public class MeasureLineFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -305,7 +331,7 @@ public class MeasureLineFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -872,4 +898,38 @@ public class MeasureLineFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }

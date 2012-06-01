@@ -85,7 +85,7 @@ public class RequestCallback
 			if (!submitted) {
 				//adapter.handleResult(reports);
 				try {
-					close();
+					close(false); // TODO: try to close handle here?
 				} catch (Exception e) {}
 			}
 		}

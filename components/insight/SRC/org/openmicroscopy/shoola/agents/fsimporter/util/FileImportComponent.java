@@ -1021,6 +1021,7 @@ public class FileImportComponent
 						resultLabel.setToolTipText(
 								UIUtilities.formatExceptionForToolTip(ie));
 					} else {
+						errorButton.setVisible(true);
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
 					}

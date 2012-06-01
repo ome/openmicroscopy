@@ -34,7 +34,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -113,21 +112,6 @@ public class ManageObjectAction
 	private IconManager icons;
 	
 	/**
-	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
-	 * 
-	 * @param ho The data object to check.
-	 * @return See above.
-	 */
-	private boolean canDeleteObject(Object ho)
-	{
-		if (model.isUserOwner(ho)) return true;
-		if (DataBrowserAgent.isLeaderOfCurrentGroup()) return true;
-		if (DataBrowserAgent.isAdministrator()) return true;
-		return false;
-	}
-	
-	/**
 	 * Checks if the passed index is supported.
 	 * 
 	 * @param value The value to control.
@@ -191,7 +175,7 @@ public class ManageObjectAction
              return;
         }
         Object ho = node.getHierarchyObject();
-        Class klass = model.hasDataToCopy();
+        Class<?> klass = model.hasDataToCopy();
         Collection selected = browser.getSelectedDataObjects();
         Iterator i;
         int count = 0;
@@ -203,7 +187,7 @@ public class ManageObjectAction
 				    ho instanceof PlateData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (model.isUserOwner(i.next())) count++;
+						if (model.canLink(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
@@ -217,7 +201,7 @@ public class ManageObjectAction
 		        	if (DatasetData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.isUserOwner(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -225,7 +209,7 @@ public class ManageObjectAction
 		        	if (PlateData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.isUserOwner(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -233,7 +217,7 @@ public class ManageObjectAction
 		        	if (ImageData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.isUserOwner(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -244,11 +228,10 @@ public class ManageObjectAction
 					setEnabled(false);
 				} else if (ho instanceof ProjectData 
 						|| ho instanceof DatasetData
-					|| ho instanceof ImageData || ho instanceof ScreenData
-					) {//|| ho instanceof PlateData) {
+					|| ho instanceof ImageData || ho instanceof ScreenData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (canDeleteObject(i.next())) count++;
+						if (model.canDelete(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
@@ -263,7 +246,7 @@ public class ManageObjectAction
 							parent instanceof ScreenData)) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (model.isUserOwner(i.next())) count++;
+						if (model.canLink(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);

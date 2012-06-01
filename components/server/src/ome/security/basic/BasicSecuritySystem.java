@@ -361,46 +361,40 @@ public class BasicSecuritySystem implements SecuritySystem,
         // actually members of the noted groups.
         //
         // Joined with public group block (ticket:1940)
-        ExperimenterGroup callGroup = null;
-        ExperimenterGroup eventGroup = null;
         Long shareId = ec.getCurrentShareId();
         Long groupId = ec.getCurrentGroupId();
+        ExperimenterGroup callGroup = null;
+        ExperimenterGroup eventGroup = null;
+        long eventGroupId;
+        Permissions callPerms;
+
         if (groupId >= 0) { // negative groupId means all member groups
+            eventGroupId = groupId;
+            callGroup = admin.groupProxy(groupId);
+            eventGroup = callGroup;
+            callPerms = callGroup.getDetails().getPermissions();
+
             // tickets:2950, 1940, 3529
             if (!isAdmin && !ec.getMemberOfGroupsList().contains(groupId)) {
-                // Only force loading the group if we would otherwise throw an exception.
-                // The extra performance hit on READ is just the price of browsing
-                // public data
-                callGroup = admin.groupProxy(groupId);
-                if (!callGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                if (!callPerms.isGranted(Role.WORLD, Right.READ)) {
                     throw new SecurityViolation(String.format(
                         "User %s is not a member of group %s and cannot login",
                                 ec.getCurrentUserId(), groupId));
                 }
             }
-        }
 
-        // Handle eventGroup
-        long eventGroupId = groupId;
-        if (groupId < 0) {
+        } else {
             List<Long> memList = ec.getMemberOfGroupsList();
             eventGroupId = memList.get(0);
             if (eventGroupId == roles.getUserGroupId() && memList.size() > 1) {
                 eventGroupId = memList.get(1);
             }
             log.debug("Choice for event group: " + eventGroupId);
-        }
 
-        if (isReadOnly) {
+            eventGroup = admin.getGroup(eventGroupId);
             callGroup = new ExperimenterGroup(groupId, false);
-            eventGroup = new ExperimenterGroup(eventGroupId, false);
-        } else {
-            if (groupId < 0L) {
-                callGroup = new ExperimenterGroup(groupId, false);
-            } else if (callGroup == null) {
-                callGroup = admin.groupProxy(groupId);
-            }
-            eventGroup = admin.groupProxy(eventGroupId);
+            callPerms = Permissions.DUMMY;
+
         }
 
         long sessionId = ec.getCurrentSessionId().longValue();
@@ -414,8 +408,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         tokenHolder.setToken(callGroup.getGraphHolder());
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
-        // All properities are now set in one shot, except for Event.
-        cd.setValues(exp, callGroup, isAdmin, isReadOnly, shareId);
+        // All properties are now set in one shot, except for Event.
+        cd.setValues(exp, callGroup, callPerms, isAdmin, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();
@@ -612,7 +606,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 try {
                     c.setAdmin(true);
                     if (group != null) {
-                        c.setGroup(group);
+                        c.setGroup(group, group.getDetails().getPermissions());
                     }
                     disable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session);
@@ -620,7 +614,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 } finally {
                     c.setAdmin(wasAdmin);
                     if (group != null) {
-                        c.setGroup(oldGroup);
+                        c.setGroup(oldGroup, oldGroup.getDetails().getPermissions());
                     }
                     enable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session); // Now as non-admin

@@ -18,29 +18,35 @@
  */
  
 
+ 
+
 html {
     height: 100%;
 }
 
+html body {
+	font-size: 62.5%;
+}
+
 body {
     color: #555555;
-    font-family: Arial,Verdana,Lucida,Helvetica,sans-serif;
-    font-size: 13px;
+	-webkit-font-smoothing: antialiased; /* Deliciously smooths text for webkit browsers */
+    font-family: 'HelveticaNeue-Medium', Helvetica, Arial, Verdana, Lucida, sans-serif;
     height: 100%;
     padding: 0px;
     margin: 0px;
     position: relative;
+	background:hsl(215,9%,88%);
+	-webkit-transition: color .2s linear;
 }
 
-a:hover, a:link, a:visited {
-    border: medium none;
+a:hover, a, a:visited {
     color: #1B7BC7;
+	color: hsl(200,60%,30%);
+	-webkit-transition: all .2s linear;
     text-decoration: none;
 }
 
-a:hover {
-    text-decoration: underline;
-}
 
 h1 {
     font-size: 15px;
@@ -48,77 +54,58 @@ h1 {
     margin: 0;
     padding: 10px 0;
 }
-h2 {
-    font-size: 13px;
-    text-align: left;
+
+	h1.page_title {
+		border-bottom:solid 1px rgba(0,0,0,0.05);
+		margin-bottom:20px;
+	}
+
+h2{
+    font-size:1.1em;
+    line-height:1.6em;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    text-transform: uppercase;
+    color:hsl(210,7%,60%);
+    font-weight:bold;
+	margin-bottom:6px;
 }
 
-p {
-    margin: 0px;
-    padding: 5px;
+
+p, dl {
+	font-size:1.2em;
+	line-height:1.4em;
+	margin-bottom:15px;
 }
 
-img {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-    vertical-align: middle;
+h1 p {
+	margin-bottom:0;
 }
 
-table {
-    border: 0px;
-    table-layout: auto;
-}
-th {
-    font-weight: bold;
-    vertical-align:middle;
-    text-align: left;
-}
-td {
-    vertical-align:top;
-    text-align: left;
+dl {
+	overflow:hidden;
 }
 
-form td {
-    padding: 2px;
+dt, dd {
+	display:inline-block;
 }
 
-form th {
-    border: 0px;
+dt {
+	width:30%;
 }
 
-input[type="text"]{
-    border: 1px solid #bbb;
-    background-color: #fff;
-}
-input{
-    margin: 0;
-    font-size: 12px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #444;
+dd {
+	width:69%;
 }
 
-select {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
+strong {
+	font-weight:bold;
 }
-textarea {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
+
 
 ul.errorlist {
     list-style: none;
+	margin:0;
     color: #e3646f;
-    margin: 0;
-    padding: 10px 0 0;
-    text-align: center;
-}
-ul.errorlist li {
-    border-style:none;
-    border-width:0;
 }
 
 
@@ -133,17 +120,55 @@ label {
     padding: 0px;
 }
 
-.gray_border {
-    border: solid 1px #bbb;
+
+.form_error {
+	background-color: hsl(0,30%,80%);
 }
+
+.error, .form_error {
+	color:red;
+	color:hsl(0,70%,40%);
+	line-height:1.3em;
+	padding:5px;
+	-webkit-border-radius:2px;
+	-webkit-border-radius:2px; /* Saf3+, Chrome */
+	   -moz-border-radius:2px; /* FF1+ */
+	        border-radius:2px; /* Opera 10.5, IE 9 */ 
+	font-size:1.1em;				
+}
+
+
+.disabled {
+    background: #dcdcdc;
+    color: #777777;
+}
+
+.toolbar_noborder {
+    height:20px;
+    padding:5px;
+    width: 100%; 
+}
+.align_left {
+    float:left;
+}
+.align_right {
+    float:right;
+    text-align: right;
+}
+.align_center {
+    text-align: center;
+}
+
+
+
 
 /* hidden div to specify which parent tab is 'current' */
 #parent_id {
     display: none;
 }
 
-/* used by the dialog in popup.js */
-.ui-dialog-titlebar { background: gray; color: white }
+/* used by the dialog in popup.js 
+.ui-dialog-titlebar { background: gray; color: white } */
 
 .absolute_fill {
     position: absolute;

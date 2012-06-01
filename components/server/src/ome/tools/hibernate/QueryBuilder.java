@@ -168,7 +168,10 @@ public class QueryBuilder {
         if (!select || !from || where || order || group) {
             throwUsage();
         }
-        sb.append("where ");
+
+        if (!join) { // i.e. we have't already done this
+            sb.append("where ");
+        }
         join = true;
         return this;
     }

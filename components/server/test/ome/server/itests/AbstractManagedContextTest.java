@@ -183,6 +183,11 @@ public class AbstractManagedContextTest extends TestCase {
         login(roles.getRootName(), groupName, "Test");
     }
 
+    protected Experimenter currentUser() {
+        long gid = iAdmin.getEventContext().getCurrentUserId();
+        return iAdmin.getExperimenter(gid);
+    }
+
     protected ExperimenterGroup currentGroup() {
         long gid = iAdmin.getEventContext().getCurrentGroupId();
         return iAdmin.getGroup(gid);

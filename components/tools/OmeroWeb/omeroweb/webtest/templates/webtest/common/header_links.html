@@ -27,7 +27,7 @@ Extends "webgateway/base/base_header.html"
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    {% include "webclient/base/menu.html" %}
+    {% include "webclient/base/includes/menu.html" %}
     <li><a href="{% url common 'base_header' %}">base_header</a></li>
 {% endblock %}
 
@@ -39,7 +39,7 @@ Extends "webgateway/base/base_header.html"
     <p>
         This page extends "webgateway/base/base_header.html" and makes the following changes:
         <ul>
-            <li>Includes "webclient/base/menu.html" links within the 'middle_header_right' block (main top links)</li>
+            <li>Includes "webclient/base/includes/menu.html" links within the 'middle_header_right' block (main top links)</li>
             <li>Over-writes the 'thin_header' block to remove the thin header</li>
             <li>Over-writes the 'footer' block (and 'footer_css') to remove footer and it's css</li>
             <li>Adds this text to the 'content' block</li>

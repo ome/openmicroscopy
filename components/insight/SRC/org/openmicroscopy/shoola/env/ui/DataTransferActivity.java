@@ -79,7 +79,7 @@ public class DataTransferActivity
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(DESCRIPTION_START);
 		if (name != null && name.length() > 0) {
-			buffer.append("to");
+			buffer.append("to ");
 			buffer.append(name);
 		}
 		initialize(buffer.toString(), parameters.getIcon());

@@ -2108,7 +2108,7 @@ public class FigureDialog
 				list = result.getROIs();
 				if (list.size() > 0) count++;
 				displayedROIs = roiComponent.loadROI(result.getFileID(), 
-						list, true, userID);
+						list, userID);
 				modifyROIDisplay();
 			}
 		} catch (Exception e) {}

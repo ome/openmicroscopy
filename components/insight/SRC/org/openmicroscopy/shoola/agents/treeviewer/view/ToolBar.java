@@ -75,7 +75,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -115,6 +114,9 @@ class ToolBar
     private static final Icon PERMISSIONS_PUBLIC_READ;
     
     /** The icon for private group.*/
+    private static final Icon PERMISSIONS_GROUP_READ_WRITE;
+    
+    /** The icon for private group.*/
     private static final Icon PERMISSIONS_PUBLIC_READ_WRITE;
     
     //Initializes the icons.
@@ -123,6 +125,7 @@ class ToolBar
     	PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
     	PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
     	PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
+    	PERMISSIONS_GROUP_READ_WRITE = im.getIcon(IconManager.READ_WRITE_GROUP);
     	PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
     	PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
     }
@@ -228,15 +231,12 @@ class ToolBar
 				b = new JButton(controller.getAction(TreeViewerControl.VIEW));
 		        UIUtilities.unifiedButtonLookAndFeel(b);
 		        bar.add(b);
-				break;
 		}
         
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
         
-        
-       
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -491,7 +491,7 @@ class ToolBar
         	personalMenu = new JPopupMenu();
         	personalMenu.setBorder(
         			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<JMenuItem> l =  createMenuItem(false);
+        	List<JMenuItem> l = createMenuItem(false);
         	Iterator<JMenuItem> i = l.iterator();
         	while (i.hasNext()) {
 				personalMenu.add(i.next());
@@ -693,31 +693,36 @@ class ToolBar
     void setPermissions()
     {
     	GroupData group = model.getSelectedGroup();
-    	if (group == null || groupContext == null) return;
+    	if (group == null || groupContext == null) {
+    		menuButton.setVisible(false);
+        	groupContext.setVisible(false);
+    		return;
+    	}
     	String desc = "";
-		int level = 
-        TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
 		Icon icon = null;
-		switch (level) {
-			case AdminObject.PERMISSIONS_PRIVATE:
-				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_PRIVATE:
+				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = PERMISSIONS_PRIVATE;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ:
+				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
 				icon = PERMISSIONS_GROUP_READ;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				icon = PERMISSIONS_GROUP_READ_LINK;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+				icon = PERMISSIONS_GROUP_READ_WRITE;
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
 				icon = PERMISSIONS_PUBLIC_READ;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
 				icon = PERMISSIONS_PUBLIC_READ;
 		}
 		if (icon != null) groupContext.setIcon(icon);

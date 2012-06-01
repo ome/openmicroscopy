@@ -517,6 +517,9 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public static EventContext convert(ome.system.EventContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
         EventContext ec = new EventContext();
         Long event = ctx.getCurrentEventId();
         ec.eventId = event == null ? -1 : event;

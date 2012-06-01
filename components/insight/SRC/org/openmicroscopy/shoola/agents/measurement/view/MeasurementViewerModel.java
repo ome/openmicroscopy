@@ -227,9 +227,6 @@ class MeasurementViewerModel
 	private void checkIfHasROIToDelete()
 	{
 		if (dataToDelete) return;
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		long ownerID = exp.getId();
 		Collection<ROI> rois = roiComponent.getROIMap().values();
 		Iterator<ROI> i = rois.iterator();
 		List<ROI> ownedRois = new ArrayList<ROI>();
@@ -237,7 +234,8 @@ class MeasurementViewerModel
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			if (roi.canDelete()) {
 				figures.addAll(roi.getAllFigures());
 				ownedRois.add(roi);
 			}
@@ -603,12 +601,11 @@ class MeasurementViewerModel
 	 * Sets the server ROIS.
 	 * 
 	 * @param rois The collection of Rois.
-	 * @param readOnly Are the ROI read only.
 	 * @return See above.
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois, boolean readOnly)
+	boolean setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
 		measurementResults = rois;
@@ -620,7 +617,7 @@ class MeasurementViewerModel
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
-					result.getROIs(), readOnly, userID));
+					result.getROIs(), userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();
@@ -850,7 +847,8 @@ class MeasurementViewerModel
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			if (roi.canDelete()) {
 				figures.addAll(roi.getAllFigures());
 				ownedRois.add(roi);
 			}
