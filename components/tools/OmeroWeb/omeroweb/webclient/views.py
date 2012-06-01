@@ -275,9 +275,10 @@ def logout(request, conn=None, **kwargs):
         except:
             logger.error('Exception during logout.', exc_info=True)
     try:
-        conn.seppuku()
-    except:
-        logger.error('Exception during logout.', exc_info=True)
+        try:
+            conn.seppuku()
+        except:
+            logger.error('Exception during logout.', exc_info=True)
     finally:
         request.session.flush()
     return HttpResponseRedirect(reverse("webindex"))
