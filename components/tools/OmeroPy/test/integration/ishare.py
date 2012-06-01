@@ -734,7 +734,7 @@ class TestIShare(lib.ITest):
         self.assertAccess(member, sid)
         # But the user won't be able to just access it plainly
         member_query = member.sf.getQueryService()
-        self.assertRaises(omero.SecurityViolation, \
+        self.assertRaises(omero.ValidationException, \
                 member_query.get, "Image", img.id.val)
 
         # But if we let the user pass omero.share it should work.
@@ -751,7 +751,7 @@ class TestIShare(lib.ITest):
         non_member_query = non_member.sf.getQueryService()
 
         # Try to access direct
-        self.assertRaises(omero.SecurityViolation, \
+        self.assertRaises(omero.ValidationException, \
                 non_member_query.get, "Image", img.id.val)
 
         # Now try to access via omero.share
@@ -765,7 +765,7 @@ class TestIShare(lib.ITest):
         root_query = self.root.sf.getQueryService()
 
         # Try to access direct (in wrong group)
-        self.assertRaises(omero.SecurityViolation, \
+        self.assertRaises(omero.ValidationException, \
                 root_query.get, "Image", img.id.val)
 
         # Now try to access via omero.share
