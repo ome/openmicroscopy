@@ -450,19 +450,21 @@ class EditorModel
 		//check the group level
 		GroupData group = getGroup(getRefObjectGroupID());
 		if (group == null) return false;
-		if (GroupData.PERMISSIONS_GROUP_READ ==
-			group.getPermissions().getPermissionsLevel()) {
-			if (MetadataViewerAgent.isAdministrator()) return true;
-			Set leaders = group.getLeaders();
-			Iterator i = leaders.iterator();
-			long userID = getCurrentUser().getId();
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				if (exp.getId() == userID)
-					return true;
-			}
-			return false;
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				if (MetadataViewerAgent.isAdministrator()) return true;
+				Set leaders = group.getLeaders();
+				Iterator i = leaders.iterator();
+				long userID = getCurrentUser().getId();
+				ExperimenterData exp;
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					if (exp.getId() == userID)
+						return true;
+				}
+				return false;
+			case GroupData.PERMISSIONS_PRIVATE:
+				return false;
 		}
 		return true;
 	}
