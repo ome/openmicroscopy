@@ -24,10 +24,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.api.IAdmin;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 
 import omero.ClientError;
 import omero.cmd._HandleTie;

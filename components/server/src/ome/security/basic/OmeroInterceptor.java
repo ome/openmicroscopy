@@ -37,8 +37,8 @@ import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
-import ome.model.display.Thumbnail;
+import ome.model.meta.RenderingDef;
+import ome.model.meta.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -46,7 +46,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
-import ome.model.roi.Roi;
+import ome.model.roi.ROI;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
@@ -496,7 +496,7 @@ public class OmeroInterceptor implements Interceptor {
                  Thumbnail.class.isAssignableFrom(changedClass))) {
             neededRight = Right.READ;
         } else if (IAnnotationLink.class.isAssignableFrom(changedClass) ||
-                (Roi.class.isAssignableFrom(changedClass) &&
+                (ROI.class.isAssignableFrom(changedClass) &&
                         Image.class.isAssignableFrom(linkedClass))) {
             neededRight = Right.ANNOTATE;
         }

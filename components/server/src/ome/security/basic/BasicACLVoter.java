@@ -31,7 +31,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;

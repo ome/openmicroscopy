@@ -24,7 +24,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;

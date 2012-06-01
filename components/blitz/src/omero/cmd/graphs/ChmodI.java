@@ -27,7 +27,7 @@ import org.hibernate.Session;
 import ome.api.IAdmin;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.ChmodStrategy;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;

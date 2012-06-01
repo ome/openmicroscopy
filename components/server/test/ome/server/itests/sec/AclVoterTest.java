@@ -24,13 +24,13 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
+import ome.model.meta.RenderingDef;
 import ome.model.internal.Permissions;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.OmeroInterceptor;
 import ome.server.itests.AbstractManagedContextTest;
@@ -154,8 +154,7 @@ public class AclVoterTest extends AbstractManagedContextTest {
     Pixels pixels(String perms) {
         loginNewUser(Permissions.parseString(perms));
         Pixels p = ObjectFactory.createPixelGraph(null);
-        Image i = iUpdate.saveAndReturnObject(p.getImage());
-        return i.getPrimaryPixels();
+        return iUpdate.saveAndReturnObject(p);
 
     }
 

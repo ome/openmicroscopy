@@ -30,7 +30,7 @@ import org.hibernate.Session;
 import org.testng.annotations.Test;
 
 import ome.api.IUpdate;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.services.blitz.impl.commands.SaveI;
 import ome.system.EventContext;

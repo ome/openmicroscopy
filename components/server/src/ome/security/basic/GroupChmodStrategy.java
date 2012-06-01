@@ -39,7 +39,7 @@ import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.ExperimenterGroup;
+import ome.model.core.ExperimenterGroup;
 import ome.security.ChmodStrategy;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
