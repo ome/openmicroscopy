@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
@@ -86,10 +87,15 @@ public class ScriptServiceTest
     	List<OriginalFile> scripts = svc.getScripts();
     	Iterator<OriginalFile> i = scripts.iterator();
     	OriginalFile f;
-    	JobParams params;
+    	JobParams params = null;
     	while (i.hasNext()) {
 			f = i.next();
-			params = svc.getParams(f.getId().getValue());
+            try {
+			    params = svc.getParams(f.getId().getValue());
+            } catch (Exception e) {
+                Assert.fail("Error getting params for script: "
+                        + f.getName().getValue(), e);
+            }
 			assertNotNull(params);
 		}
     }
