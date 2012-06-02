@@ -91,7 +91,7 @@ public class HierarchyMoveTest
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 	Image img = createBasicImage();
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -142,7 +142,7 @@ public class HierarchyMoveTest
 			infos.add(info.getId().getValue());
 		}
 		//Move the image
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+		doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 				null, g.getId().getValue()));
 		ParametersI param = new ParametersI();
 		param.addId(id);
@@ -253,7 +253,7 @@ public class HierarchyMoveTest
     		shapeIds.add(shape.getId().getValue());
     	}
     	//Move the image.
-    	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE,
+    	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE,
     			image.getId().getValue(), null, g.getId().getValue()));
 
     	//check if the objects have been delete.
@@ -336,7 +336,7 @@ public class HierarchyMoveTest
 		}
 	        //Now delete the plate
 	      //Move the plate.
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+		doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 				p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -459,7 +459,7 @@ public class HierarchyMoveTest
 		}
         //Now delete the plate
         //Move the plate.
-        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+        doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -551,7 +551,7 @@ public class HierarchyMoveTest
 		iUpdate.saveAndReturnArray(links);
 	
 	
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+		doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 				screen.getId().getValue(), null, g.getId().getValue()));
 	
 	
@@ -625,7 +625,7 @@ public class HierarchyMoveTest
 		p = link.getChild();
 		long plateID = p.getId().getValue();
 	
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+		doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 				screenId, null, g.getId().getValue()));
 	
 		sql = "select r from Screen as r ";
@@ -708,7 +708,7 @@ public class HierarchyMoveTest
 		long plateID = p.getId().getValue();
 		Map<String, String> options = new HashMap<String, String>();
 		options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+		doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 				plateID, null, g.getId().getValue()));
 	
 		sql = "select r from Screen as r ";
@@ -809,7 +809,7 @@ public class HierarchyMoveTest
 		links.add(il);
 		iUpdate.saveAndReturnArray(links);
 
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+		doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
 		//Shouldn't have measurements
@@ -863,7 +863,7 @@ public class HierarchyMoveTest
 		ids.add(image2.getId().getValue());
 	
 	
-        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PROJECT,
+        doChange(new Chgrp(DeleteServiceTest.REF_PROJECT,
 			p.getId().getValue(), null, g.getId().getValue()));
 	
 		//Check if objects have been deleted
@@ -938,7 +938,7 @@ public class HierarchyMoveTest
 		iUpdate.saveAndReturnArray(links);
 	
 	
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+		doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 				s1.getId().getValue(), null, g.getId().getValue()));
 	
 	
@@ -1009,7 +1009,7 @@ public class HierarchyMoveTest
 		iUpdate.saveAndReturnArray(links);
 	
 	
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+		doChange(new Chgrp(DeleteServiceTest.REF_DATASET,
 				s1.getId().getValue(), null, g.getId().getValue()));
 	
 	
