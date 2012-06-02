@@ -1138,7 +1138,7 @@ class MeasurementViewerModel
 		try {
 			long userID = getCurrentUser().getId();
 			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE,
-					userID);
+					userID, enumerations);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
@@ -1161,13 +1161,13 @@ class MeasurementViewerModel
 			switch (level) {
 			case MeasurementViewer.ALL:
 				return roiComponent.saveROI(getImage(), ROIComponent.DELETE,
-						userID);
+						userID, enumerations);
 			case MeasurementViewer.ME:
 				return roiComponent.saveROI(getImage(), ROIComponent.DELETE_MINE,
-						userID);
+						userID, enumerations);
 			case MeasurementViewer.OTHER:
 				return roiComponent.saveROI(getImage(),
-						ROIComponent.DELETE_OTHERS, userID);
+						ROIComponent.DELETE_OTHERS, userID, enumerations);
 			}
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
