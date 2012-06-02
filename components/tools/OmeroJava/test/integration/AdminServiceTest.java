@@ -669,14 +669,19 @@ public class AdminServiceTest
 		
 		long id = svc.createExperimenter(e, eg1, groups);
 		e = svc.lookupExperimenter(uuid1);
+        assertEquals(groups.size(), e.sizeOfExperimenterGroupLinks());
 		List<ExperimenterGroupExperimenterLink> links = e.copyExperimenterGroupLinks();
 		assertTrue(groups.get(0).getId().getValue() == eg1.getId().getValue());
 		svc.setDefaultGroup(e, eg2);
 		
 		e = svc.lookupExperimenter(uuid1);
+        assertEquals(groups.size(), e.sizeOfExperimenterGroupLinks());
 		links = e.copyExperimenterGroupLinks();
 		groups = new ArrayList<ExperimenterGroup>();
 		for (ExperimenterGroupExperimenterLink link : links) {
+            assertNotNull(link);
+            ExperimenterGroup parent = link.getParent();
+            assertNotNull(parent);
             groups.add(link.getParent());
         }
 		assertTrue(groups.get(0).getId().getValue() == eg2.getId().getValue());
