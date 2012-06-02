@@ -445,6 +445,21 @@ class BrowserModel
     	}
     }
     
+    /**
+     * Calculates the size of the unit bar.
+     * 
+     * @param ratio The ratio to multiple the value by.
+     * @return
+     */
+    private double getBarSize(double ratio)
+    {
+    	double v = unitInRefUnits;
+        double t = EditorUtil.transformSize(getPixelsSizeX()).getValue();
+        if (t > 0) v = unitInRefUnits/t;
+        v *= ratio;
+        return v;
+    }
+    
     /** 
      * Creates a new instance.
      * 
@@ -638,7 +653,7 @@ class BrowserModel
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occurs while magnifying the image.");
+						"An error occurred while magnifying the image.");
 			}
 			if (img != null) displayedProjectedImage = img;
         } else displayedProjectedImage = projectedImage;
@@ -681,7 +696,7 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar)
     {
-    	double v = parent.getPixelsSizeX();
+    	double v = EditorUtil.transformSize(parent.getPixelsSizeX()).getValue();
     	if (v == 0 || v == 1) unitBar = false;
     	this.unitBar = unitBar;
     }
@@ -707,38 +722,21 @@ class BrowserModel
      * 
      * @return See above.
      */
-    double getOriginalUnitBarSize()
-    { 
-    	double v = unitInRefUnits;
-    	if (getPixelsSizeX() > 0) v = unitInRefUnits/getPixelsSizeX();
-    	return EditorUtil.transformSize(v).getValue();
-    }
+    double getOriginalUnitBarSize() { return getBarSize(1); }
     
     /**
      * Returns the size of the unit bar.
      * 
      * @return See above.
      */
-    double getUnitBarSize()
-    { 
-        double v = unitInRefUnits;
-        if (getPixelsSizeX() > 0) v = unitInRefUnits/getPixelsSizeX();
-        v *= zoomFactor;
-        return v;
-    }
-    
+    double getUnitBarSize() { return getBarSize(zoomFactor); }
+  
     /**
      * Returns the size of the unit bar for an image composing the grid.
      * 
      * @return See above.
      */
-    double getGridBarSize()
-    {
-    	double v = unitInRefUnits;
-        if (getPixelsSizeX() > 0) v = unitInRefUnits/getPixelsSizeX();
-        v *= gridRatio;
-        return v;
-    }
+    double getGridBarSize() { return getBarSize(gridRatio); }
     
     /**
      * Returns the unit bar value.

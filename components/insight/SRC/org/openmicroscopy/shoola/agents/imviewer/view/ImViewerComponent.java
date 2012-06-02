@@ -2857,9 +2857,11 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	/** Build the view.*/
 	private void buildView()
 	{
-		int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+		int index = UnitBarSizeAction.getDefaultIndex(
+				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();

@@ -125,7 +125,7 @@ class ImageCanvas
 		if (value == null) return;
 
 		int size = (int) (model.getUnitBarSize());
-
+		
 		// Position scalebar in the bottom left of the viewport or
 		// the image which ever is viewable. 
 		Rectangle imgRect = new Rectangle(0, 0, width, height);
