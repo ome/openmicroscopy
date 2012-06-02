@@ -6604,7 +6604,7 @@ class OMEROGateway
 	
 			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
-			Roi rr;
+			ROI rr;
 			int z, t;
 			for (ROIData roi : roiList)
 			{
