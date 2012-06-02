@@ -129,10 +129,8 @@ class TestIShare(lib.ITest):
         user1 = self.new_user()
         
         # create image
-        img = ImageI()
-        img.setName(rstring('test8118-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
-        img = update_serv.saveAndReturnObject(img)
+        pix = self.pix(name='test8118-img-%s' % (uuid),client=self.root)
+        img = pix.getImage()
         img.unload()
         
         # create share
@@ -906,8 +904,8 @@ class TestIShare(lib.ITest):
 
         # create image by member
         member_update = member.sf.getUpdateService()
-        image2 = self.new_image()
-        image2 = member_update.saveAndReturnObject(image2)
+        pix2 = self.pix(client=member)
+        image2 = pix2.getImage()
 
         share = owner.sf.getShareService()
         sid = self.create_share(share, objects=[image], experimenters=[member_obj])

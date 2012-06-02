@@ -399,7 +399,7 @@ class TestTickets2000(lib.ITest):
         # print "members of group %s %i" % (gr1.name.val, gr1.id.val)
         for m in indefault:
             if m.id.val == exp.id.val:
-                self.assert_(m.copyExperimenterGroupExperimenterLink()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                self.assert_(m.copyExperimenterGroupLinks[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyExperimenterGroupExperimenterLink()[0].parent), m.copyExperimenterGroupExperimenterLink()[0].parent.id.val
 
         gr2 = admin.getGroup(gid)

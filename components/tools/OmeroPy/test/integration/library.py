@@ -535,6 +535,14 @@ class ITest(unittest.TestCase):
         rect.y = rdouble(y)
         return rect
 
+    def new_ellipse(self, radiusX=1.0, radiusY=1.0, x=1.0, y=1.0):
+        ellipse = omero.model.EllipseI()
+        ellipse.radiusX = rdouble(radiusX)
+        ellipse.radiusY = rdouble(radiusY)
+        ellipse.x = rdouble(x)
+        ellipse.y = rdouble(y)
+        return ellipse
+
     def doSubmit(self, request, client, test_should_pass=True):
         """
         Performs the request waits on completion and checks that the
