@@ -173,6 +173,7 @@ class ImViewerUI
 		backgrounds.put(Color.LIGHT_GRAY, "Light Grey");
 	}
 
+	private static final String SCALE_BAR_TEXT = "Scale bar length (in ";
 	/** Reference to the Control. */
 	private ImViewerControl 					controller;
 
@@ -301,7 +302,10 @@ class ImViewerUI
 	private double								bigImageMagnification;
 	
 	/** Item used to show or hide the unit bar. */
-	private JCheckBoxMenuItem unitBatItem;
+	private JCheckBoxMenuItem unitBarItem;
+	
+	/** Item used to show or hide the unit bar. */
+	private JMenu scaleBarMenu;
 	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
@@ -477,8 +481,7 @@ class ImViewerUI
 	 */
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
-		JMenu menu = new JMenu("Scale bar length " +
-				"(in "+UnitsObject.MICRONS+")");
+		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+model.getUnits()+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();
@@ -487,56 +490,56 @@ class ImViewerUI
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(a);
 		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWO);
 		item = new JCheckBoxMenuItem(a);
 		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIVE);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TEN);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TEN));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWENTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIFTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
-		return menu;
+		scaleBarMenu.add(item);
+		return scaleBarMenu;
 	}
 
 	/**
@@ -549,10 +552,10 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Display");
 		menu.setMnemonic(KeyEvent.VK_V);
-		unitBatItem = new JCheckBoxMenuItem();
-		unitBatItem.setSelected(model.isUnitBar());
-		unitBatItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
-		menu.add(unitBatItem);
+		unitBarItem = new JCheckBoxMenuItem();
+		unitBarItem.setSelected(model.isUnitBar());
+		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		menu.add(unitBarItem);
 		menu.add(createScaleBarLengthSubMenu(pref));
 		menu.add(createScaleBarColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -564,10 +567,11 @@ class ImViewerUI
 	/** Synchronizes the unit bar selection. */
 	void handleUnitBar()
 	{
-		unitBatItem.removeActionListener(
+		unitBarItem.removeActionListener(
 				controller.getAction(ImViewerControl.UNIT_BAR));
-		unitBatItem.setSelected(model.isUnitBar());
-		unitBatItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		unitBarItem.setSelected(model.isUnitBar());
+		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		scaleBarMenu.setText(SCALE_BAR_TEXT+model.getUnits()+")");
 	}
 	
 	/**

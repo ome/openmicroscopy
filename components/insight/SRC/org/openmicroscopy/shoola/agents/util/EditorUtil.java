@@ -570,30 +570,7 @@ public class EditorUtil
 	 */
 	public static UnitsObject transformSize(Double value)
 	{
-		double v = value.doubleValue();
-		String units = UnitsObject.MICRONS;
-		if (v < 1) {
-			units = UnitsObject.NANOMETER;
-			v *= 1000;
-			if (v < 1) {
-				units = UnitsObject.ANGSTROM;
-				v *= 10;
-			}
-			return new UnitsObject(units, v);
-		}
-		if (v > 1000) {
-			units = UnitsObject.MILLIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.CENTIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.METER;
-			v /= 1000;
-		}
-		return new UnitsObject(units, v);
+		return UIUtilities.transformSize(value);
 	}
 	
 	/**

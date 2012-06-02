@@ -2837,9 +2837,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInMicrons()
+	 * @see ImViewer#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.

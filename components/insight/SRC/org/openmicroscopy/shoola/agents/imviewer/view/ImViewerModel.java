@@ -89,6 +89,8 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -302,6 +304,9 @@ class ImViewerModel
 	
 	/** The security context.*/
     private SecurityContext ctx;
+    
+    /** The units corresponding to the pixels size.*/
+    private UnitsObject refUnits;
     
 	/**
 	 * Creates the plane to retrieve.
@@ -2206,11 +2211,13 @@ class ImViewerModel
 	void setLastProjectionTime(int time) { lastProjTime = time; }
 
 	/**
-	 * Returns the unit in microns.
+	 * Returns the unit used to determine the size of the unit bar.
+	 * The unit depends on the size stored. The unit of reference in the
+	 * OME model is in microns, but this is a transformed unit.
 	 * 
 	 * @return See above.
 	 */
-	double getUnitInMicrons() { return browser.getUnitInMicrons(); }
+	double getUnitInRefUnits() { return browser.getUnitInRefUnits(); }
 	
 	/** Loads all the available datasets. */
 	void loadAllContainers()
@@ -2223,7 +2230,7 @@ class ImViewerModel
 	void makeMovie()
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.makeMovie((int) getUnitInMicrons(), 
+		metadataViewer.makeMovie((int) getUnitInRefUnits(), 
 				getBrowser().getUnitBarColor());
 	}
 	
@@ -2840,5 +2847,19 @@ class ImViewerModel
 		}
     	return null;
     }
+
+    /**
+     * Returns the relevant units associated to the pixels size.
+     * 
+     * @return See above.
+     */
+	String getUnits()
+	{
+		if (refUnits != null) return refUnits.getUnits();
+		double size = getPixelsSizeX();
+		if (size < 0) return UnitsObject.MICRONS;
+		refUnits = EditorUtil.transformSize(size); 
+		return refUnits.getUnits();
+	}
     
 }

@@ -2444,5 +2444,41 @@ public class UIUtilities
     	button.setIcon((Icon) a.getValue(Action.SMALL_ICON));
     	return button;
     }
+    
+    /**
+	 * Transforms the size and returns the value and units.
+	 * 
+	 * @param value The value to transform.
+	 * @return See above.
+	 */
+	public static UnitsObject transformSize(Double value)
+	{
+		double v = value.doubleValue();
+		String units = UnitsObject.MICRONS;
+		/* TODO: check if we want to introduce that.
+		if (v < 1) {
+			units = UnitsObject.NANOMETER;
+			v *= 1000;
+			if (v < 1) {
+				units = UnitsObject.ANGSTROM;
+				v *= 10;
+			}
+			return new UnitsObject(units, v);
+		}
+		*/
+		if (v > 1000) {
+			units = UnitsObject.MILLIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.CENTIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.METER;
+			v /= 1000;
+		}
+		return new UnitsObject(units, v);
+	}
 	
 }
