@@ -94,7 +94,6 @@ class CallContextFixture(object):
         img = self.get_image(query)
         self.test.assertTrue(img is not None)
 
-
 class TestPermissions(lib.ITest):
 
     def testLoginToPublicGroupTicket1940(self):
@@ -602,11 +601,11 @@ class TestPermissions(lib.ITest):
 
         # Create a new object with a bad link
         pix = self.pix(client=client)
-        image = pix.getImage()
-        image.details.group = group1
+        img = pix.getImage()
+        img.details.group = group1
         tag = omero.model.TagAnnotationI()
         tag.details.group = group2
-        link = image.linkAnnotation(tag)
+        link = img.linkAnnotation(tag)
         link.details.group = group2
 
         # Now try to save it in the -1 context
@@ -615,7 +614,7 @@ class TestPermissions(lib.ITest):
         # Bad links should be detected and
         # a security violation raised.
         self.assertRaises(omero.GroupSecurityViolation, \
-                update.saveAndReturnObject, image, all_context)
+                update.saveAndReturnObject, pix, all_context)
 
     # Reading with private groups
     # ==============================================
