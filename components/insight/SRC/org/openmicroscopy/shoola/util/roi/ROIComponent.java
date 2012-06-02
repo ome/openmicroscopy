@@ -309,7 +309,7 @@ public class ROIComponent
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, int index, long userID
+	public List<ROIData> saveROI(ImageData image, int index, long userID,
 			Map<Integer, List<EnumerationObject>> enumerations)
 		throws Exception
 	{
