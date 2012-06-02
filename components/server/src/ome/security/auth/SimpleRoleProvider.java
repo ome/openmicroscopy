@@ -127,7 +127,7 @@ public class SimpleRoleProvider implements RoleProvider {
                     + " found for " + foundUser);
         } else {
             // May throw an exception
-        	foundUser.addExperimenterGroupExperimenterLink(foundMaps.iterator()
+        	foundUser.setPrimaryExperimenterGroupExperimenterLink(foundMaps.iterator()
                     .next());
         }
 
