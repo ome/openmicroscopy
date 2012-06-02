@@ -383,7 +383,7 @@ public class RenderingEngineTest
 			re.setRGBA(index, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
 			rgba = re.getRGBA(index);
 			for (int k = 0; k < rgba.length; k++) {
-				assertTrue(rgba[k] == RGBA[k]);
+				assertEquals(rgba[k], RGBA[k]);
 			}
 			b = !c1.getNoiseReduction().getValue();
 			re.setQuantizationMap(index, f, coefficient, b);
