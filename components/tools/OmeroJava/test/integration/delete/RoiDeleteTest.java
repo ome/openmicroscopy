@@ -26,6 +26,7 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
@@ -94,7 +95,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
-        roi.linkImage(image);
+        roi.linkImage(new ImageI(image.getId(), false));
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -168,7 +169,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
-        roi.linkImage(image);
+        roi.linkImage(new ImageI(image.getId(), false));
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
