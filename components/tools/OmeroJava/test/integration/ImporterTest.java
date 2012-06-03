@@ -1297,7 +1297,7 @@ public class ImporterTest
 		Pixels p = pixels.get(0);
 		long id = p.getImage().getId().getValue();
 		String sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "join fetch ws.well as w ";
 		sql += "join fetch w.plate as p ";
 		sql += "where ws.image.id = :id";
@@ -1341,7 +1341,7 @@ public class ImporterTest
 		Pixels p = pixels.get(0);
 		long id = p.getImage().getId().getValue();
 		String sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "join fetch ws.well as w ";
 		sql += "join fetch w.plate as p ";
 		sql += "where ws.image.id = :id";
@@ -1353,7 +1353,7 @@ public class ImporterTest
 		assertNotNull(ws.getWell());
 		Plate plate = ws.getWell().getPlate();
 		sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "join fetch ws.well as w ";
 		sql += "join fetch w.plate as p ";
 		sql += "where p.id = :id";
@@ -1369,7 +1369,7 @@ public class ImporterTest
 		
 		Iterator<IObject> j = pas.iterator();
 		sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "where pa.id = :id";
 		IObject obj;
 		while (j.hasNext()) {
@@ -1405,7 +1405,7 @@ public class ImporterTest
 		Pixels p = pixels.get(0);
 		long id = p.getImage().getId().getValue();
 		String sql = "select ws from WellSample as ws ";
-		sql += "left outer join fetch ws.plateAcquisition as pa ";
+		sql += "left outer join fetch ws.plateAcquisitions as pa ";
 		sql += "join fetch ws.well as w ";
 		sql += "join fetch w.plate as p ";
 		sql += "where ws.image.id = :id";

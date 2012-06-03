@@ -98,6 +98,7 @@ import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -738,7 +739,7 @@ public class AbstractServerTest
         long id = p.getImage().getId().getValue();
         String sql = "select ws from WellSample as ws ";
         sql += "join fetch ws.well as w ";
-        sql += "left outer join fetch ws.plateAcquisition as pa ";
+        sql += "left outer join fetch ws.plateAcquisitions as pa ";
         sql += "join fetch w.plate as p ";
         sql += "left outer join fetch p.screenLinks sl ";
         sql += "left outer join fetch sl.parent s ";
@@ -746,7 +747,8 @@ public class AbstractServerTest
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() == 1);
+        Assert.assertEquals(1, results.size(), String.format(
+                "Results count mismatch for Image:%d.", id));
         WellSample ws = (WellSample) results.get(0);
         assertNotNull(ws);
         return ws;

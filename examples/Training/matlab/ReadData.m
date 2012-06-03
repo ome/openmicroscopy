@@ -107,7 +107,7 @@ try
     % Given a plate ID, load the wells. 
     % You will have to use the findAllByQuery method. 
 
-    wellList = session.getQueryService().findAllByQuery(['select well from Well as well left outer join fetch well.plate as pt left outer join fetch well.wellSamples as ws left outer join fetch ws.plateAcquisition as pa left outer join fetch ws.image as img left outer join fetch img.pixels as pix left outer join fetch pix.pixelType as pt where well.plate.id =  ', num2str(plateId)], []);
+    wellList = session.getQueryService().findAllByQuery(['select well from Well as well left outer join fetch well.plate as pt left outer join fetch well.wellSamples as ws left outer join fetch ws.plateAcquisitions as pa left outer join fetch ws.image as img left outer join fetch img.pixels as pix left outer join fetch pix.pixelType as pt where well.plate.id =  ', num2str(plateId)], []);
     for j = 0:wellList.size()-1,
         well = wellList.get(j);
         wellsSampleList = well.copyWellSamples();
