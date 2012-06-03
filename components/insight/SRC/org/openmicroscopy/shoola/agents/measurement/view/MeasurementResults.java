@@ -347,7 +347,7 @@ class MeasurementResults
 		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, 
 			AnnotationDescription.annotationDescription.get(
 					AnnotationKeys.POINTARRAYX), false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 		
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY,
 			AnnotationDescription.annotationDescription.get(
 					AnnotationKeys.POINTARRAYY), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, 

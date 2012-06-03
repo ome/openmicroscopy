@@ -108,6 +108,9 @@ public class MeasureRectangleFigure
 	 */
 	protected int 					status;
 
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
@@ -226,6 +229,7 @@ public class MeasureRectangleFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
     }
     
     /** 
@@ -235,7 +239,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementX() 
     {
-    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getX()*units.getMicronsPixelX()).getValue();
+    	}
     	return getX();
     }
     
@@ -246,7 +253,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementY() 
     {
-    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getY()*units.getMicronsPixelY()).getValue();
+    	}
     	return getY();
     }
     
@@ -258,7 +268,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementWidth() 
     {
-    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getWidth()*units.getMicronsPixelX()).getValue();
+    	}
     	return getWidth();
     }
     
@@ -269,7 +282,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementHeight() 
     {
-    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getHeight()*units.getMicronsPixelY()).getValue();
+    	}
     	return getHeight();
     }
     
@@ -438,7 +454,7 @@ public class MeasureRectangleFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons()) 
-			return str+UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
@@ -467,10 +483,13 @@ public class MeasureRectangleFigure
 	 */
 	public Point2D getCentre()
 	{
-     	if (units.isInMicrons())
-    		return new Point2D.Double(
-    				rectangle.getCenterX()*units.getMicronsPixelX(), 
-    				rectangle.getCenterY()*units.getMicronsPixelY());
+     	if (units.isInMicrons()) {
+     		double tx = UIUtilities.transformSize(
+     				rectangle.getCenterX()*units.getMicronsPixelX()).getValue();
+     		double ty = UIUtilities.transformSize(
+     				rectangle.getCenterY()*units.getMicronsPixelY()).getValue();
+     		return new Point2D.Double(tx, ty);
+     	}
     	return new Point2D.Double(rectangle.getCenterX(), 
     							rectangle.getCenterY());
 	}
@@ -527,6 +546,8 @@ public class MeasureRectangleFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**

@@ -126,6 +126,9 @@ public class MeasureLineFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -137,8 +140,11 @@ public class MeasureLineFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt = getPoint(i);
-			return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
-					pt.getY()*units.getMicronsPixelY());
+			double tx = UIUtilities.transformSize(
+					pt.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt.getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
 		}
 		return getPoint(i);
 	}
@@ -197,6 +203,7 @@ public class MeasureLineFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 	
 	/**
@@ -395,7 +402,7 @@ public class MeasureLineFigure
 	{
 		if (shape == null) return str;
 		
-		if (units.isInMicrons()) return str+UnitsObject.MICRONS;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 					
@@ -600,6 +607,8 @@ public class MeasureLineFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**

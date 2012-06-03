@@ -209,25 +209,11 @@ public class ROIComponent
 	public void setMicronsPixelX(double x) { units.setMicronsPixelX(x); }
 
 	/**
-	 * Returns the number of microns per pixel in the x-axis. 
-	 * 
-	 * @return microns see above.
-	 */
-	public double getMicronsPixelX() { return units.getMicronsPixelX(); }
-	
-	/**
 	 * Sets the number of microns per pixel in the y-axis. 
 	 * 
 	 * @param y The value to set.
 	 */
 	public void setMicronsPixelY(double y) { units.setMicronsPixelY(y); }
-	
-	/**
-	 * Returns the number of microns per pixel in the y-axis.
-	 *  
-	 * @return See above.
-	 */
-	public double getMicronsPixelY() { return units.getMicronsPixelY(); }
 	
 	/**
 	 * Sets the number of microns per pixel in the z-axis. 
@@ -237,13 +223,6 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelZ(double z) { units.setMicronsPixelZ(z); }
 	
-	/**
-	 * Returns the number of microns per pixel in the z-axis. 
-	 * 
-	 * @return See above.
-	 */
-	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
-    
     /**
      * Adds the specified figure to the display.
      * 

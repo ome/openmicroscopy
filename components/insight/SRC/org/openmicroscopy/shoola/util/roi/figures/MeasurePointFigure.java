@@ -110,6 +110,9 @@ public class MeasurePointFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -141,6 +144,7 @@ public class MeasurePointFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
     }
 
 	/** 
@@ -186,7 +190,10 @@ public class MeasurePointFigure
      */
 	public double getMeasurementX() 
     {
-    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getX()*units.getMicronsPixelX()).getValue();
+    	}
     	return getX();
     }
     
@@ -197,10 +204,13 @@ public class MeasurePointFigure
      */
 	public Point2D getMeasurementCentre()
     {
-    	if (units.isInMicrons())
-    		return new Point2D.Double(getCentre().getX()*
-    			units.getMicronsPixelX(),getCentre().getY()*
-    			units.getMicronsPixelY());
+    	if (units.isInMicrons()){
+    		double tx = UIUtilities.transformSize(
+					getCentre().getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					getCentre().getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
+    	}
     	return getCentre();
     }
     
@@ -211,7 +221,10 @@ public class MeasurePointFigure
      */
     public double getMeasurementY() 
     {
-    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getY()*units.getMicronsPixelY()).getValue();
+    	}
     	return getY();
     }
     
@@ -222,7 +235,10 @@ public class MeasurePointFigure
      */
     public double getMeasurementWidth() 
     {
-    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getWidth()*units.getMicronsPixelX()).getValue();
+    	}
     	return getWidth();
     }
     
@@ -233,7 +249,10 @@ public class MeasurePointFigure
      */
     public double getMeasurementHeight() 
     {
-    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getHeight()*units.getMicronsPixelY()).getValue();
+    	}
     	return getHeight();
     }
     
@@ -399,7 +418,7 @@ public class MeasurePointFigure
 	{
 		if (shape==null) return str;
 		if (units.isInMicrons())
-			return str+UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
@@ -461,6 +480,8 @@ public class MeasurePointFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**

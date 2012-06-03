@@ -67,6 +67,13 @@ public class AttributeUnits
 		unitMap = new HashMap<UnitType, String>();
 		unitMap.put(UnitType.MICRONS, UnitsObject.MICRONS);
 		unitMap.put(UnitType.PIXELS, UIUtilities.PIXELS_SYMBOL);
+		unitMap.put(UnitType.ANGSTROMS, UnitsObject.ANGSTROM);
+		unitMap.put(UnitType.NANOMETERS, UnitsObject.NANOMETER);
+		unitMap.put(UnitType.PICOMETERS, UnitsObject.PICOMETER);
+		unitMap.put(UnitType.MILLIMETERS, UnitsObject.MILLIMETER);
+		unitMap.put(UnitType.CENTIMETERS, UnitsObject.CENTIMETER);
+		unitMap.put(UnitType.METERS, UnitsObject.METER);
+		
 		units.put(AnnotationKeys.HEIGHT.getKey(), unitMap);
 		units.put(AnnotationKeys.WIDTH.getKey(), unitMap);
 		units.put(AnnotationKeys.LENGTH.getKey(), unitMap);
@@ -79,31 +86,57 @@ public class AttributeUnits
 		units.put(AnnotationKeys.PERIMETER.getKey(), unitMap);
 		units.put(AnnotationKeys.POINTARRAYX.getKey(), unitMap);
 		units.put(AnnotationKeys.POINTARRAYY.getKey(), unitMap);
+		
 		unitMap = new HashMap<UnitType, String>();
 		unitMap.put(UnitType.PIXELS, UnitsObject.DEGREES);
 		unitMap.put(UnitType.MICRONS, UnitsObject.DEGREES);
-		units.put(AnnotationKeys.ANGLE.getKey(), unitMap);			
+		units.put(AnnotationKeys.ANGLE.getKey(), unitMap);
 		unitMap = new HashMap<UnitType, String>();
-		unitMap.put(UnitType.PIXELS, UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL);
-		unitMap.put(UnitType.MICRONS, UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL);
-		units.put(AnnotationKeys.AREA.getKey(), unitMap);			
+		unitMap.put(UnitType.PIXELS, 
+				UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.MICRONS, 
+				UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.ANGSTROMS, 
+				UnitsObject.ANGSTROM+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.PICOMETERS, 
+				UnitsObject.PICOMETER+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.NANOMETERS, 
+				UnitsObject.NANOMETER+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.MILLIMETERS, 
+				UnitsObject.MILLIMETER+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.CENTIMETERS, 
+				UnitsObject.CENTIMETER+UIUtilities.SQUARED_SYMBOL);
+		unitMap.put(UnitType.METERS, 
+				UnitsObject.METER+UIUtilities.SQUARED_SYMBOL);
+		
+		units.put(AnnotationKeys.AREA.getKey(), unitMap);
 	}
 	
 	public static String getUnits(String key, MeasurementUnits type)
 	{
 		UnitType unitType;
-		if(!units.containsKey(key))
-			return "";
+		if (!units.containsKey(key)) return "";
 		Map<UnitType, String> unitMap = units.get(key);
-		if(type.isInMicrons())
+		if (type.isInMicrons()) {
+			UnitsObject uo = UIUtilities.transformSize(type.getMicronsPixelX());
+			String v = uo.getUnits();
 			unitType = UnitType.MICRONS;
-		else
-			unitType = UnitType.PIXELS;
-		if(!unitMap.containsKey(unitType))
+			if (UnitsObject.ANGSTROM.equals(v))
+				unitType = UnitType.ANGSTROMS;
+			else if (UnitsObject.MILLIMETER.equals(v))
+				unitType = UnitType.MILLIMETERS;
+			else if (UnitsObject.CENTIMETER.equals(v))
+				unitType = UnitType.CENTIMETERS;
+			else if (UnitsObject.METER.equals(v))
+				unitType = UnitType.METERS;
+			else if (UnitsObject.NANOMETER.equals(v))
+				unitType = UnitType.NANOMETERS;
+			else if (UnitsObject.PICOMETER.equals(v))
+				unitType = UnitType.PICOMETERS;
+		} else unitType = UnitType.PIXELS;
+		if (!unitMap.containsKey(unitType))
 			return "";
-		else
-			return unitMap.get(unitType);
+		return unitMap.get(unitType);
 	}
 }
-
 

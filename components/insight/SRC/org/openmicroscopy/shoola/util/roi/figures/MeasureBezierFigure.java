@@ -123,6 +123,9 @@ public class MeasureBezierFigure
 	 */
 	private int 					status;
 	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/**
 	 * Returns the number of points(pixels) on the polyline.
 	 * 
@@ -304,6 +307,7 @@ public class MeasureBezierFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 
     /**
@@ -449,8 +453,7 @@ public class MeasureBezierFigure
 	public String addLineUnits(String str)
 	{
 		if (shape == null) return str;
-		
-		if (units.isInMicrons()) return str+UnitsObject.MICRONS;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
@@ -464,7 +467,7 @@ public class MeasureBezierFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons())
-			return str+UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
@@ -477,9 +480,13 @@ public class MeasureBezierFigure
 	private Point2D.Double getPt(int i)
 	{
 		Point2D.Double pt = getNode(i).getControlPoint(0); 
-		if (units.isInMicrons())
-			return new Point2D.Double(	pt.getX()*units.getMicronsPixelX(), 
-										pt.getY()*units.getMicronsPixelY());
+		if (units.isInMicrons()) {
+			double tx = UIUtilities.transformSize(
+					pt.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt.getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
+		}
 		return pt;
 	}
 	
@@ -518,8 +525,11 @@ public class MeasureBezierFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt1 =  path.getCenter();
-			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), 
-					pt1.getY()*units.getMicronsPixelY());
+			double tx = UIUtilities.transformSize(
+					pt1.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt1.getY()*units.getMicronsPixelY()).getValue();
+			pt1.setLocation(tx, ty);
 			return pt1;
 		}
 		return path.getCenter();
@@ -689,6 +699,8 @@ public class MeasureBezierFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
