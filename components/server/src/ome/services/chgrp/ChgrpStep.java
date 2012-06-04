@@ -67,6 +67,8 @@ public class ChgrpStep extends GraphStep {
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
 
+        logPhase("Processing");
+
         // Phase 1: top-levels
         if (stack.size() <= 1) {
             // If this is a top-level annotation delete then the first thing we

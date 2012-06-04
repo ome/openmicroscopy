@@ -62,7 +62,7 @@ public abstract class GraphStep {
     /**
      * Used to mark {@link #savepoint} after usage.
      */
-    private final static String INVALIDATED = "INVALIDATED:";
+    private final static String INVALIDATED = "INVALIDATED_";
 
     /**
      * Location of this step in {@link GraphState#steps}.
@@ -208,11 +208,16 @@ public abstract class GraphStep {
         }
     }
 
+
+    protected void logPhase(String phase) {
+        log.debug(String.format("%s %s from %s: root=%s", phase, id,
+                pathMsg, entry.getId()));
+    }
+
     protected void logResults(final int count) {
         if (count > 0) {
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Processed %s from %s: root=%s", id,
-                        pathMsg, entry.getId()));
+                logPhase("Processed");
             }
         } else {
             if (log.isWarnEnabled()) {
