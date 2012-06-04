@@ -163,7 +163,6 @@ import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LongAnnotation;
-import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
@@ -7354,7 +7353,7 @@ class OMEROGateway
 			p.addId(id);
 			groups = (List) svc.findAllByQuery("select distinct g " +
 					"from ExperimenterGroup g "
-	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch g.experimenterLinks m "
 	                + "left outer join fetch m.child u "
 	                + " where u.id = :id", p);
 			ExperimenterGroup group;
