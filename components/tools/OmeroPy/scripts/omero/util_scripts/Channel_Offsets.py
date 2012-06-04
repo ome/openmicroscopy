@@ -180,14 +180,18 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     return i, link
 
 def processImages(conn, scriptParams):
-    """ Process the script params to make a list of channel_offsets, then iterate through
-    the images creating a new image from each with the specified channel offsets """
-
+    """ 
+    Process the script params to make a list of channel_offsets, then iterate through
+    the images creating a new image from each with the specified channel offsets 
+    """
+    
+    message =""
+    
     # Get the images
-    images, logMessage = scriptUtil.getObjects(conn, commandArgs)
+    images, logMessage = script_utils.getObjects(conn, scriptParams)
     message += logMessage
     if not images:
-        return None, message
+        return None, None, message
     imageIds = [i.getId() for i in images]
     
     # Get the channel offsets
@@ -227,20 +231,24 @@ def processImages(conn, scriptParams):
         newImg, link = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
             newImages.append(newImg)
-            links.append(link)
+            if link is not None:
+                links.append(link)
     
     if not newImages:
         message += "No image created."
     else:
         if len(newImages) == 1:
-            message += "New image created: %s." % newImages[0].getName()
+            if not link:
+                linkMessage = " but could not be attached"
+            else:
+                linkMessage = ""
+            message += "New image created%s: %s." % (linkMessage, newImages[0].getName())
         elif len(newImages) > 1:
             message += "%s new images created" % len(newImages)
-        
-        if not len(links) == len(newImages):
-            message +=" but some of them could not be attached."
-        else:
-            message += "."
+            if not len(links) == len(newImages):
+                message +=" but some of them could not be attached."
+            else:
+                message += "."
 
     return newImages, dataset, message
     
