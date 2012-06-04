@@ -174,7 +174,15 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
     the images creating a new image from each with the specified channel offsets """
+
+    # Get the images
+    images, logMessage = scriptUtil.getObjects(conn, commandArgs)
+    message += logMessage
+    if not images:
+        return None, message
+    imageIds = [i.getId() for i in images]
     
+    # Get the channel offsets
     channel_offsets = []
     for i in range(1, 5):
         pName = "Channel_%s" % i
@@ -187,9 +195,6 @@ def processImages(conn, scriptParams):
     
     print channel_offsets
 
-    if len(scriptParams['IDs']) == 0:
-        print "No IDs supplied"
-        return None, None, "No IDs supplied"
 
     dataset = None
     if "New_Dataset_Name" in scriptParams:
@@ -199,8 +204,7 @@ def processImages(conn, scriptParams):
         dataset.setName(rstring(newDatasetName))
         dataset.save()
         # add to parent Project
-        firstImage = conn.getObject("Image", scriptParams['IDs'][0])
-        parentDs = firstImage.getParent()
+        parentDs = images[0].getParent()
         project = parentDs is not None and parentDs.getParent() or None
         if project is not None:
             link = omero.model.ProjectDatasetLinkI()
@@ -210,7 +214,7 @@ def processImages(conn, scriptParams):
 
     # need to handle Datasets eventually - Just do images for now
     newImages = []
-    for iId in scriptParams['IDs']:
+    for iId in imageIds:
         newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
             newImages.append(newImg)
