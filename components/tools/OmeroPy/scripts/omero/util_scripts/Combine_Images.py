@@ -38,6 +38,7 @@ from numpy import zeros
 
 import omero
 import omero.scripts as scripts
+from omero.gateway import BlitzGateway
 import omero.constants
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -368,26 +369,28 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
         i += 1
             
     # put the image in dataset, if specified. 
-    if dataset:
+    if dataset and dataset.canLink():
         link = omero.model.DatasetImageLinkI()
-        link.parent = omero.model.DatasetI(dataset.id.val, False)
+        link.parent = omero.model.DatasetI(dataset.getId(), False)
         link.child = omero.model.ImageI(image.id.val, False)
         updateService.saveAndReturnObject(link)
+    else:
+        link = None
     
-    return image
+    return image,link
     
-def combineImages(session, parameterMap):
+def combineImages(conn, parameterMap):
     
     # get the services we need 
     services = {}
-    services["containerService"] = session.getContainerService()
-    services["renderingEngine"] = session.createRenderingEngine()
-    services["queryService"] = session.getQueryService()
-    services["pixelsService"] = session.getPixelsService()
-    services["rawPixelStore"] = session.createRawPixelsStore()
-    services["rawPixelStoreUpload"] = session.createRawPixelsStore()
-    services["updateService"] = session.getUpdateService()
-    services["rawFileStore"] = session.createRawFileStore()
+    services["containerService"] = conn.getContainerService()
+    services["renderingEngine"] = conn.createRenderingEngine()
+    services["queryService"] = conn.getQueryService()
+    services["pixelsService"] = conn.getPixelsService()
+    services["rawPixelStore"] = conn.c.sf.createRawPixelsStore()
+    services["rawPixelStoreUpload"] = conn.c.sf.createRawPixelsStore()
+    services["updateService"] = conn.getUpdateService()
+    services["rawFileStore"] = conn.createRawFileStore()
     
     queryService = services["queryService"]
     containerService = services["containerService"]
@@ -402,6 +405,7 @@ def combineImages(session, parameterMap):
     # get the images IDs from list (in order) or dataset (sorted by name)
     imageIds = []
     outputImages = []
+    links = []
     
     dataType = parameterMap["Data_Type"]
     if dataType == "Image":
@@ -420,9 +424,11 @@ def combineImages(session, parameterMap):
                 break    # only use 1st dataset
         else:
             print "No Dataset found for Image ID: %s  Combined Image will not be put into dataset." % imageIds[0]
-        newImg = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
-        outputImages.append(newImg)
-    
+        newImg, link = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+        if newImg:
+            outputImages.append(newImg)
+        if link:
+            links.append(link)
     else:
         for dId in parameterMap["IDs"]:
             # TODO: This will only work on one dataset. Should process list! 
@@ -434,17 +440,31 @@ def combineImages(session, parameterMap):
                 continue
             images.sort(key=lambda x:(x.getName().getValue()))
             imageIds = [i.getId().getValue() for i in images]
-            dataset = queryService.get("Dataset", datasetId)
-            newImg = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
-            outputImages.append(newImg)
-            
+            dataset = conn.getObject("Dataset", datasetId)
+            newImg, link = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+            if newImg:
+                outputImages.append(newImg)
+            if link:
+                links.append(link)            
+
     # try and close any stateful services     
     for s in services:
         try:
             s.close()
         except: pass
-        
-    return outputImages
+    
+    if outputImages:
+        if len(outputImages)>1:
+            message += "%s new images created" % len(outputImages)
+        else:
+            message += "New image created"
+        if not links or not len(links) == len(outputImages):
+            message += " but could not be attached"
+    else:
+        message += "No image created"    
+    message += "."
+   
+    return outputImages, message
 
 
 def runAsScript():
@@ -531,19 +551,19 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
                 parameterMap[key] = client.getInput(key).getValue()
 
         print parameterMap
-
+        
+        conn = BlitzGateway(client_obj=client)
+        
         # create the combined image
-        images = combineImages(session, parameterMap)
+        images, message = combineImages(conn, parameterMap)
 
-        if len(images) == 1:
-            client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % images[0].id.val))
-            client.setOutput("Combined_Image",robject(images[0]))
-        elif len(images) > 1:
-            client.setOutput("Message", rstring("Script Ran OK. %d images created" % len(images) ))
-            client.setOutput("First_Image",robject(images[0]))
-        else:
-            client.setOutput("Message", rstring("No images created."))
-            print "No images created."
+        client.setOutput("Message", rstring(message))
+        if images:
+            if len(images) == 1:
+                client.setOutput("Combined_Image",robject(images[0]))
+            elif len(images) > 1:
+                client.setOutput("First_Image",robject(images[0]))
+
     finally:
         client.closeSession()
         printDuration()
