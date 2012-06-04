@@ -110,7 +110,7 @@ class ChgrpControl(BaseControl):
             speclist, status, cb = self.response(client, omero.cmd.GraphSpecList())
         finally:
             if cb is not None:
-                cb.close()
+                cb.close(True) # Close handle
         specs = speclist.list
         specmap = dict()
         for s in specs:
@@ -128,28 +128,45 @@ class ChgrpControl(BaseControl):
             self.ctx.out("\n".join(keys))
             return # Early exit.
 
-        for obj in args.obj:
+        for req in args.obj:
             if args.edit:
-                obj.options = self.edit_options(obj, specmap)
+                req.options = self.edit_options(req, specmap)
             if args.opt:
                 for opt in args.opt:
-                    self.line_to_opts(opt, obj.options)
+                    self.line_to_opts(opt, req.options)
 
-            print obj.options
-            obj.grp = args.grp.lookup(client)
-            if obj.grp is None:
+            req.grp = args.grp.lookup(client)
+            if req.grp is None:
                 self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
             cb = None
             try:
-                print args.wait
-                rsp, status, cb = self.response(client, obj, wait = args.wait)
-                print rsp
-                print status
+                rsp, status, cb = self.response(client, req, wait = args.wait)
+                self.print_report(req, rsp, status, args.report)
             finally:
                 if cb is not None:
-                    cb.close()
+                    cb.close(True) # Close handle
 
+    def print_report(self, req, rsp, status, detailed):
+        import omero
+        self.ctx.out(("chgrp %s %s... " % (req.type, req.id)), newline = False)
+        if isinstance(rsp, omero.cmd.ERR):
+            self.ctx.out("failed: '%s'" % rsp.name)
+            if rsp.parameters:
+                for k in sorted(rsp.parameters):
+                    v = rsp.parameters.get(k, "")
+                    self.ctx.out("\t%s=%s" % (k, v))
+        else:
+            self.ctx.out("ok")
+
+        if detailed:
+            self.ctx.out("Steps: %s" % status.steps)
+            if status.stopTime > 0 and status.startTime > 0:
+                elapse = status.stopTime - status.startTime
+                self.ctx.out("Elapsed time: %s secs." % (elapse/1000.0))
+            else:
+                self.ctx.out("Unfinished.")
+            self.ctx.out("Flags: %s" % status.flags)
 
     def edit_options(self, req, specmap):
 
@@ -197,9 +214,8 @@ class ChgrpControl(BaseControl):
         handle = client.sf.submit(req)
         cb = omero.callbacks.CmdCallbackI(client, handle)
 
-        rsp = None
         if wait is None:
-            rsp = cb.loop(loops, ms)
+            cb.loop(loops, ms)
         elif wait == 0:
             self.ctx.out("Exiting immediately")
         elif wait > 0:
@@ -211,8 +227,8 @@ class ChgrpControl(BaseControl):
             try:
                 # Wait for finish
                 while True:
-                    rsp = cb.block(ms)
-                    if rsp is not None:
+                    found = cb.block(ms)
+                    if found:
                         break
 
             # If user uses Ctrl-C, then cancel
@@ -223,7 +239,7 @@ class ChgrpControl(BaseControl):
                 else:
                     self.ctx.out("Failed to cancel")
 
-        return rsp, handle.getStatus(), cb
+        return cb.getResponse(), cb.getStatus(), cb
 
 try:
     register("chgrp", ChgrpControl, HELP)
