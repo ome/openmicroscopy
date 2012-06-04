@@ -165,7 +165,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     if dataset and dataset.canLink():
         link = omero.model.DatasetImageLinkI()
         link.parent = omero.model.DatasetI(dataset.getId(), False)
-        link.child = omero.model.ImageI(newImage.getId(), False)
+        link.child = omero.model.ImageI(i.getId(), False)
         conn.getUpdateService().saveAndReturnObject(link)
     
     # apply colors from the original image to the new one
