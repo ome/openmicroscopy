@@ -158,8 +158,16 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     desc += "\n".join(descLines)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
     i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
-        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
+        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=None)
 
+    # Link image to dataset
+    link = None
+    if dataset and dataset.canLink():
+        link = omero.model.DatasetImageLinkI()
+        link.parent = omero.model.DatasetI(dataset.getId(), False)
+        link.child = omero.model.ImageI(newImage.getId(), False)
+        conn.getUpdateService().saveAndReturnObject(link)
+    
     # apply colors from the original image to the new one
     i._prepareRenderingEngine()
     print "Applying colors..."
@@ -169,7 +177,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
         i._re.setRGBA(c, r, g, b, 255)
     i._re.saveCurrentSettings()
     i._re.close()
-    return i
+    return i, link
 
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
@@ -214,17 +222,26 @@ def processImages(conn, scriptParams):
 
     # need to handle Datasets eventually - Just do images for now
     newImages = []
+    links = []
     for iId in imageIds:
-        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
+        newImg, link = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
             newImages.append(newImg)
+            links.append(link)
     
     if not newImages:
         message += "No image created."
-    elif len(newImages) == 1:
-        message += "New image created: %s." % newImages[0].getName()
-    elif len(newImages) > 1:
-        message += "%s new images created." % len(newImages)
+    else:
+        if len(newImages) == 1:
+            message += "New image created: %s." % newImages[0].getName()
+        elif len(newImages) > 1:
+            message += "%s new images created" % len(newImages)
+        
+        if not len(links) == len(newImages):
+            message +=" but some of them could not be attached."
+        else:
+            message += "."
+
     return newImages, dataset, message
     
 def runAsScript():
