@@ -402,17 +402,21 @@ def combineImages(conn, parameterMap):
             if colour in COLOURS:
                 colourMap[c] = COLOURS[colour]
                 
+    # Get images or datasets
+    message =""
+    objects, logMessage = scriptUtil.getObjects(conn, parameterMap)
+    message += logMessage
+    if not objects:
+        return None, message
+
     # get the images IDs from list (in order) or dataset (sorted by name)
-    imageIds = []
     outputImages = []
     links = []
     
     dataType = parameterMap["Data_Type"]
     if dataType == "Image":
         dataset = None
-        for imageId in parameterMap["IDs"]:
-            iId = long(imageId.getValue())
-            imageIds.append(iId)
+        imagesIds = [i.id for image in images]
         # get dataset from first image
         query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent where i.id in (%s)" % imageIds[0]
         image = queryService.findByQuery(query_string, None)
@@ -430,17 +434,13 @@ def combineImages(conn, parameterMap):
         if link:
             links.append(link)
     else:
-        for dId in parameterMap["IDs"]:
-            # TODO: This will only work on one dataset. Should process list! 
-            datasetId = long(dId.getValue())
-            
-            images = containerService.getImages("Dataset", [datasetId], None)
-            if images == None or len(images) == 0:
-                print "No images found for Dataset ID: %s" % datasetId
+        for dataset in objects:
+            images = list(dataset.listChildren())
+            if not images:
+                print "No images found for Dataset ID: %s" % dataset.getId()
                 continue
-            images.sort(key=lambda x:(x.getName().getValue()))
-            imageIds = [i.getId().getValue() for i in images]
-            dataset = conn.getObject("Dataset", datasetId)
+            images.sort(key=lambda x:(x.getName()))
+            imageIds = [i.getId() for i in images]
             newImg, link = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
             if newImg:
                 outputImages.append(newImg)
