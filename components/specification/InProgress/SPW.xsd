@@ -560,6 +560,7 @@
 			<xsd:sequence>
 				<xsd:element ref="OME:ImageRef" minOccurs="0" maxOccurs="1">
 					<xsd:annotation>
+						<xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
 						<xsd:documentation>
 							This is the main link to the core Image element
 						</xsd:documentation>
