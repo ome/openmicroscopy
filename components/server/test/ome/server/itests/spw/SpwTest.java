@@ -51,7 +51,7 @@ public class SpwTest extends AbstractManagedContextTest {
         r.setWells(w);
 
         w.addWellSample(ws);
-        i.setWellSamples(ws);
+        i.addWellSample(ws);
         pa.addWellSample(ws);
 
         s = iUpdate.saveAndReturnObject(s);
@@ -92,7 +92,7 @@ public class SpwTest extends AbstractManagedContextTest {
 
         WellSample ws = new WellSample();
         pa.addWellSample(ws);
-        i.setWellSamples(ws);
+        i.addWellSample(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);
 

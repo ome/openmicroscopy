@@ -310,7 +310,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         w1.addWellSample(ws);
         ws.setImage(i);
         ws.setWell(w1);
-        i.setWellSamples(ws);
+        i.addWellSample(ws);
 
         
         p = iUpdate.saveAndReturnObject(p);
@@ -351,7 +351,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         w1.addWellSample(ws);
         ws.setImage(i);
         ws.setWell(w1);
-        i.setWellSamples(ws);
+        i.addWellSample(ws);
                 
         p = iUpdate.saveAndReturnObject(p);
         

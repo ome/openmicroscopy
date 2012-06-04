@@ -135,19 +135,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
             for (Pixels p : pixels) {
                 ome.model.core.Image i = p.getImage();
                 if (i != null) {
-                	WellSample ws = i.getWellSamples();
-                	if (ws != null) {
-                		Well w = ws.getWell();
-                		if (w != null) {
-                            Plate plate = w.getPlate();
-                            if (plate != null) {
-                                savedPlates.add(plate.getId());
-                            }
-                        }
-                	}
-                	
-                	/*
-                    for (WellSample ws : i.getWellSamples()) {
+                    for (WellSample ws : i.unmodifiableWellSamples()) {
                         Well w = ws.getWell();
                         if (w != null) {
                             Plate plate = w.getPlate();
@@ -156,7 +144,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             }
                         }
                     }
-                    */
                 }
             }
         }

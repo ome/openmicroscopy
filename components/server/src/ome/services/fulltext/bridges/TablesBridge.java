@@ -99,13 +99,15 @@ public class TablesBridge extends BridgeHelper {
     protected void handleImage(Image image, Document document,
             LuceneOptions opts) {
 
-    	WellSample ws = image.getWellSamples();
-        Well well = ws.getWell();
-        Plate plate = well.getPlate();
-        for (Annotation a : plate.linkedAnnotationList()) {
-            // ///////////////////////////////////////////////////
-            handleAnnotation(a, new AttachRow(image, document, opts));
-            // ///////////////////////////////////////////////////
+        for (Iterator<WellSample> it = image.iterateWellSamples(); it.hasNext();) {
+            WellSample ws = it.next();
+            Well well = ws.getWell();
+            Plate plate = well.getPlate();
+            for (Annotation a : plate.linkedAnnotationList()) {
+                // ///////////////////////////////////////////////////
+                handleAnnotation(a, new AttachRow(image, document, opts));
+                // ///////////////////////////////////////////////////
+            }
         }
 
         for (Dataset ds : image.linkedDatasetList()) {
