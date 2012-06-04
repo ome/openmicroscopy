@@ -189,7 +189,7 @@ def processImages(conn, scriptParams):
 
     if len(scriptParams['IDs']) == 0:
         print "No IDs supplied"
-        return
+        return None, None, "No IDs supplied"
 
     dataset = None
     if "New_Dataset_Name" in scriptParams:
@@ -209,12 +209,19 @@ def processImages(conn, scriptParams):
             conn.getUpdateService().saveAndReturnObject(link)
 
     # need to handle Datasets eventually - Just do images for now
-    newImgIds = []
+    newImages = []
     for iId in scriptParams['IDs']:
         newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
-            newImgIds.append(newImg.getId())
-    return newImgIds, dataset
+            newImages.append(newImg)
+    
+    if not newImages:
+        message += "No image created."
+    elif len(newImages) == 1:
+        message += "New image created: %s." % newImages[0].getName()
+    elif len(newImages) > 1:
+        message += "%s new images created." % len(newImages)
+    return newImages, dataset, message
     
 def runAsScript():
 
@@ -300,23 +307,15 @@ applying an x, y and z shift to each channel independently. """,
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
         
-        result = processImages(conn, scriptParams)
-        if result is None:
-            message = "Script failed. See 'Info' or 'Error' for more details"
-        else:
-            newImgIds, dataset = result
-            if len(newImgIds) == 1:
-                newImg = conn.getObject("Image", newImgIds[0])
-                message = "New Image created: %s" % newImg.getName()
-                client.setOutput("Image", robject(newImg._obj))
-            elif len(newImgIds) > 1:
-                message = "%s new Images created" % len(newImgIds)
-            else:
-                message = "No images created. See 'Info' or 'Error' for more details"
-            if dataset is not None:
-                client.setOutput("New Dataset", robject(dataset._obj))
-
+        images, dataset, message = processImages(conn, scriptParams)
+        
+        # Return message, new image and new dataset (if applicable) to the client 
         client.setOutput("Message", rstring(message))
+        if len(images) == 1:
+            client.setOutput("Image", robject(images[0]._obj))
+        if dataset is not None:
+            client.setOutput("New Dataset", robject(dataset._obj))
+            
     finally:
         client.closeSession()
 
