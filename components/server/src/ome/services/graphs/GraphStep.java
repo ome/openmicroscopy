@@ -289,10 +289,34 @@ public abstract class GraphStep {
         return savepoint;
     }
 
-    public void release(Callback cb) throws GraphException {
-
+    /**
+     * Return false if the current action (release or rollback) should be
+     * skipped or throw an exception if the current state is invalid. Otherwise,
+     * return true.
+     *
+     * Note:
+     * <p>
+     * Ok for cb.savepoint to already be invalidated since a second child entry
+     * might also fail and attempt a rollback. But if it has been invalidated,
+     * then there's no expectation that cb.size() be greater than 0.
+     * </p>
+     * @param cb
+     * @throws GraphException
+     */
+    private boolean sanityCheck(Callback cb) throws GraphException {
+        if (savepoint.startsWith(INVALIDATED)) {
+            return false;
+        }
         if (cb.size() == 0) {
             throw new GraphException("Action at depth 0!");
+        }
+        return true;
+    }
+
+    public void release(Callback cb) throws GraphException {
+
+        if (!sanityCheck(cb)) {
+            return;
         }
 
         int count = cb.collapse(true);
@@ -314,8 +338,8 @@ public abstract class GraphStep {
 
     public void rollback(Callback cb) throws GraphException {
 
-        if (cb.size() == 0) {
-            throw new GraphException("Action at depth 0!");
+        if (!sanityCheck(cb)) {
+            return;
         }
 
         int count = cb.collapse(false);
