@@ -170,8 +170,15 @@ def processImage(conn, imageId, parameterMap):
         description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
         print description
         image = conn.createImageFromNumpySeq(tileGen(), newImageName,
-            sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=dataset)
+            sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=None)
 
+        # Link image to dataset
+        if dataset and dataset.canLink():
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset.getId(), False)
+            link.child = omero.model.ImageI(image.getId(), False)
+            conn.getUpdateService().saveAndReturnObject(link)
+            
         return image._obj
 
     # ...otherwise, we're going to make a new 5D image per ROI
@@ -256,17 +263,17 @@ def processImage(conn, imageId, parameterMap):
 
         if dataset is None:
             print "No dataset created or found for new images. Images will be orphans."
-            return
-        for iid in iIds:
-            link = omero.model.DatasetImageLinkI()
-            link.parent = omero.model.DatasetI(dataset.id.val, False)
-            link.child = omero.model.ImageI(iid, False)
-            updateService.saveObject(link)
-        if parentProject:        # and put it in the current project
-            link = omero.model.ProjectDatasetLinkI()
-            link.parent = omero.model.ProjectI(parentProject.getId(), False)
-            link.child = omero.model.DatasetI(dataset.id.val, False)
-            updateService.saveAndReturnObject(link)
+        elif dataset.canLink():
+            for iid in iIds:
+                link = omero.model.DatasetImageLinkI()
+                link.parent = omero.model.DatasetI(dataset.id.val, False)
+                link.child = omero.model.ImageI(iid, False)
+                updateService.saveObject(link)
+            if parentProject and parentProject.canLink():        # and put it in the current project
+                link = omero.model.ProjectDatasetLinkI()
+                link.parent = omero.model.ProjectI(parentProject.getId(), False)
+                link.child = omero.model.DatasetI(dataset.id.val, False)
+                updateService.saveAndReturnObject(link)
         return dataset
 
 def makeImagesFromRois(conn, parameterMap):
@@ -303,19 +310,18 @@ def makeImagesFromRois(conn, parameterMap):
         return None, message
         
     imageIds = [i.getId() for i in images]    
-    newImages = []
+    newObjects = []
     for iId in imageIds:
-        newImage = processImage(conn, iId, parameterMap)
-        if newImage is not None:
-            newImages.append(newImage)
-
-    plural = (len(newImages) == 1) and "." or "s."
+        newObject = processImage(conn, iId, parameterMap)
+        if newObject is not None:
+            newObjects.append(newObject)
+            
+    plural = (len(newObjects) == 1) and "." or "s."
     if imageStack:
-        message = "Created %s new Image%s" % (len(newImages), plural)
-        robj = (len(newImages) > 0) and newImages[0] or None
+        message = "Created %s new Image%s" % (len(newObjects), plural)
     else:
         message = "Created %s new Dataset%s" % (len(newImages), plural)
-        robj = (len(newImages) > 0) and newImages[0] or None
+    robj = (len(newObjects) > 0) and newObjects[0] or None
     return robj, message
 
 def runAsScript():
