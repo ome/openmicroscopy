@@ -5713,7 +5713,7 @@ class OMEROGateway
 		ParametersI param;
 		sb = new StringBuilder();
 		param = new ParametersI();
-		sb.append("select info from PlaneInfo as info ");
+		sb.append("select info from Plane as info ");
         sb.append("where pixels.id = :id");
         param.addLong("id", pixelsID);
         if (z >= 0) {

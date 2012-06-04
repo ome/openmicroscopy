@@ -76,7 +76,7 @@ public interface IDelete extends ServiceInterface {
      * <ul>
      * <li>{@link Pixels}</li>
      * <li>{@link PixelsDimensions}</li>
-     * <li>{@link PlaneInfo}</li>
+     * <li>{@link Plane}</li>
      * <li>{@link RenderingDef}</li>
      * <li>{@link OriginalFile}</li>
      * <li>{@link ImageAnnotationLink}</li>

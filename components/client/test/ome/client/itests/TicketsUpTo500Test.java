@@ -25,7 +25,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.internal.Permissions;
 import ome.model.core.Experimenter;
 import ome.model.core.ExperimenterGroup;
@@ -56,12 +56,12 @@ public class TicketsUpTo500Test extends TestCase {
     @Test(groups = "ticket:168")
     public void test_planeInfoSetPixelsSavePixels() throws Exception {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
-        pixels.clearPlaneInfo();
-        PlaneInfo planeInfo = createPlaneInfo();
+        pixels.clearPlanes();
+        Plane planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         pixels = iUpdate.saveAndReturnObject(pixels);
-        PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
-                "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
+        Plane test = (Plane) iQuery.findByQuery(
+                "select pi from Plane pi " + "where pi.pixels.id = :id",
                 new Parameters().addId(pixels.getId()));
         // Null because saving the pixels rather than planeinfo does not work.
         assertNull(test);
@@ -70,12 +70,12 @@ public class TicketsUpTo500Test extends TestCase {
     @Test(groups = { "ticket:168", "ticket:767" })
     public void test_planeInfoSetPixelsSavePlaneInfo() throws Exception {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
-        pixels.clearPlaneInfo();
-        PlaneInfo planeInfo = createPlaneInfo();
+        pixels.clearPlanes();
+        Plane planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = iUpdate.saveAndReturnObject(planeInfo);
         Pixels test = (Pixels) iQuery.findByQuery(
-                "select pi.pixels from PlaneInfo pi " + "where pi.id = :id",
+                "select pi.pixels from Plane pi " + "where pi.id = :id",
                 new Parameters().addId(planeInfo.getId()));
         assertNotNull(test);
     }
@@ -84,12 +84,12 @@ public class TicketsUpTo500Test extends TestCase {
     public void test_pixelsAddToPlaneInfoSavePixels() throws Exception {
         IUpdate iUpdate = sf.getUpdateService();
         Pixels pixels = ObjectFactory.createPixelGraph(null);
-        pixels.clearPlaneInfo();
-        PlaneInfo planeInfo = createPlaneInfo();
-        pixels.addPlaneInfo(planeInfo);
+        pixels.clearPlanes();
+        Plane planeInfo = createPlaneInfo();
+        pixels.addPlane(planeInfo);
         pixels = iUpdate.saveAndReturnObject(pixels);
-        PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
-                "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
+        Plane test = (Plane) iQuery.findByQuery(
+                "select pi from Plane pi " + "where pi.pixels.id = :id",
                 new Parameters().addId(pixels.getId()));
         assertNotNull(test);
     }
@@ -387,8 +387,8 @@ public class TicketsUpTo500Test extends TestCase {
     // ~ Helpers
     // =========================================================================
     // TODO refactor to ObjectFactory
-    private PlaneInfo createPlaneInfo() {
-        PlaneInfo planeInfo = new PlaneInfo();
+    private Plane createPlaneInfo() {
+        Plane planeInfo = new Plane();
         planeInfo.setTheZ(1);
         planeInfo.setTheC(1);
         planeInfo.setTheT(1);

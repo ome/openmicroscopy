@@ -46,7 +46,6 @@ public interface IPixels extends ServiceInterface
      * <li>pixels.channels</li>
      * <li>pixels.channnels.statsInfo</li>
      * <li>pixels.channnels.colorComponent</li>
-     * <li>pixels.channnels.photometricInterpretation</li>
      * </ul>
      * 
      * @param pixelsId
@@ -139,7 +138,7 @@ public interface IPixels extends ServiceInterface
      * or many of its three physical dimensions or temporal dimension.
      * It is beyond the scope of this method to handle updates or changes to 
      * the raw pixel data available through {@link RawPixelsStore} or to add 
-     * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
+     * and link {@link Plane} and/or other Pixels set specific metadata. 
      * It is also assumed that the caller wishes the physical 
      * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
      * changing these is outside the scope of this method. <b>NOTE:</b> As 
@@ -157,8 +156,6 @@ public interface IPixels extends ServiceInterface
      * copy should maintain the same number.
      * @param channelList The channels that should be copied into the new Pixels
      * set.
-     * @param methodology An optional string signifying the methodology that
-     * will be used to produce this new Pixels set.
      * @param copyStats Whether or not to copy the {@link StatsInfo} for each
      * channel.
      * @return Id of the new Pixels object on success or <code>null</code> on
@@ -179,7 +176,7 @@ public interface IPixels extends ServiceInterface
      * or many of its three physical dimensions or temporal dimension.
      * It is beyond the scope of this method to handle updates or changes to 
      * the raw pixel data available through {@link RawPixelsStore} or to add 
-     * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
+     * and link {@link Plane} and/or other Pixels set specific metadata. 
      * It is also assumed that the caller wishes the physical
      * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
      * changing these is outside the scope of this method. <b>NOTE:</b> As 
@@ -216,7 +213,7 @@ public interface IPixels extends ServiceInterface
      * Creates the metadata, and <b>only</b> the metadata linked to an Image
      * object. It is beyond the scope of this method to handle updates or 
      * changes to the raw pixel data available through {@link RawPixelsStore} 
-     * or to add and link {@link PlaneInfo} or {@link StatsInfo} objects
+     * or to add and link {@link Plane} or {@link StatsInfo} objects
      * and/or other Pixels set specific metadata. It is also up to the caller
      * to update {@link PixelsDimensions}.
      * 
