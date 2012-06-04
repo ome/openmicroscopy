@@ -280,29 +280,43 @@ def makeImagesFromRois(conn, parameterMap):
     ids = parameterMap["IDs"]
     imageStack = parameterMap['Make_Image_Stack']
     
-    newObjs = []
+    message =""
+    
+    # Get the images
+    objects, logMessage = script_utils.getObjects(conn, parameterMap)
+    message += logMessage
+    if not objects:
+        return None, message
+    
+    # Concatenate images from datasets
     if dataType == 'Image':
-        for iId in ids:
-            new = processImage(conn, iId, parameterMap)
-            if new is not None:
-                newObjs.append(new)
-
+        images = objects
     else:
-        for dsId in ids:
-            ds = conn.getObject("Dataset", dsId)
-            for i in ds.listChildren():
-                new = processImage(conn, i.getId(), parameterMap)
-                if new is not None:
-                    newObjs.append(new)
+        images = []
+        for ds in objects:
+            images += ds.listChildren()
+            
+    # Check for rectangular ROIs and filter images list
+    images = [image for image in images if image.getROICount("Rect")>0]
+    if not images:
+        message += "No rectangle ROI found."
+        return None, message
+        
+    imageIds = [i.getId() for i in images]    
+    newImages = []
+    for iId in imageIds:
+        newImage = processImage(conn, iId, parameterMap)
+        if newImage is not None:
+            newImages.append(newImage)
 
-    plural = (len(newObjs) == 1) and "." or "s."
+    plural = (len(newImages) == 1) and "." or "s."
     if imageStack:
-        message = "Created %s new Image%s" % (len(newObjs), plural)
-        robj = (len(newObjs) > 0) and newObjs[0] or None
+        message = "Created %s new Image%s" % (len(newImages), plural)
+        robj = (len(newImages) > 0) and newImages[0] or None
     else:
-        message = "Created %s new Dataset%s" % (len(newObjs), plural)
-        robj = (len(newObjs) > 0) and newObjs[0] or None
-    return message, robj
+        message = "Created %s new Dataset%s" % (len(newImages), plural)
+        robj = (len(newImages) > 0) and newImages[0] or None
+    return robj, message
 
 def runAsScript():
     """
@@ -347,15 +361,11 @@ assumes that all the ROIs on each Image are the same size.""",
         # create a wrapper so we can use the Blitz Gateway.
         conn = BlitzGateway(client_obj=client)
 
-        result = makeImagesFromRois(conn, parameterMap)
-
-        if result:
-            message, robj = result
-            client.setOutput("Message", rstring(message))
-            if robj is not None:
-                client.setOutput("Result", robject(robj))
-        else:
-            client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
+        robj, message = makeImagesFromRois(conn, parameterMap)
+        
+        client.setOutput("Message", rstring(message))
+        if robj is not None:
+            client.setOutput("Result", robject(robj))
 
     finally:
         client.closeSession()
