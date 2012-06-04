@@ -107,7 +107,10 @@ class ChgrpControl(BaseControl):
         client = self.ctx.conn(args)
         cb = None
         try:
-            speclist, status, cb = self.response(client, omero.cmd.GraphSpecList())
+            try:
+                speclist, status, cb = self.response(client, omero.cmd.GraphSpecList())
+            except omero.LockTimeout, lt:
+                self.ctx.die(446, "LockTimeout: %s" % lt.message)
         finally:
             if cb is not None:
                 cb.close(True) # Close handle
