@@ -1732,7 +1732,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
-            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
+            return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'form':form}

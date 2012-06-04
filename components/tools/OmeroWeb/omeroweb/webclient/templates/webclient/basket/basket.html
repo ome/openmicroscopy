@@ -111,7 +111,19 @@
             
             // since we are using 3-column layout (to extend the )
             hide_left_panel();
-            
+
+
+            // AJAX handling of create-discussion form
+            $("#create_discussion_form").ajaxForm({
+                success: function(html) {
+                    if (html == "success") {
+                        $("#create_discussion_form").dialog( "close" );
+                        document.location.href = "{% url load_template 'public' %}";
+                    } else {
+                        $("#create_discussion_form").html(html);
+                    }
+                },
+            });
             $("#create_discussion_form").dialog({
                 autoOpen: false,
                 resizable: true,
@@ -122,7 +134,6 @@
                     "Accept": function() {
                         // simply submit the form
                         $("#create_discussion_form").submit();
-                        $( this ).dialog( "close" );
                     },
                     "Cancel": function() {
                         $( this ).dialog( "close" );
@@ -196,7 +207,6 @@
 <div id="content_details">
     
 
-    {% if basket.sizeOfBasket %}
 
 		
 		<div id="center_panel_header" >
@@ -241,6 +251,8 @@
 			    </ul>
 		
 		</div>
+		
+		{% if basket.sizeOfBasket %}
 		
 		<div class="center_panel_content">
       
