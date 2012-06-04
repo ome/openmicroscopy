@@ -1356,7 +1356,7 @@ class PropertiesUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() {}
+	protected void clearDisplay() { clearData(); }
 
 	/**
 	 * Sets the title of the component.
