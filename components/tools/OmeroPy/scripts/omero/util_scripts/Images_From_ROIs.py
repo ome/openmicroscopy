@@ -143,9 +143,6 @@ def processImage(conn, imageId, parameterMap):
 
     # if making a single stack image...
     if imageStack:
-        if parentDataset is not None:
-            dataset = parentDataset._obj
-        else: dataset = None
         print "\nMaking Image stack from ROIs of Image:", imageId
         print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
         plane2Dlist = []
@@ -173,9 +170,9 @@ def processImage(conn, imageId, parameterMap):
             sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=None)
 
         # Link image to dataset
-        if dataset and dataset.canLink():
+        if parentDataset and parentDataset.canLink():
             link = omero.model.DatasetImageLinkI()
-            link.parent = omero.model.DatasetI(dataset.getId(), False)
+            link.parent = omero.model.DatasetI(parentDataset.getId(), False)
             link.child = omero.model.ImageI(image.getId(), False)
             conn.getUpdateService().saveAndReturnObject(link)
             
@@ -256,14 +253,15 @@ def processImage(conn, imageId, parameterMap):
             dataset = updateService.saveAndReturnObject(dataset)
         else:
             # put new images in existing dataset
-            if parentDataset is not None:
+            if parentDataset is not None and parentDataset.canLink():
                 dataset = parentDataset._obj
-            else: dataset = None
+            else: 
+                dataset = None
             parentProject = None    # don't add Dataset to parent.
 
         if dataset is None:
             print "No dataset created or found for new images. Images will be orphans."
-        elif dataset.canLink():
+        else:
             for iid in iIds:
                 link = omero.model.DatasetImageLinkI()
                 link.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -318,9 +316,9 @@ def makeImagesFromRois(conn, parameterMap):
             
     plural = (len(newObjects) == 1) and "." or "s."
     if imageStack:
-        message = "Created %s new Image%s" % (len(newObjects), plural)
+        message = "Created %s new image%s" % (len(newObjects), plural)
     else:
-        message = "Created %s new Dataset%s" % (len(newImages), plural)
+        message = "Created %s new dataset%s" % (len(newObjects), plural)
     robj = (len(newObjects) > 0) and newObjects[0] or None
     return robj, message
 
