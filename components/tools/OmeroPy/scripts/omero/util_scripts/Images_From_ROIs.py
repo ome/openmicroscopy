@@ -175,13 +175,16 @@ def processImage(conn, imageId, parameterMap):
             link.parent = omero.model.DatasetI(parentDataset.getId(), False)
             link.child = omero.model.ImageI(image.getId(), False)
             conn.getUpdateService().saveAndReturnObject(link)
+        else:
+            link = None
             
-        return image._obj
+        return image, None, link
 
     # ...otherwise, we're going to make a new 5D image per ROI
     else:
         colors = [c.getColor().getRGB() for c in image.getChannels()]
         cNames = [c.getLabel() for c in image.getChannels()]
+        images = []
         iIds = []
         for r in rois:
             x,y,w,h, z1,z2,t1,t2 = r
@@ -235,6 +238,7 @@ def processImage(conn, imageId, parameterMap):
                 px.setPhysicalSizeZ(rdouble(physicalSizeZ))
             conn.getUpdateService().saveObject(px)
 
+            images.append(newImg)
             iIds.append(newImg.getId())
 
         if len(iIds) == 0:
@@ -251,28 +255,33 @@ def processImage(conn, imageId, parameterMap):
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
             dataset.description = rstring(desc)
             dataset = updateService.saveAndReturnObject(dataset)
+            parentDataset = dataset
         else:
             # put new images in existing dataset
+            dataset = None
             if parentDataset is not None and parentDataset.canLink():
-                dataset = parentDataset._obj
+                parentDataset = parentDataset._obj
             else: 
-                dataset = None
+                parentDataset = None
             parentProject = None    # don't add Dataset to parent.
 
-        if dataset is None:
+        if parentDataset is None:
+            link = None
             print "No dataset created or found for new images. Images will be orphans."
         else:
+            link = []
             for iid in iIds:
-                link = omero.model.DatasetImageLinkI()
-                link.parent = omero.model.DatasetI(dataset.id.val, False)
-                link.child = omero.model.ImageI(iid, False)
-                updateService.saveObject(link)
+                dsLink = omero.model.DatasetImageLinkI()
+                dsLink.parent = omero.model.DatasetI(parentDataset.id.val, False)
+                dsLink.child = omero.model.ImageI(iid, False)
+                updateService.saveObject(dsLink)
+                link.append(dsLink)
             if parentProject and parentProject.canLink():        # and put it in the current project
-                link = omero.model.ProjectDatasetLinkI()
-                link.parent = omero.model.ProjectI(parentProject.getId(), False)
-                link.child = omero.model.DatasetI(dataset.id.val, False)
-                updateService.saveAndReturnObject(link)
-        return dataset
+                projectLink = omero.model.ProjectDatasetLinkI()
+                projectLink.parent = omero.model.ProjectI(parentProject.getId(), False)
+                projectLink.child = omero.model.DatasetI(dataset.id.val, False)
+                updateService.saveAndReturnObject(projectLink)
+        return images, dataset, link
 
 def makeImagesFromRois(conn, parameterMap):
     """
@@ -280,7 +289,6 @@ def makeImagesFromRois(conn, parameterMap):
     with new image planes coming from the regions in Rectangular ROIs on the parent images. 
     """
     
-    imageIds = []
     dataType = parameterMap["Data_Type"]
     ids = parameterMap["IDs"]
     imageStack = parameterMap['Make_Image_Stack']
@@ -308,18 +316,43 @@ def makeImagesFromRois(conn, parameterMap):
         return None, message
         
     imageIds = [i.getId() for i in images]    
-    newObjects = []
+    newImages = []
+    newDatasets = []
+    links = []
     for iId in imageIds:
-        newObject = processImage(conn, iId, parameterMap)
-        if newObject is not None:
-            newObjects.append(newObject)
-            
-    plural = (len(newObjects) == 1) and "." or "s."
-    if imageStack:
-        message = "Created %s new image%s" % (len(newObjects), plural)
+        newImage, newDataset, link = processImage(conn, iId, parameterMap)
+        if newImage is not None:
+            if isinstance(newImage,list):
+                newImages.extend(newImage)
+            else:
+                newImages.append(newImage)
+        if newDataset is not None:
+            newDatasets.append(newDataset)
+        if link is not None:
+            if isinstance(link,list):
+                links.extend(link)
+            else:
+                links.append(link)
+      
+    if newImages:
+        if len(newImages)>1:
+            message += "Created %s new images" % len(newImages)
+        else:
+            message += "Created a new image"
     else:
-        message = "Created %s new dataset%s" % (len(newObjects), plural)
-    robj = (len(newObjects) > 0) and newObjects[0] or None
+        message += "No image created"
+    
+    if newDatasets:
+        if len(newDatasets)>1:
+            message += " and %s new datasets" % len(newDatasets)
+        else:
+            message += " and a new dataset"
+    
+    if not links or not len(links) == len(newImages):
+        message += " but some images could not be attached"
+    message += "."
+
+    robj = (len(newImages) > 0) and newImages[0]._obj or None
     return robj, message
 
 def runAsScript():
