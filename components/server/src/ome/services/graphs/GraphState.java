@@ -308,7 +308,7 @@ public class GraphState implements GraphStep.Callback {
                 String cause = "ConstraintViolation: " + cve.getConstraintName();
                 return handleException(step, cve, cause);
             } catch (GraphException ge) {
-                String cause = "GraphException: " + ge.getMessage();
+                String cause = "GraphException: " + ge.message;
                 return handleException(step, ge,cause);
             }
 

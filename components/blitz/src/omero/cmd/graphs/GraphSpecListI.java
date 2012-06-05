@@ -11,24 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphSpec;
 import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphSpecList;
 import omero.cmd.GraphSpecListRsp;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.cmd.Status;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -39,8 +32,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     private static final long serialVersionUID = -363984593874598374L;
-
-    private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
     private final OmeroContext ctx;
 
@@ -88,6 +79,6 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
     }
 
     public Response getResponse() {
-        return rsp.get();
+        return helper.getResponse();
     }
 }
