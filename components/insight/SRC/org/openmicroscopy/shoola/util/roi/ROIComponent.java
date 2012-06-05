@@ -81,6 +81,21 @@ public class ROIComponent
 	extends Component 
 {
 
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int ANNOTATE = 0;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE = 1;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_MINE = 2;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_OTHERS = 3;
+	
+	/** Flag indicating to check if the roi can be deleted.*/
+	public static final int ALL = 4;
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 
@@ -194,25 +209,11 @@ public class ROIComponent
 	public void setMicronsPixelX(double x) { units.setMicronsPixelX(x); }
 
 	/**
-	 * Returns the number of microns per pixel in the x-axis. 
-	 * 
-	 * @return microns see above.
-	 */
-	public double getMicronsPixelX() { return units.getMicronsPixelX(); }
-	
-	/**
 	 * Sets the number of microns per pixel in the y-axis. 
 	 * 
 	 * @param y The value to set.
 	 */
 	public void setMicronsPixelY(double y) { units.setMicronsPixelY(y); }
-	
-	/**
-	 * Returns the number of microns per pixel in the y-axis.
-	 *  
-	 * @return See above.
-	 */
-	public double getMicronsPixelY() { return units.getMicronsPixelY(); }
 	
 	/**
 	 * Sets the number of microns per pixel in the z-axis. 
@@ -222,13 +223,6 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelZ(double z) { units.setMicronsPixelZ(z); }
 	
-	/**
-	 * Returns the number of microns per pixel in the z-axis. 
-	 * 
-	 * @return See above.
-	 */
-	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
-    
     /**
      * Adds the specified figure to the display.
      * 
@@ -278,16 +272,17 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by this class.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, long ownerID) 
+	public List<ROIData> saveROI(ImageData image, int index, long userID)
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, ownerID);
+		return serverStrategy.write(this, image, index, userID);
 	}
 	
 	/**

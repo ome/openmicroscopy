@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -906,7 +907,7 @@ class ImViewerComponent
 			originalImage = model.getOriginalImage();
 			model.setImage((BufferedImage) image);
 		}
-		
+		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -2210,6 +2211,7 @@ class ImViewerComponent
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
+			saveBeforeCopy = false;
 			failureToSave = true;
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
@@ -2319,9 +2321,8 @@ class ImViewerComponent
 		}
 		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		List<Long> l = new ArrayList<Long>();
-		l.add(model.getImageID());
-		bus.post(new RndSettingsCopied(l, getPixelsID()));
+		bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
+				getPixelsID()));
 		fireStateChange();
     }
     
@@ -2836,9 +2837,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInMicrons()
+	 * @see ImViewer#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2856,9 +2857,11 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	/** Build the view.*/
 	private void buildView()
 	{
-		int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+		int index = UnitBarSizeAction.getDefaultIndex(
+				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();

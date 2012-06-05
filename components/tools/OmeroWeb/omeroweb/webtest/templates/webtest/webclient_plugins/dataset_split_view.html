@@ -73,8 +73,7 @@ form dir {
                 </td> 
                 <td width="16%" style="vertical-align: bottom">
                     <div style="float:right; clear: both">Image Size: </div>
-                    <input type="text" name="width" style="float:right; clear: both" size="10" {% if size.width %} value="{{ size.width }}" {% endif %} />
-                    <input style="display:none" type="text" name="height" {% if size.height %} value="{{ size.height }}" {% endif %} />
+                    <input type="text" name="size" style="float:right; clear: both" size="10" {% if size %} value="{{ size }}" {% endif %} />
                     <input type="submit" value='update' style="float:right; clear: both" />
                 </td>
                 <td style="display:none">

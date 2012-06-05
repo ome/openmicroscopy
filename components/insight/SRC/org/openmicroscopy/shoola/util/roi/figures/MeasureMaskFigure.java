@@ -229,6 +229,7 @@ public class MeasureMaskFigure
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
 		that.setMask(this.getMask());
+		that.setInteractable(true);
 		return that;
 	}
 	

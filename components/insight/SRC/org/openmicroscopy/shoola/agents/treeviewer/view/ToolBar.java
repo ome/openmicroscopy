@@ -241,7 +241,7 @@ class ToolBar
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
-        bar.add(b);
+        //bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
@@ -729,7 +729,7 @@ class ToolBar
 		groupContext.setText(group.getName());
 		groupContext.setToolTipText(desc);
 
-        Set set = TreeViewerAgent.getAvailableUserGroups();
+        Collection set = TreeViewerAgent.getAvailableUserGroups();
         boolean b = set != null && set.size() > 1;
         menuButton.setVisible(b);
     	groupContext.setVisible(b);

@@ -39,10 +39,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.ProjectData;
 
 /** 
  * Brings up the <code>Manager</code> menu.

@@ -27,8 +27,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -38,9 +42,19 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /**
  * Brings up the <code>Manager</code> menu.
@@ -69,6 +83,15 @@ public class BrowserManageAction
 	/** Indicates to show the menu for administrative tasks. */
 	public static final int		NEW_ADMIN = 2;
 	
+	/** Identified the copy action. */
+	public static final int 	COPY = 3;
+	
+	/** Identified the paste action. */
+	public static final int 	PASTE = 4;
+	
+	/** Identified the cut action. */
+	public static final int 	CUT = 5;
+	
     /** The description of the action. */
     private static final String DESCRIPTION_CONTAINERS = 
     	"Create new Project, Dataset or Screen.";
@@ -78,12 +101,27 @@ public class BrowserManageAction
 
     /** The description of the action. */
     private static final String DESCRIPTION_ADMIN = "Create new Group or User.";
-    
+
+    /** The description of the action if the index is {@link #COPY}. */
+    private static final String DESCRIPTION_COPY = 
+    											"Copy the selected elements.";
+
+    /** The description of the action if the index is {@link #PASTE}. */
+    private static final String DESCRIPTION_PASTE = 
+    									"Paste the selected elements.";
+
+    /** The description of the action if the index is {@link #CUT}. */
+    private static final String DESCRIPTION_CUT = 
+    								"Cut the selected elements.";
+
     /** The location of the mouse pressed. */
     private Point 	point;
     
     /** One of the constants defined by this class. */
     private int		index;
+    
+    /** The id of the user currently logged in.*/
+    private long userID;
     
     /**
      * Controls if the passed index is valid or not.
@@ -109,6 +147,21 @@ public class BrowserManageAction
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_ADMIN));
 				break;
+			case COPY:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
+				break;
+			case PASTE:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
+				break;
+			case CUT:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(DESCRIPTION_CUT));
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CUT));
+				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
@@ -122,7 +175,7 @@ public class BrowserManageAction
     private void handleExperimenter(TreeImageDisplay display)
     {
     	if (display == null) {
-    		setEnabled(true);
+    		setEnabled(false);
     	} else {
     		Object ho = display.getUserObject();
         	long id = TreeViewerAgent.getUserDetails().getId();
@@ -133,6 +186,131 @@ public class BrowserManageAction
     	}
     }
     
+    /**
+	 * Returns <code>true</code> if the pasting action is valid,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ho The selected data object.
+	 * @param list The objects to copy.
+	 * @return See above.
+	 */
+	private boolean isPasteValid(Object ho, List<DataObject>list)
+	{
+		Iterator<DataObject> i = list.iterator();
+		DataObject os;
+		int count = 0;
+		while (i.hasNext()) {
+			os = i.next();
+			if (!EditorUtil.isTransferable(ho, os, userID)) return false;
+			count++;
+		}
+		return count == list.size();
+	}
+	
+	/**
+	 * Handles the selection when the index is <code>CUT</code>,
+	 * <code>COPY</code> or <code>PASTE</code>.
+	 * 
+	 * @param selectedDisplay The node to handle.
+	 */
+    private void handleSelection(TreeImageDisplay selectedDisplay)
+    {
+    	Object ho = selectedDisplay.getUserObject(); 
+        TreeImageDisplay[] selected;
+        int count = 0;
+        TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+        Object parent = null;
+        if (parentDisplay != null) parent = parentDisplay.getUserObject();
+    	 if (parentDisplay != null) parent = parentDisplay.getUserObject();
+         switch (index) {
+ 			case PASTE:
+ 				List<DataObject> list = model.getDataToCopy();
+ 				if (list == null || list.size() == 0) {
+ 					setEnabled(false);
+ 		            return;
+ 				}
+ 				if (ho instanceof ProjectData || ho instanceof ScreenData ||
+ 					ho instanceof DatasetData || ho instanceof GroupData ||
+ 					ho instanceof TagAnnotationData) {
+ 					selected = model.getSelectedDisplays();
+ 		    		for (int i = 0; i < selected.length; i++) {
+ 		    			ho = selected[i].getUserObject();
+ 		    			if (isPasteValid(ho, list)) {
+ 		    				if (ho instanceof GroupData) {
+ 		    					count++;
+ 			    			} else {
+ 			    				if (model.canLink(ho)) count++;
+ 			    			}
+ 		    			}
+ 					}
+ 		    		setEnabled(count == selected.length);
+ 				} else if (ho instanceof ExperimenterData ||
+ 						ho instanceof GroupData) {
+ 					if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+ 						selected = model.getSelectedDisplays();
+ 			    		for (int i = 0; i < selected.length; i++) {
+ 			    			ho = selected[i].getUserObject();
+ 			    			if (isPasteValid(ho, list)) count++;
+ 						}
+ 			    		setEnabled(count == selected.length);
+ 					}
+ 				} else setEnabled(false);
+ 				break;
+ 			case COPY:
+ 			case CUT:
+ 				if (ho instanceof DatasetData || ho instanceof ImageData || 
+ 			         ho instanceof PlateData) {
+ 					selected = model.getSelectedDisplays();
+ 		    		for (int i = 0; i < selected.length; i++) {
+ 						if (model.canLink(selected[i].getUserObject())) 
+ 							count++;
+ 					}
+ 		    		if (index == CUT) {
+ 		    			if (ho instanceof DatasetData) {
+ 		    				if (!(parent instanceof ProjectData)) {
+ 		    					setEnabled(false);
+ 		    					return;
+ 		    				}
+ 		    			} else if (ho instanceof ImageData) {
+ 		    				if (!(parent instanceof DatasetData || 
+ 		    						parent instanceof TagAnnotationData)) {
+ 		    					setEnabled(false);
+ 		    					return;
+ 		    				}
+ 		    			} else if (ho instanceof PlateData) {
+ 		    				if (!(parent instanceof ScreenData)) {
+ 		    					setEnabled(false);
+ 		    					return;
+ 		    				}
+ 		    			}
+ 		    		}
+ 		    		setEnabled(count == selected.length);
+ 				} else if (ho instanceof ExperimenterData) {
+ 					setEnabled(model.getBrowserType() == 
+ 						Browser.ADMIN_EXPLORER);
+ 				} else if (ho instanceof TagAnnotationData) {
+ 					TagAnnotationData tag = (TagAnnotationData) ho;
+ 					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+ 							tag.getNameSpace()))
+ 						setEnabled(false);
+ 					else {
+ 						selected = model.getSelectedDisplays();
+ 			    		for (int i = 0; i < selected.length; i++) {
+ 			    			if (model.canAnnotate(selected[i].getUserObject())) 
+ 			    				count++;
+ 						}
+ 			    		if (index == CUT) {
+ 			    			if (!(parent instanceof TagAnnotationData)) {
+ 			    				setEnabled(false);
+ 			    				return;
+ 				    		}
+ 			    		}
+ 			    		setEnabled(count == selected.length);
+ 					}
+ 				} else setEnabled(false);
+ 		}
+    }
+   
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see BrowserAction#onStateChange()
@@ -149,7 +327,7 @@ public class BrowserManageAction
 	        	 onDisplayChange(model.getLastSelectedDisplay());
          }
     }
-
+    
     /**
      * Sets the action enabled depending on the selected type.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
@@ -169,7 +347,19 @@ public class BrowserManageAction
     		handleExperimenter(selectedDisplay);
     		return;
     	} 
-    	setEnabled(model.canAnnotate(ho));
+    	switch (index) {
+	    	case COPY:
+	    	case PASTE:
+	    	case CUT:
+	    		handleSelection(selectedDisplay);
+	    		break;
+	    	default:
+	    		if (ho instanceof ExperimenterData) {
+	    			long id = TreeViewerAgent.getUserDetails().getId();
+	    			ExperimenterData exp = (ExperimenterData) ho;
+	    			setEnabled(exp.getId() == id);
+	    		} else setEnabled(model.canLink(ho));
+		}
     }
     
 	/**
@@ -183,9 +373,30 @@ public class BrowserManageAction
 		super(model);
 		checkIndex(index);
 		this.index = index;
-		setEnabled(true);
+		setEnabled(false);
+		userID = TreeViewerAgent.getUserDetails().getId();
 	}
 	
+	/**
+     * Copies/Cuts/Pastes depending on the index.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+    	switch (index) {
+			case COPY:
+				model.setNodesToCopy(model.getSelectedDisplays(), 
+						TreeViewer.COPY_AND_PASTE);
+				break;
+			case PASTE:
+				model.paste(model.getSelectedDisplays());
+				break;
+			case CUT:
+				 model.setNodesToCopy(model.getSelectedDisplays(), 
+                         TreeViewer.CUT_AND_PASTE);
+		}
+    }
+    
 	/** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occurred. 

@@ -723,13 +723,12 @@ button::-moz-focus-inner {
 }
 
 .ui-dialog {
-	background-color:white;
-	background-color: hsl(210,20%,97%);
+	background-color: #f5f7f8;
 	padding:0;
 	-webkit-border-radius:6px; /* Saf3+, Chrome */
 	   -moz-border-radius:6px; /* FF1+ */
 	        border-radius:6px; /* Opera 10.5, IE 9 */ 
-			border:solid 1px rgba(0,0,0,.35);
+	border:solid 1px #666;
 }
 
 

@@ -273,7 +273,9 @@ class GraphicsPane
 	 	c.weightx = 1.0;
 	 	c.weighty = 1.0;
 	 	content.add(viewedBy, c);
-    	return content;
+	 	JPanel p = UIUtilities.buildComponentPanel(content);
+	 	p.setBackground(content.getBackground());
+    	return p;
     }
 
     /** 

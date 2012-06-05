@@ -39,8 +39,19 @@
         $("#groupList").hover(function(){}, function(){
             $(this).css('visibility', 'hidden');
         });
-            
-            
+
+        // make sure any long list of users do not disappear off bottom of screen
+        $(".dropdown_menu ul ul").each(function(){
+            var top = $(this).offset().top;
+            var h = $(this).height();
+            var bottom = top+h;
+            var winH = $(window).height();
+            var bottomOff = bottom-winH;
+            if (bottomOff > 0) {
+                bottomOff += 10;
+                $(this).css('top', '-'+bottomOff+'px');
+            }
+        });
 
     });
 </script>

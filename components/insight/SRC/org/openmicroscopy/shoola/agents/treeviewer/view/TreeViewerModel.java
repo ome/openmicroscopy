@@ -592,8 +592,7 @@ class TreeViewerModel
 	 */
 	String getExperimenterNames()
 	{
-		ExperimenterData exp = getExperimenter();
-		return exp.getFirstName()+" "+exp.getLastName();
+		return EditorUtil.formatExperimenter(getExperimenter());
 	}
 
 	/**
@@ -603,8 +602,6 @@ class TreeViewerModel
 	 */
 	ExperimenterData getExperimenter()
 	{
-		//if (experimenter == null) experimenter = getUserDetails();
-		//return experimenter;
 		return getUserDetails();
 	}
 
@@ -1350,7 +1347,7 @@ class TreeViewerModel
 	 */
 	GroupData getSelectedGroup()
 	{
-		Set set = TreeViewerAgent.getAvailableUserGroups();
+		Collection set = TreeViewerAgent.getAvailableUserGroups();
 		Iterator i = set.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -1384,11 +1381,13 @@ class TreeViewerModel
 	 * @param ctx The security context.
 	 * @param dialog The dialog where to display the result.
 	 * @param type The node type.
+	 * @param userID The id of the user to move the data to.
 	 */
 	void fireMoveDataLoading(SecurityContext ctx,
-			MoveGroupSelectionDialog dialog, Class type)
+			MoveGroupSelectionDialog dialog, Class type, long userID)
 	{
-		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog);
+		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog,
+				userID);
 		loader.load();
 	}
 
@@ -1400,7 +1399,7 @@ class TreeViewerModel
 	 */
 	GroupData getGroup(long groupId)
 	{
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;

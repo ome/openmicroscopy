@@ -123,7 +123,8 @@ public class ImporterFactory
 	public static void onReconnected()
 	{
 		if (singleton.importer != null) {
-			((ImporterComponent) singleton.importer).onReconnected();
+			singleton.importer.discard();
+			singleton.importer = null;
 		}
 	}
 	

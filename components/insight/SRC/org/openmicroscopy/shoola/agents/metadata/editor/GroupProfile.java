@@ -340,9 +340,9 @@ class GroupProfile
 	 * No-operation implementation in our case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		return new ArrayList<AnnotationData>();  
+		return new ArrayList<Object>();  
 	}
 
 	/**

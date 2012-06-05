@@ -27,18 +27,20 @@ import omero
 from django.conf import settings
 from request_factory import fakeRequest
 
+from omeroweb.connector import Connector
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
 from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                 ContainedExperimentersForm, ChangePassword
 
-from webadmin.controller.experimenter import BaseExperimenter
-from webadmin.controller.group import BaseGroup
 from webadmin_test_library import WebTest, WebAdminClientTest
 
 from webadmin.custom_models import Server
-
+from webadmin.views import getActualPermissions, setActualPermissions, \
+                        otherGroupsInitialList, prepare_experimenter, \
+                        getSelectedExperimenters, getSelectedGroups, \
+                        mergeLists
 from django.core.urlresolvers import reverse
 
 # Test model
@@ -109,7 +111,7 @@ class WebAdminUrlTest(WebAdminClientTest):
         response = self.client.post(reverse(viewname="walogin"), params)
         # Check that the response was a 302 (redirect)
         self.failUnlessEqual(response.status_code, 302)
-        self.assert_(response['Location'].endswith(reverse(viewname="waindex")))
+        self.assert_(response['Location'].endswith(reverse(viewname="webindex")))
     
     def test_urlsAsRoot(self):
         self.client.login('root', self.root_password)
@@ -273,18 +275,17 @@ class WebAdminTest(WebTest):
         }        
         request = fakeRequest(method="post", path="/webadmin/login", params=params)
         
-        blitz = Server.get(pk=request.REQUEST.get('server')) 
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
+        server_id = request.REQUEST.get('server')
+        username = request.REQUEST.get('username')
+        password = request.REQUEST.get('password')
+        is_secure = toBoolean(request.REQUEST.get('ssl'))
 
-        conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
+        connector = Connector(server_id, is_secure)
+        conn = connector.create_connection('TEST.webadmin', username, password)
         if conn is None:
             self.fail('Cannot connect')
-        webgateway_views._session_logout(request, request.session.get('server'))
+        
+        conn.seppuku()
         if conn.isConnected() and conn.keepAlive():
             self.fail('Connection was not closed')
 
@@ -297,21 +298,20 @@ class WebAdminTest(WebTest):
         }        
         request = fakeRequest(method="post", params=params)
         
-        form = LoginForm(data=request.REQUEST.copy())        
+        server_id = request.REQUEST.get('server')
+        form = LoginForm(data=request.REQUEST.copy())
         if form.is_valid():
-            
-            blitz = Server.get(pk=form.cleaned_data['server']) 
-            request.session['server'] = blitz.id
-            request.session['host'] = blitz.host
-            request.session['port'] = blitz.port
-            request.session['username'] = form.cleaned_data['username'].strip()
-            request.session['password'] = form.cleaned_data['password'].strip()
-            request.session['ssl'] = form.cleaned_data['ssl']
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            server_id = form.cleaned_data['server']
+            is_secure = toBoolean(form.cleaned_data['ssl'])
 
-            conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
+            connector = Connector(server_id, is_secure)
+            conn = connector.create_connection('OMERO.web', username, password)
             if conn is None:
-                self.fail('Cannot connect')            
-            webgateway_views._session_logout(request, request.session.get('server'))
+                self.fail('Cannot connect')
+            
+            conn.seppuku()
             if conn.isConnected() and conn.keepAlive():
                 self.fail('Connection was not closed')
             
@@ -327,21 +327,19 @@ class WebAdminTest(WebTest):
         }        
         request = fakeRequest(method="post", params=params)
         
-        form = LoginForm(data=request.REQUEST.copy())        
+        server_id = request.REQUEST.get('server')
+        form = LoginForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = Server.get(pk=form.cleaned_data['server']) 
-            request.session['server'] = blitz.id
-            request.session['host'] = blitz.host
-            request.session['port'] = blitz.port
-            request.session['username'] = form.cleaned_data['username'].strip()
-            request.session['password'] = form.cleaned_data['password'].strip()
-            request.session['ssl'] = form.cleaned_data['ssl']
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            server_id = form.cleaned_data['server']
+            is_secure = toBoolean(form.cleaned_data['ssl'])
 
-            conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
+            connector = Connector(server_id, is_secure)
+            conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
                 self.fail('This user does not exist. Login failure error!')
-                webgateway_views._session_logout(request, request.session.get('server'))
-
+        
         else:
             errors = form.errors.as_text()
             self.fail(errors)            
@@ -355,19 +353,22 @@ class WebAdminTest(WebTest):
             "name":u"русский_алфавит %s" % uuid,
             "description":u"Frühstück-Śniadanie. Tschüß-Cześć",
             "owners": [0L],
+            "members": [0L],
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
-           
+        
         # check if group created
-        controller = BaseGroup(conn, gid)
-        perm = controller.getActualPermissions()
-        self.assertEquals(params['name'], controller.group.name)
-        self.assertEquals(params['description'], controller.group.description)
-        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
-        self.assertEquals(params['permissions'], perm)
-        self.assertEquals(False, controller.isReadOnly())
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = [e.id for e in group.getOwners()]
+        membersIds = [e.id for e in group.getMembers()]
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(sorted(params['owners']), sorted(ownerIds))
+        self.assertEquals(sorted(params['members']), sorted(membersIds))
+        self.assertEquals(params['permissions'], permissions)
     
     def test_createGroups(self):        
         conn = self.rootconn
@@ -377,54 +378,77 @@ class WebAdminTest(WebTest):
         params = {
             "name":"webadmin_test_group_private %s" % uuid,
             "description":"test group",
-            "owners": [0L],
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
            
         # check if group created
-        controller = BaseGroup(conn, gid)
-        perm = controller.getActualPermissions()
-        self.assertEquals(params['name'], controller.group.name)
-        self.assertEquals(params['description'], controller.group.description)
-        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
-        self.assertEquals(params['permissions'], perm)
-        self.assertEquals(False, controller.isReadOnly())
+        group = conn.getObject("ExperimenterGroup", gid)
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['permissions'], permissions)
         
-        # read-only group
+        # collaborative read-only group
         params = {
             "name":"webadmin_test_group_read-only %s" % uuid,
             "description":"test group",
-            "owners": [0L],
-            "permissions":1,
-            "readonly":True
+            "permissions":1
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
-              
+           
         # check if group created
-        controller = BaseGroup(conn, gid)
-        perm = controller.getActualPermissions()
-        self.assertEquals(params['name'], controller.group.name)
-        self.assertEquals(params['description'], controller.group.description)
-        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
-        self.assertEquals(params['permissions'], perm)
-        self.assertEquals(params['readonly'], controller.isReadOnly())
+        group = conn.getObject("ExperimenterGroup", gid)
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['permissions'], permissions)
+        
+        # collaborative read-annotate group
+        params = {
+            "name":"webadmin_test_group_read-ann %s" % uuid,
+            "description":"test group",
+            "permissions":2
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+           
+        # check if group created
+        group = conn.getObject("ExperimenterGroup", gid)
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['permissions'], permissions)
     
-    def test_updateGroups(self):        
+    def test_badCreateGroup(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
         
-        # private group
+        # empty fields
+        params = {}
+        request = fakeRequest(method="post", params=params)
+        try:
+            gid = _createGroup(request, conn)
+        except Exception, e:
+            pass
+        else:
+            self.fail("Can't create group with no parameters")
+    
+    def test_updateGroups(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # default group - helper
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
+            "name":"webadmin_test_default %s" % uuid,
+            "description":"test group default",
             "owners": [0L],
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
-        gid = _createGroup(request, conn)
+        default_gid = _createGroup(request, conn)
         
         # create new user
         params = {
@@ -435,36 +459,94 @@ class WebAdminTest(WebTest):
             "email":"owner_%s@domain.com" % uuid,
             "institution":"Laboratory",
             "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
+            "default_group":default_gid,
+            "other_groups":[default_gid],
             "password":"123",
             "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
         
+        # create new user2
+        params = {
+            "omename":"webadmin_test_member %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"member_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "active":True,
+            "default_group":default_gid,
+            "other_groups":[default_gid],
+            "password":"123",
+            "confirmation":"123" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid2 = _createExperimenter(request, conn)
+        
+        # create private group
+        params = {
+            "name":"webadmin_test_group_private %s" % uuid,
+            "description":"test group",
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        # check if group created
+        group = conn.getObject("ExperimenterGroup", gid)
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['permissions'], permissions)
+        
         # upgrade group to collaborative
-        # read-only group and add new owner
+        # read-only group and add new owner and members
         params = {
             "name":"webadmin_test_group_read-only %s" % uuid,
             "description":"test group changed",
-            "owners": [0, eid],
-            "permissions":1,
-            "readonly":True
+            "owners": [eid],
+            "members": [eid2],
+            "permissions":1
         }
         request = fakeRequest(method="post", params=params)
         _updateGroup(request, conn, gid)
         
-        # check if updated
-        controller = BaseGroup(conn, gid)
-        perm = controller.getActualPermissions()
-        self.assertEquals(params['name'], controller.group.name)
-        self.assertEquals(params['description'], controller.group.description)
-        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
-        self.assertEquals(params['permissions'], perm)
-        self.assertEquals(params['readonly'], controller.isReadOnly())
+        # check if group updated
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = [e.id for e in group.getOwners()]
+        memberIds = [e.id for e in group.getMembers()]
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['owners'], sorted(ownerIds))
+        self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
+        self.assertEquals(params['permissions'], permissions)
         
-    def test_updateMembersOfGroup(self):
+        # upgrade group to collaborative
+        # read-ann group and change owners and members
+        params = {
+            "name":"webadmin_test_group_read-only %s" % uuid,
+            "description":"test group changed",
+            "owners": [eid2],
+            "members": [0,eid],
+            "permissions":1
+        }
+        request = fakeRequest(method="post", params=params)
+        _updateGroup(request, conn, gid)
+        
+        # check if group updated
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = [e.id for e in group.getOwners()]
+        memberIds = [e.id for e in group.getMembers()]
+        permissions = getActualPermissions(group)
+        self.assertEquals(params['name'], group.name)
+        self.assertEquals(params['description'], group.description)
+        self.assertEquals(params['owners'], sorted(ownerIds))
+        self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
+        self.assertEquals(params['permissions'], permissions)
+        
+    def test_badUpdateGroup(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
         
@@ -478,19 +560,8 @@ class WebAdminTest(WebTest):
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
         
-        ######################################
-        # default group - helper
-        params = {
-            "name":"webadmin_test_default %s" % uuid,
-            "description":"test group default",
-            "owners": [0L],
-            "permissions":0
-        }
-        request = fakeRequest(method="post", params=params)
-        default_gid = _createGroup(request, conn)
-        
-        # create two new users
-        params = {
+        # create new users
+        params2 = {
             "omename":"webadmin_test_user1 %s" % uuid,
             "first_name":uuid,
             "middle_name": uuid,
@@ -498,77 +569,33 @@ class WebAdminTest(WebTest):
             "email":"user1_%s@domain.com" % uuid,
             "institution":"Laboratory",
             "active":True,
-            "default_group":default_gid,
-            "other_groups":[default_gid],
+            "default_group":gid,
+            "other_groups":[gid],
             "password":"123",
             "confirmation":"123" 
         }
+        request = fakeRequest(method="post", params=params2)
+        eid = _createExperimenter(request, conn)
+        
+        # check if group updated
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = [e.id for e in group.getOwners()]
+        memberIds = [e.id for e in group.getMembers()]
+        self.assertEquals(params['owners'], sorted(ownerIds))
+        self.assertEquals(sorted(mergeLists(params['owners'], [eid])), sorted(memberIds))
+        
+        # remove user from the group
+        params["members"] = [0]
         request = fakeRequest(method="post", params=params)
-        eid1 = _createExperimenter(request, conn)
+        _updateGroup(request, conn, gid)
         
-        # create few new users
-        params = {
-            "omename":"webadmin_test_user2 %s" % uuid,
-            "first_name":uuid,
-            "middle_name": uuid,
-            "last_name":uuid,
-            "email":"user2_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":default_gid,
-            "other_groups":[default_gid],
-            "password":"123",
-            "confirmation":"123" 
-        }
-        request = fakeRequest(method="post", params=params)
-        eid2 = _createExperimenter(request, conn)
-        # make other users a member of the group
+        # check if group updated
+        group = conn.getObject("ExperimenterGroup", gid)
+        memberIds = [e.id for e in group.getMembers()]
+        if eid not in memberIds:
+            self.fail("Can't remove user from the group members if this is hs default group")
         
-        # add them to group
-        params = {
-            'available':[],
-            'members':[0,eid1,eid2]
-        }
-        request = fakeRequest(method="post", params=params)
-        
-        controller = BaseGroup(conn, gid)
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        if not form.is_valid():
-            #available = form.cleaned_data['available']
-            available = request.POST.getlist('available')
-            #members = form.cleaned_data['members']
-            members = request.POST.getlist('members')
-            controller.setMembersOfGroup(available, members)        
-            
-        # check if updated
-        controller = BaseGroup(conn, gid)
-        controller.containedExperimenters()        
-        self.assertEquals(sorted(params['members']), sorted([e.id for e in controller.members]))
-
-        # remove them from the group
-        params = {
-            'available':[eid1,eid2],
-            'members':[0]
-        }
-        request = fakeRequest(method="post", params=params)
-        
-        controller = BaseGroup(conn, gid)
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        if not form.is_valid():
-            #available = form.cleaned_data['available']
-            available = request.POST.getlist('available')
-            #members = form.cleaned_data['members']
-            members = request.POST.getlist('members')
-            controller.setMembersOfGroup(available, members)
-            
-        # check if updated
-        controller = BaseGroup(conn, gid)
-        controller.containedExperimenters()
-        self.assertEquals(sorted(params['members']), sorted([e.id for e in controller.members]))
-        
-    def test_createExperimenters(self):        
+    def test_createExperimenters(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
         
@@ -576,7 +603,6 @@ class WebAdminTest(WebTest):
         params = {
             "name":"webadmin_test_group_private %s" % uuid,
             "description":"test group",
-            "owners": [0L],
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
@@ -599,17 +625,18 @@ class WebAdminTest(WebTest):
         eid = _createExperimenter(request, conn)
         
         # check if experimenter created
-        controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
-        self.assertEquals(params['first_name'], controller.experimenter.firstName)
-        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
-        self.assertEquals(params['last_name'], controller.experimenter.lastName)
-        self.assertEquals(params['email'], controller.experimenter.email)
-        self.assertEquals(params['institution'], controller.experimenter.institution)
-        self.assert_(not controller.experimenter.isAdmin())
-        self.assertEquals(params['active'], controller.experimenter.isActive())
-        self.assertEquals(params['default_group'], controller.defaultGroup)        
-        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        experimenter = conn.getObject("Experimenter", eid)
+        otherGroupIds = [g.id for g in experimenter.getOtherGroups()]
+        self.assertEquals(params['omename'], experimenter.omeName)
+        self.assertEquals(params['first_name'], experimenter.firstName)
+        self.assertEquals(params['middle_name'], experimenter.middleName)
+        self.assertEquals(params['last_name'], experimenter.lastName)
+        self.assertEquals(params['email'], experimenter.email)
+        self.assertEquals(params['institution'], experimenter.institution)
+        self.assert_(not experimenter.isAdmin())
+        self.assertEquals(params['active'], experimenter.isActive())
+        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
         
         params = {
             "omename":"webadmin_test_admin %s" % uuid,
@@ -629,17 +656,18 @@ class WebAdminTest(WebTest):
         eid = _createExperimenter(request, conn)
         
         # check if experimenter created
-        controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
-        self.assertEquals(params['first_name'], controller.experimenter.firstName)
-        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
-        self.assertEquals(params['last_name'], controller.experimenter.lastName)
-        self.assertEquals(params['email'], controller.experimenter.email)
-        self.assertEquals(params['institution'], controller.experimenter.institution)
-        self.assertEquals(params['administrator'], controller.experimenter.isAdmin())
-        self.assertEquals(params['active'], controller.experimenter.isActive())
-        self.assertEquals(params['default_group'], controller.defaultGroup)        
-        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        experimenter = conn.getObject("Experimenter", eid)
+        otherGroupIds = [g.id for g in experimenter.getOtherGroups()]
+        self.assertEquals(params['omename'], experimenter.omeName)
+        self.assertEquals(params['first_name'], experimenter.firstName)
+        self.assertEquals(params['middle_name'], experimenter.middleName)
+        self.assertEquals(params['last_name'], experimenter.lastName)
+        self.assertEquals(params['email'], experimenter.email)
+        self.assertEquals(params['institution'], experimenter.institution)
+        self.assertEquals(params['administrator'], experimenter.isAdmin())
+        self.assertEquals(params['active'], experimenter.isActive())
+        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
         
         params = {
             "omename":"webadmin_test_off %s" % uuid,
@@ -657,19 +685,34 @@ class WebAdminTest(WebTest):
         eid = _createExperimenter(request, conn)
         
         # check if experimenter created
-        controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
-        self.assertEquals(params['first_name'], controller.experimenter.firstName)
-        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
-        self.assertEquals(params['last_name'], controller.experimenter.lastName)
-        self.assertEquals(params['email'], controller.experimenter.email)
-        self.assertEquals(params['institution'], controller.experimenter.institution)
-        self.assert_(not controller.experimenter.isAdmin())
-        self.assert_(not controller.experimenter.isActive())
-        self.assertEquals(params['default_group'], controller.defaultGroup)        
-        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        experimenter = conn.getObject("Experimenter", eid)
+        otherGroupIds = [g.id for g in experimenter.getOtherGroups()]
+        self.assertEquals(params['omename'], experimenter.omeName)
+        self.assertEquals(params['first_name'], experimenter.firstName)
+        self.assertEquals(params['middle_name'], experimenter.middleName)
+        self.assertEquals(params['last_name'], experimenter.lastName)
+        self.assertEquals(params['email'], experimenter.email)
+        self.assertEquals(params['institution'], experimenter.institution)
+        self.assert_(not experimenter.isAdmin())
+        self.assert_(not experimenter.isActive())
+        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
     
-    def test_updateExperimenter(self):        
+    def test_badCreateExperimenters(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # empty fields
+        params = {}
+        request = fakeRequest(method="post", params=params)
+        try:
+            eid = _createExperimenter(request, conn)
+        except Exception, e:
+            pass
+        else:
+            self.fail("Can't create user with no parameters")
+            
+    def test_updateExperimenter(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
         
@@ -677,7 +720,6 @@ class WebAdminTest(WebTest):
         params = {
             "name":"webadmin_test_group_private %s" % uuid,
             "description":"test group",
-            "owners": [0L],
             "permissions":0
         }
         
@@ -688,7 +730,6 @@ class WebAdminTest(WebTest):
         params = {
             "name":"webadmin_test_default %s" % uuid,
             "description":"test group default",
-            "owners": [0L],
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
@@ -703,6 +744,7 @@ class WebAdminTest(WebTest):
             "email":"user_%s@domain.com" % uuid,
             "institution":"Laboratory",
             "active":True,
+            "administrator":False,
             "default_group":gid,
             "other_groups":[gid],
             "password":"123",
@@ -730,17 +772,18 @@ class WebAdminTest(WebTest):
         _updateExperimenter(request, conn, eid)
         
         # check if experimenter updated
-        controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
-        self.assertEquals(params['first_name'], controller.experimenter.firstName)
-        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
-        self.assertEquals(params['last_name'], controller.experimenter.lastName)
-        self.assertEquals(params['email'], controller.experimenter.email)
-        self.assertEquals(params['institution'], controller.experimenter.institution)
-        self.assertEquals(params['administrator'], controller.experimenter.isAdmin())
-        self.assertEquals(params['active'], controller.experimenter.isActive())
-        self.assertEquals(params['default_group'], controller.defaultGroup)        
-        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        experimenter = conn.getObject("Experimenter", eid)
+        otherGroupIds = [g.id for g in experimenter.getOtherGroups()]
+        self.assertEquals(params['omename'], experimenter.omeName)
+        self.assertEquals(params['first_name'], experimenter.firstName)
+        self.assertEquals(params['middle_name'], experimenter.middleName)
+        self.assertEquals(params['last_name'], experimenter.lastName)
+        self.assertEquals(params['email'], experimenter.email)
+        self.assertEquals(params['institution'], experimenter.institution)
+        self.assert_(experimenter.isAdmin())
+        self.assert_(experimenter.isActive())
+        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
         
         # remove admin privilages and deactivate account 
         params = {
@@ -761,17 +804,19 @@ class WebAdminTest(WebTest):
         _updateExperimenter(request, conn, eid)
         
         # check if experimenter updated
-        controller = BaseExperimenter(conn, eid)
-        self.assertEquals(params['omename'], controller.experimenter.omeName)
-        self.assertEquals(params['first_name'], controller.experimenter.firstName)
-        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
-        self.assertEquals(params['last_name'], controller.experimenter.lastName)
-        self.assertEquals(params['email'], controller.experimenter.email)
-        self.assertEquals(params['institution'], controller.experimenter.institution)
-        self.assert_(not controller.experimenter.isAdmin())
-        self.assert_(not controller.experimenter.isActive())
-        self.assertEquals(params['default_group'], controller.defaultGroup)        
-        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        experimenter = conn.getObject("Experimenter", eid)
+        otherGroupIds = [g.id for g in experimenter.getOtherGroups()]
+        self.assertEquals(params['omename'], experimenter.omeName)
+        self.assertEquals(params['first_name'], experimenter.firstName)
+        self.assertEquals(params['middle_name'], experimenter.middleName)
+        self.assertEquals(params['last_name'], experimenter.lastName)
+        self.assertEquals(params['email'], experimenter.email)
+        self.assertEquals(params['institution'], experimenter.institution)
+        self.assert_(not experimenter.isAdmin())
+        self.assert_(not experimenter.isActive())
+        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        
         
         try:
            self.loginAsUser(params['omename'], params['password'])
@@ -787,7 +832,6 @@ class WebAdminTest(WebTest):
         params = {
             "name": uuid,
             "description":"password test",
-            "owners": [0L],
             "permissions":0
         }
         
@@ -802,6 +846,7 @@ class WebAdminTest(WebTest):
             "last_name":uuid,
             "email":"password_%s@domain.com" % uuid,
             "institution":"Laboratory",
+            "administrator": False,
             "active":True,
             "default_group":gid,
             "other_groups":[gid],
@@ -831,7 +876,52 @@ class WebAdminTest(WebTest):
         _changePassword(request, user_conn)
         
         self.loginAsUser(params['omename'], params_passwd['password'])
+    
+    def test_badChangePassword(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
         
+        # private group
+        params = {
+            "name": uuid,
+            "description":"password test",
+            "permissions":0
+        }
+        
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        # create experimenter
+        params = {
+            "omename":'password%s' % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"password_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "administrator": False,
+            "active":True,
+            "default_group":gid,
+            "other_groups":[gid],
+            "password":"123",
+            "confirmation":"123" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid = _createExperimenter(request, conn)
+        
+        # login as user and change my password
+        user_conn = self.loginAsUser(params['omename'], params['password'])
+        params_passwd = {}
+        request = fakeRequest(method="post", params=params_passwd)
+        try:
+            _changePassword(request, user_conn)
+        except:
+            pass
+        else:
+            self.fail("Can't change password with no parameters")
+            
+        self.loginAsUser(params['omename'], params['password'])
+
 ####################################
 # helpers
 
@@ -850,51 +940,60 @@ def _changePassword(request, conn, eid=None):
         
 def _createGroup(request, conn):
     #create group
-    controller = BaseGroup(conn)
+    experimenters = list(conn.getObjects("Experimenter"))
     name_check = conn.checkGroupName(request.REQUEST.get('name'))
-    form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+    form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
         owners = form.cleaned_data['owners']
+        members = form.cleaned_data['members']
         permissions = form.cleaned_data['permissions']
-        readonly = toBoolean(form.cleaned_data['readonly'])
-        return controller.createGroup(name, owners, permissions, readonly, description)
+        
+        perm = setActualPermissions(permissions)
+        listOfOwners = getSelectedExperimenters(conn, owners)
+        gid = conn.createGroup(name, perm, listOfOwners, description)
+        new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+        group = conn.getObject("ExperimenterGroup", gid)
+        conn.setMembersOfGroup(group, new_members)
+        return gid
     else:
         raise Exception(form.errors.as_text())
 
 def _updateGroup(request, conn, gid):
     # update group
-    controller = BaseGroup(conn, gid)
-    name_check = conn.checkGroupName(request.REQUEST.get('name'), controller.group.name)
-    form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+    experimenters = list(conn.getObjects("Experimenter"))
+    group = conn.getObject("ExperimenterGroup", gid)
+    name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
+    form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
         owners = form.cleaned_data['owners']
         permissions = form.cleaned_data['permissions']
-        readonly = toBoolean(form.cleaned_data['readonly'])
-        controller.updateGroup(name, owners, permissions, readonly, description)
+        members = form.cleaned_data['members']
+        
+        listOfOwners = getSelectedExperimenters(conn, owners)
+        if permissions != int(permissions):
+            perm = setActualPermissions(permissions)
+        else:
+            perm = None
+        conn.updateGroup(group, name, perm, listOfOwners, description)
+        
+        new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+        conn.setMembersOfGroup(group, new_members)
     else:
         raise Exception(form.errors.as_text())            
 
 def _createExperimenter(request, conn):
     # create experimenter
-    controller = BaseExperimenter(conn)
+    groups = list(conn.getObjects("ExperimenterGroup"))
+    groups.sort(key=lambda x: x.getName().lower())
+    
     name_check = conn.checkOmeName(request.REQUEST.get('omename'))
     email_check = conn.checkEmail(request.REQUEST.get('email'))
-
-    initial={'with_password':True}
-
-    exclude = list()            
-    if len(request.REQUEST.getlist('other_groups')) > 0:
-        others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
-        initial['others'] = others
-        initial['default'] = [(g.id, g.name) for g in others]
-        exclude.extend([g.id for g in others])
-
-    available = controller.otherGroupsInitialList(exclude)
-    initial['available'] = available
+    
+    initial={'with_password':True, 'groups':otherGroupsInitialList(groups)}
     form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
     if form.is_valid():
         omename = form.cleaned_data['omename']
@@ -908,30 +1007,39 @@ def _createExperimenter(request, conn):
         defaultGroup = form.cleaned_data['default_group']
         otherGroups = form.cleaned_data['other_groups']
         password = form.cleaned_data['password']
-        return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+        
+        # default group
+        for g in groups:
+            if long(defaultGroup) == g.id:
+                dGroup = g
+                break
+
+        listOfOtherGroups = set()
+        # rest of groups
+        for g in groups:
+            for og in otherGroups:
+                # remove defaultGroup from otherGroups if contains
+                if long(og) == long(dGroup.id):
+                    pass
+                elif long(og) == g.id:
+                    listOfOtherGroups.add(g)
+
+        return conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
     else:
         raise Exception(form.errors.as_text())
 
 def _updateExperimenter(request, conn, eid):
-    # update experimenter
-    controller = BaseExperimenter(conn, eid)
-    name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
-    email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
+    groups = list(conn.getObjects("ExperimenterGroup"))
+    groups.sort(key=lambda x: x.getName().lower())
     
-    initial={'active':True}
-    exclude = list()
-
-    if len(request.REQUEST.getlist('other_groups')) > 0:
-        others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
-        initial['others'] = others
-        initial['default'] = [(g.id, g.name) for g in others]
-        exclude.extend([g.id for g in others])
-
-    available = controller.otherGroupsInitialList(exclude)
-    initial['available'] = available
-
+    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+    
+    name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
+    email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
+    initial={'active':True, 'groups':otherGroupsInitialList(groups)}
+    
     form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-
+       
     if form.is_valid():
         omename = form.cleaned_data['omename']
         firstName = form.cleaned_data['first_name']
@@ -943,6 +1051,23 @@ def _updateExperimenter(request, conn, eid):
         active = toBoolean(form.cleaned_data['active'])
         defaultGroup = form.cleaned_data['default_group']
         otherGroups = form.cleaned_data['other_groups']
-        controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
+        
+        # default group
+        for g in groups:
+            if long(defaultGroup) == g.id:
+                dGroup = g
+                break
+
+        listOfOtherGroups = set()
+        # rest of groups
+        for g in groups:
+            for og in otherGroups:
+                # remove defaultGroup from otherGroups if contains
+                if long(og) == long(dGroup.id):
+                    pass
+                elif long(og) == g.id:
+                    listOfOtherGroups.add(g)
+
+        conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
     else:
         raise Exception(form.errors.as_text())

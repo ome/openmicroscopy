@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.AnnotationData;
@@ -529,18 +530,29 @@ class PropertiesUI
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
     	NumberFormat nf = NumberFormat.getInstance();
+    	String units = null;
+    	UnitsObject o;
     	try {
 			dx = Double.parseDouble(x);
+			o = EditorUtil.transformSize(dx);
+			units = o.getUnits();
+			dx = o.getValue();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
 			dy = Double.parseDouble(y);
+			o = EditorUtil.transformSize(dy);
+			if (units == null) units = o.getUnits();
+			dy = o.getValue();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
 			dz = Double.parseDouble(z);
+			o = EditorUtil.transformSize(dz);
+			if (units == null) units = o.getUnits();
+			dz = o.getValue();
 		} catch (Exception e) {
 			number = false;
 		}
@@ -574,6 +586,8 @@ class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
+    	if (units == null) units = UnitsObject.MICRONS;
+    	label += units;
     	return label;
     }
 
@@ -646,8 +660,7 @@ class PropertiesUI
     	String s = formatPixelsSize(details, value);
     	if (s != null) {
     		c.gridy++;
-        	label = UIUtilities.setTextFont(s+EditorUtil.MICRONS, 
-        			Font.BOLD, size);
+        	label = UIUtilities.setTextFont(s, Font.BOLD, size);
         	c.gridx = 0;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
@@ -1281,7 +1294,7 @@ class PropertiesUI
 	 * No implementation in this case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+	protected List<Object> getAnnotationToRemove() { return null; }
 
 	/**
 	 * No implementation in this case.
@@ -1343,7 +1356,7 @@ class PropertiesUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() {}
+	protected void clearDisplay() { clearData(); }
 
 	/**
 	 * Sets the title of the component.

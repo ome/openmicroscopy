@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -85,9 +86,29 @@ public class DataBrowserAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
+	/**
+	 * Returns the context for an administrator.
+	 * 
+	 * @return See above.
+	 */
+	public static SecurityContext getAdminContext()
+	{
+		if (!isAdministrator()) return null;
+		Collection groups = getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getName().equals(GroupData.SYSTEM)) {
+				return new SecurityContext(g.getId());
+			}
+		}
+		return null;
 	}
 	
     /**
@@ -138,7 +159,8 @@ public class DataBrowserAgent
 	public static Set getGroupsLeaderOf()
 	{
 		Set values = new HashSet();
-		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		Collection groups = (Collection)
+		registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		Iterator i = groups.iterator();
 		GroupData g;
 		Set leaders;

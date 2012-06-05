@@ -34,6 +34,9 @@
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
+<!--[if lte IE 9]>
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.iehacks.css" %}" media="all" />
+<![endif]-->
 
 {% endblock %}
 
@@ -660,7 +663,7 @@
     // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
     var update_roi_thumbs = function(line_color) {
         // we set visibility based on 'toggle_roi_thumbs' checkbox
-        var vis = ($("#toggle_roi_thumbs").attr('checked') == true);
+        var vis = ($("#toggle_roi_thumbs").is(":checked"));
         var update_thumbs = function() {
             var $thmb = $(this);
             if (vis) {
@@ -809,7 +812,7 @@
   function setImageDefaults (obj, callback, skip_apply) {
     if (!skip_apply) applyRDCW();
     var old = $(obj).html();
-    gs_modalJson('/webgateway/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+    gs_modalJson('{{ viewport_server }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
@@ -824,7 +827,7 @@
 {% if image.canAnnotate %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
-    var url = '/webgateway/resetImgRDef/'+viewport.loadedImg.id+'/';
+    var url = '{{ viewport_server }}/resetImgRDef/'+viewport.loadedImg.id+'/';
     gs_choiceModalJson(msg, [
         {label: 'ok', url: url, data: {full: true}},
         {label: 'cancel'}
@@ -1012,7 +1015,7 @@
                     title="Actual size"
                     onclick="viewport.setZoom(100)" ></button>
             <button id="full-screen"
-                    title="Zomm image to fit"
+                    title="Zoom image to fit"
                     onclick="viewport.setZoomToFit()"></button>
           </div>
           <div class="odd row">
@@ -1038,11 +1041,11 @@
           <div class="even row">
             <label for="wblitz-rmodel">Color</label>
             <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
-	    {% if not blitzcon.isAnonymous and image.canWrite %}
+	    {% comment %}<!-- #8766 {% if not blitzcon.isAnonymous and image.canWrite %}
 	    <br />
             <label for="wblitz-invaxis">Invert Z/T Axis</label>
             <input id="wblitz-invaxis" type="checkbox" onchange="viewport.setInvertedAxis(this.checked);" />
-	    {% endif %}
+	    {% endif %}-->{% endcomment %}
             <br />
           </div>
             <h1>Current Image</h1>
@@ -1065,9 +1068,11 @@
           </div>
 {% block roi_buttons %}
           <div id="roi_controls">
-                ROIs:
-                <a href="#" onclick="show_rois()">Show</a> |
-                <a href="#" onclick="hide_rois()">Hide</a>
+                <h1>ROI Count: {{ roiCount }}</h1>
+                {% ifnotequal roiCount 0 %}
+                    <a href="#" onclick="show_rois()">Show ROIs</a> |
+                    <a href="#" onclick="hide_rois()">Hide</a>
+                {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
           {% block current_image_tools %}{% endblock %}
@@ -1253,8 +1258,12 @@
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
             return true;
+        } else if ($target.hasClass('color_picker_option')) {
+            // change the colour of lines drawn on roi_thumbs
+            var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
+            update_roi_thumbs(line_color);
         } else if ($target.attr('id') == "toggle_shape_text") {
-            var show_labels = ($("#toggle_shape_text").attr('checked') == true);
+            var show_labels = ($("#toggle_shape_text").is( ":checked" ));
             viewport.viewportimg.get(0).show_labels(show_labels);
             return true;
         } else if ($target.hasClass('shape_cell')) {
@@ -1281,10 +1290,6 @@
                 var $roiThead = $target.parent().parent().parent();
                 toggle_th($roiThead);
             }
-        } else if ($target.hasClass('color_picker_option')) {
-            // change the colour of lines drawn on roi_thumbs
-            var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
-            update_roi_thumbs(line_color);
         } else if ($target.hasClass('expand_arrow') || $target.hasClass('roi_icon')) {
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();

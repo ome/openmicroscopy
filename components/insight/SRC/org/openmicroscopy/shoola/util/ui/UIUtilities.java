@@ -226,13 +226,6 @@ public class UIUtilities
 
 	/** A day in milliseconds. */
 	public static final long				DAY = 86400000;
-	
-	/** Unicode for the degrees symbol. */
-	public final static String 				DEGREES_SYMBOL = "\u00B0";
-	
-	
-	/** Unicode for the microns symbol. */
-	public final static String  			MICRONS_SYMBOL = "\u00B5m";
 
 	/** Unicode for the squared symbol. */
 	public final static String  			SQUARED_SYMBOL =  "\u00B2";
@@ -242,12 +235,6 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
-	
-    /** String to representing the nanometer symbol. */
-    public static final String              NANOMETER = " \u00B5m";
-    
-    /** String to represent the micron symbol. */
-    public static final String 				MICRONS = "(in \u00B5)";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
@@ -1096,12 +1083,32 @@ public class UIUtilities
     public static JPanel buildComponentPanelCenter(JComponent component, int 
     		hgap, int vgap)
     {
+        return buildComponentPanelCenter(component, hgap, vgap, true);
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flow layout.
+     * 
+     * @param component The component to add.
+     *  @param hgap    	The horizontal gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param vgap    	The vertical gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanelCenter(JComponent component, int 
+    		hgap, int vgap, boolean opaque)
+    {
         JPanel p = new JPanel();
         if (component == null) return p;
         if (hgap < 0) hgap = 0;
         if (vgap < 0) vgap = 0;
         p.setLayout(new FlowLayout(FlowLayout.CENTER, hgap, vgap));
         p.add(component);
+        p.setOpaque(opaque);
         return p;
     }
     
@@ -2437,5 +2444,41 @@ public class UIUtilities
     	button.setIcon((Icon) a.getValue(Action.SMALL_ICON));
     	return button;
     }
+    
+    /**
+	 * Transforms the size and returns the value and units.
+	 * 
+	 * @param value The value to transform.
+	 * @return See above.
+	 */
+	public static UnitsObject transformSize(Double value)
+	{
+		double v = value.doubleValue();
+		String units = UnitsObject.MICRONS;
+		/* TODO: check if we want to introduce that.
+		if (v < 1) {
+			units = UnitsObject.NANOMETER;
+			v *= 1000;
+			if (v < 1) {
+				units = UnitsObject.ANGSTROM;
+				v *= 10;
+			}
+			return new UnitsObject(units, v);
+		}
+		*/
+		if (v > 1000) {
+			units = UnitsObject.MILLIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.CENTIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.METER;
+			v /= 1000;
+		}
+		return new UnitsObject(units, v);
+	}
 	
 }

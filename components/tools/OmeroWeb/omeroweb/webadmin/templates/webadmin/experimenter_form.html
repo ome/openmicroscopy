@@ -33,9 +33,9 @@
 
 {% block title %}
     {% if eid %}
-        {% trans "Edit scientist" %}
+        {% trans "Edit user" %}
     {% else %}
-        {% trans "Add scientist" %}
+        {% trans "New User" %}
     {% endif %}
 
 {% endblock %}
@@ -194,12 +194,12 @@
 
 <div class="one_column_content">
 {% if eid %}
-    <h1>{% trans "Edit scientist" %}</h1>
+    <h1>{% trans "Edit User" %}</h1>
 {% else %}
-    <h1>{% trans "Add scientist" %}</h1>
+    <h1>{% trans "New User" %}</h1>
 {% endif %}
 
-<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Experimenters">Cancel</a></h1>
+<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
 
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>

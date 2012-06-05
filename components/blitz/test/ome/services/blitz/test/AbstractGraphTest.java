@@ -74,9 +74,9 @@ public class AbstractGraphTest extends AbstractServantTest {
 
     protected _HandleTie submit(IRequest req, Map<String, String> callContext) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", req.toString());
-        HandleI handle = new HandleI(1000, callContext);
+        HandleI handle = new HandleI(1000);
         handle.setSession(user.sf);
-        handle.initialize(id, req);
+        handle.initialize(id, req, callContext);
         handle.run();
         // Client side this would need a try/finally { handle.close() }
         return new _HandleTie(handle);
@@ -120,8 +120,13 @@ public class AbstractGraphTest extends AbstractServantTest {
                         msgs, printErr(err)), msgs.contains(err.name));
             }
         }
+        assertFlag(handle, State.FAILURE);
+    }
 
-        assertTrue(handle.getStatus().flags.contains(State.FAILURE));
+    protected void assertFlag(_HandleTie handle, State s) {
+        Status status = handle.getStatus();
+        assertTrue(String.format("Looking for %s. Found: %s", s, status.flags),
+            status.flags.contains(s));
     }
 
     protected void assertDoesExist(String table, long id) throws Exception {

@@ -142,7 +142,7 @@ public class AdminCreator
 				m.put(group, toAdd);
 				Map m1 = new HashMap();
 				m1.put(group, toRemove);
-				handle = dmView.addExistingObjects(ctx, m, m1, this);
+				handle = dmView.cutAndPaste(ctx, m, m1, true, this);
 		}
     }
 

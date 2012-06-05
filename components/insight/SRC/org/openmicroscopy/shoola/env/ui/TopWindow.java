@@ -211,5 +211,5 @@ public abstract class TopWindow
         pack();
         UIUtilities.centerAndShow(this);
     }
-     
+
 }

@@ -857,9 +857,10 @@ class AnnotationDataUI
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
 		
-		enabled = model.canDelete();
+		enabled = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
+		enabled = model.canDelete(); //to be reviewed
 		unrateButton.setEnabled(enabled);
 		buildGUI();
 	}
@@ -868,9 +869,10 @@ class AnnotationDataUI
 	void onRelatedNodesSet()
 	{
 		if (!addTagsButton.isEnabled()) return;
-		boolean b = model.isAnnotationAllowed();
+		boolean b = model.canAddAnnotationLink();
 		addTagsButton.setEnabled(b);
 		addDocsButton.setEnabled(b);
+		b = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(b);
 		removeDocsButton.setEnabled(b);
 	}
@@ -910,6 +912,7 @@ class AnnotationDataUI
 				data = doc.getData();
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) data;
+					/*
 					for (int j = 0; j < files.length; j++) {
 						if (fa.getId() <= 0) {
 							if (!fa.getFilePath().equals(
@@ -922,15 +925,21 @@ class AnnotationDataUI
 							} else toAdd.add(files[j]);
 						}
 					}
-					
+					*/
+					for (int j = 0; j < files.length; j++) {
+						if (fa.getId() >= 0 &&
+								fa.getFileName().equals(files[j].getName())) {
+							toReplace.add(fa);
+						}
+					}
 				}
 			}
 		}
-		if (data == null) {
+		//if (data == null) {
 			for (int i = 0; i < files.length; i++) {
 				toAdd.add(files[i]);
 			}
-		}
+		//}
 		if (toAdd.size() > 0) {
 			data = null;
 			try {
@@ -1248,9 +1257,9 @@ class AnnotationDataUI
 	 * Returns the collection of annotation to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		List<Object> l = new ArrayList<Object>();
 		if (selectedValue != initialValue && selectedValue == 0) {
 			RatingAnnotationData rating = model.getUserRatingAnnotation();
 			if (rating != null) l.add(rating);

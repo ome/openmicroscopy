@@ -56,7 +56,7 @@ public class DataObjectRegistration
 	 * The collection of annotations to remove from the element 
 	 * when unregistered. 
 	 */
-	private List<AnnotationData> toRemove;
+	private List<Object> toRemove;
 	
 	/**  The collection of annotations to delete when unregistered. */
 	private List<AnnotationData> toDelete;
@@ -80,9 +80,8 @@ public class DataObjectRegistration
 	 * @param data		The object to register or un-register.
 	 */
 	public DataObjectRegistration(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
-				List<Object> metadata,
-				DataObject data)
+			List<Object> toRemove, List<AnnotationData> toDelete,
+			List<Object> metadata, DataObject data)
 	{
 		this.toAdd = toAdd;
 		this.toRemove = toRemove;
@@ -105,7 +104,7 @@ public class DataObjectRegistration
 	 * 
 	 * @return See above
 	 */
-	public List<AnnotationData> getToRemove() { return toRemove; }
+	public List<Object> getToRemove() { return toRemove; }
 
 	/**
 	 * Returns the collection of annotations to delete when unregistered.

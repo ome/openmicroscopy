@@ -2059,7 +2059,7 @@ div.plane_info table div {
 
 #tooltip {
 position: absolute;
-background: rgba(0,0,0,.9);
+background: #000;
 color:#999;
 z-index: 3000;
 border:solid 1px black;

@@ -16,7 +16,15 @@ module omero {
     module cmd {
 
         class DoAll extends Request {
+
             RequestList requests;
+
+            /**
+             * List of call context objects which should get applied to each Request.
+             * The list need only be as large as necessary to apply to a given request.
+             * Null and empty [StringMap] instances will be ignored.
+             **/
+            StringMapList contexts;
         };
 
         class DoAllRsp extends OK {
@@ -52,6 +60,26 @@ module omero {
             HandleList handles;
         };
 
+        /**
+         * Diagnostic command which can be used to see the overhead
+         * of callbacks. The number of steps and the simulated workload
+         * can be specified.
+         **/
+        class Timing extends Request {
+
+            /**
+             * Number of steps that will be run by this command. Value is
+             * limited by the overall invocation time (5 minutes) as well as
+             * total number of calls (e.g. 100000)
+             **/
+            int steps;
+
+            /**
+             * Number of millis to wait. This value simulates activity on the server.
+             * Value is limited by the overall invocation time (5 minutes).
+             **/
+            int millisPerStep;
+        };
     };
 };
 

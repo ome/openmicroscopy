@@ -202,7 +202,7 @@ public class DnDTree
 			return;
 		}
 		*/
-		if (!isUserOwner(ot) &&
+		if (!canLink(ot) &&
 				!(ot instanceof ExperimenterData || ot instanceof GroupData)) {
 			dropAllowed = false;
 			setCursor(createCursor());
@@ -251,10 +251,10 @@ public class DnDTree
 							if (os instanceof ExperimenterData &&
 									administrator) list.add(n);
 							else {
-								if (isUserOwner(os)) list.add(n);
+								if (canLink(os)) list.add(n);
 							}
 						} else {
-							if (isUserOwner(os)) list.add(n);
+							if (canLink(os)) list.add(n);
 						}
 					}	
 				}
@@ -276,7 +276,7 @@ public class DnDTree
 	 * @param ho The object to handle.
 	 * @return See above.
 	 */
-	private boolean isUserOwner(Object ho)
+	private boolean canLink(Object ho)
 	{
 		if (ho instanceof TreeImageTimeSet) {
 			TreeImageDisplay n = EditorUtil.getDataOwner((TreeImageDisplay) ho);

@@ -632,14 +632,18 @@ class BrowserModel
 	{
 		SecurityContext ctx = getSecurityContext(expNode);
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
-		Iterator i = n.iterator();
+		Iterator<TreeImageSet> i = n.iterator();
 		Set<Integer> indexes = new HashSet<Integer>();
 		switch (getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
 				TreeImageTimeSet node;
+				TreeImageSet no;
 				while (i.hasNext()) {
-					node = (TreeImageTimeSet) i.next();
-					indexes.add(node.getType());
+					no = i.next();
+					if (no instanceof TreeImageTimeSet) {
+						node = (TreeImageTimeSet) no;
+						indexes.add(node.getType());
+					}
 				}
 				break;
 			case Browser.FILES_EXPLORER:
@@ -910,7 +914,7 @@ class BrowserModel
 				return new SecurityContext(group.getId());
 			} else {
 				return new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getDefaultGroup().getId());
 			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
@@ -920,17 +924,22 @@ class BrowserModel
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					getUserDetails().getDefaultGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
+		if (parent == null) {
+			return new SecurityContext(
+					getUserDetails().getDefaultGroup().getId());
+		}
 		Object p = parent.getUserObject();
 		if (p instanceof GroupData) {
 			GroupData group = (GroupData) p;
 			return new SecurityContext(group.getId());
 		}
 		return new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getDefaultGroup().getId());
 	}
+	
 	
 	/**
 	 * Returns the selected group.
@@ -947,7 +956,7 @@ class BrowserModel
 	 */
 	boolean isSingleGroup()
 	{
-		Set l = TreeViewerAgent.getAvailableUserGroups();
+		Collection l = TreeViewerAgent.getAvailableUserGroups();
 		return l.size() <= 1;
 	}
 

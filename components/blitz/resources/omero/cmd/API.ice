@@ -24,6 +24,8 @@ module omero {
 
         dictionary<string, string> StringMap;
 
+        sequence<StringMap> StringMapList;
+
         enum State {
             ALL, ACTIVE, INACTIVE, SUCCESS, FAILURE, CANCELLED
         };
@@ -52,7 +54,6 @@ module omero {
         sequence<Status> StatusList;
 
         class Request {
-            string session;
         };
 
         ["java:type:java.util.ArrayList<omero.cmd.Request>:java.util.List<omero.cmd.Request>"]
@@ -88,18 +89,12 @@ module omero {
              void step(int complete, int total);
 
             /**
-             * Called when the command is either cancelled directly
-             * or when close is called before completion. In either
-             * case this method will only be called if cancellation
-             * returns with true.
+             * Called when the command has completed in any fashion
+             * including cancellation. The [Status::flags] list will
+             * contain information about whether or not the process
+             * was cancelled.
              */
-             void cancelled(Response rsp);
-
-            /**
-             * Called when the command has completed in any non-cancel
-             * fashion.
-             */
-             void finished(Response rsp);
+             void finished(Response rsp, Status s);
 
         };
 

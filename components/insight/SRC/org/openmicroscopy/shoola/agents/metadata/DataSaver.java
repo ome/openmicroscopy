@@ -65,7 +65,7 @@ public class DataSaver
 	private List<AnnotationData> 	toAdd;
 	
 	/** The annotation to unlink from the data object. */
-	private List<AnnotationData> 	toRemove;
+	private List<Object> 	toRemove;
 	
 	/** The acquisition metadata. */
 	private List<Object> 			acquisitionMetadata;
@@ -87,7 +87,7 @@ public class DataSaver
 	 */
 	public DataSaver(MetadataViewer viewer, SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, List<Object> acquisitionMetadata)
+		List<Object> toRemove, List<Object> acquisitionMetadata)
 	{
 		super(viewer, ctx, null);
 		if (data == null)
