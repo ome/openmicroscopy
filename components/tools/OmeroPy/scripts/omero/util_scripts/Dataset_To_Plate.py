@@ -33,6 +33,7 @@ This script converts a Dataset of Images to a Plate, with one image per Well.
 
 import omero.scripts as scripts
 from omero.gateway import BlitzGateway
+import omero.util.script_utils as script_utils
 import omero
 from omero.rtypes import *
 
@@ -84,7 +85,7 @@ def dataset_to_plate(conn, scriptParams, datasetId, screen):
     plate.rowNamingConvention = rstring(str(scriptParams["Row_Names"]))
     plate = updateService.saveAndReturnObject(plate)
 
-    if screen is not None:
+    if screen is not None and screen.canLink():
         link = omero.model.ScreenPlateLinkI()
         link.parent = omero.model.ScreenI(screen.id, False)
         link.child = omero.model.PlateI(plate.id.val, False)
@@ -144,11 +145,18 @@ def datasets_to_plates(conn, scriptParams):
 
     updateService = conn.getUpdateService()
 
-    # these must be Dataset IDs
-    IDs = scriptParams["IDs"]
+    message =""
+    
+    # Get the datasets ID
+    datasets, logMessage = script_utils.getObjects(conn, scriptParams)
+    message += logMessage
+    if not datasets:
+        return None, message
+    IDs = [ds.getId() for ds in datasets]
 
     # find or create Screen if specified
     screen = None
+    newscreen = None
     if "Screen" in scriptParams and len(scriptParams["Screen"]) > 0:
         s = scriptParams["Screen"]
         # see if this is ID of existing screen
@@ -162,6 +170,7 @@ def datasets_to_plates(conn, scriptParams):
             screen = omero.model.ScreenI()
             screen.name = rstring(s)
             screen = updateService.saveAndReturnObject(screen)
+            newscreen = screen
 
     plates = []
     deletes = []
@@ -186,11 +195,18 @@ def datasets_to_plates(conn, scriptParams):
         else:
             print "Delete OK"
 
-    if screen is not None:
-        return [screen]
+    if newscreen:
+        message += "New screen created: %s" % screen.getName()
+        return [newscreen], message
+    elif plates:
+        if len(plates) == 1:
+            message += "New plate created: %s" % plates[0].name.val
+        else:
+                message += "%s plates created" % len(plates)
+        return plates, message
     else:
-        return plates
-
+        message += "No plates created."
+        return None, message
 
 def runAsScript():
     """
@@ -253,18 +269,12 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         conn = BlitzGateway(client_obj=client)
 
         # convert Dataset(s) to Plate(s). Returns new plates or screen
-        newObjs = datasets_to_plates(conn, scriptParams)
+        newObjs, message = datasets_to_plates(conn, scriptParams)
 
-        if len(newObjs) == 1:
-            name = newObjs[0].name.val
-            dType = newObjs[0].__class__.__name__[:-1]
-            client.setOutput("Message", rstring("Script Ran OK. New %s created: %s" % (dType, name)))
+        client.setOutput("Message",rstring(message))
+        if newObjs:
             client.setOutput("New_Object",robject(newObjs[0]))
-        elif len(newObjs) > 1:
-            client.setOutput("Message", rstring("Script Ran OK. %d Plates created" % len(newObjs) ))
-            client.setOutput("New_Object",robject(newObjs[0]))  # return the first one
-        else:
-            client.setOutput("Message", rstring("No plates created. See 'Error' or 'Info' for details"))
+            
     finally:
         client.closeSession()
 
