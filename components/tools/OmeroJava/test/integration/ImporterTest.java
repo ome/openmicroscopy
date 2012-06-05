@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.xml.model.OME;
@@ -608,6 +609,19 @@ public class ImporterTest
 		assertEquals(otf.getPixelsType().getValue().getValue(), 
 				xml.getType().getValue());
 	}
+
+    /**
+     * Before each method call {@link #newUserAndGroup(String)}. If
+     * {@link #disconnect()} is used anywhere, then this is necessary
+     * for all methods, otherwise non-deterministic method ordering can
+     * cause those tests which do not begin with this method call to fail.
+     */
+    @BeforeMethod
+    protected void loginMethod()
+        throws Exception
+    {
+        ownerEc = newUserAndGroup("rw----");
+    }
 
 	/**
 	 * Overridden to initialize the list.
@@ -1502,7 +1516,6 @@ public class ImporterTest
 	public void testImportImageIntoDatasetFromOtherGroup()
 		throws Exception
 	{
-    	EventContext ownerEc = newUserAndGroup("rw----");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	
@@ -1511,6 +1524,7 @@ public class ImporterTest
     	//First create a dataset
 		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
 		assertTrue(group.getId().getValue() != ownerEc.groupId);
+		loginUser(ownerEc);
     	//newUserInGroup(ownerEc);
 
     	File f = File.createTempFile("testImportImageIntoDataset", 
@@ -1546,7 +1560,6 @@ public class ImporterTest
 	public void testImportImageIntoWrongDataset()
 		throws Exception
 	{
-    	EventContext ownerEc = newUserAndGroup("rw----");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	d.setId(omero.rtypes.rlong(d.getId().getValue()*100));

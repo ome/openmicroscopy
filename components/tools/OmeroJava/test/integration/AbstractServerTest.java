@@ -589,6 +589,11 @@ public class AbstractServerTest
      * fields which were set on creation.
      */
     protected void clean() throws Exception {
+        if (importer != null) {
+            importer.closeServices();
+            importer = null;
+        }
+
         if (client != null) {
             client.__del__();
         }
