@@ -29,6 +29,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -302,7 +303,7 @@ class ImporterControl
 	List<GroupSelectionAction> getUserGroupAction()
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Set m = ImporterAgent.getAvailableUserGroups();
+		Collection m = ImporterAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();

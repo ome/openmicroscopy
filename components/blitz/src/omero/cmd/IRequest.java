@@ -48,17 +48,13 @@ public interface IRequest {
      * Method called within the thread boundaries before any processing occurs.
      * 
      * Implementations must properly initialize the "step" field of the
-     * {@link Status} object. This count will define how many times the
-     * {@link #step(int)} method will be called.
+     * {@link Status} object by calling {@link Helper#setSteps(int). This count
+     * will define how many times the {@link #step(int)} method will be called.
      * 
-     * The arguments passed in are those needed by IRequests to interact with
-     * data and should be stored for later use. Most implementations will pass
-     * these arguments to
-     * {@link Helper#Helper(Request, Status, SqlAction, Session, ServiceFactory)}
-     * for thread-safe storage and accesss.
+     * The {@link Helper} instance passed in contains those resources needed by
+     * IRequests to interact with data and should be stored for later use.
      */
-    void init(Status status, SqlAction sql, Session session, ServiceFactory sf)
-            throws Cancel;
+    void init(Helper helper) throws Cancel;
 
     /**
      * Single uncancellable action which will be performed by this IRequest.

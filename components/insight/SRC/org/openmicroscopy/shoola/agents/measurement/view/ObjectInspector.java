@@ -28,6 +28,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +48,13 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescrip
 import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -81,6 +90,15 @@ class ObjectInspector
 	
 	/** Collection of column names. */
 	private static final List<String>			COLUMN_NAMES;
+	
+	/** The row indicating to show the text or not. */
+	private static final int TEXT_ROW = 0;
+	
+	/** The row indicating to show the text or not. */
+	private static final int WIDTH_ROW = 1;
+	
+	/** The row indicating to show the text or not. */
+	private static final int HEIGHT_ROW = 2;
 	
 	/** The row indicating to show the text or not. */
 	private static final int SHOW_TEXT_ROW = 3;
@@ -144,7 +162,6 @@ class ObjectInspector
 		fieldTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		fieldTable.setCellSelectionEnabled(true);
 		fieldTable.setColumnSelectionAllowed(true);
-		
 		fieldTable.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent e) {
@@ -172,6 +189,81 @@ class ObjectInspector
 				}
 			}
 		});
+		fieldTable.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FigureTable.VALUE_CHANGED_PROPERTY.equals(name)) {
+					handleValueChanged((String) evt.getNewValue());
+				}
+			}
+		});
+	}
+	
+	private void handleValueChanged(String text)
+	{
+		int row = fieldTable.getEditingRow();
+		FigureTableModel ftm = (FigureTableModel) 
+		fieldTable.getModel();
+		ROIFigure figure = ftm.getFigure();
+		switch (row) {
+			case TEXT_ROW:
+				if (figure instanceof MeasureLineConnectionFigure){
+					((MeasureLineConnectionFigure) figure).setText(text);
+				} else if (figure instanceof MeasureLineFigure){
+					((MeasureLineFigure) figure).setText(text);
+				} else if (figure instanceof MeasureEllipseFigure){
+					((MeasureEllipseFigure) figure).setText(text);
+				} else if (figure instanceof MeasureRectangleFigure){
+					((MeasureRectangleFigure) figure).setText(text);
+				} else if (figure instanceof MeasureBezierFigure){
+					((MeasureBezierFigure) figure).setText(text);
+				} else if (figure instanceof MeasurePointFigure){
+					((MeasurePointFigure) figure).setText(text);
+				} else if (figure instanceof MeasureTextFigure){
+					((MeasureTextFigure) figure).setText(text);
+				}
+				break;
+			case WIDTH_ROW:
+				try {
+					double d = Double.parseDouble(text);
+					if (figure instanceof MeasureEllipseFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					} else if (figure instanceof MeasureRectangleFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					} else if (figure instanceof MeasureBezierFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					} else if (figure instanceof MeasureTextFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					} else if (figure instanceof MeasureLineConnectionFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					} else if (figure instanceof MeasureLineFigure){
+						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					}
+				} catch (Exception e) {
+					
+				}
+			case HEIGHT_ROW:
+				try {
+					double d = Double.parseDouble(text);
+					if (figure instanceof MeasureEllipseFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					} else if (figure instanceof MeasureRectangleFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					} else if (figure instanceof MeasureBezierFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					} else if (figure instanceof MeasureTextFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					} else if (figure instanceof MeasureLineConnectionFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					} else if (figure instanceof MeasureLineFigure){
+						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					}
+				} catch (Exception e) {
+					
+				}
+		}
+		model.getDrawingView().repaint();
 	}
 	
 	/**

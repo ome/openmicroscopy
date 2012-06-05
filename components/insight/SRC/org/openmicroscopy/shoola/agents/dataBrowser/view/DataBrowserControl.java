@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -335,26 +336,52 @@ class DataBrowserControl
 		Browser browser = model.getBrowser();
 		Collection selection = null;
 		Iterator j;
+		List<Long> owners = new ArrayList<Long>();
 		if (browser != null) {
 			selection = browser.getSelectedDataObjects();
 			if (selection == null) return null;
 			int count = 0;
 			j = selection.iterator();
 			Object o;
+			DataObject data;
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
 					if (!(o instanceof GroupData ||
 						o instanceof ExperimenterData ||
 						o instanceof PlateAcquisitionData)) {
-						if (model.canChgrp(o)) count++;
+						if (model.canChgrp(o)) {
+							data = (DataObject) o;
+							if (!owners.contains(data.getOwner().getId()))
+								owners.add(data.getOwner().getId());
+							count++;
+						}
 					}
 				}
 			}
 			if (count != selection.size()) return null;
+			if (owners.size() > 1) return null;
 		}
+		long userID = DataBrowserAgent.getUserDetails().getId();
+		long ownerID = owners.get(0);
 		
-		Set l = DataBrowserAgent.getAvailableUserGroups();
+		Collection l = null;
+		if (ownerID == userID) {
+			l = DataBrowserAgent.getAvailableUserGroups();
+		} else {
+			if (DataBrowserAgent.isAdministrator()) {
+				//load the group the user is member of
+				SecurityContext ctx = DataBrowserAgent.getAdminContext();
+				try {
+					l = DataBrowserAgent.getRegistry().
+						getAdminService().loadGroupsForExperimenter(ctx,
+								ownerID);
+				} catch (Exception e) {
+					DataBrowserAgent.getRegistry().getLogger().error(this,
+							"cannot retrieve user's groups");
+				}
+			}
+		}
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
 		if (moveActions == null)

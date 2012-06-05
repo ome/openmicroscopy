@@ -26,12 +26,11 @@ package org.openmicroscopy.shoola.agents.editor.view;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -248,7 +247,7 @@ class EditorControl
 	List<GroupSelectionAction> getUserGroupAction()
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Set m = EditorAgent.getAvailableUserGroups();
+		Collection m = EditorAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();

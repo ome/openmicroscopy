@@ -175,7 +175,7 @@ public:
     void run() {
         ServiceFactoryPrx sf = c->createSession();
         handle = sf->submit( req );
-        cb = new CmdCallbackI(c->getObjectAdapter(), handle);
+        cb = new CmdCallbackI(c, handle);
 
         if (wait == 0) {
             cout << "Exiting immediately..." << endl;

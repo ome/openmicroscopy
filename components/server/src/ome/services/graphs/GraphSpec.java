@@ -205,6 +205,4 @@ public interface GraphSpec {
      * @return possibly null.
      */
     IObject load(Session session) throws GraphException;
-
-    void close();
 }

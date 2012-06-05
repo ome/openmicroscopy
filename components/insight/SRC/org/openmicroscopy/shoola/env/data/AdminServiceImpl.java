@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.PermissionData;
 
 /** 
  * Implementation of the {@link AdminService} I/F.
@@ -325,6 +324,17 @@ class AdminServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.loadGroups(ctx, id);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#loadGroupsForExperimenter(SecurityContext, long)
+	 */
+	public List<GroupData> loadGroupsForExperimenter(SecurityContext ctx,
+			long id) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadGroupsForExperimenter(ctx, id);
 	}
 	
 	/**

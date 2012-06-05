@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.data.util;
 import java.util.Collection;
 import java.util.Map;
 
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -88,6 +90,9 @@ public class StructuredDataResults
 
 	/** The tags and documents links. */
 	private Map							links;
+	
+	/** The concrete links.*/
+	private Collection<AnnotationLinkData> annotationLinks;
 	
 	/**
 	 * Creates a new instance.
@@ -267,5 +272,25 @@ public class StructuredDataResults
 	 * @param links The collection to set.
 	 */
 	public void setLinks(Map links) { this.links = links; }
+	
+	/**
+	 * Returns the collection of links.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<AnnotationLinkData> getAnnotationLinks()
+	{
+		return annotationLinks;
+	}
+	
+	/**
+	 * Sets the collection.
+	 * 
+	 * @param links The collection to set.
+	 */
+	public void setAnnotationLinks(Collection<AnnotationLinkData> annotationLinks)
+	{
+		this.annotationLinks = annotationLinks;
+	}
 	
 }

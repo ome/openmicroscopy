@@ -122,7 +122,7 @@ OMERO Groups
 					<strong>{{ group.name }}</strong>
 				</td>
                 <td>
-					{{ group.permissions }}({{ group.details.permissions }})
+					{{ group.getPermissions }} ({{ group.details.permissions }})
 				</td>
                 <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
 				<td>

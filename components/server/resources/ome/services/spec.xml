@@ -130,9 +130,9 @@
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value -->
             </list>

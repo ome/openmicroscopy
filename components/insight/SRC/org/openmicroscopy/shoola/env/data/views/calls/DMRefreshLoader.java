@@ -286,7 +286,7 @@ public class DMRefreshLoader
                         results = r;
     				}
                 } else { //Not admin groups owner.
-                	Set groups = (Set) context.lookup(
+                	Collection groups = (Collection) context.lookup(
         						LookupNames.USER_GROUP_DETAILS);
                 	Iterator i = groups.iterator();
                 	GroupData group;

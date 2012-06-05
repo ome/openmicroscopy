@@ -109,6 +109,11 @@ public interface SqlAction {
      */
     boolean activeSession(String sessionUUID);
 
+    /**
+     * Returns the permissions for the given group id.
+     */
+    long getGroupPermissions(long id);
+
     String fileRepo(long fileId);
 
     /**
@@ -431,7 +436,12 @@ public interface SqlAction {
                 return null;
             }
         }
-        
+
+        public long getGroupPermissions(long groupId) {
+            return _jdbc().queryForObject(
+                    _lookup("get_group_permissions"), Long.class, //$NON-NLS-1$
+                    groupId);
+        }
         
         public String fileRepo(long fileId) {
             return _jdbc().queryForObject(

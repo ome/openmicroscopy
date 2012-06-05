@@ -33,7 +33,6 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

@@ -197,25 +197,6 @@ class BirdEyeViewComponent
 	 */
 	private boolean inImage()
 	{
-		/*
-		if (bx-strokeWeight < imageRectangle.x) {
-			bx = BORDER+2*strokeWeight;
-			return false;
-		}
-		if (by-strokeWeight < imageRectangle.y) {
-			System.err.println("in "+imageRectangle.y+" "+by);
-			by = BORDER+2*strokeWeight;
-			return false;
-		}
-		if (bx+w-strokeWeight > imageRectangle.width) {
-			bx = imageRectangle.width-w-2*strokeWeight;
-			return false;
-		}
-		if (by+h-strokeWeight > imageRectangle.height) {
-			by = imageRectangle.height-h-2*strokeWeight;
-			return false;
-		}
-		*/
 		if (bx < imageRectangle.x) {
 			bx = imageRectangle.x;
 			return false;

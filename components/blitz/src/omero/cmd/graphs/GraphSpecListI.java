@@ -11,24 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphSpec;
 import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphSpecList;
 import omero.cmd.GraphSpecListRsp;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.cmd.Status;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -38,11 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class GraphSpecListI extends GraphSpecList implements IRequest {
 
-    private final Log log = LogFactory.getLog(GraphSpecListI.class);
-
     private static final long serialVersionUID = -363984593874598374L;
-
-    private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
     private final OmeroContext ctx;
 
@@ -56,14 +45,14 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
-        status.steps = 1;
-        helper = new Helper(this, status, sql, session, sf);
+    public void init(Helper helper) {
+        this.helper = helper;
+        helper.setSteps(1);
     }
 
     public Object step(int step) {
         helper.assertStep(0, step);
-        
+
         final GraphSpecListRsp rsp = new GraphSpecListRsp();
         final ApplicationContext ctx = new ClassPathXmlApplicationContext(
             new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
@@ -77,7 +66,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
             for (GraphEntry entry : spec.entries()) {
                 options.put(entry.getName(), entry.getOpString());
             }
-            cmds.add(new GraphModify("", key, -1l, options));
+            cmds.add(new GraphModify(key, -1l, options));
         }
 
         rsp.list = cmds;
@@ -86,10 +75,10 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public void buildResponse(int i, Object object) {
         helper.assertStep(0, i);
-        helper.setResponse((Response) object);
+        helper.setResponseIfNull((Response) object);
     }
 
     public Response getResponse() {
-        return rsp.get();
+        return helper.getResponse();
     }
 }

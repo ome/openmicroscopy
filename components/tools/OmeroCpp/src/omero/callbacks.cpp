@@ -147,60 +147,132 @@ namespace omero {
         //
 
         CmdCallbackI::CmdCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle) :
+            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle) :
+            omero::cmd::CmdCallback(),
             adapter(adapter),
-            poll(true),
-            handle(handle) {
+            handle(handle),
+            closeHandle(closeHandle) {
+                doinit(category);
+        };
+
+        CmdCallbackI::CmdCallbackI(
+            const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle) :
+            omero::cmd::CmdCallback(),
+            adapter(client->getObjectAdapter()),
+            handle(handle),
+            closeHandle(closeHandle) {
+                doinit(client->getCategory());
+        };
+
+        void CmdCallbackI::doinit(std::string category) {
+            this->id = Ice::Identity();
+            this->id.name = IceUtil::generateUUID();
+            this->id.category = category;
+            const omero::cmd::CmdCallbackPtr ptr(this);
+            Ice::ObjectPrx prx = adapter->add(ptr, id);
+            omero::cmd::CmdCallbackPrx cb = omero::cmd::CmdCallbackPrx::uncheckedCast(prx);
+            handle->addCallback(cb);
+            // Now check just in case the process exited VERY quickly
+            poll();
         };
 
 	CmdCallbackI::~CmdCallbackI() {
-            handle->close();
+            adapter->remove(id); // OK ADAPTER USAGE
+            if (closeHandle) {
+                handle->close();
+            }
+        };
+
+        omero::cmd::ResponsePtr CmdCallbackI::getResponse() {
+            IceUtil::RecMutex::Lock lock(mutex);
+            return state.first;
+        };
+
+        omero::cmd::StatusPtr CmdCallbackI::getStatus() {
+            IceUtil::RecMutex::Lock lock(mutex);
+            return state.second;
+        };
+
+        omero::cmd::StatusPtr CmdCallbackI::getStatusOrThrow() {
+            IceUtil::RecMutex::Lock lock(mutex);
+            omero::cmd::StatusPtr s = state.second;
+            if (!s) {
+                throw ClientError(__FILE__, __LINE__, "Status not present!");
+            }
+            return s;
+        };
+
+        int count(omero::cmd::StateList list, omero::cmd::State s) {
+            int c = 0;
+            omero::cmd::StateList::iterator it;
+            for (it=list.begin(); it != list.end(); it++) {
+                if (*it == s) {
+                    c++;
+                }
+            }
+            return c;
+        }
+
+        bool CmdCallbackI::isCancelled() {
+            omero::cmd::StatusPtr s = getStatusOrThrow();
+            return count(s->flags, omero::cmd::CANCELLED) > 0;
+
+        };
+
+        bool CmdCallbackI::isFailure() {
+            omero::cmd::StatusPtr s = getStatusOrThrow();
+            return count(s->flags, omero::cmd::FAILURE) > 0;
+
         };
 
         omero::cmd::ResponsePtr CmdCallbackI::loop(int loops, long ms) {
             int count = 0;
-            omero::cmd::ResponsePtr rsp;
-            while (!rsp && count < loops) {
-                rsp = block(ms);
+            bool found = false;
+            while (count < loops) {
                 count++;
+                found = block(ms);
+                if (found) {
+                    break;
+                }
             }
 
-            if (!rsp) {
+            if (found) {
+                return getResponse();
+            } else {
                 int waited = (ms/1000) * loops;
                 stringstream ss;
                 ss << "Cmd unfinished after " << waited << "seconds.";
                 throw LockTimeout("", "", ss.str(), 5000L, waited);
-            } else {
-                return rsp;
             }
         };
 
-        omero::cmd::ResponsePtr CmdCallbackI::block(long ms) {
-            omero::cmd::ResponsePtr rsp;
-            if (poll) {
-                try {
-                    rsp = handle->getResponse();
-                    if (rsp) {
-                            try {
-                                finished(handle->getStatus(), rsp);
-                            } catch (const Ice::Exception& ex) {
-                                cerr << "Error calling CmdCallbackI.finished: " << ex << endl;
-                            }
-                    }
-                } catch (const Ice::ObjectNotExistException& onee) {
-                    throw omero::ClientError(__FILE__, __LINE__, "Handle is gone!");
-                } catch (const Ice::Exception& ex) {
-                    cerr << "Error polling CmdHandle:" << ex << endl;
-                }
-            }
-
-            event.wait(Time::milliSeconds(ms));
-            return rsp; // Possibly empty
-
+        bool CmdCallbackI::block(long ms) {
+            return event.wait(Time::milliSeconds(ms));
         };
 
-        void CmdCallbackI::finished(const omero::cmd::StatusPtr& status, const omero::cmd::ResponsePtr& rsp) {
+        void CmdCallbackI::poll() {
+            omero::cmd::ResponsePtr rsp = handle->getResponse();
+            if (rsp) {
+                omero::cmd::StatusPtr s = handle->getStatus();
+                finished(rsp, s, Ice::Current()); // Only time that current should be null.
+            }
+        };
+
+        void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
+            // no-op
+        };
+
+        void CmdCallbackI::finished(const omero::cmd::ResponsePtr& rsp,
+                const omero::cmd::StatusPtr& status, const Ice::Current& current) {
+            std::pair<omero::cmd::ResponsePtr, omero::cmd::StatusPtr> s(rsp, status);
+            this->state = s;
             event.set();
+            onFinished(rsp, status, current);
+        };
+
+        void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr& rsp,
+                const omero::cmd::StatusPtr& status, const Ice::Current& current) {
+            // no-op
         };
     };
 

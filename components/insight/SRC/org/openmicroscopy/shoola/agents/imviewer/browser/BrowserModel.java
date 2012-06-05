@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -126,8 +127,9 @@ class BrowserModel
      */
     private boolean         	unitBar;
     
-    /** The value of the unit bar in microns. */
-    private double          	unitInMicrons;
+    /** The value of the unit bar in the units matching the size of the pixels
+     * e.g. microns, mm, etc. */
+    private double          	unitInRefUnits;
     
     /** The default color of the unit bar. */
     private Color				unitBarColor;
@@ -443,6 +445,21 @@ class BrowserModel
     	}
     }
     
+    /**
+     * Calculates the size of the unit bar.
+     * 
+     * @param ratio The ratio to multiple the value by.
+     * @return
+     */
+    private double getBarSize(double ratio)
+    {
+    	double v = unitInRefUnits;
+        double t = EditorUtil.transformSize(getPixelsSizeX()).getValue();
+        if (t > 0) v = unitInRefUnits/t;
+        v *= ratio;
+        return v;
+    }
+    
     /** 
      * Creates a new instance.
      * 
@@ -460,7 +477,7 @@ class BrowserModel
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
-        unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
+        unitInRefUnits = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
@@ -636,7 +653,7 @@ class BrowserModel
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occurs while magnifying the image.");
+						"An error occurred while magnifying the image.");
 			}
 			if (img != null) displayedProjectedImage = img;
         } else displayedProjectedImage = projectedImage;
@@ -679,7 +696,7 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar)
     {
-    	double v = parent.getPixelsSizeX();
+    	double v = EditorUtil.transformSize(parent.getPixelsSizeX()).getValue();
     	if (v == 0 || v == 1) unitBar = false;
     	this.unitBar = unitBar;
     }
@@ -689,52 +706,37 @@ class BrowserModel
      * 
      * @param size The size of the unit bar.
      */
-    void setUnitBarSize(double size) { unitInMicrons = size; }
+    void setUnitBarSize(double size) { unitInRefUnits = size; }
     
     /**
-     * Returns the unit (in microns) used to determine the size of the unit bar.
+     * Returns the unit used to determine the size of the unit bar.
+     * The unit depends on the size stored. The unit of reference in the
+     * OME model is in microns, but this is a transformed unit.
      * 
      * @return See above.
      */
-    double getUnitInMicrons() { return unitInMicrons; }
-    
-    /**
-     * Returns the size of the unit bar.
-     * 
-     * @return See above.
-     */
-    double getOriginalUnitBarSize()
-    { 
-    	double v = unitInMicrons;
-    	if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-    	return v;
-    }
+    double getUnitInRefUnits() { return unitInRefUnits; }
     
     /**
      * Returns the size of the unit bar.
      * 
      * @return See above.
      */
-    double getUnitBarSize()
-    { 
-        double v = unitInMicrons;
-        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-        v *= zoomFactor;
-        return v;
-    }
+    double getOriginalUnitBarSize() { return getBarSize(1); }
     
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getUnitBarSize() { return getBarSize(zoomFactor); }
+  
     /**
      * Returns the size of the unit bar for an image composing the grid.
      * 
      * @return See above.
      */
-    double getGridBarSize()
-    {
-    	double v = unitInMicrons;
-        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-        v *= gridRatio;
-        return v;
-    }
+    double getGridBarSize() { return getBarSize(gridRatio); }
     
     /**
      * Returns the unit bar value.
@@ -743,7 +745,7 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
-    	return UIUtilities.twoDecimalPlaces(unitInMicrons);
+    	return UIUtilities.twoDecimalPlaces(unitInRefUnits);
     }
     
     /**

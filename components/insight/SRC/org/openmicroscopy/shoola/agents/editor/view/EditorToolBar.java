@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.util.Set;
+import java.util.Collection;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -121,7 +121,7 @@ class EditorToolBar
 		groupButton = new JButton(a);
         BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
         		BorderFactory.createLineBorder(Color.GRAY));
-        Set l = EditorAgent.getAvailableUserGroups();
+        Collection l = EditorAgent.getAvailableUserGroups();
         if (l.size() > 1)
         	groupButton.addMouseListener(a);
 		JPanel bar = new JPanel();
@@ -154,7 +154,7 @@ class EditorToolBar
     	toolBars.setBorder(null);
         toolBars.setLayout(new BoxLayout(toolBars, BoxLayout.X_AXIS));
         toolBars.add(createBar());
-        Set l = EditorAgent.getAvailableUserGroups();
+        Collection l = EditorAgent.getAvailableUserGroups();
         if (!view.isStandalone() && l.size() > 1)
         	toolBars.add(createManagementBar());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));

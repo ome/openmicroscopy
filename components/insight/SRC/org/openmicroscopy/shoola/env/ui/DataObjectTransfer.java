@@ -26,10 +26,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -37,7 +35,6 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -152,10 +149,11 @@ public class DataObjectTransfer
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT, null); 
-    	else if (!(result instanceof Boolean)) {
-    		activity.endActivity(result);
-    	} 
+    	if (result instanceof Boolean) {
+    		boolean b = ((Boolean) result).booleanValue();
+    		if (b) activity.endActivity("Transfer complete");
+    		else onException(MESSAGE_RESULT, null); 
+    	} else activity.endActivity(result);
     }
 
 }

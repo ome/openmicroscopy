@@ -808,15 +808,15 @@ class EditorControl
 	public void mouseReleased(MouseEvent e)
 	{
 		JButton src = (JButton) e.getSource();
+		if (!src.isEnabled()) return;
 		int index = Integer.parseInt(src.getActionCommand());
 		Point p = e.getPoint();
-		SwingUtilities.convertPointToScreen(p, src);
 		switch (index) {
 			case REMOVE_TAGS:
-				view.removeTags(p);
+				view.removeTags(src, p);
 				break;
 			case REMOVE_DOCS:
-				view.removeAttachedFiles(p);
+				view.removeAttachedFiles(src, p);
 		}
 	}
 	

@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -469,6 +470,10 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
+        UnitsAction a = (UnitsAction)
+        	controller.getAction(MeasurementViewerControl.IN_MICRONS);
+    	a.setRefUnits(EditorUtil.transformSize(
+    			model.getPixelSizeX()).getUnits());
         //buildGUI();
     }
     
@@ -635,14 +640,13 @@ class MeasurementViewerUI
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
-				if (roi.canEdit() && !roi.isReadOnly()) {
+				if (!roi.isReadOnly()) {
 					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 					if (newShape.getCoord3D().equals(model.getCurrentView()))
 					{
 						drawing.removeDrawingListener(controller);
 						drawing.add(newShape.getFigure());
-						if (roi.canAnnotate())
-							newShape.getFigure().addFigureListener(controller);
+						newShape.getFigure().addFigureListener(controller);
 						drawing.addDrawingListener(controller);
 					}
 					model.addShape(newROI.getID(), newShape.getCoord3D(),
@@ -655,6 +659,20 @@ class MeasurementViewerUI
 		{
 			handleROIException(e, CREATE_MSG);
 		}
+	}
+	
+	void markROIForDelete(ROIFigure roi)
+	{
+		if (roi == null) return;
+		long id = roi.getROIShape().getID();
+		if (id < 0) return;
+		try {
+			//model.deleteShape(id, roi.getROIShape().getCoord3D());
+		} catch (Exception e) {
+			
+		}
+		
+		model.markROIForDelete(id, roi.getROI(), true);
 	}
 	
 	/**
@@ -683,7 +701,7 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					model.markROIForDelete(shape.getID(), r);
+					model.markROIForDelete(shape.getID(), r, false);
 				}
 			}
 			model.notifyDataChanged(b);
@@ -1448,7 +1466,7 @@ class MeasurementViewerUI
      * @return See above.
      */
     long getPixelsID() { return model.getPixelsID(); }
- 
+    
     /**
 	 * Calculate the stats for the Rois in the shapelist. This method
 	 * will call the graphView.
@@ -1636,6 +1654,8 @@ class MeasurementViewerUI
     public void setOnScreen()
     {
     	setSize(DEFAULT_SIZE);
+    	UIUtilities.incrementRelativeToAndShow(null, this);
+    	/*
         if (model != null) { //Shouldn't happen
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
@@ -1643,6 +1663,7 @@ class MeasurementViewerUI
             //pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
+        */
     }
     
 	/** 

@@ -817,4 +817,38 @@ public interface Browser
 	 */
 	void removeGroup(GroupData group);
 
+	/**
+	 * Returns <code>true</code> if the specified object can have hard links
+	 * i.e. image added to dataset, <code>false</code> otherwise,
+	 * depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	boolean canLink(Object ho);
+	
+	/**
+	 * Returns the objects to copy or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getDataToCopy();
+
+	/**
+	 * Sets the nodes to copy or cut depending on the passed index.
+	 * 
+	 * @param nodes The nodes to copy or paste.
+	 * @param index One of the following constants:
+	 *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
+	 */
+	void setNodesToCopy(TreeImageDisplay[] nodes, int index);
+
+	/**
+	 * Pastes the nodes to copy into the specified parents.
+	 * 
+	 * @param parents The parents of the nodes to copy.
+	 * @see #setNodesToCopy(TreeImageDisplay[], int)
+	 */
+	void paste(TreeImageDisplay[] parents);
+	
 }

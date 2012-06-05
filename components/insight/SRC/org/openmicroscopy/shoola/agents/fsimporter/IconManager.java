@@ -174,8 +174,8 @@ public class IconManager
     
     static {
     	relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
-    	relPaths[IMPORT] = "omeroImporterLink16.png";
-    	relPaths[IMPORT_48] = "omeroImporterLink48.png";
+    	relPaths[IMPORT] = "omeroImporter16.png";
+    	relPaths[IMPORT_48] = "omeroImporter48.png";
     	relPaths[PLUS_12] = "plus12.png";
         relPaths[MINUS_12] = "minus12.png";
         relPaths[MINUS_11] = "minus11.png";

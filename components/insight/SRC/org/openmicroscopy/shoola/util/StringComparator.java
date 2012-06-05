@@ -54,12 +54,15 @@ public class StringComparator
 	 */
 	public int compare(Object o1, Object o2)
 	{
-		 if (o1 == null && o2 == null) return 0; 
-	     else if (o1 == null) return -1; 
-	     else if (o2 == null) return 1; 
-		 String s1 = o1.toString();
-		 String s2 = o2.toString();
-		 return s1.compareTo(s2);
+		if (o1 == null && o2 == null) return 0;
+		else if (o1 == null) return -1;
+		else if (o2 == null) return 1;
+		String s1 = o1.toString();
+		String s2 = o2.toString();
+		if (s1 == null && s2 == null) return 0;
+		else if (s1 == null) return -1;
+		else if (s2 == null) return 1;
+		return s1.compareTo(s2);
 	}
 	
 }

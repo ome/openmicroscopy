@@ -177,12 +177,12 @@ public class IconManager
      * The pathname, relative to this class, of the logo icon to
      * use for the about software dialog.
      */  
-    private static final String		LOGO_ABOUT = "graphx/omeabout-bk.png";
+    private static final String		LOGO_ABOUT = "graphx/ome64.png";
     
     /** 
      * The pathname, relative to this class, of the upgrade icon.
      */  
-    private static final String		UPGRADE = "graphx/omeabout-bk.png";
+    private static final String		UPGRADE = "graphx/ome64.png";
     
     /** 
      * The pathname, relative to this class, of the upgrade icon.

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
@@ -58,6 +59,12 @@ public class TabularDataLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
+    /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean loadAll;
+    
     /**	
      * Creates a new instance.
      * 
@@ -65,16 +72,18 @@ public class TabularDataLoader
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param originalID The identifier of the table.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 				  annotations available if the user can annotate,
+     *                <code>false</code> to only load the user's annotation.
      */
     public TabularDataLoader(Editor viewer, SecurityContext ctx,
-    		long originalFileID)
+    		long originalFileID, boolean loadAll)
     {
-    	 super(viewer, ctx);
-    	 if (originalFileID < 0)
-    		 throw new IllegalArgumentException("No file to retrieve.");
-    	 List<Long> ids = new ArrayList<Long>();
-    	 ids.add(originalFileID);
-    	 parameters = new TableParameters(ids);
+    	super(viewer, ctx);
+    	if (originalFileID < 0)
+    		throw new IllegalArgumentException("No file to retrieve.");
+    	parameters = new TableParameters(Arrays.asList(originalFileID));
+    	this.loadAll = loadAll;
     }
     
     /** 
@@ -83,7 +92,8 @@ public class TabularDataLoader
 	 */
 	public void load()
 	{
-		setIds();
+		long userID = getCurrentUser();
+		if (loadAll) userID = -1;
 		handle = mhView.loadTabularData(ctx, parameters, userID, this);
 	}
 	

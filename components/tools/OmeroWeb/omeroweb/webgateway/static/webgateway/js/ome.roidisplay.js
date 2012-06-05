@@ -166,10 +166,11 @@ $.fn.roi_display = function(options) {
         
         // if the currently selected shape is visible - highlight it
         display_selected = function() {
-            
             // *NB: For some reason, can't overlay text with selectedClone.
             // So, for text shapes, we highlight by editing attributes instead.
-            if ((selectedClone != null) && (selectedClone.type != 'text'))  selectedClone.remove();
+            if ((selectedClone != null) && (selectedClone.type != 'text')) {
+                if (selectedClone.node.parentNode.parentNode) selectedClone.remove();
+            }
             if (selected_shape_id == null) return;
             
             selectedClone = null;

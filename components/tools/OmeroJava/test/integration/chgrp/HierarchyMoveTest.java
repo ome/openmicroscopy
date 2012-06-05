@@ -10,18 +10,23 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.api.Save;
 import omero.cmd.Chgrp;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Channel;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
@@ -40,6 +45,7 @@ import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
@@ -79,6 +85,152 @@ public class HierarchyMoveTest
 	extends AbstractServerTest
 {
 
+	/** Indicates to move but not to link.*/
+	private static final int LINK_NONE = 0;
+	
+	/** Indicates to move and create a new object and link it.*/
+	private static final int LINK_NEW = 1;
+	
+	/** Indicates to move and link to an existing object.*/
+	private static final int LINK_EXISTING = 2;
+	
+	/** Performs the move as data owner.*/
+	private static final int DATA_OWNER = 100;
+	
+	/** Performs the move as group owner.*/
+	private static final int GROUP_OWNER = 101;
+	
+	/** Performs the move as group owner.*/
+	private static final int ADMIN = 102;
+	
+	/**
+     * Tests the move of a dataset to a new group, a project in the new group
+     * is selected and the dataset should be linked to that project.
+     * 
+     * @param source The permissions of the source group.
+     * @param target The permissions of the destination group.
+     * @param newDestinationObject Pass <code>true</code> if the project has to 
+     * be created, <code>false</code> otherwise
+     * @param asAdmin Pass <code>true</code> to move the data as admin
+     * <code>false</code> otherwise. 
+     */
+    private void moveDataDatasetToProject(String source, String target, 
+    		int linkLevel, int memberLevel)
+    throws Exception
+    {
+    	//Step 1
+    	//Create the group with the dataset
+    	EventContext ctx = newUserAndGroup(source);
+    	
+    	if (memberLevel == GROUP_OWNER)
+    		makeGroupOwner();
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	
+    	//log out
+    	disconnect();
+    	
+    	//Create a new group, the user is now a member of the new group.
+    	ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
+    	
+    	loginUser(g);
+    	if (memberLevel == GROUP_OWNER)
+    		makeGroupOwner();
+        //Create project in the new group.
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+
+    	//log out
+    	disconnect();
+    	
+    	//Step 2: log into source group to perform the move
+    	switch (memberLevel) {
+			case DATA_OWNER:
+			case GROUP_OWNER:
+				default:
+				loginUser(ctx);
+				break;
+			case ADMIN:
+				logRootIntoGroup(ctx.groupId);
+		}
+    	
+    	
+    	//Create commands to move and create the link in target 
+    	List<Request> list = new ArrayList<Request>();
+    	list.add(new Chgrp(DeleteServiceTest.REF_DATASET,
+    			d.getId().getValue(), null, g.getId().getValue()));
+    	
+    	ProjectDatasetLink link = null;
+    	switch (linkLevel) {
+			case LINK_NEW:
+				link = new ProjectDatasetLinkI();
+		    	link.setChild(new DatasetI(d.getId().getValue(), false));
+		    	link.setParent(new ProjectI());
+				break;
+			case LINK_EXISTING:
+				link = new ProjectDatasetLinkI();
+		    	link.setChild(new DatasetI(d.getId().getValue(), false));
+		    	link.setParent(new ProjectI(p.getId().getValue(), false));
+		}
+    	
+    	if (link != null) {
+    		Save cmd = new Save();
+        	cmd.obj = link;
+        	list.add(cmd);
+    	}
+    	DoAll all = new DoAll();
+    	all.requests = list;
+    	
+    	//Do the move.
+    	doChange(all);
+
+   
+    	//Check if the dataset has been removed.
+    	ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select i from Dataset as i where i.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+
+    	//log out from source group
+    	disconnect();
+    	
+    	//Step 3:
+    	
+    	//Connect to target group
+    	
+    	//Step 2: log into source group to perform the move
+    	switch (memberLevel) {
+			case DATA_OWNER:
+			case GROUP_OWNER:
+				default:
+				loginUser(g);
+				break;
+			case ADMIN:
+				logRootIntoGroup(g.getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	sql = "select i from Dataset as i where i.id = :id";
+    	
+    	//Check if the dataset is in the target group.
+    	assertNotNull(iQuery.findByQuery(sql, param));
+
+    	//Check the link exists.
+    	if (link != null) {
+    		param = new ParametersI();
+        	param.map.put("childID", d.getId());
+        	if (linkLevel == LINK_EXISTING) {
+        		param.map.put("parentID", p.getId());
+            	sql = "select i from ProjectDatasetLink as i where " +
+            			"i.child.id = :childID and i.parent.id = :parentID";
+        	} else {
+        		sql = "select i from ProjectDatasetLink as i where " +
+    			"i.child.id = :childID";
+        	}
+        	assertNotNull(iQuery.findByQuery(sql, param));
+    	}
+    }
+    
     /**
      * Test to move an image w/o pixels between 2 private groups.
      * @throws Exception Thrown if an error occurred.
@@ -90,10 +242,11 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
 	long id = img.getId().getValue();
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	//Now check that the image is no longer in group
 	ParametersI param = new ParametersI();
@@ -121,6 +274,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
 	Pixels pixels = img.getPrimaryPixels();
@@ -150,7 +304,7 @@ public class HierarchyMoveTest
 		}
 
 	//Move the image
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 	ParametersI param = new ParametersI();
 	param.addId(id);
@@ -255,6 +409,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image image = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.simpleImage(0));
@@ -280,7 +435,7 @@ public class HierarchyMoveTest
 		shapeIds.add(shape.getId().getValue());
 	}
 	//Move the image.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE,
+	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE,
 			image.getId().getValue(), null, g.getId().getValue()));
 
 	//check if the objects have been delete.
@@ -323,6 +478,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -365,7 +521,7 @@ public class HierarchyMoveTest
 		}
         //Now delete the plate
       //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -450,6 +606,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p;
 	List results;
@@ -486,7 +643,7 @@ public class HierarchyMoveTest
 		}
         //Now delete the plate
       //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -555,6 +712,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen screen = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -576,7 +734,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			screen.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -621,6 +779,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -648,7 +807,7 @@ public class HierarchyMoveTest
 	p = link.getChild();
 	long plateID = p.getId().getValue();
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			screenId, null, g.getId().getValue()));
 
 	sql = "select r from Screen as r ";
@@ -702,6 +861,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s = mmFactory.simpleScreenData().asScreen();
 	Reagent r = mmFactory.createReagent();
@@ -730,7 +890,7 @@ public class HierarchyMoveTest
 	long plateID = p.getId().getValue();
 	Map<String, String> options = new HashMap<String, String>();
 	options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+	doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			plateID, null, g.getId().getValue()));
 
 	sql = "select r from Screen as r ";
@@ -784,6 +944,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Plate p = (Plate) iUpdate.saveAndReturnObject(
 				mmFactory.createPlate(1, 1, 1, 0, false));
@@ -831,7 +992,7 @@ public class HierarchyMoveTest
 		links.add(il);
 		iUpdate.saveAndReturnArray(links);
 
-		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+		doChange(new Chgrp(DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
 		//Shouldn't have measurements
@@ -857,6 +1018,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Project p = (Project) iUpdate.saveAndReturnObject(
 			mmFactory.simpleProjectData().asIObject());
@@ -888,7 +1050,7 @@ public class HierarchyMoveTest
 	ids.add(image2.getId().getValue());
 
 
-        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PROJECT,
+        doChange(new Chgrp(DeleteServiceTest.REF_PROJECT,
 			p.getId().getValue(), null, g.getId().getValue()));
 
 	//Check if objects have been deleted
@@ -940,6 +1102,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
 			mmFactory.simpleScreenData().asIObject());
@@ -963,7 +1126,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+	doChange(new Chgrp(DeleteServiceTest.REF_SCREEN,
 			s1.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -1014,6 +1177,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject());
@@ -1037,7 +1201,7 @@ public class HierarchyMoveTest
 	iUpdate.saveAndReturnArray(links);
 
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+	doChange(new Chgrp(DeleteServiceTest.REF_DATASET,
 			s1.getId().getValue(), null, g.getId().getValue()));
 
 
@@ -1073,6 +1237,423 @@ public class HierarchyMoveTest
 	param.addId(s1.getId().getValue());
 	sql = "select i from Dataset as i where i.id = :id";
 	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     *  Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     *  Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWR---</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRWR()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RW----</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRAtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRAtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RWR---</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWtoRWR()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, DATA_OWNER);
+    }
+    
+    //Move by the owner but in that case a new project is created in the new
+    //group
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RW----</code>. The move is done by the
+     * owner of the data. A new Project will be created.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rw----", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     *  Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWR---</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRtoRWR()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RW----</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRAtoRW()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRAtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RWR---</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWtoRWR()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, DATA_OWNER);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
+     * owner of the data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRtoRWRA()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, DATA_OWNER);
+    }
+    
+	//Test the data move by an admin
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rw----", "rw----", LINK_NEW, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWtoRWByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rw----", LINK_NONE, ADMIN);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWRtoRWByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rw----", LINK_NONE, ADMIN);
+    }
+
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToProjectRWRAtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetToNewProjectRWRAtoRWByAdmin()
+	throws Exception
+    {
+    	try {
+    		moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
+    		fail("A security Violation should have been thrown." +
+    			"Admin not allowed to create a link in private group.");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWRAtoRWByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RWR---</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWtoRWRByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RW----</code> to <code>RWRA---</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWtoRWRAByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rw----", "rwra--", LINK_NONE, ADMIN);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWRtoRWRAByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwr---", "rwra--", LINK_NONE, ADMIN);
+    }
+    
+    /**
+     * Tests to move a dataset to a project contained in the target group.
+     * <code>RWRA--</code> to <code>RWR---</code>. The move is done by the
+     * administrator.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetRWRAtoRWRByAdmin()
+	throws Exception
+    {
+    	moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
     }
 
 }

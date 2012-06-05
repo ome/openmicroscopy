@@ -63,7 +63,7 @@
         <prop key="hibernate.search.default.indexBase">${omero.data.dir}</prop>
         <prop key="hibernate.search.default.locking_strategy">${omero.search.locking_strategy}</prop>
         <prop key="hibernate.search.analyzer">${omero.search.analyzer}</prop>
-        <prop key="hibernate.search.worker.batch_size">${omero.search.batch}</prop>
+        <prop key="hibernate.search.worker.batch_size">1</prop><!-- FIXME : ${omero.search.batch}-->
         <!-- batch -->
         <prop key="hibernate.search.default.indexwriter.batch.merge_factor">25</prop>
         <prop key="hibernate.search.default.indexwriter.batch.ram_buffer_size">64</prop>

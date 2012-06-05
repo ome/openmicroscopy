@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
@@ -288,7 +289,9 @@ class MetadataViewerComponent
 		if (result instanceof StructuredDataResults) {
 			StructuredDataResults data = (StructuredDataResults) result;
 			Object object = data.getRelatedObject();
-			if (object == model.getParentRefObject()) {
+			if (object == model.getParentRefObject() ||
+				(object instanceof PlateData && userObject 
+						instanceof WellSampleData)) {
 				model.setParentDataResults((StructuredDataResults) result,
 						node);
 				loadMetadata(node);
@@ -297,6 +300,7 @@ class MetadataViewerComponent
 						node);
 				browser.setParents(node, 
 						model.getStructuredData().getParents());
+				
 				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
 			}
@@ -437,27 +441,31 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, List, List, DataObject, boolean)
+	 * @see MetadataViewer#saveData(DataObject, List, List, DataObject, boolean)
 	 */
-	public void saveData(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
+	public void saveData(DataToSave object, List<AnnotationData> toDelete,
 				List<Object> metadata, DataObject data, boolean asynch)
 	{
 		if (data == null) return;
+		List<AnnotationData> toAdd = null;
+		List<Object> toRemove = null;
+		if (object != null) {
+			toAdd = object.getToAdd();
+			toRemove = object.getToRemove();
+		}
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		if (refObject instanceof FileData) {
 			FileData fa = (FileData) data;
 			if (fa.getId() > 0) {
 				toSave.add(data);
-				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
+				model.fireSaving(object, metadata, toSave, asynch);
 				fireStateChange();
 				deleteAnnotations(toDelete);
 			} else {
-				DataObjectRegistration r = new DataObjectRegistration(toAdd, 
+				DataObjectRegistration r = new DataObjectRegistration(toAdd,
 						toRemove, toDelete, metadata, data);
 				firePropertyChange(REGISTER_PROPERTY, null, r);
-				return;
 			}
 			return;
 		}
@@ -487,7 +495,7 @@ class MetadataViewerComponent
 			refObject instanceof WellSampleData ||
 			refObject instanceof PlateAcquisitionData ||
 			refObject instanceof WellData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
+			model.fireSaving(object, metadata, toSave, asynch);
 		} else if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
 			if (img.getId() < 0) {
@@ -496,13 +504,12 @@ class MetadataViewerComponent
 				firePropertyChange(REGISTER_PROPERTY, null, r);
 				return;
 			} else {
-				model.fireSaving(toAdd, toRemove, metadata, toSave,
-						asynch);
+				model.fireSaving(object, metadata, toSave, asynch);
 			}
 		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
+				model.fireSaving(object, metadata, toSave, asynch);
 				b = false;
 			}	
 		}
@@ -1145,6 +1152,9 @@ class MetadataViewerComponent
 	public void onGroupSwitched(boolean success)
 	{
 		if (!success) return;
+		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		setRootObject(null, exp.getId(), model.getSecurityContext());
+		setParentRootObject(null, null);
 		model.getEditor().onGroupSwitched(success);
 	}
 	

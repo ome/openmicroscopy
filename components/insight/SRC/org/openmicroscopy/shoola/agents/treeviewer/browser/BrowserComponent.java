@@ -453,8 +453,8 @@ class BrowserComponent
             	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
             	if (node != null) {
-            		if (model.isSingleGroup()) node.setExpanded(true);
-                	else {
+            		//if (model.isSingleGroup()) node.setExpanded(true);
+                	if (!model.isSingleGroup()) {
                 		TreeImageDisplay p = node.getParentDisplay();
                 		if (p != null) p.setExpanded(true);
                 	}
@@ -1169,10 +1169,7 @@ class BrowserComponent
 	public void setExperimenterData(TreeImageDisplay expNode, Collection nodes)
 	{
 		int state = model.getState();
-        if (state != LOADING_DATA)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA "+
-                    "state.");
+        if (state != LOADING_DATA) return;
         if (nodes == null) throw new NullPointerException("No nodes.");
       
         if (expNode == null)
@@ -1907,9 +1904,11 @@ class BrowserComponent
 	public void reActivate()
 	{
 		view.reActivate();
-		if (!model.isSelected()) return;
-		model.setState(NEW);
-		activate();
+		if (model.isSelected() && 
+				model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+			model.setState(NEW);
+			activate();
+		}
 	}
 
 	/**
@@ -2169,6 +2168,41 @@ class BrowserComponent
 	{
 		if (group == null) return;
 		view.removeGroup(group);
+	}
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#canLink(Object)
+	 */
+	public boolean canLink(Object ho)
+	{
+		return model.getParentModel().canLink(ho);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getDataToCopy()
+	 */
+	public List<DataObject> getDataToCopy()
+	{ 
+		return model.getParentModel().getDataToCopy();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#paste(TreeImageDisplay[])
+	 */
+	public void paste(TreeImageDisplay[] parents)
+	{
+		model.getParentModel().paste(parents);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setNodesToCopy(TreeImageDisplay[], int)
+	 */
+	public void setNodesToCopy(TreeImageDisplay[] nodes, int index)
+	{
+		model.getParentModel().setNodesToCopy(nodes, index);
 	}
 
 }

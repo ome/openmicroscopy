@@ -492,7 +492,7 @@ public class IconManager
         relPaths[MINUS_12] = "minus11.png";
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
-        relPaths[EDITOR_12] = "omeroEditorLink11.png";
+        relPaths[EDITOR_12] = "omeroEditor12.png";
         relPaths[MOVIE] = "crystal_video16.png";//"openOffice_stock_insert-video-plugin-16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[HISTOGRAM] = "histogram16.png";

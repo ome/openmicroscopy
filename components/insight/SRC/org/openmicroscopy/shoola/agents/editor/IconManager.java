@@ -362,7 +362,7 @@ public class IconManager
     static {
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CREATE] = "nuvola_messagebox_info16.png";
-        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[EDITOR] = "omeroEditor16.png";
         
         //Icons for the JTree rendering of text-only outline. 
         relPaths[TEXT_LINE_ICON] = "eclipse_textLine16.png";
@@ -424,7 +424,7 @@ public class IconManager
         relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
         relPaths[TEMPLATE_LOCK] = "nuvola_encrypted16.png";
         relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
-        relPaths[OMERO_EDITOR] = "omeroEditorLink16.png";
+        relPaths[OMERO_EDITOR] = "omeroEditor16.png";
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";
