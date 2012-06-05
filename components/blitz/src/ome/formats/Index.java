@@ -55,7 +55,6 @@ public enum Index implements StringEnumeration
     MICROBEAM_MANIPULATION_INDEX("microbeamManipulationIndex"),
     OBJECTIVE_INDEX("objectiveIndex"),
     ORIGINAL_FILE_INDEX("originalFileIndex"),
-    OTF_INDEX("otfIndex"),
     PLANE_INDEX("planeIndex"),
     PLATE_ACQUISITION_INDEX("plateAcquisitionIndex"),
     PLATE_INDEX("plateIndex"),

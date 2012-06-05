@@ -172,7 +172,6 @@ import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
@@ -3231,16 +3230,6 @@ public class OMEROMetadataStoreClient
 
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelOTFRef(java.lang.String, int, int)
-     */
-    public void setChannelOTFRef(String otf, int imageIndex, int channelIndex)
-    {
-        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
-        addReference(key, new LSID(otf));
-    }
-
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelPinholeSize(java.lang.Double, int, int)
      */
     public void setChannelPinholeSize(Double pinholeSize, int imageIndex,
@@ -5513,27 +5502,6 @@ public class OMEROMetadataStoreClient
         Microscope o = getMicroscope(instrumentIndex);
         o.setType((MicroscopeType)
                 getEnumeration(MicroscopeType.class, type.toString()));
-    }
-
-    //////// OTF /////////
-
-    public OTF getOTF(int instrumentIndex, int OTFIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        return getSourceObject(OTF.class, indexes);
-    }
-
-
-    private OriginalFile getOriginalFile(int instrumentIndex, int OTFIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        return getSourceObject(OriginalFile.class, indexes);
     }
 
     //////// Objective /////////

@@ -57,7 +57,6 @@ import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -566,24 +565,6 @@ public class ImporterTest
 				xml.getType().getValue());
 		assertEquals(experiment.getDescription().getValue(), 
 				xml.getDescription());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param otf The otf to check.
-	 * @param xml The XML version.
-	 */
-	private void validateOTF(OTF otf, ome.xml.model.OTF xml)
-	{
-		assertEquals(otf.getOpticalAxisAveraged().getValue(), 
-				xml.getOpticalAxisAveraged().booleanValue());
-		assertEquals(otf.getSizeX().getValue(), 
-				xml.getSizeX().getValue().intValue());
-		assertEquals(otf.getSizeY().getValue(), 
-				xml.getSizeY().getValue().intValue());
-		assertEquals(otf.getPixelsType().getValue().getValue(), 
-				xml.getType().getValue());
 	}
 
 	/**
