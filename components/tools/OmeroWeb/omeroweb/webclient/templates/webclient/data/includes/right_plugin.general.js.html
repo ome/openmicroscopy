@@ -29,14 +29,14 @@
 $(function () {
     
     $("#annotation_tabs").tabs({cache: true});
+    var $metadata_general = $("#metadata_general");
+    var general_tab_index = 0;
 
     // this is called on change in jstree selection, or switching tabs
     var update_metadata_general_tab = function() {
 
         var selected = $("body").data("selected_objects.ome");
 
-        var $metadata_general = $("#metadata_general");
-        var $metadata_acquisition = $("#metadata_tab");
         var prefix = '{% url webindex %}';
         
         if(selected.length == 0) {
@@ -52,17 +52,17 @@ $(function () {
                 }
                 productListQuery[i] = selected[i]["id"].replace("-","=");
             }
-            var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&")
+            var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&");
             $metadata_general.load(query);
             
         } else {
-            $("#annotation_tabs").tabs("enable", 0);    // always want metadata_general enabled
+            $("#annotation_tabs").tabs("enable", general_tab_index);    // always want metadata_general enabled
             var url = null;
             //var oid = selected.attr('id');
             //var orel = selected[0].attr('rel').replace("-locked", "");
             var oid = selected[0]["id"];
             var orel = oid.split("-")[0];
-            if (typeof oid =="undefined" || oid==false) return
+            if (typeof oid =="undefined" || oid==false) return;
             
             // handle loading of GENERAL tab
             if ($metadata_general.is(":visible") && $metadata_general.is(":empty")) {
@@ -96,7 +96,12 @@ $(function () {
     }
 
     // update tabs when tabs switch
-    $("#annotation_tabs").bind( "tabsshow", update_metadata_general_tab);
+    $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
+        if (tab.index == general_tab_index) {
+            $metadata_general.show();   // sometimes this doesn't get shown until too late
+            update_metadata_general_tab();
+        }
+    });
 
     // always select this tab if multiple objects selected - then update
     $("body").bind("selection_change.ome", function(event) {
