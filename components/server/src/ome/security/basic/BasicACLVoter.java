@@ -131,12 +131,12 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(cls)
             || sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
-            Long uid = currentUser.getOwner().getId();
-            return objectBelongsToUser(iObject, uid);
-        }
+        // Note: removed restriction from #1769 that admins can only
+        // create objects belonging to the current user. Instead,
+        // OmeroInterceptor checks whether or not objects are only
+        // LINKED to one's own objects which is the actual intent.
 
-        else if (tokenHolder.hasPrivilegedToken(iObject)
+        if (tokenHolder.hasPrivilegedToken(iObject)
                 || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
