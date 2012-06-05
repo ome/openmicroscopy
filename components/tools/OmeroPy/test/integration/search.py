@@ -155,6 +155,46 @@ class TestSearch(lib.ITest):
         if msg:
             self.fail("%s\n" % msg)
 
+    def test8692(self):
+        # Test that group admin and system admins can
+        # find items in non-private groups.
+
+        all = {"omero.group": "-1"}
+        msg = "%s: Count not find ann=%s as %s in %s"
+
+        for x in ("rw", "rwr", "rwra", "rwrw"):
+            p = x.ljust(6, "-")
+            g = self.new_group(perms=p)
+            u = self.new_client(group=g)
+            a = self.new_client(group=g, admin=True)
+
+            uuid = self.uuid().replace("-","")
+
+            # Create a comment as the user
+            t = omero.model.CommentAnnotationI()
+            t.setTextValue(omero.rtypes.rstring(uuid))
+            t = u.sf.getUpdateService().saveAndReturnObject(t)
+            self.root.sf.getUpdateService().indexObject(t) # Index
+
+            # And try to read it back as the leader and the admin
+            for sf, who in ((a.sf, "grp-admin"), (self.root.sf, "sys-admin")):
+
+                # First see if IQuery.findAllByFullText works
+                # Note: it's necessary to pass {"omero.group":"-1"}
+                q = sf.getQueryService()
+                t = q.findAllByFullText("CommentAnnotation", uuid, None, all)
+                if not t or len(t) != 1:
+                    self.fail(msg % ("IQueryPrx", uuid, who, x))
+
+                # Then see if search also works via SearchPrx
+                # Note: it's necessary to pass {"omero.group":"-1"}
+                # during hasNext and next/results
+                s = sf.createSearchService()
+                s.onlyType("CommentAnnotation")
+                s.byFullText(uuid)
+                if not s.hasNext(all) or len(s.results(all)) != 1:
+                    self.fail(msg % ("SearchPrx", uuid, who, x))
+
 
 if __name__ == '__main__':
     unittest.main()
