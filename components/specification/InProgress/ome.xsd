@@ -642,11 +642,12 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="Color" use="optional" type="Color" default="-2147483648">
+			<xsd:attribute name="Color" use="optional" type="Color" default="-1">
 				<xsd:annotation>
 					<xsd:documentation>
 						A color used to render this channel - encoded as RGBA
-						The default value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						The default value "-1" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						NOTE: Prior to the 2012-06 schema the default value was incorrect and produced a transparent red not solid white.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -1351,7 +1352,8 @@
 		<xsd:annotation>
 			<xsd:documentation>
 				A simple type that identifies itself as a Color, the value is an integer between -2,147,483,648 and 2,147,483,647 (inclusive).
-				The value is a signed 32 bit encoding of RGBA so "-2147483648" is #FFFFFFFF or solid white.
+				The value is a signed 32 bit encoding of RGBA so "-1" is #FFFFFFFF or solid white.
+				NOTE: Prior to the 2012-06 schema the default values were incorrect and produced a transparent red not solid white.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:int">

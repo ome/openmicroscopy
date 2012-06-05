@@ -528,11 +528,12 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="Color" use="optional" type="OME:Color" default="-2147483648">
+			<xsd:attribute name="Color" use="optional" type="OME:Color" default="-1">
 				<xsd:annotation>
 					<xsd:documentation>
 						A marker color used to highlight the well - encoded as RGBA
-						The default value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						The default value "-1" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						NOTE: Prior to the 2012-06 schema the default value was incorrect and produced a transparent red not solid white.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
