@@ -195,6 +195,24 @@ class TestSearch(lib.ITest):
                 if not s.hasNext(all) or len(s.results(all)) != 1:
                     self.fail(msg % ("SearchPrx", uuid, who, x))
 
+    def test8846(self):
+        # Wildcard search
+
+        client = self.new_client()
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        uuid = self.uuid().replace("-", "")
+        cann = omero.model.CommentAnnotationI()
+        cann.textValue = omero.rtypes.rstring(uuid)
+        cann = update.saveAndReturnObject(cann)
+        self.root.sf.getUpdateService().indexObject(cann)
+
+        rv = query.findAllByFullText( \
+                "CommentAnnotation", "%s" % uuid, None)
+        #"CommentAnnotation", "%s*" % uuid[0:6], None)
+        self.assertEquals(cann.id.val, rv[0].id.val)
+
 
 if __name__ == '__main__':
     unittest.main()
