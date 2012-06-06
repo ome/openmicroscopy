@@ -271,55 +271,6 @@
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-ij-prefix}/LICENSE"/>
     </zip>
   </target>
- <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-   * Creates a distribution for HCS preview
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <macrodef name="hcs-preview-copy">
-      <attribute name="zip"/>
-      <sequential>
-          <copy file="${dist.dir}/@{zip}.zip"
-              tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
-          <zip destfile="${dist.dir}/@{zip}-HCS_PREVIEW.zip" update="true">
-              <zipfileset dir="${dist.dir}/hcs-preview" prefix="@{zip}" includes="config/**"/>
-          </zip>
-      </sequential>
-  </macrodef>
-  <target name="hcs-preview" 
-  	description="Temporary 4.3 target for creating the HCS_PREVIEW files">
-    <delete dir="${dist.dir}/hcs-preview"/>
-    <mkdir dir="${dist.dir}/hcs-preview"/>
-    <property name="hcs-container" value="hcs-preview/config/container.xml"/>
-    <copy file="${app.config.dir}/container.xml" 
-    	tofile="${dist.dir}/${hcs-container}"/>
-    <replace file="${dist.dir}/${hcs-container}"
-        token='entry name="/roi/location/server" type="boolean"&gt;false&lt;/entry'
-        value='entry name="/roi/location/server" type="boolean"&gt;true&lt;/entry'>
-    </replace>
-    <available property="hcs-preview-main-available"  
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
-    <available property="hcs-preview-mac-available"
-        file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-mac-openGL.zip"/>
-    <available property="hcs-preview-win-available"   
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip"/>
-    <available property="hcs-preview-win64-available" 
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip"/>
-    <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-mac"   inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-win64" inheritAll="true" inheritRefs="true"/>
-  </target>
-  <target name="hcs-preview-main" if="hcs-preview-main-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}"/>
-  </target>
-  <target name="hcs-preview-mac" if="hcs-preview-mac-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-mac-openGL"/>
-  </target>
-  <target name="hcs-preview-win" if="hcs-preview-win-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
-  </target>
-  <target name="hcs-preview-win64" if="hcs-preview-win64-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
-  </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates Windows executables via exe4j.
