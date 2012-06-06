@@ -234,7 +234,7 @@
   <target name="dist"
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
   	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx, dist-ij, 
-  	distImporter-win, distImporter-osx"
+  	distImporter-osx, distImporter-win"
           description="Build and package the app for distribution."> 
 
     <!-- Main zip -->

@@ -100,6 +100,14 @@
     	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.ij*.zip"/>
     	    <mapper type="regexp" from="OMERO.ij-[^-]+(.*).zip"  to="insight-ij.zip"/>
     	</copy>
+    	<copy todir="${target.dir}">
+    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.importer*-win.zip"/>
+    	    <mapper type="regexp" from="OMERO.importer-[^-]+(.*).zip"  to="importer-win.zip"/>
+    	</copy>
+    	<copy todir="${target.dir}">
+    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.importer*-mac.zip"/>
+    	    <mapper type="regexp" from="OMERO.importer-[^-]+(.*).zip"  to="importer-mac.zip"/>
+    	</copy>
     </target>
 
     <target name="publish-artifacts" depends="prepare">

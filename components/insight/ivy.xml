@@ -18,6 +18,7 @@
     <artifact name="editor-mac" type="zip"/>
     <artifact name="editor-win" type="zip"/>
     <artifact name="insight-ij" type="zip"/>
+    <artifact name="importer-mac" type="zip"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
