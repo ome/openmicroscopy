@@ -79,7 +79,7 @@ namespace omero {
             // no-op
         }
 
-        bool PermissionsI::isDisallow(const int restriction, const Ice::Current& current) {
+        bool PermissionsI::isDisallow(const unsigned int restriction, const Ice::Current& current) {
             if (restrictions.size() >= restriction) {
                 return restrictions[restriction];
             }
