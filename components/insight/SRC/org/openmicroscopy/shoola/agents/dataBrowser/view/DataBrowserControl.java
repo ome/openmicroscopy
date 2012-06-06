@@ -363,7 +363,8 @@ class DataBrowserControl
 			if (owners.size() > 1) return null;
 		}
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		long ownerID = owners.get(0);
+		long ownerID = -1;
+		if (owners.size() > 0) ownerID = owners.get(0);
 		
 		Collection l = null;
 		if (ownerID == userID) {
@@ -382,6 +383,7 @@ class DataBrowserControl
 				}
 			}
 		}
+		if (l == null) return null;
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
 		if (moveActions == null)

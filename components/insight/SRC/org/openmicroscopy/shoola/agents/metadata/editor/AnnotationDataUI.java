@@ -912,6 +912,7 @@ class AnnotationDataUI
 				data = doc.getData();
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) data;
+					/*
 					for (int j = 0; j < files.length; j++) {
 						if (fa.getId() <= 0) {
 							if (!fa.getFilePath().equals(
@@ -924,15 +925,21 @@ class AnnotationDataUI
 							} else toAdd.add(files[j]);
 						}
 					}
-					
+					*/
+					for (int j = 0; j < files.length; j++) {
+						if (fa.getId() >= 0 &&
+								fa.getFileName().equals(files[j].getName())) {
+							toReplace.add(fa);
+						}
+					}
 				}
 			}
 		}
-		if (data == null) {
+		//if (data == null) {
 			for (int i = 0; i < files.length; i++) {
 				toAdd.add(files[i]);
 			}
-		}
+		//}
 		if (toAdd.size() > 0) {
 			data = null;
 			try {

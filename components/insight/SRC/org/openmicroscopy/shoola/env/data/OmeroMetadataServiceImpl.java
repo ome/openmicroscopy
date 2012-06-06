@@ -1062,13 +1062,15 @@ class OmeroMetadataServiceImpl
 		Iterator<DataObject> j = data.iterator();
 		//First create the new annotations 
 		AnnotationData ann;
+		List<DataObject> updated = new ArrayList<DataObject>();
 		while (j.hasNext()) {
 			object = j.next();
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(ctx, object);
 			} else {
 				if (object.isLoaded() && object.isDirty())
-					service.updateDataObject(ctx, object);
+					updated.add(service.updateDataObject(ctx, object));
+				else updated.add(object);
 			}
 			if (annotations.size() > 0) {
 				i = annotations.iterator();
@@ -1099,7 +1101,7 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		}
-		return data;
+		return updated;//data;
 	}
 
 	/**

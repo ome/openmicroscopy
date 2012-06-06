@@ -58,7 +58,7 @@
                             <span class="activity_title">
                                 Move {{ j.dtype }} to Group
                             </span>
-                            <span class="message" {% if j.error %}title="{{ j.error }}"{% endif %}>
+                            <span class="message">
                                 {% ifequal j.status "in progress" %}
                                     Moving {{ j.dtype }} to Group '{{ j.group }}'...
                                 {% else %}
@@ -68,7 +68,11 @@
                                         {% endifequal %}
                                     {% endifequal %}
                                     {% if j.error %}
-                                        {{ j.error|truncateafter:"30" }}
+                                        <div class="chgrp_error">
+                                            {{ j.error|truncateafter:"30" }}
+                                            <a href="#" title="Click to Open in new Window"> More...</a>
+                                            <div style="display:none">{{ j.error|linebreaksbr }}</div>
+                                        </div>
                                     {% endif %}
                                 {% endifequal %}
                             </span>
@@ -214,7 +218,7 @@
 												
 													<!-- Download -->
                                                     <li class="btn_download">
-														<a href="{% url download_annotation 'download' v.id %}" title="Download File">Download</a>
+														<a href="#" onClick="window.location.href='{% url download_annotation 'download' v.id %}'" title="Download File">Download</a>
 													</li>
                                                     
 													{% if v.fileId %}

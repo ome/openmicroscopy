@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
 
@@ -119,6 +120,9 @@ public class MeasureLineConnectionFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/** Creates instance of line connection figure.*/
 	public MeasureLineConnectionFigure()
 	{
@@ -153,6 +157,7 @@ public class MeasureLineConnectionFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 
 	 /**
@@ -304,7 +309,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -317,7 +322,7 @@ public class MeasureLineConnectionFigure
 		if (shape == null) 
 			return str;
 		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
@@ -393,8 +398,11 @@ public class MeasureLineConnectionFigure
 			if (units.isInMicrons())
 			{
 				Point2D.Double pt = getPoint(i);
-				return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
-					pt.getY()*units.getMicronsPixelY());
+				double tx = UIUtilities.transformSize(
+						pt.getX()*units.getMicronsPixelX()).getValue();
+				double ty = UIUtilities.transformSize(
+						pt.getY()*units.getMicronsPixelY()).getValue();
+				return new Point2D.Double(tx, ty);
 			}
 			return getPoint(i);
 		}
@@ -549,6 +557,8 @@ public class MeasureLineConnectionFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**

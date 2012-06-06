@@ -775,7 +775,8 @@ class TreeViewerControl
 			if (owners.size() > 1) return null;
 		}
 		long userID = TreeViewerAgent.getUserDetails().getId();
-		long ownerID = owners.get(0);
+		long ownerID = -1;
+		if (owners.size() > 0) ownerID = owners.get(0);
 		
 		Collection l = null;
 		if (ownerID == userID) {

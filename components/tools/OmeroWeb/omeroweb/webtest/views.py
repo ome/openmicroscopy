@@ -318,7 +318,10 @@ def split_view_figure (request, conn=None, **kwargs):
     def getChannelData(image):
         channels = []
         i = 0;
-        for i, c in enumerate(image.getChannels()):
+        channel_data = image.getChannels()
+        if channel_data is None:    # E.g. failed import etc
+            return None
+        for i, c in enumerate(channel_data):
             name = request.REQUEST.get('cName%s' % i, c.getLogicalChannel().getName())
             # if we have channel info from a form, we know that checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cName%s' % i, None):
@@ -343,13 +346,15 @@ def split_view_figure (request, conn=None, **kwargs):
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":iId, "z":default_z, "name": image.getName() })
-        if channels == None:
+        if channels is None:
             channels = getChannelData(image)
         if height == 0:
             height = image.getSizeY()
         if width == 0:
             width = image.getSizeX()
     
+    if channels is None:
+        return HttpResponse("Couldn't load channels for images")
     size = {"height": height, "width": width}
     c_strs = []
     if channels:    # channels will be none when page first loads (no images)

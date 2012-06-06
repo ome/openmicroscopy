@@ -65,7 +65,7 @@ class SearchControl(HqlControl):
                 id = long(parts[1].strip())
                 obj.setId(omero.rtypes.rlong(id))
             except Exception, e:
-                self.ctx.debug(e)
+                self.ctx.dbg(e)
                 self.ctx.die(432, "Bad object: %s" % args.type)
 
             c.sf.getUpdateService().indexObject(obj)

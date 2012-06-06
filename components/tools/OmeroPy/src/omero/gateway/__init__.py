@@ -3698,8 +3698,16 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @return:    File name
         @rtype:     String
         """
-        
-        return self.getFile() and self.getFile().name or None
+        f = self.getFile()
+        if f is None or f._obj is None:
+            return None
+        fname = f.getName()
+        if fname is not None and len(fname) > 0:
+            return fname
+        fpath = f.getPath()
+        if fpath is not None and len(fpath) > 0:
+            return fpath
+        return f.id
     
     def getFileInChunks(self):
         """

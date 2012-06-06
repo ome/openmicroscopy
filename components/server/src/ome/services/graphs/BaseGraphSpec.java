@@ -161,12 +161,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         return new ArrayList<GraphEntry>(entries);
     }
 
-    public void close() {
-        this.superspec = null;
-        this.options = null;
-        this.id = -1;
-    }
-
     //
     // Helpers
     //

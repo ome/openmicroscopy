@@ -335,7 +335,7 @@ class BrowserComponent
      */
     public void setUnitBarSize(double size)
     {
-    	double oldUnit = model.getUnitInMicrons();
+    	double oldUnit = model.getUnitInRefUnits();
         model.setUnitBarSize(size);
         
         Rectangle viewRect = view.getViewport().getBounds();
@@ -642,9 +642,9 @@ class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getUnitInMicrons()
+	 * @see Browser#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.

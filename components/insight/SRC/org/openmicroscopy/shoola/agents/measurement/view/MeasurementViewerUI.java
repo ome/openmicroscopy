@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -469,6 +470,10 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
+        UnitsAction a = (UnitsAction)
+        	controller.getAction(MeasurementViewerControl.IN_MICRONS);
+    	a.setRefUnits(EditorUtil.transformSize(
+    			model.getPixelSizeX()).getUnits());
         //buildGUI();
     }
     
@@ -1461,7 +1466,7 @@ class MeasurementViewerUI
      * @return See above.
      */
     long getPixelsID() { return model.getPixelsID(); }
- 
+    
     /**
 	 * Calculate the stats for the Rois in the shapelist. This method
 	 * will call the graphView.
@@ -1649,6 +1654,8 @@ class MeasurementViewerUI
     public void setOnScreen()
     {
     	setSize(DEFAULT_SIZE);
+    	UIUtilities.incrementRelativeToAndShow(null, this);
+    	/*
         if (model != null) { //Shouldn't happen
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
@@ -1656,6 +1663,7 @@ class MeasurementViewerUI
             //pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
+        */
     }
     
 	/** 

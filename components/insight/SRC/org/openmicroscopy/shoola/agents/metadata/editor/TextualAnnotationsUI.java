@@ -220,7 +220,7 @@ class TextualAnnotationsUI
 		moreComponent = UIUtilities.buildComponentPanel(moreButton, 0, 0);
 		moreComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 
-		JButton hideButton = new JButton("hide");
+		JButton hideButton = new JButton("less");
 		UIUtilities.unifiedButtonLookAndFeel(hideButton);
 		hideButton.setBorder(null);
 		hideButton.setBackground(UIUtilities.BACKGROUND_COLOR);

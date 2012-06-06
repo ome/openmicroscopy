@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -108,43 +109,13 @@ public class MeasureEllipseFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
 		this(DEFAULT_TEXT);
-	}
-	
-	/** 
-	 * Creates a new instance.
-	 * 
-	 * @param text  The text of the ellipse. 
-	 * @param x     The x-coordinate of the figure. 
-	 * @param y     The y-coordinate of the figure.
-	 * @param width	The width of the figure. 
-	 * @param height The height of the figure. 
-	 * @param readOnly The figure is read only.
-     * @param clientObject the figure is a client object.
-     * @param editable Flag indicating the figure can/cannot be edited.
-	 * @param deletable Flag indicating the figure can/cannot be deleted.
-	 * @param annotatable Flag indicating the figure can/cannot be annotated.
-	 */
-	public MeasureEllipseFigure(String text, double x, double y, double width,
-			double height, boolean readOnly, boolean clientObject,
-			boolean editable, boolean deletable, boolean annotatable)
-	{
-		super(text, x, y, width, height);
-		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
-		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
-		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
-	   	shape = null;
-		roi = null;
-		status = IDLE;
-		setReadOnly(readOnly);
-		setClientObject(clientObject);
-		this.deletable = deletable;
-   		this.annotatable = annotatable;
-   		this.editable = editable;
-   		interactable = true;
 	}
 	
 	/** 
@@ -189,26 +160,64 @@ public class MeasureEllipseFigure
 	}
 	
 	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param text  The text of the ellipse. 
+	 * @param x     The x-coordinate of the figure. 
+	 * @param y     The y-coordinate of the figure.
+	 * @param width	The width of the figure. 
+	 * @param height The height of the figure. 
+	 * @param readOnly The figure is read only.
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 */
+	public MeasureEllipseFigure(String text, double x, double y, double width,
+			double height, boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable)
+	{
+		super(text, x, y, width, height);
+		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+	   	shape = null;
+		roi = null;
+		status = IDLE;
+		setReadOnly(readOnly);
+		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
+	}
+	
+	/** 
 	 * Returns the x-coordinate of the figure, 
-	 * convert to microns if <code>isInMicrons</code> is <code>true</code>. 
+	 * convert to the size in the reference units 
 	 * 
 	 * @return See above.
 	 */
 	public double getMeasurementX()
 	{
-		if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+		if (units.isInMicrons()) 
+			return UIUtilities.transformSize(
+					getX()*units.getMicronsPixelX()).getValue();
 		return getX();
 	}
 	
 	/** 
 	 * Returns the y-coordinate of the figure, 
-	 * convert to microns if <code>isInMicrons</code> is <code>true</code>. 
+	 * convert to the size in the reference units 
 	 * 
 	 * @return See above.
 	 */
 	public double getMeasurementY()
 	{
-		if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getY()*units.getMicronsPixelY()).getValue();
 		return getY();
 	}
 	
@@ -220,7 +229,9 @@ public class MeasureEllipseFigure
 	 */
 	public double getMeasurementWidth()
 	{
-		if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getWidth()*units.getMicronsPixelX()).getValue();
 		return getWidth();
 	}
 		
@@ -232,7 +243,9 @@ public class MeasureEllipseFigure
 	 */
 	public double getMeasurementHeight()
 	{
-		if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getHeight()*units.getMicronsPixelY()).getValue();
 		return getHeight();
 	}
 		
@@ -244,10 +257,13 @@ public class MeasureEllipseFigure
 	 */
 	public Point2D getMeasurementCentre()
 	{
-		if (units.isInMicrons()) 
-			return new Point2D.Double(getCentre().getX()
-				*units.getMicronsPixelX(), getCentre().getY()
-				*units.getMicronsPixelY());
+		if (units.isInMicrons()) {
+			double tx = UIUtilities.transformSize(
+					getCentre().getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					getCentre().getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
+		}
 		return getCentre();
 	}
 		
@@ -404,7 +420,7 @@ public class MeasureEllipseFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons()) 
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
@@ -497,6 +513,8 @@ public class MeasureEllipseFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 
 	/**

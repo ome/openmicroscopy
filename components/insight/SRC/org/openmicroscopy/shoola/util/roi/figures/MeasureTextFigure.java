@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
@@ -100,6 +102,9 @@ public class MeasureTextFigure
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	private int 				status;
+	
+	/** The units of reference.*/
+	private String refUnits;
 	
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
@@ -172,6 +177,7 @@ public class MeasureTextFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
    		setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
    }
 	
@@ -256,6 +262,8 @@ public class MeasureTextFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**

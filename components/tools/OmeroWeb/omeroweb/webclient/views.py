@@ -362,7 +362,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     request.session['user_id'] = user_id
 
-    myGroups = list(conn.getGroupsMemberOf())
+    if conn.isAdmin():  # Admin can see all groups
+        myGroups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("system", "user", "guest")]
+    else:
+        myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
     new_container_form = ContainerForm()
 
@@ -1732,7 +1735,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
-            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
+            return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'form':form}

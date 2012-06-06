@@ -70,6 +70,8 @@ public class ChgrpValidation extends GraphStep {
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
     throws GraphException {
 
+        logPhase("Validating");
+
         // ticket:6422 - validation of graph, phase 2
         // =====================================================================
         final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
@@ -98,6 +100,7 @@ public class ChgrpValidation extends GraphStep {
             }
         }
 
+        logPhase("Validated");
     }
 
     private Long findImproperOutgoingLinks(Session session, String[] lock) {
