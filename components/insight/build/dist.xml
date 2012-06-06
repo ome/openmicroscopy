@@ -590,7 +590,7 @@
 	        icon="${distEditor.osx.icon}"
 	        stubfile="${dist.osx.stub}" 
 	        jvmversion="1.5+"
-	        vmoptions="-Xms256M -Xmx512M"
+  	        vmoptions="${dist.vmparameters}"
   			arguments="containerEditor.xml">
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
@@ -671,7 +671,7 @@
         icon="${distImporter.osx.icon}"
         stubfile="${dist.osx.stub}" 
         jvmversion="1.5+"
-        vmoptions="-Xms256M -Xmx512M"
+  	    vmoptions="${dist.vmparameters}"
   arguments="containerImporter.xml">
   <jarfileset refid="app.libs"/>
   <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
