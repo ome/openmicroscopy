@@ -7,7 +7,6 @@
 package integration;
 
 
-import java.awt.Color;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -27,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.xml.model.OME;
+import ome.xml.model.primitives.Color;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -153,29 +153,6 @@ public class ImporterTest
         delete(true, iDelete, client,
             new DeleteCommand(DeleteServiceTest.REF_SCREEN,
                     screen.getId().getValue(), null));
-    }
-
-    /**
-     * Attempts to create a Java timestamp from an XML date/time string.
-     * @param value An <i>xsd:dateTime</i> string.
-     * @return A value Java timestamp for <code>value</code> or
-     * <code>null</code> if timestamp parsing failed. The error will be logged
-     * at the <code>ERROR</code> log level.
-     */
-    private Timestamp timestampFromXmlString(String value)
-    {
-        try
-        {
-            SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            return new Timestamp(sdf.parse(value).getTime());
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing timestamp '%s' failed!", value), e);
-        }
-        return null;
     }
 
 	/**
@@ -566,7 +543,10 @@ public class ImporterTest
 				xml.getExternalDescription());
 		assertEquals(well.getExternalIdentifier().getValue(), 
 				xml.getExternalIdentifier());
-		Color xmlColor = new Color(xml.getColor());
+		Color source = xml.getColor();
+		java.awt.Color xmlColor = new java.awt.Color(
+		        source.getRed(), source.getGreen(),
+		        source.getBlue(), source.getAlpha());
 		assertEquals(well.getAlpha().getValue(), xmlColor.getAlpha());
 		assertEquals(well.getRed().getValue(), xmlColor.getRed());
 		assertEquals(well.getGreen().getValue(), xmlColor.getGreen());
@@ -585,7 +565,7 @@ public class ImporterTest
 				xml.getPositionX().doubleValue());
 		assertEquals(ws.getPosY().getValue(), 
 				xml.getPositionY().doubleValue());
-		Timestamp ts = timestampFromXmlString(xml.getTimepoint());
+		Timestamp ts = new Timestamp(xml.getTimepoint().asDate().getTime());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
 	}
 
@@ -601,11 +581,11 @@ public class ImporterTest
 		assertEquals(pa.getName().getValue(), xml.getName());
 		assertEquals(pa.getDescription().getValue(), 
 				xml.getDescription());
-		Timestamp ts = timestampFromXmlString(xml.getEndTime());
+		Timestamp ts = new Timestamp(xml.getEndTime().asDate().getTime());
 		assertNotNull(ts);
 		assertNotNull(pa.getEndTime());
 		assertEquals(pa.getEndTime().getValue(), ts.getTime());
-		ts = timestampFromXmlString(xml.getStartTime());
+		ts = new Timestamp(xml.getStartTime().asDate().getTime());
 		assertNotNull(ts);
 		assertNotNull(pa.getStartTime());
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
