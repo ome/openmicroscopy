@@ -97,7 +97,6 @@
   <property name="distEditor.name" value="OMERO.editor"/>
   <property name="distEditor.osx.icon" 
 	            location="${base.launch.dir}/osx/editorIcon.icns"/>
-  <property name="distEditor.jar.file" value="omero.editor.jar"/>
   <property name="distEditor.bundle.name" value="OMERO.editor"/>
   <property name="distEditor.win.exename" value="OMERO.editor"/>
   <property name="distEditor.win64.exename" value="${distEditor.win.exename}_64"/>
@@ -107,7 +106,6 @@
   <property name="distImporter.name" value="OMERO.importer"/>
   <property name="distImporter.osx.icon" 
 		            location="${base.launch.dir}/osx/omeroImporterLogo.icns"/>
-  <property name="distImporter.jar.file" value="omero.importer.jar"/>
   <property name="distImporter.bundle.name" value="OMERO.importer"/>
   <property name="distImporter.win.exename" value="OMERO.importer"/>
   <property name="distImporter.win64.exename" value="${distImporter.win.exename}_64"/>
@@ -233,7 +231,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx, dist-ij, 
+  	dist-win-openGL,dist-win64-openGL,distEditor-osx, dist-ij, 
   	distImporter-osx, distImporter-win"
           description="Build and package the app for distribution."> 
 
