@@ -418,10 +418,13 @@ def writeMovie(commandArgs, conn):
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
 
-    omeroImage = gateway.getObject('Image', commandArgs["Image_ID"])
-    if not omeroImage:
-        message += "No image found. "
+    # Get the images
+    images, logMessage = scriptUtil.getObjects(conn, commandArgs)
+    message += logMessage
+    if not images:
         return None, message
+    omeroImage = images[0] # Get the first valid image (should be expanded to process the list)
+    
     if commandArgs["RenderingDef_ID"] >= 0:
         omeroImage._prepareRenderingEngine(rdid=commandArgs["RenderingDef_ID"])
     pixels = omeroImage.getPrimaryPixels()
@@ -568,9 +571,11 @@ def runAsScript():
     ckeys = ckeys;
     ckeys.sort()
     cOptions = wrap(ckeys)
+    dataTypes= [rstring("Image")]
     
     client = scripts.client('Make_Movie','MakeMovie creates a movie of the image and attaches it to the originating image.',
-    scripts.Long("Image_ID", description="The Image Identifier.", optional=False, grouping="1"),
+    scripts.String("Data_Type", optional=False, grouping="1", description="Choose Images via their 'Image' IDs.", values=dataTypes, default="Image"),
+    scripts.List("IDs", optional=False, grouping="1", description="List of Image IDs to process.").ofType(rlong(0)),
     scripts.Long("RenderingDef_ID", description="The Rendering Definitions for the Image.", default=-1, optional=True, grouping="1"),
     scripts.String("Movie_Name", description="The name of the movie", grouping="2"),
     scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0, default=0, grouping="3.1"),
