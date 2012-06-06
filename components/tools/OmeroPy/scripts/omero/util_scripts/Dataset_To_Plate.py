@@ -1,3 +1,4 @@
+
 """
  components/tools/OmeroPy/scripts/omero/util_scripts/Dataset_To_Plate.py
 
@@ -90,6 +91,8 @@ def dataset_to_plate(conn, scriptParams, datasetId, screen):
         link.parent = omero.model.ScreenI(screen.id, False)
         link.child = omero.model.PlateI(plate.id.val, False)
         updateService.saveObject(link)
+    else:
+        link = None
 
     print "Moving images from Dataset: %d %s to Plate: %d %s" % (dataset.id, dataset.name, plate.id.val, plate.name.val)
 
@@ -139,7 +142,7 @@ def dataset_to_plate(conn, scriptParams, datasetId, screen):
             options = None # {'/Image': 'KEEP'}    # don't delete the images!
             dcs.append(omero.api.delete.DeleteCommand("/Dataset", dataset.id, options))
             deleteHandle = conn.getDeleteService().queueDelete(dcs)
-    return plate, deleteHandle
+    return plate, link, deleteHandle
 
 def datasets_to_plates(conn, scriptParams):
 
@@ -167,17 +170,20 @@ def datasets_to_plates(conn, scriptParams):
             pass
         # if not, create one
         if screen is None:
-            screen = omero.model.ScreenI()
-            screen.name = rstring(s)
-            screen = updateService.saveAndReturnObject(screen)
-            newscreen = screen
+            newscreen = omero.model.ScreenI()
+            newscreen.name = rstring(s)
+            newscreen = updateService.saveAndReturnObject(newscreen)
+            screen = conn.getObject("Screen", newscreen.id.val)
 
     plates = []
+    links = []
     deletes = []
     for datasetId in IDs:
-        plate, deleteHandle = dataset_to_plate(conn, scriptParams, datasetId, screen)
+        plate, link, deleteHandle = dataset_to_plate(conn, scriptParams, datasetId, screen)
         if plate is not None:
             plates.append(plate)
+        if link is not None:
+            links.append(link)
         if deleteHandle is not None:
             deletes.append(deleteHandle)
 
@@ -196,17 +202,25 @@ def datasets_to_plates(conn, scriptParams):
             print "Delete OK"
 
     if newscreen:
-        message += "New screen created: %s" % screen.getName()
-        return [newscreen], message
+        message += "New screen created: %s." % newscreen.getName().val
+        robj = newscreen
     elif plates:
-        if len(plates) == 1:
-            message += "New plate created: %s" % plates[0].name.val
-        else:
-                message += "%s plates created" % len(plates)
-        return plates, message
+        robj = plates[0]
     else:
-        message += "No plates created."
-        return None, message
+        robj = None
+        
+    if plates:
+        if len(plates) == 1:
+            message += " New plate created: %s" % plates[0].name.val
+        else:
+            message += " %s plates created" % len(plates)
+        if len(plates) == len(links):
+            message += "."
+        else:
+            message += " but could not be attached."
+    else:
+        message += "No plate created."
+    return robj, message
 
 def runAsScript():
     """
@@ -269,11 +283,11 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         conn = BlitzGateway(client_obj=client)
 
         # convert Dataset(s) to Plate(s). Returns new plates or screen
-        newObjs, message = datasets_to_plates(conn, scriptParams)
+        newObj, message = datasets_to_plates(conn, scriptParams)
 
         client.setOutput("Message",rstring(message))
-        if newObjs:
-            client.setOutput("New_Object",robject(newObjs[0]))
+        if newObj:
+            client.setOutput("New_Object",robject(newObj))
             
     finally:
         client.closeSession()
