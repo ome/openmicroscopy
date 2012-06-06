@@ -151,6 +151,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // processor about.
 
                 ProcessorCallbackI callback = new ProcessorCallbackI(factory);
+                callback.setApplicationContext(factory.context);
                 ProcessorPrx server = callback.activateAndWait(__current);
 
                 return server != null;
