@@ -703,6 +703,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int getResolutionLevels()
     {
+        errorIfNotLoaded();
         return buffer.getResolutionLevels();
     }
 
