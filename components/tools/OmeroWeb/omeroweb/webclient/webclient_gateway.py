@@ -2009,22 +2009,6 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         else:
             False
     
-    def isReadOnly(self):
-        p = None
-        if self.details.getPermissions() is None:
-            raise AttributeError('Object has no permissions')
-        else:
-            p = self.details.getPermissions()
-        
-        flag = False
-        if p.isUserRead() and not p.isUserWrite():
-            flag = True
-        if p.isGroupRead() and not p.isGroupWrite():
-            flag = True
-        if p.isWorldRead() and not p.isWorldWrite():
-            flag = True
-        return flag
-    
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
