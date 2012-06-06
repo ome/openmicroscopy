@@ -112,6 +112,16 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'omeroweb.decorators': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'omeroweb.connector': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         '': {
             'handlers': ['default'],
             'level': 'DEBUG',
