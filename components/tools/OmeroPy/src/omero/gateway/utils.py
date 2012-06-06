@@ -17,47 +17,79 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-#         Carlos Neves <carlos(at)glencoesoftware(dot)com>, 2008
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2012
 # 
 # Version: 1.0
 #
 
-class ServiceOptsDict(dict):
+import logging
 
-    def __init__(self, data=None):
+logger = logging.getLogger(__name__)
+
+class ServiceOptsDict(dict):
+    
+    def __new__(cls, *args, **kwargs):
+        return super(ServiceOptsDict, cls).__new__(cls, *args, **kwargs)
+    
+    def __init__(self, data=None, *args, **kwargs):
         if data is None:
             data = dict()
+        if len(kwargs) > 0:
+            for key, val in dict(*args, **kwargs).iteritems():
+                self[key] = val
         if isinstance(data, dict):
-            _data = dict()
             for key in data:
-                _data[key] = str(data[key])
-            super(ServiceOptsDict, self).__init__(_data)
+                item = data[key]
+                if self._testItem(item):
+                    self[key] = str(item)
+                else:
+                    logger.warning("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
         else:
             raise AttributeError("%s argument must be a dictionary" % self.__class__.__name__)
-
+    
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
                              super(ServiceOptsDict, self).__repr__())
     
-    def __setitem__(self, key, value):
-        super(ServiceOptsDict, self).__setitem__(key, str(value))
-    
+    def __setitem__(self, key, item):
+        """Set key to value as string."""
+        if self._testItem(item):
+            super(ServiceOptsDict, self).__setitem__(key, str(item))
+            logger.info("Setting %r to %r" % (key, item))
+        else:
+            raise AttributeError("%s argument must be a string, unicode or numeric type" % self.__class__.__name__)
+        
     def __getitem__(self, key):
-        try:
-            val_ = super(ServiceOptsDict, self).__getitem__(key)
-        except KeyError:
-            raise KeyError("Key %r not found in %r" % (key, self))
-        return val_
-    
-    def get(self, key, default=None):
+        """Return the value for key if key is in the dictionary. Raises a KeyError if key is not in the map."""
+        #logger.info("GET %s['%s']" % str(dict.get(self, 'name_label')), str(key))
         try:
             return super(ServiceOptsDict, self).__getitem__(key)
+        except KeyError:
+            raise KeyError("Key %r not found in %r" % (key, self))
+    
+    def __delitem__(self, key):
+        """Remove dict[key] from dict. Raises a KeyError if key is not in the map."""
+        super(ServiceOptsDict, self).__delitem__(key)
+        logger.info("Deleting %r" % (key))
+    
+    def copy(self):
+        """Returns a copy of this object."""
+        return self.__class__(self)
+    
+    def clear(self):
+        """Remove all items from the dictionary."""
+        super(ServiceOptsDict, self).clear()
+    
+    def get(self, key, default=None):
+        """Return the value for key if key is in the dictionary, else default. If default is not given, it defaults to None, so that this method never raises a KeyError."""
+        try:
+            return self.__getitem__(key)
         except KeyError:
             return default
     
     def set(self, key, value):
-        return super(ServiceOptsDict, self).__setitem__(key,str(value))
+        """Set key to value as string."""
+        return self.__setitem__(key,value)
     
     def getOmeroGroup(self):
         return self.get('omero.group')
@@ -79,4 +111,12 @@ class ServiceOptsDict(dict):
     def setOmeroShare(self, value):
         if value is not None:
             self.set('omero.share',value)
-    
+
+    def _testItem(self, item):
+        if item is not None and not isinstance(item, bool) and \
+                    (isinstance(item, basestring) or \
+                    isinstance(item, int) or \
+                    isinstance(item, long) or \
+                    isinstance(item, float)):
+            return True
+        return False
