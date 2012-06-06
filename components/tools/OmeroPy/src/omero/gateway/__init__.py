@@ -464,25 +464,6 @@ class BlitzObjectWrapper (object):
             g = g and g.details or self._obj.details
             return g.permissions.isUserRead()
         return False
-    
-    def isReadOnly(self):
-        """
-        Determines if the object is visible but not writeable
-        
-        @rtype:     Boolean
-        @return:    True if public but not world writable
-                    True if shared but not group writable
-                    True if private but not user writable
-        """
-        g = self.getDetails().getGroup()
-        g = g and g.details or self._obj.details
-        if self.isPublic() and not g.permissions.isWorldWrite():
-            return True
-        elif self.isShared() and not g.permissions.isGroupWrite():
-            return True
-        elif self.isPrivate() and not g.permissions.isUserWrite():
-            return True
-        return False
 
     def canEdit(self):
         """
