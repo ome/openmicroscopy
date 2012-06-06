@@ -10,7 +10,6 @@ package omero.cmd.basic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import ome.system.OmeroContext;
 import omero.cmd.Helper;
@@ -29,8 +28,6 @@ import omero.util.ObjectFactoryRegistry.ObjectFactory;
 public class ListRequestsI extends ListRequests implements IRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;
-
-    private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
     private final OmeroContext ctx;
 
@@ -78,6 +75,6 @@ public class ListRequestsI extends ListRequests implements IRequest {
     }
 
     public Response getResponse() {
-        return rsp.get();
+        return helper.getResponse();
     }
 }

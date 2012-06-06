@@ -409,7 +409,13 @@ public interface Executor extends ApplicationContextAware {
                     this.principalHolder.setContext(null);
                 }
                 if (p != null) {
-                    this.principalHolder.logout();
+                    int left = this.principalHolder.logout();
+                    if (left > 0) {
+                        log.warn("Logins left: " + left);
+                        for (int j = 0; j < left; j++) {
+                            this.principalHolder.logout();
+	                    }
+                    }
                 }
             }
         }

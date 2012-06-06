@@ -64,6 +64,12 @@ omero.blitz.xargs.
   <category name="ome.services.blitz.impl.ServiceFactoryI"> <priority value="INFO"/> </category>
   <category name="ome.services.blitz.impl.OmeroMetadata"> <priority value="INFO"/> </category>
   <category name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"> <priority value="WARN"/> </category>
+  <!-- Often useful to change to DEBUG -->
+  <category name="omero.cmd"> <priority value="INFO"/> </category>
+  <category name="ome.services.graphs"> <priority value="INFO"/> </category>
+  <category name="ome.services.chgrp"> <priority value="INFO"/> </category>
+  <category name="ome.services.chmod"> <priority value="INFO"/> </category>
+  <category name="ome.services.delete"> <priority value="INFO"/> </category>
   <!-- Adapters are also too so is a bit verbose -->
   <category name="ome.adapters"> <priority value="ERROR"/> </category>
 

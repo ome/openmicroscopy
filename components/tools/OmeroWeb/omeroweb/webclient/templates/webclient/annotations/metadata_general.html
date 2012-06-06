@@ -64,7 +64,6 @@
                 var preview_load = false;
                 var hierarchy_load = false;
 
-                $('#annotation_tabs').tabs({cache : true});
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 

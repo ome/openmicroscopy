@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import junit.framework.AssertionFailedError;
+
 import omero.api.Save;
 import omero.cmd.Chgrp;
 import omero.cmd.DoAll;
@@ -29,6 +31,7 @@ import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -103,7 +106,18 @@ public class HierarchyMoveTest
 	/** Performs the move as group owner.*/
 	private static final int ADMIN = 102;
 	
-	/**
+    /**
+     * Call {@link #moveDataDatasetToProject(String, String, int, int, boolean)}
+     * with false for chownLink which maintains the previous usage.
+     */
+    private void moveDataDatasetToProject(String source, String target,
+    		int linkLevel, int memberLevel)
+    throws Exception
+    {
+    	moveDataDatasetToProject(source, target, linkLevel, memberLevel, false);
+    }
+
+    /**
      * Tests the move of a dataset to a new group, a project in the new group
      * is selected and the dataset should be linked to that project.
      * 
@@ -115,7 +129,7 @@ public class HierarchyMoveTest
      * <code>false</code> otherwise. 
      */
     private void moveDataDatasetToProject(String source, String target, 
-    		int linkLevel, int memberLevel)
+    		int linkLevel, int memberLevel, boolean chownLink)
     throws Exception
     {
     	//Step 1
@@ -143,7 +157,7 @@ public class HierarchyMoveTest
     	//log out
     	disconnect();
     	
-    	//Step 2: log into source group to perform the move
+    	//Step 2: log into source group to perform the move // No. See below.
     	switch (memberLevel) {
 			case DATA_OWNER:
 			case GROUP_OWNER:
@@ -153,7 +167,23 @@ public class HierarchyMoveTest
 			case ADMIN:
 				logRootIntoGroup(ctx.groupId);
 		}
-    	
+
+    	//Step 3: if this is a private group and we're an admin, then we'll
+    	// need to assert specific ownership of the links and new objects to
+    	// be the data owner
+    	Experimenter o = null;
+    	if (target.equals("rw----") && chownLink) {
+    		switch (memberLevel) {
+    			case DATA_OWNER:
+    			default:
+    				// no-op
+    				break;
+    			case GROUP_OWNER:
+    			case ADMIN:
+    				o = new omero.model.ExperimenterI(ctx.userId, false);
+    				break;
+    		}
+    	}
     	
     	//Create commands to move and create the link in target 
     	List<Request> list = new ArrayList<Request>();
@@ -165,12 +195,22 @@ public class HierarchyMoveTest
 			case LINK_NEW:
 				link = new ProjectDatasetLinkI();
 		    	link.setChild(new DatasetI(d.getId().getValue(), false));
-		    	link.setParent(new ProjectI());
+		    	ProjectI prj = new ProjectI();
+		    	String n = "prj for Dataset:"+d.getId().getValue();
+		    	prj.setName(omero.rtypes.rstring(n));
+		    	link.setParent(prj);
+		    	if (o != null) {
+		    		link.getDetails().setOwner(o);
+		    		prj.getDetails().setOwner(o);
+		    	}
 				break;
 			case LINK_EXISTING:
 				link = new ProjectDatasetLinkI();
 		    	link.setChild(new DatasetI(d.getId().getValue(), false));
 		    	link.setParent(new ProjectI(p.getId().getValue(), false));
+		    	if (o != null) {
+		    		link.getDetails().setOwner(o);
+		    	}
 		}
     	
     	if (link != null) {
@@ -182,7 +222,7 @@ public class HierarchyMoveTest
     	all.requests = list;
     	
     	//Do the move.
-    	doChange(all);
+    	doChange(all, g.getId().getValue()); // Login to target group
 
    
     	//Check if the dataset has been removed.
@@ -1465,9 +1505,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
-		}
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
+    	}
+		moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, ADMIN, true);
     }
     
     /**
@@ -1484,9 +1527,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rw----", "rw----", LINK_NEW, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
-		}
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
+    	}
+		moveDataDatasetToProject("rw----", "rw----", LINK_NEW, ADMIN, true);
     }
     
     /**
@@ -1516,9 +1562,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
 		}
+		moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, ADMIN, true);
     }
     
     /**
@@ -1535,9 +1584,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
-		}
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
+    	}
+    	moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN, true);
     }
     
     /**
@@ -1567,9 +1619,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
 		}
+		moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, ADMIN, true);
     }
     
     /**
@@ -1586,9 +1641,12 @@ public class HierarchyMoveTest
     		moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
     		fail("A security Violation should have been thrown." +
     			"Admin not allowed to create a link in private group.");
-		} catch (Exception e) {
-			
+    	} catch (AssertionFailedError e) {
+    		if (!e.getMessage().contains("Found ERR")) {
+    			throw e;
+    		}
 		}
+		moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN, true);
     }
     
     /**

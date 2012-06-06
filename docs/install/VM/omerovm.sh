@@ -47,6 +47,8 @@ function installvm ()
 	$SCP setup_omero.sh omero@localhost:~/
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
+	$SCP omero-web-init.d omero@localhost:~/
+  $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
 	$SSH omero@localhost 'bash /home/omero/driver.sh'
 	sleep 10
@@ -137,7 +139,7 @@ function createvm ()
 		VBoxManage modifyvm "$VMNAME" --natpf1 "ssh,tcp,127.0.0.1,2222,10.0.2.15,22"
 		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-unsec,tcp,127.0.0.1,4063,10.0.2.15,4063"
 		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-ssl,tcp,127.0.0.1,4064,10.0.2.15,4064"
-		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,4080,10.0.2.15,4080"
+		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,8080,10.0.2.15,8080"
 	}
 }
 
