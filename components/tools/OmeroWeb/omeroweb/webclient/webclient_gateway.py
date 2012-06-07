@@ -226,7 +226,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(1)
         p.theFilter = f
         sql = "select g from ExperimenterGroup as g where g.name not in (:default_names)"
-        if len(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])) > 0:
+        if len(q.findAllByQuery(sql, p, self.CONFIG)) > 0:
             return False
         return True
     
@@ -270,7 +270,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().userId)
         sql = "select e from Experimenter as e where e.id != :id "
-        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p, self.CONFIG):
             yield ExperimenterWrapper(self, e)
 
     #def getCurrentSupervisor(self):
@@ -328,7 +328,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               inner join fetch ws.image as img 
               where well.plate.name = :pname and well.row = :row 
               and well.column = :column"""
-        well = q.findByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+        well = q.findByQuery(sql, p, self.CONFIG)
         if well is None:
             return None
         else:
@@ -351,7 +351,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql+=" and tg.details.owner.id = :eid"
             
         q = self.getQueryService()
-        for ann in q.findAllByQuery(sql, params, self.CONFIG['SERVICE_OPTS']):
+        for ann in q.findAllByQuery(sql, params, self.CONFIG):
             yield TagAnnotationWrapper(self, ann)
     
     def countOrphans (self, obj_type, eid=None):
@@ -396,7 +396,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
         
-        rslt = q.projection(sql, p, self.CONFIG['SERVICE_OPTS'])
+        rslt = q.projection(sql, p, self.CONFIG)
         if len(rslt) > 0:
             if len(rslt[0]) > 0:
                 return rslt[0][0].val
@@ -454,7 +454,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
-        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p, self.CONFIG):
             yield links[obj_type][1](self, e)
     
     def listImagesInDataset (self, oid, eid=None, page=None):
@@ -490,7 +490,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += " and im.details.owner.id=:eid"
         sql+=" order by im.name ASC"
         
-        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p, self.CONFIG):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
     
@@ -525,7 +525,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if desc is not None:
             sql+= " and tg.description=:desc"
         sql+=" and tg.ns is null order by tg.textValue"
-        res = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+        res = query_serv.findAllByQuery(sql, p, self.CONFIG)
         if len(res) > 0:
             return TagAnnotationWrapper(self, res[0])
         return None
@@ -771,7 +771,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["omeName"] = rstring(smart_str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
-        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG)
         if len(exps) > 0:
             return True
         else:
@@ -785,7 +785,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["name"] = rstring(smart_str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
-        grs = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+        grs = query_serv.findAllByQuery(sql, p, self.CONFIG)
         if len(grs) > 0:
             return True
         else:
@@ -801,7 +801,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
-        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG)
         if len(exps) > 0:
             return True
         else:
@@ -1200,7 +1200,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       ObjectI
         """
         u = self.getUpdateService()
-        u.saveObject(obj, self.CONFIG['SERVICE_OPTS'])
+        u.saveObject(obj, self.CONFIG)
     
     def saveArray (self, objs):
         """
@@ -1214,7 +1214,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       L{ObjectI}
         """
         u = self.getUpdateService()
-        u.saveArray(objs, self.CONFIG['SERVICE_OPTS'])
+        u.saveArray(objs, self.CONFIG)
     
     def saveAndReturnObject (self, obj):
         """
@@ -1230,7 +1230,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          ObjectI
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
+        res = u.saveAndReturnObject(obj, self.CONFIG)
         res.unload()
         obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
@@ -1249,7 +1249,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          Long
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
+        res = u.saveAndReturnObject(obj, self.CONFIG)
         res.unload()
         return res.id.val
     
@@ -1265,7 +1265,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         store = self.createRawFileStore()
-        store.setFileId(oFile_id, self.CONFIG['SERVICE_OPTS']);
+        store.setFileId(oFile_id, self.CONFIG);
         pos = 0
         rlen = 0
         
@@ -1273,7 +1273,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
             pos = pos + rlen
-        return store.save(self.CONFIG['SERVICE_OPTS'])
+        return store.save(self.CONFIG)
     
     ##############################################
     ##   IShare
@@ -1486,14 +1486,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(image) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in image])
             sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-            items.extend(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']))
+            items.extend(q.findAllByQuery(sql, p, self.CONFIG))
         
         #members
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
                   "where e.id in (:ids) order by e.omeName"
-            ms = q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
+            ms = q.findAllByQuery(sql, p, self.CONFIG)
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
         
@@ -1606,7 +1606,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentObjects(['Image'], p, False, self.CONFIG['SERVICE_OPTS'])["Image"]:
+        for e in tm.getMostRecentObjects(['Image'], p, False, self.CONFIG)["Image"]:
             yield ImageWrapper(self, e)
     
     def listMostRecentShares (self):
@@ -1625,7 +1625,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG):
             yield ShareWrapper(self, e.parent)
     
     def listMostRecentShareComments (self):
@@ -1644,7 +1644,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG['SERVICE_OPTS']):
+        for e in tm.getMostRecentShareCommentLinks(p, self.CONFIG):
             yield AnnotationWrapper(self, e.child, link=ShareWrapper(self, e.parent))
     
     def listMostRecentComments (self):
@@ -1664,7 +1664,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
+        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p, self.CONFIG):
             yield omero.gateway.BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
@@ -1684,7 +1684,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(200)
         p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p, self.CONFIG['SERVICE_OPTS']):
+        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p, self.CONFIG):
             yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
     def getDataByPeriod (self, start, end, eid, otype=None, page=None):
@@ -1719,11 +1719,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         if otype is not None and otype in ("Image", "Dataset", "Project"):
             otype = otype.title()
-            for e in tm.getByPeriod([otype], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])[otype]:
+            for e in tm.getByPeriod([otype], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG)[otype]:
                 wrapper = KNOWN_WRAPPERS.get(otype.title(), None)
                 im_list.append(wrapper(self, e))
         else:
-            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])
+            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG)
             try:
                 for e in res['Image']:
                     im_list.append(ImageWrapper(self, e))
@@ -1763,13 +1763,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         #f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         if otype == 'image':
-            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Image']
+            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, self.CONFIG)['Image']
         elif otype == 'dataset':
-            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Dataset']
+            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, self.CONFIG)['Dataset']
         elif otype == 'project':
-            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Project']
+            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG)['Project']
         else:
-            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])
+            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG)
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end, eid):
@@ -1790,12 +1790,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f = omero.sys.Filter()
         f.limit = rint(100000)
         try:
-            f.groupId = rlong(self.CONFIG['SERVICE_OPTS']['omero.group'])
+            f.groupId = rlong(self.CONFIG.getOmeroGroup())
         except:
             f.groupId = rlong(self.getEventContext().groupId)
         f.ownerId = rlong(eid or self.getEventContext().userId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, {'omero.group': "-1"})
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, ServiceOptsDict({'omero.group': -1}))
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway
