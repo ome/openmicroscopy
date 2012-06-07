@@ -1515,10 +1515,12 @@ public class ImportDialog
 		//bar.setBackground(UIUtilities.BACKGROUND);
 		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		toolBar.add(reloadContainerButton);
+		/*
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(locationButton);
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(locationLabel);
+		*/
 		toolBar.add(Box.createHorizontalStrut(5));
 		tbItems = toolBar.getComponentCount();
 		return toolBar;
@@ -1532,8 +1534,15 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		//locationPane.add(buildLocationBar());
-		//locationPane.add(new JSeparator());
+		JPanel toolBar = new JPanel();
+		
+		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		toolBar.add(locationButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(locationLabel);
+		toolBar.add(Box.createHorizontalStrut(5));
+		locationPane.add(toolBar);
+		locationPane.add(new JSeparator());
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
