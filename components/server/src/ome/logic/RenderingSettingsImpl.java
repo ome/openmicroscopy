@@ -612,13 +612,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			settings = createNewRenderingDef(p);
     		}
     		try {
-			 RenderingDef newSettings =
-			     resetDefaults(settings, p, false, computeStats,
-							families, renderingModels);
-			 if (newSettings != null) {
-			     toSave.add(newSettings);
-			 }
-    			 imageIds.add(p.getImage().getId());
+    			RenderingDef newSettings =
+    				resetDefaults(settings, p, false, computeStats,
+    						families, renderingModels);
+    			if (newSettings != null) {
+    				toSave.add(newSettings);
+    			}
+    			imageIds.add(p.getImage().getId());
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
             } catch (ConcurrencyException e) {
@@ -631,9 +631,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
-        RenderingDef[] toSaveArray = 
-        	toSave.toArray(new RenderingDef[toSave.size()]);
-        iUpdate.saveAndReturnArray(toSaveArray);
+        if (toSave.size() > 0) {
+        	RenderingDef[] toSaveArray = 
+        		toSave.toArray(new RenderingDef[toSave.size()]);
+        	iUpdate.saveAndReturnArray(toSaveArray);
+        }
         s2.stop();
         s1.stop();
     	return imageIds;
@@ -1387,14 +1389,18 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
         Set<Long> toReturn = new HashSet<Long>();
+        RenderingDef def, from, to;
         for (Pixels pixels : pixelsList)
         {
-            RenderingDef from = ownerSettings.get(pixels.getId());
-            RenderingDef to = mySettings.get(pixels.getId());
+            from = ownerSettings.get(pixels.getId());
+            to = mySettings.get(pixels.getId());
             try
             {
-                toSave.add(applySettings(pixels, pixels, from, to));
-                toReturn.add(pixels.getImage().getId());
+            	def = applySettings(pixels, pixels, from, to);
+            	if (def != null) {
+            		toSave.add(def);
+            		toReturn.add(pixels.getImage().getId());
+            	}
             }
             catch (Exception e)
             {
@@ -1403,7 +1409,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                         "%s from %s to %s", pixels, from, to), e);
             }
         }
-        iUpdate.saveCollection(toSave);
+        if (toSave.size() > 0) iUpdate.saveCollection(toSave);
         return toReturn;
     }
 

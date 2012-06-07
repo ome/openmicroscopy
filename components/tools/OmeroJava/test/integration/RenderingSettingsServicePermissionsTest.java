@@ -13,10 +13,12 @@ import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
 import omero.model.ChannelBinding;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
+import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
@@ -37,6 +39,50 @@ public class RenderingSettingsServicePermissionsTest
 	extends AbstractServerTest
 {
 
+	/**
+	 * Tests the <code>resetDefaultsByOwnerInSet</code>
+	 * @param permissions
+	 * @param role
+	 * @throws Exception
+	 */
+    private void resetDefaultByOwnerInSetFor(String permissions, int role)
+    throws Exception
+    {
+    	EventContext ctx = newUserAndGroup(permissions);
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
+    	//Image
+    	disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		switch (role) {
+	    	case ADMIN:
+	    		logRootIntoGroup(ctx2);
+	    		break;
+	    	case GROUP_OWNER:
+	    		makeGroupOwner();
+    	}
+		factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	List<Long> v = 
+    		factory.getRenderingSettingsService().resetDefaultsByOwnerInSet(
+    			Image.class.getName(), ids);
+    	assertNotNull(v);
+    	assertEquals(v.size(), 1);
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertEquals(values.size(), 2);
+    }
+    
 	/**
 	 * Applies the settings to a given image.
 	 * @param permissions The permissions of the group.
@@ -1117,4 +1163,91 @@ public class RenderingSettingsServicePermissionsTest
     	saveSettingsOtherUserImage("rwr---", ADMIN);
     }
     
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByGroupOwnerRWR()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByAdminRWR()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwr---", ADMIN);
+    }
+
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByGroupOwnerRWRA()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByAdminRWRA()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwra--", ADMIN);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetRWRA()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwra--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByGroupOwnerRWRW()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwrw--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetByAdminRWRW()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwrw--", ADMIN);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetRWRW()
+    	throws Exception 
+    {
+    	resetDefaultByOwnerInSetFor("rwrw--", DATA_OWNER);
+    }
 }
