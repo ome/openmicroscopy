@@ -61,7 +61,6 @@ class ServiceOptsDict(dict):
         
     def __getitem__(self, key):
         """Return the value for key if key is in the dictionary. Raises a KeyError if key is not in the map."""
-        #logger.info("GET %s['%s']" % str(dict.get(self, 'name_label')), str(key))
         try:
             return super(ServiceOptsDict, self).__getitem__(key)
         except KeyError:
@@ -94,23 +93,38 @@ class ServiceOptsDict(dict):
     def getOmeroGroup(self):
         return self.get('omero.group')
     
-    def setOmeroGroup(self, value):
+    def setOmeroGroup(self, value=None):
         if value is not None:
             self.set('omero.group',value)
+        else:
+            try:
+                del self['omero.group']
+            except KeyError:
+                logger.warning("Key 'omero.group' not found in %r" % self)
     
     def getOmeroUser(self):
         return self.get('omero.user')
     
-    def setOmeroUser(self, value):
+    def setOmeroUser(self, value=None):
         if value is not None:
             self.set('omero.user',value)
+        else:
+            try:
+                del self['omero.user']
+            except KeyError:
+                logger.warning("Key 'omero.user' not found in %r" % self)
     
     def getOmeroShare(self):
         return self.get('omero.share')
     
-    def setOmeroShare(self, value):
+    def setOmeroShare(self, value=None):
         if value is not None:
             self.set('omero.share',value)
+        else:
+            try:
+                del self['omero.share']
+            except KeyError:
+                logger.warning("Key 'omero.share' not found in %r" % self)
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
