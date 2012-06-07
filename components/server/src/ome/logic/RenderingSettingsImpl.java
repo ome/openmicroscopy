@@ -1448,8 +1448,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             {
                 try
                 {
-                    resetDefaults(settings, pixels, false, false, families,
-                                  renderingModels);
+                    settings = resetDefaults(settings, pixels, false, false,
+                    		families, renderingModels);
                     toReturn.add(pixels.getId());
                     toSave.add(settings);
                 }

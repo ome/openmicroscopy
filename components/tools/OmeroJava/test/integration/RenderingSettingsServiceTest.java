@@ -1205,7 +1205,7 @@ public class RenderingSettingsServiceTest
     			"where rdef.pixels.id = :pid and rdef.details.owner.id = :oid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertEquals(values.size(), 0);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -1233,6 +1233,27 @@ public class RenderingSettingsServiceTest
     			Arrays.asList(image.getId().getValue()));
     	assertNotNull(v);
     	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForImageNoSettings() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	//method already tested 
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(m);
+    	assertEquals(m.size(), 1);
     }
 
 }
