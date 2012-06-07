@@ -55,6 +55,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -327,13 +328,16 @@ class ToolBar
     		 */
     		public void mousePressed(MouseEvent me)
     		{
+    			createSelectionOption(me);
+    			/*
     			SwitchGroup action = (SwitchGroup)
     				controller.getAction(TreeViewerControl.SWITCH_GROUP);
     			action.setPoint(me.getPoint());
     			action.actionPerformed(new ActionEvent(me.getSource(), 0, ""));
+    			*/
     		}
 		});
-    	bar.add(menuButton);
+    	//bar.add(menuButton);
     	bar.add(usersButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(groupContext);
