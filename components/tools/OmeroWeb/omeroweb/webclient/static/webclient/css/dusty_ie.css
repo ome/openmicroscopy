@@ -417,7 +417,7 @@
 			background-color: #E4E6E7;
 			border-bottom:solid 1px #B9BFC6;
 			
-			filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='rgba(255,255,255,.2)', endColorstr='rgba(255,255,255,0)',GradientType=0 ); /* IE6-9 */
+			filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#c6c6c6', endColorstr='#c6c6c6',GradientType=0 ); /* IE6-9 */
 			background:linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 100%); /* W3C */ 
 		}
 		
