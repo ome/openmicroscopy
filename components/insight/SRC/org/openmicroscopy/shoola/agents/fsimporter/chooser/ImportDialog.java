@@ -143,13 +143,13 @@ public class ImportDialog
 	public static final String	REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
 	/** The default text. */
-	private static final String	PROJECT_TXT = "Project";
+	private static final String	PROJECT_TXT = "Project: ";
 	
 	/** The default text. */
-	private static final String	SCREEN_TXT = "Screen";
+	private static final String	SCREEN_TXT = "Screen: ";
 	
 	/** The default text. */
-	private static final String	DATASET_TXT = "Dataset";
+	private static final String	DATASET_TXT = "Dataset: ";
 	
 	/** Action id indicating to import the selected files. */
 	private static final int	IMPORT = 0;
@@ -1559,15 +1559,17 @@ public class ImportDialog
 		}
 		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
-		row.add(parentsBox);
 		row.add(addProjectButton);
+		row.add(parentsBox);
+		
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			locationPane.add(Box.createVerticalStrut(8));
 			row = createRow(null);
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			row.add(datasetsBox);
 			row.add(addButton);
+			row.add(datasetsBox);
+			
 			locationPane.add(row);
 			locationPane.add(new JSeparator());
 		}
