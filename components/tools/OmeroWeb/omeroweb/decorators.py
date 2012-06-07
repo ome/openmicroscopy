@@ -46,7 +46,8 @@ class ConnCleaningHttpResponse(HttpResponse):
         super(ConnCleaningHttpResponse, self).close()
         try:
             logger.debug('Closing OMERO connection in %r' % self)
-            self.conn.c.closeSession()
+            if self.conn is not None and self.conn.c is not None:
+                self.conn.c.closeSession()
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
 

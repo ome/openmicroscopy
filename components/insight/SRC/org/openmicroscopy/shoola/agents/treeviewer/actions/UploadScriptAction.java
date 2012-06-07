@@ -91,7 +91,8 @@ public class UploadScriptAction
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				Object o = evt.getNewValue();
-				if (o instanceof ScriptObject) {
+				if (o instanceof ScriptObject &&
+					TreeViewerAgent.isAdministrator()) {
 					ScriptObject script = (ScriptObject) o;
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
@@ -101,8 +102,7 @@ public class UploadScriptAction
 					}
 					ScriptActivityParam p = new ScriptActivityParam(script, 
 							ScriptActivityParam.UPLOAD);
-					//TODO:review
-					//un.notifyActivity(p);
+					un.notifyActivity(TreeViewerAgent.getAdminContext(), p);
 				}
 			}
 		});

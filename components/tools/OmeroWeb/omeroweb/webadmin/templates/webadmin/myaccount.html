@@ -323,7 +323,7 @@
     <ul id="settings_tabs">
         <li id="personal_settings_tab"><a href="#personal_settings" title="User Settings">User</a></li>
 
-        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>{% endif %}
+        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Edit Groups that I own">My Groups</a></li>{% endif %}
 
         <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
     </ul>
@@ -414,6 +414,8 @@
     {% if ownedGroups %}
     <div id="groups_settings" class="settings_content">
         
+        <h1>Groups I Own</h1>
+        
         <div class="one_column_header">
             <form class="search filtersearch" id="filtersearch" action="#">
                 <input type="text" id="id_search" value="">
@@ -431,7 +433,7 @@
                     <th>{% trans "Name" %}</th> 
                     <th>{% trans "Permissions" %}</th> 
                     <th>{% trans "Description" %}</th>
-                    <th >{% trans "Settings" %}</th>
+                    <th>{% trans "Edit" %}</th>
                 </tr> 
             </thead> 
             <tbody>

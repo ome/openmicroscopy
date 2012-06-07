@@ -530,7 +530,7 @@
 		        box-shadow: 0 1px 0 rgba(255,255,255,0.7); /* Opera 10.5, IE 9.0 */
 		
 		
-		filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='rgba(0,0,0,0)', endColorstr='rgba(0,0,0,0.05)',GradientType=0 ); /* IE6-9 */
+		filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#EFF1F4', endColorstr='#CCD0D6',GradientType=0 ); /* IE6-9 */
 		
 		
 		-webkit-border-radius:4px; /* Saf3+, Chrome */

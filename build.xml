@@ -369,14 +369,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${OmeroImporter.comp}/src" prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
-        <!-- TODO: This should probably be made into another tools target tools-zip -->
-        <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-win-zip" inheritAll="false"/>
-        <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-osx-zip" inheritAll="false"/>
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
@@ -394,6 +390,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <copy todir="target">
             <fileset dir="components/insight/target" includes="editor*.zip"/>
             <mapper type="regexp" from="editor(.*).zip"  to="OMERO.editor-${omero.version}\1.zip"/>
+        </copy>
+		<copy todir="target">
+            <fileset dir="components/insight/target" includes="importer*.zip"/>
+            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer -${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
     </target>

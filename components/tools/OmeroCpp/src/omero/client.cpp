@@ -70,6 +70,16 @@ namespace omero {
 	    id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
 	}
 
+        // Set large thread pool max values for all communicators
+        std::string xs[] = {"Client", "Server"};
+        for (int i = 0; i < 2; i++) {
+            std::string key = "Ice.ThreadPool." + xs[i] + ".SizeMax";
+            std::string sizemax = id.properties->getProperty(key);
+            if (sizemax.length() == 0) {
+                id.properties->setProperty(key.c_str(), "50");
+            }
+        }
+
 	// ThreadPool to 5 if not present
 	std::string threadpool = id.properties->getProperty("omero.ClientCallback.ThreadPool.Size");
 	if ( threadpool.length() == 0 ) {

@@ -90,7 +90,7 @@
                     </a>
                     <ul title="Switch to this Group and User">
                         {% if grp.leaders %}
-                            <li class="non_selectable"><strong>Leaders</strong></li>
+                            <li class="non_selectable"><strong>Owners</strong></li>
                             {% for user in grp.leaders %}
                                 <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                                     <!-- if this user is in current group, we just switch user -->
