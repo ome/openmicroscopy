@@ -38,15 +38,273 @@ public class RenderingSettingsServicePermissionsTest
 {
 
 	/**
-     * Tests to apply the rendering settings to a collection of images
-     * in a private group.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testApplySettingsToSetForImageRW()
+	 * Applies the settings to a given image.
+	 * @param permissions The permissions of the group.
+	 * @param role The role of the user. The user can be the group owner, and 
+	 * administrator or a group member.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private void saveSettingsOtherUserImage(String permissions,
+			int role)
+	throws Exception 
+	{
+		EventContext ctx = newUserAndGroup(permissions);
+		IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+		Image image = createBinaryImage();
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		//Generate settings for the 3 images.
+		prx.setOriginalSettingsInSet(Image.class.getName(), Arrays.asList(
+				image.getId().getValue()));
+		
+		disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		switch (role) {
+	    	case ADMIN:
+	    		logRootIntoGroup(ctx2);
+	    		break;
+	    	case GROUP_OWNER:
+	    		makeGroupOwner();
+    	}
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Image.class.getName(), Arrays.asList(image.getId().getValue()));
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		assertNotNull(def);
+		ChannelBinding cb = def.getChannelBinding(0);
+		boolean b = cb.getActive().getValue();
+		cb.setActive(omero.rtypes.rbool(!b));
+		
+		factory.getPixelsService().saveRndSettings(def);
+		disconnect();
+	}
+	
+	/**
+	 * Applies the settings to a given image.
+	 * @param permissions The permissions of the group.
+	 * @param role The role of the user. The user can be the group owner, and 
+	 * administrator or a group member.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private void applySettingsToSetSourcetImageViewedByOther(String permissions,
+			int role)
+	throws Exception 
+	{
+		EventContext ctx = newUserAndGroup(permissions);
+		IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+		Image image = createBinaryImage();
+		Image image2 = createBinaryImage();
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(image.getId().getValue());
+		ids.add(image2.getId().getValue());
+		//Generate settings for the 3 images.
+		prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+		disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		switch (role) {
+    	case ADMIN:
+    		logRootIntoGroup(ctx2);
+    		break;
+    	case GROUP_OWNER:
+    		makeGroupOwner();
+    	}
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Image.class.getName(), Arrays.asList(id));
+		disconnect();
+		init(ctx);
+		//method already tested 
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		long pix2 = image2.getPrimaryPixels().getId().getValue();
+		ChannelBinding cb = def.getChannelBinding(0);
+		boolean b = cb.getActive().getValue();
+		cb.setActive(omero.rtypes.rbool(!b));
+		def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+		
+		ids.clear();
+		ids.add(image2.getId().getValue());
+		//Change the settings of image 2
+		prx.applySettingsToSet(id, Image.class.getName(), ids);
+		RenderingDef def2 = 
+			factory.getPixelsService().retrieveRndSettings(pix2);
+		
+		cb = def2.getChannelBinding(0);
+		assertEquals(cb.getActive().getValue(), !b);
+		ids.add(image.getId().getValue());
+		prx.applySettingsToSet(id, Image.class.getName(), ids);
+	}
+	
+	/**
+	 * Applies the settings to a given image.
+	 * @param permissions The permissions of the group.
+	 * @param role The role of the user. The user can be the group owner, and 
+	 * administrator or a group member.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private void applySettingsToSetTargetImageViewedByOther(String permissions,
+			int role)
+	throws Exception 
+	{
+		EventContext ctx = newUserAndGroup(permissions);
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	//Generate settings for the 3 images.
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    	disconnect();
+    	EventContext ctx2 = newUserInGroup(ctx);
+    	switch (role) {
+    	case ADMIN:
+    		logRootIntoGroup(ctx2);
+    		break;
+    	case GROUP_OWNER:
+    		makeGroupOwner();
+    	}
+    	factory.getRenderingSettingsService().setOriginalSettingsInSet(
+    			Image.class.getName(),
+    			Arrays.asList(image2.getId().getValue()));
+    	disconnect();
+    	init(ctx);
+    	
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//Change the settings of image 2
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+	}
+	
+	/**
+	 * 
+	 * @param permissions The permissions of the group.
+	 * @param role The role of the user. The user can be the group owner, and 
+	 * administrator or a group member.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private void applySettingsToSetTargetImageNoSettings(String permissions,
+			int role)
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rw----");
+    	EventContext ctx = newUserAndGroup(permissions);
+    	switch (role) {
+    	case ADMIN:
+    		logRootIntoGroup(ctx);
+    		break;
+    	case GROUP_OWNER:
+    		makeGroupOwner();
+    	}
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//Generate settings for the 3 images.
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+    }
+	/**
+	 * Applies the rendering settings to image when the group permissions are
+	 * modified.
+	 * 
+	 * @param initial The initial permissions.
+	 * @param modified The modified permissions.
+	 * @throws Exception
+	 */
+	private void applySettingsToSetForImageGroupDowngrade(String initial,
+			String modified)
+		throws Exception
+	{
+		EventContext ctx = newUserAndGroup(initial);
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	//Generate settings for the 3 images.
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    
+    	disconnect();
+    	EventContext ctx2 = newUserInGroup(ctx);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+    			Arrays.asList(id));
+    	disconnect();
+    	init(ctx);
+    	
+    	resetGroupPerms(modified, ctx.groupId);
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+	}
+	
+	/**
+	 * Applies the rendering settings to images by a member.
+	 * 
+	 * @param permissions The permissions of the group.
+	 * @param role The role of the user. The user can be the group owner, and 
+	 * administrator or a group member.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private void applySettingsToSetForImage(String permissions, int role)
+		throws Exception
+	{
+		EventContext ctx = newUserAndGroup(permissions);
+		switch (role) {
+			case ADMIN:
+				logRootIntoGroup(ctx);
+				break;
+			case GROUP_OWNER:
+				makeGroupOwner();
+		}
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
@@ -86,7 +344,44 @@ public class RenderingSettingsServicePermissionsTest
     	//Now pass the original image too.
     	ids.add(image.getId().getValue());
     	prx.applySettingsToSet(id, Image.class.getName(), ids);
+	}
+	
+	/**
+     * Tests to apply the rendering settings to a collection of images
+     * in a private group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByGroupOwnerRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rw----", GROUP_OWNER);
     }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a private group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByAdminOwnerRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rw----", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a private group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByMemberOwnerRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rw----", DATA_OWNER);
+    }
+    
     
 	/**
      * Tests to apply the rendering settings to a collection of images
@@ -94,49 +389,70 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageRWR()
+    public void testApplySettingsToSetForImageByGroupOwnerRWR()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rwr---");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Image image3 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	ids.add(image2.getId().getValue());
-    	ids.add(image3.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    	applySettingsToSetForImage("rwr---", GROUP_OWNER);
+    }
     
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	long pix3 = image3.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	ids.add(image3.getId().getValue());
-    	//apply the settings of image1 to image2 and 3
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	RenderingDef def3 = 
-    		factory.getPixelsService().retrieveRndSettings(pix3);
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
-    	cb = def3.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
-    	
-    	//Now pass the original image too.
-    	ids.add(image.getId().getValue());
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByAdminRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwr---", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByMemberRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwr---", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWRA--</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByGroupOwnerRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwra--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWRA--</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByAdminRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwra--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWRA--</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByMemberRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwra--", DATA_OWNER);
     }
     
     /**
@@ -145,49 +461,34 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageRWRW()
+    public void testApplySettingsToSetForImageByGroupOwnerRWRW()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rwrw--");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Image image3 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	ids.add(image2.getId().getValue());
-    	ids.add(image3.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    	applySettingsToSetForImage("rwrw--", GROUP_OWNER);
+    }
     
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	long pix3 = image3.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	ids.add(image3.getId().getValue());
-    	//apply the settings of image1 to image2 and 3
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	RenderingDef def3 = 
-    		factory.getPixelsService().retrieveRndSettings(pix3);
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
-    	cb = def3.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
-    	
-    	//Now pass the original image too.
-    	ids.add(image.getId().getValue());
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWRW--</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByAdminRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwrw--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWRA--</code> group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageByMemberRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImage("rwrw--", DATA_OWNER);
     }
     
     /**
@@ -197,43 +498,10 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetTargetImageViewedByOtherRWR()
+    public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWR()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rwr---");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	ids.add(image2.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
-    	disconnect();
-    	EventContext ctx2 = newUserInGroup(ctx);
-    	prx.setOriginalSettingsInSet(Image.class.getName(),
-    			Arrays.asList(image2.getId().getValue()));
-    	disconnect();
-    	init(ctx);
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	//Change the settings of image 2
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
+    	applySettingsToSetTargetImageViewedByOther("rwr---", DATA_OWNER);
     }
     
     /**
@@ -243,45 +511,218 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetSourcetImageViewedByOtherRWR()
+    public void testApplySettingsToSetTargetImageViewedByOtherByGroupOwnerRWR()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rwr---");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	ids.add(image2.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
-    	disconnect();
-    	EventContext ctx2 = newUserInGroup(ctx);
-    	prx.setOriginalSettingsInSet(Image.class.getName(),
-    			Arrays.asList(id));
-    	disconnect();
-    	init(ctx);
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	//Change the settings of image 2
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
-    	ids.add(image.getId().getValue());
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	applySettingsToSetTargetImageViewedByOther("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByAdminRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwr---", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwra--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByGroupOwnerRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwra--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByAdminRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwra--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwrw--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByGroupOwnerRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwrw--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageViewedByOtherByAdminRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageViewedByOther("rwrw--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByAdminRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwr---", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByGroupRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwr---", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByAdminRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwra--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByGroupRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwra--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwra--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByAdminRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwrw--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByGroupRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwrw--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * in a <code>RWR---</code> group. In that case the target image has been
+     * viewed by another user to.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetSourcetImageViewedByOther("rwrw--", DATA_OWNER);
     }
     
     /**
@@ -290,82 +731,214 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageGroupDowngrade()
+    public void testApplySettingsToSetForImageGroupDowngradeRWRWToRWR()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rwrw--");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	ids.add(image2.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
-    
-    	disconnect();
-    	EventContext ctx2 = newUserInGroup(ctx);
-    	prx.setOriginalSettingsInSet(Image.class.getName(),
-    			Arrays.asList(id));
-    	disconnect();
-    	init(ctx);
-    	
-    	resetGroupPerms("rwr---", ctx.groupId);
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	//apply the settings of image1 to image2 and 3
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
+    	applySettingsToSetForImageGroupDowngrade("rwrw--", "rwr---");
     }
 
     /**
-     * Tests to apply the rendering settings to an image w/o previous rende
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWRW--</code> and then <code>RWR---</code>.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetTargetImageNoSettings()
+    public void testApplySettingsToSetForImageGroupDowngradeRWRWToRWRA()
     	throws Exception 
     {
-    	EventContext ctx = newUserAndGroup("rw----");
-    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createBinaryImage();
-    	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	//Generate settings for the 3 images.
-    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    	applySettingsToSetForImageGroupDowngrade("rwrw--", "rwra--");
+    }
     
-    	//method already tested 
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	ChannelBinding cb = def.getChannelBinding(0);
-    	boolean b = cb.getActive().getValue();
-    	cb.setActive(omero.rtypes.rbool(!b));
-    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-    	
-    	ids.clear();
-    	ids.add(image2.getId().getValue());
-    	//apply the settings of image1 to image2 and 3
-    	prx.applySettingsToSet(id, Image.class.getName(), ids);
-    	RenderingDef def2 = 
-    		factory.getPixelsService().retrieveRndSettings(pix2);
-    	cb = def2.getChannelBinding(0);
-    	assertEquals(cb.getActive().getValue(), !b);
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWRA--</code> and then <code>RWR---</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageGroupDowngradeRWRAToRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetForImageGroupDowngrade("rwra--", "rwr---");
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWR---</code> and then <code>RW----</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageGroupDowngradeRWRToRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImageGroupDowngrade("rwr---", "rw----");
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWRA--</code> and then <code>RW----</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageGroupDowngradeRWRAToRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImageGroupDowngrade("rwra--", "rw----");
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWRW--</code> and then <code>RW----</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageGroupDowngradeRWRWToRW()
+    	throws Exception 
+    {
+    	applySettingsToSetForImageGroupDowngrade("rwrw--", "rw----");
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByGroupOwnerRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rw----", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByAdminRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rw----", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByMemberRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rw----", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByGroupOwnerRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByAdminRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwr---", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByMemberRWR()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwr---", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByGroupOwnerRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwra--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByAdminRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwra--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByMemberRWRA()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwra--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByGroupOwnerRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwrw--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByAdminRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwrw--", ADMIN);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsByMemberRWRW()
+    	throws Exception 
+    {
+    	applySettingsToSetTargetImageNoSettings("rwrw--", DATA_OWNER);
     }
     
     /**
@@ -445,6 +1018,103 @@ public class RenderingSettingsServicePermissionsTest
     		factory.getPixelsService().retrieveRndSettings(pix2);
     	cb = def2.getChannelBinding(0);
     	assertEquals(cb.getActive().getValue(), !b);
+    }
+
+    //Test save rendering settings.
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByGroupOwnerRWRW()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwrw--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByAdminRWRW()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwrw--", ADMIN);
+    }
+
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByMemberRWRW()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwrw--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByGroupOwnerRWRA()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwra--", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByAdminRWRA()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwra--", ADMIN);
+    }
+
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByMemberRWRA()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwra--", DATA_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByGroupOwnerRWR()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwr---", GROUP_OWNER);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveSettingsImageOtherUserByAdminRWR()
+    	throws Exception 
+    {
+    	saveSettingsOtherUserImage("rwr---", ADMIN);
     }
     
 }

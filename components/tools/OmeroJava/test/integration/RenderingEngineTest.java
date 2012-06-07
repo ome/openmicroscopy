@@ -39,6 +39,7 @@ import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
+import omero.sys.EventContext;
 import sun.awt.image.IntegerInterleavedRaster;
 
 import spec.XMLMockObjects;
@@ -73,6 +74,58 @@ public class RenderingEngineTest
 	
 	/** The RGB masks. */
 	private static final int[]	RGB = {RED_MASK, GREEN_MASK, BLUE_MASK};
+	
+	/**
+	 * Saves the rendering settings when the image is viewed by another
+	 * member of the group.
+	 * 
+	 * @param permissions The permissions.
+	 * @param role
+	 * @throws Exception
+	 */
+	private void saveRenderingSettings(String permissions, int role)
+	throws Exception
+	{
+		EventContext ctx = newUserAndGroup(permissions);
+		//Import the image
+		File f = File.createTempFile("saveRenderingSettings", "."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		disconnect();
+		//login as another user.
+		EventContext ctx2 = newUserInGroup(ctx);
+		switch (role) {
+	    	case ADMIN:
+	    		logRootIntoGroup(ctx2);
+	    		break;
+	    	case GROUP_OWNER:
+	    		makeGroupOwner();
+    	}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		int t = re.getDefaultT();
+		int v = t+1;
+		re.setDefaultT(v);
+		re.saveCurrentSettings();
+		assertEquals(re.getDefaultT(), v);
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		assertEquals(def.getDefaultT().getValue(), v);
+		re.close();
+	}
 	
 	/**
 	 * Creates a buffer image from the specified <code>array</code> of 
@@ -248,8 +301,8 @@ public class RenderingEngineTest
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		assertEquals(def.getDefaultZ().getValue(), re.getDefaultZ());
 		assertEquals(def.getDefaultT().getValue(), re.getDefaultT());
-		assertTrue(def.getModel().getValue().getValue().equals( 
-				re.getModel().getValue().getValue()));
+		assertEquals(def.getModel().getValue().getValue(), 
+				re.getModel().getValue().getValue());
 		QuantumDef q1 = def.getQuantization();
 		QuantumDef q2 = re.getQuantumDef();
 		assertNotNull(q1);
@@ -275,8 +328,8 @@ public class RenderingEngineTest
 			assertEquals(c1.getAlpha().getValue(), rgba[3]);
 			assertEquals(c1.getCoefficient().getValue(),
 					re.getChannelCurveCoefficient(index));
-			assertTrue(c1.getFamily().getValue().getValue().equals(
-					re.getChannelFamily(index).getValue().getValue()));
+			assertEquals(c1.getFamily().getValue().getValue(),
+					re.getChannelFamily(index).getValue().getValue());
 			assertEquals(c1.getInputStart().getValue(),
 				re.getChannelWindowStart(index));
 			assertEquals(c1.getInputEnd().getValue(),
@@ -325,10 +378,10 @@ public class RenderingEngineTest
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		int v = def.getDefaultT().getValue()+1;
 		re.setDefaultT(v);
-		assertTrue(re.getDefaultT() == v);
+		assertEquals(re.getDefaultT(), v);
 		v = def.getDefaultZ().getValue()+1;
 		re.setDefaultZ(v);
-		assertTrue(re.getDefaultZ() == v);
+		assertEquals(re.getDefaultZ(), v);
 		
 		//tested in PixelsService
 		IPixelsPrx svc = factory.getPixelsService();
@@ -347,13 +400,13 @@ public class RenderingEngineTest
 			}
 		}
     	re.setModel(model);
-    	assertTrue(re.getModel().getId().getValue() == model.getId().getValue());
+    	assertEquals(re.getModel().getId().getValue(), model.getId().getValue());
     	QuantumDef qdef = def.getQuantization();
     	int start = qdef.getCdStart().getValue()+10;
     	int end = qdef.getCdEnd().getValue()-10;
     	re.setCodomainInterval(start, end);
-    	assertTrue(re.getQuantumDef().getCdStart().getValue() == start);
-    	assertTrue(re.getQuantumDef().getCdEnd().getValue() == end);
+    	assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
+    	assertEquals(re.getQuantumDef().getCdEnd().getValue(), end);
     	List<ChannelBinding> channels1 = def.copyWaveRendering();
 		assertNotNull(channels1);
 		Iterator<ChannelBinding> j = channels1.iterator();
@@ -374,8 +427,8 @@ public class RenderingEngineTest
 			s = c1.getInputStart().getValue()+1;
 			e = c1.getInputEnd().getValue()+1;
 			re.setChannelWindow(index, s, e);
-			assertTrue(re.getChannelWindowStart(index) == s);
-			assertTrue(re.getChannelWindowEnd(index) == e);
+			assertEquals(re.getChannelWindowStart(index), s);
+			assertEquals(re.getChannelWindowEnd(index), e);
 			b = !c1.getNoiseReduction().getValue();
 			re.setRGBA(index, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
 			rgba = re.getRGBA(index);
@@ -387,8 +440,8 @@ public class RenderingEngineTest
 			assertTrue(Boolean.valueOf(
 					re.getChannelNoiseReduction(index)).equals(
 							Boolean.valueOf(b)));
-			assertTrue(re.getChannelCurveCoefficient(index) == coefficient);
-			assertTrue(re.getChannelFamily(index).getId().getValue() == 
+			assertEquals(re.getChannelCurveCoefficient(index), coefficient);
+			assertEquals(re.getChannelFamily(index).getId().getValue(),
 				f.getId().getValue());
 		}
 		re.close();
@@ -427,12 +480,7 @@ public class RenderingEngineTest
 		def.setDefaultT(omero.rtypes.rint(v));
 		//update
 		def = (RenderingDef) iUpdate.saveAndReturnObject(def);
-		
-		
-		
-		
-		
-		
+
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
 		if (!(re.lookupRenderingDef(id))) {
@@ -440,12 +488,12 @@ public class RenderingEngineTest
 			re.lookupRenderingDef(id);
 		}
 		re.load();
-		assertTrue(re.getDefaultT() == def.getDefaultT().getValue());
+		assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
 		re.resetDefaultsNoSave();
-		assertTrue(re.getDefaultT() == t);
+		assertEquals(re.getDefaultT(), t);
 		//reload from db
 		def = factory.getPixelsService().retrieveRndSettings(id);
-		assertTrue(def.getDefaultT().getValue() == v);
+		assertEquals(def.getDefaultT().getValue(),  v);
 	}
 	
 	/**
@@ -487,9 +535,9 @@ public class RenderingEngineTest
 			re.lookupRenderingDef(id);
 		}
 		re.load();
-		assertTrue(re.getDefaultT() == def.getDefaultT().getValue());
+		assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
 		re.resetDefaults();
-		assertTrue(re.getDefaultT() == t);
+		assertEquals(re.getDefaultT(), t);
 	}
 	
 	/**
@@ -528,7 +576,7 @@ public class RenderingEngineTest
 		re.saveCurrentSettings();
 		assertTrue(re.getDefaultT() == v);
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-		assertTrue(def.getDefaultT().getValue() == v);
+		assertEquals(def.getDefaultT().getValue(), v);
 		re.close();
 	}
 	
@@ -1632,4 +1680,81 @@ public class RenderingEngineTest
 		re.close();
 	}
 	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByGroupOwnerRWR()
+		throws Exception
+	{
+		saveRenderingSettings("rwr---", GROUP_OWNER);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByAdminRWR()
+		throws Exception
+	{
+		saveRenderingSettings("rwr---", ADMIN);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByGroupOwnerRWRA()
+		throws Exception
+	{
+		saveRenderingSettings("rwra--", GROUP_OWNER);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByAdminRWRA()
+		throws Exception
+	{
+		saveRenderingSettings("rwra--", ADMIN);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByGroupOwnerRWRW()
+		throws Exception
+	{
+		saveRenderingSettings("rwrw--", GROUP_OWNER);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsByAdminRWRW()
+		throws Exception
+	{
+		saveRenderingSettings("rwrw--", ADMIN);
+	}
 }
