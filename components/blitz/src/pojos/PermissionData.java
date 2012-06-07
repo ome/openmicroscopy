@@ -88,7 +88,7 @@ public class PermissionData {
      * 
      * @return See above.
      */
-    public boolean isGroupAnnotate() { return p.isGroupWrite(); }
+    public boolean isGroupAnnotate() { return p.isGroupAnnotate(); }
     
     /**
      * Returns <code>true </code> if the group has write access i.e.
@@ -96,7 +96,7 @@ public class PermissionData {
      * 
      * @return See above.
      */
-    public boolean isGroupWrite() { return false; }//p.isGroupWrite(); }
+    public boolean isGroupWrite() { return p.isGroupWrite(); }
 
     /**
      * Returns <code>true </code> if the user has read access,
