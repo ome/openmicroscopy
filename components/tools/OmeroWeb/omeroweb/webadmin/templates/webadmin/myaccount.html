@@ -433,7 +433,7 @@
                     <th>{% trans "Name" %}</th> 
                     <th>{% trans "Permissions" %}</th> 
                     <th>{% trans "Description" %}</th>
-                    <th>{% trans "Edit" %}</th>
+                    <th></th>
                 </tr> 
             </thead> 
             <tbody>
@@ -443,8 +443,8 @@
                     <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
                     <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
-                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
-                            <span></span>
+                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver">
+                            <span>Edit</span>
                         </a>
                     </td>
                 </tr>
