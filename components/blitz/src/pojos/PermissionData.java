@@ -146,7 +146,7 @@ public class PermissionData {
      */
     public void setGroupAnnotate(boolean groupAnnotate)
     {
-    	p.setGroupWrite(groupAnnotate);
+    	p.setGroupAnnotate(groupAnnotate);
     }
     
     /**
