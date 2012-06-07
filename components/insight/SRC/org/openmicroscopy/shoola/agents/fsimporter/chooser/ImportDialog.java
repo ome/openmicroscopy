@@ -441,34 +441,6 @@ public class ImportDialog
 			datasetsBox.addItem((DataNode) i.next());
 		}
 		datasetsBox.setSelectedItem(nn);
-		/*
-		if (dataset == null || dataset.getName().trim().length() == 0) return;
-		if (newNodesPD == null) 
-			newNodesPD = new HashMap<DataNode, List<DataNode>>();
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
-			n = (DataNode) datasetsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-		}
-		DataNode node = (DataNode) parentsBox.getSelectedItem();
-		n = new DataNode(dataset, node);
-		nodes.add(n);
-		List<DataNode> l = newNodesPD.get(node);
-		if (l == null) l = new ArrayList<DataNode>();
-		l.add(n);
-		node.addNewNode(n);
-		newNodesPD.put(node, l);
-		datasetsBox.removeAllItems();
-		l = sorter.sort(nodes);
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			datasetsBox.addItem((DataNode) i.next());
-		}
-		datasetsBox.setSelectedItem(n);
-		repaint();
-		*/
 	}
 
 	/**
@@ -1510,7 +1482,8 @@ public class ImportDialog
 				Iterator<DataNode> i = l.iterator();
 				while (i.hasNext()) {
 					n = i.next();
-					if (n.getDataObject().getId() == d.getId()) {
+					//if (n.getDataObject().getId() == d.getId()) {
+					if (n.isDefaultDataset()) {
 						datasetsBox.setSelectedItem(n);
 						break;
 					}
@@ -1521,7 +1494,7 @@ public class ImportDialog
 				Iterator<DataNode> i = l.iterator();
 				while (i.hasNext()) {
 					n = i.next();
-					if (!n.isDefaultDataset()) {
+					if (n.isDefaultDataset()) {
 						datasetsBox.setSelectedItem(n);
 						break;
 					}
@@ -1529,10 +1502,6 @@ public class ImportDialog
 			}
 			
 		}
-		//now check what is the selected node
-		//n = (DataNode) datasetsBox.getSelectedItem();
-		//folderAsDatasetBox.setSelected(n.isDefaultNode());
-		//datasetsBox.addActionListener(datasetsBoxListener);
 	}
 	
 	/**
