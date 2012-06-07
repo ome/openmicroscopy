@@ -5018,7 +5018,10 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__ (self):
         """ Loads the logical channel using the metadata service """
         if self._obj is not None:
-            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],{'omero.group': '-1'})[0]
+            ctx = self._conn.CONFIG.copy()
+            if ctx.getOmeroGroup() is None:
+                ctx.setOmeroGroup(-1)
+            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],ctx)[0]
 
     def getLightPath(self):
         """ Make sure we have the channel fully loaded, then return L{LightPathWrapper}"""
@@ -5497,7 +5500,10 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         if not i.loaded:
             meta_serv = self._conn.getMetadataService()
-            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, {'omero.group': '-1'})
+            ctx = self._conn.CONFIG.copy()
+            if ctx.getOmeroGroup() is None:
+                ctx.setOmeroGroup(-1)
+            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, ctx)
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
