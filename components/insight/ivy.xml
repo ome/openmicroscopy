@@ -66,6 +66,8 @@
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="insight" name="jna" rev="${versions.jna}"/>
     <dependency org="insight" name="platform" rev="${versions.platform}"/>
+    <!-- Required for annotations in Permissions.java -->
+    <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 
     <!-- Bioformats -->
     <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
