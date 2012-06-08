@@ -1079,7 +1079,7 @@ class OmeroImageServiceImpl
 		Iterator<ImageData> kk;
 		List<Object> converted;
 		List<String> candidates;
-		ImportCandidates ic;
+		ImportCandidates ic = null;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
 		DatasetData dataset = importable.getDataset();
@@ -1192,7 +1192,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
-				ic = gateway.getImportCandidates(ctx, object, file, status);
+				if (ic != null) //already check if hcs.
+					ic = gateway.getImportCandidates(ctx, object, file, status);
 				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
