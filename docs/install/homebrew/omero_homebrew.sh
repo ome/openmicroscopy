@@ -6,7 +6,7 @@ set -u
 OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
-if [[ "$GIT_SSL_NO_VERIFY" == "1" ]]; then
+if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
     CURL_OPTS=${CURL_OPTS:-"--insecure"}
 fi
 

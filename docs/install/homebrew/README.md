@@ -148,6 +148,14 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
     export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
 
+NB: On Mac OS.X Lion, a version of postgres is already installed. If you get an error like the following:
+    
+    psql: could not connect to server: Permission denied
+    Is the server running locally and accepting
+    connections on Unix domain socket "/var/pgsql_socket/.s.PGSQL.5432"?
+   
+make sure `$BREW_DIR/bin` is at the beginning of your PATH (see also [[here](http://nextmarvel.net/blog/2011/09/brew-install-postgresql-on-os-x-lion/)]).
+
 CONFIG
 ======
 
