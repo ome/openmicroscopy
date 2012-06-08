@@ -214,7 +214,8 @@ class ImporterComponent
 			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
-			chooser.reset(selectedContainer, objects, type);
+			boolean remove = selectedContainer == null;
+			chooser.reset(selectedContainer, objects, type, remove);
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}

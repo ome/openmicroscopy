@@ -415,6 +415,9 @@ public class ImportDialog
 	/** The component used to select the group.*/
 	private JComponent groupSelection;
 	
+	/** The pane hosting the location information.*/
+	private JXTaskPane pane;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -768,11 +771,7 @@ public class ImportDialog
 		formatSwitchButton(t);
 		if (nodes == null || nodes.size() == 0) //load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
-		else {
-			//Iterator<TreeImageDisplay> i = nodes.iterator();
-			//if (i.hasNext()) display = i.next();
-			reset(display, nodes, t);
-		}
+		else reset(display, nodes, t, false);
 	}
 	
 	/** 
@@ -782,6 +781,9 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
+		pane = new JXTaskPane();
+		pane.setTitle("Import Location");
+		pane.setCollapsed(true);
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -1608,9 +1610,6 @@ public class ImportDialog
 		
 		buildLocationPane();
 		if (!popUpLocation) {
-			JXTaskPane pane = new JXTaskPane();
-			pane.setTitle("Import Location");
-			pane.setCollapsed(true);
 			pane.add(locationPane);
 			container.add(pane, "3, 0");
 		}
@@ -2122,7 +2121,7 @@ public class ImportDialog
 				}
 			}
 		}
-		reset(selected, objects, type);
+		reset(selected, objects, type, false);
 	}
 	
     /**
@@ -2132,9 +2131,10 @@ public class ImportDialog
      * @param objects    The possible objects.
      * @param type       One of the constants used to identify the type of 
      * 					 import.
+     * @param remove Pass <code>true</code> o
      */
 	public void reset(TreeImageDisplay selectedContainer, 
-			Collection<TreeImageDisplay> objects, int type)
+			Collection<TreeImageDisplay> objects, int type, boolean remove)
 	{
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
@@ -2187,8 +2187,19 @@ public class ImportDialog
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
 		if (b != popUpLocation) {
-			if (b) container.add(locationPane, "3, 0");
-			else container.remove(locationPane);
+			if (b) {
+				Component[] comps = container.getComponents();
+				boolean in = false;
+				for (int i = 0; i < comps.length; i++) {
+					if (comps[i] == pane) {
+						in = true;
+						break;
+					}
+				}
+				if (!in) container.add(pane, "3, 0");
+			} else {
+				if (remove) container.remove(pane);
+			}
 			container.repaint();
 		}
 		locationPane.repaint();
