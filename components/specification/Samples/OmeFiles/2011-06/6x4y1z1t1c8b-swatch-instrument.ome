@@ -20,16 +20,16 @@
 		<Filter ID="Filter:0" Manufacturer="OME Filters Inc" Model="Model1" FilterWheel="Disc A">
 			<TransmittanceRange CutIn="350" CutOut="450" CutInTolerance="10" CutOutTolerance="20" Transmittance="0.3"/>
 		</Filter>
-		<Filter ID="Filter:1" Manufacturer="OME Filters Ltd" Model="Delux Mk4" Type="BandPass">
+		<Filter ID="Filter:1" Manufacturer="OME Filters Ltd" Model="Deluxe Mk4" Type="BandPass">
 			<TransmittanceRange CutIn="560" CutOut="630" CutInTolerance="25" CutOutTolerance="30" Transmittance="0.8"/>
 		</Filter>
-		<Filter ID="Filter:2" Manufacturer="OME Filters Asc" Model="Delux Mk5" Type="BandPass">
+		<Filter ID="Filter:2" Manufacturer="OME Filters Asc" Model="Deluxe Mk5" Type="BandPass">
 			<TransmittanceRange CutIn="562" CutOut="633" CutInTolerance="11" CutOutTolerance="23" Transmittance="0.5"/>
 		</Filter>
-		<Filter ID="Filter:3" Manufacturer="OME Filters.Com" Model="Delux Mk6" Type="BandPass">
+		<Filter ID="Filter:3" Manufacturer="OME Filters.Com" Model="Deluxe Mk6" Type="BandPass">
 			<TransmittanceRange CutIn="463" CutOut="535" CutInTolerance="21" CutOutTolerance="34" Transmittance="0.7"/>
 		</Filter>
-		<Dichroic ID="Dichroic:0" Model="Standard Mk3" Manufacturer="OME Insturuments"/>
+		<Dichroic ID="Dichroic:0" Model="Standard Mk3" Manufacturer="OME Instruments"/>
 	</Instrument>
 	<Image ID="Image:0" Name="6x6x1x8-swatch.tif">
 		<AcquiredDate>2010-02-23T12:51:30</AcquiredDate>

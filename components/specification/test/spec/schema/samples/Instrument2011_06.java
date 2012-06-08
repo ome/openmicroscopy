@@ -18,7 +18,6 @@
  */
 package spec.schema.samples;
 
-import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.ArcType;
 import ome.xml.model.enums.Binning;
 import ome.xml.model.enums.Correction;

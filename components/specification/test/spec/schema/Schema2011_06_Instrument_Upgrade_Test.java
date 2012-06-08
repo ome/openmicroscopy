@@ -29,11 +29,16 @@ import loci.formats.services.OMEXMLService;
 
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
+import ome.xml.model.Detector;
+import ome.xml.model.Dichroic;
+import ome.xml.model.Filter;
+import ome.xml.model.FilterSet;
 import ome.xml.model.Image;
 import ome.xml.model.Instrument;
 import ome.xml.model.OME;
 import ome.xml.model.Objective;
 import ome.xml.model.Pixels;
+import ome.xml.model.TransmittanceRange;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -68,6 +73,14 @@ public class Schema2011_06_Instrument_Upgrade_Test {
     private Objective objective0;
     private Channel channel0;
     private BinData bindata0;
+    private Detector detector0;
+    private Dichroic dichroic0;
+    private Filter filter0;
+    private Filter filter1;
+    private Filter filter2;
+    private Filter filter3;
+
+    private FilterSet filterSet0;
     
     @BeforeClass
     public void setUp() throws Exception {
@@ -110,7 +123,191 @@ public class Schema2011_06_Instrument_Upgrade_Test {
         Assert.assertEquals(1, instrument0.sizeOfObjectiveList());
     }
 
-    @Test (groups = {"11-06-i-instrument"}, dependsOnMethods = {"testOmeNode"})
+/*
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }
+
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }
+
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }    
+    
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }    
+    
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }
+
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }
+
+    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
+    public void test() {
+        Assert.assertNotNull(ome);
+        xxxxx = instrument0.getObjective(0);
+        Assert.assertNotNull(xxxxx);
+        Assert.assertEquals(ref, xxxxx);
+    }
+
+
+*/
+    @Test (groups = {"11-06-i-filterset"}, dependsOnGroups = {"11-06-i-filter", "11-06-i-dichroic"})
+    public void testFilterSet0() {
+        Assert.assertNotNull(ome);
+        filterSet0 = instrument0.getFilterSet(0);
+        Assert.assertNotNull(filterSet0);
+        Assert.assertEquals(ref.Instrument0FilterSet0Manufacturer, filterSet0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0FilterSet0Model, filterSet0.getModel());
+        Assert.assertEquals(ref.Instrument0FilterSet0LotNumber, filterSet0.getLotNumber());
+        Assert.assertNull(filterSet0.getSerialNumber());
+        Assert.assertEquals(1, filterSet0.sizeOfLinkedExcitationFilterList());
+        Assert.assertEquals(filter0, filterSet0.getLinkedExcitationFilter(0));
+        Assert.assertEquals(dichroic0, filterSet0.getLinkedDichroic());
+        Assert.assertEquals(1, filterSet0.sizeOfLinkedEmissionFilterList());
+        Assert.assertEquals(filter1, filterSet0.getLinkedEmissionFilter(0));
+    }
+
+    
+    @Test (groups = {"11-06-i-filter"}, dependsOnMethods = {"testInstrument0"})
+    public void testFilter0() {
+        Assert.assertNotNull(ome);
+        filter0 = instrument0.getFilter(0);
+        Assert.assertNotNull(filter0);
+        Assert.assertEquals(ref.Instrument0Filter0Manufacturer, filter0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Filter0Model, filter0.getModel());
+        Assert.assertEquals(ref.Instrument0Filter0FilterWheel, filter0.getFilterWheel());
+        Assert.assertNull(filter0.getType());
+        Assert.assertNull(filter0.getLotNumber());
+        Assert.assertNull(filter0.getSerialNumber());
+        TransmittanceRange transmittanceRange = filter0.getTransmittanceRange();
+        Assert.assertNotNull(transmittanceRange);
+        Assert.assertEquals(ref.Instrument0Filter0TransmittanceRangeCutIn, transmittanceRange.getCutIn());
+        Assert.assertEquals(ref.Instrument0Filter0TransmittanceRangeCutInTolerance, transmittanceRange.getCutInTolerance());
+        Assert.assertEquals(ref.Instrument0Filter0TransmittanceRangeCutOut, transmittanceRange.getCutOut());
+        Assert.assertEquals(ref.Instrument0Filter0TransmittanceRangeCutOutTolerance, transmittanceRange.getCutOutTolerance());
+        Assert.assertEquals(ref.Instrument0Filter0TransmittanceRangeTransmittance, transmittanceRange.getTransmittance());   
+    }
+
+    @Test (groups = {"11-06-i-filter"}, dependsOnMethods = {"testInstrument0"})
+    public void testFilter1() {
+        Assert.assertNotNull(ome);
+        filter1 = instrument0.getFilter(1);
+        Assert.assertNotNull(filter1);
+        Assert.assertEquals(ref.Instrument0Filter1Manufacturer, filter1.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Filter1Model, filter1.getModel());
+        Assert.assertNull(filter1.getFilterWheel());
+        Assert.assertEquals(ref.Instrument0Filter1Type, filter1.getType());
+        Assert.assertNull(filter1.getLotNumber());
+        Assert.assertNull(filter1.getSerialNumber());
+        TransmittanceRange transmittanceRange = filter1.getTransmittanceRange();
+        Assert.assertNotNull(transmittanceRange);
+        Assert.assertEquals(ref.Instrument0Filter1TransmittanceRangeCutIn, transmittanceRange.getCutIn());
+        Assert.assertEquals(ref.Instrument0Filter1TransmittanceRangeCutInTolerance, transmittanceRange.getCutInTolerance());
+        Assert.assertEquals(ref.Instrument0Filter1TransmittanceRangeCutOut, transmittanceRange.getCutOut());
+        Assert.assertEquals(ref.Instrument0Filter1TransmittanceRangeCutOutTolerance, transmittanceRange.getCutOutTolerance());
+        Assert.assertEquals(ref.Instrument0Filter1TransmittanceRangeTransmittance, transmittanceRange.getTransmittance());   
+    }
+
+    @Test (groups = {"11-06-i-filter"}, dependsOnMethods = {"testInstrument0"})
+    public void testFilter2() {
+        Assert.assertNotNull(ome);
+        filter2 = instrument0.getFilter(2);
+        Assert.assertNotNull(filter2);
+        Assert.assertEquals(ref.Instrument0Filter2Manufacturer, filter2.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Filter2Model, filter2.getModel());
+        Assert.assertNull(filter2.getFilterWheel());
+        Assert.assertEquals(ref.Instrument0Filter2Type, filter2.getType());
+        Assert.assertNull(filter2.getLotNumber());
+        Assert.assertNull(filter2.getSerialNumber());
+        TransmittanceRange transmittanceRange = filter2.getTransmittanceRange();
+        Assert.assertNotNull(transmittanceRange);
+        Assert.assertEquals(ref.Instrument0Filter2TransmittanceRangeCutIn, transmittanceRange.getCutIn());
+        Assert.assertEquals(ref.Instrument0Filter2TransmittanceRangeCutInTolerance, transmittanceRange.getCutInTolerance());
+        Assert.assertEquals(ref.Instrument0Filter2TransmittanceRangeCutOut, transmittanceRange.getCutOut());
+        Assert.assertEquals(ref.Instrument0Filter2TransmittanceRangeCutOutTolerance, transmittanceRange.getCutOutTolerance());
+        Assert.assertEquals(ref.Instrument0Filter2TransmittanceRangeTransmittance, transmittanceRange.getTransmittance());   
+    }
+
+    @Test (groups = {"11-06-i-filter"}, dependsOnMethods = {"testInstrument0"})
+    public void testFilter3() {
+        Assert.assertNotNull(ome);
+        filter3 = instrument0.getFilter(3);
+        Assert.assertNotNull(filter3);
+        Assert.assertEquals(ref.Instrument0Filter3Manufacturer, filter3.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Filter3Model, filter3.getModel());
+        Assert.assertNull(filter3.getFilterWheel());
+        Assert.assertEquals(ref.Instrument0Filter3Type, filter3.getType());
+        Assert.assertNull(filter3.getLotNumber());
+        Assert.assertNull(filter3.getSerialNumber());
+        TransmittanceRange transmittanceRange = filter3.getTransmittanceRange();
+        Assert.assertNotNull(transmittanceRange);
+        Assert.assertEquals(ref.Instrument0Filter3TransmittanceRangeCutIn, transmittanceRange.getCutIn());
+        Assert.assertEquals(ref.Instrument0Filter3TransmittanceRangeCutInTolerance, transmittanceRange.getCutInTolerance());
+        Assert.assertEquals(ref.Instrument0Filter3TransmittanceRangeCutOut, transmittanceRange.getCutOut());
+        Assert.assertEquals(ref.Instrument0Filter3TransmittanceRangeCutOutTolerance, transmittanceRange.getCutOutTolerance());
+        Assert.assertEquals(ref.Instrument0Filter3TransmittanceRangeTransmittance, transmittanceRange.getTransmittance());   
+    }
+
+    @Test (groups = {"11-06-i-dichroic"}, dependsOnMethods = {"testInstrument0"})
+    public void testDichroic0() {
+        Assert.assertNotNull(ome);
+        dichroic0 = instrument0.getDichroic(0);
+        Assert.assertNotNull(dichroic0);
+        Assert.assertEquals(ref.Instrument0Dichroic0Manufacturer, dichroic0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Dichroic0Model, dichroic0.getModel());
+        Assert.assertNull(dichroic0.getLotNumber());
+        Assert.assertNull(dichroic0.getSerialNumber());
+    }
+
+    @Test (groups = {"11-06-i-detector"}, dependsOnMethods = {"testInstrument0"})
+    public void testDetector0() {
+        Assert.assertNotNull(ome);
+        detector0 = instrument0.getDetector(0);
+        Assert.assertNotNull(detector0);
+        Assert.assertEquals(ref.Instrument0Detector0Manufacturer, detector0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0Detector0Model, detector0.getModel());
+        Assert.assertEquals(ref.Instrument0DetectorType, detector0.getType());
+        Assert.assertNull(detector0.getAmplificationGain());
+        Assert.assertNull(detector0.getGain());
+        Assert.assertNull(detector0.getLotNumber());
+        Assert.assertNull(detector0.getOffset());
+        Assert.assertNull(detector0.getSerialNumber());
+        Assert.assertNull(detector0.getVoltage());
+        Assert.assertNull(detector0.getZoom());
+    }
+    
+    @Test (groups = {"11-06-i-objective"}, dependsOnMethods = {"testInstrument0"})
     public void testObjective0() {
         Assert.assertNotNull(ome);
         objective0 = instrument0.getObjective(0);
@@ -137,9 +334,10 @@ public class Schema2011_06_Instrument_Upgrade_Test {
     }
 
     @Test (groups = {"11-06-i-image"}, dependsOnMethods = {"testImage0Name"})
-    public void testImage0Date() {
+    public void testImage0Values() {
         Assert.assertNotNull(image0);
         Assert.assertEquals(ref.Image0AcquiredDate, image0.getAcquisitionDate());
+        Assert.assertEquals(ref.Image0Description, image0.getDescription());
     }
 
     @Test (groups = {"11-06-i-image"}, dependsOnMethods = {"testImage0Name"})
@@ -196,6 +394,7 @@ public class Schema2011_06_Instrument_Upgrade_Test {
     @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-instrument"})
     public void testImage0Linkage() {
         Assert.assertNotNull(image0);
+        // TODO Add InstrumentRef check
         Assert.assertEquals(0, image0.sizeOfLinkedAnnotationList());
         Assert.assertEquals(0, image0.sizeOfLinkedROIList());
      }
