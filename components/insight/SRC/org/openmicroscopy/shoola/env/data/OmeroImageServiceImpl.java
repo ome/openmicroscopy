@@ -159,7 +159,7 @@ class OmeroImageServiceImpl
 		List<Annotation> list, long userID, boolean close, boolean hcs)
 	{
 		if (status.isMarkedAsCancel()) {
-			gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
 		}
 		boolean thumbnail = object.isLoadThumbnail();
@@ -1036,7 +1036,7 @@ class OmeroImageServiceImpl
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
 		if (status.isMarkedAsCancel()) {
-			gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
 		}
 		Object result = null;
@@ -1104,7 +1104,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1200,7 +1200,7 @@ class OmeroImageServiceImpl
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}

@@ -6297,7 +6297,7 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
-			closeImport(ctx);
+			if (close) closeImport(ctx);
 			throw new ImportException(e);
 		} finally {
 			if (omsc != null && close)
