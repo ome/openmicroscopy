@@ -1073,7 +1073,6 @@ class OmeroImageServiceImpl
 		//prepare the container.
 		List<ImageData> images = new ArrayList<ImageData>();
 		//IObject io;
-		List<IObject> links = new ArrayList<IObject>();
 		Set<ImageData> ll;
 		ImageData image;
 		Iterator<ImageData> kk;
