@@ -1482,8 +1482,7 @@ public class ImportDialog
 				Iterator<DataNode> i = l.iterator();
 				while (i.hasNext()) {
 					n = i.next();
-					//if (n.getDataObject().getId() == d.getId()) {
-					if (n.isDefaultDataset()) {
+					if (n.getDataObject().getId() == d.getId()) {
 						datasetsBox.setSelectedItem(n);
 						break;
 					}
