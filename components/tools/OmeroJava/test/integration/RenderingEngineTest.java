@@ -86,6 +86,17 @@ public class RenderingEngineTest
 	private void saveRenderingSettings(String permissions, int role)
 	throws Exception
 	{
+	    saveRenderingSettings(permissions, role, true);
+	    saveRenderingSettings(permissions, role, false);
+	}
+
+	/**
+	 * Inner method which allows to optionally call the rendering method
+	 * as the owner. If this is not called, then there will be no rendering
+	 * def at all when the secondary uses attempts access.
+	 */
+	private void saveRenderingSettings(String permissions, int role,
+	        boolean preload) throws Exception {
 		EventContext ctx = newUserAndGroup(permissions);
 		//Import the image
 		File f = File.createTempFile("saveRenderingSettings", "."+OME_FORMAT);
@@ -98,6 +109,11 @@ public class RenderingEngineTest
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
+
+		if (preload) {
+		    assertRendering(pixels); // View as owner
+		}
+
 		disconnect();
 		//login as another user.
 		EventContext ctx2 = newUserInGroup(ctx);
@@ -108,6 +124,10 @@ public class RenderingEngineTest
 	    	case GROUP_OWNER:
 	    		makeGroupOwner();
     	}
+		assertRendering(pixels);
+	}
+
+	private void assertRendering(List<Pixels> pixels) throws Exception {
 		Pixels p = pixels.get(0);
 		long id = p.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();
@@ -126,7 +146,7 @@ public class RenderingEngineTest
 		assertEquals(def.getDefaultT().getValue(), v);
 		re.close();
 	}
-	
+
 	/**
 	 * Creates a buffer image from the specified <code>array</code> of 
 	 * integers.

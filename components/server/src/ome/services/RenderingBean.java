@@ -815,15 +815,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 index++;
             }
             
-            // Actually save and reload the rendering settings
-            rendDefObj = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+            // Actually save the rendering settings
+            ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
                         @Transactional(readOnly = false) // ticket:1434
                         public Object doWork(Session session, ServiceFactory sf) {
                             IPixels pixMetaSrv = sf.getPixelsService();
                             pixMetaSrv.saveRndSettings(rendDefObj);
-                            return pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
+                            return null;
                         }});
+            rendDefObj = retrieveRndSettings(pixelsObj.getId());
             
             // Unload the linked pixels set to avoid transactional headaches on
             // the next save.
