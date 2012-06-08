@@ -556,7 +556,7 @@ with OMERO.
 
         <macrodef name = "git">
             <attribute name = "command" />
-            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "dir" default = "${user.dir}" />
             <attribute name = "output" />
             <attribute name = "failonerror" default = "false" />
             <element name = "args" optional = "true" />
@@ -574,7 +574,7 @@ with OMERO.
 
         <macrodef name = "svn">
             <attribute name = "command" />
-            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "dir" default = "${user.dir}" />
             <attribute name = "output" />
             <element name = "args" optional = "true" />
             <sequential>
