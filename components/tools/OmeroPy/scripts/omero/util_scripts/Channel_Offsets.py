@@ -158,8 +158,16 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     desc += "\n".join(descLines)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
     i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
-        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
+        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=None)
 
+    # Link image to dataset
+    link = None
+    if dataset and dataset.canLink():
+        link = omero.model.DatasetImageLinkI()
+        link.parent = omero.model.DatasetI(dataset.getId(), False)
+        link.child = omero.model.ImageI(i.getId(), False)
+        conn.getUpdateService().saveAndReturnObject(link)
+    
     # apply colors from the original image to the new one
     i._prepareRenderingEngine()
     print "Applying colors..."
@@ -169,12 +177,24 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
         i._re.setRGBA(c, r, g, b, 255)
     i._re.saveCurrentSettings()
     i._re.close()
-    return i
+    return i, link
 
 def processImages(conn, scriptParams):
-    """ Process the script params to make a list of channel_offsets, then iterate through
-    the images creating a new image from each with the specified channel offsets """
+    """ 
+    Process the script params to make a list of channel_offsets, then iterate through
+    the images creating a new image from each with the specified channel offsets 
+    """
     
+    message =""
+    
+    # Get the images
+    images, logMessage = script_utils.getObjects(conn, scriptParams)
+    message += logMessage
+    if not images:
+        return None, None, message
+    imageIds = [i.getId() for i in images]
+    
+    # Get the channel offsets
     channel_offsets = []
     for i in range(1, 5):
         pName = "Channel_%s" % i
@@ -187,9 +207,6 @@ def processImages(conn, scriptParams):
     
     print channel_offsets
 
-    if len(scriptParams['IDs']) == 0:
-        print "No IDs supplied"
-        return
 
     dataset = None
     if "New_Dataset_Name" in scriptParams:
@@ -199,8 +216,7 @@ def processImages(conn, scriptParams):
         dataset.setName(rstring(newDatasetName))
         dataset.save()
         # add to parent Project
-        firstImage = conn.getObject("Image", scriptParams['IDs'][0])
-        parentDs = firstImage.getParent()
+        parentDs = images[0].getParent()
         project = parentDs is not None and parentDs.getParent() or None
         if project is not None:
             link = omero.model.ProjectDatasetLinkI()
@@ -209,12 +225,32 @@ def processImages(conn, scriptParams):
             conn.getUpdateService().saveAndReturnObject(link)
 
     # need to handle Datasets eventually - Just do images for now
-    newImgIds = []
-    for iId in scriptParams['IDs']:
-        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
+    newImages = []
+    links = []
+    for iId in imageIds:
+        newImg, link = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
-            newImgIds.append(newImg.getId())
-    return newImgIds, dataset
+            newImages.append(newImg)
+            if link is not None:
+                links.append(link)
+    
+    if not newImages:
+        message += "No image created."
+    else:
+        if len(newImages) == 1:
+            if not link:
+                linkMessage = " but could not be attached"
+            else:
+                linkMessage = ""
+            message += "New image created%s: %s." % (linkMessage, newImages[0].getName())
+        elif len(newImages) > 1:
+            message += "%s new images created" % len(newImages)
+            if not len(links) == len(newImages):
+                message +=" but some of them could not be attached."
+            else:
+                message += "."
+
+    return newImages, dataset, message
     
 def runAsScript():
 
@@ -300,23 +336,15 @@ applying an x, y and z shift to each channel independently. """,
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
         
-        result = processImages(conn, scriptParams)
-        if result is None:
-            message = "Script failed. See 'Info' or 'Error' for more details"
-        else:
-            newImgIds, dataset = result
-            if len(newImgIds) == 1:
-                newImg = conn.getObject("Image", newImgIds[0])
-                message = "New Image created: %s" % newImg.getName()
-                client.setOutput("Image", robject(newImg._obj))
-            elif len(newImgIds) > 1:
-                message = "%s new Images created" % len(newImgIds)
-            else:
-                message = "No images created. See 'Info' or 'Error' for more details"
-            if dataset is not None:
-                client.setOutput("New Dataset", robject(dataset._obj))
-
+        images, dataset, message = processImages(conn, scriptParams)
+        
+        # Return message, new image and new dataset (if applicable) to the client 
         client.setOutput("Message", rstring(message))
+        if len(images) == 1:
+            client.setOutput("Image", robject(images[0]._obj))
+        if dataset is not None:
+            client.setOutput("New Dataset", robject(dataset._obj))
+            
     finally:
         client.closeSession()
 
