@@ -4258,6 +4258,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "user":
                 return True
         return False
