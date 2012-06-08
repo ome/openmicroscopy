@@ -7,17 +7,19 @@ or later, including support for the `brew tap` command.
 This procedure has been tested on the following Mac OS X versions and hardware:
 
 
-	Model identifier                                 | Mac OS X version
-	-------------------------------------------------+-----------------
-	MacBook                                          | 10.6.8
-	MacMini1,1    (Intel Core Duo, 1.66GHz, 2GB RAM) | 10.6.8
-	MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM) | 10.6.8
-	MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM) | 10.7.3
+	Model identifier                                    | Mac OS X version
+	----------------------------------------------------+-----------------
+	MacMini2,1    (Intel Core 2 Duo, 1.83 GHz, 1GB RAM) | 10.5.8 (9L31a)
+	MacBook                                             | 10.6.8
+	MacMini1,1    (Intel Core Duo, 1.66GHz, 2GB RAM)    | 10.6.8
+	MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)    | 10.6.8
+	MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)    | 10.7.3
 
 Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
 	Xcode version                        | Mac OS X version
 	-------------------------------------+-----------------
+	xcode314_2809_developerdvd.dmg       | 10.5.8
 	xcode_3.2.6_and_ios_sdk_4.3.dmg      | 10.6.8
 	Xcode 4.3.2                          | 10.7.3
 
@@ -32,6 +34,8 @@ All requirements for OMERO will be installed in this location (e.g. /usr/local).
     $ ruby -e "$(curl -fsSLk https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
     $ brew install git
 
+If you are having issues with curl, see the the "curl" section under "Common issues".
+
 Grab the omero_homebrew.sh installation script:
 
     $ curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > omero_homebrew.sh
@@ -43,9 +47,9 @@ Run OMERO.homebrew script to install OMERO requirements:
 
 NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
 
-Install PostGres if you do not have another PostGres installation that you can use.
+Install PostgreSQL if you do not have another PostgreSQL installation that you can use.
 
-    $ brew install postgres
+    $ brew install postgresql
 
 Common issues
 ------------
@@ -55,6 +59,12 @@ If you run into problems with Homebrew, you can always run
 
 
 Below is a non-exhaustive list of errors/warnings. Some if not all of them could be possible avoided by removing any previous OMERO installation artifacts from your system.
+
+### curl (Mac 10.5 only)
+    curl: (60) SSL certificate problem, verify that the CA cert is OK. Details:
+    error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed
+
+Use ```export GIT_SSL_NO_VERIFY=1``` before running failing brew commands.
 
 ### Xcode
     Warning: Xcode is not installed! Builds may fail!
@@ -82,7 +92,7 @@ Try brew cleanup then brew link ossp-uuid
 
     Error: Failed executing: cd cpp && make M PP_HOME=/Users/sebastien/apps/    OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-    db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install
 
-We have had problems building zeroc-ice33 under MacOS 10.7.3 and 10.6.8 [[see ticket #8075](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice` (Ice 3.4) instead. If you decide to go with zeroc-ice33, make sure that you don't have `DYLD_LIBRARY_PATH` set to an existing Ice's installation lib directory path. In essence your `.bash_profile` shouldn't have any OMERO-related environment variables set before executing the installation script.
+We have had problems building zeroc-ice33 under MacOS 10.7.3 and 10.6.8 [[see ticket #8075](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero, you can try installing `ice` (Ice 3.4) instead. If you decide to go with zeroc-ice33, make sure that you don't have `DYLD_LIBRARY_PATH` set to an existing Ice's installation lib directory path. In essence your `.bash_profile` shouldn't have any OMERO-related environment variables set before executing the installation script.
 
 ### szip
     ==> Installing hdf5 dependency: szip
@@ -108,7 +118,7 @@ OMERO server
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
 
-    $ brew install omero43
+    $ brew install omero
 
 However if you wish to pull OMERO.server from the git repo for development purposes then it is worth setting up OMERO.server manually rather than using homebrew. Prepare a place for your OMERO code to live, e.g.
 
@@ -137,6 +147,14 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
 
     export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
+
+NB: On Mac OS.X Lion, a version of postgres is already installed. If you get an error like the following:
+    
+    psql: could not connect to server: Permission denied
+    Is the server running locally and accepting
+    connections on Unix domain socket "/var/pgsql_socket/.s.PGSQL.5432"?
+   
+make sure `$BREW_DIR/bin` is at the beginning of your PATH (see also [[here](http://nextmarvel.net/blog/2011/09/brew-install-postgresql-on-os-x-lion/)]).
 
 CONFIG
 ======
