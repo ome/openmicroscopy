@@ -1450,8 +1450,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 {
                     settings = resetDefaults(settings, pixels, false, false,
                     		families, renderingModels);
-                    toReturn.add(pixels.getId());
-                    toSave.add(settings);
+                    if (settings != null) {
+                    	toReturn.add(pixels.getId());
+                    	toSave.add(settings);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1477,7 +1479,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // IUpdate.touch() or similar once that functionality exists.
             settings.setVersion(settings.getVersion() + 1);
         }
-        iUpdate.saveCollection(toSave);
+        if (toSave.size() > 0) iUpdate.saveCollection(toSave);
         s1.stop();
         return toReturn;
     }

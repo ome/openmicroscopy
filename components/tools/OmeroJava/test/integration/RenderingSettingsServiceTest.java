@@ -9,6 +9,7 @@ package integration;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -1246,8 +1247,6 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
     	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
@@ -1256,4 +1255,24 @@ public class RenderingSettingsServiceTest
     	assertEquals(m.size(), 1);
     }
 
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForNonValidImage() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = mmFactory.simpleImage(new Date().getTime());
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	//Image
+    	//method already tested 
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(m);
+    	assertEquals(m.size(), 0);
+    }
+    
 }
