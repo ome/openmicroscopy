@@ -207,10 +207,10 @@ public class ImportDialog
 	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_PROJECT = "Location: Project/Dataset";
+	private static final String LOCATION_PROJECT = "Project/Dataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_SCREEN = "Location: Screen";
+	private static final String LOCATION_SCREEN = "Screen";
 	
 	static {
 		WARNING = new ArrayList<String>();
@@ -1533,19 +1533,14 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		JPanel toolBar = new JPanel();
-		
-		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		toolBar.add(locationButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(locationLabel);
-		toolBar.add(Box.createHorizontalStrut(5));
-		locationPane.add(toolBar);
-		locationPane.add(new JSeparator());
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
-		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		//row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		//row.add(Box.createHorizontalStrut(5));
+		row.add(locationButton);
+		row.add(Box.createHorizontalStrut(5));
+		row.add(locationLabel);
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		locationPane.add(new JSeparator());
@@ -1612,8 +1607,14 @@ public class ImportDialog
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		if (!popUpLocation)
-			container.add(locationPane, "3, 0");
+		if (!popUpLocation) {
+			JXTaskPane pane = new JXTaskPane();
+			pane.setTitle("Import Location");
+			pane.setCollapsed(true);
+			pane.add(locationPane);
+			container.add(pane, "3, 0");
+		}
+			
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				container);
