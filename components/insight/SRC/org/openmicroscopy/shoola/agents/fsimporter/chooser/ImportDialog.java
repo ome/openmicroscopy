@@ -413,7 +413,7 @@ public class ImportDialog
 	private GroupData group;
 	
 	/** The component used to select the group.*/
-	private JComponent groupSelection;
+	private JComboBox groupSelection;
 	
 	/** The pane hosting the location information.*/
 	private JXTaskPane pane;
@@ -2284,7 +2284,7 @@ public class ImportDialog
 	 * 
 	 * @param bar The component to add.
 	 */
-	public void addToolBar(JComponent bar)
+	public void addToolBar(JComboBox bar)
 	{
 		if (bar == null) return;
 		groupSelection = bar;
@@ -2299,7 +2299,7 @@ public class ImportDialog
 	 * 
 	 * @param bar The component to add.
 	 */
-	public void onReconnected(JComponent bar)
+	public void onReconnected(JComboBox bar)
 	{
 		int n = toolBar.getComponentCount();
 		int diff = n-tbItems;
