@@ -87,7 +87,6 @@ public class ImagesImporter
     				os.importFile(object, importable, userID, groupID,
     					close));
 		} catch (Exception e) {
-			e.printStackTrace();
 			partialResult.put(importable.getFile(), e);
 		}
     }
