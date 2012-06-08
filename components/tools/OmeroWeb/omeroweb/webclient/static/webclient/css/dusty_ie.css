@@ -466,10 +466,11 @@
 		/* Numbers */
 	
 		.ui-datepicker tbody td:hover {
-			background-color: #4D88B3;
+			
 		}
 	
 			.ui-datepicker tbody td:hover a{
+			    background-color: #4D88B3;
 				color:white;
 			}
 	
