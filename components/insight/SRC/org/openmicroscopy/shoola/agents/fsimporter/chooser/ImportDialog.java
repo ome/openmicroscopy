@@ -2186,6 +2186,7 @@ public class ImportDialog
 		buildLocationPane();
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
+		pane.setCollapsed(true);
 		if (b != popUpLocation) {
 			if (b) {
 				Component[] comps = container.getComponents();
@@ -2196,7 +2197,11 @@ public class ImportDialog
 						break;
 					}
 				}
-				if (!in) container.add(pane, "3, 0");
+				if (!in) {
+					pane.removeAll();
+					pane.add(locationPane);
+					container.add(pane, "3, 0");
+				}
 			} else {
 				if (remove) container.remove(pane);
 			}
