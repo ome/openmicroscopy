@@ -1275,4 +1275,63 @@ public class RenderingSettingsServiceTest
     	assertEquals(m.size(), 0);
     }
     
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSetOriginalSettingsInSetNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.setOriginalSettingsInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultInSetNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.resetDefaultsInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
 }

@@ -125,7 +125,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             && !PlateAcquisition.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
-        			"Class parameter for resetDefaultsInSet() must be in " +
+        			"Class parameter for changing settings must be in " +
         			"{Project, Dataset, Image, Plate, Screen, PlateAcquisition, " +
         			"Pixels}, not " + 
         				klass);
@@ -587,9 +587,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	
     	// Load our dependencies for rendering settings manipulation
     	StopWatch s1 = new CommonsLogStopWatch("omero.resetDefaultsInSet");
-        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        List<RenderingModel> renderingModels = 
-            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
     	List<Pixels> pixels = new ArrayList<Pixels>();
@@ -600,7 +598,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	// created rendering settings in the database.
     	Set<Long> imageIds = new HashSet<Long>();
     	if (pixels.size() == 0) return imageIds; //nothing retrieve.
-    	
+    	List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settings;
@@ -1379,16 +1380,20 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetDefaultsByOwnerInSet(
             Class<T> klass, Set<Long> nodeIds)
     {
+    	checkValidContainerClass(klass);
         // Pre-process our list of potential containers. This will resolve down
         // to a list of Pixels objects for us to work on.
+    	 Set<Long> toReturn = new HashSet<Long>();
         List<Pixels> pixelsList = new ArrayList<Pixels>();
         updatePixelsForNodes(pixelsList, klass, nodeIds);
+        if (pixelsList.size() == 0)
+        	return toReturn;
         Map<Long, RenderingDef> ownerSettings =
             loadRenderingSettingsByOwner(pixelsList);
         Map<Long, RenderingDef> mySettings =
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
-        Set<Long> toReturn = new HashSet<Long>();
+       
         RenderingDef def, from, to;
         for (Pixels pixels : pixelsList)
         {
@@ -1421,6 +1426,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetMinMaxInSet(Class<T> klass,
                                                           Set<Long> nodeIds)
     {
+    	checkValidContainerClass(klass);
         StopWatch s1 = new CommonsLogStopWatch("omero.resetMinMaxInSet");
         // Load our dependencies for rendering settings manipulation
         List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
@@ -1431,7 +1437,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         List<Pixels> pixelsList = new ArrayList<Pixels>();
         updatePixelsForNodes(pixelsList, klass, nodeIds);
         Set<Long> toReturn = new HashSet<Long>();
-        if (pixelsList.size() == 0) return toReturn; 
+        if (pixelsList.size() == 0) return toReturn;
+        
         Map<Long, RenderingDef> mySettings =
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
