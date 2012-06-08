@@ -571,7 +571,7 @@ class Connector
 			if (projService != null)
 				services.add(projService);
 		}
-		return null;
+		return projService;
 	}
 
 	/**
