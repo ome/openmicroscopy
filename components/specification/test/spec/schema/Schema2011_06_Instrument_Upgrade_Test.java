@@ -27,17 +27,25 @@ import loci.common.services.ServiceFactory;
 import loci.common.xml.XMLTools;
 import loci.formats.services.OMEXMLService;
 
+import ome.xml.model.Arc;
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
 import ome.xml.model.Detector;
+import ome.xml.model.DetectorSettings;
 import ome.xml.model.Dichroic;
 import ome.xml.model.Filter;
 import ome.xml.model.FilterSet;
 import ome.xml.model.Image;
 import ome.xml.model.Instrument;
+import ome.xml.model.Laser;
+import ome.xml.model.LightPath;
+import ome.xml.model.LightSource;
+import ome.xml.model.LightSourceSettings;
+import ome.xml.model.Microscope;
 import ome.xml.model.OME;
 import ome.xml.model.Objective;
 import ome.xml.model.Pixels;
+import ome.xml.model.Point;
 import ome.xml.model.TransmittanceRange;
 
 import org.testng.Assert;
@@ -79,8 +87,11 @@ public class Schema2011_06_Instrument_Upgrade_Test {
     private Filter filter1;
     private Filter filter2;
     private Filter filter3;
-
     private FilterSet filterSet0;
+    private LightSource lightsource0;
+    private Laser laser0;
+    private LightSource lightsource1;
+    private Arc arc1;
     
     @BeforeClass
     public void setUp() throws Exception {
@@ -121,67 +132,55 @@ public class Schema2011_06_Instrument_Upgrade_Test {
         Assert.assertEquals(1, instrument0.sizeOfFilterSetList());
         Assert.assertEquals(2, instrument0.sizeOfLightSourceList());
         Assert.assertEquals(1, instrument0.sizeOfObjectiveList());
+        Microscope microscope0 = instrument0.getMicroscope();
+        Assert.assertNotNull(microscope0);
+        Assert.assertEquals(ref.Instrument0MicroscopeManufacturer, microscope0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0MicroscopeModel, microscope0.getModel());
+        Assert.assertEquals(ref.Instrument0MicroscopeSerialNumber, microscope0.getSerialNumber());
+        Assert.assertEquals(ref.Instrument0MicroscopeType, microscope0.getType());
     }
 
-/*
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
+    @Test (groups = {"11-06-i-lightsource"}, dependsOnMethods = {"testInstrument0"})
+    public void testLightSource0() {
         Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
+        lightsource0 = instrument0.getLightSource(0);
+        Assert.assertNotNull(lightsource0);
+        Assert.assertEquals(ref.Instrument0LightSource0Manufacturer, lightsource0.getManufacturer());
+        Assert.assertEquals(ref.Instrument0LightSource0Model, lightsource0.getModel());
+        Assert.assertEquals(ref.Instrument0LightSource0SerialNumber, lightsource0.getSerialNumber());
+        Assert.assertEquals(ref.Instrument0LightSource0Power, lightsource0.getPower());
+        Assert.assertEquals(Laser.class.getName(), lightsource0.getClass().getName());
+        laser0 = (Laser) lightsource0;
+        Assert.assertEquals(ref.Instrument0LightSource0LaserType, laser0.getType());
+        Assert.assertEquals(ref.Instrument0LightSource0LaserLaserMedium, laser0.getLaserMedium());
+        Assert.assertNull(laser0.getFrequencyMultiplication());
+        Assert.assertNull(laser0.getPockelCell());
+        Assert.assertNull(laser0.getPulse());
+        Assert.assertNull(laser0.getRepetitionRate());
+        Assert.assertNull(laser0.getTuneable());
+        Assert.assertNull(laser0.getWavelength());
     }
-
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
-        Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }
-
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
-        Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }    
     
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
+    @Test (groups = {"11-06-i-lightsource"}, dependsOnMethods = {"testInstrument0"})
+    public void testLightSource1() {
         Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }    
+        lightsource1 = instrument0.getLightSource(1);
+        Assert.assertNotNull(lightsource1);
+        Assert.assertEquals(ref.Instrument0LightSource1Manufacturer, lightsource1.getManufacturer());
+        Assert.assertEquals(ref.Instrument0LightSource1Model, lightsource1.getModel());
+        Assert.assertEquals(ref.Instrument0LightSource1SerialNumber, lightsource1.getSerialNumber());
+        Assert.assertEquals(ref.Instrument0LightSource1Power, lightsource1.getPower());
+        Assert.assertEquals(Arc.class.getName(), lightsource1.getClass().getName());
+        arc1 = (Arc) lightsource1;
+        Assert.assertEquals(ref.Instrument0LightSource1ArcType, arc1.getType());
+    }
+
+    @Test (groups = {"11-06-i-lightsourcelinks"}, dependsOnGroups = {"11-06-i-lightsource"})
+    public void testLaser0Pump() {
+        Assert.assertNotNull(laser0);
+        Assert.assertEquals(arc1, laser0.getLinkedPump());
+    }
     
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
-        Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }
-
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
-        Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }
-
-    @Test (groups = {"11-06-i-xxxxxx"}, dependsOnMethods = {"testInstrument0"})
-    public void test() {
-        Assert.assertNotNull(ome);
-        xxxxx = instrument0.getObjective(0);
-        Assert.assertNotNull(xxxxx);
-        Assert.assertEquals(ref, xxxxx);
-    }
-
-
-*/
     @Test (groups = {"11-06-i-filterset"}, dependsOnGroups = {"11-06-i-filter", "11-06-i-dichroic"})
     public void testFilterSet0() {
         Assert.assertNotNull(ome);
@@ -391,11 +390,65 @@ public class Schema2011_06_Instrument_Upgrade_Test {
         Assert.assertEquals(ref.Image0Pixels0_0Bindata0BigEndian, bindata0.getBigEndian());
         Assert.assertNull(bindata0.getCompression());
     }
-    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-instrument"})
+
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-instrument", "11-06-i-lightsourcelinks", "11-06-i-filterset", "11-06-i-detector"})
     public void testImage0Linkage() {
         Assert.assertNotNull(image0);
-        // TODO Add InstrumentRef check
         Assert.assertEquals(0, image0.sizeOfLinkedAnnotationList());
         Assert.assertEquals(0, image0.sizeOfLinkedROIList());
+        Assert.assertEquals(instrument0, image0.getLinkedInstrument());
      }
+
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-lightsource"})
+    public void testChannel0ToLightsourceSettings() {
+        Assert.assertNotNull(channel0);
+        LightSourceSettings lightsourceSettings = channel0.getLightSourceSettings();
+        Assert.assertNotNull(lightsourceSettings);
+        Assert.assertEquals(ref.Image0LightSourceSettings0Attenuation, lightsourceSettings.getAttenuation());
+        Assert.assertEquals(ref.Image0LightSourceSettings0Wavelength, lightsourceSettings.getWavelength());
+        Assert.assertNull(lightsourceSettings.getMicrobeamManipulation());
+    }
+
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-lightsource"})
+    public void testChannel0ToLightsourceLinkage() {
+        Assert.assertNotNull(channel0);
+        LightSourceSettings lightsourceSettings = channel0.getLightSourceSettings();
+        Assert.assertNotNull(lightsourceSettings);
+        Assert.assertNotNull(lightsourceSettings.getLightSource());
+        Assert.assertEquals(lightsource0, lightsourceSettings.getLightSource());
+    }
+
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-filter"})
+    public void testChannel0LightpathLinkage() {
+        Assert.assertNotNull(channel0);
+        LightPath lightpath = channel0.getLightPath();
+        Assert.assertNotNull(lightpath);
+        Assert.assertEquals(1, lightpath.sizeOfLinkedExcitationFilterList());
+        Assert.assertEquals(filter3, lightpath.getLinkedExcitationFilter(0));
+        Assert.assertNull(lightpath.getLinkedDichroic());
+        Assert.assertEquals(1, lightpath.sizeOfLinkedEmissionFilterList());
+        Assert.assertEquals(filter2, lightpath.getLinkedEmissionFilter(0));
+    }
+
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-detector"})
+    public void testChannel0DetectorSettings() {
+        Assert.assertNotNull(channel0);
+        DetectorSettings detectorSettings = channel0.getDetectorSettings();
+        Assert.assertNotNull(detectorSettings);
+        Assert.assertEquals(ref.Image0DetectorSettings0Binning, detectorSettings.getBinning());
+        Assert.assertEquals(ref.Image0DetectorSettings0Gain, detectorSettings.getGain());
+        Assert.assertEquals(ref.Image0DetectorSettings0Offset, detectorSettings.getOffset());
+        Assert.assertEquals(ref.Image0DetectorSettings0ReadOutRate, detectorSettings.getReadOutRate());
+        Assert.assertEquals(ref.Image0DetectorSettings0Voltage, detectorSettings.getVoltage());
+    }
+    
+    @Test (groups = {"11-06-i-links"}, dependsOnGroups = {"11-06-i-image", "11-06-i-detector"})
+    public void testChannel0ToDetectorLinkage() {
+        Assert.assertNotNull(channel0);
+        DetectorSettings detectorSettings = channel0.getDetectorSettings();
+        Assert.assertNotNull(detectorSettings);
+        Assert.assertNotNull(detectorSettings.getDetector());
+        Assert.assertEquals(detector0, detectorSettings.getDetector());
+    }
+
 }

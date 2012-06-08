@@ -128,8 +128,8 @@ public class Instrument2011_06
         public static final Color Image0Pixels0_0Channel0Color = Color.valueOf("-2147483648");
         public static final NonNegativeLong Image0Pixels0_0Bindata0Length = NonNegativeLong.valueOf("32");
         public static final Boolean Image0Pixels0_0Bindata0BigEndian = Boolean.FALSE;
-        public static final Double Image0LightSourceSettings0Attenuation = Double.valueOf("0.8");
-        public static final Double Image0LightSourceSettings0Wavelength = Double.valueOf("510");
+        public static final PercentFraction Image0LightSourceSettings0Attenuation = PercentFraction.valueOf("0.8");
+        public static final PositiveInteger Image0LightSourceSettings0Wavelength = PositiveInteger.valueOf("510");
         public static final Binning Image0DetectorSettings0Binning = Binning.TWOXTWO;
         public static final Double Image0DetectorSettings0Gain = Double.valueOf("1.2");
         public static final Double Image0DetectorSettings0Offset = Double.valueOf("0.7");
