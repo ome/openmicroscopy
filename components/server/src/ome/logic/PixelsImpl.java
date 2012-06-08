@@ -290,11 +290,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		}
 
 		// Create basic metadata
-		// FIXME: Hack, when the model changes we'll want to remove this, it's
-		// unreasonable.
-		pixels.setPhysicalSizeX(1.0);
-		pixels.setPhysicalSizeY(1.0);
-		pixels.setPhysicalSizeZ(1.0);
 		pixels.setPixelsType(pixelsType);
 		pixels.setSizeX(sizeX);
 		pixels.setSizeY(sizeY);
@@ -419,11 +414,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			Channel channel = new Channel();
 			LogicalChannel lc = new LogicalChannel();
 			channel.setLogicalChannel(lc);
-			StatsInfo info = new StatsInfo();
-			info.setGlobalMin(0.0);
-			info.setGlobalMax(1.0);
-			channel.setStatsInfo(info);
-			lc.setEmissionWave(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;
