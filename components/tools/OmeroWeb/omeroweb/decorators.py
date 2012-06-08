@@ -77,10 +77,7 @@ class login_required(object):
 
     def get_share_connection (self, request, conn, share_id):
         try:
-            try:
-                conn.CONFIG['SERVICE_OPTS']['omero.share'] = str(share_id)
-            except:
-                conn.CONFIG['SERVICE_OPTS'] = {'omero.share': str(share_id)}
+            conn.CONFIG.setOmeroShare(share_id)
             share = conn.getShare(share_id)
             return conn
         except:
@@ -89,11 +86,8 @@ class login_required(object):
     
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
-        try:
-            # we always need to clear any dirty 'omero.share' values from previous calls
-            del conn.CONFIG['SERVICE_OPTS']['omero.share']
-        except:
-            pass
+        # we always need to clear any dirty 'omero.share' values from previous calls
+        conn.CONFIG.setOmeroShare()
         if share_id is None:
             return None
         share = conn.getShare(share_id)
@@ -118,11 +112,9 @@ class login_required(object):
         Called whenever the users is successfully logged in.
         Sets the 'omero.group' option if specified in the constructor
         """
-        if conn.CONFIG['SERVICE_OPTS'] is None:
-            conn.CONFIG['SERVICE_OPTS'] = {}
         if self.omero_group is not None:
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.omero_group)
-
+            conn.CONFIG.setOmeroGroup(self.omero_group)
+    
     def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
         pass

@@ -375,7 +375,7 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     
     # need to find the z indices of the first shape in T
-    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG['SERVICE_OPTS'])
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG)
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -1540,9 +1540,9 @@ def search_json (request, conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = conn.searchObjects(["image"], opts['search'], conn.CONFIG['SERVICE_OPTS'])
+            sr = conn.searchObjects(["image"], opts['search'], conn.CONFIG)
         else:
-            sr = conn.searchObjects(None, opts['search'], conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
+            sr = conn.searchObjects(None, opts['search'], conn.CONFIG)  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1676,11 +1676,11 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
         if fromimg.canWrite():
-            sopts = dict(blitzcon.CONFIG['SERVICE_OPTS'] or {})
-            sopts['omero.group'] = str(fromimg.getDetails().getGroup().getId())
-            sopts['omero.user'] = str(userid)
+            ctx = blitzcon.CONFIG.copy()
+            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
+            ctx.setOmeroUser(userid)
             rsettings = blitzcon.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), sopts)
+            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
@@ -1789,7 +1789,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
-    result = roiService.findByImage(long(imageId), None, conn.CONFIG['SERVICE_OPTS'])
+    result = roiService.findByImage(long(imageId), None, conn.CONFIG)
     
     for r in result.rois:
         roi = {}
