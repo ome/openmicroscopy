@@ -815,15 +815,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 index++;
             }
             
-            // Actually save and reload the rendering settings
-            rendDefObj = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+            // Actually save the rendering settings
+            ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
                         @Transactional(readOnly = false) // ticket:1434
                         public Object doWork(Session session, ServiceFactory sf) {
                             IPixels pixMetaSrv = sf.getPixelsService();
                             pixMetaSrv.saveRndSettings(rendDefObj);
-                            return pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
+                            return null;
                         }});
+            rendDefObj = retrieveRndSettings(pixelsObj.getId());
             
             // Unload the linked pixels set to avoid transactional headaches on
             // the next save.
@@ -1689,23 +1690,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
-     * Returns <code>true</code> if it is a critical graph,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above
-     */
-    private boolean isGraphCritical() {
-        return (Boolean) ex.execute(/*ex*/null/*principal*/, 
-        		new Executor.SimpleWork(
-                this, "isGraphCritical") {
-            @Transactional(readOnly = true)
-            public Boolean doWork(Session session, ServiceFactory sf) {
-                return secSys.isGraphCritical();
-            }
-        });
-    }
-
-    /**
      * Retrieves the pixels corresponding to the specified identifier.
      * 
      * @param pixelsId The identifier of the pixels.
@@ -1731,54 +1715,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @return See above.
      */
     private RenderingDef retrieveRndSettings(final long pixelsId) {
-        // FIXME check for null here?
-        // Do not move this below errorIfNullPixels()
-        boolean isGraphCritical = isGraphCritical();
-        errorIfNullPixels();
-        RenderingDef rd = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this, "retrieveRndDef") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getPixelsService().retrieveRndSettings(
                                 pixelsId);
-                    }
-                });
-        long pixOwner = pixelsObj.getDetails().getOwner().getId();
-        long currentUser = getCurrentEventContext().getCurrentUserId();
-        if (rd == null && currentUser != pixOwner) {
-            // ticket:1434 and shoola:ticket:1157. If this is graph critical
-            // and we couldn't find a rendering def for the current user,
-            // then we try to find one for the pixels owner. As in the
-            // thumbnail bean we also have to check if we're in a read-only
-            // group and not the owner of the Pixels object as well.
-            
-            Permissions currentGroupPermissions = 
-                getCurrentEventContext().getCurrentGroupPermissions();
-            Permissions readOnly = Permissions.parseString("rwr---");
-            if (isGraphCritical
-                || currentGroupPermissions.identical(readOnly)) {
-                rd = retrieveRndSettingsFor(pixelsId, pixOwner);
-            }
-        }
-        return rd;
-    }
-
-    /**
-     * Retrieves the rendering settings corresponding to the specified 
-     * pixels set and for a given user.
-     * 
-     * @param pixelsId The identifier of the pixels.
-     * @param userId The user's identifier.
-     * @return See above.
-     */
-    private RenderingDef retrieveRndSettingsFor(final long pixelsId, 
-    		final long userId) {
-        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
-                new Executor.SimpleWork(this, "retrieveRndDefFor") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getPixelsService().retrieveRndSettingsFor(
-                                pixelsId, userId);
                     }
                 });
     }
