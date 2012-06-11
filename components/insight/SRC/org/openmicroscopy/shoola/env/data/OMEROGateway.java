@@ -5811,7 +5811,7 @@ class OMEROGateway
 		}
 
 		Map<String, RType> map = new HashMap<String, RType>();
-		map.put("Image_ID", omero.rtypes.rlong(imageID));
+		map.put("IDs", omero.rtypes.rlist(omero.rtypes.rlong(imageID)));
 		map.put("Movie_Name", omero.rtypes.rstring(param.getName()));
 		map.put("Z_Start", omero.rtypes.rint(startZ));
 		map.put("Z_End", omero.rtypes.rint(endZ));
