@@ -6,6 +6,10 @@ set -u
 OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
+if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
+    CURL_OPTS=${CURL_OPTS:-"--insecure"}
+fi
+
 
 ###################################################################
 # BREW & PIP BASE SYSTEMS
@@ -38,7 +42,7 @@ then
     echo "Using existing pip"
 else
     rm -rf virtualenv.py
-    curl -O "$VENV_URL"
+    curl "$CURL_OPTS" -O "$VENV_URL"
     python virtualenv.py --no-site-packages .
 fi
 
@@ -101,5 +105,5 @@ installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
 
 echo "Done."
-echo "You can now install OMERO with: 'bin/brew install omero43 ...'"
+echo "You can now install OMERO with: 'bin/brew install omero ...'"
 
