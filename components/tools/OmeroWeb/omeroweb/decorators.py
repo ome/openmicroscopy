@@ -317,7 +317,8 @@ class login_required(object):
                 logger.debug('Doing connection cleanup? %s' % \
                         ctx.doConnectionCleanup)
                 if ctx.doConnectionCleanup:
-                    conn.c.closeSession()
+                    if conn is not None and conn.c is not None:
+                        conn.c.closeSession()
             except:
                 logger.warn('Failed to clean up connection.', exc_info=True)
             return retval
