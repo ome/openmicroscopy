@@ -6460,7 +6460,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None, None
         mms = mms[0]
         params = svc.getParams(mms.id.val)
-        args = ['Image_ID=%d' % self.getId()]
+        args = ['IDs=%d' % self.getId()]
         args.append('Do_Link=False')
         if opts.has_key('fps'):
             args.append('FPS=%d' % opts['fps'])
