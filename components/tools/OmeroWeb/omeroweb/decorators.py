@@ -60,7 +60,8 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1'):
+                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1',
+                 allowPublic=True):
         """
         Initialises the decorator.
         """
@@ -69,6 +70,7 @@ class login_required(object):
         self.isGroupOwner = isGroupOwner
         self.doConnectionCleanup = doConnectionCleanup
         self.omero_group = omero_group
+        self.allowPublic = allowPublic
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -147,7 +149,7 @@ class login_required(object):
         Verifies that the URL for the resource being requested falls within
         the scope of the OMERO.webpublic URL filter.
         """
-        return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+        return self.allowPublic and settings.PUBLIC_URL_FILTER.match(request.path) is not None
 
     def get_connection(self, server_id, request):
         """
@@ -250,6 +252,8 @@ class login_required(object):
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
                     self.useragent, username, password)
+            session['connector'] = connector
+            return connection
 
         logger.debug('Django session connector: %r' % connector)
         if connector is not None:
@@ -278,6 +282,8 @@ class login_required(object):
             url = request.REQUEST.get('url')
             if url is None or len(url) == 0:
                 url = request.get_full_path()
+
+            ctx.doConnectionCleanup = kwargs.get('doConnectionCleanup', ctx.doConnectionCleanup)
 
             conn = kwargs.get('conn', None)
             error = None
