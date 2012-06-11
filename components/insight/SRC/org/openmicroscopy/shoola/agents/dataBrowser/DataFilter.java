@@ -36,6 +36,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -78,14 +79,15 @@ public class DataFilter
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param context	The filtering context. Mustn't be <code>null</code>.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public DataFilter(DataBrowser viewer, FilterContext context,
-					Collection<DataObject> nodes)
+	public DataFilter(DataBrowser viewer, SecurityContext ctx,
+			FilterContext context, Collection<DataObject> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
 		if (context == null)
@@ -116,7 +118,8 @@ public class DataFilter
 	public void load()
 	{
 		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
+		handle = mhView.filterData(ctx, nodeType, nodeIds, context, userID,
+				this);
 	}
 	
 	/**

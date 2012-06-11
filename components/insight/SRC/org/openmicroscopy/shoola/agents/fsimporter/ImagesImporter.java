@@ -75,13 +75,14 @@ public class ImagesImporter
 	 * 
 	 * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
 	 * @param context	The context of the import.
 	 * @param loaderID  The identifier of the loader.
 	 */
-	public ImagesImporter(Importer viewer, ImportableObject context,
-			Integer loaderID)
+	public ImagesImporter(Importer viewer,
+			ImportableObject context, Integer loaderID)
 	{
-		super(viewer);
+		super(viewer, null);
 		if (context == null || context.getFiles() == null ||
 				context.getFiles().size() == 0)
 			throw new IllegalArgumentException("No Files to import.");

@@ -66,7 +66,7 @@ class UserUI
 	static final String TITLE = "Disk Space";
 
 	/** The title of the chart. */
-	private static final String TITLE_DETAILS = "Personal details";
+	private static final String TITLE_DETAILS = "User settings";
 
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
@@ -83,15 +83,17 @@ class UserUI
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
-	 * @param control	Reference to the control.
+	 * @param control Reference to the control.
+	 * @param view Reference to the view.
 	 */
-	private void initComponents(EditorControl control)
+	private void initComponents(EditorControl control, EditorUI view)
 	{
-		profile = new UserProfile(model);
+		profile = new UserProfile(model, view);
 		profile.addPropertyChangeListener(control);
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
 		pane.add(profile, null, 0);
+		pane.setCollapsed(false);
 		
 		diskSpace = new UserDiskSpace(this);
 		diskTask = EditorUtil.createTaskPane(TITLE);
@@ -113,15 +115,16 @@ class UserUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model 	Reference to the model. Mustn't be <code>null</code>.
-	 * @param control	Reference to the control. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param control Reference to the control. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
 	 */
-	UserUI(EditorModel model, EditorControl control)
+	UserUI(EditorModel model, EditorControl control, EditorUI view)
 	{
 		super(model);
 		if (control == null)
 			throw new IllegalArgumentException("No control.");
-		initComponents(control);
+		initComponents(control, view);
 	}
 	
 	/** Clears the password fields. */
@@ -205,9 +208,9 @@ class UserUI
 	 * No-operation implementation in our case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		return new ArrayList<AnnotationData>();  
+		return new ArrayList<Object>();  
 	}
 
 	/**

@@ -13,13 +13,17 @@
 
 import os
 import sys
-import Ice, Glacier2
+import Ice, IceImport
 import time
 import traceback
 import exceptions
 import subprocess
 import getpass
 import omero.java
+
+IceImport.load("Glacier2_Router_ice")
+
+from Glacier2 import PermissionDeniedException
 
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
@@ -158,7 +162,7 @@ class SessionsControl(BaseControl):
             else:
                 server = args.server
 
-        if server: server, name = self._parse_conn(server)
+        if server: server, name = self._parse_conn(server, name)
 
         if args.user:
             if name:
@@ -218,7 +222,7 @@ class SessionsControl(BaseControl):
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server, name = self._get_server(store)
+        if not server: server, name = self._get_server(store, name)
         if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
@@ -259,7 +263,7 @@ class SessionsControl(BaseControl):
                         pasw = self.ctx.input("Password:", hidden = True, required = True)
                     rv = store.create(name, pasw, props)
                     break
-                except Glacier2.PermissionDeniedException, pde:
+                except PermissionDeniedException, pde:
                     tries -= 1
                     if not tries:
                         self.ctx.die(524, "3 incorrect password attempts")
@@ -337,7 +341,6 @@ class SessionsControl(BaseControl):
         store = self.store(args)
         previous = store.get_current()
 
-        import Glacier2
         try:
             rv = store.attach(*previous)
             rv[0].killSession()
@@ -370,7 +373,6 @@ class SessionsControl(BaseControl):
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (old_name, old_id, group_name, group_id))
 
     def list(self, args):
-        import Glacier2
         store = self.store(args)
         s = store.contents()
         previous = store.get_current()
@@ -395,7 +397,7 @@ class SessionsControl(BaseControl):
                         started = rv[0].sf.getSessionService().getSession(uuid).started.val
                         started = time.ctime(started / 1000.0)
                         rv[0].closeSession()
-                    except Glacier2.PermissionDeniedException, pde:
+                    except PermissionDeniedException, pde:
                         msg = pde.reason
                     except exceptions.Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % e)
@@ -484,20 +486,20 @@ class SessionsControl(BaseControl):
     # Private methods
     #
 
-    def _parse_conn(self, server):
+    def _parse_conn(self, server, name):
         try:
             idx = server.rindex("@")
             return  server[idx+1:], server[0:idx] # server, user which may also contain an @
         except ValueError:
-            return server, None
+            return server, name
 
-    def _get_server(self, store):
+    def _get_server(self, store, name):
         defserver = store.last_host()
         rv = self.ctx.input("Server: [%s]" % defserver)
         if not rv:
-            return defserver, None
+            return defserver, name
         else:
-            return self._parse_conn(rv)
+            return self._parse_conn(rv, name)
 
     def _get_username(self, defuser):
         if defuser is None:

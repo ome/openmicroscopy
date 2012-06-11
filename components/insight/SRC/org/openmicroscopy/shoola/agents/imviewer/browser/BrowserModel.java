@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -50,6 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -119,12 +122,14 @@ class BrowserModel
     
     /** 
      * Flag to indicate if the unit bar is painted or not on top of the
-     * displayed image.
+     * displayed image. This option will be always set to <code>false</code>
+     * if no value in microns see #7057.
      */
     private boolean         	unitBar;
     
-    /** The value of the unit bar in microns. */
-    private double          	unitInMicrons;
+    /** The value of the unit bar in the units matching the size of the pixels
+     * e.g. microns, mm, etc. */
+    private double          	unitInRefUnits;
     
     /** The default color of the unit bar. */
     private Color				unitBarColor;
@@ -194,7 +199,8 @@ class BrowserModel
     	int maxC = parent.getMaxC();
     	List l = parent.getActiveChannelsInGrid();
 		int n = l.size();	
-		
+		clearList(gridImages);
+		if (combinedImage != null) combinedImage.flush();
 		switch (n) {
 			case 0:
 				for (int i = 0; i < maxC; i++) 
@@ -291,16 +297,14 @@ class BrowserModel
 								images.get(last));
     		images.remove(last);
     		Iterator i = images.iterator();
+    		boolean b = originalGridImages.size() == 0 &&
+    		!isImageMappedRGB(channels);
+    		BufferedImage img;
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(gridRatio, 
-        					(BufferedImage) i.next()));
+        		img = (BufferedImage) i.next();
+        		gridImages.add(Factory.magnifyImage(gridRatio, img));
+        		if (b) originalGridImages.add(img);
     		}
-        	if (originalGridImages.size() == 0 && !isImageMappedRGB(channels)) {
-        		i = images.iterator();
-	        	while (i.hasNext()) {
-	        		originalGridImages.add((BufferedImage) i.next());
-	    		}
-        	}
     	}
     }
     
@@ -312,20 +316,16 @@ class BrowserModel
     private void retrieveGridImages()
     {
     	List<BufferedImage> images = parent.getGridImages();
-    	
-    	
     	if (images != null) {
     		Iterator i = images.iterator();
+    		boolean b = originalGridImages.size() == 0;
+    		BufferedImage img;
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(gridRatio, 
-        					(BufferedImage) i.next()));
+        		img = (BufferedImage) i.next();
+        		gridImages.add(Factory.magnifyImage(img, gridRatio, 0));
+        		if (b) originalGridImages.add(img);
     		}
-        	if (originalGridImages.size() == 0) {
-        		i = images.iterator();
-	        	while (i.hasNext()) 
-	        		originalGridImages.add((BufferedImage) i.next());
-        	}
-        	combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
+        	combinedImage = Factory.magnifyImage(renderedImage, gridRatio, 0);
     	}
     }
 
@@ -333,12 +333,52 @@ class BrowserModel
     private void createGridImagesAsTextures()
     {
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		if (!hasGridImagesAsTexture())
+    		if (!hasGridImagesAsTexture()) {
+    			clearTextureMap(gridImagesAsTextures);
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
+    		}
+    			
     	} else {
     		//if (isRenderedImageRGB()) return;
+    		clearTextureMap(gridImagesAsTextures);
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
+    }
+    
+    /**
+     * Clears the passed map.
+     * 
+     * @param map The map to handle.
+     */
+    private void clearTextureMap(Map<Integer, TextureData> map)
+    {
+    	if (map == null) return;
+    	Entry e;
+    	TextureData data;
+    	Iterator i = map.entrySet().iterator();
+    	while (i.hasNext()) {
+			e = (Entry) i.next();
+			data = (TextureData) e.getValue();
+			if (data != null) data.flush();
+		}
+    	map.clear();
+    }
+    
+    /**
+     * Clears the list and frees space.
+     * 
+     * @param l The list to handle.
+     */
+    private void clearList(List<BufferedImage> l)
+    {
+    	if (l == null) return;
+    	Iterator<BufferedImage> k = gridImages.iterator();
+    	BufferedImage img;
+    	while (k.hasNext()) {
+    		img = k.next();
+			if (img != null) img.flush();
+		}
+    	l.clear();
     }
     
     /** Creates the images composing the grid. */
@@ -347,12 +387,11 @@ class BrowserModel
     	//if (combinedImage == null) return;
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
-    	gridImages.clear();
+    	clearList(gridImages);
     	if (ImViewer.GREY_SCALE_MODEL.equals(parent.getColorModel())) {
     		createGridImagesForGreyScale();
     		return;
     	}
-    	
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	switch (l.size()) {
@@ -363,8 +402,9 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageMappedRGB(l)) {
-					//if (combinedImage == null) 
+				if (isImageMappedRGB(l) && !parent.isCompressed()) {
+					//if (combinedImage == null)
+					if (combinedImage != null) combinedImage.flush();
 					combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
 					int w = combinedImage.getWidth();
@@ -396,28 +436,6 @@ class BrowserModel
 							gridImages.add(null);
 						}
 					}
-		        	/*
-		    		for (int i = 0; i < maxC; i++) {
-						if (parent.isChannelActive(i)) {
-							if (parent.isChannelRed(i)) { 
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.RED_MASK, Factory.BLANK_MASK,
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelGreen(i)) {
-								gridImages.add(createBandImage(buf, w, h,
-										Factory.BLANK_MASK, Factory.GREEN_MASK, 
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelBlue(i)) {
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.BLANK_MASK, Factory.BLANK_MASK, 
-										Factory.BLUE_MASK));
-							}
-						} else {
-							gridImages.add(null);
-						}
-					}
-					*/
-		    		
 				} else {
 					retrieveGridImages();
 				}
@@ -425,6 +443,21 @@ class BrowserModel
 			default:
 				retrieveGridImages();
     	}
+    }
+    
+    /**
+     * Calculates the size of the unit bar.
+     * 
+     * @param ratio The ratio to multiple the value by.
+     * @return
+     */
+    private double getBarSize(double ratio)
+    {
+    	double v = unitInRefUnits;
+        double t = EditorUtil.transformSize(getPixelsSizeX()).getValue();
+        if (t > 0) v = unitInRefUnits/t;
+        v *= ratio;
+        return v;
     }
     
     /** 
@@ -440,11 +473,11 @@ class BrowserModel
         if (parent == null) throw new IllegalArgumentException("No parent.");
         //unloaded image data
         this.parent = parent;
-        unitBar = true;
+        unitBar = false;
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
-        unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
+        unitInRefUnits = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
@@ -488,6 +521,7 @@ class BrowserModel
      */
     void setRenderedImage(BufferedImage image)
     {
+    	if (renderedImage != null) renderedImage.flush();
         renderedImage = image;
         if (renderedImage != null) {
         	if (init) {
@@ -495,23 +529,25 @@ class BrowserModel
         		if (imageWidth < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			gridRatio = 1;
-        			unitBar = false;
+        			setUnitBar(false);
         		}
         		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
         			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
         		init = false;
         	}
         }
+        if (displayedImage != null) displayedImage.flush();
+        if (combinedImage != null) combinedImage.flush();
+        clearList(gridImages);
         displayedImage = null;
         combinedImage = null;
-        gridImages.clear();
     }
     
     /** Sets the images composing the grid. */
     void setGridImages()
     {
     	if (gridImages.size() != 0) return;
-    	if (originalGridImages != null) originalGridImages.clear();
+    	clearList(originalGridImages);
     	if (gridImagesAsTextures.size() != 0) return;
     	try {
     		if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
@@ -588,6 +624,7 @@ class BrowserModel
     void createDisplayedImage()
     {
         if (renderedImage == null) return;
+        if (displayedImage != null) displayedImage.flush();
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
@@ -595,7 +632,7 @@ class BrowserModel
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occurs while magnifying the image.");
+						"An error occured while magnifying the image.");
 			}
 			if (img != null) displayedImage = img;
         } else displayedImage = renderedImage;
@@ -608,6 +645,7 @@ class BrowserModel
     void createDisplayedProjectedImage()
     {
         if (projectedImage == null) return;
+        if (displayedProjectedImage != null) displayedProjectedImage.flush();
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
@@ -615,7 +653,7 @@ class BrowserModel
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occurs while magnifying the image.");
+						"An error occurred while magnifying the image.");
 			}
 			if (img != null) displayedProjectedImage = img;
         } else displayedProjectedImage = projectedImage;
@@ -656,59 +694,49 @@ class BrowserModel
      * @param unitBar   Pass <code>true</code> to paint the unit bar, 
      *                  <code>false</code> otherwise.
      */
-    void setUnitBar(boolean unitBar) { this.unitBar = unitBar; }
+    void setUnitBar(boolean unitBar)
+    {
+    	double v = EditorUtil.transformSize(parent.getPixelsSizeX()).getValue();
+    	if (v == 0 || v == 1) unitBar = false;
+    	this.unitBar = unitBar;
+    }
     
     /**
      * Sets the size of the unit bar.
      * 
      * @param size The size of the unit bar.
      */
-    void setUnitBarSize(double size) { unitInMicrons = size; }
+    void setUnitBarSize(double size) { unitInRefUnits = size; }
     
     /**
-     * Returns the unit (in microns) used to determine the size of the unit bar.
+     * Returns the unit used to determine the size of the unit bar.
+     * The unit depends on the size stored. The unit of reference in the
+     * OME model is in microns, but this is a transformed unit.
      * 
      * @return See above.
      */
-    double getUnitInMicrons() { return unitInMicrons; }
-    
-    /**
-     * Returns the size of the unit bar.
-     * 
-     * @return See above.
-     */
-    double getOriginalUnitBarSize()
-    { 
-    	double v = unitInMicrons;
-    	if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-    	return v;
-    }
+    double getUnitInRefUnits() { return unitInRefUnits; }
     
     /**
      * Returns the size of the unit bar.
      * 
      * @return See above.
      */
-    double getUnitBarSize()
-    { 
-        double v = unitInMicrons;
-        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-        v *= zoomFactor;
-        return v;
-    }
+    double getOriginalUnitBarSize() { return getBarSize(1); }
     
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getUnitBarSize() { return getBarSize(zoomFactor); }
+  
     /**
      * Returns the size of the unit bar for an image composing the grid.
      * 
      * @return See above.
      */
-    double getGridBarSize()
-    {
-    	double v = unitInMicrons;
-        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-        v *= gridRatio;
-        return v;
-    }
+    double getGridBarSize() { return getBarSize(gridRatio); }
     
     /**
      * Returns the unit bar value.
@@ -717,7 +745,7 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
-    	return UIUtilities.twoDecimalPlaces(unitInMicrons);
+    	return UIUtilities.twoDecimalPlaces(unitInRefUnits);
     }
     
     /**
@@ -995,7 +1023,7 @@ class BrowserModel
 			return;
 		}
 		int n = originalGridImages.size();
-		gridImages.clear();
+		clearList(gridImages);
 		int maxC = parent.getMaxC();
 		switch (n) {
 			case 0:
@@ -1013,6 +1041,7 @@ class BrowserModel
 						handleGridImageCreationException(e);
 					}
 				} else {
+					combinedImage.flush();
 					combinedImage = Factory.magnifyImage(gridRatio, 
 														renderedImage);
 					Iterator i = originalGridImages.iterator();
@@ -1023,6 +1052,7 @@ class BrowserModel
 				}
 				break;
 			default:
+				combinedImage.flush();
 				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
 				Iterator i = originalGridImages.iterator();
 				while (i.hasNext()) {
@@ -1074,6 +1104,7 @@ class BrowserModel
 	 */
 	void setProjectedImage(BufferedImage projectedImage)
 	{
+		if (this.projectedImage != null) this.projectedImage.flush();
 		this.projectedImage = projectedImage;
 	}
 
@@ -1090,7 +1121,7 @@ class BrowserModel
 	/** Clears the grid images when the color model changes. */
 	void clearGridImages()
 	{ 
-		if (gridImages != null) gridImages.clear(); 
+		clearList(gridImages);
 		if (gridImagesAsTextures != null) gridImagesAsTextures.clear();
 		//if (originalGridImages != null) originalGridImages.clear();
 	}
@@ -1102,6 +1133,8 @@ class BrowserModel
      */
     void setRenderedImageAsTexture(TextureData image)
     {
+    	if (renderedImageAsTexture != null)
+    		renderedImageAsTexture.flush();
     	renderedImageAsTexture = image;
         if (renderedImageAsTexture != null) {
         	if (init) {
@@ -1109,7 +1142,7 @@ class BrowserModel
         		if (imageWidth < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			gridRatio = 1;
-        			unitBar = false;
+        			setUnitBar(false);
         		}
         		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
         			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
@@ -1118,7 +1151,7 @@ class BrowserModel
         }
         //displayedImage = null;
         //combinedImage = null;
-        gridImagesAsTextures.clear();
+        clearTextureMap(gridImagesAsTextures);
     }
 	
 	/**
@@ -1128,6 +1161,8 @@ class BrowserModel
 	 */
 	void setProjectedImageAsTexture(TextureData projectedImage)
 	{
+		if (this.projectedImageAsTexture != null)
+			this.projectedImageAsTexture.flush();
 		this.projectedImageAsTexture = projectedImage;
 	}
 	
@@ -1266,5 +1301,19 @@ class BrowserModel
 	 * @return See above.
 	 */
 	int getTiledImageSizeY() { return parent.getTiledImageSizeY(); }
-	
+
+	void discard()
+	{
+		if (combinedImage != null) combinedImage.flush();
+		if (displayedImage != null) displayedImage.flush();
+		if (displayedProjectedImage != null) displayedProjectedImage.flush();
+		if (projectedImage != null) projectedImage.flush();
+		if (renderedImage != null) renderedImage.flush();
+		clearList(gridImages);
+		clearList(originalGridImages);
+		clearTextureMap(gridImagesAsTextures);
+		if (projectedImageAsTexture != null) projectedImageAsTexture.flush();
+		if (renderedImageAsTexture != null) renderedImageAsTexture.flush();
+	}
+
 }

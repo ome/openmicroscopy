@@ -98,6 +98,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
@@ -2107,7 +2108,7 @@ public class FigureDialog
 				list = result.getROIs();
 				if (list.size() > 0) count++;
 				displayedROIs = roiComponent.loadROI(result.getFileID(), 
-						list, true, userID);
+						list, userID);
 				modifyROIDisplay();
 			}
 		} catch (Exception e) {}

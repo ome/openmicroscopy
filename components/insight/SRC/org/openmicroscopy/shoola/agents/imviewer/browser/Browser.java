@@ -197,11 +197,13 @@ public interface Browser
     public double getUnitBarSize();
     
     /**
-     * Returns the size in microns.
+     * Returns the unit used to determine the size of the unit bar.
+     * The unit depends on the size stored. The unit of reference in the
+     * OME model is in microns, but this is a transformed unit.
      * 
      * @return See above.
      */
-    public double getUnitInMicrons();
+    public double getUnitInRefUnits();
     
     /**
      * Returns the color of the unit bar.
@@ -421,5 +423,16 @@ public interface Browser
 	 *          <code>false</code> otherwise.
 	 */
 	void onStateChange(boolean b);
-	
+
+	/**
+	 * Sets the location of the selection region when the user zooms in or out.
+	 * 
+	 * @param rx The ratio along the X-axis.
+	 * @param ry The ratio along the Y-axis.
+	 */
+	void setViewLocation(double rx, double ry);
+
+	/** Discards the browser.*/
+	void discard();
+
 }

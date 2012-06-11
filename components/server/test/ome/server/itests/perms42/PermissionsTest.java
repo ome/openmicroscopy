@@ -6,6 +6,9 @@
  */
 package ome.server.itests.perms42;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
@@ -14,11 +17,9 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.util.Utils;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 /**
  * Test of the re-enabled group permissions in Beta4.2
@@ -36,6 +37,8 @@ public class PermissionsTest extends AbstractManagedContextTest {
 
         void init() {
             user = loginNewUser();
+            EventContext ec = iAdmin.getEventContext();
+            loginRoot();
             groupName = uuid();
             _group.setName(groupName);
             iAdmin.createGroup(_group);
@@ -43,6 +46,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
             iAdmin.addGroups(user, _group);
             // Prevents weirdness via loginNewUserInOtherUsersGroup
             iAdmin.setDefaultGroup(user, _group);
+            login(ec);
         }
 
         Fixture() {
@@ -84,6 +88,12 @@ public class PermissionsTest extends AbstractManagedContextTest {
             sessionManager.setSecurityContext(principal, group());
         }
 
+        void use_group(ExperimenterGroup group) {
+            String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
+            Principal principal = new Principal(uuid);
+            sessionManager.setSecurityContext(principal, group);
+        }
+
         void make_leader() {
             loginRoot();
             iAdmin.addGroupOwners(group(), user);
@@ -103,6 +113,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
             ExperimenterGroup g = new ExperimenterGroup();
             g.setName(uuid());
             long gid = iAdmin.createGroup(g);
+            g = iAdmin.getGroup(gid);
             iAdmin.addGroups(user, new ExperimenterGroup(gid, false));
             log_in();
             return g;
@@ -137,7 +148,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
     //
 
     @SuppressWarnings("unchecked")
-    private IObject lookup(IObject obj) {
+    protected IObject lookup(IObject obj) {
         Class k = Utils.trueClass(obj.getClass());
         return iQuery.get(k, obj.getId());
     }

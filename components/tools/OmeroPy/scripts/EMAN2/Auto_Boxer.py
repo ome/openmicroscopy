@@ -47,7 +47,6 @@ import numpy
 import omero
 import omero.scripts as scripts
 from omero.rtypes import *
-import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
 # for saving as tiff.

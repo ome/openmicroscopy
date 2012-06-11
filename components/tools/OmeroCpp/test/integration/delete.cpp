@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/callbacks.h>
 #include <omero/all.h>
 #include <string>
@@ -21,7 +21,7 @@ using namespace omero::rtypes;
 using namespace omero::sys;
 
 
-BOOST_AUTO_TEST_CASE( testSimpleDelete ) {
+TEST(DeleteTest, testSimpleDelete ) {
     Fixture f;
     client_ptr c = f.login();
     ServiceFactoryPrx sf = c->getSession();

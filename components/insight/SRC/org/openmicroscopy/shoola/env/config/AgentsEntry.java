@@ -85,6 +85,13 @@ class AgentsEntry
 	 * to specify an agent's active status.
 	 */
 	private static final String		AGENT_ACTIVE_TAG = "active";
+	
+	/** 
+	 * The name of the tag, within the {@link #AGENT_TAG}, that is used
+	 * to specify an agent's number. Only entry point agent should have a
+	 * number.
+	 */
+	private static final String		AGENT_NUMBER_TAG = "number";
 		
 	/** The number of tags for an agent. */
 	private static final int		TAGS_NUMBER = 3;
@@ -108,7 +115,7 @@ class AgentsEntry
 	 * @throws ConfigException If the <i>agent</i> tag is not structured as
 	 * 							expected.
 	 */
-	private Map extractValues(Node agent)
+	private Map<String, String> extractValues(Node agent)
 		throws DOMException, ConfigException
 	{
 		if (!AGENT_TAG.equals(agent.getNodeName()))
@@ -150,7 +157,8 @@ class AgentsEntry
 		if (AGENT_NAME_TAG.equals(tagName) || 
 			AGENT_CLASS_TAG.equals(tagName) ||
 			AGENT_CONFIG_TAG.equals(tagName) || 
-			AGENT_ACTIVE_TAG.equals(tagName)) {
+			AGENT_ACTIVE_TAG.equals(tagName) || 
+			AGENT_NUMBER_TAG.equals(tagName)) {
 				values.put(tagName, tagValue);
 				return;
 			}
@@ -188,7 +196,7 @@ class AgentsEntry
 				NodeList children = node.getChildNodes();
 				int n = children.getLength();
 				Node child;
-				Map childTags;
+				Map<String, String> childTags;
                 AgentInfo info;
 				while (0 < n) {
 					child = children.item(--n);
@@ -202,6 +210,8 @@ class AgentsEntry
 							(String) childTags.get(AGENT_CONFIG_TAG));
 						info.setActive(
 								(String) childTags.get(AGENT_ACTIVE_TAG));
+						info.setNumber(
+								(String) childTags.get(AGENT_NUMBER_TAG));
 						agentsList.add(info);
 					}		 
 				}

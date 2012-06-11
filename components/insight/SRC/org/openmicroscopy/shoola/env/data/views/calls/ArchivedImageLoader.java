@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -59,19 +60,21 @@ public class ArchivedImageLoader
     /**
      * Creates a {@link BatchCall} to retrieve the channels metadata.
      * 
+     * @param ctx The security context.
      * @param pixelsID The ID of the pixels set.
      * @param userID   If the id is specified i.e. not <code>-1</code>, 
      * 				   load the color associated to the channel, 
      * 				   <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID, final String folder) 
+    private BatchCall makeBatchCall(final SecurityContext ctx,
+    		final long pixelsID, final String folder) 
     {
         return new BatchCall("Download the archived files. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.getArchivedImage(folder, pixelsID);
+                result = os.getArchivedImage(ctx, folder, pixelsID);
             }
         };
     }
@@ -93,13 +96,15 @@ public class ArchivedImageLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
-     * @param pixelsID  The Id of the pixels set.
+	 * @param ctx The security context.
+     * @param pixelsID The Id of the pixels set.
      * @param folderPath The location where to download the archived image.
      */
-    public ArchivedImageLoader(long pixelsID, String folderPath)
+    public ArchivedImageLoader(SecurityContext ctx, long pixelsID,
+    		String folderPath)
     {
     	if (pixelsID < 0)
     		 throw new IllegalArgumentException("Pixels ID not valid.");
-        loadCall = makeBatchCall(pixelsID, folderPath);
+        loadCall = makeBatchCall(ctx, pixelsID, folderPath);
     }
 }

@@ -37,6 +37,12 @@ public interface PrincipalHolder {
     public void login(Principal principal);
 
     /**
+     * Allow logging in directly with an event context.
+     * @param bec
+     */
+    public void login(BasicEventContext bec);
+
+    /**
      * Pop the last created principal context and return the number of active
      * contexts remaining.
      */

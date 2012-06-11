@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -64,13 +65,15 @@ public class DiskSpaceLoader
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param type	Either <code>ExperimenterData</code> or
      * 				<code>GroupData</code>.
      * @param id The identifier of the user or the group.
      */
-	public DiskSpaceLoader(Editor viewer, Class type, long id)
+	public DiskSpaceLoader(Editor viewer, SecurityContext ctx, Class type,
+			long id)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (!(ExperimenterData.class.equals(type) ||
 			GroupData.class.equals(type)))
 			throw new IllegalArgumentException("Type can only by " +
@@ -85,7 +88,7 @@ public class DiskSpaceLoader
      */
     public void load()
     { 
-    	handle = adminView.getDiskSpace(type, id, this); 
+    	handle = adminView.getDiskSpace(ctx, type, id, this); 
     }
 
     /** 

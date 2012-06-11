@@ -34,6 +34,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -67,22 +68,25 @@ public class ChannelMetadataLoader
     /**
      * Creates a {@link BatchCall} to retrieve the channels metadata.
      * 
+     * @param ctx The security context.
      * @param pixelsID The ID of the pixels set.
      * @param userID   If the id is specified i.e. not <code>-1</code>, 
      * 				   load the color associated to the channel, 
      * 				   <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID, final long userID) 
+    private BatchCall makeBatchCall(final SecurityContext ctx,
+    		final long pixelsID, final long userID) 
     {
         return new BatchCall("Loading channel Metadata: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                List l = os.getChannelsMetadata(pixelsID);
+                List l = os.getChannelsMetadata(ctx, pixelsID);
                 if (userID >= 0) { //load the rendering settings.
                 	OmeroImageService svc = context.getImageService();
-                	List rnd = svc.getRenderingSettingsFor(pixelsID, userID);
+                	List rnd = svc.getRenderingSettingsFor(ctx,
+                			pixelsID, userID);
                 	Map channels = new HashMap();
                 	Iterator i = l.iterator();
                 	if (rnd != null && rnd.size() > 0) {
@@ -121,16 +125,18 @@ public class ChannelMetadataLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
      * @param pixelsID The Id of the pixels set.
-     * @param userID   If the id is specified i.e. not <code>-1</code>, 
-     * 				   load the color associated to the channel, 
-     * 				   <code>false</code> otherwise.
+     * @param userID If the id is specified i.e. not <code>-1</code>, 
+     *               load the color associated to the channel, 
+     *               <code>false</code> otherwise.
      */
-    public ChannelMetadataLoader(long pixelsID, long userID)
+    public ChannelMetadataLoader(SecurityContext ctx, long pixelsID,
+    		long userID)
     {
     	if (pixelsID < 0)
     		 throw new IllegalArgumentException("Pixels ID not valid.");
-        loadCall = makeBatchCall(pixelsID, userID);
+        loadCall = makeBatchCall(ctx, pixelsID, userID);
     }
     
 }

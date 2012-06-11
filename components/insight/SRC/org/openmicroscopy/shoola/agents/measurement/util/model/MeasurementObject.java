@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * Helper class used to store various object.
@@ -51,11 +52,26 @@ public class MeasurementObject
 	/** Store the passed objects. */
 	protected List<Object>	elements;
 	
-	/** Creates a new instance. */
-	public MeasurementObject()
+	/** The object of reference.*/
+	private ROIShape reference;
+	
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param The object of reference.
+	 */
+	public MeasurementObject(ROIShape reference)
 	{
+		this.reference = reference;
 		elements = new ArrayList<Object>();
 	}
+	
+	/**
+	 * Returns the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	public ROIShape getReference() { return reference; }
 	
 	/**
 	 * Adds the passed element to the collection if not <code>null</code>.
@@ -65,8 +81,7 @@ public class MeasurementObject
 	public void addElement(Object element)
 	{
 		if (element != null) elements.add(element);
-		else
-			elements.add("");
+		else elements.add("");
 	}
 	
 	/**
@@ -93,8 +108,6 @@ public class MeasurementObject
 	{
 		if (index >= 0 || index < elements.size()) 
 			elements.set(index, value);
-		else
-			return;
 	}
 	
 	/**

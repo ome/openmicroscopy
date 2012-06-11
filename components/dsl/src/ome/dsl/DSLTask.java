@@ -144,6 +144,11 @@ public class DSLTask extends Task {
                 }
             }
         } else {
+            java.util.Collections.sort(types, new java.util.Comparator<SemanticType>() {
+                    public int compare(SemanticType lhs, SemanticType rhs) {
+                        return lhs.getShortname().compareTo(rhs.getShortname());
+                    }
+                });
             VelocityHelper vhData = new VelocityHelper();
             vhData.put("types", types);
             try {

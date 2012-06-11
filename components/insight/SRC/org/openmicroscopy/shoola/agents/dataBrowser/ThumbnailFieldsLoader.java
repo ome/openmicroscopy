@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -72,16 +73,17 @@ public class ThumbnailFieldsLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param images The <code>ImageData</code> objects for the images whose 
      *               thumbnails have to be fetched. 
      *               Mustn't be <code>null</code>.
      * @param row	 The row identifying the well.
      * @param column The column identifying the well.
      */
-    public ThumbnailFieldsLoader(DataBrowser viewer, 
+    public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
     				Collection<DataObject> images, int row, int column)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
@@ -96,7 +98,7 @@ public class ThumbnailFieldsLoader
     public void load()
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
-    	handle = hiBrwView.loadThumbnails(images, 
+    	handle = hiBrwView.loadThumbnails(ctx, images, 
                 ThumbnailProvider.THUMB_MAX_WIDTH,
                 ThumbnailProvider.THUMB_MAX_HEIGHT,
                 userID, ThumbnailLoader.IMAGE, this);

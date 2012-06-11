@@ -7,19 +7,22 @@
 
 package ome.services.fulltext;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.util.DetailsFieldBridge;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 /**
  * Library entry-point for indexing. Once the {@link FullTextThread} is properly
@@ -124,7 +127,9 @@ public class FullTextThread extends ExecutionThread {
             DetailsFieldBridge.lock();
             try {
                 DetailsFieldBridge.setFieldBridge(this.bridge);
-                this.executor.execute(getPrincipal(), work);
+                Map<String, String> callContext = new HashMap<String, String>();
+                callContext.put("omero.group", "-1");
+                this.executor.execute(callContext, getPrincipal(), work);
             } finally {
                 DetailsFieldBridge.unlock();
             }

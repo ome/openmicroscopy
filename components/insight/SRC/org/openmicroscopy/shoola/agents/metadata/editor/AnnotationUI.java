@@ -150,7 +150,7 @@ abstract class AnnotationUI
 	 * 
 	 * @return See above.
 	 */
-	protected abstract List<AnnotationData> getAnnotationToRemove();
+	protected abstract List<Object> getAnnotationToRemove();
 	
 	/**
 	 * Returns the collection of annotations to save, or <code>null</code>

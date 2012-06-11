@@ -13,10 +13,9 @@
 
 from django.conf.urls.defaults import *
 
-appmedia = (r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'})
-""" 
-path to media files for webgateway 
-    - path: path to media file
+webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
+"""
+Returns a main prefix
 """
 
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image')
@@ -76,7 +75,7 @@ Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
     - w:    Optional line width of plot
 """
 
-render_thumbnail = (r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail')
+render_thumbnail = url(r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width and max-height.
 See L{views.render_thumbnail}. Uses current rendering settings. 
@@ -84,6 +83,16 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
     - iid:  Image ID
     - w:    Optional max width
     - h:    Optional max height
+"""
+
+render_roi_thumbnail = (r'^render_roi_thumbnail/(?P<roiId>[^/]+)/?$', 'webgateway.views.render_roi_thumbnail')
+"""
+Returns a thumbnail jpeg of the OMERO ROI. See L{views.render_roi_thumbnail}. Uses current rendering settings. 
+"""
+
+render_shape_thumbnail = (r'^render_shape_thumbnail/(?P<shapeId>[^/]+)/?$', 'webgateway.views.render_shape_thumbnail')
+"""
+Returns a thumbnail jpeg of the OMERO Shape. See L{views.render_shape_thumbnail}. Uses current rendering settings. 
 """
 
 render_birds_eye_view = (r'^render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', 'webgateway.views.render_birds_eye_view')
@@ -199,7 +208,7 @@ gets all the ROIs for an Image as json. Image-ID is request: imageId=123
 [{'id':123, 'shapes':[{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10 'height':45} ]
 """
 
-full_viewer = (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer")
+full_viewer = url(r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer", name="webgateway_full_viewer")
 """
 Returns html page displaying full image viewer and image details, rendering settings etc. 
 See L{views.full_viewer}.
@@ -246,12 +255,14 @@ Returns 'true' if switch went OK.
 """
 
 urlpatterns = patterns('',
-    appmedia,
+    webgateway,
     render_image,
     render_image_region,
     render_split_channel,
     render_row_plot,
     render_col_plot,
+    render_roi_thumbnail,
+    render_shape_thumbnail,
     render_thumbnail,
     render_birds_eye_view,
     render_ome_tiff,
@@ -281,7 +292,6 @@ urlpatterns = patterns('',
     webgateway_su,
     
     # Debug stuff
-    (r'^dbg_connectors/$', 'webgateway.views.dbg_connectors'),
 
 )
 

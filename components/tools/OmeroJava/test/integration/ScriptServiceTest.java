@@ -50,7 +50,7 @@ import omero.model.OriginalFile;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class ScriptServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     /**

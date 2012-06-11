@@ -21,8 +21,9 @@ See LICENSE for details.
 """
 
 sys = __import__("sys")
+cmd = __import__("cmd")
 
-import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
+import string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
@@ -184,8 +185,19 @@ class NewFileType(FileType):
     overwrite existing files.
     """
     def __call__(self, string):
-        if os.path.exists(string):
+        if string != "-" and os.path.exists(string):
             raise ValueError("File exists: %s" % string)
+        return FileType.__call__(self, string)
+
+
+class ExistingFile(FileType):
+    """
+    Extension of the argparse.FileType that requires
+    an existing file.
+    """
+    def __call__(self, string):
+        if not os.path.exists(string):
+            raise ValueError("File does not exist: %s" % string)
         return FileType.__call__(self, string)
 
 

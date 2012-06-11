@@ -4,10 +4,12 @@
 omero.db.port=5432
 omero.db.driver=org.postgresql.Driver
 omero.db.driver_type=UNUSED
-omero.db.dialect=org.hibernate.dialect.PostgreSQLDialect
+omero.db.dialect=ome.tools.hibernate.PostgresqlDialect
 omero.db.sql_action_class=ome.util.actions.PostgresSqlAction
 omero.db.lob_handler=org.springframework.jdbc.support.lob.DefaultLobHandler
 omero.db.jar=postgresql
-omero.db.jar_version=8.3-604.jdbc3
+omero.db.jar_version=9.1-901.jdbc3
 omero.db.delimiter=;;
 omero.db.defer=
+omero.db.temp_ids=false
+omero.security.filter.bitand=(int8and(permissions,%s) = %s)

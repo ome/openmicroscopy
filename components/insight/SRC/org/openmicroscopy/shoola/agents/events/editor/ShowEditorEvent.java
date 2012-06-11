@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.events.editor;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
 
@@ -61,32 +62,42 @@ public class ShowEditorEvent
 	private DataObject parent;
 	
 	/** The name of the file. */
-	private String		name;
+	private String name;
 	
 	/** The type of editor file to create. */
-	private int			type;
+	private int type;
 	
-	/** Creates a new instance. */
-	public ShowEditorEvent()
+	/** The security context.*/
+	private SecurityContext ctx;
+	
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param ctx The security context.
+	 */
+	public ShowEditorEvent(SecurityContext ctx)
 	{
 		type = PROTOCOL;
 		parent = null;
+		this.ctx = ctx;
 	}
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
+	 * @param ctx The security context.
 	 * @param parent The data object the new experiment should be linked to. 
 	 * @param name   The name to give to the experiment.
 	 * @param type	 One of the constants defined by this class.
 	 */
-	public ShowEditorEvent(DataObject parent, String name, int type)
+	public ShowEditorEvent(SecurityContext ctx, DataObject parent, String name,
+			int type)
 	{
 		this.parent = parent;
 		this.name = name;
-		if (type == PROTOCOL || type == EXPERIMENT)
-			this.type = type;
+		if (type == PROTOCOL || type == EXPERIMENT) this.type = type;
 		else this.type = PROTOCOL;
+		this.ctx = ctx;
 	} 
 	
 	/**
@@ -110,5 +121,11 @@ public class ShowEditorEvent
 	 */
 	public int getType() { return type; }
 
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
 } 
 

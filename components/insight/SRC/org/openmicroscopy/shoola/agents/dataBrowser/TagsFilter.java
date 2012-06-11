@@ -35,6 +35,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.TagAnnotationData;
@@ -68,26 +69,27 @@ public class TagsFilter
     private Class					nodeType;
     
     /** The collection of tags to search for. */
-    private List<String> 			tags;
+    private List<String> tags;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle				handle;
-    
+    private CallHandle handle;
+
     /**
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param tags		The collection of tags to filter by.
      * 					If <code>null</code> or <code>empty</code>
      *					retrieve the uncommented objects.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public TagsFilter(DataBrowser viewer, List<String> tags, 
-					Collection<DataObject> nodes)
+	public TagsFilter(DataBrowser viewer, SecurityContext ctx, 
+			List<String> tags, Collection<DataObject> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
 		this.tags = tags;
@@ -110,13 +112,13 @@ public class TagsFilter
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Loads the tags for the specified nodes.
+	 * Filters by specified tags
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterByAnnotation(nodeType, nodeIds, 
+		long userID = -1;
+		handle = mhView.filterByAnnotation(ctx, nodeType, nodeIds, 
 							TagAnnotationData.class, tags, userID, this);
 	}
 	

@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+import java.io.File;
+
 
 //Java imports
 
@@ -63,6 +65,9 @@ public class MessengerDetails
 	/** Flag indicating to submit the exception but not the files. */
 	private boolean exceptionOnly;
 	
+	/** The log file to submit.*/
+	private File logFile;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -75,6 +80,7 @@ public class MessengerDetails
 		this.comment = comment;
 		error = null;
 		exceptionOnly = false;
+		logFile = null;
 	}
 
 	/**
@@ -115,7 +121,10 @@ public class MessengerDetails
 	 * 
 	 * @return See above.
 	 */
-	public boolean isExceptionOnly() { return exceptionOnly; }
+	public boolean isExceptionOnly()
+	{ 
+		return exceptionOnly && (logFile == null); 
+	}
 	
 	/** 
 	 * Returns the object to submit.
@@ -151,5 +160,30 @@ public class MessengerDetails
 	 * @param extra The value to set.
 	 */
 	public void setExtra(String extra) { this.extra = extra; }
+	
+	/**
+	 * Sets the flag indicating to submit the log file.
+	 * 
+	 * @param logFile The log file to send or <code>null</code>.
+	 */
+	public void setLogFile(File logFile)
+	{
+		this.logFile = logFile;
+	}
+	
+	/**
+	 * Returns the log file or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public File getLogFile() { return logFile; }
+	
+	/**
+	 * Returns <code>true</code> if the main file has to be submitted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSubmitMainFile() { return !exceptionOnly; }
 
 }

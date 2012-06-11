@@ -37,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -60,20 +61,23 @@ public class ExperimenterImagesCounter
 {
 
 	/** The id of the user the count is for. */
-	private long 						userID;
+	private long userID;
 
 	/** The lastly retrieved count along side the index. */
-	private Map<Integer, Object>		result;
+	private Map<Integer, Object> result;
 
 	/** The nodes to handle. */
 	private Map<Integer, TimeRefObject> nodes;
 
 	/** Helper reference to the data service. */
-	private OmeroDataService 			os;
+	private OmeroDataService os;
 
 	/** Helper reference to the metadata service. */
-	private OmeroMetadataService 		ms;
+	private OmeroMetadataService ms;
 	
+	/** The security context.*/
+    private SecurityContext ctx;
+    
 	/** 
 	 * Counts the number of images imported during a given period of time.
 	 * 
@@ -88,11 +92,11 @@ public class ExperimenterImagesCounter
 			Collection l;
 			result = new HashMap<Integer, Object>(1);
 			if (start == null || end == null) {
-				l = os.getImagesPeriod(start, end, userID, false);
+				l = os.getImagesPeriod(ctx, start, end, userID, false);
 				if (l != null) number = l.size();
 				result.put(index, number);
 			} else {
-				l = os.getImagesAllPeriodCount(start, end, userID);
+				l = os.getImagesAllPeriodCount(ctx, start, end, userID);
 				result.put(index, l);
 			}
 		} catch (Exception e) {
@@ -114,7 +118,7 @@ public class ExperimenterImagesCounter
 	{
 		try {
 			result = new HashMap<Integer, Object>();
-			result.put(index, ms.countFileType(userID, type));
+			result.put(index, ms.countFileType(ctx, userID, type));
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Cannot count the number of items imported during the " +
@@ -180,14 +184,17 @@ public class ExperimenterImagesCounter
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param userID	The id of the user the count is for.
-	 * @param m		The elements to handle.
+	 * @param ctx The security context.
+	 * @param userID The id of the user the count is for.
+	 * @param m The elements to handle.
 	 */
-	public ExperimenterImagesCounter(long userID, Map<Integer, TimeRefObject> m)
+	public ExperimenterImagesCounter(SecurityContext ctx, long userID,
+			Map<Integer, TimeRefObject> m)
 	{
 		if (m == null || m.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		this.userID = userID;
+		this.ctx = ctx;
 		nodes = m;
 		os = context.getDataService();
 		ms = context.getMetadataService();

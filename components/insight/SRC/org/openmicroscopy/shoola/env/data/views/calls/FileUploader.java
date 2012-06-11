@@ -67,6 +67,21 @@ public class FileUploader
 	/** Partial result. Returns the uploaded file. */
 	private Object uploadedFile;
 	
+	/** The URL where to obtain a token. */
+	private String tokenURL;
+	
+	/** The URL where to submit the files.*/
+	private String processURL;
+	
+	/** The application number to submit bug. */
+	private String appName;
+	
+	/** The time to wait for.*/
+	private int timeout;
+	
+	/** The version of the server.*/
+	private String version;
+	
 	/**
 	 * Uploads the specified files to the server.
 	 * 
@@ -74,30 +89,23 @@ public class FileUploader
 	 */
 	private void uploadFile(ImportErrorObject object)
 	{
-		String tokenURL = (String) context.lookup(LookupNames.TOKEN_URL);
-		String processURL = 
-			(String) context.lookup(LookupNames.PROCESSING_URL);
-		String appName = 
-			(String) context.lookup(LookupNames.APPLICATION_NAME_BUG);
-		int timeout = (Integer) context.lookup(LookupNames.POST_TIMEOUT);
-		Object version = context.lookup(LookupNames.VERSION);
-		String v = "";
-    	if (version != null && version instanceof String)
-    		v = (String) version;
-
 		try {
 			Communicator c; 
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
 			StringBuilder token = new StringBuilder();
-
+			Exception e = object.getException();
+			String es = "";
+			if (e != null) es = e.toString();
 			if (details.isExceptionOnly()) {
 				c.submitError("",
-						details.getEmail(), details.getComment(), 
-						details.getExtra(), object.getException().toString(), 
-						appName, v, token);
+						details.getEmail(), details.getComment(),
+						details.getExtra(), es, appName, version, token);
 			} else {
+				File f = null;
+				if (details.isSubmitMainFile())
+					f = object.getFile();
 				String[] usedFiles = object.getUsedFiles();
 				List<File> additionalFiles = null;
 				if (usedFiles != null && usedFiles.length > 0) {
@@ -106,26 +114,32 @@ public class FileUploader
 						additionalFiles.add(new File(usedFiles[i]));
 					}
 				}
+				
 				c.submitFilesError("",
-						details.getEmail(), details.getComment(), 
-						details.getExtra(), object.getException().toString(), 
-						appName, v, object.getFile(), additionalFiles, token);
+						details.getEmail(), details.getComment(),
+						details.getExtra(), es, appName, version,
+						f, additionalFiles, token);
 				desc = new CommunicatorDescriptor(
-						HttpChannel.CONNECTION_PER_REQUEST, processURL, 
+						HttpChannel.CONNECTION_PER_REQUEST, processURL,
 						timeout);
 				c = SvcRegistry.getCommunicator(desc);
 				StringBuilder reply = new StringBuilder();
 				String reader = object.getReaderType();
-				if (object.getFile() != null)
-					c.submitFile(token.toString(), object.getFile(), reader, reply);
+				if (f != null)
+					c.submitFile(token.toString(), f, reader, reply);
 				if (additionalFiles != null) {
 					Iterator<File> i = additionalFiles.iterator();
+					File log = details.getLogFile();
+					String logs = "";
+					if (log != null) logs = log.getAbsolutePath();
 					while (i.hasNext()) {
-						c.submitFile(token.toString(), i.next(), reader, reply);
+						f = i.next();
+						if (f.getAbsolutePath().equals(logs))
+							c.submitFile(token.toString(), f, null, reply);
+						else c.submitFile(token.toString(), f, null, reply);
 					}
 				}
 			}
-			
 			uploadedFile = object;
 		} catch (Exception e) {
 		}
@@ -180,6 +194,14 @@ public class FileUploader
     	if (details == null)
     		throw new IllegalArgumentException("No files to submit.");
     	this.details = details;
+    	tokenURL = (String) context.lookup(LookupNames.TOKEN_URL);
+		processURL = (String) context.lookup(LookupNames.PROCESSING_URL);
+		appName = (String) context.lookup(LookupNames.APPLICATION_NAME_BUG);
+		timeout = (Integer) context.lookup(LookupNames.POST_TIMEOUT);
+		Object v = context.lookup(LookupNames.VERSION);
+		version = "";
+    	if (v != null && v instanceof String)
+    		version = (String) v;
     }
     
 }

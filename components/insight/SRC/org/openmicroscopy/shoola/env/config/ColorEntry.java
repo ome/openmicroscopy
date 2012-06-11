@@ -123,7 +123,7 @@ class ColorEntry
      *                      the tags contained within the entry tag.
      * @return See above.
      */
-    private int getRedComponent(Map colorAttributes)
+    private int getRedComponent(Map<String, String> colorAttributes)
     {
         String value = (String) colorAttributes.get(RED_TAG);
         return parseValue(value, DEFAULT_RED);
@@ -142,7 +142,7 @@ class ColorEntry
      *                      the tags contained within the entry tag.
      * @return See above.
      */
-    private int getGreenComponent(Map colorAttributes)
+    private int getGreenComponent(Map<String, String> colorAttributes)
     {
         String value = (String) colorAttributes.get(GREEN_TAG);
         return parseValue(value, DEFAULT_GREEN);
@@ -161,7 +161,7 @@ class ColorEntry
      *                      the tags contained within the entry tag.
      * @return See above.
      */
-    private int getBlueComponent(Map colorAttributes)
+    private int getBlueComponent(Map<String, String> colorAttributes)
     {
         String value = (String) colorAttributes.get(BLUE_TAG);
         return parseValue(value, DEFAULT_BLUE);
@@ -198,7 +198,7 @@ class ColorEntry
      * @throws ConfigException If the <i>font</i> tag is not structured as
      *                          expected.
      */
-    private Map extractValues(Node entry)
+    private Map<String, String> extractValues(Node entry)
         throws DOMException, ConfigException
     {
         Map<String, String> tags = new HashMap<String, String>();
@@ -265,7 +265,7 @@ class ColorEntry
             throws ConfigException
     {
         try {
-            Map tags = extractValues(tag);
+            Map<String, String> tags = extractValues(tag);
             value = new Color(getRedComponent(tags), getGreenComponent(tags), 
                         getBlueComponent(tags));
         } catch (DOMException dex) { 

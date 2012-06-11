@@ -35,6 +35,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -85,13 +86,14 @@ public class ExistingObjectsSaver
      * 
      * @param viewer    The TreeViewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param parent    The data object to update.
      * @param children  The items to add to the data object.
      */
-    public ExistingObjectsSaver(TreeViewer viewer, DataObject parent,
-                                Set children)
+    public ExistingObjectsSaver(TreeViewer viewer, SecurityContext ctx,
+    		DataObject parent, Set children)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (parent == null)
             throw new IllegalArgumentException("Data object cannot be null"); 
         if (children == null || children.size() == 0)
@@ -109,7 +111,7 @@ public class ExistingObjectsSaver
     {
     	List l = new ArrayList();
     	l.add(parent);
-        handle = dmView.addExistingObjects(l, children, this);
+        handle = dmView.addExistingObjects(ctx, l, children, this);
     }
 
     /** 

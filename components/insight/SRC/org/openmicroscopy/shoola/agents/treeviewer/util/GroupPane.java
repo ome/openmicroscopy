@@ -27,10 +27,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -63,13 +65,13 @@ class GroupPane
 {
 
 	/** Component used when creating the owner of the group.*/
-	private ExperimenterPane 	expPane;
+	private ExperimenterPane expPane;
 	
     /** The mandatory name. */
-    private JTextField			descriptionArea;
+    private JTextField descriptionArea;
     
     /** The component displaying the permissions options. */
-    private PermissionsPane		permissions;
+    private PermissionsPane permissions;
 
     /** Initializes the components. */
     private void initComponents()
@@ -81,6 +83,15 @@ class GroupPane
     	expPane = new ExperimenterPane(false, null, null);
     	expPane.setBorder(
 				BorderFactory.createTitledBorder("Owner"));
+    	expPane.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(
+						evt.getPropertyName()))
+				firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY,
+						evt.getOldValue(), evt.getNewValue());
+			}
+		});
     }
     
     /**
@@ -94,8 +105,7 @@ class GroupPane
         content.setLayout(new GridBagLayout());
     	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GridBagConstraints c = new GridBagConstraints();
-    	JLabel label = UIUtilities.setTextFont("Name"+
-        		EditorUtil.MANDATORY_SYMBOL);
+    	JComponent label = EditorUtil.getLabel("Name", true);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -158,6 +168,19 @@ class GroupPane
 		initComponents();
 		buildGUI();
 	}
+	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRequiredFields()
+	{
+		int count = 0;
+		if (expPane.hasLoginName()) count++;
+		if (isNameValid()) count++;
+		return count == 2;
+	}
 	
 	/**
 	 * Returns the object to save.
@@ -174,5 +197,5 @@ class GroupPane
 		object.setPermissions(permissions.getPermissions());
 		return object;
 	}
-	
+
 }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<head>
+
+    {% block link %}
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="{% static "webgateway/css/reset.css" %}" type="text/css" />   
+		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css" %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "webclient/css/dusty.css" %}" type="text/css" media="screen"/>
+		
+    {% endblock %}
+
+
+    <!-- extend here to add page title -->
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+
+    {% block script %}
+        <!-- block for javascript <script> -->
+    {% endblock %}
+
+    {% block head %}
+        <!-- block for extra head elements (not css or javascript) E.g. icon, meta tags -->
+        {% include "webgateway/base/includes/shortcut_icon.html" %}
+    {% endblock %}
+
+</head>
+<body>
+
+{% block body %}
+
+{% endblock %}
+
+</body>
+</html>

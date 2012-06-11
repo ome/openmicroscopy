@@ -82,8 +82,8 @@ class TestRPS(lib.ITest):
         us a MissingPyramidException
         """
         from omero.util import concurrency
-        pix = self.missing_pyramid()
-        rps = self.client.sf.createRawPixelsStore()
+        pix = self.missing_pyramid(self.root)
+        rps = self.root.sf.createRawPixelsStore()
         try:
             # First execution should certainly fail
             try:
@@ -98,6 +98,41 @@ class TestRPS(lib.ITest):
             while i > 0 and not success:
                 try:
                     rps.setPixelsId(pix.id.val, True)
+                    success = True
+                except omero.MissingPyramidException, mpm:
+                    self.assertEquals(pix.id.val, mpm.pixelsID)
+                    backOff = mpm.backOff/1000
+                    event = concurrency.get_event("testRomio")
+                    event.wait(backOff) # seconds
+                i -=1
+            self.assert_(success)
+        finally:
+            rps.close()
+
+    def testRomioToPyramidWithNegOne(self):
+        """
+        Here we try the above but pass omero.group:-1
+        to see if we can cause an exception.
+        """
+        all_context = {"omero.group":"-1"}
+
+        from omero.util import concurrency
+        pix = self.missing_pyramid(self.root)
+        rps = self.root.sf.createRawPixelsStore(all_context)
+        try:
+            # First execution should certainly fail
+            try:
+                rps.setPixelsId(pix.id.val, True, all_context)
+                fail("Should throw!")
+            except omero.MissingPyramidException, mpm:
+                self.assertEquals(pix.id.val, mpm.pixelsID)
+
+            # Eventually, however, it should be generated
+            i = 10
+            success = False
+            while i > 0 and not success:
+                try:
+                    rps.setPixelsId(pix.id.val, True, all_context)
                     success = True
                 except omero.MissingPyramidException, mpm:
                     self.assertEquals(pix.id.val, mpm.pixelsID)

@@ -80,6 +80,13 @@ public interface Browser
 		"selectedDataBrowserNodeDisplay";
 	
 	/** 
+	 * Bound property name indicating {@link ImageDisplay} objects have been
+	 * selected in the visualization tree. 
+	 */
+	public static final String SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY = 
+		"selectedDataBrowserNodesDisplay";
+	
+	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * unselected in the visualization tree. 
 	 */
@@ -117,6 +124,9 @@ public interface Browser
 
 	/** Bound property indicating to view the specified note. */
 	public static final String  VIEW_DISPLAY_PROPERTY = "viewDisplay";
+	
+	/** Bound property indicating to view the specified note. */
+	public static final String  MAIN_VIEW_DISPLAY_PROPERTY = "mainViewDisplay";
 	
 	/**
 	 * Returns the node, if any, that is currently selected in the 
@@ -380,8 +390,10 @@ public interface Browser
 	 * Views the passed node.
 	 * 
 	 * @param node The node to view.
+	 * @param internal Pass <code>true</code> to open in the internal viewer,
+	 * <code>false</code> otherwise. This only applies for images.
 	 */
-	public void viewDisplay(ImageDisplay node);
+	public void viewDisplay(ImageDisplay node, boolean internal);
 	
 	/** 
 	 * Sets the passed title in the header of the browser.
@@ -439,4 +451,11 @@ public interface Browser
 	 */
 	public void scrollToNode(ImageDisplay node);
 	
+	/**
+	 * Sets the nodes selected via multi-selection.
+	 * 
+	 * @param nodes The selected nodes. 
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes);
+
 }

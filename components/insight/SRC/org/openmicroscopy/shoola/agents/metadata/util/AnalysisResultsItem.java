@@ -441,7 +441,8 @@ public class AnalysisResultsItem
 			IconManager icons = IconManager.getInstance();
 			DownloadAndZipParam param = new DownloadAndZipParam(attachments, 
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(param);
+			//TODO: review
+			//un.notifyActivity(param);
 		}
 	}
 	

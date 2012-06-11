@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script will shell into an OMERO.VM
 
-KEY="omerokey"
+KEY="omerovmkey"
 USER="omero"
 HOST="localhost"
 PORT="2222"

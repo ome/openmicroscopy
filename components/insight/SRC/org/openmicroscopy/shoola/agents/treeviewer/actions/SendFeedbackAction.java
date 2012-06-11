@@ -103,7 +103,7 @@ public class SendFeedbackAction
         	setEnabled(false);
         	return;
         }
-        setEnabled(ho instanceof ImageData);	
+        setEnabled(ho instanceof ImageData);
 	}
 	
     /**

@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -70,16 +71,17 @@ public class DataObjectCreator
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param parent	The parent of the <code>DataObject</code> to create
      * 					or <code>null</code>.
      * @param data		The <code>DataObject</code> to create.
      * 					Mustn't be <code>null</code>.
      * @param children	The nodes to add to the newly created object.
      */
-    public DataObjectCreator(DataBrowser viewer, DataObject parent, 
-    						DataObject data, Collection children)
+    public DataObjectCreator(DataBrowser viewer, SecurityContext ctx,
+    	DataObject parent, DataObject data, Collection children)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	if (data == null) 
     		throw new IllegalArgumentException("No object to create.");
     	this.data = data;
@@ -99,7 +101,7 @@ public class DataObjectCreator
 	 */
 	public void load()
 	{
-		handle = mhView.createDataObject(parent, data, children, this);
+		handle = mhView.createDataObject(ctx, parent, data, children, this);
 	}
 	
 	/**

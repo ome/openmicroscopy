@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -62,16 +63,18 @@ public class ServerSideROILoader
      * load those ROIs. If there are no ROI, the measurement tool will check
      * to see if there is an XML ROI file to load roi's from. 
      * 
+     * @param ctx The security context.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
      */
-    private BatchCall makeLoadCalls(final long imageID, final long userID)
+    private BatchCall makeLoadCalls(final SecurityContext ctx, 
+    	final long imageID, final long userID)
     {
     	return new BatchCall("load ROI From Server") {
     		            public void doCall() throws Exception
             {
     		    OmeroImageService svc = context.getImageService();
-    		    results = svc.loadROIFromServer(imageID, userID);
+    		    results = svc.loadROIFromServer(ctx, imageID, userID);
             }
         };
     }
@@ -91,14 +94,13 @@ public class ServerSideROILoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param imageID 	The image's ID.
-	 * @param userID	The user's ID.
+	 * @param ctx The security context.
+	 * @param imageID The image's ID.
+	 * @param userID The user's ID.
 	 */
-	public ServerSideROILoader(long imageID, long userID)
+	public ServerSideROILoader(SecurityContext ctx, long imageID, long userID)
 	{
-		loadCall = makeLoadCalls(imageID, userID);
+		loadCall = makeLoadCalls(ctx, imageID, userID);
 	}
-	
+
 }
-
-

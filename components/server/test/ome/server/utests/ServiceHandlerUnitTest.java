@@ -63,6 +63,13 @@ public class ServiceHandlerUnitTest extends MockObjectTestCase {
         map.put("a","b");
         str = sh.getResultsString(map, null);
         assertEquals("{a=b}", str);
-        
+
+        // Arrays of arrays
+        Object[][] objs = new Object[3][];
+        objs[0] = new Object[]{1,2,3};
+        objs[1] = new Object[]{4,5,6};
+        objs[2] = new Object[]{7,8,9};
+        str = sh.getResultsString(objs, null);
+        assertEquals("[[1, 2, 3], [4, 5, 6], [7, 8, 9]]", str);
     }
 }

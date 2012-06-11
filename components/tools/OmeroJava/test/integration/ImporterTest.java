@@ -34,10 +34,13 @@ import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experiment;
+import omero.model.ExperimenterGroup;
 import omero.model.Filament;
 import omero.model.Filter;
 import omero.model.IObject;
@@ -72,7 +75,11 @@ import omero.model.TransmittanceRange;
 import omero.model.Well;
 import omero.model.WellReagentLink;
 import omero.model.WellSample;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
+
+import spec.XMLMockObjects;
+import spec.XMLWriter;
 
 /** 
  * Collection of tests to import images.
@@ -89,7 +96,7 @@ import omero.sys.ParametersI;
  */
 @Test(groups = {"import", "integration"})
 public class ImporterTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
 	/** The collection of files that have to be deleted. */
@@ -604,7 +611,7 @@ public class ImporterTest
 
 	/**
 	 * Overridden to initialize the list.
-	 * @see AbstractTest#setUp()
+	 * @see AbstractServerTest#setUp()
 	 */
     @Override
     @BeforeClass
@@ -617,7 +624,7 @@ public class ImporterTest
     
 	/**
 	 * Overridden to delete the files.
-	 * @see AbstractTest#tearDown()
+	 * @see AbstractServerTest#tearDown()
 	 */
     @Override
     @AfterClass
@@ -1450,4 +1457,118 @@ public class ImporterTest
 				screen.copyReagents().get(0).getId().getValue());
 	}
 	
+	/**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoDataset()
+		throws Exception
+	{
+    	//First create a dataset
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		
+		//Now check that we have an image link.
+		ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select i from DatasetImageLink as i where i.parent.id = :id";
+    	DatasetImageLink link = (DatasetImageLink) 
+    	iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	assertEquals(link.getChild().getId().getValue(), id);
+	}
+
+	/**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoDatasetFromOtherGroup()
+		throws Exception
+	{
+    	EventContext ownerEc = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	
+    	//group owner deletes it
+		disconnect();
+    	//First create a dataset
+		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
+		assertTrue(group.getId().getValue() != ownerEc.groupId);
+    	//newUserInGroup(ownerEc);
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		
+		//Now check that we have an image link.
+		ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select i from DatasetImageLink as i where i.parent.id = :id";
+    	DatasetImageLink link = (DatasetImageLink) 
+    	iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	assertEquals(link.getChild().getId().getValue(), id);
+	}
+
+    /**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoWrongDataset()
+		throws Exception
+	{
+    	EventContext ownerEc = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	d.setId(omero.rtypes.rlong(d.getId().getValue()*100));
+    	//group owner deletes it
+		disconnect();
+    	//First create a dataset
+		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
+		assertTrue(group.getId().getValue() != ownerEc.groupId);
+    	//newUserInGroup(ownerEc);
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+			fail("An exception should have been thrown");
+		} catch (Throwable e) {
+		}
+	}
+
 }

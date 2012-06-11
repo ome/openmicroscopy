@@ -10,7 +10,13 @@ package ome.services.blitz.impl;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Ice.Current;
+
 import ome.services.procs.scripts.ScriptProcess;
+
 import omero.RInt;
 import omero.RType;
 import omero.ServerError;
@@ -23,26 +29,24 @@ import omero.grid.ProcessCallbackPrx;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.ScriptProcessPrxHelper;
-import omero.grid._ScriptProcessDisp;
+import omero.grid._InteractiveProcessorOperations;
+import omero.grid._ScriptProcessOperations;
+import omero.grid._ScriptProcessTie;
 import omero.model.ScriptJob;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Ice.Current;
 
 /**
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
  */
-public class ScriptProcessI extends _ScriptProcessDisp {
+public class ScriptProcessI extends AbstractAmdServant
+    implements _ScriptProcessOperations {
 
     private static Log log = LogFactory.getLog(ScriptProcess.class);
 
     private final InteractiveProcessorPrx processorPrx;
 
-    private final InteractiveProcessorI processor;
+    private final _InteractiveProcessorOperations processor;
 
     private final ProcessPrx process;
 
@@ -57,17 +61,19 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     private final long jobId;
 
     public ScriptProcessI(ServiceFactoryI sf, Ice.Current current,
-            InteractiveProcessorPrx processorPrx, InteractiveProcessorI processor, ProcessPrx process)
+            InteractiveProcessorPrx processorPrx,
+            _InteractiveProcessorOperations processor, ProcessPrx process)
             throws ServerError {
-        this.jobId = processor.getJob().getId().getValue();
+        super(null, null);
+        this.jobId = processor.getJob(current).getId().getValue();
         this.processorPrx = processorPrx;
         this.processor = processor;
         this.process = process;
         this.sf = sf;
-        this.cb = new ProcessCallbackI(sf.getAdapter(), process);
+        this.cb = new ProcessCallbackI(sf.getAdapter(), "ProcessCallback", process);
         this.id = new Ice.Identity(UUID.randomUUID().toString(), PROCESSCALLBACK.value);
         this.self = ScriptProcessPrxHelper.uncheckedCast(
-                sf.registerServant(this.id, this));
+                sf.registerServant(this.id, new _ScriptProcessTie(this)));
         sf.allow(this.self);
     }
 
@@ -109,7 +115,7 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     public String setMessage(String message, Current __current)
             throws ServerError {
 
-        JobHandlePrx jh = sf.createJobHandle();
+        JobHandlePrx jh = sf.createJobHandle(null);
         try {
             jh.attach(jobId);
             return jh.setMessage(message);

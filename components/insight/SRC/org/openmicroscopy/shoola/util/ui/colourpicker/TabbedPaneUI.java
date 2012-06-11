@@ -29,6 +29,8 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -70,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 class TabbedPaneUI
 	extends JPanel
-	implements ChangeListener, DocumentListener
+	implements ActionListener, ChangeListener, DocumentListener
 {
 	
 	/** The number of column of the label displaying the alpha value. */
@@ -84,6 +86,18 @@ class TabbedPaneUI
 	
 	/** Used by card layout to select swatch panel. */
 	private static final String SWATCHPANE = "Swatch Pane"; 	
+	
+	/** Action id to preview the color changes.*/
+	private static final int	PREVIEW = 0;
+	
+	/** Action id to cancel and close the dialog.*/
+	private static final int	CANCEL = 1;
+	
+	/** Action id to accept the color changes.*/
+	private static final int	ACCEPT = 2;
+	
+	/** Action id to revert the color changes.*/
+	private static final int	REVERT = 3;
 	
 	/**
 	 * Toolbar contains the buttons to select the HSVWheelUI, RGB Selector
@@ -108,6 +122,9 @@ class TabbedPaneUI
 	
 	/** Accept the current colour choice. */
 	private JButton				acceptButton;
+	
+	/** Accept the current colour choice. */
+	private JButton				previewButton;
 
 	/** Revert to the original colour chosen by the user. */
 	private JButton				revertButton;
@@ -150,6 +167,9 @@ class TabbedPaneUI
     
     /** The original description of the color. */
     private String				originalDescription;
+    
+    /** Flag indicating that the preview button was clicked.*/
+    private boolean preview;
     
     /** 
      * The toolbar controls which panel is active, the user has the choice
@@ -226,32 +246,32 @@ class TabbedPaneUI
         userActionPanel = new JPanel();
         userActionPanel.setLayout(new FlowLayout());
         
+        //accept
         acceptButton = new JButton("Accept");
         acceptButton.setToolTipText("Accept the selected colour.");
-        AbstractAction action = new AbstractAction("Accept Button Action") 
-        {
-            public void actionPerformed(ActionEvent evt) { parent.accept(); }
-        };
+        acceptButton.setActionCommand(""+ACCEPT);
+        acceptButton.addActionListener(this);
         
-        acceptButton.addActionListener(action);
-        
+        //revert
         revertButton = new JButton("Revert");
         revertButton.setToolTipText("Revert to the original colour.");
-        action = new AbstractAction("Revert Button Action") 
-        {
-            public void actionPerformed(ActionEvent evt)  { revertAction(); }
-        };
-        revertButton.addActionListener(action);
+        revertButton.setActionCommand(""+REVERT);
+        revertButton.addActionListener(this);
+        
+        //cancel
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Close the Colour Picker.");
-        //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
-        //cancelButton.setBorderPainted(true);
-        action = new AbstractAction("Cancel Button Action") 
-        {
-            public void actionPerformed(ActionEvent evt) { parent.cancel(); }
-        };
-        cancelButton.addActionListener(action);
+        cancelButton.setActionCommand(""+CANCEL);
+        cancelButton.addActionListener(this);
         
+        //preview
+        previewButton = new JButton("Preview");
+        previewButton.setToolTipText("Preview the color change.");
+        previewButton.setActionCommand(""+PREVIEW);
+        previewButton.addActionListener(this);
+        previewButton.setVisible(false);
+        
+        userActionPanel.add(previewButton);
         userActionPanel.add(acceptButton);
         userActionPanel.add(revertButton);
         userActionPanel.add(cancelButton);
@@ -392,6 +412,7 @@ class TabbedPaneUI
 	{
 		acceptButton.setEnabled(enabled);
 		revertButton.setEnabled(enabled);
+		previewButton.setEnabled(enabled);
 		if (enabled) parent.getRootPane().setDefaultButton(acceptButton);
 		else parent.getRootPane().setDefaultButton(cancelButton);
 	}
@@ -404,6 +425,11 @@ class TabbedPaneUI
 	{ 
 		control.revert(); 
 		swatchPane.revert();
+		//Check if preview was 
+		if (preview) {
+			preview = false;
+			parent.reset();
+		}
 	}
 
 	/** 
@@ -430,6 +456,17 @@ class TabbedPaneUI
 		originalDescription = description;
 		fieldDescription.setText(description);
 		fieldDescription.getDocument().addDocumentListener(this);
+	}
+	
+	/**
+	 * Shows or hides the preview button.
+	 * 
+	 * @param visible Pass <code>true</code> to show the preview button,
+	 * 				  <code>false</code> otherwise.
+	 */
+	void setPreviewVisible(boolean visible)
+	{
+		previewButton.setVisible(visible);
 	}
 	
 	/** 
@@ -477,6 +514,29 @@ class TabbedPaneUI
 				!control.isOriginalColour());
 	}
 
+	/**
+	 * Reacts to button clicks.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int v = Integer.parseInt(e.getActionCommand());
+		switch (v) {
+			case CANCEL:
+				parent.cancel();
+				break;
+			case REVERT:
+				revertAction();
+				break;
+			case ACCEPT:
+				parent.accept();
+				break;
+			case PREVIEW:
+				preview = true;
+				parent.preview();
+		}
+	}
+	
 	/**
 	 * Required by the {@link DocumentListener} I/F but no-operation
 	 * implementation in our case.

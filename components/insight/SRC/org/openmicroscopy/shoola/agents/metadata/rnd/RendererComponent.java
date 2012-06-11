@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +44,15 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -103,6 +110,9 @@ class RendererComponent
 	/** List of active channels before switching between color mode. */
 	private List            historyActiveChannels;
 
+	/** The color changes preview.*/
+    private Map<Integer, Color>	colorChanges;
+    
 	/**
 	 * Notifies the user than an error occurred while trying to modify the 
 	 * rendering settings and dispose of the viewer 
@@ -477,10 +487,25 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setChannelColor(int, Color)
+     * @see Renderer#setChannelColor(int, Color, boolean)
      */
-	public void setChannelColor(int index, Color color)
+	public void setChannelColor(int index, Color color, boolean preview)
 	{
+		if (preview) {
+			if (colorChanges == null)
+				colorChanges = new HashMap<Integer, Color>();
+			if (color == null) {
+				color = colorChanges.get(index); //reset the color.
+				colorChanges.clear();
+			} else {
+				if (!colorChanges.containsKey(index))
+					colorChanges.put(index, model.getChannelColor(index));
+			}
+		} else {
+			if (colorChanges != null)
+				colorChanges.remove(index);
+		}
+		if (color == null) return;
 		try {
 			model.setChannelColor(index, color);
 			view.setChannelColor(index);
@@ -1134,12 +1159,28 @@ class RendererComponent
 		}
 	}
 	
-	/**
-	 * Returns <code>true</code> if it is a large image, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#isBigImage()
 	 */
 	public boolean isBigImage() { return model.isBigImage(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#viewImage()
+	 */
+	public void viewImage()
+	{
+		ImageData image = model.getRefImage();
+		if (image == null) return;
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+			bus.post(new ViewInPluginEvent(model.getSecurityContext(),
+					image, MetadataViewer.IMAGE_J));
+		} else {
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
+		}
+	}
 
 }

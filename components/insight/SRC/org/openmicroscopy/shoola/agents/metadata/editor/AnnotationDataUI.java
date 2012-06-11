@@ -164,6 +164,9 @@ class AnnotationDataUI
 	/** Reference to the control. */
 	private EditorControl					controller;
 	
+	/** Reference to the view. */
+	private EditorUI view;
+	
 	/** Flag indicating that tags have been added or removed. */
 	private boolean							tagFlag;
 	
@@ -371,13 +374,11 @@ class AnnotationDataUI
 		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeTagsButton.setToolTipText("Unlink Tags.");
 		removeTagsButton.addMouseListener(controller);
-		//removeTagsButton.addActionListener(controller);
 		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
 		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
 		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeDocsButton.setToolTipText("Unlink Attachments.");
-		//removeDocsButton.addActionListener(controller);
 		removeDocsButton.addMouseListener(controller);
 		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
 		
@@ -387,13 +388,17 @@ class AnnotationDataUI
 									RatingComponent.MEDIUM_SIZE);
 		rating.setOpaque(false);
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
-		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+		rating.addPropertyChangeListener(this);
 		unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(unrateButton);
 		unrateButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unrateButton.setToolTipText("Unrate.");
 		unrateButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { rating.setValue(0); }
+			public void actionPerformed(ActionEvent e)
+			{ 
+				rating.setValue(0);
+				view.saveData(true);
+			}
 		});
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
@@ -588,7 +593,6 @@ class AnnotationDataUI
 				loadThumbnails = 
 					new LinkedHashMap<FileAnnotationData, Object>();
 			DataObject data;
-			List<Long> immutable;
 			switch (filter) {
 				case SHOW_ALL:
 					while (i.hasNext()) {
@@ -625,26 +629,6 @@ class AnnotationDataUI
 							}
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
-							doc.addPropertyChangeListener(controller);
-							filesDocList.add(doc);
-							if (immutable.contains(data.getId())) {
-								if (doc.hasThumbnailToLoad()) {
-									loadThumbnails.put(
-											(FileAnnotationData) data, doc);
-								}
-								docPane.add(doc);
-								v = doc.getPreferredSize().height;
-								if (h < v) h = v;
-							}
-						}
-					}
-					*/
 					break;
 				case ADDED_BY_ME:
 					while (i.hasNext()) {
@@ -664,26 +648,6 @@ class AnnotationDataUI
 							}
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
-							doc.addPropertyChangeListener(controller);
-							filesDocList.add(doc);
-							if (!immutable.contains(data.getId())) {
-								if (doc.hasThumbnailToLoad()) {
-									loadThumbnails.put(
-											(FileAnnotationData) data, doc);
-								}
-								docPane.add(doc);
-								v = doc.getPreferredSize().height;
-								if (h < v) h = v;
-							}
-						}
-					}
-					*/
 			}
 			//load the thumbnails 
 			/*
@@ -728,7 +692,6 @@ class AnnotationDataUI
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
-			List<Long> immutable;
 			DataObject data;
 			switch (filter) {
 				case SHOW_ALL:
@@ -767,49 +730,8 @@ class AnnotationDataUI
 							p.add(doc);
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						tagsDocList.add(doc);
-						if (!immutable.contains(data.getId())) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								tagsPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}
-					*/
 					break;
 				case ADDED_BY_OTHERS:
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						tagsDocList.add(doc);
-						if (immutable.contains(data.getId())) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								tagsPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}*/
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
 						doc = new DocComponent(data, model);
@@ -851,15 +773,20 @@ class AnnotationDataUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model 	 Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
 	 */
-	AnnotationDataUI(EditorModel model, EditorControl controller)
+	AnnotationDataUI(EditorUI view, EditorModel model, 
+			EditorControl controller)
 	{
 		super(model);
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		this.controller = controller;
+		this.view = view;
 		initComponents();
 		init = false;
 	}
@@ -905,27 +832,51 @@ class AnnotationDataUI
 			count += v.size();
 		}
 		*/
-		count += l.size();
-		layoutAttachments(l);
+		
+		
 		
 		//Viewed by
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
 			if (l != null) count += l.size();
 			layoutTags(l);
+			l = model.getAttachments();
+			if (l != null) count += l.size();
+			layoutAttachments(l);
+		} else {
+			layoutTags(null);
+			layoutAttachments(null);
 		}
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
-		boolean enabled = model.isWritable();
+		boolean enabled = model.canAnnotate();
+		if (enabled && model.isMultiSelection()) {
+			enabled = !model.isAcrossGroups();
+		}
 		rating.setEnabled(enabled);
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
-		unrateButton.setEnabled(enabled);
+		
+		enabled = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
+		enabled = model.canDelete(); //to be reviewed
+		unrateButton.setEnabled(enabled);
 		buildGUI();
 	}
 
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		if (!addTagsButton.isEnabled()) return;
+		boolean b = model.canAddAnnotationLink();
+		addTagsButton.setEnabled(b);
+		addDocsButton.setEnabled(b);
+		b = model.canDeleteAnnotationLink();
+		removeTagsButton.setEnabled(b);
+		removeDocsButton.setEnabled(b);
+	}
+	
 	/**
 	 * Returns <code>true</code> if the passed value corresponds to
 	 * a name space for <code>Editor</code>.
@@ -961,6 +912,7 @@ class AnnotationDataUI
 				data = doc.getData();
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) data;
+					/*
 					for (int j = 0; j < files.length; j++) {
 						if (fa.getId() <= 0) {
 							if (!fa.getFilePath().equals(
@@ -973,15 +925,21 @@ class AnnotationDataUI
 							} else toAdd.add(files[j]);
 						}
 					}
-					
+					*/
+					for (int j = 0; j < files.length; j++) {
+						if (fa.getId() >= 0 &&
+								fa.getFileName().equals(files[j].getName())) {
+							toReplace.add(fa);
+						}
+					}
 				}
 			}
 		}
-		if (data == null) {
+		//if (data == null) {
 			for (int i = 0; i < files.length; i++) {
 				toAdd.add(files[i]);
 			}
-		}
+		//}
 		if (toAdd.size() > 0) {
 			data = null;
 			try {
@@ -1299,9 +1257,9 @@ class AnnotationDataUI
 	 * Returns the collection of annotation to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		List<Object> l = new ArrayList<Object>();
 		if (selectedValue != initialValue && selectedValue == 0) {
 			RatingAnnotationData rating = model.getUserRatingAnnotation();
 			if (rating != null) l.add(rating);
@@ -1572,9 +1530,12 @@ class AnnotationDataUI
 			int newValue = (Integer) evt.getNewValue();
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
-				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				//firePropertyChange(EditorControl.SAVE_PROPERTY,
+				//	Boolean.valueOf(false), Boolean.valueOf(true));
+				view.saveData(true);
 			}
+		} else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
+			view.saveData(true);
 		}
 	}
 

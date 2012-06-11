@@ -17,10 +17,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
+import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
-import ome.services.blitz.impl.CloseableServant;
 import ome.services.procs.Processor;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -35,6 +35,7 @@ import omero.ValidationException;
 import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.model.ParseJob;
+import omero.util.CloseableServant;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -54,8 +55,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class InteractiveProcessorI extends _InteractiveProcessorDisp
-    implements CloseableServant {
+public class InteractiveProcessorI implements _InteractiveProcessorOperations,
+    CloseableServant {
 
     private static Session UNINITIALIZED = new Session();
 
@@ -105,9 +106,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
-            ParamsHelper helper)
+            ParamsHelper helper, Ice.Current current)
         throws ServerError {
-
         this.helper = helper;
         this.principal = p;
         this.ex = ex;
@@ -119,7 +119,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
         this.session = UNINITIALIZED;
 
         // Loading values.
-        scriptId = getScriptId(job);
+        scriptId = getScriptId(job, current);
 
     }
 
@@ -142,16 +142,16 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
             if (params == null) {
                 try {
                     if (job instanceof ParseJob) {
-                        params = prx.parseJob(session.getUuid(), job);
+                        params = prx.parseJob(session.getUuid(), job, __current.ctx);
                         if (params == null) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("Can't find params for " + scriptId);
-                            OriginalFile file = loadFileOrNull("stderr");
+                            OriginalFile file = loadFileOrNull("stderr", __current);
                             if (file == null) {
                                 sb.append(". No stderr");
                             } else {
                                 sb.append(". Stderr is in file " + file.getId());
-                                appendIfText(file, sb);
+                                appendIfText(file, sb, __current);
                             }
                             throw new omero.ValidationException(null, null,
                                     sb.toString());
@@ -224,7 +224,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
                     params = params(__current);
                 }
 
-                currentProcess = prx.processJob(uuid, params, job);
+                currentProcess = prx.processJob(uuid, params, job, __current.ctx);
 
                 // Have to add the process to the control, otherwise the
                 // user won't be able to view it: ObjectNotExistException!
@@ -233,7 +233,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
                         new Ice.Identity[]{currentProcess.ice_getIdentity()});
 
             } catch (omero.ValidationException ve) {
-                failJob(ve);
+                failJob(ve, __current);
                 throw ve;
             } catch (ServerError se) {
                 log.debug("Error while processing job", se);
@@ -268,8 +268,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
                 RType rt = mapper.toRType(env.get(key));
                 output.put(key, rt);
             }
-            optionallyLoadFile(output.getValue(), "stdout");
-            optionallyLoadFile(output.getValue(), "stderr");
+            optionallyLoadFile(output.getValue(), "stdout", __current);
+            optionallyLoadFile(output.getValue(), "stderr", __current);
             currentProcess = null;
             obtainResults = false;
             return output;
@@ -382,8 +382,9 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
             + "join job.originalFileLinks links join links.child file "
             + "where file.name = :name and job.id = :id";
 
-    private OriginalFile loadFileOrNull(final String name) {
-        return (OriginalFile) this.ex.execute(this.principal, new Executor.SimpleWork(this, "optionallyLoadFile") {
+    private OriginalFile loadFileOrNull(final String name, final Ice.Current current) {
+        return (OriginalFile) this.ex.execute(current.ctx, this.principal,
+                new Executor.SimpleWork(this, "optionallyLoadFile") {
             @Transactional(readOnly=true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -397,18 +398,18 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
     }
 
     private void optionallyLoadFile(final Map<String, RType> val,
-            final String name) {
+            final String name, final Ice.Current current) {
 
-        OriginalFile file = loadFileOrNull(name);
+        OriginalFile file = loadFileOrNull(name, current);
         if (file != null) {
             val.put(name,
             robject(new OriginalFileI(file.getId(), false)));
         }
     }
 
-    private void appendIfText(final OriginalFile file, final StringBuilder sb) {
+    private void appendIfText(final OriginalFile file, final StringBuilder sb, final Ice.Current current) {
         if (file.getMimetype() != null && file.getMimetype().contains("text")) {
-            this.ex.execute(this.principal, new Executor.SimpleWork(this, "appendIfText", file) {
+            this.ex.execute(current.ctx, this.principal, new Executor.SimpleWork(this, "appendIfText", file) {
                 @Transactional(readOnly=true)
                 public Object doWork(org.hibernate.Session session,
                         ServiceFactory sf) {
@@ -426,8 +427,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
         }
     }
 
-    private void failJob(final ValidationException ve) {
-        this.ex.execute(this.principal, new Executor.SimpleWork(this, "failJob", job.getId().getValue()) {
+    private void failJob(final ValidationException ve, final Ice.Current current) {
+        this.ex.execute(current.ctx, this.principal, new Executor.SimpleWork(this, "failJob", job.getId().getValue()) {
             @Transactional(readOnly=false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -446,8 +447,19 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
         });
     }
 
+    private EventContext getEventContext(final Ice.Current current) {
+        return (EventContext)
+        this.ex.execute(current.ctx, this.principal, new Executor.SimpleWork(this, "getEventContext") {
+            @Transactional(readOnly=true)
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                    return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+            }
+        });
+    }
+
     private Session newSession(Current __current) {
-        EventContext ec = mgr.getEventContext(principal);
+        EventContext ec = getEventContext(__current);
         Session newSession = mgr.createWithAgent(
                 new Principal(ec.getCurrentUserName(),
                 ec.getCurrentGroupName(), "Processing"), "OMERO.scripts");
@@ -463,11 +475,15 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
             + "join links.child f "
             + "where s.id = :id and f.mimetype = :fmt";
 
-    private long getScriptId(final Job job) throws omero.ValidationException {
+    private long getScriptId(final Job job, final Ice.Current current) throws omero.ValidationException {
         final Parameters p = new Parameters();
         p.addId(job.getId().getValue());
         p.addString("fmt", "text/x-python");
-        final OriginalFile f = (OriginalFile) this.ex.execute(this.principal,
+        final Map<String, String> ctx = new HashMap<String, String>();
+        ctx.putAll(current.ctx);
+        ctx.put("omero.group", "-1");
+
+        final OriginalFile f = (OriginalFile) this.ex.execute(ctx, this.principal,
                 new Executor.SimpleWork(this, "getScriptId") {
                     @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session,
@@ -484,7 +500,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
     }
 
     public void close(Current current) throws Exception {
-        stop();
+        stop(current);
     }
 
 }

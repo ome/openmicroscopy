@@ -34,10 +34,8 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
@@ -59,8 +57,25 @@ public class GroupSelectionAction
 	extends TreeViewerAction
 {
 
+	/** The name of the action. */
+	public static final String NAME = "Switch Group";
+	
+	/** The name of the action. */
+	public static final String NAME_ADD = "Add Group...";
+	
+	/** The name of the action. */
+	public static final String DESCRIPTION = "Select the sole group to " +
+			"display in the tree.";
+	
+	/** The name of the action. */
+	public static final String DESCRIPTION_ADD = "Select the group to " +
+			"add to the tree.";
+	
 	/** The group the logged in user is member of. */
 	private GroupData group;
+	
+	/** Flag indicating to add the group or to switch.*/
+	private boolean add;
 	
 	/** 
 	 * Sets the icon and tool tip text according to the permissions of the 
@@ -70,29 +85,30 @@ public class GroupSelectionAction
 	{
 		IconManager im = IconManager.getInstance();
 		Icon icon = im.getIcon(IconManager.PERSONAL);
-        int level = 
-        	TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
         String desc = "";
-        switch (level) {
-			case AdminObject.PERMISSIONS_PRIVATE:
-				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+        switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_PRIVATE:
+				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = im.getIcon(IconManager.PRIVATE_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ:
+				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
 				icon = im.getIcon(IconManager.READ_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				icon = im.getIcon(IconManager.READ_LINK_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+				icon = im.getIcon(IconManager.READ_WRITE_GROUP);
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
 				icon = im.getIcon(IconManager.PUBLIC_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
 				icon = im.getIcon(IconManager.PUBLIC_GROUP);
 		}
         
@@ -115,13 +131,16 @@ public class GroupSelectionAction
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 * @param group The group the logged in user is a member of.
+	 * @param add Passes <code>true</code> to add the group, <code>false</code>
+	 * to switch.
 	 */
-	public GroupSelectionAction(TreeViewer model, GroupData group)
+	public GroupSelectionAction(TreeViewer model, GroupData group, boolean add)
 	{
 		super(model);
 		if (group == null)
 			throw new IllegalArgumentException("No group specified.");
 		this.group = group;
+		this.add = add;
 		name = group.getName();
 		putValue(Action.NAME, name);
         setPermissions();
@@ -140,9 +159,20 @@ public class GroupSelectionAction
 	}
 	
 	/**
+	 * Returns the id of the group hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroupId() { return group.getId(); }
+	
+	/**
 	 * Sets the default group for the currently logged in user.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-    public void actionPerformed(ActionEvent e) { model.setUserGroup(group); }
+    public void actionPerformed(ActionEvent e)
+    {
+    	model.retrieveUserGroups(null, group);
+    	//model.setUserGroup(group, add);
+    }
 	
 }

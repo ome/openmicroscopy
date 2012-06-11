@@ -279,7 +279,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                                 ScriptJob job = popRoi.createJob(_sf);
                                 InteractiveProcessorPrx prx;
                                 try {
-                                    SharedResourcesPrx sr = sf.sharedResources();
+                                    SharedResourcesPrx sr = sf.sharedResources(null);
                                     prx = sr.acquireProcessor(job, 15);
                                     prx.execute(inputs);
                                     prx.setDetach(true);
@@ -447,7 +447,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // =========================================================================
 
     @Override
-    protected void preClose() {
+    protected void preClose(Ice.Current current) {
         // Nulling should be sufficient.
         store = null;
     }

@@ -56,13 +56,13 @@ class EventBusImpl
 {
     
     /** Identifies the <code>IDLE</code> state. */
-	private static final int	IDLE = 0;   
+	private static final int	IDLE = 0;
 	
     /** Identifies the <code>DISPATCHING</code> state. */
 	private static final int	DISPATCHING = 1;
 	
 	/** Sequence of events to be dispatched. */
-    private LinkedList<AgentEvent>	eventQueue;
+    private LinkedList<AgentEvent> eventQueue;
     
     /**
      * Keeps track of what events have to be dispatched to which subscribers. 
@@ -70,23 +70,24 @@ class EventBusImpl
      * value is a linked lists containing all the subscribers for that event
      * type.
      */
-    private Map<Class, LinkedList>	deMultiplexTable;
+    private Map<Class<?>, LinkedList<AgentEventListener>> deMultiplexTable;
     
     /** Marks the current state. */
-    private int             		state;
+    private int state;
     
     /** Dispatches the next event. */
     private void dispatch()
     {
         //Grab the oldest event on the queue.
         AgentEvent e = eventQueue.removeLast();
-        Class eventType = e.getClass();
-        LinkedList evNotifList = deMultiplexTable.get(eventType);
+        Class<?> eventType = e.getClass();
+        LinkedList<AgentEventListener> 
+        evNotifList = deMultiplexTable.get(eventType);
         if (evNotifList != null) {
-            Iterator i = evNotifList.iterator();
+            Iterator<AgentEventListener> i = evNotifList.iterator();
             AgentEventListener listener;
             while (i.hasNext()) {
-                listener = (AgentEventListener) i.next();
+                listener = i.next();
                 if (!listener.equals(e.getSource())) listener.eventFired(e);
             }
         }  //else nobody registered for this event type.
@@ -99,9 +100,9 @@ class EventBusImpl
      * @return <code>true</code> if {@link AgentEvent} is an ancestor of 
      *          <code>eventClass</code>, <code>false</code> otherwise.
      */
-    private boolean verifyInheritance(Class eventClass)
+    private boolean verifyInheritance(Class<?> eventClass)
     {
-        Class agtEvent = AgentEvent.class;
+        Class<?> agtEvent = AgentEvent.class;
         boolean b = false;
         //Percolate inheritance hierarchy.
         while (eventClass != null) {   
@@ -118,15 +119,16 @@ class EventBusImpl
     EventBusImpl()
     {
         eventQueue = new LinkedList<AgentEvent>();
-        deMultiplexTable = new HashMap<Class, LinkedList>();
+        deMultiplexTable = 
+        	new HashMap<Class<?>, LinkedList<AgentEventListener>>();
         state = IDLE;
-    }    
+    }
     
 	/** 
      * Implemented as specified by {@link EventBus}. 
      * @see EventBus#register(AgentEventListener, Class[])
      */    
-    public void register(AgentEventListener subscriber, Class[] eventTypes)
+    public void register(AgentEventListener subscriber, Class<?>[] eventTypes)
     {
 		if (eventTypes == null)
 			throw new NullPointerException("No event types.");
@@ -138,14 +140,15 @@ class EventBusImpl
      * Implemented as specified by {@link EventBus}. 
      * @see EventBus#register(AgentEventListener, Class)
      */    
-    public void register(AgentEventListener subscriber, Class eventType)
+    public void register(AgentEventListener subscriber, Class<?> eventType)
     {
     	if (subscriber == null)	
     		throw new NullPointerException("No subscriber.");
     	if (eventType == null)
 			throw new NullPointerException("No event type.");
     	if (verifyInheritance(eventType)) { 
-        	LinkedList evNotifList = deMultiplexTable.get(eventType);
+        	LinkedList<AgentEventListener> evNotifList = 
+        		deMultiplexTable.get(eventType);
             if (evNotifList == null) {	
             	evNotifList = new LinkedList<AgentEventListener>();
 				deMultiplexTable.put(eventType, evNotifList);
@@ -159,29 +162,30 @@ class EventBusImpl
      * Implemented as specified by {@link EventBus}. 
      * @see EventBus#remove(AgentEventListener, Class)
      */ 
-	public void remove(AgentEventListener subscriber, Class eventType)
+	public void remove(AgentEventListener subscriber, Class<?> eventType)
 	{
 		if (subscriber == null)	
 			throw new NullPointerException("No subscriber.");
 		if (eventType == null)
 			throw new NullPointerException("No event type.");
-		LinkedList evNotifList = deMultiplexTable.get(eventType);
+		LinkedList<AgentEventListener> 
+		evNotifList = deMultiplexTable.get(eventType);
 		if (evNotifList != null) {
 			evNotifList.remove(subscriber);
 			if (evNotifList.isEmpty())	deMultiplexTable.remove(eventType);
-		}     
+		}
 	}
 	
     /** 
      * Implemented as specified by {@link EventBus}. 
      * @see EventBus#remove(AgentEventListener, Class[])
      */    
-    public void remove(AgentEventListener subscriber, Class[] eventTypes)
+    public void remove(AgentEventListener subscriber, Class<?>[] eventTypes)
     {
 		if (eventTypes == null)
 			throw new NullPointerException("No event types.");
 		for (int i = 0; i < eventTypes.length; ++i)
-			remove(subscriber, eventTypes[i]);   
+			remove(subscriber, eventTypes[i]);
     }
 
     /** 
@@ -190,15 +194,16 @@ class EventBusImpl
      */ 
     public void remove(AgentEventListener subscriber)
     {
-        Iterator e = deMultiplexTable.keySet().iterator();
-        while (e.hasNext())	remove(subscriber, (Class) e.next());
+        Iterator<Class<?>> e = deMultiplexTable.keySet().iterator();
+        while (e.hasNext())	
+        	remove(subscriber, e.next());
     }
     
     /** 
      * Implemented as specified by {@link EventBus}. 
      * @see EventBus#hasListenerFor(Class)
      */ 
-    public boolean hasListenerFor(Class eventType)
+    public boolean hasListenerFor(Class<?> eventType)
     {
         return (deMultiplexTable.get(eventType) != null);
     }
@@ -217,9 +222,9 @@ class EventBusImpl
                 while (!eventQueue.isEmpty())	dispatch();
                 state = IDLE;
                 break;
-            case DISPATCHING:               
-                eventQueue.addFirst(e);                
+            case DISPATCHING:
+                eventQueue.addFirst(e);
         }
     }
-        
+
 }

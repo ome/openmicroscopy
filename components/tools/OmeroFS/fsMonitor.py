@@ -21,8 +21,9 @@ try:
 except:
     raise
 
+import omero.all
+import omero.grid.monitors as monitors
 
-from omero.grid import monitors
 
 class MonitorFactory(object):
     @staticmethod

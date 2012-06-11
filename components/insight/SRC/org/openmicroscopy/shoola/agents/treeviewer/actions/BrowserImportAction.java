@@ -31,6 +31,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -104,7 +105,7 @@ public class BrowserImportAction
                 */
             	if (ho instanceof ProjectData || ho instanceof DatasetData ||
             			ho instanceof ScreenData || ho instanceof ImageData) 
-            		setEnabled(model.isUserOwner(ho));
+            		setEnabled(model.canEdit(ho));
             	else if (ho instanceof ExperimenterData && 
             			t != Browser.ADMIN_EXPLORER) {
             		ExperimenterData exp = TreeViewerAgent.getUserDetails();
@@ -156,14 +157,15 @@ public class BrowserImportAction
     	}
     	
     	LoadImporter event = null;
-    	int type = LoadImporter.PROJECT_TYPE;
+    	int type = BrowserSelectionEvent.PROJECT_TYPE;
     	switch (model.getBrowserType()) {
 			case Browser.SCREENS_EXPLORER:
-				type = LoadImporter.SCREEN_TYPE;
+				type = BrowserSelectionEvent.SCREEN_TYPE;
     	}
     	event = new LoadImporter(display, type);
-    	long id = TreeViewerAgent.getUserDetails().getId();
-    	event.setObjects(model.getNodesForUser(id));
+    	event.setGroup(model.getSecurityContext(display).getGroupID());
+    	//long id = TreeViewerAgent.getUserDetails().getId();
+    	//event.setObjects(model.getNodesForUser(id, display));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(event);
     }

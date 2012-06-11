@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roimenu;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,9 +36,11 @@ import javax.swing.JPopupMenu;
 
 //Application-internal dependencies
 
+import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * Displays options to manipulate a ROI.
@@ -99,7 +102,6 @@ public class ROIPopupMenu
 	private JMenu createROICreationOptions()
 	{
 		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
-		JMenuItem roiOption;
 		ROIAction action;
 		CreationActionType[] values = 
 			ROIActionController.CreationActionType.values();
@@ -107,8 +109,9 @@ public class ROIPopupMenu
 		{
 			action = new ROIAction(controller, values[indexCnt]);
 			actions.add(action);
-			roiOption = new JMenuItem(action);
-			roiOptionsParent.add(roiOption);
+			popupMenu.add(new JMenuItem(action));
+			//roiOption = ;
+			//roiOptionsParent.add(new JMenuItem(action));
 		}
 		return roiOptionsParent;
 	}
@@ -116,24 +119,63 @@ public class ROIPopupMenu
 	/** Creates the popup menu. */
 	private void createPopupMenu()
 	{
+		/*
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
 		popupMenu.add(new JMenuItem(POPUP_MENU_DESCRIPTION));
 		popupMenu.addSeparator();
 		popupMenu.add(createROICreationOptions());
+		*/
+		popupMenu = new JPopupMenu();
+		createROICreationOptions();
 		//popupMenu.add(createROIStatsOptions());
 	}
 
 	/**
 	 * Sets the flag to access the action to manage ROIs.
 	 * 
-	 * @param enabled Pass <code>true</code> to allow manipulation, 
-	 * 				  <code>false</code> otherwise.
+	 * @param figures The selected figure.
 	 */
-	public void setActionsEnabled(boolean enabled)
+	public void setActionsEnabled(Collection<Figure> figures)
 	{
-		Iterator<ROIAction> i = actions.iterator();
+		Iterator<Figure> i = figures.iterator();
+		Figure figure;
+		int readable = 0;
+		int delete = 0;
+		int edit = 0;
+		ROIFigure roi;
 		while (i.hasNext()) {
-			i.next().setEnabled(enabled);
+			figure = i.next();
+			if (figure instanceof ROIFigure) {
+				roi = (ROIFigure) figure;
+				if (!(roi.isReadOnly())) {
+					readable++;
+					if (roi.canEdit()) edit++;
+					if (roi.canDelete()) delete++;
+				}
+			}
+		}
+		Iterator<ROIAction> j = actions.iterator();
+		if (readable != figures.size()) { //some read-only
+			while (j.hasNext()) {
+				j.next().setEnabled(false);
+			}
+		} else {
+			ROIAction action;
+			boolean db = delete == figures.size();
+			boolean eb = edit == figures.size();
+			while (j.hasNext()) {
+				action = j.next();
+				switch (action.getCreationActionType()) {
+					case DUPLICATE:
+						action.setEnabled(true);
+						break;
+					case DELETE:
+						action.setEnabled(db);
+						break;
+					default:
+						action.setEnabled(eb);
+				}
+			}
 		}
 	}
 

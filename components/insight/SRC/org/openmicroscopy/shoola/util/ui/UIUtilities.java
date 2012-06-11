@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -107,6 +108,10 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The default background color.*/
+	public static final Color TOOLTIP_COLOR = new Color(255, 252, 180, 200);
+	
+	
 	/** The default number of characters for the partial name.*/
 	public static final int DEFAULT_NUMBER_OF_CHARACTERS = 30;
 	
@@ -221,13 +226,6 @@ public class UIUtilities
 
 	/** A day in milliseconds. */
 	public static final long				DAY = 86400000;
-	
-	/** Unicode for the degrees symbol. */
-	public final static String 				DEGREES_SYMBOL = "\u00B0";
-	
-	
-	/** Unicode for the microns symbol. */
-	public final static String  			MICRONS_SYMBOL = "\u00B5m";
 
 	/** Unicode for the squared symbol. */
 	public final static String  			SQUARED_SYMBOL =  "\u00B2";
@@ -237,12 +235,6 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
-	
-    /** String to representing the nanometer symbol. */
-    public static final String              NANOMETER = " \u00B5m";
-    
-    /** String to represent the micron symbol. */
-    public static final String 				MICRONS = "(in \u00B5)";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
@@ -542,7 +534,7 @@ public class UIUtilities
 	public static void showOnScreen(Component window, Point location) 
 	{
 		if (window == null) return;
-		if (location == null) centerOnScreen(window);
+		if (location == null) centerAndShow(window);
 		else {
 			window.setLocation(location);
 			window.setVisible(true);
@@ -1091,12 +1083,32 @@ public class UIUtilities
     public static JPanel buildComponentPanelCenter(JComponent component, int 
     		hgap, int vgap)
     {
+        return buildComponentPanelCenter(component, hgap, vgap, true);
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flow layout.
+     * 
+     * @param component The component to add.
+     *  @param hgap    	The horizontal gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param vgap    	The vertical gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanelCenter(JComponent component, int 
+    		hgap, int vgap, boolean opaque)
+    {
         JPanel p = new JPanel();
         if (component == null) return p;
         if (hgap < 0) hgap = 0;
         if (vgap < 0) vgap = 0;
         p.setLayout(new FlowLayout(FlowLayout.CENTER, hgap, vgap));
         p.add(component);
+        p.setOpaque(opaque);
         return p;
     }
     
@@ -1117,7 +1129,7 @@ public class UIUtilities
      * 
      * @param b The button.
      */
-    public static void unifiedButtonLookAndFeel(AbstractButton b)
+    public static void unifiedButtonLookAndFeel(JComponent b)
     {
     	if (b == null) return;
         //b.setMargin(new Insets(0, 2, 0, 3));
@@ -2045,7 +2057,7 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return (!(isWindowsOS() || isMacOS()));
+		return SystemUtils.IS_OS_LINUX;
 	}
 	
 	/**
@@ -2417,6 +2429,56 @@ public class UIUtilities
 	public static String formatPartialName(String name)
 	{
 		return formatPartialName(name, DEFAULT_NUMBER_OF_CHARACTERS);
+	}
+	
+    
+    /**
+     * Creates a new button and formats it using settings from action.
+     * 
+     * @param a The action to use.
+     */
+    public static JButton formatButtonFromAction(Action a)
+    {
+    	JButton button = new JButton();
+    	button.setToolTipText((String) a.getValue(Action.SHORT_DESCRIPTION));
+    	button.setIcon((Icon) a.getValue(Action.SMALL_ICON));
+    	return button;
+    }
+    
+    /**
+	 * Transforms the size and returns the value and units.
+	 * 
+	 * @param value The value to transform.
+	 * @return See above.
+	 */
+	public static UnitsObject transformSize(Double value)
+	{
+		double v = value.doubleValue();
+		String units = UnitsObject.MICRONS;
+		/* TODO: check if we want to introduce that.
+		if (v < 1) {
+			units = UnitsObject.NANOMETER;
+			v *= 1000;
+			if (v < 1) {
+				units = UnitsObject.ANGSTROM;
+				v *= 10;
+			}
+			return new UnitsObject(units, v);
+		}
+		*/
+		if (v > 1000) {
+			units = UnitsObject.MILLIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.CENTIMETER;
+			v /= 1000;
+		}
+		if (v > 1000) {
+			units = UnitsObject.METER;
+			v /= 1000;
+		}
+		return new UnitsObject(units, v);
 	}
 	
 }

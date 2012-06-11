@@ -23,17 +23,17 @@
 package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
@@ -56,7 +56,10 @@ public class BirdEyeLoader
 {
 	
 	/** The maximum size for the bird eye view.*/
-	public static final int 	BIRD_EYE_SIZE = 128;
+	public static final int BIRD_EYE_SIZE = 128;
+	
+	/** The minimum ration value.*/
+	public static final double MIN_RATIO = 0.1;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -64,19 +67,35 @@ public class BirdEyeLoader
     /** The object the image is for. */
     private ImageData	image;
     
+    /** Reference to the plane.*/
+    private PlaneDef	plane;
+    
+    /** The ratio by which to scale the image down.*/
+    private double ratio;
+	
+    /** Flag indicating that this loader has been cancelled.*/
+    private boolean cancelled;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer	The view this loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param image	  	The image to handle.
+     * @param ratio     The ratio by with to scale the image.
      */
-	public BirdEyeLoader(ImViewer viewer, ImageData image)
+	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image, 
+			PlaneDef plane, double ratio)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (image == null)
 			throw new IllegalArgumentException("No image to load.");
 		this.image = image;
+		if (plane == null)
+			throw new IllegalArgumentException("No plane to load.");
+		this.plane = plane;
+		this.ratio = ratio;
 	}
 	
 	/**
@@ -85,47 +104,59 @@ public class BirdEyeLoader
      */
     public void load()
     {
-    	Set<Long> ids = new HashSet<Long>();
-    	ids.add(ImViewerAgent.getUserDetails().getId());
-    	handle = mhView.loadThumbnails(image, ids, Factory.THUMB_DEFAULT_WIDTH,
-    			Factory.THUMB_DEFAULT_HEIGHT, this);
+    	handle = ivView.render(ctx, image.getDefaultPixels().getId(),
+				plane, false, true, this);
     }
     
     /**
      * Cancels the ongoing data retrieval.
      * @see DataLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    {
+    	cancelled = true;
+    	handle.cancel();
+    }
     
     /**
-     * Does nothing as the asynchronous call returns <code>null</code>.
-     * The actual pay-load (tile) is delivered progressively
-     * during the updates.
+     * Throws an exception b/c not possible to load the bird eye view.
      * @see DataLoader#handleNullResult()
      */
-    public void handleNullResult() {}
+    public void handleNullResult()
+    {
+    	handleException(new Exception("No bird eye view."));
+    }
+    
+    /**
+     * Notifies the user that the data retrieval has been cancelled.
+     */
+    public void handleCancellation() {}
     
     /**
      * Notifies the user that an error has occurred.
      * @see DataBrowserLoader#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
+    public void handleException(Throwable exc)
     {
         String s = "Bird Eye Retrieval Failure: ";
+        if (viewer.getState() == ImViewer.DISCARDED) return;
         registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError(s, s, exc);
+        if (viewer.getState() == ImViewer.CANCELLED)
+        	if (cancelled) viewer.discard();
+        else registry.getUserNotifier().notifyError(s, s, exc);
     }
     
     /** 
-     * Feeds the tiles back to the viewer, as they arrive. 
-     * @see DataBrowserLoader#update(DSCallFeedbackEvent)
+     * Feeds the result back to the viewer. 
+     * @see DataLoader#handleResult(Object)
      */
-    public void update(DSCallFeedbackEvent fe) 
+    public void handleResult(Object result)
     {
-        if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (td != null)
-        	viewer.setBirdEyeView(td.getThumbnail());
+        if (viewer.getState() == ImViewer.DISCARDED || cancelled) return;
+        BufferedImage image = (BufferedImage) result;
+        if (image != null && ratio != 1)
+        	image = Factory.magnifyImage(ratio, image);
+        viewer.setBirdEyeView(image);
     }
 
 }

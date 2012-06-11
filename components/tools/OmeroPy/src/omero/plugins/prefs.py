@@ -19,8 +19,9 @@ from exceptions import Exception
 from path import path
 from omero.cli import CLI
 from omero.cli import BaseControl
+from omero.cli import ExistingFile
+from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero_ext.argparse import FileType
 from omero_ext.strings import shlex
 from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
@@ -109,7 +110,7 @@ class PrefsControl(BaseControl):
         load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
         load.add_argument("-q", action="store_true", help="No error on conflict")
-        load.add_argument("file", nargs="+", type=FileType('r'), default=sys.stdin, help="Read from files or standard in")
+        load.add_argument("file", nargs="+", type=ExistingFile('r'), default=sys.stdin, help="Read from files or standard in")
 
         edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
         version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
@@ -196,15 +197,20 @@ class PrefsControl(BaseControl):
         if not args.q:
             keys = config.keys()
 
-        for f in args.file:
-            try:
-                previous = None
-                for line in f:
-                    if previous:
-                        line = previous + line
-                    previous = self.handle_line(line, config, keys)
-            finally:
-                f.close()
+        try:
+            for f in args.file:
+                try:
+                    previous = None
+                    for line in f:
+                        if previous:
+                            line = previous + line
+                        previous = self.handle_line(line, config, keys)
+                finally:
+                    f.close()
+        except NonZeroReturnCode, nzrc:
+            raise
+        except Exception, e:
+            self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
 
     @with_config
     def edit(self, args, config, edit_path = edit_path):
@@ -287,11 +293,21 @@ class PrefsControl(BaseControl):
             return
         if len(parts) == 1:
             parts.append("")
-        if keys and parts[0] in keys:
-            self.ctx.die(502, "Duplicate property: %s (%s => %s)"\
-                % (parts[0], config[parts[0]], parts[1]))
-            keys.append(parts[0])
-        config[parts[0]] = parts[1]
+
+        _key = parts[0]
+        _new = parts[1]
+        if _key in config.keys():
+            _old = config[_key]
+        else:
+            _old = None
+
+        if keys and _key in keys and _new != _old:
+
+            self.ctx.die(502, "Duplicate property: %s ('%s' => '%s')"\
+                % (_key, _old, _new))
+            keys.append(_key)
+
+        config[_key] = _new
 
     def old(self, args):
         self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))

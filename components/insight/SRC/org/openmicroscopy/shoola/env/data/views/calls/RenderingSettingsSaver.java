@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -83,11 +84,14 @@ public class RenderingSettingsSaver
 	public static final int SET_OWNER = 4;
 	
 	/** Result of the call. */
-	private Object    	result;
+	private Object result;
 
 	/** Loads the specified tree. */
-	private BatchCall	loadCall;
+	private BatchCall loadCall;
 
+	/** The security context.*/
+    private SecurityContext ctx;
+    
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -124,17 +128,18 @@ public class RenderingSettingsSaver
 				OmeroImageService rds = context.getImageService();
 				switch (index) {
 					case PASTE:
-						result = rds.pasteRenderingSettings(pixelsID, rootType, 
-															ids);
+						result = rds.pasteRenderingSettings(ctx, pixelsID,
+								rootType, ids);
 						break;
 					case RESET:
-						result = rds.resetRenderingSettings(rootType, ids);
+						result = rds.resetRenderingSettings(ctx, rootType, ids);
 						break;
 					case SET_MIN_MAX:
-						result = rds.setMinMaxSettings(rootType, ids);
+						result = rds.setMinMaxSettings(ctx, rootType, ids);
 						break;
 					case SET_OWNER:
-						result = rds.setOwnerRenderingSettings(rootType, ids);
+						result = rds.setOwnerRenderingSettings(ctx, rootType, 
+								ids);
 				}
 			}
 		};
@@ -157,8 +162,8 @@ public class RenderingSettingsSaver
 				long userID = ((ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS)).getId();
 				OmeroDataService os = context.getDataService();
-				Collection l = os.getImagesPeriod(ref.getStartTime(), 
-												ref.getEndTime(), userID, true); 
+				Collection l = os.getImagesPeriod(ctx, ref.getStartTime(),
+									ref.getEndTime(), userID, true); 
 				if (l != null) {
 					Iterator i = l.iterator();
 					DataObject element;
@@ -170,24 +175,23 @@ public class RenderingSettingsSaver
 					OmeroImageService rds = context.getImageService();
 					switch (index) {
 						case PASTE:
-							result = rds.pasteRenderingSettings(pixelsID, 
+							result = rds.pasteRenderingSettings(ctx, pixelsID,
 													ImageData.class, ids);
 							break;
 						case RESET:
-							result = rds.resetRenderingSettings(ImageData.class, 
-																ids);
+							result = rds.resetRenderingSettings(ctx,
+									ImageData.class, ids);
 							break;
 						case SET_MIN_MAX:
-							result = rds.setMinMaxSettings(ImageData.class, 
+							result = rds.setMinMaxSettings(ctx, ImageData.class,
 									ids);
 							break;
 						case SET_OWNER:
-							result = rds.setOwnerRenderingSettings(
+							result = rds.setOwnerRenderingSettings(ctx,
 												ImageData.class, ids);
 							break;
 					}
 				}
-
 			}
 		};
 	} 
@@ -209,9 +213,8 @@ public class RenderingSettingsSaver
 			public void doCall() throws Exception
 			{
 				OmeroImageService os = context.getImageService();
-				result = os.createRenderingSettings(pixelsID, rndToCopy, 
+				result = os.createRenderingSettings(ctx, pixelsID, rndToCopy,
 						indexes);
-
 			}
 		};
 	}
@@ -233,6 +236,7 @@ public class RenderingSettingsSaver
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
@@ -241,78 +245,89 @@ public class RenderingSettingsSaver
 	 * 						Mustn't be <code>null</code>.
 	 * @param index			One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(Class rootNodeType, List<Long> ids, int index)
+	public RenderingSettingsSaver(SecurityContext ctx, Class rootNodeType,
+			List<Long> ids, int index)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(-1, rootNodeType, ids, index);
 	}
 
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 */
-	public RenderingSettingsSaver(long pixelsID, Class rootNodeType, 
-			List<Long> ids)
+	public RenderingSettingsSaver(SecurityContext ctx, long pixelsID,
+			Class rootNodeType, List<Long> ids)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(pixelsID, rootNodeType, ids, PASTE);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID	The id of the pixels set of reference.
 	 * @param ref		The time reference object.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref)
+	public RenderingSettingsSaver(SecurityContext ctx, long pixelsID,
+			TimeRefObject ref)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(pixelsID, ref, PASTE);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param ref		The time reference object.
-	 * @param index 	One of the constants defined by this class.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param index  One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(TimeRefObject ref, int index)
+	public RenderingSettingsSaver(SecurityContext ctx, TimeRefObject ref,
+			int index)
 	{
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(-1, ref, index);
 	}
 
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param pixelsID  The id of the pixels set.
+	 * @param ctx The security context.
+	 * @param pixelsID The id of the pixels set.
 	 * @param rndToCopy The rendering setting to copy.
-	 * @param indexes	Collection of channel's indexes. 
-     * 					Mustn't be <code>null</code>.
+	 * @param indexes Collection of channel's indexes. 
+	 *                Mustn't be <code>null</code>.
 	 */
-	public RenderingSettingsSaver(long pixelsID, RndProxyDef rndToCopy,
-								List<Integer> indexes)
+	public RenderingSettingsSaver(SecurityContext ctx, long pixelsID,
+			RndProxyDef rndToCopy,List<Integer> indexes)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
+		this.ctx = ctx;
 		loadCall = makeCreateBatchCall(pixelsID, rndToCopy, indexes);
 	}
-	
+
 }

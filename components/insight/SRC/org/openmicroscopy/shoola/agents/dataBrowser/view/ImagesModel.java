@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.ImageData;
 
 /** 
@@ -64,12 +66,14 @@ class ImagesModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent The parent.
 	 * @param images The collection to images the model is for.
 	 */
-	ImagesModel(Object parent, Collection<ImageData> images)
+	ImagesModel(SecurityContext ctx, Object parent,
+			Collection<ImageData> images)
 	{
-		super();
+		super(ctx);
 		if (images  == null) 
 			throw new IllegalArgumentException("No images.");
 		this.images = images;
@@ -131,7 +135,7 @@ class ImagesModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
 	}
 	
 	/**

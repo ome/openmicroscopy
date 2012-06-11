@@ -60,10 +60,8 @@ import mpfit as mpf
 
 # OMERO Imports 
 import omero.clients
-import omero_api_Gateway_ice
 import omero.util.pixelstypetopython as pixelstypetopython
 from omero.rtypes import *
-import omero_Constants_ice
 import omero_ext.uuid as uuid # see ticket:3774
 
 # Script Utility helper methods.

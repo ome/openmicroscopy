@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -65,12 +67,13 @@ class DatasetsModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent of the datasets.
 	 * @param datasets 	The collection to datasets the model is for.
 	 */
-	DatasetsModel(Object parent, Set<DatasetData> datasets)
+	DatasetsModel(SecurityContext ctx, Object parent, Set<DatasetData> datasets)
 	{
-		super();
+		super(ctx);
 		if (datasets  == null) 
 			throw new IllegalArgumentException("No datasets.");
 		this.parent = parent;
@@ -97,9 +100,7 @@ class DatasetsModel
 							img.getDefaultPixels();
 							ids.add(img.getId());
 							numberOfImages++;
-						} catch (Exception e) {
-							
-						}
+						} catch (Exception e) {}
 					}
 				}
 			}
@@ -154,13 +155,12 @@ class DatasetsModel
 							loaded.add(img.getId());
 							imagesLoaded++;
 						} catch (Exception e) {}
-						
 					}
 				}
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
 	}
 	
 	/**

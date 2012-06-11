@@ -158,13 +158,9 @@ _RawFileStoreOperations {
     }
 
     @Override
-    protected void preClose() {
+    protected void preClose(Ice.Current current) throws Throwable {
         log.info("Closing " + rafile);
-        try {
-            this.rafile.close();
-        } catch (Exception e) {
-            log.error("Failed to close rafile", e);
-        }
+        this.rafile.close();
     }
 
     //

@@ -33,6 +33,7 @@ import java.util.Map;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -59,6 +60,9 @@ public class OverlaysRenderer
 	/** Loads the specified tree. */
     private BatchCall	loadCall;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
@@ -78,7 +82,7 @@ public class OverlaysRenderer
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderOverLays(pixelsID, pd, tableID, overlays, 
+                result = rds.renderOverLays(ctx, pixelsID, pd, tableID, overlays,
                 		asTexture);
             }
         };
@@ -101,19 +105,21 @@ public class OverlaysRenderer
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID  The id of the pixels set.
-     * @param pd        The plane to render. 
-     * @param tableID	The id of the table.
-     * @param overlays	The overlays to render.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param pd The plane to render. 
+     * @param tableID The id of the table.
+     * @param overlays The overlays to render.
      * @param asTexture Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
      */
-    public OverlaysRenderer(long pixelsID, PlaneDef pd, long tableID, 
-			Map<Long, Integer> overlays, boolean asTexture)
+    public OverlaysRenderer(SecurityContext ctx, long pixelsID, PlaneDef pd,
+    	long tableID, Map<Long, Integer> overlays, boolean asTexture)
     {
-        if (pixelsID < 0)
-            throw new IllegalArgumentException("ID not valid.");
-       loadCall = makeBatchCall(pixelsID, pd, tableID, overlays, asTexture);
+    	if (pixelsID < 0)
+    		throw new IllegalArgumentException("ID not valid.");
+		this.ctx = ctx;
+    	loadCall = makeBatchCall(pixelsID, pd, tableID, overlays, asTexture);
     }
     
 }

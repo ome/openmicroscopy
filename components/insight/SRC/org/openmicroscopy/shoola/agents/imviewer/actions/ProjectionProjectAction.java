@@ -69,7 +69,7 @@ public class ProjectionProjectAction
     		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
     		else 
-    			setEnabled(!model.isReadOnly());
+    			setEnabled(model.canAnnotate());
     	}
     }
     

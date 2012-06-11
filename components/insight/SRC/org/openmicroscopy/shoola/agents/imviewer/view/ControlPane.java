@@ -584,6 +584,20 @@ class ControlPane
     }
 
     /**
+     * Sets the tool tip of the specified slider.
+     * 
+     * @param v The selected z-section or timepoint.
+     * @param slider The slider to handle.
+     */
+    private void setSliderToolTip(int v, OneKnobSlider slider, boolean z)
+    {
+    	String tip;
+    	if (z) tip = "Selected Plane Z="+(v+1)+"/"+(model.getMaxZ()+1);
+    	else tip = "Selected Timepoint T="+(v+1)+"/"+(model.getMaxT()+1);
+    	slider.setToolTipText(tip);
+    }
+    
+    /**
      * Initializes the value of the components displaying the currently selected
      * z-section and time-point.
      */
@@ -595,20 +609,26 @@ class ControlPane
         projectionRange.addPropertyChangeListener(this);
         projectionRange.addMouseWheelListener(this);
         projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
+        setRangeSliderToolTip(0, maxZ);
         
         initSlider(tSliderProjection, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        setSliderToolTip(model.getDefaultT(), tSliderProjection, false);
         
         initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
     			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
        
+        setSliderToolTip(model.getDefaultZ(), zSlider, true);
+        setSliderToolTip(model.getDefaultZ(), zSliderGrid, true);
         initSlider(tSlider, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         initSlider(tSliderGrid, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         
+        setSliderToolTip(model.getDefaultT(), tSlider, false);
+        setSliderToolTip(model.getDefaultT(), tSliderGrid, false);
         if (model.isBigImage()) {
         	ratioSlider.addPropertyChangeListener(this);
         	ratioSlider.setMaximum(model.getResolutionLevels()-1);
@@ -1065,7 +1085,9 @@ class ControlPane
      * @param t The selected timepoint.
      */
     void setTimepoint(int t)
-    { 
+    {
+    	setSliderToolTip(t, tSlider, false);
+    	setSliderToolTip(t, tSliderGrid, false);
     	updateSlider(tSlider, t);
     	updateSlider(tSliderGrid, t);
     	updateSlider(tSliderProjection, t);
@@ -1077,7 +1099,9 @@ class ControlPane
      * @param z The selected z-section.
      */
     void setZSection(int z)
-    { 
+    {
+    	setSliderToolTip(z, zSlider, true);
+    	setSliderToolTip(z, zSliderGrid, true);
     	updateSlider(zSlider, z); 
     	updateSlider(zSliderGrid, z); 
     }
@@ -1781,6 +1805,19 @@ class ControlPane
 		}
 	}
 	
+    /**
+     * Sets the tool tip of the specified slider.
+     * 
+     * @param start The start z-section.
+     * @param end The end z-section.
+     */
+    void setRangeSliderToolTip(int start, int end)
+    {
+    	String tip = "Selected Range Z="+(start+1)+"-"+(end+1)+
+    	"/"+(model.getMaxZ()+1);
+    	projectionRange.setToolTipText(tip);
+    }
+    
     /**
      * Reacts to the selection of an item in the projection box
      * @see ActionListener#actionPerformed(ActionEvent)

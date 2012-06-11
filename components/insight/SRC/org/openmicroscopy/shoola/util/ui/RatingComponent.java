@@ -66,6 +66,11 @@ public class RatingComponent
 	/** Bound property indicating that the value has changed. */
 	public static final String	RATE_PROPERTY = "rate";
 	
+	/**
+	 * Bound property indicating that the modification of the value has ended.
+	 */
+	public static final String	RATE_END_PROPERTY = "rateEnd";
+	
 	/** The maximum number of value. */
 	public static final int 	MAX_VALUE = 5;
 	
@@ -236,6 +241,13 @@ public class RatingComponent
 	 * @return See above.
 	 */
 	List<Image> getMinus() { return minus; }
+	
+	/** Invokes when the mouse is released i.e. the dragging has ended.*/
+	void onMouseReleased()
+	{
+		firePropertyChange(RATE_END_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
+	}
 	
 	/**
 	 * Sets the value.

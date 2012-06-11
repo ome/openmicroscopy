@@ -31,6 +31,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -57,15 +58,26 @@ public class AttachmentsLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
-	 /**	
+    /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean canAnnotate;
+    
+    /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param canAnnotate Pass <code>true</code> indicating to load all
+     * 						annotations available if the user can annotate,
+     *                    <code>false</code> to only load the user's annotation
      */
-    public AttachmentsLoader(Editor viewer)
+    public AttachmentsLoader(Editor viewer, SecurityContext ctx, 
+    		boolean canAnnotate)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     }
     
 	/** 
@@ -74,9 +86,10 @@ public class AttachmentsLoader
 	 */
 	public void load()
 	{
-		setIds();
-		handle = mhView.loadExistingAnnotations(FileAnnotationData.class, 
-												userID, groupID, this);
+		long userID = viewer.getUserID();
+		if (canAnnotate) userID = -1;
+		handle = mhView.loadExistingAnnotations(ctx, FileAnnotationData.class,
+												userID, this);
 	}
 	
 	/** 

@@ -40,9 +40,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -93,6 +95,9 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 
@@ -123,6 +128,13 @@ public interface DataBrowser
 	 */
 	public static final String 		SELECTED_NODE_DISPLAY_PROPERTY = 
 												"selectedNodeDisplay";
+	
+	/** 
+	 * Bound property name indicating {@link ImageDisplay} objects have been
+	 * selected in the visualization tree. 
+	 */
+	public static final String SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY = 
+		"selectedNodesDisplay";
 	
 	/** 
 	 * Bound property name indicating that nodes have been marked as selected.
@@ -193,6 +205,12 @@ public interface DataBrowser
 	public static final String		OPEN_EXTERNAL_APPLICATION_PROPERTY = 
 		"openExternalApplication";
 
+	/** Bound property indicating to view the image node. */
+	public static final String		VIEW_IMAGE_NODE_PROPERTY = "viewImageNode";
+	
+	/** Bound property indicating to view the image node. */
+	public static final String INTERNAL_VIEW_NODE_PROPERTY =
+		"internalViewImageNode";
 	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
@@ -312,6 +330,13 @@ public interface DataBrowser
      */
 	public void setSelectedDisplay(ImageDisplay node);
 
+    /**
+     * Sets the selected nodes.
+     * 
+     * @param nodes The node to set.
+     */
+	public void setSelectedDisplays(List<ImageDisplay> nodes);
+	
 	/**
 	 * Sets the collection of selected nodes.
 	 * 
@@ -473,22 +498,50 @@ public interface DataBrowser
 	public void remove();
 	
 	/**
-	 * Returns <code>true</code> if the specified object is writable,
+	 * Returns <code>true</code> if the specified object can be deleted.
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean isWritable(Object ho);
+	public boolean canDelete(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be edited,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canEdit(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be moved to 
+	 * another group, <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canChgrp(Object ho);
 
 	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
+	 * Returns <code>true</code> if the specified object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean isUserOwner(Object ho);
+	public boolean canAnnotate(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be linked,
+	 * e.g. image added to dataset.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canLink(Object ho);
 	
 	/**
 	 * Reloads the thumbnails. 
@@ -690,4 +743,29 @@ public interface DataBrowser
 	/** Lays out the nodes.*/
 	void layoutDisplay();
 	
+	/**
+	 * Views the passed node if supported.
+	 * 
+	 * @param node The node to handle.
+	 * @param internal Pass <code>true</code> to open using the internal viewer.
+	 * <code>false</code> otherwise.
+	 */
+	void viewDisplay(ImageDisplay node, boolean internal);
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+	
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID);
+
 }

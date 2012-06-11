@@ -39,15 +39,18 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -106,37 +109,43 @@ public interface Browser
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     	PROJECTS_EXPLORER = 100;
+    public static final int     	PROJECTS_EXPLORER =
+    	BrowserSelectionEvent.PROJECT_TYPE;
     
     /** 
      * Indicates that the browser corresponds to an <code>Images</code>
      * explorer.
      */
-    public static final int     	IMAGES_EXPLORER = 101;
+    public static final int     	IMAGES_EXPLORER =
+    	BrowserSelectionEvent.IMAGE_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Tags</code>
      * explorer.
      */
-    public static final int     	TAGS_EXPLORER = 102;
+    public static final int     	TAGS_EXPLORER =
+    	BrowserSelectionEvent.TAG_TYPE;
    
     /** 
      * Indicates that the browser corresponds to a <code>Screen</code>
      * explorer.
      */
-    public static final int     	SCREENS_EXPLORER = 103;
+    public static final int     	SCREENS_EXPLORER =
+    	BrowserSelectionEvent.SCREEN_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
      * (saved on server) explorer.
      */
-    public static final int     	FILES_EXPLORER = 104;
+    public static final int     	FILES_EXPLORER =
+    	BrowserSelectionEvent.FILE_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
      * explorer.
      */
-    public static final int     	FILE_SYSTEM_EXPLORER = 105;
+    public static final int     	FILE_SYSTEM_EXPLORER =
+    	BrowserSelectionEvent.FILE_SYSTEM_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Shares</code>
@@ -148,7 +157,8 @@ public interface Browser
      * Indicates that the browser corresponds to an Administration
      * explorer.
      */
-    public static final int     	ADMIN_EXPLORER = 107;
+    public static final int     	ADMIN_EXPLORER =
+    	BrowserSelectionEvent.ADMIN_TYPE;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -304,9 +314,11 @@ public interface Browser
      * Returns the nodes linked to the specified user.
      * 
      * @param userID The identifier of the user.
+     * @param node The selected node.
      * @return See above.
      */
-    public List<TreeImageDisplay> getNodesForUser(long userID);
+    public List<TreeImageDisplay> getNodesForUser(long userID, TreeImageDisplay
+			node);
     
     /** 
      * Collapses the specified node. 
@@ -386,13 +398,6 @@ public interface Browser
      * @param toBrowse The data object to browse
      */
     public void refreshTree(Object refNode, DataObject toBrowse);
-    
-    /**
-     * The id of the root level.
-     * 
-     * @return See above.
-     */
-    public long getRootID();
     
     /**
      * Sets the number of items contained in the specified container.
@@ -513,19 +518,19 @@ public interface Browser
 	/** 
 	 * Adds the passed experimenter to the display.
 	 * 
-	 * @param experimenter 	The experimenter to add. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param load			Pass <code>true</code> to load the data,
-	 * 						<code>false</code> otherwise.
+	 * @param experimenter The experimenter to add. Mustn't be <code>null</code>.
+	 * @param groupID The identifier of the group the experimenter has to be
+	 * added.
 	 */
-	public void addExperimenter(ExperimenterData experimenter, boolean load);
+	public void addExperimenter(ExperimenterData experimenter, long groupID);
 
 	/**
 	 * Removes the experimenter's data from the display.
 	 * 
 	 * @param exp The experimenter to remove. Mustn't be <code>null</code>.
+	 * @param groupID The group's id the experimenter is member of.
 	 */
-	public void removeExperimenter(ExperimenterData exp);
+	public void removeExperimenter(ExperimenterData exp, long groupID);
 
 	/** Refreshes the experimenter node. */
 	public void refreshExperimenterData();
@@ -537,8 +542,9 @@ public interface Browser
 	 * @param type The type of data object to select or <code>null</code>.
 	 * @param id   The identifier of the data object.
 	 */
-	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
-					def, Class type, long id);
+	public void setRefreshExperimenterData(
+			Map<SecurityContext, RefreshExperimenterDef> def, Class type,
+			long id);
 
 	/** Refreshes the data used by the currently logged in user. */
 	public void refreshLoggedExperimenterData();
@@ -570,6 +576,14 @@ public interface Browser
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
 	
+	/**
+	 * Returns the group the node is representing.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above.
+	 */
+	GroupData getNodeGroup(TreeImageDisplay node);
+
 	/** 
 	 * Sets the node the user wished to save before being prompt with
 	 * the Save data message box.
@@ -718,22 +732,6 @@ public interface Browser
 	 * @param result
 	 */
 	void setExperimenters(TreeImageSet node, List result);
-	
-	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	long getUserGroupID();
-	
-	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	boolean isUserOwner(Object ho);
 
 	/** Expands the node corresponding to the user currently logged in. */
 	void expandUser();
@@ -771,12 +769,21 @@ public interface Browser
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
+	 * edit the passed object, <code>false</code> otherwise.
 	 * 
 	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean canDeleteObject(Object ho);
+	public boolean canEdit(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * annotate the passed object, <code>false</code> otherwise.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canAnnotate(Object ho);
 	
 	/**
 	 * Returns the node corresponding to the experimenter currently logged in.
@@ -785,4 +792,63 @@ public interface Browser
 	 */
 	public TreeImageDisplay getLoggedExperimenterNode();
 
+	/** Indicates that the transfer has been rejected.*/
+	void rejectTransfer();
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @param node The node to handle
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext(TreeImageDisplay node);
+	
+	/**
+	 * Adds the specified group to the tree.
+	 * 
+	 * @param group The selected group.
+	 */
+	void setUserGroup(GroupData group);
+
+	/**
+	 * Removes the specified group from the display
+	 * 
+	 * @param group The group to remove.
+	 */
+	void removeGroup(GroupData group);
+
+	/**
+	 * Returns <code>true</code> if the specified object can have hard links
+	 * i.e. image added to dataset, <code>false</code> otherwise,
+	 * depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	boolean canLink(Object ho);
+	
+	/**
+	 * Returns the objects to copy or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getDataToCopy();
+
+	/**
+	 * Sets the nodes to copy or cut depending on the passed index.
+	 * 
+	 * @param nodes The nodes to copy or paste.
+	 * @param index One of the following constants:
+	 *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
+	 */
+	void setNodesToCopy(TreeImageDisplay[] nodes, int index);
+
+	/**
+	 * Pastes the nodes to copy into the specified parents.
+	 * 
+	 * @param parents The parents of the nodes to copy.
+	 * @see #setNodesToCopy(TreeImageDisplay[], int)
+	 */
+	void paste(TreeImageDisplay[] parents);
+	
 }

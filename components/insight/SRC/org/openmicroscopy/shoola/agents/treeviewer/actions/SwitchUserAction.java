@@ -29,7 +29,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
+import java.util.Collection;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
@@ -37,9 +37,10 @@ import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 
@@ -62,14 +63,58 @@ public class SwitchUserAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Switch User...";
+	public static final String NAME = "Display User...";
+	
+	/** The name of the action. */
+	public static final String NAME_TO = "Display User from";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data.";
+	public static final String DESCRIPTION = "Select users and view their" +
+			" data.";
 	
     /** The location of the mouse pressed. */
     private Point point;
+    
+    /** 
+     * Handles the group.
+     * 
+     * @param group The group to handle.
+     */
+    private void handleGroupSelection(GroupData group)
+    {
+    	if (group == null) {
+    		setEnabled(false);
+    		return;
+    	}
+    	Collection l = group.getExperimenters();
+    	if (l == null) {
+    		setEnabled(false);
+    		return;
+    	}
+    	int level = model.getGroupPermissions(group);
+    	boolean b = false;
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
+			if (model.isLeaderOfGroup(group) ||
+					TreeViewerAgent.isAdministrator())
+				b = l.size() > 1;
+		} else {
+			b = l.size() > 1;
+		}
+		setEnabled(b);
+    }
+    
+    /**
+     * Sets the action enabled depending on the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay == null) {
+        	setEnabled(false);
+            return;
+        }
+        handleGroupSelection(model.getSelectedGroup());
+    }
     
     /** 
      * Enables the action if the browser is not ready.
@@ -83,21 +128,7 @@ public class SwitchUserAction
     		return;
     	}
     	if (browser.getState() == Browser.READY) {
-    		boolean enabled = false;
-    		GroupData group = model.getSelectedGroup();
-    		if (group == null) {
-    			setEnabled(false);
-    			return;
-    		}
-    		int level = model.getSelectedGroupPermissions();
-    		if (level == AdminObject.PERMISSIONS_PRIVATE) {
-    			if (model.isLeaderOfSelectedGroup()) {
-					enabled = group.getExperimenters().size() > 1;
-				}
-    		} else {
-    			enabled = group.getExperimenters().size() > 1;
-    		}
-    		setEnabled(enabled);
+    		onDisplayChange(browser.getLastSelectedDisplay());
     	} else setEnabled(false);
     }
     
@@ -118,6 +149,7 @@ public class SwitchUserAction
 	public SwitchUserAction(TreeViewer model)
 	{
 		super(model);
+		setEnabled(false);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -131,9 +163,11 @@ public class SwitchUserAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	SwingUtilities.convertPointToScreen(point, 
-			(Component) e.getSource());
-    	model.retrieveUserGroups(point);
+    	if (point != null) {
+    		SwingUtilities.convertPointToScreen(point, 
+    				((Component) e.getSource()));
+    	}
+    	model.retrieveUserGroups(point, null);
     }
     
     /** 

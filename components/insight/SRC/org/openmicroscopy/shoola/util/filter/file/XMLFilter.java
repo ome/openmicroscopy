@@ -53,6 +53,9 @@ public class XMLFilter
     /** Possible file extension. */
     public static final String  XML = "xml";
     
+    /** Possible file extension. */
+    public static final String  OME_XML = "ome.xml";
+    
     /** The possible extensions. */
     public static final String[] 	extensions;
 	

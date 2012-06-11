@@ -1,1 +1,2 @@
-import omero_FS_ice
+import IceImport
+IceImport.load("omero_FS_ice")

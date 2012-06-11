@@ -235,10 +235,12 @@ class CustomizedFileChooser
 		File[] l = getCurrentDirectory().listFiles();
 		String n = model.getExtendedName(fileName, format);
 		boolean exist = false;
-		for (int i = 0; i < l.length; i++) {
-			if ((l[i].getAbsolutePath()).equals(n)) {
-				exist = true;
-				break;
+		if (l != null) {
+			for (int i = 0; i < l.length; i++) {
+				if ((l[i].getAbsolutePath()).equals(n)) {
+					exist = true;
+					break;
+				}
 			}
 		}
 		setSelectedFile(null);
@@ -304,6 +306,7 @@ class CustomizedFileChooser
 				return f;
 			
 			String fileName = f.getAbsolutePath();
+			if (fileName.endsWith("."+format)) return new File(fileName);
 			return new File(fileName+"."+format);
 		}
 		return f;
