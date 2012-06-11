@@ -1061,7 +1061,6 @@ def jsonp (f):
             if server_id is None:
                 server_id = request.session['connector'].server_id
             kwargs['server_id'] = server_id
-            conn = kwargs.get('conn', None)
             rv = f(request, *args, **kwargs)
             if kwargs.get('_raw', False):
                 return rv
