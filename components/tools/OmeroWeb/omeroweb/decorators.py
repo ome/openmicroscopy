@@ -193,6 +193,7 @@ class login_required(object):
         is_secure = request.get('ssl', False)
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
+        logger.debug('Connector: %s' % connector)
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
