@@ -53,73 +53,23 @@ import org.testng.annotations.Test;
  */
 public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
-    // given previous events
-    // when executing a command
-    // expect event stack
-
-    // user1 created
-    // private group1 created
-    // read write group2 created
-    // user1 in group1, group2
-    // user1 adds imageA to group1
-    // user1 adds roi to imageA
-
-    // user1 executes command: move image from group1 to group2
-
-    @Test
-    public void moveImageWithROIFromPrivateGroupToReadWriteGroupAsMember()
-            throws Exception {
-        EventContext targetGroupEventContext = newUserAndGroup("rwrw--");
-
-        System.out.println(String.format("Target Group: %s",
-                targetGroupEventContext.groupId));
-        disconnect();
-
-        // make a user have a private group and be owner
-        ExperimenterGroup privateGroup = newGroupAddUser("rw----",
-                targetGroupEventContext.userId, true);
-
-        System.out.println(String.format("Private Group: %s", privateGroup
-                .getId().getValue()));
-
-        // add an image to this group with an ROI by this user
-        Image image = mmFactory.createImageWithRoi();
-        Image returnedImage = (Image) iUpdate.saveAndReturnObject(image);
-
-        // move the image and roi to the read-write shared group
-
-        // Create commands to move and create the link in target
-        Chgrp changeGroup = new Chgrp(DeleteServiceTest.REF_IMAGE,
-                returnedImage.getId().getValue(), null,
-                targetGroupEventContext.groupId);
-
-        // move the image to the shared rwrw group
-        doChange(changeGroup);
-
-        disconnect();
-
-        // the image should no longer be in this group
-        ParametersI param = new ParametersI();
-        param.addId(returnedImage.getId().getValue());
-        String sql = "select i from Image where i.id = :id";
-
-        assertNull(iQuery.findByQuery(sql, param));
-    }
-
-    private EventContext createPrivateGroup() throws Exception {
-        String privateGroupPermissions = "rw----";
-        return newUserAndGroup(privateGroupPermissions);
-    }
-
     @Test
     public void moveImageRWtoRWRW() throws Exception {
         EventContext privateGroupContext = createPrivateGroup();
-        ExperimenterGroup readWriteGroup = createReadWriteGroupWithUser(privateGroupContext.userId);
+        ExperimenterGroup rwGroup = createReadWriteGroupWithUser(privateGroupContext.userId);
+
+        long rwGroupId = rwGroup.getId().getValue();
+
+        // force an eventcontext?
+        // I don't know why or how I'm meant to know to do this?
+        // is this to force
         iAdmin.getEventContext();
 
         Image image = createSimpleImage();
+        long originalImageId = image.getId().getValue();
 
         Roi serverROI = createSimpleRoiFor(image);
+        long originalRoiId = serverROI.getId().getValue();
 
         List<Long> shapeIds = new ArrayList<Long>();
 
@@ -129,69 +79,119 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         }
 
         // Move the image.
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, image.getId()
-                .getValue(), null, readWriteGroup.getId().getValue()));
+        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, originalImageId,
+                null, rwGroupId);
+        doChange(command);
 
-        // check if the objects have been delete.
+        // check if the objects have been moved.
+        Roi originalRoi = getRoiWithId(originalRoiId);
+        assertNull(originalRoi);
 
-        ParametersI param = new ParametersI();
-        param.addId(serverROI.getId().getValue());
-        String sql = "select d from Roi as d where d.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        // check the shapes have been moved
+        List<IObject> orginalShapes = getShapesWithIds(shapeIds);
+        assertEquals(0, orginalShapes.size());
 
-        // shapes
-        param = new ParametersI();
-        param.addIds(shapeIds);
-        sql = "select d from Shape as d where d.id in (:ids)";
-        List<IObject> results = iQuery.findAllByQuery(sql, param);
+        // Move the user into the RW group!
+        loginUser(rwGroup);
 
-        assertEquals(0, results.size());
+        // Check that the ROI has moved
+        Roi movedRoi = getRoiWithId(originalRoiId);
+        assertNotNull(movedRoi);
 
-        // Check that the data moved
-        loginUser(readWriteGroup);
-        param = new ParametersI();
-        param.addId(serverROI.getId().getValue());
-        sql = "select d from Roi as d where d.id = :id";
-
-        assertNotNull(iQuery.findByQuery(sql, param));
-
-        // shapes
-        param = new ParametersI();
-        param.addIds(shapeIds);
-        sql = "select d from Shape as d where d.id in (:ids)";
-        results = iQuery.findAllByQuery(sql, param);
-
-        assertTrue(results.size() > 0);
+        List<IObject> movedShapes = getShapesWithIds(shapeIds);
+        assertEquals(shapeIds.size(), movedShapes.size());
     }
 
+    /**
+     * Creates a new private group for the currently logged in user
+     * 
+     * @return
+     * @throws Exception
+     */
+    private EventContext createPrivateGroup() throws Exception {
+        String privateGroupPermissions = "rw----";
+        return newUserAndGroup(privateGroupPermissions);
+    }
+
+    /**
+     * Creates a new Read-Write group for the user
+     * 
+     * @param userId
+     * @return
+     * @throws Exception
+     */
     private ExperimenterGroup createReadWriteGroupWithUser(long userId)
             throws Exception {
         ExperimenterGroup readWriteGroup = newGroupAddUser("rwrw--", userId);
         return readWriteGroup;
     }
 
+    /**
+     * Queries the server for the ROI with the id provided under the current
+     * user/group security context
+     * 
+     * @param roiId
+     * @return
+     * @throws ServerError
+     */
+    private Roi getRoiWithId(long roiId) throws ServerError {
+        ParametersI queryParameters = new ParametersI();
+        queryParameters.addId(roiId);
+        String queryForROI = "select d from Roi as d where d.id = :id";
+        return (Roi) iQuery.findByQuery(queryForROI, queryParameters);
+    }
+
+    /**
+     * Queries the server for all the shapes with matching ids under the current
+     * user/group security context
+     * 
+     * @param shapeIds
+     * @return
+     * @throws ServerError
+     */
+    private List<IObject> getShapesWithIds(List<Long> shapeIds)
+            throws ServerError {
+        ParametersI queryParameters = new ParametersI();
+        queryParameters.addIds(shapeIds);
+        String queryForShapes = "select d from Shape as d where d.id in (:ids)";
+        return iQuery.findAllByQuery(queryForShapes, queryParameters);
+    }
+
+    /**
+     * Creates and returns a server created ROI on an image under the current
+     * user/group security context
+     * 
+     * @param image
+     * @return
+     * @throws ServerError
+     */
     private Roi createSimpleRoiFor(Image image) throws ServerError {
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            Rect rect = new RectI();
             rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
+            rect.setY(rdouble(20));
+            rect.setWidth(rdouble(40));
+            rect.setHeight(rdouble(80));
             rect.setTheZ(rint(i));
             rect.setTheT(rint(0));
-            serverROI.addShape(rect);
+            roi.addShape(rect);
         }
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
-        return serverROI;
+
+        return (RoiI) iUpdate.saveAndReturnObject(roi);
     }
 
+    /**
+     * Creates and returns an image on the server under the current user/group
+     * security context
+     * 
+     * @return
+     * @throws ServerError
+     */
     private Image createSimpleImage() throws ServerError {
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
-        return image;
+        Image simpleImage = mmFactory.simpleImage(0);
+        return (Image) iUpdate.saveAndReturnObject(simpleImage);
     }
 }
