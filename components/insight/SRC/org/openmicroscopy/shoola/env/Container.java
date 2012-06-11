@@ -230,9 +230,20 @@ public final class Container
 	 */
 	public String getConfigFileRelative()
 	{ 
+        return getConfigFileRelative(configFile);
+	}
+	
+	/**
+	 * Returns the relative path to the container's configuration file.
+	 * 
+	 * @param file The configuration file.
+	 * @return	See above.
+	 */
+	public String getConfigFileRelative(String file)
+	{ 
         StringBuffer relPath = new StringBuffer(CONFIG_DIR);
         relPath.append(File.separatorChar);
-        relPath.append(configFile);
+        relPath.append(file);
         return relPath.toString();
 	}
 	
