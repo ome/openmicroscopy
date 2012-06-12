@@ -271,8 +271,13 @@ public class QueryBuilder {
         return this;
     }
 
-    public Query query(Session session) {
-        
+    /**
+     * In order to support the order() method in addition
+     * to a filter, we allow applying the filter and nulling
+     * the instance eagerly before the user calls order.
+     */
+    public QueryBuilder filterNow() {
+
         if (filter != null && filterTarget != null) {
             if (filter.owner() >= 0) {
                 this.and(filterTarget+".details.owner.id = ");
@@ -280,7 +285,7 @@ public class QueryBuilder {
 		this.append(":");
                 this.append(alias);
                 this.param(alias, filter.owner());
-
+                appendSpace();
             }
             if (filter.group() >= 0) {
                 this.and(filterTarget+".details.group.id = ");
@@ -288,9 +293,25 @@ public class QueryBuilder {
 		this.append(":");
                 this.append(alias);
                 this.param(alias, filter.group());
+                appendSpace();
             }
         }
-        
+        return this;
+    }
+
+    public Query queryWithoutFilter(Session session) {
+        return __query(session, false);
+    }
+
+    public Query query(Session session) {
+        return __query(session, true);
+    }
+
+    private Query __query(Session session, boolean usefilter) {
+
+        if (usefilter) {
+            filterNow();
+        }
         Query q = session.createQuery(sb.toString());
         for (String key : params.keySet()) {
             q.setParameter(key, params.get(key));

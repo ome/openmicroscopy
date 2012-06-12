@@ -126,15 +126,22 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         		    q.setParameterList("ids", idList);
         		    return q.list();
             	}
-            	else
-            	{
-        		    String queryString = "select distinct r from Roi r join r.image i "
-                        + "join fetch r.shapes where i.id = :id";
-        		    queryString = queryString + " order by r.id";
-        		    Query q = session.createQuery(queryString);
-        		    q.setParameter("id", imageId);
-        		    return q.list();
-            	}   	
+
+                else
+                {
+                    final Filter f = filter(opts);
+                    final QueryBuilder qb = new QueryBuilder();
+                    qb.select("distinct r").from("Roi", "r");
+                    qb.join("r.image", "i", false, false);
+                    qb.join("r.shapes", "shapes", false, true); // fetch
+                    qb.where();
+                    qb.and("i.id = :id");
+                    qb.filter("r", f);
+                    qb.filterNow();
+                    qb.order("r.id", true); // ascending
+                    qb.param("id", imageId);
+                    return qb.queryWithoutFilter(session).list();
+                }
             }
         }));
 
