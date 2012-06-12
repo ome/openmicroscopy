@@ -143,31 +143,63 @@ class TestRois(lib.ITest):
         img.unload()
         iid = img.id.val
 
-        r1 = omero.model.RectI()
-        roi1 = omero.model.RoiI()
-        roi1.setImage(img)
-        roi1.addShape(r1)
-        roi1 = fix1.save(roi1)
+        class Roi(object):
+            def __init__(self, fix, ns, z, t):
+                self.fix = fix
+                self.ns = ns
+                self.z = z
+                self.t = t
+                self.shape = omero.model.RectI()
+                self.shape.setTheZ(omero.rtypes.rint(z))
+                self.shape.setTheT(omero.rtypes.rint(t))
+                self.obj = omero.model.RoiI()
+                self.obj.namespaces = [ns]
+                self.obj.setImage(img)
+                self.obj.addShape(self.shape)
+                self.obj = fix.save(self.obj)
+                self.id = self.obj.id.val
 
-        r2 = omero.model.RectI()
-        roi2 = omero.model.RoiI()
-        roi2.setImage(img)
-        roi2.addShape(r2)
-        roi2 = fix2.save(roi2)
+        r1 = Roi(fix1, "A", 0, 0)
+        r2 = Roi(fix1, "B", 1, 1)
+        r3 = Roi(fix2, "A", 0, 0)
+        r4 = Roi(fix2, "B", 1, 1)
 
-        roiOptions = omero.api.RoiOptions()
-        for conn in (fix1, fix2):
+        def assertRois(fix, userid, ns, z, t,\
+                byimage, byrois, byns, byplane):
 
-            roiOptions.userId = omero.rtypes.rlong(fix1.userid)
-            r = conn.roi.findByImage(iid, roiOptions)
-            self.assertEquals(1, len(r.rois))
+                roiOptions = omero.api.RoiOptions()
+                if userid is not None:
+                    roiOptions.userId = omero.rtypes.rlong(userid)
+                if ns is not None:
+                    roiOptions.namespace = omero.rtypes.rstring(ns)
 
-            roiOptions.userId = omero.rtypes.rlong(fix2.userid)
-            r = conn.roi.findByImage(iid, roiOptions)
-            self.assertEquals(1, len(r.rois))
+                svc = fix.roi
 
-            r = conn.roi.findByImage(iid, None)
-            self.assertEquals(2, len(r.rois))
+                r = svc.findByImage(iid, roiOptions)
+                self.assertEquals(byimage, len(r.rois))
+
+                count = 0
+                for r in (r1, r2, r3, r4):
+                    r = svc.findByRoi(r.id, roiOptions)
+                    count += len(r.rois)
+                self.assertEquals(byrois, count)
+
+                r = svc.findByPlane(iid, z, t, roiOptions)
+                self.assertEquals(byplane, len(r.rois))
+
+        for x, y in ((fix1, fix1), (fix1, fix2), (fix2, fix1), (fix2, fix2)):
+            assertRois(x, y.userid, None, 0, 0,   2, 2, 2, 1)
+            assertRois(x, y.userid, None, 0, 1,   2, 2, 2, 0) #DNE
+            assertRois(x, y.userid, "A",  0, 0,   1, 2, 1, 1)
+            assertRois(x, y.userid, "B",  0, 0,   1, 2, 1, 1)
+
+        for x in (fix1, fix2):
+            assertRois(x, None,     None,  0, 0,   4, 4, 4, 2)
+            assertRois(x, None,     None,  0, 1,   4, 4, 4, 0) #DNE
+            assertRois(x, None,     "A",   0, 0,   2, 4, 2, 2)
+            assertRois(x, None,     "B",   0, 0,   2, 4, 2, 2)
+            assertRois(x, None,     "B",   0, 0,   2, 4, 2, 2)
+
 
 
 if __name__ == '__main__':
