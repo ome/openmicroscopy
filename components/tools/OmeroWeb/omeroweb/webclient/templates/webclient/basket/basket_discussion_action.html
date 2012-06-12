@@ -1,7 +1,4 @@
-{% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -23,24 +20,12 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
-{% block jscript %}
-        
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.datepicker.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery.ui.datepicker.js" %}"></script>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-{% endblock %}
-
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
@@ -56,34 +41,21 @@
           });
       });
     </script>
-    
-{% endblock %}
 
-
-{% block content %}
 
     <h1>{% trans "Create new discussion" %}:</h1>
     
     <div>
-        <form action="{% url basket_action "createdisc" %}" method="post">
-            <table>
             {% for field in form %}                
                 {% ifequal field.label_tag form.enable.label_tag %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+                    <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</div>
+                    <div>{{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</div>
                 {% else %}                
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
-                <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-                <tr><td>{{ field }}</td></tr>
+                    <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</div>
+                    <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
+                    <div>{{ field }}</div>
                 {% endifequal %}
             {% endfor %}
-                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-            </table>
-        </form>
-        <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
-            googie_spell.decorateTextarea("id_message", null, "600px");
-        </script>
     </div>
 
-{% endblock %}
 

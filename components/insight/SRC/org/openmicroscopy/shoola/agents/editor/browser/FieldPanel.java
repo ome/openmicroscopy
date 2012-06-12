@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -61,6 +62,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
@@ -317,7 +319,7 @@ public class FieldPanel
 			// put the table in a UI with buttons for adding and deleting rows
 			TableEditUI tableUI = new TableEditUI(table);
 			tableUI.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
-			addFieldComponent(tableUI);
+			addFieldComponent(tableUI, null);
 			
 		} else {
 			int paramCount = field.getContentCount();
@@ -330,7 +332,7 @@ public class FieldPanel
 					param = (IParam) content;
 					edit = ParamUIFactory.getEditingComponent(param);
 					if (edit != null) {
-						addFieldComponent(edit);
+						addFieldComponent(edit, param.getAttribute(AbstractParam.PARAM_NAME));
 					}
 				} 
 			}
@@ -344,10 +346,21 @@ public class FieldPanel
 	 * 
 	 * @param comp	The component to add.
 	 */
-	private void addFieldComponent(JComponent comp) 
+	private void addFieldComponent(JComponent comp, String paramLabel) 
 	{
-		horizontalBox.add(Box.createHorizontalStrut(5));
-		horizontalBox.add(comp);
+		horizontalBox.add(Box.createHorizontalStrut(15));
+		JComponent vb = new JPanel();
+		vb.setBackground(null);
+		vb.setLayout(new BoxLayout(vb, BoxLayout.Y_AXIS));
+		vb.setAlignmentX(LEFT_ALIGNMENT);
+		if (paramLabel != null) {
+			JLabel l = new CustomLabel(paramLabel);
+			l.setAlignmentX(LEFT_ALIGNMENT);
+			vb.add(l);
+		}
+		comp.setAlignmentX(LEFT_ALIGNMENT);
+		vb.add(comp);
+		horizontalBox.add(vb);
 		
 		comp.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
 		comp.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);

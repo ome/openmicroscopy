@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -65,16 +66,17 @@ public class DataObjectCreator
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer 	The Importer this data loader is for.
-     * 					Mustn't be <code>null</code>.
-	 * @param child		The {@link DataObject} to handle. 
-     * @param parent	The parent of the object to create,
-     * 					<code>null</code> if no parent.
+	 * @param viewer The Importer this data loader is for.
+     * Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param child The {@link DataObject} to handle. 
+     * @param parent The parent of the object to create,
+     *               <code>null</code> if no parent.
 	 */
-	public DataObjectCreator(Importer viewer, DataObject child, 
-			DataObject parent)
+	public DataObjectCreator(Importer viewer, SecurityContext ctx,
+		DataObject child, DataObject parent)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (child == null)
 			throw new IllegalArgumentException("No object to create.");
         this.parent = parent;
@@ -87,7 +89,7 @@ public class DataObjectCreator
 	 */
 	public void load()
 	{
-		handle = dmView.createDataObject(child, parent, this);
+		handle = dmView.createDataObject(ctx, child, parent, this);
 	}
 	
 	/** 

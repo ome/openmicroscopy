@@ -64,7 +64,7 @@ public class SaveRndSettingsAction
     	if (model.isOriginalSettings()) {
     		setEnabled(false);
     	} else {
-    		setEnabled(!model.isReadOnly());
+    		setEnabled(model.canAnnotate());
     	}
     }
     

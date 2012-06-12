@@ -32,6 +32,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.PlateData;
@@ -60,19 +61,31 @@ public class TabularDataLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
+    /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean loadAll;
+    
     /**	
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param ids The identifier of the files hosting the tabular data.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 				  annotations available if the user can annotate,
+     *                <code>false</code> to only load the user's annotation.
      */
-    public TabularDataLoader(DataBrowser viewer, List<Long> ids)
+    public TabularDataLoader(DataBrowser viewer, SecurityContext ctx,
+    		List<Long> ids, boolean loadAll)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (ids == null || ids.size() <= 0)
     		 throw new IllegalArgumentException("No file to retrieve.");
     	 parameters = new TableParameters(ids);
+    	 this.loadAll = loadAll;
     }
     
     /**	
@@ -80,11 +93,16 @@ public class TabularDataLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param object The object to handle. Mustn't be <code>null</code>.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 				  annotations available if the user can annotate,
+     *                <code>false</code> to only load the user's annotation.
      */
-    public TabularDataLoader(DataBrowser viewer, DataObject object)
+    public TabularDataLoader(DataBrowser viewer, SecurityContext ctx,
+    		DataObject object, boolean loadAll)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (object == null)
     		 throw new IllegalArgumentException("No file to retrieve.");
     	 if (!(object instanceof PlateData || object instanceof ScreenData)) {
@@ -99,7 +117,9 @@ public class TabularDataLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadTabularData(parameters, -1, this);
+		long userID = getCurrentUser();
+		if (loadAll) userID = -1;
+		handle = mhView.loadTabularData(ctx, parameters, userID, this);
 	}
 	
 	/** 

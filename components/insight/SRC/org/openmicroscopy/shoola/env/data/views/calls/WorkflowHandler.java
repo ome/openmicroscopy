@@ -31,6 +31,7 @@ import java.util.List;
 //Application-internal dependencies
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -52,10 +53,13 @@ public class WorkflowHandler
 {
 	
 	/** The result of the call. */
-    private Object				result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   		loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to retrieve or store the workflows..
@@ -70,26 +74,26 @@ public class WorkflowHandler
     		public void doCall() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
- 	    		result = os.retrieveWorkflows(userID);
+ 	    		result = os.retrieveWorkflows(ctx, userID);
 	    	}
         };
     }
     
     /**
-     * Creates a {@link BatchCall} to retrieve or store the workflows..
+     * Creates a {@link BatchCall} to retrieve or store the workflows.
      * 
-     * @param userID The id of the user to retrieve workflows for.. 
+     * @param userID The id of the user to retrieve workflows for
      * @param index  One of the constants defined by the script.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final List<WorkflowData> workflows, 
+    private BatchCall makeCall(final List<WorkflowData> workflows,
     		final long userID)
     {
     	return new BatchCall("Run the script") {
     		public void doCall() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
- 	    		result = os.storeWorkflows(workflows, userID);
+ 	    		result = os.storeWorkflows(ctx, workflows, userID);
 	    	}
         };
     }
@@ -110,27 +114,32 @@ public class WorkflowHandler
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param userID The userID of the workflows to retrieve.
      */
-    public WorkflowHandler(long userID)
+    public WorkflowHandler(SecurityContext ctx, long userID)
     {
     	if (userID < 0) 
-    		throw new IllegalArgumentException("invalid userID specified."); 
+    		throw new IllegalArgumentException("invalid userID specified.");
+    	this.ctx = ctx;
 		loadCall = makeCall(userID);
     }
 
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param workflows The workflows to store.
      * @param userID The userID to store under.
      */
-    public WorkflowHandler(List<WorkflowData> workflows, long userID)
+    public WorkflowHandler(SecurityContext ctx, List<WorkflowData> workflows,
+    		long userID)
     {
       	if (userID < 0) 
-    		throw new IllegalArgumentException("invalid userID specified."); 
+    		throw new IllegalArgumentException("invalid userID specified.");
       	if (workflows == null || workflows.size() == 0) 
-    		throw new IllegalArgumentException("Invalid workflows specified."); 
+    		throw new IllegalArgumentException("Invalid workflows specified.");
+      	this.ctx = ctx;
 		loadCall = makeCall(workflows, userID);
     }
     

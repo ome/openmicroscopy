@@ -119,13 +119,13 @@ class ImageCanvas
 	void paintScaleBar(Graphics2D g2D, int width, int height, 
 					JViewport viewPort)
 	{
-		if (!(model.isUnitBar())) return;
+		if (!model.isUnitBar()) return;
 
 		String value = model.getUnitBarValue(); 
 		if (value == null) return;
 
 		int size = (int) (model.getUnitBarSize());
-
+		
 		// Position scalebar in the bottom left of the viewport or
 		// the image which ever is viewable. 
 		Rectangle imgRect = new Rectangle(0, 0, width, height);

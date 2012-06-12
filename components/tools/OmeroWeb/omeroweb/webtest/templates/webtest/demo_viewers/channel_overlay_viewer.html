@@ -9,9 +9,9 @@ body {
 }
 </style>
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
 <script type="text/javascript" src="/webtest/statictest/js/imgareaselect/jquery.imgareaselect.js"></script>
 <link rel="stylesheet" type="text/css" href="/webtest/statictest/css/imgareaselect-default.css" /> 
+
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -189,7 +189,7 @@ $(document).ready(function() {
         query += "&imageIds="+imageId
         
         // bit of a hack - should really POST properly.
-        var url = "/webtest/add_annotations/" + "?" + query;
+        var url = "{% url webtest_add_annotations %}" + "?" + query;
         window.location = url;
     });
 });
@@ -199,13 +199,19 @@ $(document).ready(function() {
 
 <body>
 
-<table><tr>
-    <td valign='top'>
+
+    <div style="float:left">
         <img id='viewer' src="" width="{{ image.width }}" height="{{ image.height }}"/>
-    </td>
+    </div>
     
-    <td valign='top'>
-        
+    <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
+        <img id="lens" src="" style="width: 100px; height: 100px;" />
+    </div>
+    
+    <div style="padding:10px; margin:10px; float:left">
+        <div style="float:right">
+                Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
+        </div>
         Adjust the x-shift and y-shift of individual planes to align them. <br />
         Draw a rectangle on the image to zoom that region.<br />
         Also possible to pick the Z, C, T and Image-ID to mix planes from different images.
@@ -216,13 +222,13 @@ $(document).ready(function() {
                 <td>Red</td><td>Green</td><td>Blue</td> 
                 <td>Image-ID</td>
                 <td>Z 
-                    <img class='incZ minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
-                    <img class='incZ plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incZ minus' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12'/>
+                    <img class='incZ plus' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
                 </td>
                 <td>C</td>
                 <td>T
-                    <img class='incT minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
-                    <img class='incT plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incT minus' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12'/>
+                    <img class='incT plus' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
                 </td>
                 <td>Channel Name</td><td>x-shift</td><td>y-shift</td>
             </tr>
@@ -241,17 +247,17 @@ $(document).ready(function() {
                 <td><input class='tIndex' type="text" size="2" name="t" value='0'/></td>
                 <td>{{ c.name }}</td>
                 <td>
-                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='16' />
+                    <img class='incShift minusSmall' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12' />
+                    <img class='incShift plusSmall' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
+                    <img class='incShift plusBig' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='16'/>
                     <input type="text" size="5" name="x" value='{% if c.x %}{{c.x}}{% else %}0{% endif %}'/>
                 </td>
                 <td>
-                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='16' />
+                    <img class='incShift minusSmall' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12' />
+                    <img class='incShift plusSmall' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
+                    <img class='incShift plusBig' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='16'/>
                     <input type="text" size="5" name="y" value='{% if c.y %}{{c.y}}{% else %}0{% endif %}'/>
                 </td>
             </tr>
@@ -266,15 +272,7 @@ $(document).ready(function() {
             </tr>
         </table>
         <hr />
-        <div>
-            Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
-        </div>
-        <div id="preview" style="width: 100px; height: 100px; overflow: hidden;">
-            <img id="lens" src="" style="width: 100px; height: 100px;" />
-        </div>
         
-        
-    </td>
-</table>
+    </div>
 
 </body> </html>

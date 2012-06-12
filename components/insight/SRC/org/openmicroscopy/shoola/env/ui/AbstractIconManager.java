@@ -87,7 +87,7 @@ public abstract class AbstractIconManager
 	 * The <i>OME</i> logo to be used for title-bars.
 	 * We cache it as this icon is used in basically every top-level UI.
 	 */
-	private static final Icon	OME_ICON = createIcon("graphx/OME16.png");
+	private static final Icon	OME_ICON = createIcon("graphx/omero16.png");
 	
 	
 	/** 

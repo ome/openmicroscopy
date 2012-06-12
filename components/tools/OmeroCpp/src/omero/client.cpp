@@ -36,6 +36,7 @@ namespace omero {
 	// Strictly necessary for this class to work
 	id.properties->setProperty("Ice.ImplicitContext", "Shared");
         id.properties->setProperty("Ice.ACM.Client", "0");
+        id.properties->setProperty("Ice.CacheMessageBuffers", "0");
         id.properties->setProperty("Ice.RetryIntervals", "-1");
         id.properties->setProperty("Ice.Default.EndpointSelection", "Ordered");
         id.properties->setProperty("Ice.Default.PreferSecure", "1");
@@ -142,7 +143,7 @@ namespace omero {
 	}
 
 	// Register Object Factory
-	omero::registerObjectFactory(__ic);
+	omero::registerObjectFactory(__ic, this);
         omero::rtypes::registerObjectFactory(__ic);
 
 	// Define our unique identifier (used during close/detach)
@@ -305,6 +306,9 @@ namespace omero {
 	return getSession()->ice_getIdentity().name;
     }
 
+    std::string client::getCategory() const {
+        return getRouter(getCommunicator())->getCategoryForClient();
+    }
 
     // --------------------------------------------------------------------
     omero::api::ServiceFactoryPrx client::getSession() const {

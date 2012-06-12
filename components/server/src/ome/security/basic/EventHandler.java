@@ -6,17 +6,16 @@
  */
 package ome.security.basic;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
+import ome.services.messages.ContextMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
@@ -26,7 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.hibernate.engine.SessionImplementor;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
@@ -49,7 +48,7 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @since 3.0
  */
-public class EventHandler implements MethodInterceptor {
+public class EventHandler implements MethodInterceptor, ApplicationListener<ContextMessage>{
 
     private static Log log = LogFactory.getLog(EventHandler.class);
 
@@ -90,6 +89,38 @@ public class EventHandler implements MethodInterceptor {
     }
 
     /**
+     * If a {@link ContextMessage} is received, then we either need to add a
+     * {@link ContextMessage.Push} login to the stack or
+     * {@link ContextMessage.Pop} remove one.
+     */
+    @Override
+    public void onApplicationEvent(ContextMessage msg) {
+       final CurrentDetails cd = secSys.cd;
+       final Session session = factory.getSession();
+       if (msg instanceof ContextMessage.Pop){
+           secSys.disableReadFilter(session); // Disable old name
+           cd.logout();
+           secSys.enableReadFilter(session); // With old context
+       } else if (msg instanceof ContextMessage.Push) {
+           // We assume don't close and use the current readOnly setting
+           final EventContext curr = cd.getCurrentEventContext();
+           final boolean readOnly = curr.isReadOnly();
+           final boolean isClose = false;
+           // here we try to reproduce what's done in invoke
+            // with the addition of having a call context
+            // ourselves
+            secSys.disableReadFilter(session); // Disable old name
+            cd.login(cd.getLast()); // Login with same principal
+            cd.setContext(msg.context);
+            if (!doLogin(readOnly, isClose)) {
+                throw new InternalException("Failed to login on Push: " +
+                    msg.context);
+            }
+            secSys.enableReadFilter(session); // With new context
+       }
+    }
+
+    /**
      * invocation interceptor for prepairing this {@link Thread} for execution
      * and subsequently reseting it.
      * 
@@ -112,35 +143,8 @@ public class EventHandler implements MethodInterceptor {
         if (!readOnly) {
             sql.deferConstraints();
         }
-
-        secSys.loadEventContext(readOnly, isClose);
-
-        // now the user can be considered to be logged in.
-        EventContext ec = secSys.getEventContext();
-        if (!readOnly) {
-            sql.prepareSession(
-                    ec.getCurrentEventId(),
-                    ec.getCurrentUserId(),
-                    ec.getCurrentGroupId());
-        }
-        if (log.isInfoEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(" Auth:\tuser=");
-            sb.append(ec.getCurrentUserId());
-            sb.append(",group=");
-            sb.append(ec.getCurrentGroupId());
-            sb.append(",event=");
-            sb.append(ec.getCurrentEventId());
-            sb.append("(");
-            sb.append(ec.getCurrentEventType());
-            sb.append("),sess=");
-            sb.append(ec.getCurrentSessionUuid());
-            Long shareId = ec.getCurrentShareId();
-            if (shareId != null) {
-                sb.append(",share=");
-                sb.append(shareId);
-            }
-            log.info(sb.toString());
+        if (!doLogin(readOnly, isClose)) {
+            return null;
         }
 
         boolean failure = false;
@@ -149,6 +153,7 @@ public class EventHandler implements MethodInterceptor {
             secSys.enableReadFilter(session);
             retVal = arg0.proceed();
             saveLogs(readOnly, session);
+            secSys.cd.loadPermissions(session);
             return retVal;
         } catch (Throwable ex) {
             failure = true;
@@ -196,6 +201,54 @@ public class EventHandler implements MethodInterceptor {
             }
         }
 
+    }
+
+    public boolean doLogin(boolean readOnly, boolean isClose) {
+
+        try {
+            secSys.loadEventContext(readOnly, isClose);
+        } catch (SessionTimeoutException ste) {
+            // If this is a CloseOnNoSessionContext then we skip all handling
+            // since almost any action by the close() method will try to load
+            // the context and will fail. This assumes that EventHandler is
+            // the most inner handler. If this changes, then this logic may
+            // need to be pushed down further.
+            if (ste.sessionContext instanceof
+                BasicSecurityWiring.CloseOnNoSessionContext) {
+                log.debug("CloseOnNoSessionContext. Skipping");
+                return false;
+            }
+            throw ste;
+        }
+
+        // now the user can be considered to be logged in.
+        EventContext ec = secSys.getEventContext();
+        if (!readOnly) {
+            sql.prepareSession(
+                    ec.getCurrentEventId(),
+                    ec.getCurrentUserId(),
+                    ec.getCurrentGroupId());
+        }
+        if (log.isInfoEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(" Auth:\tuser=");
+            sb.append(ec.getCurrentUserId());
+            sb.append(",group=");
+            sb.append(ec.getCurrentGroupId());
+            sb.append(",event=");
+            sb.append(ec.getCurrentEventId());
+            sb.append("(");
+            sb.append(ec.getCurrentEventType());
+            sb.append("),sess=");
+            sb.append(ec.getCurrentSessionUuid());
+            Long shareId = ec.getCurrentShareId();
+            if (shareId != null) {
+                sb.append(",share=");
+                sb.append(shareId);
+            }
+            log.info(sb.toString());
+        }
+        return true;
     }
 
     /**

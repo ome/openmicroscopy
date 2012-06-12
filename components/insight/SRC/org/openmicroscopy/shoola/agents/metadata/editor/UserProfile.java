@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -110,12 +111,21 @@ class UserProfile
 	/** The title of the dialog displayed if a problem occurs. */
 	private static final String		PASSWORD_CHANGE_TITLE = "Change Password";
 	
+	/** The default user's photo.*/
+	private static final Image		USER_PHOTO;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		USER_PHOTO = icons.getImageIcon(IconManager.USER_PHOTO_32).getImage();
+	}
+	
     /** The items that can be edited. */
     private Map<String, JTextField>	items;
     
     /** UI component displaying the groups, the user is a member of. */
     private JComboBox				groups;
 
+    /** Displayed the current group.*/
     private JLabel					groupLabel;
     
     /** Password field to enter the new password. */
@@ -145,6 +155,9 @@ class UserProfile
 	/** Reference to the Model. */
     private EditorModel				model;
     
+    /** Reference to the Model. */
+    private EditorUI			view;
+    
     /** The original index. */
     private int						originalIndex;
 
@@ -171,6 +184,15 @@ class UserProfile
     
     /** Component displaying the photo of the user. */
     private UserProfileCanvas		userPicture;
+    
+    /** Component used to change the user's photo.*/
+    private JLabel					changePhoto;
+    
+    /** Component used to delete the user's photo.*/
+    private JButton					deletePhoto;
+    
+    /** Save the changes.*/
+    private JButton saveButton;
     
     /** Modifies the existing password. */
     private void changePassword()
@@ -219,12 +241,22 @@ class UserProfile
         	passwordNew.requestFocus();
         	return;
         }
+        if (old.equals(newPass)) {
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        			"Your new and old passwords are the same.\n" +
+        			"Please enter a new password.");
+        	passwordNew.setText("");
+        	passwordConfirm.setText("");
+        	passwordNew.requestFocus();
+        	return;
+        }
 
         if (pass == null || confirm == null || confirm.length() == 0 ||
         	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE, 
-            			"The passwords entered do not match. " +
+            			"The passwords entered do not match.\n" +
             			"Please try again.");
             passwordNew.setText("");
             passwordConfirm.setText("");
@@ -243,6 +275,21 @@ class UserProfile
     	
     }
     
+    /**
+     * Returns <code>true</code> if the user can modify the photo, 
+     * <code></code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean canModifyPhoto()
+    {
+    	Object object = model.getRefObject();
+    	if (!(object instanceof ExperimenterData)) return false;
+    	ExperimenterData exp = (ExperimenterData) object;
+    	ExperimenterData user = MetadataViewerAgent.getUserDetails();
+    	return exp.getId() == user.getId();
+    }
+
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -252,10 +299,22 @@ class UserProfile
 
     	userPicture = new UserProfileCanvas();
     	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	userPicture.setToolTipText("Click to upload your picture.");
+    	//userPicture.setToolTipText("Click to upload your photo.");
+    	
     	IconManager icons = IconManager.getInstance();
-    	userPicture.setImage(
-    			icons.getImageIcon(IconManager.USER_PHOTO_32).getImage());
+    	changePhoto = new JLabel("Change Photo");
+    	changePhoto.setToolTipText("Upload your photo.");
+    	changePhoto.setForeground(UIUtilities.HYPERLINK_COLOR);
+    	Font font = changePhoto.getFont();
+    	changePhoto.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+    	changePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	deletePhoto = new JButton(icons.getIcon(IconManager.DELETE_12));
+    	boolean b = canModifyPhoto();
+    	changePhoto.setVisible(b);
+    	deletePhoto.setToolTipText("Delete the photo.");
+    	deletePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
+    	deletePhoto.setVisible(false);
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -274,6 +333,14 @@ class UserProfile
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
             	changePassword(); 
+            }
+        });
+    	saveButton = new JButton("Save");
+    	saveButton.setEnabled(false);
+    	saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {  
+            	view.saveData(true); 
             }
         });
     	manageButton = new JButton("Group");
@@ -352,7 +419,6 @@ class UserProfile
 		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
 		*/
-		
 		
 		if (MetadataViewerAgent.isAdministrator()) {
 			//Check that the user is not the one currently logged.
@@ -436,7 +502,7 @@ class UserProfile
 		});
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
 		if (user.getId() == logUser.getId()) {
-			userPicture.addMouseListener(new MouseAdapter() {
+			MouseAdapter adapter = new MouseAdapter() {
 				
 	    		/** Brings up a chooser to load the user image. */
 				public void mouseReleased(MouseEvent e)
@@ -444,7 +510,15 @@ class UserProfile
 					uploadPicture();
 				}
 				
-			});
+			};
+			//userPicture.addMouseListener(adapter);
+			changePhoto.addMouseListener(adapter);
+			deletePhoto.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	            	model.deletePicture();
+	            	setUserPhoto(null);
+	            }
+	        });
 		}
     }
     
@@ -509,7 +583,9 @@ class UserProfile
      */
     private boolean setGroupOwner(GroupData group)
     {
-    	ExperimenterData ref = (ExperimenterData) model.getRefObject();
+    	Object refObject = model.getRefObject();
+    	if (!(refObject instanceof ExperimenterData)) return false;
+    	ExperimenterData ref = (ExperimenterData) refObject;
     	long userID = MetadataViewerAgent.getUserDetails().getId();
     	Set leaders = group.getLeaders();
     	ExperimenterData exp;
@@ -530,6 +606,26 @@ class UserProfile
     }
     
     /**
+     * Returns the component displayed the user photo.
+     * 
+     * @return See above.
+     */
+    private JPanel buildProfileCanvas()
+    {
+    	JPanel p = new JPanel();
+    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.add(userPicture);
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	JPanel bar = new JPanel();
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	bar.setLayout(new FlowLayout(FlowLayout.LEFT));
+    	bar.add(changePhoto);
+    	bar.add(deletePhoto);
+    	p.add(bar);
+    	return p;
+    }
+    
+    /**
      * Builds the panel hosting the user's details.
      * 
      * @return See above.
@@ -538,13 +634,10 @@ class UserProfile
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	boolean editable = model.isUserOwner(user);
-    	if (!editable) 
-    		editable = model.isGroupLeader() || 
-    		MetadataViewerAgent.isAdministrator();
+    	if (!editable) MetadataViewerAgent.isAdministrator();
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
-        content.setBorder(
-				BorderFactory.createTitledBorder("Profile"));
+        content.setBorder(BorderFactory.createTitledBorder("User"));
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Entry entry;
     	Iterator i = details.entrySet().iterator();
@@ -559,21 +652,21 @@ class UserProfile
 		//Add log in name but cannot edit.
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+		c.gridwidth = GridBagConstraints.REMAINDER;//end row
 		c.fill = GridBagConstraints.HORIZONTAL;
-		content.add(userPicture, c);
+		content.add(buildProfileCanvas(), c);
         c.gridy++;
         c.gridx = 0;
         label = EditorUtil.getLabel(EditorUtil.DISPLAY_NAME, true);
         label.setBackground(UIUtilities.BACKGROUND_COLOR);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  
         content.add(label, c);
         c.gridx++;
         content.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;//end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         loginArea.setText(user.getUserName());
@@ -595,28 +688,28 @@ class UserProfile
             items.put(key, area);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.fill = GridBagConstraints.NONE;//reset to default
             c.weightx = 0.0;  
             content.add(label, c);
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;//end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
         c.gridx = 0;
         c.gridy++;
-        label = EditorUtil.getLabel(EditorUtil.DEFAULT_GROUP, false); 
+        label = EditorUtil.getLabel(EditorUtil.DEFAULT_GROUP, false);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  
         content.add(label, c);
         c.gridx++;
         content.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(groupLabel, c);
@@ -627,7 +720,7 @@ class UserProfile
         
         c.gridx = 0;
         c.gridy++;
-        label = EditorUtil.getLabel(EditorUtil.GROUP_OWNER, false);  
+        label = EditorUtil.getLabel(EditorUtil.GROUP_OWNER, false);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -642,15 +735,15 @@ class UserProfile
         if (activeBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = EditorUtil.getLabel(EditorUtil.ACTIVE, false);   
+            label = EditorUtil.getLabel(EditorUtil.ACTIVE, false);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 0.0;  
             content.add(label, c);
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(activeBox, c);  
@@ -658,22 +751,22 @@ class UserProfile
         if (adminBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = EditorUtil.getLabel(EditorUtil.ADMINISTRATOR, false); 
+            label = EditorUtil.getLabel(EditorUtil.ADMINISTRATOR, false);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 0.0;  
             content.add(label, c);
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            content.add(adminBox, c);  
+            content.add(adminBox, c);
         }
         c.gridx = 0;
         c.gridy++;
-        content.add(Box.createHorizontalStrut(10), c); 
+        content.add(Box.createHorizontalStrut(10), c);
         c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
         		Font.ITALIC);
@@ -713,41 +806,41 @@ class UserProfile
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.fill = GridBagConstraints.NONE;
 		c.weightx = 0.0; 
 		if (MetadataViewerAgent.isAdministrator()) {
 	    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
 	    	c.gridx++;
-	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.gridwidth = GridBagConstraints.REMAINDER;
 	    	c.fill = GridBagConstraints.HORIZONTAL;
 	    	c.weightx = 1.0;
 	    	content.add(passwordNew, c);
 		} else {
 			content.add(UIUtilities.setTextFont(PASSWORD_OLD), c);
 	    	c.gridx++;
-	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.gridwidth = GridBagConstraints.REMAINDER;
 	    	c.fill = GridBagConstraints.HORIZONTAL;
 	    	c.weightx = 1.0;
 	    	content.add(oldPassword, c);
 	    	c.gridy++;
 	    	c.gridx = 0;
 	    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.fill = GridBagConstraints.NONE;
 			c.weightx = 0.0;  
 	    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
 	    	c.gridx++;
-	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.gridwidth = GridBagConstraints.REMAINDER;
 	    	c.fill = GridBagConstraints.HORIZONTAL;
 	    	c.weightx = 1.0;
 	    	content.add(passwordNew, c);
 	    	c.gridy++;
 	    	c.gridx = 0;
 	    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.fill = GridBagConstraints.NONE;
 			c.weightx = 0.0;  
 	    	content.add(UIUtilities.setTextFont(PASSWORD_CONFIRMATION), c);
 	    	c.gridx++;
-	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.gridwidth = GridBagConstraints.REMAINDER;
 	    	c.fill = GridBagConstraints.HORIZONTAL;
 	    	c.weightx = 1.0;
 	    	content.add(passwordConfirm, c);
@@ -769,21 +862,24 @@ class UserProfile
     private void showRequiredField()
     {
     	UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-        un.notifyInfo("Edit Profile", "The required fields cannot be left " +
-        		"blank.");
+        un.notifyInfo("Edit User settings",
+        		"The required fields cannot be left blank.");
         return;
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param model	Reference to the model. Mustn't be <code>null</code>. 
-     * @param view 	Reference to the control. Mustn't be <code>null</code>.                     
+     * @param model	Reference to the model. Mustn't be <code>null</code>.
+     * @param view 	Reference to the control. Mustn't be <code>null</code>.
      */
-	UserProfile(EditorModel model)
+	UserProfile(EditorModel model, EditorUI view)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
+		this.view = view;
 		this.model = model;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
@@ -806,10 +902,19 @@ class UserProfile
     	if (model.isUserOwner(model.getRefObject()) || 
     			MetadataViewerAgent.isAdministrator()) {
     		c.gridy++;
-    		add(Box.createVerticalStrut(5), c); 
+    		JPanel buttonPanel = UIUtilities.buildComponentPanel(saveButton);
+        	buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		add(buttonPanel, c);
+    		c.gridy++;
+    		add(Box.createVerticalStrut(5), c);
     		c.gridy++;
     		add(buildPasswordPanel(), c);
-    	} 
+    	}
+    	ExperimenterData exp = (ExperimenterData) model.getRefObject();
+    	BufferedImage photo = model.getUserPhoto(exp.getId());
+    	if (photo == null) setUserPhoto(null);
+    	else setUserPhoto(photo);
+    	deletePhoto.setVisible(photo != null && canModifyPhoto());
     }
     
 	/** Clears the password fields. */
@@ -828,11 +933,15 @@ class UserProfile
 	 */
 	boolean hasDataToSave()
 	{
+		saveButton.setEnabled(false);
 		String text = loginArea.getText();
 		if (text == null || text.trim().length() == 0) return false;
 		text = text.trim();
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
-		if (!text.equals(original.getUserName())) return true;
+		if (!text.equals(original.getUserName())) {
+			saveButton.setEnabled(true);
+			return true;
+		}
 		//if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
 		Entry entry;
@@ -851,22 +960,33 @@ class UserProfile
 					if (v != null) {
 						v = v.trim();
 						value = (String) entry.getValue();
-						if (value != null && !v.equals(value))
+						if (value != null && !v.equals(value)) {
+							saveButton.setEnabled(true);
 							return true;
+						}
 					}
 				}
 			}
 		}
 		
 		Boolean b = ownerBox.isSelected();
-		if (b.compareTo(groupOwner) != 0) return true;
+		if (b.compareTo(groupOwner) != 0) {
+			saveButton.setEnabled(true);
+			return true;
+		}
 		if (adminBox.isVisible()) {
 			b = adminBox.isSelected();
-			if (b.compareTo(admin) != 0) return true;
+			if (b.compareTo(admin) != 0) {
+				saveButton.setEnabled(true);
+				return true;
+			}
 		}
 		if (activeBox.isVisible()) {
 			b = activeBox.isSelected();
-			if (b.compareTo(active) != 0) return true;
+			if (b.compareTo(active) != 0) {
+				saveButton.setEnabled(true);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -981,10 +1101,16 @@ class UserProfile
 	 */
 	void setUserPhoto(BufferedImage image)
 	{
-		if (image == null) return;
-		BufferedImage img = Factory.scaleBufferedImage(image, 
+		if (image == null) {
+			userPicture.setImage(USER_PHOTO);
+			deletePhoto.setVisible(false);
+			return;
+		}
+		BufferedImage img = Factory.scaleBufferedImage(image,
 				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
+		deletePhoto.setVisible(canModifyPhoto());
+		repaint();
 	}
 	
 	/** Sets the parent of the node. */
@@ -1003,7 +1129,7 @@ class UserProfile
 	public void actionPerformed(ActionEvent e)
 	{
 		buildGUI();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1013,7 +1139,7 @@ class UserProfile
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -1023,7 +1149,7 @@ class UserProfile
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1033,7 +1159,7 @@ class UserProfile
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	

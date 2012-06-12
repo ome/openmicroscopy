@@ -126,7 +126,7 @@ public class DeleteActivity
 	public DeleteActivity(UserNotifier viewer, Registry registry,
 			DeleteActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, null);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -155,7 +155,7 @@ public class DeleteActivity
 	protected UserNotifierLoader createLoader()
 	{
 		List<DeletableObject> objects = parameters.getObjects();
-		loader = new DataObjectRemover(viewer,  registry, objects, this);
+		loader = new DataObjectRemover(viewer, registry, objects, this);
 		return loader;
 	}
 

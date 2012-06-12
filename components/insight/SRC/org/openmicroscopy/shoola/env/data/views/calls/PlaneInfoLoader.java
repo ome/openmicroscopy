@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -55,6 +56,9 @@ public class PlaneInfoLoader
     /** Loads the specified experimenter groups. */
     private BatchCall   loadCall;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to load the plane information.
      * 
@@ -71,7 +75,7 @@ public class PlaneInfoLoader
             public void doCall() throws Exception
             {
             	OmeroImageService os = context.getImageService();
-            	result = os.loadPlaneInfo(pixelsID, z, t, channel);
+            	result = os.loadPlaneInfo(ctx, pixelsID, z, t, channel);
             }
         };
     }
@@ -91,13 +95,16 @@ public class PlaneInfoLoader
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID 	The id of the pixels set.
-     * @param z 		The selected z-section or <code>-1</code>.
-     * @param t 		The selected timepoint or <code>-1</code>.
-     * @param channel 	The selected timepoint or <code>-1</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param z The selected z-section or <code>-1</code>.
+     * @param t The selected timepoint or <code>-1</code>.
+     * @param channel The selected channel or <code>-1</code>.
      */
-    public PlaneInfoLoader(long pixelsID, int z, int t, int channel)
+    public PlaneInfoLoader(SecurityContext ctx, long pixelsID, int z, int t,
+    		int channel)
     {
+    	this.ctx = ctx;
     	loadCall = loadPlaneInfo(pixelsID, z, t, channel);
     }
     

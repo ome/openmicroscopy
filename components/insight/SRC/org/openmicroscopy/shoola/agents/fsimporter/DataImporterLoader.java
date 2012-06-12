@@ -31,12 +31,11 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import pojos.ExperimenterData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Importer}.
@@ -64,28 +63,31 @@ public abstract class DataImporterLoader
 {
 
 	/** The Importer this data loader is for. */
-	protected final Importer				viewer;
+	protected final Importer viewer;
 
 	/** Convenience reference for subclasses. */
-	protected final Registry        		registry;
+	protected final Registry registry;
 
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        	ivView;
+    protected final ImageDataView ivView;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView        	adminView;
+    protected final AdminView adminView;
 
     /** Convenience reference for subclasses. */
-    protected final DataManagerView        dmView;
+    protected final DataManagerView dmView;
     
     /** The id of the user or <code>-1</code>. */
-    protected long 						userID;
+    protected long userID;
     
     /** The id of the group or <code>-1</code>. */
-    protected long 						groupID;
+    protected long groupID;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
 	/**
      * Helper method to return the ID of the currently logged in user.
@@ -96,32 +98,19 @@ public abstract class DataImporterLoader
     {
     	return ImporterAgent.getUserDetails().getId();
     }
-    
-    /** Sets the identifiers of the group and user. */
-    void setIds()
-    {
-    	ExperimenterData exp = ImporterAgent.getUserDetails();
-		userID = getCurrentUserID();
-		groupID = exp.getDefaultGroup().getId();
-		int level = 
-			ImporterAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
-		}
-    }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer The Importer this data loader is for.
 	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 */
-	protected DataImporterLoader(Importer viewer)
+	protected DataImporterLoader(Importer viewer, SecurityContext ctx)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
-		this.viewer = viewer;
+        this.viewer = viewer;
+        this.ctx = ctx;
 		registry = ImporterAgent.getRegistry();
 		ivView = (ImageDataView) 
 			registry.getDataServicesView(ImageDataView.class);

@@ -1,0 +1,9 @@
+.chzn-container-multi .chzn-choices .search-choice-default {
+  border: 1px solid hsl(210,30%,40%);
+  color: hsl(210,80%,10%);
+  text-shadow:0 1px 0 rgba(255,255,255,.4);
+  background-color: hsl(210,30%,70%);
+}
+.standard_form .hidden {
+    display: none;
+}

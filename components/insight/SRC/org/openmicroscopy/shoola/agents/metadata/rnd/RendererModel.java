@@ -38,11 +38,11 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -161,18 +161,24 @@ class RendererModel
     /** Reference to the image. */
     private ImageData			image;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param rndControl    Reference to the component that controls the
 	 *                      rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex		The index associated to the renderer.
 	 */
-	RendererModel(RenderingControl rndControl, int rndIndex)
+	RendererModel(SecurityContext ctx, RenderingControl rndControl,
+			int rndIndex)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
 		setRenderingControl(rndControl);
+		this.ctx = ctx;
 		this.rndIndex = rndIndex;
 		visible = false;
 		globalMaxChannels = null;
@@ -180,6 +186,13 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 	
 	/**
 	 * Sets the image the component is for.
@@ -247,7 +260,11 @@ class RendererModel
 	 *  
 	 * @return See above.
 	 */
-	Color getChannelColor(int index) { return rndControl.getRGBA(index); }
+	Color getChannelColor(int index)
+	{ 
+		if (rndControl == null) return Color.white;
+		return rndControl.getRGBA(index);
+	}
 
 	/**
 	 * Returns the status of the window.
@@ -268,9 +285,10 @@ class RendererModel
 	void discard() 
 	{
 		if (rndControl == null) return;
-		OmeroImageService svr = 
-			MetadataViewerAgent.getRegistry().getImageService();
-		svr.shutDown(rndControl.getPixelsID());
+		RenderingControlShutDown loader = 
+			new RenderingControlShutDown(ctx, rndControl.getPixelsID());
+		loader.load();
+		rndControl = null;
 	}
 
 	/**
@@ -464,7 +482,7 @@ class RendererModel
 	 */
 	List getCodomainMaps()
 	{ 
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList();
 		return rndControl.getCodomainMaps();
 	}
 
@@ -525,7 +543,7 @@ class RendererModel
 	 */
 	List getFamilies()
 	{ 
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList();
 		return rndControl.getFamilies();
 	}
 
@@ -536,7 +554,7 @@ class RendererModel
 	 */
 	String getFamily()
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return "";
 		return rndControl.getChannelFamily(selectedChannelIndex);
 	}
 
@@ -581,7 +599,7 @@ class RendererModel
 	 */
 	List<ChannelData> getChannelData()
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return new ArrayList<ChannelData>();
 		if (sortedChannel == null) {
 			ChannelData[] data = rndControl.getChannelData();
 			ViewerSorter sorter = new ViewerSorter();
@@ -826,8 +844,9 @@ class RendererModel
 	 */
 	List<Integer> getActiveChannels()
 	{
-		if (rndControl == null) return null;
 		List<Integer> active = new ArrayList<Integer>();
+		if (rndControl == null) return active;
+		
 		for (int i = 0; i < getMaxC(); i++) {
 			if (rndControl.isActive(i)) active.add(Integer.valueOf(i));
 		}
@@ -1421,7 +1440,7 @@ class RendererModel
 	Dimension getTileSize()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl == null) return null;
+		if (rndControl == null) return new Dimension(0, 0);
 		return rndControl.getTileSize();
 	}
 	

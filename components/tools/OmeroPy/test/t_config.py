@@ -102,6 +102,8 @@ class TestConfig(unittest.TestCase):
         p = create_path()
 
         current = os.environ.get("OMERO_CONFIG", "default")
+        self.assertTrue(current != "FOO") # Just in case.
+
         config = ConfigXml(filename=str(p))
         config.close()
         self.assertEquals(current, get_profile_name(p))
@@ -110,9 +112,34 @@ class TestConfig(unittest.TestCase):
         config.close()
         self.assertEquals("FOO", get_profile_name(p))
 
+        # Still foo
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertEquals(current, get_profile_name(p))
+        self.assertEquals("FOO", get_profile_name(p))
+
+        # Re-setting with os.environ won't work
+        try:
+            old = os.environ.get("OMERO_CONFIG", None)
+            os.environ["OMERO_CONFIG"] = "ABC"
+            config = ConfigXml(filename=str(p))
+            config.close()
+            self.assertEquals("FOO", get_profile_name(p))
+        finally:
+            if old is None:
+                del os.environ["OMERO_CONFIG"]
+            else:
+                os.environ["OMERO_CONFIG"] = old
+
+        # But we can reset it with env_config
+        config = ConfigXml(filename=str(p), env_config="ABC")
+        config.close()
+        self.assertEquals("ABC", get_profile_name(p))
+
+        # or manually. ticket:7343
+        config = ConfigXml(filename=str(p))
+        config.default("XYZ")
+        config.close()
+        self.assertEquals("XYZ", get_profile_name(p))
 
     def testAsDict(self):
         p = create_path()

@@ -193,4 +193,7 @@ public interface Thumbnail
      */
     public void setValid(boolean valid);
     
+    /** Flushes the images when closing.*/
+    public void flush();
+    
 }

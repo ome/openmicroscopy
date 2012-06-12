@@ -85,7 +85,7 @@ class WebControl(BaseControl):
         config.add_argument("type", choices=("nginx","apache"))
         config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)")
 
-        parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
+        parser.add(sub, self.syncmedia, "[DEPRECATED] Advanced use: Creates needed symlinks for static media files")
 
         #
         # Developer
@@ -114,27 +114,12 @@ class WebControl(BaseControl):
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
 
 
-    def host_and_port(self, APPLICATION_HOST):
-        parts = APPLICATION_HOST.split(':')
-        if len(parts) != 3:
-            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
-        try:
-            host = parts[1]
-            while host.startswith(r"/"):
-                host = host[1:]
-            port = parts[2]
-            port = re.search(r'^(\d+).*', port).group(1)
-            port = int(port)
-            return (host, port)
-        except Exception, e:
-            self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
-
     def config(self, args):
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
-            host, port = self.host_and_port(settings.APPLICATION_HOST)
+            port = 8080
             if args.http:
                 port = args.http
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
@@ -174,18 +159,18 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Allow from all
 </Directory>
 
-<Directory "%(MEDIA)s">
+<Directory "%(STATIC)s">
     Options -Indexes FollowSymLinks
     Order allow,deny
     Allow from all
 </Directory>
 
-Alias /appmedia %(MEDIA)s
+Alias /static %(STATIC)s
 Alias / "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
                     "ROOT":self.ctx.dir,
-                    "MEDIA":self.ctx.dir / "lib" / "python" / "omeroweb" / "media",
+                    "STATIC":self.ctx.dir / "lib" / "python" / "omeroweb" / "static",
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
                     "FASTCGI_EXTERNAL":fastcgi_external,
                     "NOW":str(datetime.now()),
@@ -193,28 +178,9 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
                 self.ctx.out(stanza % d)
 
     def syncmedia(self, args):
-        import shutil
-        from glob import glob
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        # Targets
-        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, settings.INSTALLED_APPS)
-        apps = filter(lambda x: os.path.exists(location / x), apps)
-        # Destination dir
-        if not os.path.exists(location / 'media'):
-            os.mkdir(location / 'media')
-
-        # Create app media links
-        for app in apps:
-            media_dir = location / app / 'media'
-            if os.path.exists(media_dir):
-                if os.path.exists(location / 'media' / app):
-                    os.remove(os.path.abspath(location / 'media' / app))
-                try:
-                    # Windows does not support symlink
-                    sys.getwindowsversion()
-                    shutil.copytree(os.path.abspath(media_dir), location / 'media' / app) 
-                except:
-                    os.symlink(os.path.abspath(media_dir), location / 'media' / app)
+        self.ctx.out(
+                "** NO-OP ** syncmedia now part of 'web start' and is " \
+                "no longer required.")
 
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
@@ -320,6 +286,12 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
 
     def start(self, args):
+        # Ensure that static media is copied to the correct location
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
+        rv = self.ctx.call(args, cwd = location)
+        if rv != 0:
+            self.ctx.die(607, "Failed to collect static content.\n")
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))

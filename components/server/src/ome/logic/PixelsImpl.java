@@ -85,20 +85,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	}
 
 	/**
-	 * Returns the Id of the currently logged in user.
-	 * Returns owner of the share while in share
-	 * @return See above.
-	 */
-	private Long getCurrentUserId() {
-		Long shareId = getSecuritySystem().getEventContext().getCurrentShareId();
-		if (shareId != null) {
-			Session s = iQuery.get(Session.class, shareId);
-			return s.getOwner().getId();
-		} 
-		return getSecuritySystem().getEventContext().getCurrentUserId();
-	}
-
-	/**
 	 * Implemented as specified by the {@link IPixels} I/F.
 	 * @see IPixels#retrieveRndSettingsFor(long, long)
 	 */
@@ -137,7 +123,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	 */
 	@RolesAllowed("user")
 	public RenderingDef retrieveRndSettings(long pixId) {
-        Long userId = getCurrentUserId();
+        Long userId = sec.getEffectiveUID();
 		return retrieveRndSettingsFor(pixId, userId);
 	}
 

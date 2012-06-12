@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -76,6 +77,9 @@ public class FilesLoader
     /** The files to load. */
     private Map<FileAnnotationData, File> files;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
      * 
@@ -91,7 +95,7 @@ public class FilesLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService service = context.getMetadataService();
-                File f = service.downloadFile(file, fileID, size);
+                File f = service.downloadFile(ctx, file, fileID, size);
                 result = f;
             }
         };
@@ -110,8 +114,8 @@ public class FilesLoader
             {
                 OmeroMetadataService service = context.getMetadataService();
                 FileAnnotationData fa = (FileAnnotationData) 
-                	service.loadAnnotation(id);
-                File f = service.downloadFile(new File(fa.getFileName()), 
+                	service.loadAnnotation(ctx, id);
+                File f = service.downloadFile(ctx, new File(fa.getFileName()), 
                 		fa.getFileID(), fa.getFileSize());
 
                 result = f;
@@ -132,10 +136,10 @@ public class FilesLoader
             {
                 OmeroMetadataService service = context.getMetadataService();
                 FileAnnotationData fa = (FileAnnotationData) 
-                	service.loadAnnotation(fileAnnotationID);
+                	service.loadAnnotation(ctx, fileAnnotationID);
                 Map<FileAnnotationData, File> m = 
                 	new HashMap<FileAnnotationData, File>();
-                File f = service.downloadFile(new File(fa.getFileName()), 
+                File f = service.downloadFile(ctx, new File(fa.getFileName()), 
                 		fa.getFileID(), fa.getFileSize());
                 m.put(fa, f);
                 result = m;
@@ -157,7 +161,7 @@ public class FilesLoader
         OriginalFile of;
         of = ((FileAnnotation) fa.asAnnotation()).getFile();
         try {
-        	service.downloadFile(f, of.getId().getValue(), 
+        	service.downloadFile(ctx, f, of.getId().getValue(),
     				of.getSize().getValue());
         	m.put(fa, f);
         	currentFile = m;
@@ -183,7 +187,7 @@ public class FilesLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService service = context.getMetadataService();
-                result = service.loadFiles(type, userID);
+                result = service.loadFiles(ctx, type, userID);
             }
         };
     }
@@ -230,12 +234,14 @@ public class FilesLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param file	 	The file where to write the data.
 	 * @param fileID	The id of the file to download.
 	 * @param size		The size of the file.
      */
-    public FilesLoader(File file, long fileID, long size)
+    public FilesLoader(SecurityContext ctx, File file, long fileID, long size)
     {
+    	this.ctx = ctx;
     	if (file == null) loadCall = makeBatchCall(fileID);
     	else loadCall = makeBatchCall(file, fileID, size);
     }
@@ -243,12 +249,14 @@ public class FilesLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param file	 	The file where to write the data.
 	 * @param fileID	The id of the file to download.
 	 * @param size		The size of the file.
      */
-    public FilesLoader(File file, long fileID, int index)
+    public FilesLoader(SecurityContext ctx, File file, long fileID, int index)
     {
+    	this.ctx = ctx;
     	if (file == null || index == FILE_ANNOTATION) 
     		loadCall = makeFileBatchCall(fileID);
     	else loadCall = makeBatchCall(file, fileID, -1);
@@ -257,10 +265,12 @@ public class FilesLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param files The files to load.
      */
-    public FilesLoader(Map<FileAnnotationData, File> files)
+    public FilesLoader(SecurityContext ctx, Map<FileAnnotationData, File> files)
     {
+    	this.ctx = ctx;
     	if (files == null) 
     		throw new IllegalArgumentException("No files to load.");
     	this.files = files;
@@ -269,11 +279,13 @@ public class FilesLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param type 		The type of files to load.
 	 * @param userID    The id of the user.
      */
-    public FilesLoader(int type, long userID)
+    public FilesLoader(SecurityContext ctx, int type, long userID)
     {
+    	this.ctx = ctx;
     	loadCall = makeLoadFilesBatchCall(type, userID);
     }
     

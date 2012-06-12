@@ -650,6 +650,25 @@ class BrowserUI
 	}
 	
 	/**
+	 * Sets the location of the selection region when the user zooms in or out.
+	 * 
+	 * @param rx The ratio along the X-axis.
+	 * @param ry The ratio along the Y-axis.
+	 */
+	void setViewLocation(double rx, double ry)
+	{
+		Rectangle r = birdEyeView.getSelectionRegion();
+		int w = (int) (r.width/rx);
+		int h = (int) (r.height/ry);
+		int x = (int) (rx*r.x);
+		int y = (int) (ry*r.y);
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		birdEyeView.setSelection(x, y, w, h);
+		displaySelectedRegion(birdEyeView.getSelectionRegion());
+	}
+	
+	/**
 	 * Sets the location of the bird eye to be sure that it is always visible.
 	 * @see AdjustmentListener#adjustmentValueChanged(AdjustmentEvent)
 	 */

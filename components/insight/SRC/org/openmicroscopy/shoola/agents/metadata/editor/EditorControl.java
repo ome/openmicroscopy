@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -63,16 +64,23 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -86,7 +94,6 @@ import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -94,9 +101,11 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * The Editor's controller.
@@ -112,7 +121,8 @@ import pojos.TextualAnnotationData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
+	implements ActionListener, ChangeListener, PropertyChangeListener,
+	MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -186,6 +196,12 @@ class EditorControl
 	
 	/** Action ID to save the images as full size <code>JPEG</code>.*/
 	static final int	SAVE_AS = 21;
+	
+	/** Action ID to view the image.*/
+	static final int	VIEW_IMAGE = 22;
+	
+	/** Action ID to view the image.*/
+	static final int	VIEW_IMAGE_IN_IJ = 23;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -261,7 +277,8 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(imageID), null));
+		bus.post(new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null));
 	}
 
 	/**
@@ -283,7 +300,7 @@ class EditorControl
 	private void viewProtocol(long protocolID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(protocolID));
+		bus.post(new EditFileEvent(model.getSecurityContext(), protocolID));
 	}
 	
 	/** Brings up the folder chooser. */
@@ -353,7 +370,7 @@ class EditorControl
 	private void export()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+		DowngradeChooser chooser = new DowngradeChooser(f, FileChooser.SAVE, 
 				"Export", "Select where to export the image as OME-TIFF.",
 				exportFilters);
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
@@ -371,11 +388,18 @@ class EditorControl
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					Object src = evt.getSource();
-					if (src instanceof FileChooser) {
+					Target target = null;
+					if (src instanceof DowngradeChooser) {
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
+						target = ((DowngradeChooser) src).getSelectedSchema();
 					}
-					model.exportImageAsOMETIFF(folder);
+					model.exportImageAsOMETIFF(folder, target);
+				} else if (DowngradeChooser.HELP_DOWNGRADE_PROPERTY.equals(
+						name)) {
+					Registry reg = MetadataViewerAgent.getRegistry();
+					String url = (String) reg.lookup("HelpDowngrade");
+					reg.getTaskBar().openURL(url);
 				}
 			}
 		});
@@ -473,8 +497,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl(RenderingControlLoader.LOAD);
+			if (view.checkIfTabEnabled(pane.getSelectedIndex())) {
+				if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+					model.loadRenderingControl(RenderingControlLoader.LOAD);
+			}
 		}
 	}
 	
@@ -531,7 +557,22 @@ class EditorControl
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
-				view.setDataToSave(view.hasDataToSave());
+				//Save the tag w/o update.
+				DataObject d = (DataObject) ((DocComponent) object).getData();
+				//Save the tag
+				OmeroMetadataService svc = 
+					MetadataViewerAgent.getRegistry().getMetadataService();
+				long id = MetadataViewerAgent.getUserDetails().getId();
+				try {
+					svc.saveData(model.getSecurityContext(), Arrays.asList(d),
+							null, null, id);
+				} catch (Exception e) {
+					Logger l = MetadataViewerAgent.getRegistry().getLogger();
+					LogMessage msg = new LogMessage();
+					msg.print("Saving object");
+					msg.print(e);
+					l.error(this, msg);
+				}
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
@@ -575,9 +616,11 @@ class EditorControl
 			figureDialog = null;
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
+		} else if (MetadataViewer.RELATED_NODES_PROPERTY.equals(name)) {
+			view.onRelatedNodesSet();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.RUN);
+			//view.manageScript((ScriptObject) evt.getNewValue(), 
+			//		MetadataViewer.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
 			Object value = evt.getNewValue();
@@ -660,6 +703,7 @@ class EditorControl
 		}
 		
 		int index = Integer.parseInt(e.getActionCommand());
+		
 		switch (index) {
 			case ADD_LOCAL_DOCS:
 				selectFileToAttach();
@@ -725,6 +769,35 @@ class EditorControl
 				*/
 			case SAVE_AS:
 				saveAsJPEG();
+				break;
+			case VIEW_IMAGE:
+				Object refObject = view.getRefObject();
+				ImageData img = null;
+				if (refObject instanceof ImageData) {
+		        	img = (ImageData) refObject;
+		        } else if (refObject instanceof WellSampleData) {
+		        	img = ((WellSampleData) refObject).getImage();
+		        }
+				if (img != null) {
+					ViewImageObject vio = new ViewImageObject(img);
+					MetadataViewerAgent.getRegistry().getEventBus().post(
+						new ViewImage(model.getSecurityContext(), vio, null));
+				}
+				break;
+			case VIEW_IMAGE_IN_IJ:
+				Object object = view.getRefObject();
+				ImageData image = null;
+				if (object instanceof ImageData) {
+					image = (ImageData) object;
+		        } else if (object instanceof WellSampleData) {
+		        	image = ((WellSampleData) object).getImage();
+		        }
+				if (image != null) {
+					ViewInPluginEvent event = new ViewInPluginEvent(
+						model.getSecurityContext(),
+						(DataObject) object, MetadataViewer.IMAGE_J);
+					MetadataViewerAgent.getRegistry().getEventBus().post(event);
+				}
 		}
 	}
 
@@ -735,15 +808,15 @@ class EditorControl
 	public void mouseReleased(MouseEvent e)
 	{
 		JButton src = (JButton) e.getSource();
+		if (!src.isEnabled()) return;
 		int index = Integer.parseInt(src.getActionCommand());
 		Point p = e.getPoint();
-		SwingUtilities.convertPointToScreen(p, src);
 		switch (index) {
 			case REMOVE_TAGS:
-				view.removeTags(p);
+				view.removeTags(src, p);
 				break;
 			case REMOVE_DOCS:
-				view.removeAttachedFiles(p);
+				view.removeAttachedFiles(src, p);
 		}
 	}
 	

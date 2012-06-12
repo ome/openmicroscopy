@@ -315,11 +315,11 @@ public class ProtocolLinkEditor
 			// if link to local file that exists, open in Editor. 
 			if (f.exists())
 				EditorAgent.openLocalFile(f);
-			
-		}
-		else if (fileID > 0) {
+		} else if (fileID > 0) {
+			/*TODO: review that work
 			EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 			bus.post(new EditFileEvent(fileID));
+			*/
 		}
 	}
 

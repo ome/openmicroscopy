@@ -361,18 +361,20 @@ public class WellImageSet
 		while (i.hasNext()) {
 			table = i.next();
 			index = table.getColumnIndex(TableResult.WELL_COLUMN_INDEX);
-			data = table.getData();
-			headers = table.getHeaders();
-			values = new Object[headers.length];
-			for (int j = 0; j < data.length; j++) {
-				id = (Long) data[j][index];
-				if (id == wellID) {
-					for (int k = 0; k < values.length; k++) {
-						values[k] = data[j][k];
+			if (index >= 0) {
+				data = table.getData();
+				headers = table.getHeaders();
+				values = new Object[headers.length];
+				for (int j = 0; j < data.length; j++) {
+					id = (Long) data[j][index];
+					if (id == wellID) {
+						for (int k = 0; k < values.length; k++) {
+							values[k] = data[j][k];
+						}
 					}
 				}
+				tabularData.put(headers, values);
 			}
-			tabularData.put(headers, values);
 		}
 		formatDisplay();
     }

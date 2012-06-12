@@ -150,7 +150,7 @@ public class EditorPreview
 	void loadPreviewData()
 	{
 		if (fileID != 0) {
-			if (! EditorAgent.isServerAvailable()) {
+			if (!EditorAgent.isServerAvailable()) {
 				annotationDesc = 
 					"<protocol><n>File ID: " + fileID + " on server</n>" +
 					"<d>Can't show the preview of this file because " +

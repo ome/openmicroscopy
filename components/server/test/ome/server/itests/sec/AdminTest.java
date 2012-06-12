@@ -17,13 +17,8 @@ import java.util.UUID;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
-import ome.model.ILink;
-import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -33,6 +28,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.IdBlock;
 
+import org.springframework.mail.MailSender;
 import org.testng.annotations.Test;
 
 public class AdminTest extends AbstractManagedContextTest {
@@ -685,5 +681,23 @@ public class AdminTest extends AbstractManagedContextTest {
             seen.add(user.getId());
         }
     }
-    
+
+    public void testReportForgottenPassword() throws Exception {
+
+        MailSender old = null;
+        try {
+            old = setNoopMailSender();
+            Experimenter e = loginNewUser();
+            loginRoot();
+            e = iQuery.get(Experimenter.class, e.getId());
+            e.setEmail("test@localhost");
+            iAdmin.updateExperimenter(e);
+
+            loginUser(e.getOmeName());
+            iAdmin.reportForgottenPassword(e.getOmeName(), e.getEmail());
+        } finally {
+            setMailSender(old);
+        }
+    }
+
 }

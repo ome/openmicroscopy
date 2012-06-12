@@ -72,9 +72,8 @@ class TestIContainer(lib.ITest):
         user1 = admin.getExperimenter(eid)
         user2 = admin.getExperimenter(eid2)
         
-        ## login as user1 
-        cl1 = omero.client()
-        cl1.createSession(user1.omeName.val,"ome")
+        ## login as user1
+        cl1 = self.new_client(user=user1, password="ome")
         update1 = cl1.sf.getUpdateService()
         ipojo1 = cl1.sf.getContainerService()
         
@@ -99,9 +98,8 @@ class TestIContainer(lib.ITest):
         self.assertEquals(1, coll_count.get(img.id.val, []))
         #self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
 
-        ## login as user2 
-        cl2 = omero.client()
-        cl2.createSession(user2.omeName.val,"ome")
+        ## login as user2
+        cl2 = self.new_client(user=user2, password="ome")
         update2 = cl1.sf.getUpdateService()
         
         ann = CommentAnnotationI()

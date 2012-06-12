@@ -415,11 +415,20 @@ public class IconManager
     /** The 22x22 <code>Save As</code> icon. */
     public static final int         SAVE_AS_22 = 119;
     
+    /** The 16x16 <code>Viewer</code> icon. */
+    public static final int         VIEWER = 120;
+
+    /** The <code>Edit 12x12</code> icon. */
+    public static final int         VIEW_DOC_12 = 121;
+
+    /** The <code>View</code> icon. */
+    public static final int         VIEWER_IJ = 122;
+
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 119;
+	private static final int          MAX_ID = 122;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -483,7 +492,7 @@ public class IconManager
         relPaths[MINUS_12] = "minus11.png";
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
-        relPaths[EDITOR_12] = "omeroEditorLink11.png";
+        relPaths[EDITOR_12] = "omeroEditor12.png";
         relPaths[MOVIE] = "crystal_video16.png";//"openOffice_stock_insert-video-plugin-16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[HISTOGRAM] = "histogram16.png";
@@ -545,6 +554,9 @@ public class IconManager
         relPaths[SAVE_AS] = "download_image16.png";
         relPaths[SAVE_AS_48] = "download_image48.png";
         relPaths[SAVE_AS_22] = "download_image22.png";
+        relPaths[VIEWER] = "viewer16.png";
+        relPaths[VIEW_DOC_12] = "nuvola_editcopy12.png";
+        relPaths[VIEWER_IJ] = "imageJ16.png";
 	}
    
 	/** The sole instance. */

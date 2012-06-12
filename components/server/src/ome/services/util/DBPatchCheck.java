@@ -9,6 +9,7 @@ package ome.services.util;
 
 import ome.api.local.LocalConfig;
 import ome.conditions.InternalException;
+import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
@@ -26,12 +27,12 @@ public class DBPatchCheck {
 
     public final static Log log = LogFactory.getLog(DBPatchCheck.class);
 
-    final Executor executor;
-    final LocalConfig config;
+    final SqlAction sql;
+    final PreferenceContext prefs;
 
-    public DBPatchCheck(Executor executor, LocalConfig config) {
-        this.executor = executor;
-        this.config = config;
+    public DBPatchCheck(SqlAction sql, PreferenceContext prefs) {
+        this.sql = sql;
+        this.prefs = prefs;
     }
 
     private final static String line = "***************************************************************************************\n";
@@ -55,15 +56,9 @@ public class DBPatchCheck {
 
         final String[] results = new String[3];
         try {
-            executor.executeSql(new Executor.SimpleSqlWork(this, "DBPatchCheck") {
-                @Transactional(readOnly = true)
-                public Object doWork(SqlAction sql) {
-                    results[0] = config.getDatabaseVersion();
-                    results[1] = config.getInternalValue("omero.db.version");
-                    results[2] = config.getInternalValue("omero.db.patch");
-                    return null;
-                }
-            });
+            results[0] = sql.dbVersion();
+            results[1] = prefs.getProperty("omero.db.version");
+            results[2] = prefs.getProperty("omero.db.patch");
         } catch (Exception e) {
             log.fatal(no_table, e);
             InternalException ie = new InternalException(no_table);

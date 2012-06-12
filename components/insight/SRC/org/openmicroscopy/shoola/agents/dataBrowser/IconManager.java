@@ -209,13 +209,34 @@ public class IconManager
     public static final int         FILTER_BY_MENU = 50;
     
     /** The <code>Send comment</code> icon. */
-    public static final int			  SEND_COMMENT = 51;
+    public static final int			SEND_COMMENT = 51;
+
+    /** The <code>Personal</code> icon. */
+    public static final int          PERSONAL = 52;
+    
+    /** The <code>Private Group</code> icon. */
+    public static final int           PRIVATE_GROUP = 53;
+    
+    /** The <code>Read Group</code> icon. */
+    public static final int           READ_GROUP = 54;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int           READ_LINK_GROUP = 55;
+    
+    /** The <code>Public Group</code> icon. */
+    public static final int           PUBLIC_GROUP = 56;
+    
+    /** The <code>ImageJ Viewer</code> icon. */
+    public static final int          VIEWER_IJ = 57;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int           READ_WRITE_GROUP = 58;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 51;
+    private static final int          MAX_ID = 58;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -263,7 +284,7 @@ public class IconManager
         relPaths[REPORT_48] = "nuvola_style48.png";
         relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";
         relPaths[TAG] = "nuvola_knotes16.png";
-        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[EDITOR] = "omeroEditor16.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[FIELDS_VIEW] = "nuvola_view_multicolumn16.png";
@@ -274,6 +295,13 @@ public class IconManager
         relPaths[TAG_FILTER] = "eclipse_filter_ps16.png";
         relPaths[FILTER_BY_MENU] = "eclipse_view_menu16.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
+        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
+        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
+        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
+        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
+        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
+        relPaths[PERSONAL] = "nuvola_personal16.png";
+        relPaths[VIEWER_IJ] = "imageJ16.png";
     }
     
     /** The sole instance. */

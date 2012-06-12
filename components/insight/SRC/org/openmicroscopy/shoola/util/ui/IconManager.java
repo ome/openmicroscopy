@@ -63,7 +63,7 @@ public class IconManager
 										"graphx/omeroImageJSplashscreen.png";
 	
 	/** The pathname, relative to this class, of the OME screen. */
-	private static final String		OME_ICON = "graphx/OME16.png";
+	private static final String		OME_ICON = "graphx/omero16.png";
 	
     /** ID of the <code>Colour slider</code> icon. */
     public static final int COLOUR_SLIDER_24 = 0;
@@ -524,11 +524,17 @@ public class IconManager
     /** The <code>Upload Script</code> icon. */
     public static final int	 UPLOAD_SCRIPT = 152;
     
+    /** The <code>No entry</code> icon. */
+    public static final int	 NO_ENTRY = 153;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int READ_WRITE_GROUP = 154;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 152;
+    private static int      MAX_ID = 154;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -644,7 +650,7 @@ public class IconManager
         relPaths[FILE_EXCEL] = "alienOSX_Microsoft_Excel16.png";
         relPaths[FILE_XML] = "txt_xml16.png";
         relPaths[FILE_HTML] = "txt_html16.png";
-        relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
+        relPaths[FILE_EDITOR] = "omeroEditor16.png";
         relPaths[HYPERLINK] = "nuvola_browser16.png";
         relPaths[UP_DOWN_9_12] = "upDown9_12.png";
         relPaths[TAG_SET_48] = "nuvola_knotes_red48.png";
@@ -667,7 +673,7 @@ public class IconManager
         relPaths[IMAGE_22] = "nuvola_indeximg22.png";
         relPaths[MOVIE_48] = "crystal_video48.png";//openOffice_stock_insert-video-plugin-48.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
-        relPaths[IMPORT_48] = "omeroImporterLink48.png";
+        relPaths[IMPORT_48] = "omeroImporter48.png";
         relPaths[SUBMIT_ICON_64] = "nuvola_error64.png";
         relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
@@ -680,6 +686,7 @@ public class IconManager
         relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
         relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
         relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";//"nuvola_ledorange_readLink16.png";
+        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
@@ -689,7 +696,7 @@ public class IconManager
         relPaths[ERROR_32] = "nuvola_no32.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
-
+        relPaths[NO_ENTRY] = "crystal_agt_action_fail16.png";
     }
 	
 	/**

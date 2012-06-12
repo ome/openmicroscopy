@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel 
+ * org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -128,7 +128,9 @@ public class FigureTableModel
 					if (MeasurementAttributes.TEXT.equals(key) ||
 							MeasurementAttributes.WIDTH.equals(key) ||
 							MeasurementAttributes.HEIGHT.equals(key)) {
-						fieldName.setEditable(!figure.isReadOnly());
+						if (figure.isReadOnly())
+							fieldName.setEditable(false);
+						else fieldName.setEditable(figure.canEdit());
 					}
 					keys.add(key);
 					values.add(figure.getAttribute(key));
@@ -221,6 +223,7 @@ public class FigureTableModel
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		int n;
+		if (rowIndex < 0) return null;
 		if (columnIndex == 0) {
 			n = fieldList.size();
 			if (rowIndex < n)

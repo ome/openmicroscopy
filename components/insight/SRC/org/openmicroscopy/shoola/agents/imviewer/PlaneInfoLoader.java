@@ -32,6 +32,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -56,30 +57,30 @@ public class PlaneInfoLoader
 {
 
     /** The ID of the pixels set. */
-    private long        pixelsID;
+    private long pixelsID;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** The selected z-section or <code>-1</code>. */
-    private int			defaultZ;
+    private int defaultZ;
     
     /** The selected timepoint or <code>-1</code>. */
-    private int 		defaultT;
+    private int defaultT;
     
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of pixels set.
      * @param defaultZ  The selected z-section.
      * @param defaultT  The selected timepoint.
      */
-    public PlaneInfoLoader(ImViewer viewer, long pixelsID, 
+    public PlaneInfoLoader(ImViewer viewer, SecurityContext ctx, long pixelsID,
     		int defaultZ, int defaultT)
     {
-        super(viewer);
+        super(viewer, ctx);
         this.pixelsID = pixelsID;
         this.defaultZ = defaultZ;
         this.defaultT = defaultT;
@@ -88,13 +89,13 @@ public class PlaneInfoLoader
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of pixels set.
      */
-    public PlaneInfoLoader(ImViewer viewer, long pixelsID)
+    public PlaneInfoLoader(ImViewer viewer, SecurityContext ctx, long pixelsID)
     {
-       this(viewer, pixelsID, -1, -1);
+       this(viewer, ctx, pixelsID, -1, -1);
     }
 
     /**
@@ -104,7 +105,7 @@ public class PlaneInfoLoader
     public void load()
     {
     	if (defaultT < 0 || defaultZ < 0)
-    		handle = ivView.loadPlaneInfo(pixelsID, -1, -1, -1, this);
+    		handle = ivView.loadPlaneInfo(ctx, pixelsID, -1, -1, -1, this);
     }
 
     /**

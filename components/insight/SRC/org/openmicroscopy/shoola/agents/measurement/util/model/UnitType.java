@@ -42,10 +42,14 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
  * @since OME3.0
  */
 public enum UnitType
-{	
+{
 	PIXELS,
 	MICRONS,
+	METERS,
+	CENTIMETERS,
+	NANOMETERS,
+	PICOMETERS,
+	MILLIMETERS,
+	ANGSTROMS,
 	DEGREES
 }
-
-

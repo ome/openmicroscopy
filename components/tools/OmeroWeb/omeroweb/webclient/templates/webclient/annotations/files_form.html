@@ -1,0 +1,56 @@
+
+{% load i18n %}
+{% load common_filters %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+  This is the content of a form for choosing existing file-annotations.
+  Loaded by AJAX into a form dialog.
+-->
+{% endcomment %}
+
+<div>
+
+    <h1>{% trans "Upload a new file" %}:</h1>
+    <span>Choose a local file to upload and attach</span>
+    {{ form_file.annotation_file }}
+</div>
+
+<p>
+    <h1>And/Or Attach an existing File:</h1>
+    <span>Select the attachments to add</span>
+    <table>
+        <tr>
+            <td>{{ form_file.files }}</td>
+        </tr>
+        <!-- hidden fields to specify the objects we're annotating -->
+        <tr class="hiddenField"><td>{{ form_file.image }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.dataset }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.project }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.screen }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.plate }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.acquisition }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.well }}</td></tr>
+    </table>
+
+</p>

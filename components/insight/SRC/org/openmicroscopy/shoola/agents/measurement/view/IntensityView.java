@@ -30,9 +30,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +63,6 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -107,7 +106,8 @@ import pojos.ChannelData;
  */
 class IntensityView
 	extends JPanel 
-	implements ActionListener, TabPaneInterface, ChangeListener
+	implements ActionListener, TabPaneInterface, ChangeListener,
+	PropertyChangeListener
 {
 	
 	/** Index to identify tab */
@@ -258,10 +258,53 @@ class IntensityView
 	/** Table Model. */
 	private IntensityModel				tableModel;
 	
+	/** Indicates the selected plane.*/
+	private void formatPlane()
+	{
+		if (!zSlider.isVisible() && !tSlider.isVisible()) {
+			view.setPlaneStatus("");
+			return;
+		}
+		StringBuffer buffer = new StringBuffer();
+		if (zSlider.isVisible())
+			buffer.append("Z="+zSlider.getValue()+" ");
+		if (tSlider.isVisible())
+			buffer.append("T="+tSlider.getValue());
+		view.setPlaneStatus(buffer.toString());
+	}
+	
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		stateChanged(null);
+		if (zSlider == null || tSlider == null || coord == null || 
+				state != State.READY)
+			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
+				tSlider.getValue()-1);
+		if (coord.equals(thisCoord)) return;
+		if (!pixelStats.containsKey(thisCoord)) return;
+	
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
+		String string = (String)nameColour[1];
+		if (!nameMap.containsKey(string))
+		{
+			state=State.READY;
+			return;
+		}
+		selectedChannelName = string;
+		int channel = nameMap.get(string);
+		if (channel == -1)
+			return;
+		if (!pixelStats.get(thisCoord).containsKey(channel))
+			return;
+		
+		state = State.ANALYSING;
+		populateData(thisCoord, channel);
+		formatPlane();
+		//repaint();
+		if (shape!=null)
+			view.selectFigure(shape.getFigure());
+		state = State.READY;
 	}
 
 	/** Initializes the table model.*/
@@ -306,13 +349,6 @@ class IntensityView
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addMouseListener(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		});
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");
@@ -323,17 +359,14 @@ class IntensityView
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addMouseListener(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		});
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);	
 		tSlider.setEndLabel("T");
 		tSlider.setShowEndLabel(true);
+		zSlider.addPropertyChangeListener(this);
+		tSlider.addPropertyChangeListener(this);
+		zSlider.addChangeListener(this);
+		tSlider.addChangeListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -374,7 +407,7 @@ class IntensityView
 		JPanel channelPanel = 
 			UIUtilities.buildComponentPanel(channelSelection);
 		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
-		panel.add(channelPanel);
+		//panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
 			UIUtilities.buildComponentPanel(showIntensityTable);
@@ -405,7 +438,7 @@ class IntensityView
 		return panel;
 	}
 	
-	/** Clears the maps just incase the data is not being reassigned. */
+	/** Clears the maps just in case the data is not being reassigned. */
 	private void clearMaps()
 	{
 		if (shapeStatsList != null)
@@ -660,6 +693,13 @@ class IntensityView
 	 */
 	private void interpretResults(Coord3D coord, int channel)
 	{
+		channelMin = minStats.get(coord);
+		channelMax = maxStats.get(coord);
+		channelMean = meanStats.get(coord);
+		channelStdDev = stdDevStats.get(coord);
+		channelSum = sumStats.get(coord);
+		shape = shapeMap.get(coord);
+		
 		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
 		if (pixels == null) return;
 		Iterator<Point> pixelIterator = pixels.keySet().iterator();
@@ -682,29 +722,23 @@ class IntensityView
 		sizeX = (int) (maxX-minX)+1;
 		sizeY = (int) ((maxY-minY)+1);
 		Double[][] data = new Double[sizeX][sizeY];
-		Iterator i = pixels.entrySet().iterator();
+		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
 		int x, y;
 		Double value;
-		Entry entry;
+		Entry<Point, Double> entry;
 		while (i.hasNext())
 		{
-			entry = (Entry) i.next();
-			point = (Point) entry.getKey();
+			entry = i.next();
+			point = entry.getKey();
 			x = (int) (point.getX()-minX);
 			y = (int) (point.getY()-minY);
 			if (x >= sizeX || y >= sizeY) continue;
 			
-			if (pixels.containsKey(point)) value = (Double) entry.getValue();
+			if (pixels.containsKey(point)) value = entry.getValue();
 			else value = new Double(0);
 			data[x][y] = value;
 		}
-		channelMin = minStats.get(coord);
-		channelMax = maxStats.get(coord);
-		channelMean = meanStats.get(coord);
-		channelStdDev = stdDevStats.get(coord);
-		channelSum = sumStats.get(coord);
 		tableModel = new IntensityModel(data);
-		shape = shapeMap.get(coord);
 		intensityDialog.setModel(tableModel);
 	}
 		
@@ -768,16 +802,9 @@ class IntensityView
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
 		FileChooser chooser = view.createSaveToExcelChooser();
 		chooser.addComponentToControls(channelsSelectionForm);
-		int results = chooser.showDialog();
-		if (results != JFileChooser.APPROVE_OPTION) return;
-		File  file = chooser.getFormattedSelectedFile();
-		//TODO: Modify that code when we have various writer.
 		
-		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
-		{
-			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
-			file = new File(fileName);
-		}
+		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+		File  file = chooser.getFormattedSelectedFile();
 		
 		List<Integer> channels = channelsSelectionForm.getUserSelection();
 		if (channels == null || channels.size() == 0) {
@@ -923,22 +950,25 @@ class IntensityView
 	private void outputSummaryRow(ExcelWriter writer, int rowIndex, 
 			Integer channel, int z, int t) 
 	{
-		writer.writeElement(rowIndex, 0, channelName.get(channel));
+		String name = channelName.get(channel);
+		writer.writeElement(rowIndex, 0, name);
 		writer.writeElement(rowIndex, 1, z+"");
 		writer.writeElement(rowIndex, 2, t+"");
 		int col;
 		String v;
 		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
-			col = getColumn(channelName.get(channel));
+			col = getColumn(name);
 			if (col == -1)
 				continue;
 			v = (String) channelSummaryTable.getValueAt(y, col);
-			if (v.contains(".") && v.contains(",")) {
-				v = v.replace(".", "");
-				v = v.replace(",", ".");
+			if (v != null) {
+				if (v.contains(".") && v.contains(",")) {
+					v = v.replace(".", "");
+					v = v.replace(",", ".");
+				}
+				writer.writeElement(rowIndex, 3+y, new Double(v));
 			}
-			writer.writeElement(rowIndex, 3+y, new Double(v));
 		}
 	}
 	
@@ -1190,7 +1220,8 @@ class IntensityView
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		shape = shapeMap.get(coord);
-		populateData(coord, selectedChannel);	
+		populateData(coord, selectedChannel);
+		formatPlane();
 		saveButton.setEnabled(tableModel.getRowCount() > 0);
 		state = State.READY;
 	}
@@ -1211,6 +1242,24 @@ class IntensityView
 			showIntensityTable.setEnabled(size > 0);
 		}
 	}
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		zSlider.setEnabled(!analyse);
+		tSlider.setEnabled(!analyse);
+	}
+	
+	/**
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
+	 * @see TabPaneInterface#getIndex()
+	 */
+	public int getIndex() {return INDEX; }
 	
 	/** 
 	 * Reacts to the controls.
@@ -1249,44 +1298,30 @@ class IntensityView
 
 	/**
 	 * Reacts to slider moves.
-	 * @see ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public void stateChanged(ChangeEvent e)
+	public void stateChanged(ChangeEvent evt)
 	{
-		if (zSlider == null || tSlider == null || coord == null || 
-				state != State.READY)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
-				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-	
-		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
-		String string = (String)nameColour[1];
-		if (!nameMap.containsKey(string))
-		{
-			state=State.READY;
-			return;
+		Object src = evt.getSource();
+		if (src == zSlider || src == tSlider) {
+			formatPlane();
+			OneKnobSlider slider = (OneKnobSlider) src;
+			if (!slider.isDragging()) {
+				handleSliderReleased();
+			}
 		}
-		selectedChannelName = string;
-		int channel = nameMap.get(string);
-		if (channel == -1)
-			return;
-		if (!pixelStats.get(thisCoord).containsKey(channel))
-			return;
-		
-		state = State.ANALYSING;
-		populateData(thisCoord, channel);
-		repaint();
-		if (shape!=null)
-			view.selectFigure(shape.getFigure());
-		state = State.READY;
 	}
 	
 	/**
-	 * Implemented as specified by the I/F {@link TabPaneInterface}
-	 * @see TabPaneInterface#getIndex()
+	 * Listens to property fired by {@link #zSlider} or {@link #tSlider}.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public int getIndex() {return INDEX; }
-	
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+			handleSliderReleased();
+		}
+	}
+
 }

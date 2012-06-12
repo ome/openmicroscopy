@@ -110,7 +110,7 @@ public final class DataServicesInit
 		try {
 			DataServicesFactory factory = 
 								DataServicesFactory.getInstance(container);
-			factory.shutdown();	
+			factory.shutdown(null);	
 		} catch (DSOutOfServiceException e) {}	
 	}
 	

@@ -9,8 +9,8 @@
 #ifndef OMERO_SERVICESF_ICE
 #define OMERO_SERVICESF_ICE
 
-#include <omero/System.ice>
 #include <omero/ServerErrors.ice>
+#include <omero/System.ice>
 
 module omero {
 
@@ -77,7 +77,7 @@ module omero {
 
         };
 
-        interface ServiceInterface;
+        // Forward definition of SSI
         interface StatefulServiceInterface;
 
         // Stateless

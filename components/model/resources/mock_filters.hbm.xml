@@ -2,7 +2,8 @@
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
-    
+
 <hibernate-mapping>
+  <filter-def name="securityFilterAllGroups" condition="1=1"/>
   <filter-def name="securityFilter" condition="1=1"/>
 </hibernate-mapping>

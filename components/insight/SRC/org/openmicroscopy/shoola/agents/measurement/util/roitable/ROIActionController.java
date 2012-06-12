@@ -80,5 +80,3 @@ public interface ROIActionController
 	public void calculateStats();
 	
 }
-
-

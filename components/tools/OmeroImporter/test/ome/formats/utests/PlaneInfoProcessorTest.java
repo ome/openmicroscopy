@@ -22,7 +22,7 @@ public class PlaneInfoProcessorTest extends TestCase
     @BeforeMethod
     protected void setUp() throws Exception
     {
-        ServiceFactoryPrx sf = new TestServiceFactory();
+        ServiceFactoryPrx sf = new TestServiceFactory().proxy();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());

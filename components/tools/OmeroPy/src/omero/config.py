@@ -31,9 +31,47 @@ except ImportError:
     from elementtree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
 
 
-class ConfigXml(object):
+class Environment(object):
+    """
+    Object to record all the various locations
+    that the active configuration can come from.
     """
 
+    def __init__(self, user_specified = None):
+        self.fallback = "default"
+        self.user_specified = user_specified
+        self.from_os_environ = os.environ.get("OMERO_CONFIG", None)
+
+    def set_by_user(self, value):
+        self.user_specified = value
+
+    def internal_value(self, config):
+        props = config.props_to_dict(config.internal())
+        return props.get(config.DEFAULT, self.fallback)
+
+    def for_save(self, config):
+        """
+        In some cases the environment chosen
+        should not be persisted.
+        """
+        if self.user_specified:
+            return self.user_specified
+        else:
+            return self.internal_value(config)
+
+    def for_default(self, config):
+        if self.user_specified:
+            return self.user_specified
+        elif self.from_os_environ:
+            return self.from_os_environ
+        else:
+            return self.internal_value(config)
+
+
+class ConfigXml(object):
+    """
+    dict-like wrapper around the config.xml file usually stored
+    in etc/grid. For a copy of the dict, use "as_map"
     """
     KEY = "omero.config.version"
     VERSION = "4.2.1"
@@ -44,7 +82,7 @@ class ConfigXml(object):
     def __init__(self, filename, env_config = None, exclusive = True):
         self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
         self.XML = None                                             #: Parsed XML Element
-        self.env_config = env_config                                #: Environment override
+        self.env_config = Environment(env_config)                   #: Environment override
         self.filename = filename                                    #: Path to the file to be read and written
         self.source = open(filename, "a+")                          #: Open file handle
         self.lock = self._open_lock()                               #: Open file handle for lock
@@ -164,19 +202,9 @@ class ConfigXml(object):
 
     def default(self, value = None):
         if value:
-            self.env_config = value
-        if self.env_config:
-            return self.env_config
-        elif "OMERO_CONFIG" in os.environ:
-            return os.environ["OMERO_CONFIG"]
-        else:
-            # Previously we were calling here:
-            #   props = self.props_to_dict(self.internal())
-            #   return props.get(self.DEFAULT, "default")
-            # but we don't want to take the previous default
-            # because then a user would have to explicitly
-            # set: "OMERO_CONFIG=default"
-            return "default"
+            self.env_config.set_by_user(value)
+
+        return self.env_config.for_default(self)
 
     def dump(self):
         prop_list = self.properties()
@@ -200,7 +228,7 @@ class ConfigXml(object):
         # First step is to add a new self.INTERNAL block to it
         # which has self.DEFAULT set to the current default,
         # and then copies all the values from that profile.
-        default = self.default()
+        default = self.env_config.for_save(self)
         internal = SubElement(icegrid, "properties", id=self.INTERNAL)
         SubElement(internal, "property", name=self.DEFAULT, value=default)
         SubElement(internal, "property", name=self.KEY, value=self.VERSION)

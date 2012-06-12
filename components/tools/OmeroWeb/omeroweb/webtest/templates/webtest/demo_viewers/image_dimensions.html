@@ -18,16 +18,6 @@ form dir {
     margin: 5px;
 }
 
-.stage_positions {
-    background: #dde;
-    padding: 5px;
-}
-
-.spim_name {
-    border: solid gray;
-    border-width: 1px 0px 1px 0px;
-    padding: 5px;
-}
 
 .selected_panel {
     border-color: red;
@@ -43,8 +33,9 @@ form dir {
 }
 </style>
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-<script type="text/javascript" src="{% url statictest 'js/image_dims.js' %}"></script>
+<!-- links to current version of jquery -->
+{% include "webgateway/base/includes/script_src_jquery.html" %}
+<script type="text/javascript" src="{% static 'webtest/js/image_dims.js' %}"></script>
 
 </head>
 
@@ -53,83 +44,15 @@ form dir {
 <!-- top elements span page -->
 <div id="top-nav">
     <a href="{% url webtest_index %}">Home</a> |
-    <a href="{% url webtest_logout %}">Logout</a>
+    <a href="{% url weblogout %}">Logout</a>
 </div>
 
 <div>
-    Displays SPIM data if available for an Image, in the format specified in the 
-    <a href="http://www.ome-xml.org/wiki/SPIM/InitialSupport">Initial SPIM Support</a> specification.
+    Displays Image planes in a grid with chosen dimensions along each axis.
 </div>
 
 <div id="top-info">
     {{ image.name }}
-</div>
-
-<!-- right hand panel for display of currently-selected plane info, objectives etc -->
-<div style="float:right; width:300px; border:black solid 1px">
-    <p>
-    {% for i in spim_data.images %}
-        <div class="spim_name" id="name{{ i.getId }}">
-            <div>Name: <span style="color:gray">{{ i.getName }}</span> </div>
-            <div>ID: <span style="color:gray">{{ i.getId }}</span> </div>
-        </div>
-    {% endfor %}
-    </p>
-
-    <div id='objective_info' style='display: none'>
-        {% for ob in spim_data.obs %}
-            <div>
-                Objective:
-                <table border=1>
-                {% for o in ob %}
-                    <tr>
-                        <td> {{ o.0 }}:</td><td> {{ o.1 }} </td>
-                    </tr>
-                {% endfor %}
-                </table>
-            </div>
-        {% endfor %}
-    
-        <div>
-        {% for obex in spim_data.objExtras %}
-            Objective extra attributes:
-            <table border=1>
-                <tr><td>ID</td><td>{{ obex.ID }}</td></tr>
-                <tr><td>Focal Length</td><td>{{ obex.FocalLength }}</td></tr>
-                <tr><td>Slit Aperture</td><td>{{ obex.SlitAperture }}</td></tr>
-                <tr><td>Light Sheet Width</td><td>{{ obex.LightSheetWidth }}</td></tr>
-            </table>
-        {% endfor %}
-        </div>
-    </div>
-    
-    <div class='stage_positions'>
-        Stage Positions: <a href="#" id="show_all_stage_pos">show all</a>
-        <table>
-            <tr>
-                <td>Name</td>
-                <td>Z,C,T</td>
-                <td>X,Y,Z</td>
-            </tr>
-        {% for id, sps in spim_data.stagePositions.items %}
-                    
-                {% for sp in sps %}
-                    <tr class='stagePos' izct='{{ id }}L,{{ sp.TheZ }},{{ sp.TheC }},{{ sp.TheT }}'>
-                        <td>{{ sp.Name }}</td>
-                        <td>
-                            {{ sp.TheZ }},{{ sp.TheC }},{{ sp.TheT }}
-                        </td>
-                        <td>
-                            {% if sp.PositionX %} <div> X: {{ sp.PositionX }} </div> {% endif %}
-                            {% if sp.PositionY %} <div> Y: {{ sp.PositionY }} </div> {% endif %}
-                            {% if sp.PositionZ %} <div> Z: {{ sp.PositionZ }} </div> {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-        {% endfor %}
-        </table>
-    </div>
-    
 </div>
 
 
@@ -153,7 +76,6 @@ form dir {
                 <option value="T" {% ifequal xDim "T" %} selected=true {% endifequal %} >Time</option>
                 <option value="Z" {% ifequal xDim "Z" %} selected=true {% endifequal %} >Z</option>
                 <option value="C" {% ifequal xDim "C" %} selected=true {% endifequal %} >Channel</option>
-                <option value="Angle" {% ifequal xDim "Angle" %} selected=true {% endifequal %} >Angle</option>
             </select>
             <input type="text" size='2' name="xFrames" {% if xFrames %} value="{{ xFrames }}" {% endif %} />
         </td>
@@ -164,7 +86,6 @@ form dir {
                 <option value="T" {% ifequal yDim "T" %} selected=true {% endifequal %} >Time</option>
                 <option value="Z" {% ifequal yDim "Z" %} selected=true {% endifequal %} >Z</option>
                 <option value="C" {% ifequal yDim "C" %} selected=true {% endifequal %} >Channel</option>
-                <option value="Angle" {% ifequal yDim "Angle" %} selected=true {% endifequal %} >Angle</option>
             </select>
             <br />
             <input type="text" size='2' name="yFrames" {% if yFrames %} value="{{ yFrames }}" {% endif %} />

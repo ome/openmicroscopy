@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Editor}.
@@ -67,64 +68,58 @@ public abstract class EditorLoader
 {
 
 	/** The viewer this data loader is for. */
-    protected final Editor				viewer;
+    protected final Editor viewer;
     
 	/** Convenience reference for subclasses. */
-    protected final Registry        	registry;
+    protected final Registry registry;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView	mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final DataManagerView     dmView;
+    protected final DataManagerView dmView;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView     	imView;
+    protected final ImageDataView imView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView        	adminView;
+    protected final AdminView adminView;
     
-    /** The id of the user or <code>-1</code>. */
-    protected long 						userID;
-    
-    /** The id of the group or <code>-1</code>. */
-    protected long 						groupID;
-    
-    /** Sets the identifiers of the group and user. */
-    void setIds()
-    {
-    	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		userID = viewer.getUserID();
-		groupID = exp.getDefaultGroup().getId();
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
-		}
-    }
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    public EditorLoader(Editor viewer)
+    public EditorLoader(Editor viewer, SecurityContext ctx)
     {
-    	 if (viewer == null) throw new NullPointerException("No viewer.");
-         this.viewer = viewer;
-         registry = MetadataViewerAgent.getRegistry();
-         mhView = (MetadataHandlerView) 
-         			registry.getDataServicesView(MetadataHandlerView.class);
-         dmView = (DataManagerView) 
-      				registry.getDataServicesView(DataManagerView.class);
-         imView = (ImageDataView) 
-					registry.getDataServicesView(ImageDataView.class);
-         adminView = (AdminView) registry.getDataServicesView(AdminView.class);
-         userID = -1;
-         groupID = -1;
+    	if (viewer == null) throw new NullPointerException("No viewer.");
+    	if (ctx == null)
+    		throw new NullPointerException("No security context.");
+    	this.ctx = ctx;
+    	this.viewer = viewer;
+    	registry = MetadataViewerAgent.getRegistry();
+    	mhView = (MetadataHandlerView) 
+    	registry.getDataServicesView(MetadataHandlerView.class);
+    	dmView = (DataManagerView) 
+    	registry.getDataServicesView(DataManagerView.class);
+    	imView = (ImageDataView) 
+    	registry.getDataServicesView(ImageDataView.class);
+    	adminView = (AdminView) registry.getDataServicesView(AdminView.class);
+    }
+    
+    /**
+     * Returns the id of the user currently logged in.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUser()
+    {
+    	return MetadataViewerAgent.getUserDetails().getId();
     }
     
     /**

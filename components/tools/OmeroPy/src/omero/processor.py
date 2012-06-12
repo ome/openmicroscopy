@@ -43,7 +43,7 @@ class WithGroup(object):
     """
     Wraps a ServiceInterfacePrx instance and applies
     a "omero.group" to the passed context on every
-    invotation.
+    invocation.
 
     For example, using a job handle as root requires logging
     manually into the group. (ticket:2044)
@@ -127,7 +127,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
     def make_env(self):
         self.env = omero.util.Environment("PATH", "PYTHONPATH",\
-            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME")
+            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME",\
+            "DISPLAY")
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)

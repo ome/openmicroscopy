@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -74,6 +75,15 @@ public class MeasureBezierFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -82,6 +92,9 @@ public class MeasureBezierFigure
 
 	/** has the figure been modified. */
 	private boolean dirty;
+	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
 	
 	/** The list of X coordinates of the nodes on the line. */
 	private List<Double>			pointArrayX;
@@ -109,6 +122,9 @@ public class MeasureBezierFigure
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	private int 					status;
+	
+	/** The units of reference.*/
+	private String refUnits;
 	
 	/**
 	 * Returns the number of points(pixels) on the polyline.
@@ -213,13 +229,13 @@ public class MeasureBezierFigure
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
-		this(false, false, true);
+		this(false, false, true, true, true, true);
 	}
 	
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure(boolean closed)
 	{
-		this(closed, false, true);
+		this(closed, false, true, true, true, true);
 	}
 
 	/**
@@ -227,11 +243,16 @@ public class MeasureBezierFigure
 	 * 
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
 	public MeasureBezierFigure(boolean closed, boolean readOnly, 
-			boolean clientObject)
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
-		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject);
+		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject, editable,
+				deletable, annotatable);
 	}
 	
 	/**
@@ -241,7 +262,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text)
 	{
-		this(text, false, false, true);
+		this(text, false);
 	}
 	
 	/**
@@ -253,7 +274,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
-		this(text, closed, false, true);
+		this(text, closed, false, true, true, true, true);
 	}
 	
 	/**
@@ -264,9 +285,13 @@ public class MeasureBezierFigure
 	 * 				 <code>false</code> if it is a polyline.
 	 * @param readOnly The figure is read only.
 	 * @param clientObject The figure is a client object.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
 	public MeasureBezierFigure(String text, boolean closed, boolean readOnly, 
-			boolean clientObject)
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
 		super(text, closed);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -278,6 +303,11 @@ public class MeasureBezierFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 
     /**
@@ -411,7 +441,7 @@ public class MeasureBezierFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -423,8 +453,7 @@ public class MeasureBezierFigure
 	public String addLineUnits(String str)
 	{
 		if (shape == null) return str;
-		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
@@ -438,7 +467,7 @@ public class MeasureBezierFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons())
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
@@ -451,9 +480,13 @@ public class MeasureBezierFigure
 	private Point2D.Double getPt(int i)
 	{
 		Point2D.Double pt = getNode(i).getControlPoint(0); 
-		if (units.isInMicrons())
-			return new Point2D.Double(	pt.getX()*units.getMicronsPixelX(), 
-										pt.getY()*units.getMicronsPixelY());
+		if (units.isInMicrons()) {
+			double tx = UIUtilities.transformSize(
+					pt.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt.getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
+		}
 		return pt;
 	}
 	
@@ -492,8 +525,11 @@ public class MeasureBezierFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt1 =  path.getCenter();
-			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), 
-					pt1.getY()*units.getMicronsPixelY());
+			double tx = UIUtilities.transformSize(
+					pt1.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt1.getY()*units.getMicronsPixelY()).getValue();
+			pt1.setLocation(tx, ty);
 			return pt1;
 		}
 		return path.getCenter();
@@ -663,6 +699,8 @@ public class MeasureBezierFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -719,7 +757,7 @@ public class MeasureBezierFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -732,7 +770,7 @@ public class MeasureBezierFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -804,6 +842,7 @@ public class MeasureBezierFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	
@@ -936,4 +975,37 @@ public class MeasureBezierFigure
 		return super.removeNode(node);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }

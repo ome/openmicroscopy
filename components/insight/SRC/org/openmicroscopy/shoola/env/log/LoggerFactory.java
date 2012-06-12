@@ -122,6 +122,7 @@ public class LoggerFactory
 			public void info(Object c, LogMessage msg) {}
 			public void warn(Object c, String logMsg) {}
 			public void warn(Object c, LogMessage msg) {}
+			public String getLogFile() { return null; }
 		};
 	}
 	

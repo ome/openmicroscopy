@@ -78,8 +78,7 @@ class ThumbnailLabel
 	static final String	IMAGE_LABEL_TOOLTIP = "Click to view the image.";
 	
 	/** The text displayed in the tool tip when the plate has been imported. */
-	static final String	PLATE_LABEL_TOOLTIP = 
-		"Double-Click to browse the plate.";
+	static final String	PLATE_LABEL_TOOLTIP = "Click to browse the plate.";
 	
 	/** The thumbnail or the image to host. */
 	private Object data;
@@ -87,6 +86,7 @@ class ThumbnailLabel
 	/** Posts an event to view the object. */
 	private void view()
 	{
+		/* TODO: review
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
@@ -99,6 +99,7 @@ class ThumbnailLabel
 		} else if (data instanceof PlateData) {
 			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
 		}
+		*/
 	}
 	
 	/** Rolls over the node. */

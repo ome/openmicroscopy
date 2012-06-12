@@ -207,42 +207,63 @@ class DocComponent
 	 */
 	private boolean setControlsEnabled(boolean enabled)
 	{
-		boolean b = enabled;
-		boolean link = enabled;
 		int count = 0;
-		if (enabled && data != null) {
-			b = model.isUserOwner(data);
-			link = model.isLinkOwner(data);
+		if (infoButton != null) {
+			infoButton.setEnabled(true);
+			infoButton.setVisible(true);
+			count++;
 		}
+		if (!enabled) {
+			if (unlinkButton != null) {
+				unlinkButton.setEnabled(false);
+				unlinkButton.setVisible(false);
+			}
+			if (editButton != null) {
+				editButton.setEnabled(false);
+				editButton.setVisible(false);
+			}
+			if (downloadButton != null) {
+				downloadButton.setEnabled(false);
+				downloadButton.setVisible(false);
+			}
+			if (openButton != null) {
+				openButton.setEnabled(false);
+				openButton.setVisible(false);
+			}
+			if (deleteButton != null) {
+				deleteButton.setEnabled(false);
+				deleteButton.setVisible(false);
+			}
+			return count > 0;
+		}
+		boolean b = false;
 		if (unlinkButton != null) {
-			unlinkButton.setEnabled(link);
-			unlinkButton.setVisible(link);
-			if (link) count++;
+			b = model.canDeleteLink(data);
+			unlinkButton.setEnabled(b);
+			unlinkButton.setVisible(b);
+			if (b) count++;
 		} 
 		
 		if (editButton != null) {
+			b = model.canEdit(data);
 			editButton.setEnabled(b);
 			editButton.setVisible(b);
 			if (b) count++;
 		}
 		if (downloadButton != null) {
-			downloadButton.setEnabled(link);
-			downloadButton.setVisible(link);
-			if (link) count++;
+			b = true;//model.canAnnotate(data);
+			downloadButton.setEnabled(b);
+			downloadButton.setVisible(b);
+			if (b) count++;
 		}
 		if (openButton != null) {
-			//openButton.setEnabled(enabled);
-			//openButton.setVisible(enabled);
-			openButton.setEnabled(link);
-			openButton.setVisible(link);
-			if (link) count++;
-		}
-		if (infoButton != null) {
-			infoButton.setEnabled(true);
-			infoButton.setVisible(true);
-			if (link) count++;
+			b = true;//model.canAnnotate(data);
+			openButton.setEnabled(b);
+			openButton.setVisible(b);
+			if (b) count++;
 		}
 		if (deleteButton != null) {
+			b = model.canDelete(data);
 			deleteButton.setEnabled(b);
 			deleteButton.setVisible(b);
 			if (b) count++;
@@ -255,7 +276,8 @@ class DocComponent
 	{
 		if (!(data instanceof FileAnnotationData)) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent((FileAnnotationData) data));
+		bus.post(new EditFileEvent(model.getSecurityContext(),
+				(FileAnnotationData) data));
 	}
 	
 	/** 
@@ -334,13 +356,21 @@ class DocComponent
 	 * Formats the passed annotation.
 	 * 
 	 * @param annotation The value to format.
+	 * @param name The full name.
 	 * @return See above.
 	 */
-	private String formatTootTip(AnnotationData annotation)
+	private String formatTootTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
 		ExperimenterData exp = null;
+		if (name != null) {
+			buf.append("<b>");
+			buf.append("Name: ");
+			buf.append("</b>");
+			buf.append(name);
+			buf.append("<br>");
+		}
 		if (annotation.getId() > 0)
 			exp = model.getOwner(annotation);
 		if (exp != null) {
@@ -409,7 +439,8 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
 			Registry reg = MetadataViewerAgent.getRegistry();		
-			reg.getEventBus().post(new EditFileEvent(f));
+			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
+					f));
 		}
 	}
 	
@@ -448,8 +479,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				showMenu(menuButton, p);
+				showMenu(menuButton, e.getPoint());
 			}
 		});
 		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
@@ -458,19 +488,16 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				displayInformation(label, p);
+				displayInformation(label, e.getPoint());
 			}
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
 		unlinkButton.setText("Unlink");
-		//UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
-		//unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unlinkButton.addActionListener(this);
 		unlinkButton.setActionCommand(""+UNLINK);
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
-			unlinkButton.setToolTipText("Remove the attachment.");
+			unlinkButton.setToolTipText("Unlink the attachment.");
 			
 			if (fa.getId() > 0) {
 				if (deletable) {
@@ -497,22 +524,18 @@ class DocComponent
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
-				//if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-					//	FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
-					//	FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
-					openButton = new JMenuItem(icons.getIcon(
-							IconManager.EDITOR_12));
-					openButton.setText("View");
-					openButton.setToolTipText("View the file.");
-					openButton.setActionCommand(""+OPEN);
-					openButton.addActionListener(this);
-				//} 
+				openButton = new JMenuItem(icons.getIcon(
+						IconManager.VIEW_DOC_12));
+				openButton.setText("View");
+				openButton.setToolTipText("View the file.");
+				openButton.setActionCommand(""+OPEN);
+				openButton.addActionListener(this);
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
 			}
 		} else if (data instanceof TagAnnotationData) {
-			unlinkButton.setToolTipText("Remove the Tag.");
+			unlinkButton.setToolTipText("Unlink the Tag.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
 			editButton.setText("Edit");
 			//editButton.setOpaque(false);
@@ -541,8 +564,7 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isUserOwner(data)) 
-			initButtons();
+		initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {
@@ -551,10 +573,22 @@ class DocComponent
 			if (data instanceof FileAnnotationData) {
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
-				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName))
-					label.setText(f.getDescription());
-				else label.setText(EditorUtil.getPartialName(fileName));
-				label.setToolTipText(formatTootTip(f));
+				String s = fileName;
+				if (FileAnnotationData.MEASUREMENT_NS.equals(f.getNameSpace())) {
+					String desc = f.getDescription();
+					if (desc != null && desc.trim().length() > 0)
+						label.setText(desc);
+					else {
+						label.setText(UIUtilities.formatPartialName(
+								EditorUtil.getPartialName(fileName)));
+					}
+					s = label.getText();
+				} else {
+					label.setText(UIUtilities.formatPartialName(
+							EditorUtil.getPartialName(fileName)));
+				}
+						
+				label.setToolTipText(formatTootTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();
@@ -584,12 +618,12 @@ class DocComponent
 			} else if (data instanceof File) {
 				initButtons();
 				File f = (File) data;
-				label.setText(f.getName());
+				label.setText(EditorUtil.getPartialName(f.getName()));
 				label.setForeground(Color.BLUE);
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setText(tag.getTagValue());
-				label.setToolTipText(formatTootTip(tag));
+				label.setToolTipText(formatTootTip(tag, null));
 				initButtons();
 				if (tag.getId() < 0)
 					label.setForeground(
@@ -641,7 +675,9 @@ class DocComponent
 		if (infoButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
-		if (count > 0) {
+		if (count > 0 && data != null) {
+			menuButton.setEnabled(true);
+			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
@@ -841,7 +877,9 @@ class DocComponent
 			//reset text and tooltip
 			TagAnnotationData tag = (TagAnnotationData) data;
 			label.setText(tag.getTagValue());
-			label.setToolTipText(formatTootTip(tag));
+			label.setToolTipText(formatTootTip(tag, null));
+			originalName = tag.getTagValue();
+			originalDescription = tag.getTagDescription();
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;
@@ -870,7 +908,7 @@ class DocComponent
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			//Check Name space
 			activity.setLegend(fa.getDescription());
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}

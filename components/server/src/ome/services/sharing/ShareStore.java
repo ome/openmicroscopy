@@ -19,6 +19,8 @@ import ome.model.meta.Share;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
+import ome.system.EventContext;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +46,26 @@ public abstract class ShareStore {
 
     // User Methods
     // =========================================================================
+
+    /**
+     * Loads share and checks it's owner and member data against the current
+     * context (owner/member/admin). This method must be kept in sync with
+     * {@link #applyIfShareAccessible(QueryBuilder)} which does the same check
+     * at the database rather than binary data level.
+     */
+    public ShareData getShareIfAccessible(long shareId, boolean isAdmin,
+            long userId) {
+
+        ShareData data = get(shareId);
+        if (data == null) {
+            return null;
+        }
+
+        if (data.owner == userId || data.members.contains(userId) || isAdmin) {
+            return data;
+        }
+        return null;
+    }
 
     public <T extends IObject> ShareData set(Share share, long owner,
             List<T> objects, List<Long> members, List<String> guests,

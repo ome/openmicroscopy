@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -229,14 +230,16 @@ class WellsModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent of the wells.
 	 * @param wells 	The collection to wells the model is for.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	WellsModel(Object parent, Set<WellData> wells, boolean withThumbnails)
+	WellsModel(SecurityContext ctx, Object parent, Set<WellData> wells, 
+			boolean withThumbnails)
 	{
-		super();
+		super(ctx);
 		if (wells  == null) 
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
@@ -244,6 +247,7 @@ class WellsModel
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
 				DataBrowserAgent.getUserDetails().getId(), 0));
+
 		PlateData plate = (PlateData) parent;
 		columnSequenceIndex = plate.getColumnSequenceIndex();
 		rowSequenceIndex = plate.getRowSequenceIndex();
@@ -500,7 +504,7 @@ class WellsModel
 			plate.setDefaultSample(selectedField);
 			List<DataObject> list = new ArrayList<DataObject>();
 			list.add(plate);
-			DataBrowserLoader loader = new PlateSaver(component, list);
+			DataBrowserLoader loader = new PlateSaver(component, ctx, list);
 			loader.load();
 		}
 	}
@@ -552,7 +556,7 @@ class WellsModel
 			}
 		}
 		if (results.size() > 0) {
-			DataBrowserLoader loader = new PlateSaver(component, results);
+			DataBrowserLoader loader = new PlateSaver(component, ctx, results);
 			loader.load();
 		}
 	}
@@ -662,7 +666,7 @@ class WellsModel
 		}
 
 		if (images.size() == 0) return null;
-		return new ThumbnailFieldsLoader(component, images, row, column);
+		return new ThumbnailFieldsLoader(component, ctx, images, row, column);
 	}
 	
 	/**
@@ -698,7 +702,7 @@ class WellsModel
 		}
 
 		if (images.size() == 0) return null;
-		return new ThumbnailLoader(component, images);
+		return new ThumbnailLoader(component, ctx, images);
 	}
 	
 	/**

@@ -43,6 +43,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -77,7 +78,7 @@ import pojos.ImageData;
 public interface ImViewer
 	extends ObservableComponent
 {
-
+	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int 	UNCOMPRESSED = RenderingControl.UNCOMPRESSED;
 	
@@ -167,6 +168,15 @@ public interface ImViewer
 	
 	/** Flag to denote the <i>Loading The tiles</i> state. */
 	public static final int     LOADING_TILES = 15;
+	
+	/** Flag to denote the <i>Loading the RE</i> state. */
+	public static final int     LOADING_RND = 17;
+	
+	/** Flag to denote the <i>Loading the Bird eye view</i> state. */
+	public static final int     LOADING_BIRD_EYE_VIEW = 18;
+	
+	/** Flag to denote the <i>Discarded</i> state. */
+	public static final int     CANCELLED = 19;
 	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
@@ -359,8 +369,10 @@ public interface ImViewer
 	 * 
 	 * @param index The OME index of the channel.
 	 * @param c     The color to set.
+	 * @param preview Pass <code>true</code> to indicate that it is a color
+	 * 					preview, <code>false</code> otherwise.
 	 */
-	public void setChannelColor(int index, Color c);
+	public void setChannelColor(int index, Color c, boolean preview);
 
 	/**
 	 * Selects or deselects the specified channel.
@@ -898,7 +910,7 @@ public interface ImViewer
 	public void projectImage(ProjectionRef ref);
 
 	/**
-	 * Sets the containers contained the image.
+	 * Sets the containers where the projected image could be saved.
 	 * 
 	 * @param containers The collection to set.
 	 */
@@ -1014,7 +1026,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public double getUnitInMicrons();
+	public double getUnitInRefUnits();
 
 	/** Makes a movie. */
 	public void makeMovie();
@@ -1144,7 +1156,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public boolean isReadOnly();
+	public boolean canAnnotate();
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the
@@ -1241,6 +1253,21 @@ public interface ImViewer
 	int getTiledImageSizeY();
 	
 	/** Cancels the rendering of the image.*/
-	void cancelRendering();
+	void cancelInit();
 	
+	/**
+	 * Returns <code>true</code> if the image is compressed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCompressed();
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+
 }

@@ -10,23 +10,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.model.IAnnotated;
-import ome.model.IObject;
-import ome.model.annotations.Annotation;
-import ome.model.internal.Permissions;
-import ome.tools.spring.OnContextRefreshedEventListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
@@ -37,8 +29,18 @@ import org.hibernate.type.EmbeddedComponentType;
 import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.model.IAnnotated;
+import ome.model.IGlobal;
+import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.internal.Permissions;
+import ome.tools.spring.OnContextRefreshedEventListener;
 
 /**
  * extension of the model metadata provided by {@link SessionFactory}. During
@@ -88,7 +90,7 @@ public interface ExtendedMetadata {
 
     /**
      * walks the {@link IObject} argument <em>non-</em>recursively and gathers
-     * all {@link IObject} instances which will be linkd to by the
+     * all {@link IObject} instances which will be linked to by the
      * creation or updating of the argument. (Previously this was called "locking"
      * since a flag was set on the object to mark it as linked, but this was
      * removed in 4.2)
@@ -102,6 +104,20 @@ public interface ExtendedMetadata {
     IObject[] getLockCandidates(IObject iObject);
 
     /**
+     * Rather than iterating over an {@link IObject} like
+     * {@link #getLockCandidates(IObject)} this method returns type/field name
+     * pairs (like {@link #getLockChecks(Class)}) to allow performing the
+     * queries manually.
+     *
+     * If onlyWithGroups is true, then only checks which point to non-IGlobal
+     * objects will be returned.
+     *
+     * @param klass Not null.
+     * @return
+     */
+    String[][] getLockCandidateChecks(Class<? extends IObject> klass, boolean onlyWithGroups);
+
+    /**
      * returns all class/field name pairs which may possibly link to an object
      * of type <code>klass</code>.
      *
@@ -112,6 +128,30 @@ public interface ExtendedMetadata {
      * @see Permissions.Flag#LOCKED
      */
     String[][] getLockChecks(Class<? extends IObject> klass);
+
+    /**
+     * Takes the lock checks returned by {@link #getLockChecks(Class)} and
+     * performs the actual check returning a map from class to total number
+     * of locks. The key "*" contains the total value.
+     *
+     * If the id argument is null, then checks will be against all rows rather
+     * than individual objects, e.g.
+     * <pre>
+     * select count(x) from Linker x, Linked y where x.$FIELD.id = y.id $CLAUSE;
+     * </pre>
+     * otherwise
+     * <pre>
+     * select count(x) from Linker x where x.$FIELD.id = :id $CLAUSE'
+     * </pre>
+     *
+     * If the clause argument is null or empty it will be omitted.
+     *
+     * @param id
+     * @param lockChecks
+     * @param clause
+     * @return
+     */
+    Map<String, Long> countLocks(Session session, Long id, String[][] lockChecks, String clause);
 
     /**
      * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
@@ -314,6 +354,11 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         return l.getLockCandidates(iObject);
     }
 
+    public String[][] getLockCandidateChecks(Class<? extends IObject> k, boolean onlyWithGroups) {
+        Locks l = locksHolder.get(k.getName());
+        return l.getLockCandidateChecks(onlyWithGroups);
+    }
+
     /**
      * returns all class/field name pairs which may possibly link to an object
      * of type <code>klass</code>.
@@ -337,6 +382,58 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         }
 
         return checks;
+    }
+
+    public Map<String, Long> countLocks(final Session session, final Long id,
+            String[][] checks, String clause) {
+
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("count(x.id)");
+        qb.from("%s", "x");
+
+        // Only one of the these two will happen, so the second replacement
+        // argument to String.format will have to be check[1].
+        if (id == null) {
+            qb.join("x.%s", "y", false, false);
+        }
+
+
+        if (id != null) {
+            qb.where();
+            qb.and("%s.id = :id");
+        }
+
+        if (clause != null && clause.length() > 0) {
+            qb.where();
+            qb.and(clause);
+            qb.appendSpace();
+        }
+
+
+        final String queryString = qb.queryString();
+        final Map<String, Long> counts = new HashMap<String, Long>();
+        long total = 0L;
+
+        // run the individual queries
+        for (final String[] check : checks) {
+
+            final String hql = String.format(queryString, check[0], check[1]);
+
+            org.hibernate.Query q = session.createQuery(hql);
+            if (id != null) {
+                q.setLong("id", id);
+            }
+
+            Long count = (Long) q.uniqueResult();
+
+            if (count != null && count.longValue() > 0) {
+                total += count;
+                counts.put(check[0], count);
+            }
+        }
+        counts.put("*", total);
+        return counts;
+
     }
 
     public String[] getImmutableFields(Class<? extends IObject> klass) {
@@ -517,6 +614,10 @@ class Locks {
 
     private final Type[][] subtypes;
 
+    private final String[][] checks;
+
+    private final String[][] groupChecks;
+
     /**
      * examines all {@link Type types} for this class and stores pointers to
      * those fields which represent {@link IObject} instances. These fields may
@@ -527,6 +628,8 @@ class Locks {
         this.cm = classMetadata;
         String[] name = cm.getPropertyNames();
         Type[] type = cm.getPropertyTypes();
+        List<String[]> checks = new ArrayList<String[]>();
+        List<String[]> groupChecks = new ArrayList<String[]>();
 
         this.size = type.length;
         this.include = new boolean[size];
@@ -544,8 +647,12 @@ class Locks {
                 for (int j = 0; j < sub_type.length; j++) {
                     if (IObject.class.isAssignableFrom(sub_type[j]
                             .getReturnedClass())) {
-                        name_list.add(name[i] + "." + sub_name[j]);
+                        String path = name[i] + "." + sub_name[j];
+                        name_list.add(path);
                         type_list.add(sub_type[j]);
+
+                        addCheck(checks, groupChecks, sub_type[j].getReturnedClass(), path);
+
                     }
                 }
                 add(i, name_list.toArray(new String[name_list.size()]),
@@ -553,9 +660,22 @@ class Locks {
             } else if (IObject.class.isAssignableFrom(type[i]
                     .getReturnedClass())) {
                 add(i);
+                addCheck(checks, groupChecks, type[i].getReturnedClass(), name[i]);
+                // Create checks for
+
             }
         }
+        this.checks = checks.toArray(new String[checks.size()][]);
+        this.groupChecks = groupChecks.toArray(new String[groupChecks.size()][]);
+    }
 
+    private void addCheck(List<String[]> checks, List<String[]> groupChecks,
+            Class type, String field) {
+        String[] s = new String[]{type.getName(), field};
+        checks.add(s);
+        if (!IGlobal.class.isAssignableFrom(type)) {
+            groupChecks.add(s);
+        }
     }
 
     private void add(int i) {
@@ -679,6 +799,13 @@ class Locks {
         retVal = new IObject[idx];
         System.arraycopy(toCheck, 0, retVal, 0, idx);
         return retVal;
+    }
+
+    public String[][] getLockCandidateChecks(boolean onlyWithGroups) {
+        if (onlyWithGroups) {
+            return groupChecks;
+        }
+        return checks;
     }
 
     // ~ Public

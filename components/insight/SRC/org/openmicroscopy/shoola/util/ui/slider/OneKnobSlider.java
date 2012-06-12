@@ -273,6 +273,7 @@ public class OneKnobSlider
 	public void setEnabled(boolean enabled)
 	{
 		super.setEnabled(enabled);
+		repaint();
 	}
 
 }

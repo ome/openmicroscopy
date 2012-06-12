@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -23,17 +22,29 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% block title %}
+OMERO Groups
 {% endblock %}
 
-{% block title %}{% trans "Groups" %}{% endblock %}
 
-{% block jscript %}
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+	<![endif]-->
+	
+	
+{% endblock %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-
+{% block script %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
+    
     <script type="text/javascript">
         $(document).ready(function() 
             { 
@@ -45,55 +56,95 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
+                $("#webadmin_main_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                }).tabs("select", 1);
         })
     </script>
-
+    
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+{{ block.super }}
 
-<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
+<div id="webadmin_main_tabs">
+    
+    <ul>
+        <li id="experimenters_tab"><a href='{% url waexperimenters %}' title="Edit Users">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="#Group_content" title="Edit Group">{% trans "Groups" %}</a></li>
+    </ul>
+    
+    <div id="Group_content">
+    
+    {% if groups %}
+	
+	
+	<div class="one_column_header">
+        <form class="search filtersearch" id="filtersearch" action="#">
+			<input type="text" id="id_search">
+			<input type="submit" value="Go" /> 
+			<span class="loading">
+				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+			</span>
+		</form>
+		
+		<div class="btn blue"><a href="{% url wamanagegroupid "new" %}"><span>{% trans "Add new Group" %}</span></a></div>
+		
+	</div>
+	
+	
 
-{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+    <table id="groupTable" class="tablesorter tablesorter_basic"> 
+        <thead> 
+            <tr> 
+                <th>{% trans "ID" %}</th>
+                <th>{% trans "Group Name" %}</th> 
+				<th>{% trans "Permission" %}</th>
+                <th>{% trans "Description" %}</th>
+                <th></th>
+            </tr> 
+        </thead> 
+        <tbody>
+        {% for group in groups %}
+            <tr>
+                <td>
+                    {{ group.id }}
+                </td>
+                
+                <td>
+					<strong>{{ group.name }}</strong>
+				</td>
+                <td>
+					{{ group.getPermissions }} ({{ group.details.permissions }})
+				</td>
+                <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
+				<td>
+                    {% if group.isEditable %}
+                        <a href="{% url wamanagegroupid "edit" group.id %}" class="btn silver btn_edit">
+                        	<span></span>
+                        </a>
+                    {% else %}
+                        
+					{% endif %}
+                </td>
+				
+            </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-<h2>{% trans "Groups" %}</h2>
-{% if controller.groupsCount %}
-
-<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-
-<table id="groupTable" class="tablesorter"> 
-    <thead> 
-        <tr> 
-            <th class="action">{% trans "ID" %}</th>
-            <th class="link">{% trans "Name" %}</th> 
-            <th class="link">{% trans "Permissions" %}</th> 
-            <th class="desc">{% trans "Description" %}</th>
-        </tr> 
-    </thead> 
-    <tbody>
-    {% for dict in controller.groups %}
-        <tr>
-            <td class="action">
-                {{ dict.group.id }}
-                {% if dict.group.isEditable %}{% if not dict.locked %}
-                    <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
-                {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
-            </td>
-            <td class="link">{{ dict.group.name }}</td>
-            <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-            <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
-        </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<h1>Summary</h1>
-<p>Currently there are {{ controller.groupsCount }} groups.</p>
-
-
-{% else %}
-<p>{% trans "No groups in OMERO." %}</p>
-{% endif %}
+    {% else %}
+    <p>{% trans "No groups in OMERO." %}</p>
+    {% endif %}
+    
+    </div>
+</div>
 
 {% endblock %}
