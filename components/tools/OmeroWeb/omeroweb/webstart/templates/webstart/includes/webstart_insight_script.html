@@ -20,9 +20,11 @@
 -->
 {% endcomment %}
 
+{% if insight_url %}
 <script src="http://www.java.com/js/deployJava.js"></script>
 <script>
     deployJava.launchButtonPNG='{% static "webstart/img/icon-omero-insight.png" %}';
     var url = "{{ insight_url }}";
     deployJava.createWebStartLaunchButton(url, '1.6.0');
 </script>
+{% endif %}

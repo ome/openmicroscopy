@@ -36,7 +36,12 @@ def index(request):
     template = settings.INDEX_TEMPLATE
     if template is None:
         template = 'webstart/index.html'
-    return render_to_response(template,{'insight_url':request.build_absolute_uri(reverse("webstart_insight"))})
+    
+    insight_url = None
+    if settings.WEBSTART:
+        insight_url = request.build_absolute_uri(reverse("webstart_insight"))
+    
+    return render_to_response(template,{'insight_url':insight_url})
 
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')
