@@ -138,10 +138,23 @@ OMERO Users
         {% endfor %}
       </tbody>
     </table>
-
+    
     {% else %}
     <p>{% trans "No scientists in OMERO." %}</p>
     {% endif %}
     </div>
+
 </div>
+{% endblock %}
+
+{% block metadata_details %}
+
+    <div>
+        <img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; 
+        <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; 
+        <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; 
+        <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; 
+        <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active;
+    <div>
+        
 {% endblock %}
