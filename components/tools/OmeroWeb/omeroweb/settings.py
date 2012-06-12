@@ -53,6 +53,11 @@ else:
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
 INSIGHT_JARS = os.path.join(OMERO_HOME, "lib", "insight").replace('\\','/')
+WEBSTART = False
+if os.path.isdir(INSIGHT_JARS):
+    WEBSTART = True
+
+# Logging
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
@@ -361,7 +366,8 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'
 # STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will 
 # traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
 # findstatic management command or use the static file serving view.
-STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)
+if WEBSTART:
+    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
 # in RequestContext. These callables take a request object as their argument and return 
