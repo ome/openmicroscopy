@@ -4,6 +4,7 @@ set -e -u -x
 
 PASSWORD=${PASSWORD:-"omero"}
 TARGET=${1:-"QA"}
+export TARGET
 
 OMERO_PATH="/home/omero/OMERO.server"
 OMERO_BIN=$OMERO_PATH/bin
