@@ -34,8 +34,6 @@ package ome.services.blitz.impl;
 
 import static omero.rtypes.rstring;
 
-import java.awt.Color;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,9 +54,11 @@ import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.PixelType;
+import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
+import ome.xml.model.primitives.Timestamp;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -334,15 +334,6 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
-    private String millisToXsdDateTime(Long millis)
-    {
-        if (millis == null)
-        {
-            return null;
-        }
-        return xsdDateTimeFormat.format(new Timestamp(millis));
-    }
-
     private Image _getImage(int imageIndex)
     {
         try
@@ -428,11 +419,11 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public String getImageAcquiredDate(int imageIndex)
+    public Timestamp getImageAcquisitionDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? millisToXsdDateTime(
-                fromRType(o.getAcquisitionDate())) : null;
+        return o != null? new Timestamp(new java.util.Date(
+                o.getAcquisitionDate().getValue())) : null;
     }
 
     @Override
@@ -652,7 +643,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Integer getChannelColor(int imageIndex, int channelIndex)
+    public Color getChannelColor(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
         if (o == null)
@@ -661,12 +652,9 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Color color = new Color(
+            return new Color(
                     fromRType(o.getRed()), fromRType(o.getGreen()),
                     fromRType(o.getBlue()), fromRType(o.getAlpha()));
-            int argb = color.getRGB();
-            // ARGB --> RGBA
-            return (argb << 8) | (argb >>> (32-8));
         }
         catch (NullPointerException e)
         {
@@ -1151,12 +1139,12 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public String getTimestampAnnotationValue(int timestampAnnotationIndex)
+    public Timestamp getTimestampAnnotationValue(int timestampAnnotationIndex)
     {
         TimestampAnnotation o = getAnnotation(
                 TimestampAnnotation.class, timestampAnnotationIndex);
-        return o != null? 
-                millisToXsdDateTime(fromRType(o.getTimeValue())) : null;
+        return o != null? new Timestamp(
+                new java.sql.Date(o.getTimeValue().getValue())) : null;
     }
 
     @Override

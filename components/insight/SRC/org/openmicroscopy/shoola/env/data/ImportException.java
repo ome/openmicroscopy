@@ -144,7 +144,9 @@ public class ImportException
 		if (cause instanceof UnsupportedCompressionException) {
 			return COMPRESSION;
 		} else if (cause instanceof FormatException) {
-			return MISSING_LIBRARY;
+			String message = cause.getMessage();
+			if (message.contains("missing libary"))
+				return MISSING_LIBRARY;
 		} else if (cause instanceof IOException) {
 			String message = cause.getMessage();
 			if (message.contains(

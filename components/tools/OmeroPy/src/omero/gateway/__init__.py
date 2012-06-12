@@ -3699,7 +3699,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     String
         """
         f = self.getFile()
-        if f is None:
+        if f is None or f._obj is None:
             return None
         fname = f.getName()
         if fname is not None and len(fname) > 0:

@@ -7,7 +7,6 @@
 package integration;
 
 
-import java.awt.Color;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -23,12 +22,15 @@ import java.util.Map.Entry;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.xml.model.OME;
+import ome.xml.model.primitives.Color;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
@@ -57,7 +59,6 @@ import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -102,27 +103,56 @@ public class ImporterTest
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
+	/** {@link EventContext} that is set on {@link #loginMethod()} */
+	private EventContext ownerEc;
+
     /**
-     * Attempts to create a Java timestamp from an XML date/time string.
-     * @param value An <i>xsd:dateTime</i> string.
-     * @return A value Java timestamp for <code>value</code> or
-     * <code>null</code> if timestamp parsing failed. The error will be logged
-     * at the <code>ERROR</code> log level.
+     * Delete an Image (via a Pixels) assuming a successful outcome.
      */
-    private Timestamp timestampFromXmlString(String value)
-    {
-        try
-        {
-            SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            return new Timestamp(sdf.parse(value).getTime());
+    private void delete(Pixels p) throws Exception{
+        delete(true, iDelete, client,
+            new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+                    p.getImage().getId().getValue(), null));
+    }
+
+    /**
+     * Delete an Image (via a list of Pixels) assuming a successful outcome.
+     */
+    private void delete(List<Pixels> pix) throws Exception{
+        if (pix != null) {
+            for (Pixels p : pix) {
+                delete(true, iDelete, client,
+                        new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+                                p.getImage().getId().getValue(), null));
+            }
         }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing timestamp '%s' failed!", value), e);
-        }
-        return null;
+    }
+
+    /**
+     * Delete a Dataset assuming a successful outcome.
+     */
+    private void delete(Dataset d) throws Exception{
+        delete(true, iDelete, client,
+            new DeleteCommand(DeleteServiceTest.REF_DATASET,
+                   d.getId().getValue(), null));
+    }
+
+    /**
+     * Delete a plate assuming a successful outcome.
+     */
+    private void delete(Plate plate) throws Exception{
+        delete(true, iDelete, client,
+            new DeleteCommand(DeleteServiceTest.REF_PLATE,
+                    plate.getId().getValue(), null));
+    }
+
+    /**
+     * Delete a screen assuming a successful outcome.
+     */
+    private void delete(Screen screen) throws Exception{
+        delete(true, iDelete, client,
+            new DeleteCommand(DeleteServiceTest.REF_SCREEN,
+                    screen.getId().getValue(), null));
     }
 
 	/**
@@ -513,7 +543,10 @@ public class ImporterTest
 				xml.getExternalDescription());
 		assertEquals(well.getExternalIdentifier().getValue(), 
 				xml.getExternalIdentifier());
-		Color xmlColor = new Color(xml.getColor());
+		Color source = xml.getColor();
+		java.awt.Color xmlColor = new java.awt.Color(
+		        source.getRed(), source.getGreen(),
+		        source.getBlue(), source.getAlpha());
 		assertEquals(well.getAlpha().getValue(), xmlColor.getAlpha());
 		assertEquals(well.getRed().getValue(), xmlColor.getRed());
 		assertEquals(well.getGreen().getValue(), xmlColor.getGreen());
@@ -532,7 +565,7 @@ public class ImporterTest
 				xml.getPositionX().doubleValue());
 		assertEquals(ws.getPosY().getValue(), 
 				xml.getPositionY().doubleValue());
-		Timestamp ts = timestampFromXmlString(xml.getTimepoint());
+		Timestamp ts = new Timestamp(xml.getTimepoint().asDate().getTime());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
 	}
 
@@ -548,11 +581,11 @@ public class ImporterTest
 		assertEquals(pa.getName().getValue(), xml.getName());
 		assertEquals(pa.getDescription().getValue(), 
 				xml.getDescription());
-		Timestamp ts = timestampFromXmlString(xml.getEndTime());
+		Timestamp ts = new Timestamp(xml.getEndTime().asDate().getTime());
 		assertNotNull(ts);
 		assertNotNull(pa.getEndTime());
 		assertEquals(pa.getEndTime().getValue(), ts.getTime());
-		ts = timestampFromXmlString(xml.getStartTime());
+		ts = new Timestamp(xml.getStartTime().asDate().getTime());
 		assertNotNull(ts);
 		assertNotNull(pa.getStartTime());
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
@@ -590,24 +623,19 @@ public class ImporterTest
 		assertEquals(experiment.getDescription().getValue(), 
 				xml.getDescription());
 	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param otf The otf to check.
-	 * @param xml The XML version.
-	 */
-	private void validateOTF(OTF otf, ome.xml.model.OTF xml)
-	{
-		assertEquals(otf.getOpticalAxisAveraged().getValue(), 
-				xml.getOpticalAxisAveraged().booleanValue());
-		assertEquals(otf.getSizeX().getValue(), 
-				xml.getSizeX().getValue().intValue());
-		assertEquals(otf.getSizeY().getValue(), 
-				xml.getSizeY().getValue().intValue());
-		assertEquals(otf.getPixelsType().getValue().getValue(), 
-				xml.getType().getValue());
-	}
+
+    /**
+     * Before each method call {@link #newUserAndGroup(String)}. If
+     * {@link #disconnect()} is used anywhere, then this is necessary
+     * for all methods, otherwise non-deterministic method ordering can
+     * cause those tests which do not begin with this method call to fail.
+     */
+    @BeforeMethod
+    protected void loginMethod()
+        throws Exception
+    {
+        ownerEc = newUserAndGroup("rw----");
+    }
 
 	/**
 	 * Overridden to initialize the list.
@@ -654,11 +682,13 @@ public class ImporterTest
 					"."+ModelMockFactory.FORMATS[i]);
 			mmFactory.createImageFile(f, ModelMockFactory.FORMATS[i]);
 			files.add(f);
+			List<Pixels> pix = null;
 			try {
 				importFile(f, ModelMockFactory.FORMATS[i]);
 			} catch (Throwable e) {
 				failures.add(ModelMockFactory.FORMATS[i]);
 			}
+			delete(pix);
 		}
 		if (failures.size() > 0) {
 			Iterator<String> j = failures.iterator();
@@ -730,6 +760,7 @@ public class ImporterTest
 			}
 		}
 		assertTrue(found == size);
+		delete(p);
 	}
 	
 	/**
@@ -746,11 +777,13 @@ public class ImporterTest
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pix = null;
 		try {
-			importFile(f, OME_FORMAT, true);
+			pix = importFile(f, OME_FORMAT, true);
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
+		delete(pix);
 	}
 	
 	/**
@@ -768,11 +801,13 @@ public class ImporterTest
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), false);
+		List<Pixels> pix = null;
 		try {
-			importFile(f, OME_FORMAT, true);
+			pix = importFile(f, OME_FORMAT, true);
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
+		delete(pix);
 	}
 
 	/**
@@ -820,6 +855,7 @@ public class ImporterTest
 			else if (a instanceof LongAnnotation) count++;
 		}
 		assertEquals(XMLMockObjects.ANNOTATIONS.length, count);
+		delete(p);
 	}
 	
 	/**
@@ -898,7 +934,7 @@ public class ImporterTest
     	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, 
     			instrument.sizeOfFilter());
     	assertEquals(1, instrument.sizeOfFilterSet());
-    	assertEquals(1, instrument.sizeOfOtf());
+    	// assertEquals(1, instrument.sizeOfOtf()); DISABLED
     	
     	List<Detector> detectors = instrument.copyDetector();
     	List<Long> detectorIds = new ArrayList<Long>();
@@ -979,7 +1015,6 @@ public class ImporterTest
     	ome.xml.model.MicrobeamManipulation xmlMM = 
     		xml.createMicrobeamManipulation(0);
     	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
-    	ome.xml.model.OTF xmlOTF = ome.getInstrument(0).getOTF(0);
     	
     	// Validate experiment (initial checks)
     	assertNotNull(image.getExperiment());
@@ -1003,8 +1038,6 @@ public class ImporterTest
     	while (k.hasNext()) {
 			lc = k.next();
 			validateChannel(lc, xmlChannel);
-			assertNotNull(lc.getOtf());
-			validateOTF(lc.getOtf(), xmlOTF);
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());
@@ -1021,6 +1054,7 @@ public class ImporterTest
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());
 		}
+        delete(p);
 	}
 
 	/**
@@ -1061,6 +1095,7 @@ public class ImporterTest
 			assertNotNull(shapes);
 			assertTrue(shapes.size() == XMLMockObjects.SHAPES.length);
 		}
+		delete(p);
 	}
 	
 	/**
@@ -1092,6 +1127,7 @@ public class ImporterTest
 		Plate plate = ws.getWell().getPlate();
 		assertNotNull(plate);
 		validatePlate(plate, ome.getPlate(0));
+		delete(plate);
 	}
 	
 	/**
@@ -1191,6 +1227,7 @@ public class ImporterTest
 			}
 		}
 		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
+		delete(plate.copyScreenLinks().get(0).getParent());
 	}
 	
 	/**
@@ -1226,7 +1263,7 @@ public class ImporterTest
 		}
 		WellSample ws;
 		Well well;
-		Plate plate;
+		Plate plate = null;
 		PlateAcquisition pa;
 		Map<Long, Set<Long>> ppaMap = new HashMap<Long, Set<Long>>();
 		Map<Long, Set<Long>> pawsMap = new HashMap<Long, Set<Long>>();
@@ -1285,6 +1322,7 @@ public class ImporterTest
 			}
 		}
 		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
+		delete(plate.copyScreenLinks().get(0).getParent());
 	}
 	
 	/**
@@ -1326,6 +1364,7 @@ public class ImporterTest
 		PlateAcquisition pa = ws.getPlateAcquisition();
 		assertNotNull(pa);
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
+		delete(ws.getWell().getPlate());
 	}
 
 	/**
@@ -1393,6 +1432,7 @@ public class ImporterTest
 			param.addId(obj.getId().getValue());
 			assertEquals(fields, iQuery.findAllByQuery(sql, param).size());
 		}
+		delete(plate);
 	}
 	
 	/**
@@ -1455,6 +1495,7 @@ public class ImporterTest
 		assertEquals(1, screen.sizeOfReagents());
 		assertEquals(wr.getChild().getId().getValue(),
 				screen.copyReagents().get(0).getId().getValue());
+		delete(screen);
 	}
 	
 	/**
@@ -1492,6 +1533,7 @@ public class ImporterTest
     	iQuery.findByQuery(sql, param);
     	assertNotNull(link);
     	assertEquals(link.getChild().getId().getValue(), id);
+    	delete(d);
 	}
 
 	/**
@@ -1502,7 +1544,6 @@ public class ImporterTest
 	public void testImportImageIntoDatasetFromOtherGroup()
 		throws Exception
 	{
-    	EventContext ownerEc = newUserAndGroup("rw----");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	
@@ -1511,6 +1552,7 @@ public class ImporterTest
     	//First create a dataset
 		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
 		assertTrue(group.getId().getValue() != ownerEc.groupId);
+		loginUser(ownerEc);
     	//newUserInGroup(ownerEc);
 
     	File f = File.createTempFile("testImportImageIntoDataset", 
@@ -1536,6 +1578,7 @@ public class ImporterTest
     	iQuery.findByQuery(sql, param);
     	assertNotNull(link);
     	assertEquals(link.getChild().getId().getValue(), id);
+    	delete(d);
 	}
 
     /**
@@ -1546,7 +1589,6 @@ public class ImporterTest
 	public void testImportImageIntoWrongDataset()
 		throws Exception
 	{
-    	EventContext ownerEc = newUserAndGroup("rw----");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	d.setId(omero.rtypes.rlong(d.getId().getValue()*100));
