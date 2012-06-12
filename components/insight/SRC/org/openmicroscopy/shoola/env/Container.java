@@ -224,13 +224,27 @@ public final class Container
 	public String getHomeDir() { return homeDir; }
 	
 	/**
-	 * Returns the absolute path to the container's configuration file.
+	 * Returns the relative path to the container's configuration file.
 	 * 
 	 * @return	See above.
 	 */
-	public String getConfigFile()
+	public String getConfigFileRelative()
 	{ 
-		return resolveFilePath(configFile, CONFIG_DIR);
+        return getConfigFileRelative(configFile);
+	}
+	
+	/**
+	 * Returns the relative path to the container's configuration file.
+	 * 
+	 * @param file The configuration file.
+	 * @return	See above.
+	 */
+	public String getConfigFileRelative(String file)
+	{ 
+        StringBuffer relPath = new StringBuffer(CONFIG_DIR);
+        relPath.append(File.separatorChar);
+        relPath.append(file);
+        return relPath.toString();
 	}
 	
 	/**
@@ -243,9 +257,9 @@ public final class Container
 	public String resolveFilePath(String fileName, String directory)
 	{
 		//if (fileName == null)	throw new NullPointerException();
-		StringBuffer relPath = new StringBuffer(directory);
-		relPath.append(File.separatorChar);
-		relPath.append(fileName);
+        StringBuffer relPath = new StringBuffer(directory);
+        relPath.append(File.separatorChar);
+        relPath.append(fileName);
 		File f = new File(homeDir, relPath.toString());
 		return f.getAbsolutePath();
 	}
