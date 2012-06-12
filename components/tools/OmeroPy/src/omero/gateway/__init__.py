@@ -7053,13 +7053,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param eid:         Filter by owner ID.
         @return:            Number of ROIs found
         """
-          
-        # Create ROI owner validator (instead of roiOptions see #8990)
-        def isValidOwner(shape):
-            if not eid:
-                return True
-            else:
-                return shape.getDetails().getOwner().id.val == self._conn._userid
         
         # Create ROI shape validator (return True if at least one shape is found)
         def isValidType(shape):
@@ -7075,11 +7068,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         def isValidROI(roi):
             for shape in roi.copyShapes():
-                if isValidType(shape) and isValidOwner(shape):
+                if isValidType(shape):
                     return True
             return False
         
-        result = self._conn.getRoiService().findByImage(self.id, None)
+        roiOptions = omero.api.RoiOptions()
+        if eid:
+            roiOptions.userId = omero.rtypes.rlong(self._conn._userid)
+        
+        result = self._conn.getRoiService().findByImage(self.id, roiOptions)
         count = sum(1 for roi in result.rois if isValidROI(roi))
         return count
 
