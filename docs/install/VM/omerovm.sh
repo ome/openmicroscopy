@@ -2,6 +2,7 @@
 
 export VMNAME=${VMNAME:-"$1"}
 export VMNAME=${VMNAME:-"omerovm"}
+export TARGET=${2:-"QA"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
@@ -50,7 +51,7 @@ function installvm ()
 	$SCP omero-web-init.d omero@localhost:~/
   $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
-	$SSH omero@localhost 'bash /home/omero/driver.sh'
+	$SSH omero@localhost "bash /home/omero/driver.sh ${TARGET}"
 	sleep 10
 	
 	echo "ALL DONE!"
