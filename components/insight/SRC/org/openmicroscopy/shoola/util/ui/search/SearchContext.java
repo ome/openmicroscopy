@@ -68,29 +68,38 @@ public class SearchContext
 	/** Identifying the <code>Project</code> context. */
 	public static final int			PROJECTS = 2;
 	
+	/** Identifying the <code>Screen</code> context. */
+	public static final int			SCREENS = 3;
+	
+	/** Identifying the <code>Plate</code> context. */
+	public static final int			PLATES = 4;
+	
+	/** Identifying the <code>Well</code> context. */
+	public static final int			WELLS = 5;
+	
 	/** Identifying the <code>Annotation</code> context. */
-	public static final int			TEXT_ANNOTATION = 3;
+	public static final int			TEXT_ANNOTATION = 6;
 	
 	/** Identifying the <code>Tag</code> context. */
-	public static final int			TAGS = 4;
+	public static final int			TAGS = 7;
 	
 	/** Identifying the <code>Tag set</code> context. */
-	public static final int			TAG_SETS = 5;
+	public static final int			TAG_SETS = 8;
 	
 	/** Identifying the <code>Name</code> context. */
-	public static final int			NAME = 6;
+	public static final int			NAME = 9;
 	
 	/** Identifying the <code>File annotation</code> context. */
-	public static final int			FILE_ANNOTATION = 7;
+	public static final int			FILE_ANNOTATION = 10;
 	
 	/** Identifying the <code>URL annotation</code> context. */
-	public static final int			URL_ANNOTATION = 8;
+	public static final int			URL_ANNOTATION = 11;
 	
 	/** Identifying the <code>Description</code> context. */
-	public static final int			DESCRIPTION = 9;
+	public static final int			DESCRIPTION = 12;
 	
 	/** Identifying the <code>Description</code> context. */
-	public static final int			CUSTOMIZED = 10;
+	public static final int			CUSTOMIZED = 13;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
@@ -241,6 +250,9 @@ public class SearchContext
 	/** The type of attachments to retrieve. */
 	private int				attachmentType;
 	
+	/** Collection of selected groups. */
+	private List<Long>		selectedGroups;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -303,6 +315,13 @@ public class SearchContext
 		if (startTime != null && endTime != null) dateIndex = RANGE;
 	}
 
+	/**
+	 * Sets the collection of selected groups if any.
+	 * 
+	 * @param groups The value to set.
+	 */
+	void setGroups(List<Long> groups) { this.selectedGroups = groups; }
+	
 	/**
 	 * Sets the collection of selected users if any.
 	 * 
@@ -472,6 +491,13 @@ public class SearchContext
 	 */
 	public List<Integer> getContext() { return context; }
 
+	/** 
+	 * Returns the collection of selected groups.
+	 * 
+	 * @return See above.
+	 */
+	public List<Long> getSelectedGroups() { return selectedGroups; }
+	
 	/** 
 	 * Returns the collection of selected users.
 	 * 

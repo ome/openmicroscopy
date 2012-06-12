@@ -48,6 +48,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.RDouble;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -69,17 +71,18 @@ import pojos.DichroicData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.FilterSetData;
+import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.ObjectiveData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -98,6 +101,9 @@ import pojos.WellSampleData;
  */
 public class EditorUtil 
 {
+	
+	/** The number of characters.*/
+	public static final int LENGHT_CHAR = 50;
 	
 	/** Identifies the Laser type. */
 	public static final String LASER_TYPE = "Laser";
@@ -187,10 +193,10 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
-    public static final String 	MICRONS_NO_BRACKET = "\u00B5m";
+    public static final String 	MICRONS_NO_BRACKET = UnitsObject.MICRONS;
     
     /** String to represent the micron symbol. */
-    public static final String 	MICRONS = "(\u00B5m)";
+    public static final String 	MICRONS = "("+UnitsObject.MICRONS+")";
     
     /** String to represent the celcius symbol. */
     public static final String 	CELCIUS = "(\u2103)";
@@ -208,13 +214,13 @@ public class EditorUtil
     public static final String 	SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    public static final String 	PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    public static final String 	PIXEL_SIZE_X = "Pixel size X ";
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    public static final String 	PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    public static final String 	PIXEL_SIZE_Y = "Pixel size Y ";
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    public static final String 	PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    public static final String 	PIXEL_SIZE_Z = "Pixel size Z ";
     
     /** Identifies the <code>Sections</code> field. */
     public static final String 	SECTIONS = "Number of sections";
@@ -557,6 +563,17 @@ public class EditorUtil
 	private static final EditorFileFilter editorFilter = new EditorFileFilter();
 	
 	/**
+	 * Transforms the size and returns the value and units.
+	 * 
+	 * @param value The value to transform.
+	 * @return See above.
+	 */
+	public static UnitsObject transformSize(Double value)
+	{
+		return UIUtilities.transformSize(value);
+	}
+	
+	/**
      * Returns the pixels size as a string.
      * 
      * @param details The map to convert.
@@ -564,26 +581,33 @@ public class EditorUtil
      */
     private static String formatPixelsSize(Map details)
     {
+    	String units = null;
+    	UnitsObject o;
     	String x = (String) details.get(PIXEL_SIZE_X);
     	String y = (String) details.get(PIXEL_SIZE_Y);
     	String z = (String) details.get(PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
-    	boolean number = true;
     	NumberFormat nf = NumberFormat.getInstance();
     	try {
 			dx = Double.parseDouble(x);
+			o = transformSize(dx);
+			units = o.getUnits();
+			dx = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		try {
 			dy = Double.parseDouble(y);
+			o = transformSize(dy);
+			if (units == null) units = o.getUnits();
+			dy = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		try {
 			dz = Double.parseDouble(z);
+			o = transformSize(dz);
+			if (units == null) units = o.getUnits();
+			dz = o.getValue();
 		} catch (Exception e) {
-			number = false;
 		}
 		
     	String label = "<b>Pixels Size (";
@@ -604,7 +628,8 @@ public class EditorUtil
     	}
     	label += ") ";
     	if (value.length() == 0) return null;
-    	return label+MICRONS+": </b>"+value;
+    	if (units == null) units = UnitsObject.MICRONS;
+    	return label+units+": </b>"+value;
     }
     
 	/**
@@ -783,7 +808,13 @@ public class EditorUtil
 	public static String formatExperimenter(ExperimenterData exp)
 	{
 		if (exp == null) return "";
-		return exp.getFirstName()+" "+exp.getLastName();
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		return s1+" "+s2;
 	}
     
 	/**
@@ -843,6 +874,18 @@ public class EditorUtil
 	 */
 	public static boolean isAnnotated(Object object)
 	{
+		return isAnnotated(object, 0);
+	}
+	
+    /**
+	 * Returns <code>true</code> it the object has been annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object	The object to handle.
+	 * @return See above.
+	 */
+	public static boolean isAnnotated(Object object, int count)
+	{
 		if (object == null) return false;
 		Map<Long, Long> counts = null;
 		if (object instanceof DatasetData) 
@@ -852,7 +895,9 @@ public class EditorUtil
 		else if (object instanceof ImageData) {
 			ImageData image = (ImageData) object;
 			counts = image.getAnnotationsCounts();
-			if (counts == null || counts.size() <= 0) return false;
+			if (counts == null || counts.size() <= 0) {
+				return count > 0;
+			}
 			int n = 1;
 			try {
 				String format = image.getFormat();
@@ -868,6 +913,7 @@ public class EditorUtil
 				entry = i.next();
 				value += (Long) entry.getValue();
 			}
+			value += count;
 			return value > n;
 		} else if (object instanceof ScreenData)
 			counts = ((ScreenData) object).getAnnotationsCounts();
@@ -877,8 +923,10 @@ public class EditorUtil
 			counts = ((WellData) object).getAnnotationsCounts();
 		else if (object instanceof PlateAcquisitionData)
 			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
-		if (counts == null || counts.size() <= 0) return false;
-		return true;
+		if (counts == null || counts.size() <= 0) {
+			return count > 0;
+		}
+		return counts.size()+count > 0;
 	}
 	
 	/**
@@ -955,6 +1003,38 @@ public class EditorUtil
     }
     
     /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     * 
+     * @param name The name to truncate.
+     * @return See above.
+     */
+    public static String truncate(String name)
+    {
+    	return truncate(name, LENGHT_CHAR);
+    }
+    
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     * 
+     * @param name The name to truncate.
+     * @param maxLength The maximum length.
+     * @return See above.
+     */
+    public static String truncate(String name, int maxLength)
+    {
+    	if (name == null) return "";
+    	int v = maxLength+UIUtilities.DOTS.length();
+    	int n = name.length();
+    	if (n > v) {
+    		n = n-1;
+    		return UIUtilities.DOTS+name.substring(n-maxLength, n);
+    	}
+    	return name;
+    }
+    
+    /**
      * Returns the last portion of the file name.
      * 
      * @param originalName The original name.
@@ -987,11 +1067,7 @@ public class EditorUtil
     		ho instanceof String)
         	return false;
     	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserRead();
-        return permissions.isGroupRead();
+    	return true; //change in permissions.
     }
     
     /**
@@ -1011,11 +1087,33 @@ public class EditorUtil
     	DataObject data = (DataObject) ho;
         try {
         	if (userID == data.getOwner().getId())
-                return true; // data.getPermissions().isUserWrite();
+                return true;
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}
         
+        return false;
+    }
+    
+    /**
+     * Returns <code>true</code> if the user is an owner of the passed group,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param group The group to check.
+     * @param userID The id of the current user.
+     * @return See above.
+     */
+    public static boolean isUserGroupOwner(GroupData group, long userID)
+    {
+    	if (group == null) return false;
+    	Set<ExperimenterData> owners = group.getLeaders();
+    	if (owners == null) return false;
+    	Iterator<ExperimenterData> i = owners.iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == userID) return true;
+		}
         return false;
     }
     
@@ -2120,18 +2218,7 @@ public class EditorUtil
 		}
 		return result;
     }
-    
-    /**
-     * Returns the name of the experimenter.
-     * 
-     * @param exp The experimenter to handle.
-     * @return See above.
-     */
-    public static String getExperimenterName(ExperimenterData exp)
-    {
-    	if (exp == null) return "";
-    	return exp.getFirstName()+" "+exp.getLastName();
-    }
+
     
 	/**
 	 * Returns the date.
@@ -2278,5 +2365,90 @@ public class EditorUtil
 		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
 			return EMITTING_DIODE_TYPE;
 		return "Light Source";
+	}
+	
+    /**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+	public static TreeImageDisplay getDataOwner(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) return parent;
+    	return getDataOwner(parent);
+    }
+	
+	/**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+	public static TreeImageDisplay getDataGroup(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof GroupData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof GroupData) return parent;
+    	return getDataGroup(parent);
+    }
+	
+	/**
+	 * Returns <code>true</code> if the node can be transfered,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param target The target of the D&D action.
+	 * @param src    The node to transfer.
+	 * @param userID The id of the user currently logged in.
+	 * @return See above.
+	 */
+	public static boolean isTransferable(Object target, Object src, long userID)
+	{
+		if (target instanceof ProjectData && src instanceof DatasetData)
+			return true;
+		else if (target instanceof DatasetData && src instanceof ImageData)
+			return true;
+		else if (target instanceof ScreenData && src instanceof PlateData)
+			return true;
+		else if (target instanceof GroupData) {
+			if (src instanceof ExperimenterData) return true;
+			if (src instanceof DataObject) {
+				GroupData g = (GroupData) target;
+				DataObject data = (DataObject) src;
+				return (g.getId() != data.getGroupId());
+			}
+		} else if (target instanceof ExperimenterData) {
+			ExperimenterData exp = (ExperimenterData) target;
+			return exp.getId() == userID;
+		} else if (target instanceof TagAnnotationData
+				&& src instanceof TagAnnotationData) {
+			TagAnnotationData tagSet = (TagAnnotationData) target;
+			TagAnnotationData tag = (TagAnnotationData) src;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tagSet.getNameSpace())) {
+				return !(TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+						tag.getNameSpace()));
+			}
+			return false;
+		}
+		return false;
 	}
 }

@@ -1008,17 +1008,7 @@ public class FLIMResultsDialog
 		rowData.put("Percent", UIUtilities.formatToDecimal(blueStats.get(Histogram.PERCENT)));
 		statsTable.insertData(rowData);
 	}
-	
-	/**
-	 * Plot the pixel graph for the position x,y
-	 * @param x See above.
-	 * @param y See above.
-	 */
-	private void plotPixel(int x, int y)
-	{
-		System.err.println(x+" "+y);
-	}
-	
+
 	/**
 	 * Display the stats on the point clicked in the chart.
 	 * @param bin The bin picked.

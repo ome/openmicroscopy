@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://purl.org/kid/ns#" py:extends="'master.kid'">
 <!--
-* Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+* Copyright (C) 2007-2012 University of Dundee & Open Microscopy Environment.
 * All Rights Reserved. 
 -->
     <head>

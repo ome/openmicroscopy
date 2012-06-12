@@ -32,6 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * Utility class storing the projection's parameters.
@@ -87,6 +88,9 @@ public class ProjectionRef
 	 * to the projected one. 
 	 */
 	private boolean				applySettings;
+	
+	/** The project to add the dataset to if a new one is created.*/
+	private ProjectData			refProject;
 	
 	/** Creates a new instance.  */
 	ProjectionRef()
@@ -311,4 +315,18 @@ public class ProjectionRef
 	 */
 	public boolean isApplySettings() { return applySettings; }
 	
+	/**
+	 * Sets the project of reference.
+	 * 
+	 * @param project The project to set.
+	 */
+	public void setProject(ProjectData project) { refProject = project; }
+	
+	/**
+	 * Returns the project to add the newly created dataset to.
+	 * 
+	 * @return See above.
+	 */
+	public ProjectData getProject() { return refProject; }
+
 }

@@ -5,6 +5,8 @@
 
 package ome.services.db;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +15,21 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 import ome.util.SqlAction;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.metadata.ClassMetadata;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -204,6 +212,23 @@ public class SqlActionTest extends AbstractManagedContextTest {
             assertNotNull(segment_value);
             sql.nextValue(segment_value, 1);
         }
+    }
+
+    @Test(groups = "ticket:3961")
+    public void testLargeInClause() throws Exception {
+
+        final String query = "select i from Image i where i.id in (:ids)";
+        final List<Long> ids = new ArrayList<Long>();
+        for (int i = 0; i < 1001; i++) {
+            ids.add(Long.valueOf(i));
+        }
+
+        super.setUp();
+        Parameters p = new Parameters();
+        p.addList("ids", ids);
+
+        iQuery.findAllByQuery(query, p);
+
     }
 
     //

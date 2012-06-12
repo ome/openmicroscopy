@@ -26,12 +26,10 @@
    * General set up for the data manager
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <entry name="MultiUser" type="boolean">true</entry>
-  
+  <entry name="MutliGroup" type="boolean">false</entry>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Indicates how to lay out the browsers. We currently support JTabbedPane
    * and JXTaskPane.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <entry name="BrowserLayout">JXTaskPane</entry> 
-  <!-- Indicates that the first browser is the SPW browser -->
-  <entry name="BrowserSPW" type="boolean">false</entry>
+  <entry name="BrowserLayout">JXTaskPane</entry>
 </agent>

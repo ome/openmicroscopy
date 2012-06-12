@@ -265,10 +265,12 @@ public class MovieExportDialog
 		formats = new JComboBox(f);
 		formats.setSelectedIndex(index);
 		timeRange = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
+		timeRange.getSlider().setOverlap(true);
 		timeRange.layoutComponents();
 		timeRange.setEnabled(maxT > 1);
 		
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
+		zRange.getSlider().setOverlap(true);
 		zRange.layoutComponents();
 		zRange.setEnabled(false);
 		

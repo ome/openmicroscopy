@@ -17,7 +17,6 @@ export ROUTER="$ROUTERPREFIX"4064
 export ICE_CONFIG=`pwd`/$OMERO_BRANCH.config
 export OMERO_DATA=`pwd`/target/datadir
 
-echo omero.version=$OMERO_BUILD > $ICE_CONFIG
 echo omero.user=hudson >> $ICE_CONFIG
 echo omero.pass=ome >> $ICE_CONFIG
 echo omero.host=$OMERO_HOST >> $ICE_CONFIG

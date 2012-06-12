@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
@@ -60,6 +61,9 @@ public class FigureCreator
     /** The server call-handle to the computation. */
     private Object	callBack;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to create a movie.
      * 
@@ -75,7 +79,7 @@ public class FigureCreator
             public ProcessCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                ScriptCallback cb = os.createFigure(ids, type, param);
+                ScriptCallback cb = os.createFigure(ctx, ids, type, param);
                 if (cb == null) {
                 	callBack = Boolean.valueOf(false);
                 	return null;
@@ -111,12 +115,15 @@ public class FigureCreator
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param ids 	The id of the objects.
      * @param type  The type of objects to handle.	
      * @param param The parameters used to generate the figure.
      */
-	public FigureCreator(List<Long> imageIds, final Class type, Object param)
+	public FigureCreator(SecurityContext ctx, List<Long> imageIds,
+			Class type, Object param)
 	{
+		this.ctx = ctx;
 		loadCall = makeBatchCall(imageIds, type, param);
 	}
 	

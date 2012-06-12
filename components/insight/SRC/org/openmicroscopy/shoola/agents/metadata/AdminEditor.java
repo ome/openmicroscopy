@@ -31,6 +31,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -66,13 +67,14 @@ public class AdminEditor
      * 
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param group   The group to handle.
      * @param details The experimenters to update. Mustn't be <code>null</code>.
      */
-    public AdminEditor(MetadataViewer viewer, GroupData group,
-    			Map<ExperimenterData, UserCredentials> details)
+    public AdminEditor(MetadataViewer viewer, SecurityContext ctx,
+    		GroupData group, Map<ExperimenterData, UserCredentials> details)
     {
-    	super(viewer, null);
+    	super(viewer, ctx, null);
     	if (details == null)
     		throw new IllegalArgumentException("No eperimenters to update.");
     	this.details = details;
@@ -85,7 +87,7 @@ public class AdminEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateExperimenters(group, details, this);
+		handle = adminView.updateExperimenters(ctx, group, details, this);
 	}
 	
 	/** 

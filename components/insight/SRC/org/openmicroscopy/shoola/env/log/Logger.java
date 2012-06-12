@@ -46,7 +46,7 @@ package org.openmicroscopy.shoola.env.log;
  * <ul>
  * <p>Every method takes in two parameters: the originator of the log message
  * and the log message itself.  If the message spans multiple lines, then
- * a {@link LogMessage} object should be used to contruct it.</p>  
+ * a {@link LogMessage} object should be used to construct it.</p>  
  * <p>A configuration file (in the configuration directory under the
  * installation directory) provides for fine-tuning of the log settings on a
  * per-class basis.  Those settings include the choice of output locations and
@@ -69,7 +69,7 @@ package org.openmicroscopy.shoola.env.log;
  * @since OME2.2
  */
 
-public interface Logger 
+public interface Logger
 {
 	
 	/**
@@ -151,5 +151,12 @@ public interface Logger
 	 * @param msg	The log message.
 	 */
 	public void fatal(Object originator, LogMessage msg);
-    
+	
+	/** 
+	 * Returns the log file.
+	 * 
+	 * @return See above.
+	 */
+	public String getLogFile();
+
 }

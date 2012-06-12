@@ -40,6 +40,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
@@ -77,40 +78,45 @@ public class EditorFactory
 	/**
 	 * Returns the {@link Editor}.
 	 * 
+	 * @param ctx The security context.
 	 * @param fileAnnotation  The annotation hosting the information about
 	 * 						  the file to edit.
 	 * @return See above.
 	 */
-	public static Editor getEditor(FileAnnotationData fileAnnotation)
+	public static Editor getEditor(SecurityContext ctx, 
+			FileAnnotationData fileAnnotation)
 	{
-		EditorModel model = new EditorModel(fileAnnotation);
+		EditorModel model = new EditorModel(ctx, fileAnnotation);
 		return singleton.getEditor(model);
 	}
 	
 	/**
 	 * Returns the {@link Editor}.
 	 * 
-	 * @param fileID    The id of the file to edit.
+	 * @param ctx The security context.
+	 * @param fileID The id of the file to edit.
 	 * @return See above.
 	 */
-	public static Editor getEditor(long fileID)
+	public static Editor getEditor(SecurityContext ctx, long fileID)
 	{
-		EditorModel model = new EditorModel(fileID);
+		EditorModel model = new EditorModel(ctx, fileID);
 		return singleton.getEditor(model);
 	}
 	
 	/**
 	 * Returns the {@link Editor} for the passed data object.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent The data object that the file should be linked to.
 	 * @param name	 The name of the editor file.
 	 * @param type	 Either {@link Editor#PROTOCOL} or 
 	 * 				 {@link Editor#EXPERIMENT}.
 	 * @return See above.
 	 */
-	public static Editor getEditor(DataObject parent, String name, int type)
+	public static Editor getEditor(SecurityContext ctx, DataObject parent,
+			String name, int type)
 	{
-		EditorModel model = new EditorModel(parent, name, type);
+		EditorModel model = new EditorModel(ctx, parent, name, type);
 		Editor editor = singleton.getEditor(model);
 		if (editor != null) {
 			((EditorComponent) editor).setNewExperiment();
@@ -122,15 +128,15 @@ public class EditorFactory
 	/**
 	 * Returns the {@link Editor} created to display a particular file. 
 	 * 
-	 * 
-	 * @param file 		The file to open in Editor. 
+	 * @param ctx The security context.
+	 * @param file The file to open in Editor. 
 	 * @return See above.
 	 */
-	public static Editor getEditor(File file)
+	public static Editor getEditor(SecurityContext ctx, File file)
 	{
-		if (file == null) return getEditor();	// just in case. Never used! 
+		if (file == null) return getEditor(ctx);	// just in case. Never used! 
 		
-		EditorModel model = new EditorModel(file);
+		EditorModel model = new EditorModel(ctx, file);
 		
 		// if a "blank" editor is open, with a "blank" model, this is returned
 		// or, if the model matches the model in an existing editor, return this,
@@ -146,13 +152,14 @@ public class EditorFactory
 	 * This provides the functionality for handling a "show editor", where 
 	 * it doesn't matter which editor/file you show.
 	 * 
+	 * @param ctx The security context.
 	 * @return See above.
 	 */
-	public static Editor getEditor()
+	public static Editor getEditor(SecurityContext ctx)
 	{
 		EditorModel model;
 		if (singleton.editors.isEmpty())
-			return getNewBlankEditor();
+			return getNewBlankEditor(ctx);
 		Editor e = singleton.editors.iterator().next();
 		if (e == null) return e;
 		model = ((EditorComponent) e).getModel();
@@ -184,12 +191,13 @@ public class EditorFactory
 	 * This has a similar functionality to <code>getEditor</code> method, 
 	 * except this method always returns a new editor 
 	 * (never an existing editor).
-	 * 	
+	 * 
+	 * @param ctx The security context.
 	 * @return	A new Editor, with a new EditorModel 
 	 */
-	public static Editor getNewBlankEditor()
+	public static Editor getNewBlankEditor(SecurityContext ctx)
 	{
-		EditorModel model = new EditorModel();
+		EditorModel model = new EditorModel(ctx);
 		 // this will return any existing editors with a 'blank' model, or
 		// create an editor with the blank model above, if none exist. 
 		Editor editor = singleton.getEditor(model);

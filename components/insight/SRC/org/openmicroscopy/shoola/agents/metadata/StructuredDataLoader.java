@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -54,23 +55,23 @@ public class StructuredDataLoader
 	/** The object the data are related to. */
 	private Object		dataObject;
 
-	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                  	Mustn't be <code>null</code>.
-	 * @param node			The node of reference. 
-	 * @param dataObject	The object the data are related to.
-	 * 						Mustn't be <code>null</code>.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param node The node of reference. 
+	 * @param dataObject The object the data are related to.
+	 *                   Mustn't be <code>null</code>.
 	 */
-	public StructuredDataLoader(MetadataViewer viewer, TreeBrowserDisplay node,
-								Object dataObject)
+	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
+			TreeBrowserDisplay node, Object dataObject)
 	{
-		super(viewer, node);
+		super(viewer, ctx, node);
 		if (dataObject == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.dataObject = dataObject;
@@ -82,7 +83,7 @@ public class StructuredDataLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(dataObject, -1, this);
+		handle = mhView.loadStructuredData(ctx, dataObject, -1, this);
 	}
 	
 	/** 

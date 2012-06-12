@@ -409,9 +409,10 @@ class DataBrowserUI
 	{
 		Browser browser = model.getBrowser();
 		Layout layout = browser.getSelectedLayout();
-		layout.setImagesPerRow(number);
-		//if (selectedView == THUMB_VIEW)
-		browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		if (layout != null) {
+			layout.setImagesPerRow(number);
+			browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		}
 	}
     
 	/**
@@ -531,7 +532,9 @@ class DataBrowserUI
     	if (!(node instanceof ImageNode)) return;
     	ImageData data = (ImageData) node.getHierarchyObject();
     	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-    	bus.post(new ViewImage(new ViewImageObject(data), null));
+    	
+    	bus.post(new ViewImage(model.getSecurityContext(),
+    			new ViewImageObject(data), null));
     }
     
     /**

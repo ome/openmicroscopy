@@ -32,6 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -63,11 +64,13 @@ public class DataObjectRemover
      * 
      * @param viewer	The Editor this data loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param values The groups or experimenters to delete.
      */
-    public DataObjectRemover(TreeViewer viewer, List<DataObject> values)
+    public DataObjectRemover(TreeViewer viewer, SecurityContext ctx,
+    		List<DataObject> values)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (values == null)
             throw new IllegalArgumentException("No object to delete");
         this.values = values;
@@ -79,7 +82,7 @@ public class DataObjectRemover
      */
     public void load()
     {
-    	 handle = adminView.deleteObjects(values, this);
+    	 handle = adminView.deleteObjects(ctx, values, this);
     }
 
     /**

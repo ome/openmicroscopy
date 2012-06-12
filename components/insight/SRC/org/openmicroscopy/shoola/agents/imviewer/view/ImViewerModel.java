@@ -77,9 +77,9 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -89,9 +89,12 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellData;
@@ -132,11 +135,11 @@ class ImViewerModel
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
 	
-	/** Index of the <code>RenderingControlLoader</code> loader. */
-	private static final int	RND = 1;
+	/** Index of the <code>ImageLoader</code> loader. */
+	private static final int	IMAGE = 1;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	IMAGE = 2;
+	private static final int	BIRD_EYE_BVIEW = 2;
 	
 	/** The image to view. */
 	private DataObject 					image; 
@@ -299,6 +302,12 @@ class ImViewerModel
 	/** Flag indicating that the image is loaded for the first time.*/
 	private boolean firstTime;
 	
+	/** The security context.*/
+    private SecurityContext ctx;
+    
+    /** The units corresponding to the pixels size.*/
+    private UnitsObject refUnits;
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -492,20 +501,24 @@ class ImViewerModel
 	{
 		metadataViewer = MetadataViewerFactory.getViewer("", 
 				MetadataViewer.RND_SPECIFIC);
-		metadataViewer.setRootObject(image, metadataViewer.getUserID());
+		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
+				getSecurityContext());
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The id of the image.
 	 * @param bounds	The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
 	 * 						 separate window, <code>false</code> otherwise.  
 	 */
-	ImViewerModel(long imageID, Rectangle bounds, boolean separateWindow)
+	ImViewerModel(SecurityContext ctx, long imageID, Rectangle bounds,
+			boolean separateWindow)
 	{
+		this.ctx = ctx;
 		this.imageID = imageID;
 		initialize(bounds, separateWindow);
 	}
@@ -525,19 +538,22 @@ class ImViewerModel
 	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
-	 * @param image  	The image or well sample to view.
-	 * @param bounds    The bounds of the component invoking the 
+	 * @param ctx The security context.
+	 * @param image The image or well sample to view.
+	 * @param bounds The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise.  
+	 * 						 separate window, <code>false</code> otherwise.
 	 */
-	ImViewerModel(DataObject image, Rectangle bounds, boolean separateWindow)
+	ImViewerModel(SecurityContext ctx, DataObject image, Rectangle bounds,
+			boolean separateWindow)
 	{
 		this.image = image;
+		this.ctx = ctx;
 		initialize(bounds, separateWindow);
 		numberOfRows = 1;
 		numberOfColumns = 1;
-		initializeMetadataViewer();
+		//initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
 		}
@@ -645,8 +661,15 @@ class ImViewerModel
 	 */
 	String getImageTitle()
 	{
-		return "[ID: "+getImageID()+"] "+
-				EditorUtil.getPartialName(getImageName());
+		GroupData group = getSelectedGroup();
+		StringBuffer buffer = new StringBuffer();
+		if (group != null) {
+			buffer.append("Group: ");
+			buffer.append(group.getName());
+		}
+		buffer.append(" [ID: "+getImageID()+"] ");
+		buffer.append(EditorUtil.getPartialName(getImageName()));
+		return buffer.toString();
 	}
 	
 	/**
@@ -656,6 +679,18 @@ class ImViewerModel
 	 */
 	int getState() { return state; }
 
+	/** Cancels the bird eye view loading.*/
+	void cancelBirdEyeView()
+	{
+		state = ImViewer.CANCELLED;
+		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		if (loader != null) {
+			loader.cancel();
+			loaders.remove(BIRD_EYE_BVIEW);
+		}
+		discard();
+	}
+	
 	/**
 	 * Sets the object in the {@link ImViewer#DISCARDED} state.
 	 * Any ongoing data loading will be canceled.
@@ -663,17 +698,26 @@ class ImViewerModel
 	void discard()
 	{
 		state = ImViewer.DISCARDED;
+		if (imageIcon != null) imageIcon.flush();
+		browser.discard();
 		if (image == null) return;
-		//Shut down the service
-		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = getImage().getDefaultPixels().getId();
-		svr.shutDown(pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {
 			index =  (Integer) i.next();
 			(loaders.get(index)).cancel();
 		}
+		browser.discard();
+		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
+			metadataViewer.getRenderer().discard();
+		}
+			
+		//if (image == null) return;
+		//Shut down the service
+		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
+		//long pixelsID = getImage().getDefaultPixels().getId();
+		//svr.shutDown(pixelsID);
+		
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;
@@ -830,7 +874,8 @@ class ImViewerModel
 		if (planeInfos != null && planeInfos.size() > 0) return;
 		int size = getMaxT()*getMaxC()*getMaxZ();
 		if (size >  OmeroImageService.MAX_PLANE_INFO) return;
-		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
+		PlaneInfoLoader loader = new PlaneInfoLoader(component, ctx,
+				getPixelsID());
 		loader.load();
 	}
 
@@ -842,9 +887,10 @@ class ImViewerModel
 		PlaneDef pDef = createPlaneDef();
 		state = ImViewer.LOADING_IMAGE;
 		if (firstTime) {
+			browser.setUnitBar(true);
 			long pixelsID = getImage().getDefaultPixels().getId();
-			ImageLoader loader = new ImageLoader(component, pixelsID, pDef, 
-					false);
+			ImageLoader loader = new ImageLoader(component, ctx, 
+					pixelsID, pDef, false);
 			loader.load();
 			loaders.put(IMAGE, loader);
 		} else {
@@ -1062,7 +1108,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.setChannelColor(index, c);
+		rnd.setChannelColor(index, c, false);
 	}
 
 	/**
@@ -1127,7 +1173,16 @@ class ImViewerModel
 	boolean isBigImage()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return false;
+		if (rnd == null) {
+			try {
+				Boolean 
+				b = ImViewerAgent.getRegistry().getImageService().isLargeImage(
+						ctx, getImage().getDefaultPixels().getId());
+				if (b != null) return b.booleanValue();
+			} catch (Exception e) {} //ingore
+			
+			return false;
+		}
 		return rnd.isBigImage();
 	}
 	
@@ -1648,7 +1703,7 @@ class ImViewerModel
 		long id = ImViewerFactory.getRefImage().getDefaultPixels().getId();
 		if (id < 0) return;
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
-				id, true);
+				ctx, id, true);
 		loader.load();
 		state = ImViewer.PASTING;
 	}
@@ -1746,7 +1801,7 @@ class ImViewerModel
 	 */
 	void fireRenderingSettingsRetrieval()
 	{
-		DataLoader loader = new RenderingSettingsLoader(component, 
+		DataLoader loader = new RenderingSettingsLoader(component, ctx, 
 						getImage().getDefaultPixels().getId());
 		loader.load();
 		if (loaders.get(SETTINGS) != null)
@@ -1761,7 +1816,7 @@ class ImViewerModel
 	void fireOwnerSettingsRetrieval()
 	{
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
-				getImage().getDefaultPixels().getId());
+				ctx, getImage().getDefaultPixels().getId());
 		loader.setOwner(getOwnerID());
 		loader.load();
 		if (loaders.get(SETTINGS) != null)
@@ -1864,7 +1919,7 @@ class ImViewerModel
 		param.setChannels(getActiveChannels());
 		lastProjRef = param;
 		lastProjDef = metadataViewer.getRenderer().getRndSettingsCopy();
-		ProjectionSaver loader = new ProjectionSaver(component, param, 
+		ProjectionSaver loader = new ProjectionSaver(component, ctx, param, 
 				                  ProjectionSaver.PREVIEW);
 		loader.load();
 	}
@@ -1894,6 +1949,7 @@ class ImViewerModel
 		buf.append("\n");
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
+		String range = "ZRange_"+(startZ+1)+"_"+(endZ+1)+"_";
 		int startT = ref.getStartT();
 		int endT = ref.getEndT();
 		if (startT == endT) buf.append("timepoint: "+(startT+1));
@@ -1901,12 +1957,12 @@ class ImViewerModel
 		List<Integer> channels = ref.getChannels();
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				startZ, endZ, stepping, type, startT, endT, channels, 
-				ref.getImageName());
+				range+ref.getImageName());
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
-		param.setDatasetParent(getGrandParent());
+		param.setDatasetParent(ref.getProject());
 		param.setChannels(getActiveChannels());
-		ProjectionSaver loader = new ProjectionSaver(component, param, 
+		ProjectionSaver loader = new ProjectionSaver(component, ctx, param, 
 							ProjectionSaver.PROJECTION, ref.isApplySettings());
 		loader.load();
 	}
@@ -1918,7 +1974,8 @@ class ImViewerModel
 	void fireContainersLoading()
 	{
 		state = ImViewer.LOADING_PROJECTION_DATA;
-		ContainerLoader loader = new ContainerLoader(component, getImageID());
+		ContainerLoader loader = new ContainerLoader(component, ctx,
+				getImageID());
 		loader.load();
 	}
     
@@ -1945,8 +2002,8 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		RndProxyDef def = rnd.getRndSettingsCopy();
-		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
-				image, def, indexes);
+		RenderingSettingsCreator l = new RenderingSettingsCreator(component,
+				ctx, image, def, indexes);
 		l.load();
 	}
 	
@@ -2028,7 +2085,8 @@ class ImViewerModel
 	void fireImageLoading()
 	{
 		state = ImViewer.LOADING_IMAGE_DATA;
-		ImageDataLoader loader = new ImageDataLoader(component, getImageID());
+		ImageDataLoader loader = new ImageDataLoader(component, ctx,
+				getImageID());
 		loader.load();
 	}
 	
@@ -2039,6 +2097,7 @@ class ImViewerModel
 	 */
 	void setImageData(ImageData image)
 	{
+		state = ImViewer.LOADING_RND;
 		this.image = image;
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
@@ -2152,16 +2211,18 @@ class ImViewerModel
 	void setLastProjectionTime(int time) { lastProjTime = time; }
 
 	/**
-	 * Returns the unit in microns.
+	 * Returns the unit used to determine the size of the unit bar.
+	 * The unit depends on the size stored. The unit of reference in the
+	 * OME model is in microns, but this is a transformed unit.
 	 * 
 	 * @return See above.
 	 */
-	double getUnitInMicrons() { return browser.getUnitInMicrons(); }
+	double getUnitInRefUnits() { return browser.getUnitInRefUnits(); }
 	
 	/** Loads all the available datasets. */
 	void loadAllContainers()
 	{
-		ContainerLoader loader = new ContainerLoader(component);
+		ContainerLoader loader = new ContainerLoader(component, ctx);
 		loader.load();
 	}
 
@@ -2169,7 +2230,7 @@ class ImViewerModel
 	void makeMovie()
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.makeMovie((int) getUnitInMicrons(), 
+		metadataViewer.makeMovie((int) getUnitInRefUnits(), 
 				getBrowser().getUnitBarColor());
 	}
 	
@@ -2263,7 +2324,8 @@ class ImViewerModel
     	if (parent instanceof WellData) {
     		//PlateData p = ((WellData) parent).getPlate();
     		ImageData p = getImage();
-    		MeasurementsLoader loader = new MeasurementsLoader(component, p);
+    		MeasurementsLoader loader = new MeasurementsLoader(component, ctx, 
+    				p);
     		loader.load();
     	}
     }
@@ -2389,8 +2451,8 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		OverlaysRenderer loader = new OverlaysRenderer(component, getPixelsID(), 
-				pDef, overlayTableID, overlays);
+		OverlaysRenderer loader = new OverlaysRenderer(component, ctx, 
+				getPixelsID(), pDef, overlayTableID, overlays);
 		loader.load();
 	}
 	
@@ -2444,11 +2506,10 @@ class ImViewerModel
 	{ 
 		boolean b = isUserOwner();
 		if (b) return b;
-		int level = 
-			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+		GroupData g = ImViewerAgent.getUserDetails().getDefaultGroup();
+		switch (g.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return false;
@@ -2528,8 +2589,8 @@ class ImViewerModel
 			n++;
 		}
 		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
-		rnd.setSelectedResolutionLevel(0);
-		BufferedImage image = rnd.renderPlane(pDef);
+		//rnd.setSelectedResolutionLevel(0);
+		//BufferedImage image = rnd.renderPlane(pDef);
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
@@ -2539,16 +2600,25 @@ class ImViewerModel
 			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
 			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
 		}
+		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
+		state = ImViewer.LOADING_BIRD_EYE_VIEW;
+		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
+				pDef, ratio);
+		loader.load();
+		loaders.put(BIRD_EYE_BVIEW, loader);
+		/*
 		if (image != null) {
 			BufferedImage newImage;
 			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
 			else newImage = image;
 			component.setBirdEyeView(newImage);
 		} else {
-			BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
+			BirdEyeLoader loader = new BirdEyeLoader(component, ctx,
+					getImage());
 			loader.load();
 		}
-		rnd.setSelectedResolutionLevel(level);
+		*/
+		//rnd.setSelectedResolutionLevel(level);
 	}
 
 	/**
@@ -2609,8 +2679,8 @@ class ImViewerModel
 		list = selection;
 		sortTilesByIndex(list);
 		state = ImViewer.LOADING_TILES;
-		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
-				list);
+		TileLoader loader = new TileLoader(component, ctx, currentPixelsID,
+				pDef, list);
 		loader.load();
     }
     
@@ -2718,12 +2788,78 @@ class ImViewerModel
 	/** Cancels the rendering of the image.*/
 	void cancelRendering()
 	{
-		DataLoader loader = loaders.get(IMAGE);
-		if (loader != null) {
-			loader.cancel();
-			firstTime = true;
-			state = ImViewer.LOADING_IMAGE_CANCELLED;
-		}
+		if (metadataViewer == null) return;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd != null) rnd.discard();
+		state = ImViewer.CANCELLED;
 	}
 	
+	/**
+	 * Sets the image for the bird eye view.
+	 * 
+	 * @param image The image to set.
+	 */
+	void setBirdEyeView(BufferedImage image)
+	{
+		loaders.remove(BIRD_EYE_BVIEW);
+		getBrowser().setBirdEyeView(image);
+	}
+
+	/** 
+	 * Returns <code>true</code> if it is the same viewer, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @param ctx
+	 * @return
+	 */
+	boolean isSame(long pixelsID, SecurityContext ctx)
+	{
+		if (getPixelsID() == pixelsID) //add server check
+			return true;
+		return false;
+	}
+	
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    SecurityContext getSecurityContext() { return ctx; }
+
+    /**
+     * Returns the group the image belongs to.
+     * 
+     * @return See above.
+     */
+    GroupData getSelectedGroup()
+    {
+    	Collection set = (Collection) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.USER_GROUP_DETAILS);
+    	if (set == null || set.size() <= 1)
+    		return null;
+    	Iterator i = set.iterator();
+    	GroupData g;
+    	while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == ctx.getGroupID())
+				return g;
+		}
+    	return null;
+    }
+
+    /**
+     * Returns the relevant units associated to the pixels size.
+     * 
+     * @return See above.
+     */
+	String getUnits()
+	{
+		if (refUnits != null) return refUnits.getUnits();
+		double size = getPixelsSizeX();
+		if (size < 0) return UnitsObject.MICRONS;
+		refUnits = EditorUtil.transformSize(size); 
+		return refUnits.getUnits();
+	}
+    
 }

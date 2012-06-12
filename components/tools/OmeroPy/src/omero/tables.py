@@ -95,15 +95,18 @@ class HdfList(object):
         if not parent.exists():
             raise omero.ApiUsageException(None, None, "Parent directory does not exist: %s" % parent)
 
+        lock = None
         try:
             lock = open(hdfpath, "a+")
             portalocker.lock(lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
             self.__locks[hdfpath] = lock
         except portalocker.LockException, le:
-            lock.close()
+            if lock:
+                lock.close()
             raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except:
-            lock.close()
+            if lock:
+                lock.close()
             raise
 
         hdffile = hdfstorage.openfile("a")
@@ -423,14 +426,24 @@ class HdfStorage(object):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
         cols = self.cols(None, current)
-        rv   = []
+
+        rows = self._getrows(start, stop)
+        rv, l = self._rowstocols(rows, colNumbers, cols)
+        return self._as_data(rv, range(start, start+l))
+
+    def _getrows(self, start, stop):
+        return self.__mea.read(start, stop)
+
+    def _rowstocols(self, rows, colNumbers, cols):
         l = 0
+        rv   = []
         for i in colNumbers:
             col = cols[i]
-            col.read(self.__mea, start, stop)
+            col.fromrows(rows)
             rv.append(col)
-            l = len(col.values)
-        return self._as_data(rv, range(start, start+l))
+            if not l:
+                l = len(col.values)
+        return rv, l
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
@@ -479,12 +492,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown"):
+    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown", \
+            call_context = None):
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
         self.storage = storage
-        self.can_write = factory.getAdminService().canUpdate(file_obj)
+        self.call_context = call_context
+        self.can_write = factory.getAdminService().canUpdate(file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
@@ -619,6 +634,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def read(self, colNumbers, start, stop, current = None):
         self.logger.info("%s.read(%s, %s, %s)", self, colNumbers, start, stop)
+        if start == 0L and stop == 0L:
+            stop = None
         try:
             return self.storage.read(self.stamp, colNumbers, start, stop, current)
         except tables.HDF5ExtError, err:
@@ -834,7 +851,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         storage = HDFLIST.getOrCreate(file_path)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
-        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name)
+        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name, \
+                call_context=current.ctx)
         self.resources.add(table)
 
         prx = current.adapter.add(table, id)

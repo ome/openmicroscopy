@@ -463,6 +463,7 @@ public class PixelsServicesFactory
 	 * @param pDef      The plane to render.
 	 * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
+	 * @param largeImage Indicates to set the resolution to <code>0</code>.
 	 * @return          The image representing the plane.
 	 * @return See above.
 	 * 
@@ -471,7 +472,7 @@ public class PixelsServicesFactory
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static Object render(Registry context, Long pixelsID, 
-			PlaneDef pDef, boolean asTexture)
+			PlaneDef pDef, boolean asTexture, boolean largeImage)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -482,7 +483,14 @@ public class PixelsServicesFactory
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
 		if (asTexture) return proxy.renderAsTexture(pDef);
-		return proxy.render(pDef);
+		int level = proxy.getSelectedResolutionLevel();
+		if (largeImage) {
+			proxy.setCompression(RenderingControl.LOW);
+			proxy.setSelectedResolutionLevel(0);
+		}
+		Object o = proxy.render(pDef);
+		if (largeImage) proxy.setSelectedResolutionLevel(level);
+		return o;
 	}
 
 	/**

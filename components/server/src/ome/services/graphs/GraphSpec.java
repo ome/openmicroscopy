@@ -19,8 +19,9 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * Specification of a delete operation. These instances are defined in
- * ome/services/delete/spec.xml as non-singletons, i.e each time a request is
+ * Specification of a graph operation. These instances are defined in
+ * Spring XML files (e.g. ome/services/spec.xml) as non-singletons,
+ * i.e each time a request is
  * made for a new {@link GraphSpecFactory} one of each {@link GraphSpec} is
  * initialized and gathered into the factory. A single thread, then, can
  * repeatedly call {@link #initialize(long, Map)} on the {@link GraphSpec}
@@ -51,13 +52,13 @@ public interface GraphSpec {
     void postProcess(ListableBeanFactory factory);
 
     /**
-     * Called as each delete command is started. This instance will inly be used
+     * Called as each action is started. This instance will inly be used
      * serially (i.e. by one thread) and so this is safe. When the last step is
-     * reached, {@link #delete(Session, int)} can take clean up actions.
+     * reached, {@link GraphState#execute(int)} can take clean up actions.
      *
      * @param id
      *            identifier of the root object which defines the graph to be
-     *            deleted.
+     *            processed.
      * @param supersec
      *            points to the relationship between the root object and the
      *            current graph. In many cases, this value will be null so that
@@ -130,18 +131,18 @@ public interface GraphSpec {
      */
 
     /**
-     * If a given path is deleted before its sub-path, this points to a
-     * one-to-one relationship. If the first object is deleted without having
+     * If a given path is processed before its sub-path, this points to a
+     * one-to-one relationship. If the first object is processed without having
      * loaded the later one, then there will be no way to find the dangling
      * object. Therefore, we load those objects first.
      *
      * In the case of superspecs, we also store the root ids for the sub-spec to
      * handle cases such as links, etc.
      *
-     * Returns a list of all root ids per step which should be deleted. These are
+     * Returns a list of all root ids per step which should be processed. These are
      * precalculated on {@link #initialize(long, Map)} so that foreign key
-     * constraints which require a higher level object to be deleted first, can
-     * be removed.
+     * constraints which require a higher level object to be processed first, can
+     * be processed.
      *
      * For example,
      *
@@ -150,7 +151,7 @@ public interface GraphSpec {
      * /Channel/StatsInfo
      * </pre>
      *
-     * requires the Channel to be deleted first, but without the Channel,
+     * requires the Channel to be processed first, but without the Channel,
      * there's no way to detect which StatsInfo should be removed. Therefore,
      * {@link #backupIds} in this case would contain:
      *
@@ -163,22 +164,12 @@ public interface GraphSpec {
      *
      * @param paths
      *            Non-null, non-modifiable list of all paths for the current
-     *            delete graph. This is used to detect if a path in some subspec
+     *            action graph. This is used to detect if a path in some subspec
      *            is going to detach a later graph which needs then to have its
      *            ids loaded.
      */
     long[][] queryBackupIds(Session session, int step, GraphEntry subpath, QueryBuilder and)
             throws GraphException;
-
-    /**
-     * Workaround for the removal of GraphSpec#delete when refactoring to
-     * {@link GraphState}. If more logic is needed by subclasses, then
-     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
-     * should no longer return list of ids, but rather a "Action" class
-     * so that it can inject its own logic as needed, though it would be necessary
-     * to give that method its place in the graph to detect "top-ness".
-     */
-    void runTopLevel(Session session, List<Long> ids) throws GraphException;
 
     /**
      * Returns an iterator over all subspecs and their subspecs, depth-first.
@@ -206,5 +197,12 @@ public interface GraphSpec {
 
     CurrentDetails getCurrentDetails();
 
-    void close();
+    /**
+     * Loads the object that this spec points to. Performs similar logic to
+     * the {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
+     * but only returns the last element.
+     *
+     * @return possibly null.
+     */
+    IObject load(Session session) throws GraphException;
 }

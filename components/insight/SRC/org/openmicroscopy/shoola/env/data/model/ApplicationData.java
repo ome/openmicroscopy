@@ -22,205 +22,206 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
 //Java imports
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.Parser;
-import org.openmicroscopy.shoola.util.image.io.IconReader;
+import org.openmicroscopy.shoola.env.data.model.appdata.ApplicationDataExtractor;
+import org.openmicroscopy.shoola.env.data.model.appdata.LinuxApplicationDataExtractor;
+import org.openmicroscopy.shoola.env.data.model.appdata.MacApplicationDataExtractor;
+import org.openmicroscopy.shoola.env.data.model.appdata.WindowsApplicationDataExtractor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
-/** 
- * Hosts information about an external application.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
+/**
+ * Provides information about an external application.
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:donald@lifesci.dundee.ac.uk"
+ *         >donald@lifesci.dundee.ac.uk</a>
+ * @author Scott Littlewood&nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-public class ApplicationData
-{
-	
-	/** The default location on <code>MAC</code> platform. */
-	public static final String LOCATION_MAC = "/Applications";
-	
-	/** The default location on <code>Windows</code> platform. */
-	public static final String LOCATION_WINDOWS = "C:\\Program Files";
-	
-	/** The default location <code>Linux</code> platform. */
-	public static final String LOCATION_LINUX = "/Applications";
+public class ApplicationData {
+
+	/**
+	 * The platform specific extractor used to obtain application information
+	 */
+	private static ApplicationDataExtractor extractor;
 
 	/** The path to the application. */
 	private File file;
-	
+
 	/** The name of the application. */
 	private String applicationName;
-	
+
 	/** The icon associated. */
 	private Icon applicationIcon;
-	
+
 	/** The path to the executable. */
 	private String executable;
-	
+
 	/** The commands to add. */
 	private List<String> commands;
-	
-	/** 
-	 * Converts the <code>.icns</code> to an icon.
-	 * 
-	 * @param path The path to the file to convert.
-	 * @return See above.
+
+	/**
+	 * Static constructor that creates the platform specific app data extractor
 	 */
-	private static Icon convert(String path)
-	{
-		if (path == null) return null;
-		if (!path.endsWith("icns")) path += ".icns";
-		IconReader reader = new IconReader(path);
-		BufferedImage img = null;
-		try {
-			img = reader.decode(IconReader.ICON_16);
-		} catch (Exception e) {
-		}
-		if (img == null) return null;
-		return new ImageIcon(img);
+	static {
+		if (UIUtilities.isWindowsOS())
+			extractor = new WindowsApplicationDataExtractor();
+		else if (UIUtilities.isMacOS())
+			extractor = new MacApplicationDataExtractor();
+		else if (UIUtilities.isLinuxOS())
+			extractor = new LinuxApplicationDataExtractor();
 	}
 
-	/** Parses the file. */
-	private void parseMac()
-	{
-		try {
-			Map<String, Object> m = Parser.parseInfoPList(getApplicationPath());
-			executable = (String) m.get(Parser.EXECUTABLE_PATH);
-			applicationIcon = convert((String) m.get(Parser.EXECUTABLE_ICON));
-			applicationName = (String) m.get(Parser.EXECUTABLE_NAME);
-		} catch (Exception e) {
-			applicationName = UIUtilities.removeFileExtension(
-					file.getAbsolutePath());
-			applicationIcon = null;
-			executable = getApplicationPath();
-		}
-		if (applicationName == null || applicationName.length() == 0)
-			applicationName = UIUtilities.removeFileExtension(file.getName());
-		if (executable == null || executable.length() == 0)
-			executable = getApplicationPath();
-		if (executable.contains("Microsoft"))
-			executable = null;
-	}
-	
 	/**
 	 * Returns the default location depending on the OS.
 	 * 
 	 * @return See above.
 	 */
-	public static String getDefaultLocation()
-	{
-		if (UIUtilities.isMacOS()) return LOCATION_MAC;
-		if (UIUtilities.isWindowsOS()) return LOCATION_WINDOWS;
-		return LOCATION_LINUX;
+	public static String getDefaultLocation() {
+		return extractor.getDefaultAppDirectory();
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param file the application.
+	 * @param file
+	 *            the {@link File} pointing to the location of the application.
+	 * @throws Exception
+	 *             thrown if the File points to a location that is incorrect
 	 */
-	public ApplicationData(File file)
-	{
+	public ApplicationData(File file) throws Exception {
 		this.file = file;
-		String name = file.getName();
-		if (name == null || name.length() == 0) {
-			applicationName = "";
-			applicationIcon = null;
-			executable = null;
-		} else {
-			if (UIUtilities.isMacOS()) parseMac();
+		this.commands = new ArrayList<String>();
+
+		if (!file.exists())
+			throw new Exception("Application does not exists @ "
+					+ file.getAbsolutePath());
+
+		try {
+			ApplicationData data = extractor.extractAppData(file);
+
+			this.applicationName = data.applicationName;
+			this.executable = data.executable;
+			this.applicationIcon = data.applicationIcon;
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * Creates a new instance.
+	 * Creates a new instance of @link {@link ApplicationData}
 	 * 
-	 * @param path The path to the application.
+	 * @param icon
+	 *            the icon of the application
+	 * @param applicationName
+	 *            the name of the application
+	 * @param executablePath
+	 *            the system path to the application executable
 	 */
-	public ApplicationData(String path)
-	{
-		this(new File(path));
+	public ApplicationData(Icon icon, String applicationName,
+			String executablePath) {
+		this.applicationIcon = icon;
+		this.applicationName = applicationName;
+		this.executable = executablePath;
 	}
-	
+
 	/**
 	 * Returns the name of the application.
 	 * 
 	 * @return See above.
 	 */
-	public String getApplicationName() { return applicationName; }
-	
+	public String getApplicationName() {
+		return applicationName;
+	}
+
 	/**
 	 * Returns the icon associated to the application.
 	 * 
 	 * @return See above.
 	 */
-	public Icon getApplicationIcon() { return applicationIcon; }
-	
+	public Icon getApplicationIcon() {
+		return applicationIcon;
+	}
+
 	/**
 	 * Returns the application's path.
 	 * 
 	 * @return See above.
 	 */
-	public String getApplicationPath() { return file.getAbsolutePath(); }
-	
+	public String getApplicationPath() {
+		return file.getAbsolutePath();
+	}
+
 	/**
-	 * Returns the arguments.
+	 * Returns the command line arguments for the application.
 	 * 
 	 * @return See above.
 	 */
-	public List<String> getArguments()
-	{
-		List<String> list = new ArrayList<String>(); 
-		if (UIUtilities.isMacOS()) {
-			if (executable != null && executable.length() > 0)
-				list.add(executable);
-			else list.add("open");
-			if (commands != null && commands.size() > 0)
-				list.addAll(commands); 
-		} else if (UIUtilities.isWindowsOS()) {
-			
-		}
-		return list;
+	public Iterable<String> getCommandLineArguments() {
+		return commands;
 	}
-	
+
 	/**
-	 * Sets the commands.
+	 * Sets the command line arguments for the application.
 	 * 
-	 * @param commands The commands to set.
+	 * @param commands
+	 *            The commands to set.
 	 */
-	public void setCommands(List<String> commands)
-	{
+	public void setCommandLineArguments(List<String> commands) {
 		this.commands = commands;
 	}
-	
+
 	/**
 	 * Overridden to return the name of the application.
+	 * 
 	 * @see ApplicationData#toString()
 	 */
-	public String toString()
-	{
-		if (applicationName == null) return "";
+	public String toString() {
 		return applicationName;
 	}
-	
+
+	/**
+	 * Builds the command used to open the file based on the
+	 * {@link ApplicationData} passed in, if the {@link ApplicationData} is null
+	 * then the platform specific default command is built
+	 * 
+	 * @param data
+	 *            the Application Data holding details of the application to use
+	 *            to open the file
+	 * @param file
+	 *            the {@link File} representing the location of the file to open
+	 * @return the command string that when executed should open the file.
+	 * @throws MalformedURLException
+	 *             when the file referenced is unable to be converted to a URL
+	 *             in the format file://...
+	 */
+	public static String[] buildCommand(ApplicationData data, File file)
+			throws MalformedURLException {
+
+		if (data == null)
+			return extractor.getDefaultOpenCommandFor(file.toURI().toURL());
+
+		List<String> commandLine = new ArrayList<String>();
+		commandLine.add(data.executable);
+
+		for (String commandArg : data.getCommandLineArguments()) {
+			commandLine.add(commandArg);
+		}
+
+		commandLine.add(file.getAbsolutePath());
+
+		return commandLine.toArray(new String[0]);
+	}
 }

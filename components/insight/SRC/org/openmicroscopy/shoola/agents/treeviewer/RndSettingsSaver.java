@@ -33,6 +33,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -134,6 +135,7 @@ public class RndSettingsSaver
 	 * 
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param rootType	The type of nodes. Supported type 
 	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
@@ -145,10 +147,10 @@ public class RndSettingsSaver
 	 * 					to the images contained in the specified containers.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, List<Long> ids,
-							int index)
+	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx, 
+			Class rootType, List<Long> ids, int index)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		checkRootType(rootType);
 		checkIndex(index);
 		this.index = index;
@@ -164,12 +166,14 @@ public class RndSettingsSaver
 	 * 
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param ref		The time reference object.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, int index)
+	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx,
+			TimeRefObject ref, int index)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		checkIndex(index);
 		this.index = index;
 		if (ref == null)
@@ -182,6 +186,7 @@ public class RndSettingsSaver
 	 * 
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param rootType	The type of nodes. Supported type 
 	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
@@ -193,10 +198,10 @@ public class RndSettingsSaver
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, List<Long> ids, 
-							long pixelsID)
+	public RndSettingsSaver(TreeViewer viewer, 
+			SecurityContext ctx, Class rootType, List<Long> ids, long pixelsID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		checkRootType(rootType);
 		this.index = PASTE;
 		if (ids == null || ids.size() == 0)
@@ -212,14 +217,16 @@ public class RndSettingsSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer	The TreeViewer this data loader is for.
-	 *               	Mustn't be <code>null</code>.
-	 * @param ref		The time reference object.
-	 * @param pixelsID	The id of the pixels of reference.
+	 * @param viewer The TreeViewer this data loader is for.
+	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param pixelsID The id of the pixels of reference.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, long pixelsID)
+	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx,
+			TimeRefObject ref, long pixelsID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.index = PASTE;
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
@@ -244,28 +251,29 @@ public class RndSettingsSaver
 		switch (index) {
 			case PASTE:
 				if (ref == null)
-					handle = dhView.pasteRndSettings(pixelsID, rootType, ids, 
-													this);
+					handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
+							ids, this);
 				else 
-					handle = dhView.pasteRndSettings(pixelsID, ref, this);
+					handle = dhView.pasteRndSettings(ctx, pixelsID, ref, this);
 				break;
 			case RESET:
 				if (ref == null)
-					handle = dhView.resetRndSettings(rootType, ids, this);
+					handle = dhView.resetRndSettings(ctx, rootType, ids, this);
 				else 
-					handle = dhView.resetRndSettings(ref, this);
+					handle = dhView.resetRndSettings(ctx, ref, this);
 				break;
 			case SET_MIN_MAX:
 				if (ref == null)
-					handle = dhView.setMinMaxSettings(rootType, ids, this);
+					handle = dhView.setMinMaxSettings(ctx, rootType, ids, this);
 				else 
-					handle = dhView.setMinMaxSettings(ref, this);
+					handle = dhView.setMinMaxSettings(ctx, ref, this);
 				break;
 			case SET_OWNER:
 				if (ref == null)
-					handle = dhView.setOwnerRndSettings(rootType, ids, this);
+					handle = dhView.setOwnerRndSettings(ctx, rootType, ids,
+							this);
 				else 
-					handle = dhView.setOwnerRndSettings(ref, this);	
+					handle = dhView.setOwnerRndSettings(ctx, ref, this);
 		}
 	}
 

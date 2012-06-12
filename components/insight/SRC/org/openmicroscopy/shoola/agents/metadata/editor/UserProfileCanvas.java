@@ -97,6 +97,5 @@ class UserProfileCanvas
         g2D.drawImage(image, 0, 0, null); 
         g2D.dispose();
     }
-    
-	
+
 }

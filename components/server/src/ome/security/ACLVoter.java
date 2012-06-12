@@ -12,6 +12,8 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
+import org.hibernate.Session;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
@@ -60,7 +62,8 @@ public interface ACLVoter {
      * @return true if loading of this object can proceed
      * @see ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)
      */
-    boolean allowLoad(Class<? extends IObject> klass, Details trustedDetails,
+    boolean allowLoad(Session session,
+    		Class<? extends IObject> klass, Details trustedDetails,
             long id);
 
     /**

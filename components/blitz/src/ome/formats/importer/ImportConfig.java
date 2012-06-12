@@ -214,7 +214,7 @@ public class ImportConfig {
         };
 
         sessionKey   = new StrValue("session", this);
-        group		 = new LongValue("group", this, 0L);
+        group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
         serverList   = new StrValue("serverList", this);
@@ -223,7 +223,7 @@ public class ImportConfig {
         plateName    = new StrValue("plateName", this);
         plateDescription  = new StrValue("plateDescription", this);
         targetClass  = new StrValue("targetClass", this);
-        targetId     = new LongValue("targetId", this, 0);
+        targetId     = new LongValue("targetId", this, 0L);
 
         savedProject = new LongValue("savedProject", this, 0L);
         savedDataset = new LongValue("savedDataset", this, 0L);
@@ -983,8 +983,8 @@ public class ImportConfig {
     }
 
     public static class LongValue extends Value<Long> {
-        public LongValue(String key, ImportConfig config, long defValue) {
-            super(key, config, Long.valueOf(defValue));
+        public LongValue(String key, ImportConfig config, Long defValue) {
+            super(key, config, defValue);
         }
 
         @Override

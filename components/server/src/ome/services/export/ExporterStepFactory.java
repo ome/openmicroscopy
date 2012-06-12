@@ -69,6 +69,10 @@ public class ExporterStepFactory implements GraphStepFactory {
         return step;
     }
 
+    public List<GraphStep> postProcess(List<GraphStep> steps) {
+        return steps;
+    }
+
     public int getCount(String name) {
         ExporterIndex index = data.get(name);
         if (index == null) {

@@ -365,7 +365,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                     sb.append(" more");
                     break;
                 }
-                sb.append(obj);
+                sb.append(getResultsString(obj, cache));
                 count++;
             }
             sb.append(")");
@@ -412,7 +412,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                     sb.append(" more");
                     break;
                 }
-                sb.append(Array.get(o, i));
+                sb.append(getResultsString(Array.get(o, i), cache));
             }
             sb.append("]");
             return sb.toString();

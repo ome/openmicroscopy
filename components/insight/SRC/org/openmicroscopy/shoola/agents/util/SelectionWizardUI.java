@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 
@@ -134,6 +135,9 @@ public class SelectionWizardUI
 	
 	/** The renderer used. */
 	private DataObjectListCellRenderer cellRendererRight;
+	
+	/** The group available.*/
+	private Collection<GroupData> groups;
 	
 	/**
 	 * Returns <code>true</code> if an object object of the same type 
@@ -604,6 +608,35 @@ public class SelectionWizardUI
 	boolean isAddedNode(Object value)
 	{
 		return !originalSelectedItems.contains(value);
+	}
+	
+	/**
+	 * Returns the name of the group corresponding to identifier.
+	 * 
+	 * @param ctx The context to handle.
+	 * @return See above
+	 */
+	String getGroupName(long groupId)
+	{
+		if (groups == null) return null;
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			if (g.getId() == groupId)
+				return g.getName();
+		}
+		return null;
+	}
+	
+	/**
+	 * Sets the groups.
+	 * 
+	 * @param groups The groups to set.
+	 */
+	void setGroups(Collection<GroupData> groups)
+	{
+		this.groups = groups;
 	}
 	
 	/**

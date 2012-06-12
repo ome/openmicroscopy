@@ -43,7 +43,7 @@ import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
-import omero.util.ObjectFactoryRegistrar;
+import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
 import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
@@ -136,6 +136,11 @@ public class client {
      * 
      */
     private volatile ServiceFactoryPrx __sf;
+
+    /**
+     * Callback object which is linked to this router session.
+     */
+    private volatile CallbackI __cb;
 
     /**
      * If non-null, then has access to this client instance and will
@@ -274,6 +279,7 @@ public class client {
         // Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
         id.properties.setProperty("Ice.ACM.Client", "0");
+        id.properties.setProperty("Ice.CacheMessageBuffers", "0");
         id.properties.setProperty("Ice.RetryIntervals", "-1");
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered");
         id.properties.setProperty("Ice.Default.PreferSecure", "1");
@@ -291,13 +297,6 @@ public class client {
         // Setting ConnectTimeout
         parseAndSetInt(id, "Ice.Override.ConnectTimeout",
                 omero.constants.CONNECTTIMEOUT.value);
-
-        // Endpoints set to tcp if not present
-        String endpoints = id.properties
-                .getProperty("omero.ClientCallback.Endpoints");
-        if (endpoints == null || endpoints.length() == 0) {
-            id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp");
-        }
 
         // Threadpool to 5 if not present
         String threadpool = id.properties
@@ -349,14 +348,8 @@ public class client {
         }
 
         // Register Object Factories
-        ObjectFactoryRegistrar.registerObjectFactory(__ic,
-                ObjectFactoryRegistrar.INSTANCE);
-        for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
-            of.register(__ic);
-        }
-        __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-        __ic.addObjectFactory(PermissionsI.Factory, PermissionsI
-                .ice_staticId());
+        new ModelObjectFactoryRegistry().setIceCommunicator(__ic, this);
+        new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(__ic);
 
         // Define our unique identifer (used during close/detach)
         __uuid = UUID.randomUUID().toString();
@@ -371,12 +364,6 @@ public class client {
         if (group.length() > 0) {
             ctx.put("omero.group", group);
         }
-
-        // Register the default client callback.
-        __oa = __ic.createObjectAdapter("omero.ClientCallback");
-        CallbackI cb = new CallbackI(this.__ic, this.__oa);
-        __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/" + __uuid));
-        __oa.activate();
 
         // Store this instance for cleanup on shutdown.
         CLIENTS.add(this);
@@ -488,6 +475,14 @@ public class client {
      */
     public String getSessionId() {
         return getSession().ice_getIdentity().name;
+    }
+
+    /**
+     * Returns the category which should be used for all callbacks
+     * passed to the server.
+     */
+    public String getCategory() {
+        return getRouter(getCommunicator()).getCategoryForClient();
     }
 
     /**
@@ -625,7 +620,19 @@ public class client {
             try {
                 Map<String, String> ctx = new HashMap<String, String>(getImplicitContext().getContext());
                 ctx.put(AGENT.value, __agent);
-                prx = getRouter(__ic).createSession(username, password, ctx);
+                Glacier2.RouterPrx rtr = getRouter(__ic);
+                prx = rtr.createSession(username, password, ctx);
+
+                // Create the adapter.
+                __oa = __ic.createObjectAdapterWithRouter("omero.ClientCallback", rtr);
+                __oa.activate();
+
+                Ice.Identity id = new Ice.Identity();
+                id.name = __uuid;
+                id.category = rtr.getCategoryForClient();
+
+                __cb = new CallbackI(id, this.__ic, this.__oa);
+                __oa.add(__cb, id);
                 break;
             } catch (omero.WrappedCreateSessionException wrapped) {
                 if (!wrapped.concurrency) {
@@ -663,8 +670,7 @@ public class client {
         // Set the client callback on the session
         // and pass it to icestorm
         try {
-            Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
-            Ice.ObjectPrx raw = __oa.createProxy(id);
+            Ice.ObjectPrx raw = __oa.createProxy(__cb.id);
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
         } catch (RuntimeException e) {
             __del__();
@@ -1096,25 +1102,16 @@ public class client {
     // Callback
     // =========================================================================
 
-    private CallbackI _getCb() {
-        Ice.Object obj = this.__oa.find(Ice.Util
-                .stringToIdentity("ClientCallback/" + __uuid));
-        if (!(obj instanceof CallbackI)) {
-            throw new ClientError("Cannot find CallbackI in ObjectAdapter");
-        }
-        return (CallbackI) obj;
-    }
-
-    public void onHearbeat(Runnable runnable) {
-        _getCb().onHeartbeat = runnable;
+    public void onHeartbeat(Runnable runnable) {
+        __cb.onHeartbeat = runnable;
     }
 
     public void onSessionClosed(Runnable runnable) {
-        _getCb().onSessionClosed = runnable;
+        __cb.onSessionClosed = runnable;
     }
 
     public void onShutdown(Runnable runnable) {
-        _getCb().onShutdown = runnable;
+        __cb.onShutdown = runnable;
     }
 
     /**
@@ -1124,6 +1121,8 @@ public class client {
      * lead to deadlocks during shutdown. See: ticket:1210
      */
     private static class CallbackI extends _ClientCallbackDisp {
+
+        private final Ice.Identity id;
 
         private final Ice.Communicator ic;
 
@@ -1151,7 +1150,8 @@ public class client {
         private Runnable onSessionClosed = _noop;
         private Runnable onShutdown = _noop;
 
-        public CallbackI(Ice.Communicator ic, Ice.ObjectAdapter oa) {
+        public CallbackI(Ice.Identity id, Ice.Communicator ic, Ice.ObjectAdapter oa) {
+            this.id = id;
             this.ic = ic;
             this.oa = oa;
         }

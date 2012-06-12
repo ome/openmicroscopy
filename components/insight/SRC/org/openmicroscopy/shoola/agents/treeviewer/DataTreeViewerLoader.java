@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
@@ -67,28 +68,31 @@ public abstract class DataTreeViewerLoader
 {
   
 	/** The TreeViewer this data loader is for. */
-	protected final TreeViewer      		viewer;
+	protected final TreeViewer viewer;
 
 	/** Convenience reference for subclasses. */
-	protected final Registry        		registry;
+	protected final Registry registry;
 
 	/** Convenience reference for subclasses. */
-	protected final DataManagerView 		dmView;
+	protected final DataManagerView dmView;
 
 	/** Convenience reference for subclasses. */
-	protected final DataHandlerView 		dhView;
+	protected final DataHandlerView dhView;
 	
     /** Convenience reference for subclasses. */
-    protected final HierarchyBrowsingView 	hiBrwView;
+    protected final HierarchyBrowsingView hiBrwView;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        	ivView;
+    protected final ImageDataView ivView;
 
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView				adminView;
+    protected final AdminView adminView;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
 	/**
 	 * Converts the UI rootLevel into its corresponding class.
@@ -112,11 +116,14 @@ public abstract class DataTreeViewerLoader
 	 * 
 	 * @param viewer The TreeViewer this data loader is for.
 	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 */
-	protected DataTreeViewerLoader(TreeViewer viewer)
+	protected DataTreeViewerLoader(TreeViewer viewer, SecurityContext ctx)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
+		if (ctx == null) throw new NullPointerException("No security context.");
 		this.viewer = viewer;
+		this.ctx = ctx;
 		registry = TreeViewerAgent.getRegistry();
 		dmView = (DataManagerView) 
 		registry.getDataServicesView(DataManagerView.class);

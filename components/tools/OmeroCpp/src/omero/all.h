@@ -5,13 +5,15 @@
  */
 
 #ifndef OMERO_IMPORT_STYLE
-#define OMERO_IMPORT_STYLE "all"
-#include<omero/API.h>
-#include<omero/ServicesF.h>
+#define OMERO_IMPORT_STYLE 'A'
+#include<omero/min.h>
 #include<omero/Repositories.h>
 #include<omero/SharedResources.h>
 #include<omero/Scripts.h>
 #include<omero/Tables.h>
+#include<omero/cmd/API.h>
+#include<omero/cmd/Basic.h>
+#include<omero/cmd/Graphs.h>
 #include<omero/api/Gateway.h>
 #include<omero/api/IAdmin.h>
 #include<omero/api/IConfig.h>
@@ -38,6 +40,4 @@
 #include<omero/api/RenderingEngine.h>
 #include<omero/api/Search.h>
 #include<omero/api/ThumbnailStore.h>
-#include<omero/Constants.h>
-#include<omero/RTypesI.h>
 #endif

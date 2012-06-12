@@ -56,10 +56,10 @@ public class ROITableModel
 	public static final int				ROIID_COLUMN = 0;
 
 	/** Time point Column no for the wizard. */
-	public static final int				TIME_COLUMN = 1;
+	public static final int				TIME_COLUMN = 2;
 	
 	/** Z-Section Column no for the wizard. */
-	public static final int				Z_COLUMN = 2;
+	public static final int				Z_COLUMN = 1;
 
 	/** Type Column no for the wizard. */
 	public static final int				SHAPE_COLUMN = 3;

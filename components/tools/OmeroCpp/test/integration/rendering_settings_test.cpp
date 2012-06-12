@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/util/tiles.h>
 
 using namespace std;
@@ -88,27 +88,26 @@ public:
     /**
      * Create the binary data for the given image.
      */
-    ImagePtr createBinaryImage(ImagePtr image) {
+    ImagePtr createBinaryImage(ImagePtr _image) {
 
-        BOOST_CHECK( image->sizeOfPixels() > 0);
-        PixelsPtr pixels = image->getPixels(0);
+        PixelsPtr pixels = _image->getPixels(0);
         RPSTileLoopPtr loop = new RPSTileLoop(client->getSession(), pixels);
         loop->forEachTile(256, 256, new MyIteration());
         // This block will change the updateEvent on the pixels
         // therefore we're going to reload the pixels.
 
-        image->setPixels(0, loop->getPixels());
-        return image;
+        _image->setPixels(0, loop->getPixels());
+        return _image;
 
     }
 
 };
 
-BOOST_AUTO_TEST_CASE( testResetDefaultsInImage )
+TEST(RenderingSettingsTest, testResetDefaultsInImage )
 {
 
     RndFixture f;
     ImagePtr img = f.createBinaryImage();
-    BOOST_CHECK( img->getId() );
+    ASSERT_TRUE( img->getId() );
     f.rndService()->resetDefaultsInImage(img->getId()->getValue());
 }

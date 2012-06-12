@@ -28,28 +28,12 @@ PAGE = settings.PAGE
 class BaseController(object):
     
     conn = None
-    eContext = dict()
     
     def __init__(self, conn, **kw):
         self.conn = conn
-        self.eContext['image_limit'] = PAGE
-        self.eContext['context'] = self.conn.getEventContext()
-        gr = self.conn.getObject("ExperimenterGroup", self.conn.getEventContext().groupId)
-        self.eContext['isReadOnly'] = gr.isReadOnly()
-        self.eContext['isLeader'] = gr.isLeader()
-        if not gr.isPrivate() and not gr.isReadOnly():
-            self.eContext['isEditable'] = True
-        else:
-            self.eContext['isEditable'] = False
-        self.eContext['user'] = self.conn.getUser()        
-        grs = list(self.conn.getGroupsMemberOf())
-        grs.sort(key=lambda x: x.getName().lower())
-        self.eContext['memberOfGroups'] = grs
-        self.eContext['allGroups'] = grs
-        self.eContext['advice'] = None
     
     def getShareId(self):
-        return self.conn._shareId
+        return self.conn.getShareId()
     
     ###########################################################
     # Paging

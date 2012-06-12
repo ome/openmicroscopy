@@ -25,16 +25,14 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.FileLoader;
 import omero.RString;
 import omero.model.OriginalFile;
+
+import org.openmicroscopy.shoola.env.ui.FileLoader;
 
 /** 
  * Parameters required to download a file.
@@ -81,9 +79,6 @@ public class DownloadActivityParam
     
     /** The id of the original file or of the annotation. */
     private long			id;
-    
-    /** The third party application. */
-    private ApplicationData data;
     
     /** The source triggering the operation.*/
     private JComponent source;
@@ -168,20 +163,6 @@ public class DownloadActivityParam
     public boolean isUIRegister() { return uiRegister; }
     
     /**
-     * Sets the application data.
-     * 
-     * @param data The third party application or <code>null</code>.
-     */
-    public void setApplicationData(ApplicationData data) { this.data = data; }
-    
-    /**
-     * Returns the application data.
-     * 
-     * @return See above.
-     */
-    public ApplicationData getApplicationData() { return data; }
-    
-    /**
      * Returns the name to give to the file. 
      * 
      * @return See above.
@@ -196,10 +177,11 @@ public class DownloadActivityParam
     public void setFileName(String fileName) { this.fileName = fileName; }
     
     /**
-     * Sets the legend associated to the file.
-     * 
-     * @param legend The value to set.
-     */
+	 * Sets the legend associated to the file.
+	 * 
+	 * @param legend
+	 *            The value to set.
+	 */
     public void setLegend(String legend) { this.legend = legend; }
     
     /**

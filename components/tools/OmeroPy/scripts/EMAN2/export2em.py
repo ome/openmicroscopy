@@ -48,8 +48,6 @@ http://blake.bcm.edu/emanwiki/EMAN2ImageFormats
 
 import omero
 import getopt, sys, os, subprocess
-import omero_api_IScript_ice
-import omero_SharedResources_ice
 from omero.rtypes import *
 import omero.scripts
 import omero.util.script_utils as scriptUtil

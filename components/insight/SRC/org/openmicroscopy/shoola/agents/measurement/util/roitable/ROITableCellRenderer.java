@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
+import java.util.TreeMap;
+
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -63,13 +65,13 @@ public class ROITableCellRenderer
 	private static Icon ROI_ICON;
 	
 	/** Reference to the ROI owned by other users icon. */
-	private static Icon ROI__OTHER_OWNER_ICON;
+	private static Icon ROI_OTHER_OWNER_ICON;
 	
 	static {
 		IconManager icons = IconManager.getInstance();
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
-		ROI__OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
+		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
 	}
 	
 	/** The identifier of the user currently logged in. */
@@ -100,11 +102,15 @@ public class ROITableCellRenderer
 			ROI roi = (ROI) thisObject;
 			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(ROI_ICON);
-			else setIcon(ROI__OTHER_OWNER_ICON);
-		} else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);
+			else setIcon(ROI_OTHER_OWNER_ICON);
+			TreeMap map = roi.getShapes();
+			if (map == null) setText("[0]");
+			else setText("["+map.size()+"]");
+		} else if (thisObject instanceof ROIShape) {
+			setIcon(SHAPE_ICON);
+			setText("");
+		}
 		return this;
 	}
 	
 }
-
-

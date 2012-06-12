@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.WorkflowData;
 
@@ -64,13 +65,14 @@ public class WorkflowSaver
      * Creates a new instance. 
      * 
      * @param viewer	The viewer this data loader is for.
+     * @param ctx The security context.
      * @param workflows The list of workflows to save.
      * @param userID	The id of the user.
      */
-	public WorkflowSaver(MeasurementViewer viewer,	List<WorkflowData> workflows, 
-					long userID)
+	public WorkflowSaver(MeasurementViewer viewer, SecurityContext ctx,
+			List<WorkflowData> workflows, long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.userID = userID;
 		this.workflows = workflows;
 	}
@@ -81,7 +83,7 @@ public class WorkflowSaver
      */
     public void load()
     {
-    	handle = idView.storeWorkflows(workflows, userID, this);
+    	handle = idView.storeWorkflows(ctx, workflows, userID, this);
     }
     
     /**
@@ -100,4 +102,3 @@ public class WorkflowSaver
     }
 
 }
-

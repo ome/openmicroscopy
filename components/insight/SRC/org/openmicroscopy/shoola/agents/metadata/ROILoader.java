@@ -29,6 +29,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -65,13 +66,15 @@ public class ROILoader
      * 
      * @param viewer	The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
      * @param index		The index of the figure to create.
      */
-	public ROILoader(Editor viewer, long imageID, long userID, int index)
+	public ROILoader(Editor viewer, SecurityContext ctx, long imageID,
+			long userID, int index)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
@@ -85,7 +88,7 @@ public class ROILoader
      */
     public void load()
     {
-    	handle = imView.loadROIFromServer(imageID, userID, this);
+    	handle = imView.loadROIFromServer(ctx, imageID, userID, this);
     }
     
     /**
