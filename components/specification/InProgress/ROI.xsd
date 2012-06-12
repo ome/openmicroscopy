@@ -129,7 +129,8 @@
 				<xsd:annotation>
 					<xsd:documentation>
 						The color of the fill - encoded as RGBA
-						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						The value "-1" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						NOTE: Prior to the 2012-06 schema the default value was incorrect and produced a transparent red not solid white.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -151,7 +152,8 @@
 				<xsd:annotation>
 					<xsd:documentation>
 						The color of the stroke  - encoded as RGBA
-						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						The value "-1" is #FFFFFFFF so solid white (it is a signed 32 bit value)
+						NOTE: Prior to the 2012-06 schema the default value was incorrect and produced a transparent red not solid white.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>

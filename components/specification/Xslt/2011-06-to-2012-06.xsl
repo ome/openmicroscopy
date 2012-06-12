@@ -244,7 +244,7 @@
 			<xsl:if test="count(descendant::ROI:Path) = count(descendant::ROI:Shape)">
 				<xsl:apply-templates select="* [local-name(.) = 'Union']" mode="replacePaths"/>
 			</xsl:if>
-			<xsl:apply-templates select="* [local-name(.) = 'Descriptiom']"/>
+			<xsl:apply-templates select="* [local-name(.) = 'Description']"/>
 		</xsl:element>
 	</xsl:template>
 	
@@ -279,12 +279,26 @@
 						<xsl:value-of select="."/>
 					</xsl:attribute>
 				</xsl:for-each>
-				<xsl:for-each select="@* [name() = 'Label']">
-					<xsl:attribute name="Text">
-						<xsl:value-of select="."/>
-					</xsl:attribute>
-				</xsl:for-each>
-				<!-- end of attributes -->
+				<!-- Both these make a new Text attribute. It will contain
+					the value of either attribute Label or element Text, if 
+					both are present element Text takes priority -->
+				<xsl:if test="count(child::ROI:Text) = 1">
+					<xsl:for-each select="* [local-name(.) = 'Text']">
+						<xsl:for-each select="* [local-name(.) = 'Value']">
+							<xsl:attribute name="Text">
+								<xsl:value-of select="."/>
+							</xsl:attribute>
+						</xsl:for-each>
+					</xsl:for-each>
+				</xsl:if>
+				<xsl:if test="count(child::ROI:Text) = 0">
+					<xsl:for-each select="@* [name() = 'Label']">
+						<xsl:attribute name="Text">
+							<xsl:value-of select="."/>
+						</xsl:attribute>
+					</xsl:for-each>
+				</xsl:if>
+				<!-- end of new attributes -->
 				<xsl:for-each
 					select="* [not(local-name(.) = 'Description' or local-name(.) = 'Path')]">
 					<xsl:apply-templates select="."/>
@@ -295,23 +309,57 @@
 				</xsl:for-each>
 				<xsl:for-each select="@* [name() = 'Transform']">
 					<xsl:element name="ROI:Transform" namespace="{$newROINS}">
-						<xsl:variable name="fullString"><xsl:value-of select="."/></xsl:variable>
-						<xsl:variable name="valA"><xsl:value-of select="substring-before($fullString, ',')"/></xsl:variable>
-						<xsl:variable name="partBstarting"><xsl:value-of select="substring-after($fullString, ', ')"/></xsl:variable>
-						<xsl:variable name="valB"><xsl:value-of select="substring-before($partBstarting, ',')"/></xsl:variable>
-						<xsl:variable name="partCstarting"><xsl:value-of select="substring-after($partBstarting, ', ')"/></xsl:variable>
-						<xsl:variable name="valC"><xsl:value-of select="substring-before($partCstarting, ',')"/></xsl:variable>
-						<xsl:variable name="partDstarting"><xsl:value-of select="substring-after($partCstarting, ', ')"/></xsl:variable>
-						<xsl:variable name="valD"><xsl:value-of select="substring-before($partDstarting, ',')"/></xsl:variable>
-						<xsl:variable name="partEstarting"><xsl:value-of select="substring-after($partDstarting, ', ')"/></xsl:variable>
-						<xsl:variable name="valE"><xsl:value-of select="substring-before($partEstarting, ',')"/></xsl:variable>
-						<xsl:variable name="valF"><xsl:value-of select="substring-after($partEstarting, ', ')"/></xsl:variable>
-						<xsl:attribute name="A00"><xsl:value-of select="$valA"/></xsl:attribute>
-						<xsl:attribute name="A10"><xsl:value-of select="$valB"/></xsl:attribute>
-						<xsl:attribute name="A01"><xsl:value-of select="$valC"/></xsl:attribute>
-						<xsl:attribute name="A11"><xsl:value-of select="$valD"/></xsl:attribute>
-						<xsl:attribute name="A02"><xsl:value-of select="$valE"/></xsl:attribute>
-						<xsl:attribute name="A12"><xsl:value-of select="$valF"/></xsl:attribute>
+						<xsl:variable name="fullString">
+							<xsl:value-of select="."/>
+						</xsl:variable>
+						<xsl:variable name="valA">
+							<xsl:value-of select="substring-before($fullString, ',')"/>
+						</xsl:variable>
+						<xsl:variable name="partBstarting">
+							<xsl:value-of select="substring-after($fullString, ', ')"/>
+						</xsl:variable>
+						<xsl:variable name="valB">
+							<xsl:value-of select="substring-before($partBstarting, ',')"/>
+						</xsl:variable>
+						<xsl:variable name="partCstarting">
+							<xsl:value-of select="substring-after($partBstarting, ', ')"/>
+						</xsl:variable>
+						<xsl:variable name="valC">
+							<xsl:value-of select="substring-before($partCstarting, ',')"/>
+						</xsl:variable>
+						<xsl:variable name="partDstarting">
+							<xsl:value-of select="substring-after($partCstarting, ', ')"/>
+						</xsl:variable>
+						<xsl:variable name="valD">
+							<xsl:value-of select="substring-before($partDstarting, ',')"/>
+						</xsl:variable>
+						<xsl:variable name="partEstarting">
+							<xsl:value-of select="substring-after($partDstarting, ', ')"/>
+						</xsl:variable>
+						<xsl:variable name="valE">
+							<xsl:value-of select="substring-before($partEstarting, ',')"/>
+						</xsl:variable>
+						<xsl:variable name="valF">
+							<xsl:value-of select="substring-after($partEstarting, ', ')"/>
+						</xsl:variable>
+						<xsl:attribute name="A00">
+							<xsl:value-of select="$valA"/>
+						</xsl:attribute>
+						<xsl:attribute name="A10">
+							<xsl:value-of select="$valB"/>
+						</xsl:attribute>
+						<xsl:attribute name="A01">
+							<xsl:value-of select="$valC"/>
+						</xsl:attribute>
+						<xsl:attribute name="A11">
+							<xsl:value-of select="$valD"/>
+						</xsl:attribute>
+						<xsl:attribute name="A02">
+							<xsl:value-of select="$valE"/>
+						</xsl:attribute>
+						<xsl:attribute name="A12">
+							<xsl:value-of select="$valF"/>
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:for-each>
 			</xsl:element>
@@ -396,7 +444,8 @@
 	<!-- Rewriting all namespaces -->
 	
 	<xsl:template match="OME:OME">
-		<OME:OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+		<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+			xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
 			xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
 			xmlns:SPW="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
 			xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-06"
@@ -405,7 +454,7 @@
 			xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 
 			../../../InProgress/ome.xsd">
 			<xsl:apply-templates/>
-		</OME:OME>
+		</OME>
 	</xsl:template>
 	
 	<xsl:template match="OME:*">

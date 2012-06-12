@@ -55,6 +55,7 @@ public class Schema2011_06_TO_2012_06_Test {
             "/OmeFiles/2011-06/6x4y1z1t1c8b-swatch.ome";
 
     private static final String IMAGE_NAME = "6x6x1x8-swatch.tif";
+    private static final String IMAGE_DATE = "2010-02-23T12:51:30";
 
     private OME ome;
 
@@ -75,5 +76,14 @@ public class Schema2011_06_TO_2012_06_Test {
         Image image = ome.getImage(0);
         Assert.assertNotNull(image);
         Assert.assertEquals(IMAGE_NAME, image.getName());
+    }
+    
+    @Test
+    public void testDate() {
+        Assert.assertNotNull(ome);
+        Assert.assertEquals(1, ome.sizeOfImageList());
+        Image image = ome.getImage(0);
+        Assert.assertNotNull(image);
+        Assert.assertEquals(IMAGE_DATE, image.getAcquisitionDate());
     }
 }
