@@ -57,7 +57,7 @@ import javax.swing.JPanel;
  * @since OME3.0
  */
 class RatingCanvas
-	extends JPanel 
+	extends JPanel
 	implements MouseMotionListener
 {
 
@@ -72,6 +72,12 @@ class RatingCanvas
 	
 	/** Handles the mouse release. */
 	private MouseAdapter	handler;
+	
+	/** Flag indicating an on-going dragging or not.*/
+	private boolean dragging;
+	
+	/** Flag indicating the mouse has been pressed.*/
+	private boolean pressed;
 	
 	/** 
 	 * Sets the number of selected stars depending on the location 
@@ -117,6 +123,21 @@ class RatingCanvas
 	}
 
 	/**
+	 * Invokes when the mouse is released.
+	 * 
+	 * @param p The mouse location.
+	 */
+	private void handleMouseReleased(Point p)
+	{
+		if (dragging || pressed) {
+			handleClick(p);
+			//model.onMouseReleased();
+			dragging = false;
+			pressed = false;
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -135,8 +156,14 @@ class RatingCanvas
 			 * depending on the location of the mouse click.
 			 */
 			public void mouseReleased(MouseEvent e) {
-				super.mouseReleased(e);
-				handleClick(e.getPoint());
+				//super.mouseReleased(e);
+				handleMouseReleased(e.getPoint());
+			}
+
+			public void mousePressed(MouseEvent e) {
+				//super.mouseReleased(e);
+				pressed = true;
+				handleMouseReleased(e.getPoint());
 			}
 		};
 		installListeners();
@@ -165,7 +192,7 @@ class RatingCanvas
 		int x = 0;
 		int w, h;
 		List<Image> l = model.getPlus();
-		Iterator i = l.iterator();
+		Iterator<Image> i = l.iterator();
 		Image img;
 		stars.clear();
 		while (i.hasNext()) {
@@ -173,7 +200,7 @@ class RatingCanvas
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));
-			g2D.drawImage(img, x, 0, w, h, null); 
+			g2D.drawImage(img, x, 0, w, h, null);
 			x += w+SPACE;
 		}
 		l = model.getMinus();
@@ -183,7 +210,7 @@ class RatingCanvas
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));
-			g2D.drawImage(img, x, 0, w, h, null); 
+			g2D.drawImage(img, x, 0, w, h, null);
 			x += w+SPACE;
 		}
 	}
@@ -192,7 +219,12 @@ class RatingCanvas
 	 * Sets the rating values when dragging the mouse over the component.
 	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
-	public void mouseDragged(MouseEvent e) { handleClick(e.getPoint()); }
+	public void mouseDragged(MouseEvent e)
+	{ 
+		//dragging = true;
+		//pressed = false;
+		//handleClick(e.getPoint());
+	}
 
 	/**
 	 * Required by the {@link MouseMotionListener} I/F but no-operation 
@@ -200,5 +232,5 @@ class RatingCanvas
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {}
-	
+
 }

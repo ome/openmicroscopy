@@ -292,7 +292,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     // 4.1 - Plates
     // =========================================================================
 
-    @Test(groups = {"ticket:1228", "broken"}) // Needs data!
+    @Test(enabled = false, groups = {"ticket:1228", "broken"}) // Needs data!
     public void testDeleteByPlateReal() throws Exception {
 
         String name = "2007.08.02.16.43.24.xdce";
@@ -306,7 +306,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Plate p = iQuery.findByQuery("select p from Plate p "
                 + "where name like :name " + "order by id desc",
                 new Parameters().page(0, 1).addString("name",name));
-        
+
         factory.getDeleteService().deletePlate(p.getId());
     }
 

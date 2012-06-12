@@ -111,8 +111,52 @@ public class Environment
 	 */
 	public boolean isServerAvailable()
 	{
-		return (Boolean) container.getRegistry().lookup(
-				LookupNames.SERVER_AVAILABLE);
+		Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.ENTRY_POINT);
+		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
+		return Boolean.valueOf(true);
+	}
+	
+	/**
+	 * Returns the value 
+	 * @return
+	 */
+	public int runAsPlugin()
+	{
+		Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.PLUGIN);
+		if (v == null) return -1;
+		return v.intValue();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the application is run as a plugin,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRunAsPlugin() { return runAsPlugin() > 0; }
+	
+	/**
+	 * Returns the default hierarchy i.e. P/D, HCS etc.
+	 * 
+	 * @return See above.
+	 */
+	public int getDefaultHierarchy()
+	{
+		Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.ENTRY_POINT_HIERARCHY);
+		if (v == null) return LookupNames.PD_ENTRY;
+		int value = v.intValue();
+		switch (value) {
+			case LookupNames.PD_ENTRY:
+			case LookupNames.HCS_ENTRY:
+			case LookupNames.TAG_ENTRY:
+			case LookupNames.ATTACHMENT_ENTRY:
+				return value;
+			default:
+				return LookupNames.PD_ENTRY;
+		}
 	}
 	
 	/**

@@ -35,5 +35,8 @@
 <!-- if set to true, when a folder is selected, it will be marked to be turned
 into a dataset -->
 <entry name="/options/FolderAsDataset" type="boolean">true</entry>
+<!-- if set to true, the debug tab will be displayed. -->
+<entry name="/options/Debug" type="boolean">false</entry>
+
 </options>
 </agent>

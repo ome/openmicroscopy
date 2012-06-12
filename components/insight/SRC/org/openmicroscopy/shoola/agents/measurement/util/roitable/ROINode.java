@@ -295,7 +295,9 @@ public class ROINode
 				case 0:
 					return null;
 				case ROIID_COLUMN+1:
-					return ((Long) roiShape.getID()).toString();
+					if (roiShape.getROI().isClientSide())
+						return "--";
+					return Long.valueOf(roiShape.getROIShapeID());
 				case TIME_COLUMN+1:
 					return ((Integer) (roiShape.getT()+1)).toString();
 				case Z_COLUMN+1:
@@ -382,5 +384,3 @@ public class ROINode
 	}
 	
 }
-	
-

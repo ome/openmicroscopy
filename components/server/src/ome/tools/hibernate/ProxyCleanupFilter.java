@@ -1,7 +1,5 @@
 /*
- * ome.tools.hibernate.ProxyCleanupFilter
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2012 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -17,22 +15,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.Hibernate;
+import org.hibernate.collection.AbstractPersistentCollection;
+
 import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.security.basic.BasicACLVoter;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Hibernate;
-import org.hibernate.collection.AbstractPersistentCollection;
 
 /**
  * removes all proxies from a return graph to prevent ClassCastExceptions and
@@ -42,17 +41,19 @@ import org.hibernate.collection.AbstractPersistentCollection;
  * Note: we aren't setting the filtered collections here because it's "either
  * null/unloaded or filtered". We will definitiely filter here, so it would just
  * increase bandwidth.
- * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ *
+ * As of 4.4.0, this class is also responsible for various security-based
+ * modifications to returned {@link Details} objects.
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
  * @since 1.0
+ * @see ticket 8277
  */
 public class ProxyCleanupFilter extends ContextFilter {
 
     protected Map unloadedObjectCache = new IdentityHashMap();
 
-    protected final CurrentDetails currentDetails;
+    protected final BasicACLVoter acl;
 
     /**
      * Passes null to {@link ProxyCleanupFilter#ProxyCleanupFilter(CurrentDetails)}
@@ -66,8 +67,8 @@ public class ProxyCleanupFilter extends ContextFilter {
      * Constructor take a {@link CurrentDetails} object in order to check
      * the security restrictions on certain objects.
      */
-    public ProxyCleanupFilter(CurrentDetails cd) {
-        this.currentDetails = cd;
+    public ProxyCleanupFilter(BasicACLVoter acl) {
+        this.acl = acl;
     }
 
     @Override
@@ -97,7 +98,10 @@ public class ProxyCleanupFilter extends ContextFilter {
                 return unloaded;
             } else if (f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
-                return super.filter(fieldId, ((Details) f).shallowCopy());
+                // Unlikely that this is ever reached.
+                Details d = (Details) f;
+                d = (Details) super.filter(fieldId, d.shallowCopy());
+                return d;
             } else {
                 // TODO Here there's not much we can do. copy constructor?
                 throw new RuntimeException(
@@ -106,6 +110,15 @@ public class ProxyCleanupFilter extends ContextFilter {
 
             // Not a proxy; it will be serialized and sent over the wire.
         } else {
+
+            if (f instanceof IObject) {
+                if (acl != null) {
+                    // When acl is null, assume this is for internal use
+                    // and therefore the object will not be passed out.
+                    // See ticket:8794 and OmeroMetadata.java
+                    acl.postProcess((IObject) f);
+                }
+            }
 
             // Also for security reasons, we're now checking ownership
             // of sessions.
@@ -122,10 +135,10 @@ public class ProxyCleanupFilter extends ContextFilter {
                 Session session = (Session) f;
                 if ( ! session.isLoaded()) {
                     return session;
-                } else if (currentDetails == null) {
+                } else if (acl == null) {
                     return new Session(session.getId(), false);
                 } else {
-                    EventContext ec = currentDetails.getCurrentEventContext();
+                    EventContext ec = acl.getEventContext();
                     if (!ec.isCurrentUserAdmin()) {
                         Long uid = session.getOwner().getId();
                         if (!ec.getCurrentUserId().equals(uid)) {
@@ -197,16 +210,13 @@ public class ProxyCleanupFilter extends ContextFilter {
     /** wraps a filter for each invocation */
     public static class Interceptor implements MethodInterceptor {
 
-        private SessionHandler sessions;
+        private final SessionHandler sessions;
 
-        private CurrentDetails currentDetails = null;
+        private final BasicACLVoter acl;
 
-        public void setCurrentDetails(CurrentDetails cd) {
-            this.currentDetails = cd;
-        }
-
-        public void setSessionHandler(SessionHandler handler) {
-            this.sessions = handler;
+        public Interceptor(BasicACLVoter acl, SessionHandler sessions) {
+            this.acl = acl;
+            this.sessions = sessions;
         }
 
         private final ThreadLocal<Integer> depth = new ThreadLocal<Integer>() {
@@ -231,7 +241,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                 result = arg0.proceed();
                 if (!StatefulServiceInterface.class.isAssignableFrom(arg0
                         .getThis().getClass())) {
-                    result = new ProxyCleanupFilter(currentDetails)
+                    result = new ProxyCleanupFilter(acl)
                         .filter(null, result);
                 }
             } finally {

@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -68,8 +69,8 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -79,7 +80,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -137,7 +137,7 @@ class MeasurementViewerUI
 	private static final Dimension		MAXIMUM_SIZE = new Dimension(700, 300);
 	
 	/** The title for the measurement tool main window. */
-	private static final String			WINDOW_TITLE = "Measurement Tool ";
+	private static final String			WINDOW_TITLE = "";//"Measurement Tool ";
 	
 	/** index to identify inspector tab. */
 	public static final int				INSPECTOR_INDEX = 0;
@@ -297,19 +297,24 @@ class MeasurementViewerUI
         menu.setMnemonic(KeyEvent.VK_O);
         
         JMenu subMenu = new JMenu("Units");
-        MeasurementViewerAction a = controller.getAction(
-    			MeasurementViewerControl.IN_MICRONS);
-        JCheckBoxMenuItem inMicronsMenu = new JCheckBoxMenuItem(a);
-        inMicronsMenu.setText(a.getName());
-        displayUnits.add(inMicronsMenu);
-        subMenu.add(inMicronsMenu);
-        
+        JCheckBoxMenuItem item;
+        MeasurementViewerAction a;
+        if (model.sizeInMicrons()) {
+        	a = controller.getAction(MeasurementViewerControl.IN_MICRONS);
+        	item = new JCheckBoxMenuItem(a);
+            item.setText(a.getName());
+            displayUnits.add(item);
+            subMenu.add(item);
+            item.setSelected(true);
+           
+        }
+        model.showMeasurementsInMicrons(model.sizeInMicrons());
         a = controller.getAction(MeasurementViewerControl.IN_PIXELS);
-        JCheckBoxMenuItem inPixelsMenu = new JCheckBoxMenuItem(a);
-        inPixelsMenu.setText(a.getName());
-        displayUnits.add(inPixelsMenu);
-        subMenu.add(inPixelsMenu);
-        inPixelsMenu.setSelected(true); //TODO: retrieve info
+        item = new JCheckBoxMenuItem(a);
+        item.setText(a.getName());
+        displayUnits.add(item);
+        subMenu.add(item);
+        if (!model.sizeInMicrons()) item.setSelected(true);
         
         menu.add(subMenu);
         
@@ -465,6 +470,10 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
+        UnitsAction a = (UnitsAction)
+        	controller.getAction(MeasurementViewerControl.IN_MICRONS);
+    	a.setRefUnits(EditorUtil.transformSize(
+    			model.getPixelSizeX()).getUnits());
         //buildGUI();
     }
     
@@ -519,25 +528,33 @@ class MeasurementViewerUI
 			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(idList.get(0));
 			ROIShape newShape;
+			ROIFigure roi;
 			for (ROIShape shape : shapeList)
 			{
-				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if (getDrawing().contains(shape.getFigure()))
-				{
-					shape.getFigure().removeFigureListener(controller);
-					getDrawing().removeDrawingListener(controller);
-					getDrawing().remove(shape.getFigure());
-					getDrawing().addDrawingListener(controller);
+				roi = shape.getFigure();
+				if (!roi.isReadOnly() && roi.canEdit()) {
+					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+					if (getDrawing().contains(roi))
+					{
+						if (roi.canAnnotate())
+							roi.removeFigureListener(controller);
+						getDrawing().removeDrawingListener(controller);
+						getDrawing().remove(shape.getFigure());
+						getDrawing().addDrawingListener(controller);
+					}
+					model.deleteShape(shape.getID(), shape.getCoord3D());
+					if (newShape.getCoord3D().equals(model.getCurrentView()))
+					{
+						getDrawing().removeDrawingListener(controller);
+						getDrawing().add(newShape.getFigure());
+						if (roi.canAnnotate())
+							newShape.getFigure().addFigureListener(
+										controller);
+						getDrawing().addDrawingListener(controller);
+					}
+					model.addShape(newROI.getID(), newShape.getCoord3D(),
+							newShape);
 				}
-				model.deleteShape(shape.getID(), shape.getCoord3D());
-				if (newShape.getCoord3D().equals(model.getCurrentView()))
-				{
-					getDrawing().removeDrawingListener(controller);
-					getDrawing().add(newShape.getFigure());
-					newShape.getFigure().addFigureListener(controller);
-					getDrawing().addDrawingListener(controller);
-				}
-				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
 			}
 		}
 		catch (Exception e)
@@ -565,25 +582,32 @@ class MeasurementViewerUI
 			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
+			ROIFigure roi;
 			for (ROIShape shape : shapeList)
 			{
-				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if (getDrawing().contains(shape.getFigure()))
-				{
-					shape.getFigure().removeFigureListener(controller);
-					getDrawing().removeDrawingListener(controller);
-					getDrawing().remove(shape.getFigure());
-					getDrawing().addDrawingListener(controller);
+				roi = shape.getFigure();
+				if (!roi.isReadOnly() && roi.canEdit()) {
+					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+					if (getDrawing().contains(roi))
+					{
+						if (roi.canAnnotate())
+							roi.removeFigureListener(controller);
+						getDrawing().removeDrawingListener(controller);
+						getDrawing().remove(shape.getFigure());
+						getDrawing().addDrawingListener(controller);
+					}
+					model.deleteShape(shape.getID(), shape.getCoord3D());
+					if (newShape.getCoord3D().equals(model.getCurrentView()))
+					{
+						getDrawing().removeDrawingListener(controller);
+						this.getDrawing().add(newShape.getFigure());
+						if (roi.canAnnotate())
+							newShape.getFigure().addFigureListener(controller);
+						getDrawing().addDrawingListener(controller);
+					}
+					model.addShape(newROI.getID(), newShape.getCoord3D(),
+							newShape);
 				}
-				model.deleteShape(shape.getID(), shape.getCoord3D());
-				if (newShape.getCoord3D().equals(model.getCurrentView()))
-				{
-					getDrawing().removeDrawingListener(controller);
-					this.getDrawing().add(newShape.getFigure());
-					newShape.getFigure().addFigureListener(controller);
-					getDrawing().addDrawingListener(controller);
-				}
-				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
 			}
 		}
 		catch (Exception e)
@@ -612,17 +636,22 @@ class MeasurementViewerUI
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
 			Drawing drawing = model.getDrawing();
+			ROIFigure roi;
 			for (ROIShape shape : shapeList)
 			{
-				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if (newShape.getCoord3D().equals(model.getCurrentView()))
-				{
-					drawing.removeDrawingListener(controller);
-					drawing.add(newShape.getFigure());
-					newShape.getFigure().addFigureListener(controller);
-					drawing.addDrawingListener(controller);
+				roi = shape.getFigure();
+				if (!roi.isReadOnly()) {
+					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+					if (newShape.getCoord3D().equals(model.getCurrentView()))
+					{
+						drawing.removeDrawingListener(controller);
+						drawing.add(newShape.getFigure());
+						newShape.getFigure().addFigureListener(controller);
+						drawing.addDrawingListener(controller);
+					}
+					model.addShape(newROI.getID(), newShape.getCoord3D(),
+							newShape);
 				}
-				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
 			}
 			updateDrawingArea();
 		}
@@ -630,6 +659,20 @@ class MeasurementViewerUI
 		{
 			handleROIException(e, CREATE_MSG);
 		}
+	}
+	
+	void markROIForDelete(ROIFigure roi)
+	{
+		if (roi == null) return;
+		long id = roi.getROIShape().getID();
+		if (id < 0) return;
+		try {
+			//model.deleteShape(id, roi.getROIShape().getCoord3D());
+		} catch (Exception e) {
+			
+		}
+		
+		model.markROIForDelete(id, roi.getROI(), true);
 	}
 	
 	/**
@@ -647,17 +690,19 @@ class MeasurementViewerUI
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
-				r = roi.getROI();
-				if (!r.isClientSide()) b = true;
-				if (getDrawing().contains(roi))
-				{
-					shape.getFigure().removeFigureListener(controller);
-					getDrawing().removeDrawingListener(controller);
-					getDrawing().remove(roi);
-					getDrawing().addDrawingListener(controller);
+				if (roi.canDelete()) {
+					r = roi.getROI();
+					if (!r.isClientSide()) b = true;
+					if (getDrawing().contains(roi))
+					{
+						shape.getFigure().removeFigureListener(controller);
+						getDrawing().removeDrawingListener(controller);
+						getDrawing().remove(roi);
+						getDrawing().addDrawingListener(controller);
+					}
+					model.deleteShape(shape.getID(), shape.getCoord3D());
+					model.markROIForDelete(shape.getID(), r, false);
 				}
-				model.deleteShape(shape.getID(), shape.getCoord3D());
-				model.markROIForDelete(shape.getID(), r);
 			}
 			model.notifyDataChanged(b);
 		} catch (Exception e) {
@@ -748,7 +793,19 @@ class MeasurementViewerUI
 	 */
     void setCellColor(Color color)
     {
-		if (roiInspector != null) roiInspector.setCellColor(color);
+    	int row = -1;
+		if (roiInspector != null) row = roiInspector.setCellColor(color);
+		Collection<Figure> l = model.getSelectedFigures();
+		if (l == null || l.size() == 0) return;
+		Iterator<Figure> i = l.iterator();
+		switch (row) {
+			case ObjectInspector.FILL_COLOR_ROW:
+				AttributeKeys.FILL_COLOR.set(i.next(), color);
+				break;
+			case ObjectInspector.LINE_COLOR_ROW:
+				AttributeKeys.STROKE_COLOR.set(i.next(), color);
+		}
+		model.getDrawingView().repaint();
 	}
     
     /**
@@ -1072,6 +1129,12 @@ class MeasurementViewerUI
     	if (!model.isHCSData()) roiManager.rebuildTable(); 
     }
     
+    /** Sets the value in the tool bar.*/
+    void refreshToolBar()
+    {
+    	toolBar.refreshToolBar();
+    }
+    
     /** Rebuilds the results table. */
     void refreshResultsTable()
     { 
@@ -1177,13 +1240,15 @@ class MeasurementViewerUI
 							 while (f.hasNext()) {
 								 figure = f.next();
 								 drawing.add(figure);
-								 figure.addFigureListener(controller);
+								 if (figure.canAnnotate())
+									 figure.addFigureListener(controller);
 							 }
 							 f = second.iterator();
 							 while (f.hasNext()) {
 								 figure = f.next();
 								 drawing.add(figure);
-								 figure.addFigureListener(controller);
+								 if (figure.canAnnotate())
+								 	figure.addFigureListener(controller);
 							 }
 						 }
 					} else {
@@ -1202,7 +1267,8 @@ class MeasurementViewerUI
 								{
 									figure = shape.getFigure();
 									drawing.add(figure);
-									figure.addFigureListener(controller);
+									if (figure.canAnnotate())
+										figure.addFigureListener(controller);
 								}
 							}
 						}
@@ -1243,13 +1309,15 @@ class MeasurementViewerUI
 				 while (f.hasNext()) {
 					 figure = f.next();
 					 drawing.add(figure);
-					 figure.addFigureListener(controller);
+					 if (figure.canAnnotate())
+						 figure.addFigureListener(controller);
 				 }
 				 f = second.iterator();
 				 while (f.hasNext()) {
 					 figure = f.next();
 					 drawing.add(figure);
-					 figure.addFigureListener(controller);
+					 if (figure.canAnnotate())
+						 figure.addFigureListener(controller);
 				 }
 			}
 		}
@@ -1267,30 +1335,37 @@ class MeasurementViewerUI
 	 */
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 	{
-		List<ROIShape> addedShapes;
+		List<ROIShape> addedShapes = new ArrayList<ROIShape>();
 		try
 		{
-			addedShapes = model.propagateShape(shape, timePoint, zSection);
+			ROIFigure roi = shape.getFigure();
+			if (!roi.isReadOnly() && roi.canEdit())
+				addedShapes = model.propagateShape(shape, timePoint, zSection);
 			ROIFigure figToDelete = null;
 			ROIFigure roiFig;
 			for (ROIShape newShape : addedShapes)
 			{
-				if (newShape.getCoord3D().equals(model.getCurrentView()))
-				{
-					getDrawing().removeDrawingListener(controller);
-					figToDelete = null;
-					for (Figure f : getDrawing().getFigures()) {
-						roiFig = (ROIFigure) f;
-						if (roiFig.getROI().getID() == newShape.getID())
-							figToDelete = roiFig;
+				roi = newShape.getFigure();
+				if (!roi.isReadOnly() && roi.canEdit()) {
+					if (newShape.getCoord3D().equals(model.getCurrentView()))
+					{
+						getDrawing().removeDrawingListener(controller);
+						figToDelete = null;
+						for (Figure f : getDrawing().getFigures()) {
+							roiFig = (ROIFigure) f;
+							if (roiFig.getROI().getID() == newShape.getID())
+								figToDelete = roiFig;
+						}
+						if (figToDelete!=null)
+							getDrawing().remove(figToDelete);
+						this.getDrawing().add(newShape.getFigure());
+						if (roi.canAnnotate())
+							newShape.getFigure().addFigureListener(controller);
+						getDrawing().addDrawingListener(controller);
 					}
-					if (figToDelete!=null)
-						getDrawing().remove(figToDelete);
-					this.getDrawing().add(newShape.getFigure());
-					newShape.getFigure().addFigureListener(controller);
-					getDrawing().addDrawingListener(controller);
+					newShape.getFigure().calculateMeasurements();
 				}
-				newShape.getFigure().calculateMeasurements();
+				
 			}
 			if (!model.isHCSData()) roiManager.addROIShapes(addedShapes);
 		}
@@ -1332,6 +1407,13 @@ class MeasurementViewerUI
 	 * @param text The text to display.
 	 */
 	void setStatus(String text) { statusBar.setStatus(text); }
+	
+	/**
+	 * Sets a message in the status bar.
+	 * 
+	 * @param text The text to display.
+	 */
+	void setPlaneStatus(String text) { statusBar.setPlaneStatus(text); }
 	
 	/**
 	 * Sets ready message in the status bar.
@@ -1384,7 +1466,7 @@ class MeasurementViewerUI
      * @return See above.
      */
     long getPixelsID() { return model.getPixelsID(); }
- 
+    
     /**
 	 * Calculate the stats for the Rois in the shapelist. This method
 	 * will call the graphView.
@@ -1481,6 +1563,17 @@ class MeasurementViewerUI
 	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
+		Collection<Figure> figures = model.getSelectedFigures();
+		if (figures != null) {
+			Iterator<Figure> i = figures.iterator();
+			Figure f;
+			while (i.hasNext()) {
+				f = i.next();
+				if (measurementShown != null && measurementShown.booleanValue())
+					MeasurementAttributes.SHOWMEASUREMENT.set(f, true);
+			}
+		}
+		
 		roiManager.onSelectedFigures();
 	}
 	
@@ -1506,6 +1599,54 @@ class MeasurementViewerUI
 		return chooser;
 	}
 	
+
+	/**
+	 * Shows or hides the Text of all shapes.
+	 * 
+	 * @param show  Pass <code>true</code> to show the text, <code>false</code>
+	 * 				otherwise. 
+	 */
+	void showText(boolean show)
+	{
+		Collection<ROIFigure> figures = model.getAllFigures();
+		if (figures.size() == 0) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROIFigure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			//if (!figure.isReadOnly()) {
+				MeasurementAttributes.SHOWTEXT.set(figure, show);
+				if (roiInspector != null) roiInspector.showText(show, figure);
+			//}
+		}
+		model.getDrawingView().repaint();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the channel is active, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param channel The channel to handle
+	 * @return See above.
+	 */
+	boolean isChannelActive(int channel) 
+	{
+		return model.isChannelActive(channel);
+	}
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		graphPane.onAnalysed(analyse);
+		intensityView.onAnalysed(analyse);
+		toolBar.onAnalysed(analyse);
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -1513,6 +1654,8 @@ class MeasurementViewerUI
     public void setOnScreen()
     {
     	setSize(DEFAULT_SIZE);
+    	UIUtilities.incrementRelativeToAndShow(null, this);
+    	/*
         if (model != null) { //Shouldn't happen
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
@@ -1520,6 +1663,7 @@ class MeasurementViewerUI
             //pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
+        */
     }
     
 	/** 

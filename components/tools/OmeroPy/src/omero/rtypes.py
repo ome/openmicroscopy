@@ -20,8 +20,9 @@ omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
 import omero, Ice
-import omero_RTypes_ice
-import omero_Scripts_ice
+import IceImport
+IceImport.load("omero_RTypes_ice")
+IceImport.load("omero_Scripts_ice")
 
 def rtype(val):
     """

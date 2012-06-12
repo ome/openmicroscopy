@@ -24,14 +24,19 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.util.Arrays;
 import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Loads the containers containing the passed image.
@@ -51,31 +56,33 @@ public class ContainerLoader
 {
 
 	/** The id of the image. */
-	private long 		imageID;
+	private long imageID;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param model   Reference to the model.
+     * @param model Reference to the model.
+     * @param ctx The security context.
      * @param imageID The id of the image. 
      */
-	public ContainerLoader(ImViewer model, long imageID)
+	public ContainerLoader(ImViewer model, SecurityContext ctx, long imageID)
 	{
-		super(model);
+		super(model, ctx);
 		this.imageID = imageID;
 	}
 
 	/**
      * Creates a new instance.
      * 
-     * @param model   Reference to the model.
+     * @param model Reference to the model.
+     * @param ctx The security context.
      */
-	public ContainerLoader(ImViewer model)
+	public ContainerLoader(ImViewer model, SecurityContext ctx)
 	{
-		super(model);
+		super(model, ctx);
 		this.imageID = -1;
 	}
 	
@@ -85,8 +92,11 @@ public class ContainerLoader
      */
     public void load()
     {
-        long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
+    	ExperimenterData exp = ImViewerAgent.getUserDetails();
+        handle = dmView.loadContainerHierarchy(ctx, ProjectData.class, null,
+				false, exp.getId(), exp.getDefaultGroup().getId(),
+				this);
+        //handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
     }
 
     /**

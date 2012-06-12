@@ -11,13 +11,17 @@ package ome.security.basic;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
+import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -36,14 +40,11 @@ import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
+import ome.services.sharing.ShareStore;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.HibernateUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -58,7 +59,6 @@ import org.springframework.util.Assert;
  * 
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)
- * 
  */
 public class CurrentDetails implements PrincipalHolder {
 
@@ -68,7 +68,12 @@ public class CurrentDetails implements PrincipalHolder {
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
-    private final ThreadLocal<Map<String, String>> callContext = new ThreadLocal<Map<String, String>>();
+    /**
+     * Call context set on the current details before login occurred. If this
+     * is the case, then it will get consumed and
+     */
+    private final ThreadLocal<Map<String, String>> delayedCallContext
+        = new ThreadLocal<Map<String, String>>();
 
     /**
      * Default constructor. Should only be used for testing, since the stats
@@ -81,7 +86,7 @@ public class CurrentDetails implements PrincipalHolder {
     public CurrentDetails(SessionCache cache) {
         this.cache = cache;
     }
-    
+
     private LinkedList<BasicEventContext> list() {
         LinkedList<BasicEventContext> list = contexts.get();
         if (list == null) {
@@ -95,51 +100,23 @@ public class CurrentDetails implements PrincipalHolder {
     // =================================================================
 
     public Map<String, String> setContext(Map<String, String> ctx) {
-        Map<String, String> rv = callContext.get();
-        callContext.set(ctx);
-        return rv;
+        LinkedList<BasicEventContext> list = list();
+        if (list.size() == 0) {
+            delayedCallContext.set(ctx);
+            return null;
+        } else {
+            return list.getLast().setCallContext(ctx);
+        }
     }
 
-    public Long getCallGroup() {
-        Map<String, String> ctx = callContext.get();
-        if (ctx != null && ctx.containsKey("omero.group")) {
-            String s = ctx.get("omero.group");
-            try {
-                return Long.valueOf(ctx.get("omero.group"));
-            } catch (Exception e) {
-                log.debug("Ignoring invalid omero.group context: " + s);
-                return null;
-            }
-        }
-        return null;
+    public Map<String, String> getContext() {
+        return list().getLast().getCallContext();
     }
 
-    public void setCallGroup(Long id) {
-        Map<String, String> ctx = callContext.get();
-        if (ctx == null) {
-            ctx = new HashMap<String, String>();
-            callContext.set(ctx);
-        }
-
-        String old = ctx.get("omero.group.old");
-        String curr = ctx.get("omero.group");
-        if (old != null) {
-            throw new RuntimeException("Recursive call! " +
-                    String.format("Old: %s Current: %s New: %s",
-                            old, curr, id));
-        }
-
-        ctx.put("omero.group.old", curr);
-        ctx.put("omero.group", "" + id);
-    }
-
-    public void resetCallGroup() {
-        Map<String, String> ctx = callContext.get();
-        if (ctx != null) {
-            String old = ctx.get("omero.group.old");
-            ctx.remove("omero.group.old");
-            ctx.put("omero.group", old);
-        }
+    protected void checkDelayedCallContext(BasicEventContext bec) {
+        Map<String, String> ctx = delayedCallContext.get();
+        delayedCallContext.set(null);
+        bec.setCallContext(ctx);
     }
 
     // PrincipalHolder methods
@@ -171,6 +148,7 @@ public class CurrentDetails implements PrincipalHolder {
         if (log.isDebugEnabled()) {
             log.debug("Logging in :" + bec);
         }
+        checkDelayedCallContext(bec);
         list().add(bec);
         bec.getStats().methodIn();
     }
@@ -233,7 +211,12 @@ public class CurrentDetails implements PrincipalHolder {
             throw new ApiUsageException("Object can't be null");
         }
         final Long o = HibernateUtils.nullSafeOwnerId(object);
-        final Long g = HibernateUtils.nullSafeGroupId(object);
+        final Long g; // see 2874 and chmod
+        if (object instanceof ExperimenterGroup) {
+            g = object.getId();
+        } else {
+            g = HibernateUtils.nullSafeGroupId(object);
+        }
 
         final EventContext ec = getCurrentEventContext();
         final boolean isAdmin = ec.isCurrentUserAdmin();
@@ -251,9 +234,10 @@ public class CurrentDetails implements PrincipalHolder {
 
     /**
      * Replaces all the simple-valued fields in the {@link BasicEventContext}.
+     * This method
      */
-    void copy(EventContext ec) {
-        current().copyContext(ec);
+    void checkAndInitialize(EventContext ec, LocalAdmin admin, ShareStore store) {
+        current().checkAndInitialize(ec, admin, store);
     }
 
     /**
@@ -369,19 +353,50 @@ public class CurrentDetails implements PrincipalHolder {
      * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
      */
     public Details createDetails() {
-        BasicEventContext c = current();
-        Details d = Details.create();
+        final BasicEventContext c = current();
+        final Details d = Details.create(new Object[]{c, c.getCallContext()});
         d.setCreationEvent(c.getEvent());
         d.setUpdateEvent(c.getEvent());
         d.setOwner(c.getOwner());
         d.setGroup(c.getGroup());
         // ticket:1434
-        Permissions groupPerms = c.getCurrentGroupPermissions();
-        Permissions userUmask = c.getCurrentUmask();
-        Permissions p = new Permissions(groupPerms);
+        final Permissions groupPerms = c.getCurrentGroupPermissions();
+        final Permissions userUmask = c.getCurrentUmask();
+        final Permissions p = new Permissions(groupPerms);
         p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
+    }
+
+    public void applyContext(Details details, boolean changePerms) {
+        final BasicEventContext c = current();
+        details.setContexts(new Object[]{c, c.getCallContext()});
+        if (changePerms) {
+            // Make the permissions match (#8277)
+            final Permissions groupPerms = c.getCurrentGroupPermissions();
+            Permissions copy = new Permissions(Permissions.EMPTY);
+            if (groupPerms != Permissions.DUMMY) {
+                copy = new Permissions(groupPerms);
+            } else {
+                // In the case of the dummy, we will be required to have
+                // the group id already set in the context.
+                ExperimenterGroup group = details.getGroup();
+                if (group != null) {
+                    // Systypes still will have DUMMY values.
+                    Long gid = details.getGroup().getId();
+                    Permissions p = c.getPermissionsForGroup(gid);
+                    if (p != null) {
+                        copy = p;
+                    }
+                }
+            }
+            details.setPermissions(copy);
+        }
+
+    }
+
+    public void loadPermissions(org.hibernate.Session session) {
+        current().loadPermissions(session);
     }
 
     public Experimenter getOwner() {
@@ -402,10 +417,11 @@ public class CurrentDetails implements PrincipalHolder {
      * updated via {@link #updateEvent(Event)}.
      */
     void setValues(Experimenter owner, ExperimenterGroup group,
+            Permissions perms,
             boolean isAdmin, boolean isReadOnly, Long shareId) {
         BasicEventContext c = current();
         c.setOwner(owner);
-        c.setGroup(group);
+        c.setGroup(group, perms);
         c.setAdmin(isAdmin);
         c.setReadOnly(isReadOnly);
         c.setShareId(shareId);

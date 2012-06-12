@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.model.IObject;
-import ome.model.core.Image;
 import ome.security.basic.CurrentDetails;
 import ome.server.utests.DummyExecutor;
 import ome.services.delete.DeleteStepFactory;
@@ -24,6 +23,7 @@ import ome.services.export.ExporterStepFactory;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.util.SqlAction;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -505,12 +505,23 @@ public class GraphStateUnitTest extends MockGraphTest {
                     count.incrementAndGet();
                 }
                 return new GraphStep(idx, stack, spec, entry, ids) {
+
+                    @Override
+                    public void action(Callback cb, Session session,
+                            SqlAction sql, GraphOpts opts) throws GraphException {
+                        // no-op
+                    }
+
                     @Override
                     public void onRelease(Class<IObject> k, Set<Long> ids)
                             throws GraphException {
                         // no-op
                     }
                 };
+            }
+
+            public List<GraphStep> postProcess(List<GraphStep> steps) {
+                return steps;
             }
         };
 

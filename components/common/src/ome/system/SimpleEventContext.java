@@ -58,7 +58,7 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     protected Permissions umask;
 
-    protected Permissions groupPermissions;
+    private Permissions groupPermissions;
 
     /** Constructor for subclasses */
     protected SimpleEventContext() {
@@ -90,7 +90,7 @@ public class SimpleEventContext implements EventContext, Serializable {
         this.ceType = ec.getCurrentEventType();
         this.memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
         this.leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
-        this.groupPermissions = ec.getCurrentGroupPermissions();
+        setGroupPermissions(ec.getCurrentGroupPermissions());
         try {
             this.isAdmin = ec.isCurrentUserAdmin();
             this.isReadOnly = ec.isReadOnly();
@@ -159,4 +159,12 @@ public class SimpleEventContext implements EventContext, Serializable {
     public Permissions getCurrentGroupPermissions() {
         return groupPermissions;
     }
+
+    protected void setGroupPermissions(Permissions p) {
+        this.groupPermissions = p;
+        if (this.groupPermissions == null) {
+            throw new ome.conditions.InternalException("null permissions");
+        }
+    }
+
 }

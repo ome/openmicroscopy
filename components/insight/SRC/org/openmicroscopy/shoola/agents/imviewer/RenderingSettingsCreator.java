@@ -33,6 +33,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ImageData;
@@ -72,18 +73,17 @@ public class RenderingSettingsCreator
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param image  	The projected image.
+     * @param viewer The view this loader is for.Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param image The projected image.
      * @param rndToCopy The rendering settings of the original image.
-     * @param indexes   Collection of channel's indexes. 
+     * @param indexes Collection of channel's indexes. 
      * 					Mustn't be <code>null</code>.
      */
-    public RenderingSettingsCreator(ImViewer viewer, ImageData image, 
-    								RndProxyDef rndToCopy, 
-    								List<Integer> indexes)
+    public RenderingSettingsCreator(ImViewer viewer, SecurityContext ctx,
+    		ImageData image, RndProxyDef rndToCopy, List<Integer> indexes)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (image == null)
         	throw new IllegalArgumentException("No image specified.");
         this.image = image;
@@ -97,7 +97,7 @@ public class RenderingSettingsCreator
      */
     public void load()
     {
-       handle = ivView.createRndSetting(image.getDefaultPixels().getId(), 
+       handle = ivView.createRndSetting(ctx, image.getDefaultPixels().getId(),
     		   rndToCopy, indexes, this);
     }
 

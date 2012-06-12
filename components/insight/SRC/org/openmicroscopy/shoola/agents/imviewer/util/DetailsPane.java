@@ -35,6 +35,7 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 
 
@@ -63,15 +64,15 @@ class DetailsPane
     
     /** Identifies the <code>PixelSizeX</code> field. */
     private static final String PIXEL_SIZE_X = "Pixel size X "+
-    											UIUtilities.MICRONS;
+    											UnitsObject.MICRONS;
     
     /** Identifies the <code>PixelSizeY</code> field. */
     private static final String PIXEL_SIZE_Y = "Pixel size Y "+
-    											UIUtilities.MICRONS;
+    UnitsObject.MICRONS;
     
     /** Identifies the <code>PixelSizeZ</code> field. */
     private static final String PIXEL_SIZE_Z = "Pixel size Z "+
-    											UIUtilities.MICRONS;
+    UnitsObject.MICRONS;
     
     /**
      * Creates a non-editable text field.

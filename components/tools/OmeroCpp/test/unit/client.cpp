@@ -7,37 +7,37 @@
  */
 
 #include <omero/model/PermissionsI.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
-BOOST_AUTO_TEST_CASE( UnconfiguredClient )
+TEST(ClientTest, UnconfiguredClient )
 {
   Fixture f;
   int argc = 1;
-  char* argv[] = {"--omero.host=localhost", 0};
-  omero::client(argc,argv);
+  char* argv[] = {(char*)"--omero.host=localhost", 0};
+  omero::client(argc, argv);
 }
 
-BOOST_AUTO_TEST_CASE( ClientWithInitializationData )
+TEST(ClientTest, ClientWithInitializationData )
 {
   Fixture f;
   int argc = 0;
-  char** argv = new char*[0];
+  char** argv = {0};
   Ice::InitializationData id;
   id.properties = Ice::createProperties();
   id.properties->setProperty("omero.host","localhost");
   omero::client(argc,argv,id);
 }
 
-BOOST_AUTO_TEST_CASE( ClientWithInitializationData2 )
+TEST(ClientTest, ClientWithInitializationData2 )
 {
   Fixture f;
   int argc = 2;
-  char* argv[] = {"program", "--omero.host=localhost",0};
-  Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+  const char* argv[] = {"program", "--omero.host=localhost",0};
+  Ice::StringSeq args = Ice::argsToStringSeq(argc, const_cast<char**>(argv));
   Ice::InitializationData id;
-  id.properties = Ice::createProperties(argc, argv);
+  id.properties = Ice::createProperties(argc, const_cast<char**>(argv));
   id.properties->parseCommandLineOptions("omero", args);
   omero::client c(id);
   std::string s = c.getProperty("omero.host");
-  BOOST_CHECK_MESSAGE( s == "localhost", s + " should be localhost" );
+  ASSERT_EQ("localhost", s);
 }

@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -36,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -44,6 +47,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.GroupData;
 
 /** 
  * Component with advanced search options.
@@ -183,6 +187,12 @@ public class SearchComponent
 	/** The UI component hosting the result if any. */
 	private JComponent				resultPane;
 	
+	/** The list of groups.*/
+	private Collection<GroupData> groups;
+	
+	/** The groups to handle.*/
+	private List<GroupContext> groupsContext;
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -255,8 +265,9 @@ public class SearchComponent
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		double[][] size = {{TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED}};
+				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+			TableLayout.PREFERRED, TableLayout.PREFERRED,
+			TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		int i = 0;
 		String key = "0, ";
@@ -269,6 +280,7 @@ public class SearchComponent
 		add(buildStatusBar(), key+i);
 		resultPane = new JPanel();
 		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		resultPane.setLayout(new BoxLayout(resultPane, BoxLayout.Y_AXIS));
 		JPanel sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		i++;
@@ -280,7 +292,8 @@ public class SearchComponent
 	/** Closes and disposes of the window. */
 	private void cancel()
 	{
-		firePropertyChange(CANCEL_SEARCH_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(CANCEL_SEARCH_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/** Sets the default contexts. */
@@ -333,22 +346,29 @@ public class SearchComponent
 	 * Initializes the component. Displays the controls buttons.
 	 * 
 	 * @param controls The collection of controls to add.
+	 * @param groups The collection of groups.
 	 */
-	public void initialize(List<JButton> controls)
+	public void initialize(List<JButton> controls,
+			Collection<GroupData> groups)
 	{
-		initialize(true, controls);
+		initialize(true, controls, groups);
 	}
 	
 	/**
 	 * Initializes the component.
 	 * 
-	 * @param showControl	Pass <code>true</code> to display the buttons,
-	 * 						<code>false</code> otherwise.
+	 * @param showControl Pass <code>true</code> to display the buttons,
+	 *                    <code>false</code> otherwise.
 	 * @param controls The collection of controls to add.
+	 * @param groups The collection of groups.
 	 */
-	public void initialize(boolean showControl, List<JButton> controls)
+	public void initialize(boolean showControl, List<JButton> controls,
+			Collection<GroupData> groups)
 	{
 		setDefaultContext();
+		if (groups == null)
+			throw new IllegalArgumentException("No groups specified.");
+		this.groups = groups;
 		initComponents(controls);
 		buildGUI(showControl);
 	}
@@ -433,6 +453,7 @@ public class SearchComponent
 		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
 		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
 		ctx.setOwners(uiDelegate.getOwners());
+		ctx.setGroups(uiDelegate.getSelectedGroups());
 		ctx.setAnnotators(uiDelegate.getAnnotators());
 		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
 		ctx.setType(uiDelegate.getType());
@@ -440,7 +461,28 @@ public class SearchComponent
 		ctx.setTimeType(uiDelegate.getTimeIndex());
 		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
 		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
+		ctx.setGroups(uiDelegate.getSelectedGroups());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
+	}
+	
+	/**
+	 * Returns the list of possible groups.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupContext> getGroups()
+	{ 
+		if (groupsContext != null) return groupsContext;
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		GroupContext gc;
+		groupsContext = new ArrayList<GroupContext>();
+		while (i.hasNext()) {
+			g = i.next();
+			gc = new GroupContext(g.getName(), g.getId());
+			groupsContext.add(gc);
+		}
+		return groupsContext; 
 	}
 	
 	/**
@@ -500,9 +542,29 @@ public class SearchComponent
 	public void displayResult(JComponent result)
 	{
 		remove(resultPane);
-		resultPane = result;
-		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(resultPane, "0, 4");
+		if (result != null) {
+			resultPane = result;
+			resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+			add(resultPane, "0, 4");
+		}
+		repaint();
+	}
+	
+	/**
+	 * Adds the specified component to the result display.
+	 * 
+	 * @param result The component to add.
+	 * @param clear Pass <code>true</code> to remove the previous components,
+	 *              <code>false</code> otherwise.
+	 */
+	public void addResult(JComponent result, boolean clear)
+	{
+		if (clear) resultPane.removeAll();
+		if (result == null) return;
+		resultPane.add(result);
+		resultPane.add(new JSeparator());
+		result.setBackground(UIUtilities.BACKGROUND_COLOR);
+		revalidate();
 		repaint();
 	}
 	

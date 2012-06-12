@@ -2,8 +2,7 @@
 # encoding: utf-8
 
 """
-Retrieves the various client builds for the various platforms and creates
-composite builds.
+Creates composite builds from the various client build artifacts/platforms.
 """
 
 # Copyright (C) 2009 University of Dundee
@@ -23,84 +22,43 @@ composite builds.
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
-import urllib
 import time
 import sys
 import re
 import os
 
-from subprocess import Popen
 from getopt import getopt, GetoptError
 from glob import glob
 from zipfile import ZipFile
 
-# Handle Python 2.5 built-in ElementTree
-try:
-    from xml.etree.ElementTree import XML, ElementTree, tostring
-except ImportError:
-    from elementtree.ElementTree import XML, ElementTree, tostring
-
 NOW = time.ctime()
 
-HUDSON_ROOT = 'http://hudson.openmicroscopy.org.uk/job'
+VERSION = os.environ["OMERO_VERSION"]
 
-HUDSON_XML_SUFFIX = 'lastSuccessfulBuild/api/xml'
+print "="*40
+print " Version: %s" % VERSION
+print "="*40
 
-BRANCH = os.environ["OMERO_BRANCH"]
+TARGET_PREFIX = 'OMERO.clients-%s' % VERSION
 
-INSIGHT_JOB_NAME = 'INSIGHT-%s' % BRANCH
+IMPORTER = 'OMERO.importer'
 
-IMPORTER_JOB_NAME = 'OMERO-%s' % BRANCH
+INSIGHT = 'OMERO.insight'
 
-TARGET_PREFIX = 'OMERO.clients-%s' % BRANCH
+EDITOR = 'OMERO.editor'
 
 # The following libraries are duplicated in Insight and Importer:
 # IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
 # IGNORE'ing them, however, causes Insight to not start.
 IGNORE = []
 
-if "BUILD_NUMBER" in os.environ:
-    TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
-
-def version():
-	omero_properties = os.path.join(os.path.dirname(os.path.dirname(__file__)), "etc", "omero.properties")
-	f = open(omero_properties, "r")
-	try:
-		for line in f:
-			if line.startswith("omero.version"):
-				return line.replace("omero.version=", "")
-	finally:
-		f.close()
-	return "Unknown"
-
-VERSION = version()
-
-def download(job, regex):
-    """Grabs platform specific distribution targets from Hudson"""
-    url = urllib.urlopen("/".join([HUDSON_ROOT, job, HUDSON_XML_SUFFIX]))
-    hudson_xml = url.read()
-    hudson_xml = hudson_xml.replace('origin/', 'origin_')
-    url.close()
-    root = XML(hudson_xml)
-
-    building = root.findtext("./building")
-    if building == 'true':
-        print '%s build in progress, exiting...' % job
-        sys.exit(1)
-    revision = root.findtext("./changeSet/revision/revision")
-    artifacts = root.findall("./artifact")
-    print "Retrieving %s job artifacts from revision: %s" % (job, revision)
-    base_url = "/".join([HUDSON_ROOT, job, 'lastSuccessfulBuild/artifact'])
-    new_artifacts = list()
-    for artifact in artifacts:
-        filename = artifact.findtext("fileName")
-        if not regex.match(filename):
-            continue
-        artifact_url = "/".join([base_url, artifact.findtext("relativePath")])
-        print "Downloading %s from URL %s" % (filename, artifact_url)
-        urllib.urlretrieve(artifact_url , filename)
-        new_artifacts.append(filename)
-    return [revision, new_artifacts]
+def find(pattern):
+    """Grabs platform specific distribution targets from target"""
+    target = os.path.join(os.path.dirname(os.path.dirname(__file__)), "target")
+    artifacts = glob(os.path.join(target, pattern))
+    if not artifacts:
+        raise Exception("Nothing found! %s" % pattern)
+    return artifacts
 
 def extract(artifact, target, ignore):
     """
@@ -113,15 +71,15 @@ def extract(artifact, target, ignore):
             name = zip_info.filename
             out_name = name[name.find('/') + 1:]
 
-	    skip = 0
+            skip = 0
             if len(out_name) == 0:
                 skip += 1
-	    if os.path.split(name)[1] in ignore:
+            if os.path.split(name)[1] in ignore:
                 skip += 1
-	    for pattern in ignore:
-	        if re.match(pattern, os.path.split(name)[1]):
+            for pattern in ignore:
+                if re.match(pattern, os.path.split(name)[1]):
                     skip += 1
-	    if skip:
+            if skip:
                 print "Skipping %s" % name
                 continue
 
@@ -158,21 +116,20 @@ def compress(target, base):
                 zip_file.write(path)
     finally:
         zip_file.close()
-    
+
 
 #
 # Create the composite Windows client build
 #
 target_artifacts = list()
-regex = re.compile(r'.*win.zip')
-revision, artifacts = download(INSIGHT_JOB_NAME, regex)
-target_artifacts += artifacts
-revision, artifacts = download(IMPORTER_JOB_NAME, regex)
-target_artifacts += artifacts
+target_artifacts += find(EDITOR + "*win.zip")
+target_artifacts += find(INSIGHT + "*win.zip")
+target_artifacts += find(IMPORTER + "*win.zip")
 target = '%s.win' % TARGET_PREFIX
 ignore = ['omero_client.jar', 'OmeroImporter-Beta-4.2.0-DEV.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
+os.makedirs(target)
 for artifact in target_artifacts:
     extract(artifact, target, ignore)
 compress('%s.zip' % target, target)
@@ -181,12 +138,12 @@ compress('%s.zip' % target, target)
 # Create the composite Mac OS X client build
 #
 target_artifacts = list()
-revision, artifacts = download(INSIGHT_JOB_NAME, re.compile(r'.*mac.zip'))
-target_artifacts += artifacts
-revision, artifacts = download(IMPORTER_JOB_NAME, re.compile(r'.*mac.zip'))
-target_artifacts += artifacts
+target_artifacts += find(EDITOR + "*mac.zip")
+target_artifacts += find(INSIGHT + "*mac.zip")
+target_artifacts += find(IMPORTER + "*mac.zip")
 target = '%s.mac' % TARGET_PREFIX
 
+os.makedirs(target)
 for artifact in target_artifacts:
     extract(artifact, target, IGNORE)
 compress('%s.zip' % target, target)
@@ -195,21 +152,17 @@ compress('%s.zip' % target, target)
 # Create the composite Linux client build
 #
 target_artifacts = list()
-regex = re.compile(r'.*-b\d+.zip')
-revision, artifacts = download(INSIGHT_JOB_NAME, regex)
-target_artifacts += artifacts
-regex = re.compile(r'.*importer.*-b\d+.zip')
-revision, artifacts = download(IMPORTER_JOB_NAME, regex)
-target_artifacts += artifacts
+target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
+target_artifacts += find("%s-%s.zip" % (IMPORTER, VERSION))
 target = '%s.linux' % TARGET_PREFIX
 # Since Insight relies on its MANIFEST to start via the JAR, we're leaving
 # libs/OmeroImporter-Beta-4.1.0-DEV.jar in the ZIP.
 ignore = ['omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
+os.makedirs(target)
 for artifact in target_artifacts:
     extract(artifact, target, ignore)
-# Again, because Insight relies on its MANIFEST we're going to rename the
-# omero_client.jar to fit its requirements.
-client_jar = glob(os.path.join(target, 'libs', 'omero_client*.jar'))[0]
-os.rename(client_jar, os.path.join(target, 'libs', 'omero_client.jar'))
 compress('%s.zip' % target, target)
+
+# Insight no longer uses omero_client.jar
+

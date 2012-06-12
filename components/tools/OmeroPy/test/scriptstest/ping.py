@@ -16,7 +16,6 @@ import omero
 import omero.clients
 import omero.model
 import omero.api
-import omero_api_IScript_ice
 import omero_ext.uuid as uuid # see ticket:3774
 
 from omero.util.temp_files import create_path, remove_path

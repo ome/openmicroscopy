@@ -76,38 +76,6 @@ public class AdminObject
 	/** Indicates to reset the password. */
 	public static final int ACTIVATE_USER = 6;
 	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final int PERMISSIONS_PRIVATE = 100;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final int PERMISSIONS_GROUP_READ = 101;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final int PERMISSIONS_GROUP_READ_LINK = 102;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final int PERMISSIONS_PUBLIC_READ = 103;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 104;
-	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final String PERMISSIONS_GROUP_READ_TEXT = 
-		"Collaborative Read-Only Group";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
-		"Collaborative Group";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
-	
 	/**
 	 * Validates the index. 
 	 * 
@@ -209,15 +177,16 @@ public class AdminObject
 	public void setPermissions(int permissions)
 	{
 		switch (permissions) {
-			case PERMISSIONS_PRIVATE:
-			case PERMISSIONS_GROUP_READ:
-			case PERMISSIONS_GROUP_READ_LINK:
-			case PERMISSIONS_PUBLIC_READ:
-			case PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PRIVATE:
+			case GroupData.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				this.permissions = permissions;
 				break;
 			default:
-				this.permissions = PERMISSIONS_PRIVATE;
+				this.permissions = GroupData.PERMISSIONS_PRIVATE;
 		}
 	}
 	
@@ -265,5 +234,5 @@ public class AdminObject
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
-	
+
 }

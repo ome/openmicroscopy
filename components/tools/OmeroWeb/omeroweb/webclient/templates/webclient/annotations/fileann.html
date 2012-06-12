@@ -1,0 +1,65 @@
+{% load i18n %}
+{% load common_filters %}
+{% load wikitags %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+  This file-annotation block is used as an 'include' in the metadata_general panel and is also used in the 
+  add-file AJAX response, to add new file-annotation blocks to the metadata_general panel.
+-->
+{% endcomment %}
+
+
+{% if fileann.getFileName %}
+<li class="file_ann_wrapper">
+    <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
+        title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
+        {{ fileann.getFileName|shortening:40 }}
+		<span>{% if fileann.getFileSize %}({{ fileann.getFileSize|default:0|filesizeformat }}){% endif %}</span>
+    </a>
+    <span class="tooltip_html" style='display:none'>
+        <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
+        <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
+        <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+        <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
+    </span>
+	
+	<div class="attachment_actions">
+	    {% if fileann.link.canDelete and not fileann.isOriginalMetadata %}
+	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File">-</a>
+	    {% endif %}
+	
+	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
+	        <a id="{{ fileann.id }}-file" type="image" class="deleteFile action" alt="Delete File" title="Delete File"> &#215 </a>
+	    {% endif %}
+	
+	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
+	    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
+	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	    {% endifequal %}
+	    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
+	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	    {% endifequal %}
+	</div>
+</li>
+{% endif %}

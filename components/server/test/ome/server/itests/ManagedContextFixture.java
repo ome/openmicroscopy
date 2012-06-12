@@ -13,7 +13,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
-import ome.security.basic.PrincipalHolder;
+import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -34,7 +34,7 @@ public class ManagedContextFixture {
     public ServiceFactory managedSf;
     public ServiceFactory internalSf;
     public SecuritySystem security;
-    public PrincipalHolder holder;
+    public CurrentDetails holder;
     public LoginInterceptor login;
 
     public ManagedContextFixture() {
@@ -50,7 +50,7 @@ public class ManagedContextFixture {
         mgr = (SessionManager) ctx.getBean("sessionManager");
         ex = (Executor) ctx.getBean("executor");
         security = (SecuritySystem) ctx.getBean("securitySystem");
-        holder = (PrincipalHolder) ctx.getBean("principalHolder");
+        holder = (CurrentDetails) ctx.getBean("principalHolder");
         login = new LoginInterceptor(holder);
         managedSf = new ServiceFactory(ctx);
         managedSf = new InterceptingServiceFactory(managedSf, login);

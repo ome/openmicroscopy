@@ -75,6 +75,7 @@
 		<property name="userDn" value="${omero.ldap.username}" />
 		<property name="password" value="${omero.ldap.password}" />
 		<property name="base" value="${omero.ldap.base}" />
+		<property name="referral" value="${omero.ldap.referral}" />
 		<property name="dirObjectFactory"
 			value="org.springframework.ldap.core.support.DefaultDirObjectFactory" />
 	</bean>

@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -54,14 +55,17 @@ public class PixelsDataLoader
 	public static final int SET = 1;
 	
 	 /** The id of the pixels set this loader is for. */
-    private long            pixelsID;
+    private long pixelsID;
     
     /** Result of the call. */
-    private Object    		result;
+    private Object result;
     
     /** Loads the specified tree. */
-    private BatchCall		loadCall;
+    private BatchCall loadCall;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to retrieve dimension of the pixels set.
      * 
@@ -73,7 +77,7 @@ public class PixelsDataLoader
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.loadPixels(pixelsID);
+                result = rds.loadPixels(ctx, pixelsID);
             }
         };
     }
@@ -94,12 +98,14 @@ public class PixelsDataLoader
     /**
      * Creates the call corresponding to the passed index.
      * 
+     * @param ctx The security context.
      * @param pixelsID	The id of the pixels set.
      * @param index		One of the constants defined by this class.
      */
-    public PixelsDataLoader(long pixelsID, int index)
+    public PixelsDataLoader(SecurityContext ctx, long pixelsID, int index)
     {
     	this.pixelsID = pixelsID;
+    	this.ctx = ctx;
     	switch (index) {
 			case SET:
 				loadCall = makePixelsBatchCall();

@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -59,6 +59,8 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -383,6 +385,7 @@ class EditorComponent
 	 */
 	public void setSelectionMode(boolean single)
 	{
+		if (!single) view.layoutUI();
 		view.repaint();
 	}
 
@@ -678,6 +681,7 @@ class EditorComponent
 	 */
 	public void refresh()
 	{
+		/*
 		switch (view.getSelectedTab()) {
 			case EditorUI.GENERAL_INDEX:
 				model.refresh();
@@ -689,13 +693,15 @@ class EditorComponent
 			case EditorUI.ACQUISITION_INDEX:
 				view.refreshAcquisition();
 		};
+		*/
+		model.refresh();
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#exportImageAsOMETIFF(File)
+	 * @see Editor#exportImageAsOMETIFF(File, Target)
 	 */
-	public void exportImageAsOMETIFF(File folder)
+	public void exportImageAsOMETIFF(File folder, Target target)
 	{
 		Object refObject = model.getRefObject();
 		ImageData image = null;
@@ -707,11 +713,11 @@ class EditorComponent
 		if (image == null) return;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		ExportActivityParam param = new ExportActivityParam(folder, 
-				image, ExportActivityParam.EXPORT_AS_OME_TIFF);
+				image, ExportActivityParam.EXPORT_AS_OME_TIFF, target);
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(param);
+		un.notifyActivity(model.getSecurityContext(), param);
 	}
 
 	/** 
@@ -920,7 +926,8 @@ class EditorComponent
 		if (dialog == null) {
 			dialog = new ScriptingDialog(f, 
 					model.getScript(script.getScriptID()), 
-					model.getSelectedObjects());
+					model.getSelectedObjects(), 
+					MetadataViewerAgent.isBinaryAvailable());
 			dialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(dialog);
 		} else {
@@ -941,16 +948,30 @@ class EditorComponent
 		Object o = model.getRefObject();
 		if (o instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) o;
-			if (exp.getId() == experimenterID)
+			if (exp.getId() == experimenterID) {
+				model.setUserPhoto(photo, experimenterID);
 				view.setUserPhoto(photo);
+			}
 		}
 	}
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#isWritable()
+	 * @see Editor#canLink()
 	 */
-	public boolean isWritable() { return model.isWritable(); }
+	public boolean canLink() { return model.canLink(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canEdit()
+	 */
+	public boolean canEdit() { return model.canEdit(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canAnnotate()
+	 */
+	public boolean canAnnotate() { return model.canAnnotate(); }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -1044,5 +1065,14 @@ class EditorComponent
 			dialog = null;
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getSecurityContext()
+	 */
+    public SecurityContext getSecurityContext()
+    { 
+    	return model.getSecurityContext();
+    }
 
 }

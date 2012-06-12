@@ -113,7 +113,7 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
         IAdminPrx prx2 = sf2.getAdminService(curr2);
 
         // First we make sure that only one service is seen by this session
-        assertEquals(1, sf1.activeServices().size());
+        assertEquals(1, sf1.activeServices(null).size());
 
         // which implies that closing will not close another session's services
         mockAdapter.expects(once()).method("find").will(returnValue(null));

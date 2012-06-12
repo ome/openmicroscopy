@@ -284,6 +284,17 @@ public class ThumbnailBean extends AbstractLevel2Service
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see ome.api.ThumbnailStore#isInProgress()
+     */
+    @RolesAllowed("user")
+    public boolean isInProgress()
+    {
+        return inProgress;
+    }
+
     /**
      * Retrieves a list of the families supported by the {@link Renderer}
      * either from instance variable cache or the database.
@@ -511,21 +522,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * Returns the Id of the currently logged in user.
-     * Returns owner of the share while in share
-     * @return See above.
-     */
-    private Long getCurrentUserId()
-    {
-        Long shareId = getSecuritySystem().getEventContext().getCurrentShareId();
-        if (shareId != null) {
-            Session s = iQuery.get(Session.class, shareId);
-            return s.getOwner().getId();
-        } 
-        return getSecuritySystem().getEventContext().getCurrentUserId();
-    }
-
-    /**
      * Checks that sizeX and sizeY are not out of range for the active pixels
      * set and returns a set of valid dimensions.
      * 
@@ -661,7 +657,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         resetMetadata();
         ctx = new ThumbnailCtx(
                 iQuery, iUpdate, iPixels, settingsService, ioService,
-                sec, getCurrentUserId());
+                sec, sec.getEffectiveUID());
     }
 
     /**
@@ -1251,7 +1247,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // the rendering settings are null.
         Parameters params = new Parameters();
         params.addId(pixels.getId());
-        params.addLong("o_id", getCurrentUserId());
+        params.addLong("o_id", sec.getEffectiveUID());
         if (settings != null
             || iQuery.findByQuery(
                     "from RenderingDef as r where r.pixels.id = :id and " +

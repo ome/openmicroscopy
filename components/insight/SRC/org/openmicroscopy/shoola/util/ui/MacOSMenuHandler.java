@@ -57,7 +57,7 @@ public class MacOSMenuHandler
 	 * Bound property indicating that the <code>Quit</code>
 	 * menu item is selected.
 	 */
-	public static final String QUIT_APPLICATION_PROPERTY = "quitpplication";
+	public static final String QUIT_APPLICATION_PROPERTY = "quitApplication";
 	
 	/** Helper reference to the parent. */
 	private Frame parent;

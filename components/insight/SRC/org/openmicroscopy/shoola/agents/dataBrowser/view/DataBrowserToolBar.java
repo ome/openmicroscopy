@@ -198,6 +198,9 @@ class DataBrowserToolBar
 	/** TextField hosting the number of items per row. */
 	private JTextField			itemsPerRow;
 	
+	/** The component hosting the {@link #itemsPerRow}.*/
+	private JPanel              itemsPerRowPane;
+	
 	/** Indicates how many images are shown. */
 	private JLabel				status;
 	
@@ -286,7 +289,7 @@ class DataBrowserToolBar
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canLinkParent());
 		createMenu.add(menuItem);
 		menuItem = new JMenuItem("Existing Dataset");
 		menuItem.setToolTipText("Select a dataset to add the images to.");
@@ -294,7 +297,7 @@ class DataBrowserToolBar
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+EXISTING_OBJECT);
 		createMenu.add(menuItem);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canLinkParent());
 		return createMenu;
 	}
 	
@@ -314,7 +317,7 @@ class DataBrowserToolBar
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canLinkParent());
 		manageMenu.add(menuItem);
 		
 		JPanel panel = new JPanel();
@@ -548,7 +551,7 @@ class DataBrowserToolBar
 				"the displayed images.");
 		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
-		createDatasetButton.setEnabled(model.isParentWritable());
+		createDatasetButton.setEnabled(model.canLinkParent());
 		createDatasetButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -576,7 +579,7 @@ class DataBrowserToolBar
 		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
 		reportButton.addActionListener(this);
 		reportButton.setActionCommand(""+REPORT);
-		reportButton.setEnabled(model.isParentWritable());
+		reportButton.setEnabled(model.canLinkParent());
 		UIUtilities.unifiedButtonLookAndFeel(reportButton);
 		addPropertyChangeListener(controller);
 		codeCompletion = true;
@@ -611,12 +614,12 @@ class DataBrowserToolBar
 			bar.add(saveButton);
 			bar.add(new JSeparator(JSeparator.VERTICAL));
 		}
-		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		panel.add(new JLabel("# per row:"));
-		panel.add(itemsPerRow);
-		panel.setToolTipText(itemsPerRow.getToolTipText());
-		bar.add(panel);
+		itemsPerRowPane = new JPanel();
+		itemsPerRowPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		itemsPerRowPane.add(new JLabel("# per row:"));
+		itemsPerRowPane.add(itemsPerRow);
+		itemsPerRowPane.setToolTipText(itemsPerRow.getToolTipText());
+		bar.add(itemsPerRowPane);
 		/*
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
@@ -731,6 +734,7 @@ class DataBrowserToolBar
 		columnsView.removeActionListener(this);
 		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
 		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
+		itemsPerRowPane.setVisible(index == DataBrowserUI.THUMB_VIEW);
 		thumbView.addActionListener(this);
 		columnsView.addActionListener(this);
 	}
@@ -770,7 +774,7 @@ class DataBrowserToolBar
 	/** Invokes when the parent has been set. */
 	void onExperimenterSet()
 	{
-		createDatasetButton.setEnabled(model.isParentWritable());
+		createDatasetButton.setEnabled(model.canLinkParent());
 	}
 	
 	/**

@@ -25,6 +25,7 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="pixelDataHandler"/>
     <constructor-arg ref="uuid"/>
+    <constructor-arg value="${omero.pixeldata.threads}"/>
   </bean>
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
@@ -34,7 +35,8 @@
   </bean>
 
   <bean id="pixelDataEventLogLoader" class="ome.services.pixeldata.PersistentEventLogLoader">
-    <constructor-arg><null/></constructor-arg><!-- Legacy has repo == null -->
+    <constructor-arg index="0"><null/></constructor-arg><!-- Legacy has repo == null -->
+    <constructor-arg index="1" value="${omero.pixeldata.threads}"/>
     <property name="queryService" ref="internal-ome.api.LocalQuery"/>
     <property name="sqlAction" ref="simpleSqlAction"/>
     <property name="key" value="pixelDataEventLogLoader.v1.current_id"/>

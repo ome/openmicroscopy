@@ -27,13 +27,9 @@ from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
-import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 import omero.scripts
 from omero import ApiUsageException
-
-import omero_SharedResources_ice
-import omero_api_IScript_ice
 
 import os
 import numpy

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
@@ -50,7 +50,7 @@ import pojos.FileAnnotationData;
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class RoiDeleteTest extends AbstractTest {
+public class RoiDeleteTest extends AbstractServerTest {
 
 	/**
 	 * Test to delete an image with ROIs owned by another user.

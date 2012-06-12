@@ -25,14 +25,17 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -48,22 +51,23 @@ import pojos.TagAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class TagsLoader 
+public class TagsLoader
 	extends FinderLoader
 {
 
 	 /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     *  @param ctx The security context.
      */
-    public TagsLoader(Finder viewer)
+    public TagsLoader(Finder viewer, List<SecurityContext> ctx)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     }
     
     /**
@@ -72,22 +76,8 @@ public class TagsLoader
      */
     public void load()
     {
-    	ExperimenterData exp = FinderFactory.getUserDetails();
-		long userID = exp.getId();//viewer.getUserID();
-		long groupID = -1;
-		int level = 
-			FinderFactory.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-					groupID = exp.getDefaultGroup().getId();
-					userID = -1;
-					break;
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
-		}
-		
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
-												userID, groupID, this);
+		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+				-1, this);
     }
 
     /**

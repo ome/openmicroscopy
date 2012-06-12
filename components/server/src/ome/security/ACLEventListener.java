@@ -100,7 +100,7 @@ public class ACLEventListener implements
         Object entity = event.getEntity();
         if (entity instanceof IObject) {
             IObject o = (IObject) entity;
-            if (!aclVoter.allowLoad(o.getClass(), o.getDetails(), o.getId())) {
+            if (!aclVoter.allowLoad(event.getSession(), o.getClass(), o.getDetails(), o.getId())) {
                 aclVoter.throwLoadViolation(o);
             }
         }

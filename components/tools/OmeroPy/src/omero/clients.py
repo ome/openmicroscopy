@@ -20,8 +20,11 @@ finally:
 
 sys = __import__("sys")
 import exceptions, traceback, threading, logging
-import Ice, Glacier2, Glacier2_Router_ice
+import IceImport, Ice
 import omero_ext.uuid as uuid # see ticket:3774
+
+IceImport.load("Glacier2_Router_ice")
+import Glacier2
 
 class BaseClient(object):
     """
@@ -82,6 +85,7 @@ class BaseClient(object):
         self.__previous = None
         self.__ic = None
         self.__oa = None
+        self.__cb = None
         self.__sf = None
         self.__uuid = None
         self.__resources = None
@@ -174,6 +178,7 @@ class BaseClient(object):
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
         id.properties.setProperty("Ice.ACM.Client", "0")
+        id.properties.setProperty("Ice.CacheMessageBuffers", "0")
         id.properties.setProperty("Ice.RetryIntervals", "-1")
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered")
         id.properties.setProperty("Ice.Default.PreferSecure", "1")
@@ -189,11 +194,6 @@ class BaseClient(object):
         # Setting ConnectTimeout
         self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
                            omero.constants.CONNECTTIMEOUT)
-
-        # Endpoints set to tcp if not present
-        endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints")
-        if not endpoints or len(endpoints) == 0:
-            id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
 
         # ThreadPool to 5 if not present
         threadpool = id.properties.getProperty("omero.ClientCallback.ThreadPool.Size")
@@ -238,8 +238,9 @@ class BaseClient(object):
                 raise omero.ClientError("Improper initialization")
 
             # Register Object Factory
-            self.of = ObjectFactory()
-            self.of.registerObjectFactory(self.__ic)
+            import ObjectFactoryRegistrar as ofr
+            ofr.registerObjectFactory(self.__ic, self)
+
             for of in omero.rtypes.ObjectFactories.values():
                 of.register(self.__ic)
 
@@ -255,11 +256,6 @@ class BaseClient(object):
             if group:
                 ctx.put("omero.group", group)
 
-            # Register the default client callback
-            self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
-            cb = BaseClient.CallbackI(self.__ic, self.__oa)
-            self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid))
-            self.__oa.activate()
         finally:
             self.__lock.release()
 
@@ -361,6 +357,13 @@ class BaseClient(object):
         """
         return self.getSession().ice_getIdentity().name
 
+    def getCategory(self):
+        """
+        Returns the category which should be used for all callbacks
+        passed to the server.
+        """
+        return self.getRouter(self.__ic).getCategoryForClient()
+
     def getImplicitContext(self):
         """
         Returns the Ice.ImplicitContext which defines what properties
@@ -456,7 +459,22 @@ class BaseClient(object):
                 try:
                     ctx = dict(self.getImplicitContext().getContext())
                     ctx[omero.constants.AGENT] = self.__agent
-                    prx = self.getRouter(self.__ic).createSession(username, password, ctx)
+                    rtr = self.getRouter(self.__ic)
+                    prx = rtr.createSession(username, password, ctx)
+
+                    # Create the adapter
+                    self.__oa = self.__ic.createObjectAdapterWithRouter( \
+                            "omero.ClientCallback", rtr)
+                    self.__oa.activate()
+
+                    id = Ice.Identity()
+                    id.name = self.__uuid
+                    id.category = rtr.getCategoryForClient()
+
+                    self.__cb = BaseClient.CallbackI(self.__ic, self.__oa, id)
+                    self.__oa.add(self.__cb, id)
+
+
                     break
                 except omero.WrappedCreateSessionException, wrapped:
                     if not wrapped.concurrency:
@@ -476,18 +494,13 @@ class BaseClient(object):
                 raise omero.ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Configure keep alive
-            keep_alive = self.__ic.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
-            try:
-                i = int(keep_alive)
-                self.enableKeepAlive(i)
-            except:
-                pass
+            self.startKeepAlive()
 
             # Set the client callback on the session
             # and pass it to icestorm
             try:
-                id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
-                raw = self.__oa.createProxy(id)
+
+                raw = self.__oa.createProxy(self.__cb.id)
                 self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
                 #self.__sf.subscribe("/public/HeartBeat", raw)
             except:
@@ -505,8 +518,9 @@ class BaseClient(object):
         """
         Resets the "omero.keep_alive" property on the current
         Ice.Communicator which is used on initialization to determine
-        the time-period between Resource checks. If no __resources
-        instance is available currently, one is also created.
+        the time-period between Resource checks. The __resources
+        instance will be created as soon as an active session is
+        detected.
         """
 
         self.__lock.acquire()
@@ -518,9 +532,44 @@ class BaseClient(object):
             # what was in the configuration file
             ic.getProperties().setProperty("omero.keep_alive", str(seconds))
 
-            # If it's not null, then there's already an entry for keeping
-            # any existing session alive
-            if self.__resources == None and seconds > 0:
+            # If there's not a session, there should be no
+            # __resources but just in case since startKeepAlive
+            # could have been called manually.
+            if seconds <= 0:
+                self.stopKeepAlive()
+            else:
+                try:
+                    # If there's a session, then go ahead and
+                    # start the keep alive.
+                    self.getSession()
+                    self.startKeepAlive()
+                except omero.ClientError:
+                    pass
+        finally:
+            self.__lock.release()
+
+    def startKeepAlive(self):
+        """
+        Start a new __resources instance, stopping any that current exists
+        IF omero.keep_alive is greater than 1.
+        """
+        self.__lock.acquire()
+        try:
+            ic = self.getCommunicator()
+            props = ic.getProperties()
+            seconds = -1
+            try:
+                seconds = props.getPropertyWithDefault("omero.keep_alive", "-1")
+                seconds = int(seconds)
+            except ValueError:
+                pass
+
+            # Any existing resource should be shutdown.
+            if self.__resources is not None:
+                self.stopKeepAlive()
+
+            # If seconds is more than 0, a new one should be started.
+            if seconds > 0:
                 self.__resources = omero.util.Resources(seconds)
                 class Entry:
                     def __init__(self, c):
@@ -538,6 +587,18 @@ class BaseClient(object):
                                 return False
                         return True
                 self.__resources.add(Entry(self))
+        finally:
+            self.__lock.release()
+
+    def stopKeepAlive(self):
+        self.__lock.acquire()
+        try:
+            if self.__resources is not None:
+                try:
+                    self.__resources.cleanup()
+                finally:
+                    self.__resources = None
+
         finally:
             self.__lock.release()
 
@@ -709,6 +770,13 @@ class BaseClient(object):
 
         self.__lock.acquire()
         try:
+
+            try:
+                self.stopKeepAlive()
+            except exceptions.Exception, e:
+                oldIc.getLogger().warning(
+                    "While cleaning up resources: " + str(e))
+
             self.__sf = None
 
             oldOa = self.__oa
@@ -729,15 +797,6 @@ class BaseClient(object):
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
-
-            oldR = self.__resources
-            self.__resources = None
-            if oldR != None:
-                try:
-                    oldR.cleanup()
-                except exceptions.Exception, e:
-                    oldIc.getLogger().warning(
-                        "While cleaning up resources: " + str(e))
 
             try:
                 try:
@@ -892,22 +951,14 @@ class BaseClient(object):
     #
     # Callback
     #
-    def _getCb(self):
-        if not self.__oa:
-            raise omero.ClientError("No session active; call createSession()")
-        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/%s" %  self.__uuid))
-        if not isinstance(obj, BaseClient.CallbackI):
-            raise omero.ClientError("Cannot find CallbackI in ObjectAdapter")
-        return obj
-
     def onHeartbeat(self, myCallable):
-        self._getCb().onHeartbeat = myCallable
+        self.__cb.onHeartbeat = myCallable
 
     def onSessionClosed(self, myCallable):
-        self._getCb().onSessionClosed = myCallable
+        self.__cb.onSessionClosed = myCallable
 
     def onShutdownIn(self, myCallable):
-        self._getCb().onShutdownIn = myCallable
+        self.__cb.onShutdownIn = myCallable
 
     class CallbackI(omero.api.ClientCallback):
         """
@@ -928,9 +979,10 @@ class BaseClient(object):
             except exceptions.Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
-        def __init__(self, ic, oa):
+        def __init__(self, ic, oa, id):
             self.ic = ic
             self.oa = oa
+            self.id = id
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop
@@ -950,31 +1002,3 @@ class BaseClient(object):
             self.execute(self.onShutdownIn, "shutdown")
         def sessionClosed(self, current = None):
             self.execute(self.onSessionClosed, "sessionClosed")
-
-#
-# Other
-#
-
-import util.FactoryMap
-class ObjectFactory(Ice.ObjectFactory):
-    """
-    Responsible for instantiating objects during deserialization.
-    """
-
-    def __init__(self, pmap = util.FactoryMap.map()):
-        self.__m = pmap
-
-    def registerObjectFactory(self, ic):
-        for key in self.__m:
-            if not ic.findObjectFactory(key):
-                ic.addObjectFactory(self,key)
-
-    def create(self, type):
-        generator = self.__m[type]
-        if generator == None:
-            raise omero.ClientError("Unknown type:"+type)
-        return generator.next()
-
-    def destroy(self):
-        # Nothing to do
-        pass

@@ -73,6 +73,10 @@ public class IconManager
 	private static final String		SPLASH_SCREEN_EDITOR = 
 									"graphx/editor_splashscreen.png";
 	
+	/** The pathname, relative to this class, of the editor splash screen. */
+	private static final String		SPLASH_SCREEN_IMPORTER = 
+									"graphx/importer_splashscreen.png";
+	
 	/** The pathname, relative to this class, of the login splash screen. */
 	private static final String		LOGIN_BACKGROUND = 
 										"graphx/login_background.png";
@@ -173,12 +177,12 @@ public class IconManager
      * The pathname, relative to this class, of the logo icon to
      * use for the about software dialog.
      */  
-    private static final String		LOGO_ABOUT = "graphx/omeabout-bk.png";
+    private static final String		LOGO_ABOUT = "graphx/ome64.png";
     
     /** 
      * The pathname, relative to this class, of the upgrade icon.
      */  
-    private static final String		UPGRADE = "graphx/omeabout-bk.png";
+    private static final String		UPGRADE = "graphx/ome64.png";
     
     /** 
      * The pathname, relative to this class, of the upgrade icon.
@@ -288,7 +292,7 @@ public class IconManager
 	private static IconManager	singleton;
 	
 	/**
-	 * Returns the splash screen.
+	 * Returns the splash screen when the editor is a standalone application.
 	 * 
 	 * @return See above.
 	 */
@@ -307,6 +311,15 @@ public class IconManager
 		return createIcon(SPLASH_SCREEN);
 	}
 	
+	/**
+	 * Returns the splash screen when the import is a standalone application.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getImporterSplashScreen()
+	{
+		return createIcon(SPLASH_SCREEN_IMPORTER);
+	}
 	
 	/**
 	 * Returns the image of the server icon within the server dialog.

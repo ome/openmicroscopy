@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.Agent;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -193,14 +195,12 @@ public class TreeViewerFactory
 	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
-	 * @param exp	    	The experiment the TreeViewer is for.
-	 * @param userGroupID 	The id to the group selected for the current user.
+	 * @param exp The experiment the TreeViewer is for.
 	 * @return See above.
 	 */
-	public static TreeViewer getTreeViewer(ExperimenterData exp, 
-			long userGroupID)
+	public static TreeViewer getTreeViewer(ExperimenterData exp)
 	{
-		TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+		TreeViewerModel model = new TreeViewerModel(exp);
 		return singleton.getTreeViewer(model, null);
 	}
 
@@ -274,21 +274,56 @@ public class TreeViewerFactory
 	}
 	
 	/**
+	 * Notifies the model that the user is reconnected.
+	 */
+	public static void onReconnected()
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onReconnected();
+		}
+	}
+	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	public static void onAnnotated(List<DataObject> containers, int count)
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onAnnotated(containers, count);
+		}
+	}
+	
+	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
-	 * @param exp	    	The experiment the TreeViewer is for.
-	 * @param userGroupID 	The id to the group selected for the current user.
-	 * @param bounds    	The bounds of the component invoking a new
-	 * 						{@link TreeViewer}. 
+	 * @param exp The experiment the TreeViewer is for.
+	 * @param bounds The bounds of the component invoking a new 
+	 * {@link TreeViewer}. 
 	 * @return See above.
 	 */
 	public static TreeViewer getTreeViewer(ExperimenterData exp, 
-			long userGroupID, Rectangle bounds)
+			Rectangle bounds)
 	{
-		TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+		TreeViewerModel model = new TreeViewerModel(exp);
 		return singleton.getTreeViewer(model, bounds);
 	}
 
+	/** Close all the instances.*/
+	public static void terminate()
+	{
+		singleton.shutDown();
+	}
+	
 	/** Writes the external applications used to open document. */
 	public static void writeExternalApplications()
 	{
@@ -363,6 +398,20 @@ public class TreeViewerFactory
 		comparator = new StringComparator();
 	}
 
+	private void shutDown()
+	{
+		Set<TreeViewer> viewers = singleton.viewers;
+		Iterator<TreeViewer> i = viewers.iterator();
+		TreeViewer viewer;
+		while (i.hasNext()) {
+			viewer = i.next();
+			((TreeViewerComponent) viewer).shutDown();
+			//viewer.removeChangeListener(this);
+			//viewer.discard();
+		}
+		viewers.clear();
+	}
+	
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.
@@ -378,10 +427,8 @@ public class TreeViewerFactory
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
-			if (model.isSameDisplay(comp.getModel())) {
-				comp.setRecycled(true);
-				return comp;
-			}
+			comp.setRecycled(true);
+			return comp;
 		}
 		//if (viewer != null) return viewer;
 		readExternalApplications();
@@ -399,9 +446,11 @@ public class TreeViewerFactory
 	{
 		if (applications != null) return;
 		applications = new HashMap<String, List<ApplicationData>>();
+		
 		Environment env = (Environment) 
 		TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
-		String name = env.getOmeroHome()+File.separator+FILE_NAME;
+		String name = FilenameUtils.concat(env.getOmeroHome(),FILE_NAME);
+		
 		File f = new File(name);
 		if (!f.exists()) return;
 		try {
@@ -431,7 +480,8 @@ public class TreeViewerFactory
 								list = new ArrayList<ApplicationData>();
 								applications.put(mimeType, list);
 							}
-							list.add(new ApplicationData(buffer.toString()));
+							File application = new File(buffer.toString());
+							list.add(new ApplicationData(application));
 						}
 					}
 				}

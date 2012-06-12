@@ -31,14 +31,9 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ImageData;
 
 /** 
  * Opens the viewer.
@@ -57,9 +52,19 @@ public class ViewAction
 	extends RndAction
 {
 
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Launch the viewer.";
+	/** The name of the action. */
+	public static final String NAME = "View...";
 	
+	/** The description of the action. */
+	public static final String DESCRIPTION = "Open the viewer.";
+	
+	/** Name of the action. */
+	public static final String NAME_IJ = "View in ImageJ...";
+
+    /** Description of the action. */
+	public static final String DESCRIPTION_IJ = "View the selected image " +
+    		"in ImageJ.";
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -71,7 +76,7 @@ public class ViewAction
 		setEnabled(true);
 		IconManager icons = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER));
-        putValue(Action.SHORT_DESCRIPTION, 
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
 	}
 	
@@ -81,10 +86,7 @@ public class ViewAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		ImageData image = model.getRefImage();
-		if (image == null) return;
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(image), null));
+		model.viewImage();
 	}
 	
 }

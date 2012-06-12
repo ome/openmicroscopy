@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Updates the object e.g. name.
@@ -69,7 +70,7 @@ public class UpdateVisitor
 		DataObject data = (DataObject) ho;
 		if (data.getClass().equals(object.getClass()) &&
 			object.getId() == data.getId()) {
-			node.setUserObject(data);
+			node.setUserObject(object);
 			TreeViewerTranslator.formatToolTipFor(node);
 		}
 	}

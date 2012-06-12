@@ -17,7 +17,6 @@ package ome.api.local;
  */
 public interface LocalShare extends ome.api.IShare {
 
-    Long setShareId(Long shareId);
     void resetReadFilter(org.hibernate.Session s);
 
 }

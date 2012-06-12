@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -31,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -65,10 +68,13 @@ public class StructuredAnnotationLoader
 	public static final int SINGLE = 2;
 	
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to load the existing annotations of the 
@@ -78,23 +84,47 @@ public class StructuredAnnotationLoader
      * @param objectType		The type of object or <code>null</code>.
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
-     * @param groupID			The id of the group or <code>-1</code> if the id 
-     * 							is not specified.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadAnnotations(final Class annotationType,
-    		final long userID, final long groupID)
+    		final long userID)
     {
         return new BatchCall("Loading Existing annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.loadAnnotations(annotationType, null, userID, 
-                		groupID);
+                result = os.loadAnnotations(ctx, annotationType, null, userID);
             }
         };
     }
  
+    /**
+     * Creates a {@link BatchCall} to load the existing annotations of the 
+     * specified type related to the passed type of object.
+     * 
+     * @param annotationType 	The type of annotation to load.
+     * @param userID			The id of the user or <code>-1</code> if the id 
+     * 							is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadAnnotations(final List<SecurityContext> ctx,
+    		final Class annotationType, final long userID)
+    {
+        return new BatchCall("Loading Existing annotations") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                Iterator<SecurityContext> i = ctx.iterator();
+                List l = new ArrayList();
+                while (i.hasNext()) {
+                	l.addAll(os.loadAnnotations(i.next(), annotationType, null,
+                			userID));
+				}
+                result = l;
+            }
+        };
+    }
+    
     /**
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
@@ -112,7 +142,7 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadRatings(type, id, userID);
+                result = os.loadRatings(ctx, type, id, userID);
             }
         };
     }
@@ -134,7 +164,7 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
             	OmeroImageService os = context.getImageService();
-                result = os.loadROIMeasurements(type, id, userID);
+                result = os.loadROIMeasurements(ctx, type, id, userID);
             }
         };
     }
@@ -155,7 +185,7 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadStructuredData(object, userID, true);
+                result = os.loadStructuredData(ctx, object, userID, true);
             }
         };
     }
@@ -164,22 +194,21 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
-     * @param data		The objects.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
-     * @param viewed	Pass <code>true</code> to load the rendering settings 
-	 * 					related to the objects, <code>false<code>
-	 * 					otherwise.
+     * @param data The objects.
+     * @param userID The id of the user who tagged the object or 
+     *               <code>-1</code> if the user is not specified.
+     * @param viewed Pass <code>true</code> to load the rendering settings 
+	 *               related to the objects, <code>false<code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadStructuredData(final List<DataObject> data, 
-    									final long userID, final boolean viewed)
+    private BatchCall loadStructuredData(final List<DataObject> data,
+    	final long userID, final boolean viewed)
     {
         return new BatchCall("Loading Ratings") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadStructuredData(data, userID, viewed);
+                result = os.loadStructuredData(ctx, data, userID, viewed);
             }
         };
     }
@@ -196,7 +225,7 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadAnnotation(annotationID);
+                result = os.loadAnnotation(ctx, annotationID);
             }
         };
     }
@@ -205,20 +234,20 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
-     * @param type 		The type of the object.
-     * @param ids		The collection of id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param type The type of the object.
+     * @param ids The collection of id of the object.
+     * @param userID The id of the user who tagged the object or 
+     *            <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadRatings(final Class type, final List<Long> ids, 
-    							final long userID)
+    private BatchCall loadRatings(final Class type, final List<Long> ids,
+    	final long userID)
     {
         return new BatchCall("Loading Ratings") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadRatings(type, ids, userID);
+                result = os.loadRatings(ctx, type, ids, userID);
             }
         };
     }
@@ -240,16 +269,18 @@ public class StructuredAnnotationLoader
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param index		The index identifying the call. One of the constants
-     * 					defined by this class.
-     * @param type		The type of node the annotations are related to.
-     * @param ids		Collection of the id of the object.
-     * @param userID	The id of the user or <code>-1</code> if the id 
-     * 					is not specified.
+     * @param ctx The security context.
+     * @param index The index identifying the call. One of the constants
+     *              defined by this class.
+     * @param type The type of node the annotations are related to.
+     * @param ids Collection of the id of the object.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     *               is not specified.
      */
-    public StructuredAnnotationLoader(int index, Class type, List<Long> ids, 
-    									long userID)
+    public StructuredAnnotationLoader(SecurityContext ctx, int index,
+    		Class type, List<Long> ids, long userID)
     {
+    	this.ctx = ctx;
     	switch (index) {
 			case RATING:
 				loadCall = loadRatings(type, ids, userID);
@@ -262,6 +293,7 @@ public class StructuredAnnotationLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param index The index identifying the call. One of the constants
      * 					defined by this class.
      * @param userID	The id of the user or <code>-1</code> if the id 
@@ -270,9 +302,10 @@ public class StructuredAnnotationLoader
      * @param viewed
     
      */
-    public StructuredAnnotationLoader(int index, List<DataObject> data, long 
-    		userID, boolean viewed)
+    public StructuredAnnotationLoader(SecurityContext ctx, int index,
+    	List<DataObject> data, long userID, boolean viewed)
     {
+    	this.ctx = ctx;
     	switch (index) {
 			case ALL:
 				loadCall = loadStructuredData(data, userID, viewed);
@@ -284,17 +317,19 @@ public class StructuredAnnotationLoader
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param index		The index identifying the call. One of the constants
-     * 					defined by this class.
-     * @param object	The object to handle.
-     * @param userID	The id of the user or <code>-1</code> if the id 
-     * 					is not specified.
+     * @param ctx The security context.
+     * @param index The index identifying the call. One of the constants
+     *              defined by this class.
+     * @param object The object to handle.
+     * @param userID The id of the user or <code>-1</code> if the id is not
+     *               specified.
      */
-    public StructuredAnnotationLoader(int index, Object object, 
-    									long userID)
+    public StructuredAnnotationLoader(SecurityContext ctx, int index,
+    		Object object, long userID)
     {
     	if (object == null)
     		throw new IllegalArgumentException("Object not defined.");
+    	this.ctx = ctx;
     	switch (index) {
     		case ALL:
     			loadCall = loadStructuredData(object, userID);
@@ -321,17 +356,18 @@ public class StructuredAnnotationLoader
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param annotationType	The type of annotations to fetch.
-     * @param objectType		The type of object the annotations is related
-     * 							to, or <code>null</code>.	
-     * @param userID			The id of the user or <code>-1</code> if the id 
-     * 							is not specified.
-     * @param groupID			The id of the group or <code>-1</code>.
+     * @param ctx The security context.
+     * @param annotationType The type of annotations to fetch.
+     * @param objectType The type of object the annotations is related
+     *                   to, or <code>null</code>.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     *               is not specified.
      */
-    public StructuredAnnotationLoader(Class annotationType, long userID, 
-    		long groupID)
+    public StructuredAnnotationLoader(SecurityContext ctx, Class annotationType,
+    		long userID)
     {
-    	loadCall = loadAnnotations(annotationType, userID, groupID);
+    	this.ctx = ctx;
+    	loadCall = loadAnnotations(annotationType, userID);
     }
     
     /**
@@ -339,11 +375,31 @@ public class StructuredAnnotationLoader
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
+     * @param ctx The security context.
      * @param annotationID The Id of the annotation to load.
      */
-    public StructuredAnnotationLoader(long annotationID)
+    public StructuredAnnotationLoader(SecurityContext ctx, long annotationID)
     {
+    	this.ctx = ctx;
     	loadCall = loadAnnotation(annotationID);
     }
     
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param ctx The security context.
+     * @param annotationType The type of annotations to fetch.
+     * @param objectType The type of object the annotations is related
+     *                   to, or <code>null</code>.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     *               is not specified.
+     * @param groupID The id of the group or <code>-1</code>.
+     */
+    public StructuredAnnotationLoader(List<SecurityContext> ctx, 
+    		Class annotationType, long userID)
+    {
+    	loadCall = loadAnnotations(ctx, annotationType, userID);
+    }
 }

@@ -36,6 +36,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import pojos.FileAnnotationData;
@@ -131,9 +132,9 @@ public class NullUserNotifier
 	public void setLoadingStatus(int percent, long id, String name) {}
 
 	/**
-	 * @see UserNotifier#notifyActivity(Object)
+	 * @see UserNotifier#notifyActivity(SecurityContext, Object)
 	 */
-	public void notifyActivity(Object activity) {}
+	public void notifyActivity(SecurityContext ctx, Object activity) {}
 
 	/**
 	 * @see UserNotifier#openApplication(ApplicationData, String)

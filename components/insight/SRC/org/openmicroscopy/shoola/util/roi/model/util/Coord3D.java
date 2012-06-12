@@ -57,6 +57,9 @@ public class Coord3D
 	/** The z-section. */
 	private int z;
 	
+	/** The channel. Default value is <code>-1</code> if not set.*/
+	private int c;
+	
 	/** Creates a default point. */
 	public Coord3D()
 	{
@@ -75,7 +78,22 @@ public class Coord3D
 			throw new IllegalArgumentException("Coordinates not valid.");
 		t = time;
 		z = zsec;
+		c = -1;
 	}
+	
+	/**
+	 * Returns the channel or <code>-1</code> if not set.
+	 * 
+	 * @return See above.
+	 */
+	public int getChannel() { return c; }
+	
+	/**
+	 * Sets the channel.
+	 * 
+	 * @param c The value to set.
+	 */
+	public void setChannel(int c) { this.c = c; }
 	
 	/**
 	 * Returns the timepoint.

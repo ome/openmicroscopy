@@ -54,8 +54,13 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 public interface Agent 
 {
 
-	/** Container tells agent to get ready for service. */
-    public void activate();
+	/** 
+	 * Container tells agent to get ready for service. 
+	 * 
+	 * @param master Flag indicating that the agent is the entry point.
+	 * 				Only one agent should be passed <code>true</code>.
+	 */
+    public void activate(boolean master);
     
 	/** Container tells agent to release acquired resources and stop service. */
     public void terminate();

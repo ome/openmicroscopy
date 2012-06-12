@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -53,6 +54,9 @@ public class ExitApplication
 	 */
 	private boolean askQuestion;
 	
+	/** The last selected security context.*/
+	private SecurityContext ctx;
+	
     /** Creates a new instance. */
     public ExitApplication() 
     {
@@ -69,7 +73,25 @@ public class ExitApplication
     public ExitApplication(boolean askQuestion) 
     {
     	this.askQuestion = askQuestion;
+    	ctx = null;
     }
+    
+    /**
+     * Sets the security context.
+     * 
+     * @param ctx The context to set.
+     */
+    public void setSecurityContext(SecurityContext ctx)
+    {
+    	this.ctx = ctx;
+    }
+    
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    public SecurityContext getContext() { return ctx; }
     
     /**
      * Returns <code>true</code> to ask a question before closing the
@@ -78,5 +100,5 @@ public class ExitApplication
      * @return See above.
      */
     public boolean isAskQuestion() { return askQuestion; }
-    
+
 }

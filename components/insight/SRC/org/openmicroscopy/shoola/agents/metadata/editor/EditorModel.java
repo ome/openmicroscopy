@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -69,21 +70,27 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -136,6 +143,15 @@ import pojos.XMLAnnotationData;
 class EditorModel 
 {
 	
+	/** Identifies <code>all</code> the objects.*/
+	static final int ALL = PermissionMenu.ALL;
+	
+	/** Identifies the objects added by current user.*/
+	static final int ME = PermissionMenu.ME;
+	
+	/** Identifies the objects added by others.*/
+	static final int OTHER = PermissionMenu.OTHER;
+	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
@@ -176,7 +192,7 @@ class EditorModel
     /** The list of emission wavelengths for a given set of pixels. */
     private Map						emissionsWavelengths;
     
-    /** Used to sort the various collection. */
+    /** Used to sort the various collections. */
     private ViewerSorter			sorter;
 
 	/** Reference to the browser. */
@@ -218,6 +234,9 @@ class EditorModel
 	/** The collection of analysis results. */
 	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
+    /** The photo of the current user.*/
+    private Map<Long, BufferedImage>				usersPhoto;
+    
 	/**
 	 * Downloads the files.
 	 * 
@@ -232,7 +251,7 @@ class EditorModel
 		
 		DownloadActivityParam activity = new DownloadActivityParam(f,
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
-		un.notifyActivity(activity);
+		un.notifyActivity(getSecurityContext(), activity);
 		
 		Collection l = parent.getRelatedNodes();
 		if (l == null) return;
@@ -258,7 +277,7 @@ class EditorModel
 							icons.getIcon(IconManager.DOWNLOAD_22));
 				}
 				activity.setFileName(fa.getFileName());
-				un.notifyActivity(activity);
+				un.notifyActivity(getSecurityContext(), activity);
 			}
 		}
 	}
@@ -280,13 +299,12 @@ class EditorModel
 				o = (Object) i.next();
 				if (o instanceof ImageData) {
 					img = (ImageData) o;
-					if (img.isArchived()) 
-						images.add(img);
+					images.add(img);
 				}
 			}
 		}
 		img = (ImageData) getRefObject();
-		if (img.isArchived()) images.add(img);
+		images.add(img);
 		
 		if (images.size() > 0) {
 			Iterator<ImageData> i = images.iterator();
@@ -300,7 +318,7 @@ class EditorModel
 				img = i.next();
 				p = new DownloadArchivedActivityParam(path, img, 
 						icons.getIcon(IconManager.DOWNLOAD_22));
-				un.notifyActivity(p);
+				un.notifyActivity(getSecurityContext(), p);
 			}
 		}
 	}
@@ -384,6 +402,73 @@ class EditorModel
         Collections.sort(enumerations, c);
     }
     
+    /**
+     * Starts an asynchronous call to load the photo of the currently
+     * selected user.
+     */
+    private void fireExperimenterPhotoLoading()
+    {
+    	if (refObject instanceof ExperimenterData) {
+    		ExperimenterData exp = (ExperimenterData) refObject;
+    		if (usersPhoto == null || !usersPhoto.containsKey(exp.getId())) {
+    			UserPhotoLoader loader = new UserPhotoLoader(component,
+    					parent.getSecurityContext(), exp);
+        		loader.load();
+    		}
+    	}
+    }
+    
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	private GroupData getGroup(long groupId)
+	{
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
+	
+	/**
+	 * Indicates to load all annotations available if the user can annotate
+	 * and is an administrator/group owner or to only load the user's
+	 * annotation.
+	 * 
+	 * @return See above
+	 */
+	private boolean canRetrieveAll()
+	{
+		if (!canAnnotate()) return false;
+		//check the group level
+		GroupData group = getGroup(getRefObjectGroupID());
+		if (group == null) return false;
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				if (MetadataViewerAgent.isAdministrator()) return true;
+				Set leaders = group.getLeaders();
+				Iterator i = leaders.iterator();
+				long userID = getCurrentUser().getId();
+				ExperimenterData exp;
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					if (exp.getId() == userID)
+						return true;
+				}
+				return false;
+			case GroupData.PERMISSIONS_PRIVATE:
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -569,6 +654,20 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the group's id of the reference object if it is an instance of 
+	 * <code>DataObject</code> or <code>-1</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	long getRefObjectGroupID()
+	{
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return ((DataObject) ref).getGroupId();
+		return -1;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the user currently logged in is
 	 * the one currently edited, <code>false</code> otherwise.
 	 * 
@@ -608,21 +707,191 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canEdit() { return canEdit(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canEdit(Object data)
+	{ 
+		DataObject d = (DataObject) data;
+		return d.canEdit();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be linked,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canLink() { return canLink(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be linked, e.g. 
+	 * image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canLink(Object data)
+	{ 
+		/*
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canLink();
+		*/
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(data, id);
+	}
+
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable()
+	boolean canAnnotate() { return canAnnotate(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canAnnotate(Object data)
 	{ 
-		boolean b = isUserOwner(refObject);
-		if (b) return b;
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canAnnotate();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDelete() { return canDelete(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDelete(Object data)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canDelete();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDeleteLink(Object data)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		StructuredDataResults result = parent.getStructuredData();
+		if (result == null) return false;
+		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		if (links == null) return false;
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData link;
+		
+		while (i.hasNext()) {
+			link = i.next();
+			if (d.getId() == link.getChild().getId())
+				return link.canDelete();
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the selected objects belong to several
+	 * groups, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAcrossGroups()
+	{
+		List<DataObject> l = getSelectedObjects();
+		if (l == null || l.size() == 0) return false;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<DataObject> i = l.iterator();
+		DataObject data;
+		while (i.hasNext()) {
+			data = i.next();
+			if (!ids.contains(data.getGroupId())) 
+				ids.add(data.getGroupId());
+		}
+		return ids.size() > 1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAddAnnotationLink()
+	{
+		if (!canAnnotate()) return false;
+		if (!isMultiSelection()) return true;
+		//multi selection.
+		List l = parent.getRelatedNodes();
+		if (l == null) return false;
+		Iterator i = l.iterator();
+		DataObject data;
+		List<Long> ids = new ArrayList<Long>();
+		while (i.hasNext()) {
+			data = (DataObject) i.next();
+			if (!(data instanceof GroupData || 
+					data instanceof ExperimenterData)) {
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		return ids.size() <= 1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDeleteAnnotationLink()
+	{
+		if (!isMultiSelection()) return true;
+		
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
+		if (list == null) return false;
+		AnnotationLinkData link;
+		Iterator<AnnotationLinkData> i = list.iterator();
+		while (i.hasNext()) {
+			link = i.next();
+			if (link.canDelete()) return true;
 		}
 		return false;
 	}
@@ -750,6 +1019,52 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the links corresponding to the level and the annotation.
+	 * 
+	 * @param level The level to handle.
+	 * @param ho The annotation.
+	 * @return
+	 */
+	List<Object> getLinks(int level, AnnotationData ho)
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
+		if (links == null) return new ArrayList<Object>();
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData d;
+		List<Object> results = new ArrayList<Object>();
+		long userID = getCurrentUser().getId();
+		switch (level) {
+			case ALL:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case ME:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID == d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case OTHER:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID != d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+		}
+		return results;
+	}
+	/**
 	 * Returns <code>true</code> if the annotation is already used by the 
 	 * current user, <code>false</code> otherwise.
 	 * 
@@ -831,10 +1146,21 @@ class EditorModel
 	 * 
 	 * @return
 	 */
+	boolean isAdministrator()
+	{
+		return MetadataViewerAgent.isAdministrator();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in, is a leader
+	 * of the selected group, <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
 	boolean isGroupLeader()
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return false;
 		long groupID = exp.getDefaultGroup().getId();
 		Iterator i = groups.iterator();
@@ -945,7 +1271,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments();
 		if (attachements == null) return list;
 		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
@@ -956,6 +1282,22 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
 					f != originalMetadata) {
 				list.add(f);
+			}
+		}
+		if (refObject instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
+								f != originalMetadata) {
+							list.add(f);
+						}
+					}
+				}
 			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(list); 
@@ -989,6 +1331,25 @@ class EditorModel
 				l.add(f);
 			}
 			
+		}
+		if (getRefObject() instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					i = attachements.iterator();
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+							String name = f.getFileName();
+							if (name.contains(
+									FileAnnotationData.ORIGINAL_METADATA_NAME))
+								originalMetadata = f;
+						}
+					}
+				}
+			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}
@@ -1450,7 +1811,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component,
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1472,7 +1834,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		AttachmentsLoader loader = new AttachmentsLoader(component);
+		AttachmentsLoader loader = new AttachmentsLoader(component,
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1508,6 +1871,7 @@ class EditorModel
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 
+					parent.getSecurityContext(),
 					pixs.getId(), parent.getUserID());
 			loader.load();
 			loaders.add(loader);
@@ -1629,14 +1993,12 @@ class EditorModel
 	/**
 	 * Starts an asynchronous call to save the annotations.
 	 * 
-	 * @param toAdd		The annotation to save.
-	 * @param toRemove	The annotation to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param metadata	The metadata to save.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	void fireAnnotationSaving(List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove, List<Object> metadata, 
+	void fireAnnotationSaving(DataToSave object, List<Object> metadata,
 			boolean asynch)
 	{
 		Object ref = getRefObject();
@@ -1653,7 +2015,7 @@ class EditorModel
 					list.add(i.next());
 				toDelete.clear();
 			}
-			parent.saveData(toAdd, toRemove, list, metadata, data, asynch);
+			parent.saveData(object, list, metadata, data, asynch);
 		}
 	}
 	
@@ -1670,8 +2032,7 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			List<AnnotationData> l = new ArrayList<AnnotationData>();
-			parent.saveData(l, l, annotations, new ArrayList<Object>(), data, 
+			parent.saveData(null, annotations, new ArrayList<Object>(), data,
 					true);
 		}
 	}
@@ -1685,7 +2046,7 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))	
+		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
 			parent.updateAdminObject(data, asynch);
 	}
 	
@@ -1697,22 +2058,7 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
-		Object ref = getRefObject();
-		if (!(ref instanceof ImageData)) return false;
-		ImageData img = (ImageData) ref;
-		if (img.isArchived()) return true;
-		Collection l = parent.getRelatedNodes();
-		if (l == null || l.size() == 0) return false;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = (Object) i.next();
-			if (o instanceof ImageData) {
-				img = (ImageData) o;
-				if (img.isArchived()) return true;
-			}
-		}
-		return false;
+		return getRefObject() instanceof ImageData;
 	}
 
 	/** 
@@ -1738,7 +2084,8 @@ class EditorModel
 	 */
 	void loadDiskSpace(Class type, long id)
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component, type, id);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component,
+				parent.getSecurityContext(), type, id);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1762,12 +2109,13 @@ class EditorModel
 	/**
 	 * Fires an asynchronous call to modify the password.
 	 * 
-	 * @param old		The old password.
-	 * @param confirm	The new password.
+	 * @param old The old password.
+	 * @param confirm The new password.
 	 */
 	void changePassword(String old, String confirm)
 	{
-		EditorLoader loader = new PasswordEditor(component, old, confirm);
+		EditorLoader loader = new PasswordEditor(component,
+				parent.getSecurityContext(), old, confirm);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1827,7 +2175,7 @@ class EditorModel
 	void fireImageEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-					EnumerationLoader.IMAGE);
+				parent.getSecurityContext(), EnumerationLoader.IMAGE);
 		loader.load();
 	}
 	
@@ -1835,7 +2183,7 @@ class EditorModel
 	void fireChannelEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-				EnumerationLoader.CHANNEL);
+				parent.getSecurityContext(), EnumerationLoader.CHANNEL);
 		loader.load();
 	}
 	
@@ -1851,7 +2199,8 @@ class EditorModel
 		}
 		if (data == null) return;
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, data); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), data); 
 		loader.load();
 	}
 	
@@ -1863,7 +2212,8 @@ class EditorModel
 	void  fireChannelAcquisitionDataLoading(ChannelData channel)
 	{
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, channel); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), channel); 
 		loader.load();
 	}
 	
@@ -1875,7 +2225,7 @@ class EditorModel
 	void fireInstrumentDataLoading(long instrumentID)
 	{
 		InstrumentDataLoader loader = new InstrumentDataLoader(component, 
-				instrumentID);
+				parent.getSecurityContext(), instrumentID);
 		loader.load();
 	}
 	
@@ -1900,7 +2250,7 @@ class EditorModel
 	}
 
     /**
-     * Sets the acquisition data for the specifed channel.
+     * Sets the acquisition data for the specified channel.
      * 
      * @param index The index of the channel.
      * @param data  The value to set.
@@ -2127,7 +2477,8 @@ class EditorModel
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
-				img.getDefaultPixels().getId(), channel, z);
+				parent.getSecurityContext(), img.getDefaultPixels().getId(),
+				channel, z);
 		loader.load();
 	}
 
@@ -2174,7 +2525,7 @@ class EditorModel
 		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
 			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
-				pixelsID, index);
+				parent.getSecurityContext(), pixelsID, index);
 		loader.load();
 		return true;
 	}
@@ -2189,8 +2540,8 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(rndControl, getImage(),
-					getRndIndex());
+			renderer = RendererFactory.createRenderer(getSecurityContext(),
+					rndControl, getImage(), getRndIndex());
 		}
 	}
 	
@@ -2229,7 +2580,8 @@ class EditorModel
 	 */
 	void loadFile(FileAnnotationData data, Object uiView)
 	{
-		FileLoader loader = new FileLoader(component, data, uiView);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), data, uiView);
 		loader.load();
 	}
 	
@@ -2241,7 +2593,8 @@ class EditorModel
 	void loadFiles(Map<FileAnnotationData, Object> files)
 	{
 		if (!MetadataViewerAgent.isBinaryAvailable()) return;
-		FileLoader loader = new FileLoader(component, files);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), files);
 		loader.load();
 	}
 	
@@ -2431,7 +2784,8 @@ class EditorModel
 		ImageData img = getImage();
 		if (img == null) return;
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		ROILoader loader = new ROILoader(component, img.getId(), userID, index);
+		ROILoader loader = new ROILoader(component, parent.getSecurityContext(),
+				img.getId(), userID, index);
 		loader.load();
 	}
 	
@@ -2443,7 +2797,7 @@ class EditorModel
 	}
 	
 	/** Refreshes the view. */
-	void refresh() { parent.setRootObject(getRefObject(), getUserID()); }
+	void refresh() { parent.refresh(); }
 	
 	/**
 	 * Sets the collection of scripts.
@@ -2486,7 +2840,8 @@ class EditorModel
 	 */
 	void loadScript(long scriptID)
 	{
-		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		ScriptLoader loader = new ScriptLoader(component,
+				parent.getSecurityContext(), scriptID);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2517,7 +2872,8 @@ class EditorModel
 	/** Loads the scripts. */
 	void loadScripts()
 	{
-		ScriptsLoader loader = new ScriptsLoader(component, false);
+		ScriptsLoader loader = new ScriptsLoader(component,
+				parent.getSecurityContext(), false);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2530,6 +2886,16 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
+	/**
+	 * Returns the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getCurrentUser()
+	{
+		return MetadataViewerAgent.getUserDetails();
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.
@@ -2576,23 +2942,43 @@ class EditorModel
     void uploadPicture(File photo, String format)
     { 
     	if (refObject instanceof ExperimenterData) {
-    		ExperimenterData exp = (ExperimenterData) refObject;
-    		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
-    				photo, format);
+    		//ExperimenterData exp = (ExperimenterData) refObject;
+    		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+    		UserPhotoUploader loader = new UserPhotoUploader(component,
+    				parent.getSecurityContext(), exp, photo, format);
     		loader.load();
     	}
     }
     
-    /**
-     * Starts an asynchronous call to load the photo of the currently 
-     * selected user.
-     */
-    void fireExperimenterPhotoLoading()
+    /** Deletes the user's photos.*/
+    void deletePicture()
     {
     	if (refObject instanceof ExperimenterData) {
-    		ExperimenterData exp = (ExperimenterData) refObject;
-    		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
-    		loader.load();
+    		try {
+    			ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+    			if (usersPhoto != null) usersPhoto.remove(exp.getId());
+    			OmeroMetadataService svc = 
+    				MetadataViewerAgent.getRegistry().getMetadataService();
+    			Collection photos = svc.loadAnnotations(
+    					parent.getSecurityContext(), 
+    					FileAnnotationData.class,
+    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId());
+    			if (photos == null || photos.size() == 0) return;
+    			List<DeletableObject> l = new ArrayList<DeletableObject>();
+	    		Iterator<AnnotationData> j = photos.iterator();
+	    		while (j.hasNext())
+	    			l.add(new DeletableObject(j.next()));
+	    		IconManager icons = IconManager.getInstance();
+	    		DeleteActivityParam p = new DeleteActivityParam(
+	    				icons.getIcon(IconManager.APPLY_22), l);
+	    		p.setUIRegister(false);
+	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+	    		UserNotifier un = 
+	    			TreeViewerAgent.getRegistry().getUserNotifier();
+	    		un.notifyActivity(getSecurityContext(), p);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
     	}
     }
     
@@ -2609,6 +2995,7 @@ class EditorModel
      */
     private List<ScriptObject> getScriptsWithUI()
     {
+    	/*
     	if (scriptsWithUI != null) return scriptsWithUI;
     	try {
     		OmeroImageService svc = 
@@ -2621,6 +3008,7 @@ class EditorModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
+		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -2650,6 +3038,7 @@ class EditorModel
      */
     GroupData loadGroup(long groupID)
     {
+    	/*
     	try {
 			AdminService svc = 
 				MetadataViewerAgent.getRegistry().getAdminService();
@@ -2663,6 +3052,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
+		*/
 		return null;
     }
     
@@ -2676,7 +3066,7 @@ class EditorModel
     	if (resultsLoader == null)
     		resultsLoader = new HashMap<AnalysisResultsItem, EditorLoader>();
     	AnalysisResultsFileLoader loader = new AnalysisResultsFileLoader(
-    			component, analysis);
+    			component, parent.getSecurityContext(), analysis);
     	resultsLoader.put(analysis, loader);
     	loader.load();
     }
@@ -2780,7 +3170,7 @@ class EditorModel
 			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(p);
+			un.notifyActivity(getSecurityContext(), p);
 		}
 	}
 	
@@ -2827,7 +3217,7 @@ class EditorModel
 			PixelsData data = img.getDefaultPixels();
 			b = 
 			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
-					data.getId());
+					parent.getSecurityContext(), data.getId());
 		} catch (Exception e) {}
 		if (b != null) return b.booleanValue();
 		return false;
@@ -2840,4 +3230,57 @@ class EditorModel
 	 */
 	JFrame getRefFrame() { return parent.getParentUI(); }
 
+	/**
+	 * Sets the photo associated to the current user.
+	 * 
+	 * @param photo The photo to set.
+	 * @param expId The identifier of the experimenter.
+	 */
+	void setUserPhoto(BufferedImage photo, long expId)
+	{ 
+		if (usersPhoto == null)
+			usersPhoto = new HashMap<Long, BufferedImage>();
+		usersPhoto.put(expId, photo) ;
+	}
+	
+	/**
+	 * Returns the photo associated to the current user.
+	 * 
+	 * @param expId The identifier of the experimenter.
+	 * @return See above.
+	 */
+	BufferedImage getUserPhoto(long expId)
+	{
+		if (usersPhoto == null) return null;
+		return usersPhoto.get(expId);
+	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return parent.getSecurityContext(); }
+	
+	/**
+	 * Returns <code>true</code> if the name of the group already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The group to handle.
+	 * @param name The name to check.
+	 * @return
+	 */
+	boolean doesGroupExist(GroupData data, String name)
+	{
+		if (data == null) return false;
+		AdminService svc = MetadataViewerAgent.getRegistry().getAdminService();
+		try {
+			GroupData g = svc.lookupGroup(getSecurityContext(), name);
+			if (g != null && data.getId() != g.getId()) {
+				return true;
+			}
+		} catch (Exception e) {}
+		return false;
+	}
+	
 }

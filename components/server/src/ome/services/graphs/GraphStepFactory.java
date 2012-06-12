@@ -40,4 +40,14 @@ public interface GraphStepFactory {
     GraphStep create(int idx, List<GraphStep> stack, GraphSpec spec,
             GraphEntry entry, long[] ids) throws GraphException;
 
+    /**
+     * Gives the {@link GraphStepFactory} a chance to add pre or post-steps for
+     * validation and similar activities.
+     *
+     * @param steps
+     *            Non-null list of steps which are to be post-processed.
+     * @return Either the original unmodified list, possibly with additions or
+     *         deletions, or a new list entirely.
+     */
+    List<GraphStep> postProcess(List<GraphStep> steps);
 }

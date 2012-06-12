@@ -426,7 +426,7 @@ class SlideShowView
 		while (i.hasNext()) {
 			node = i.next();
 			node.setListenToBorder(false);
-			node.addMouseListenerToComponents(this);
+			node.addListenerToComponents(this);
 			nodesMap.put(node, index);
 			p.add(node);
 			index++;
@@ -615,13 +615,14 @@ class SlideShowView
 	public void mouseReleased(MouseEvent e)
 	{
 		Object src = e.getSource();
+		/*
         ImageDisplay d = findParentDisplay(src);
         if (d instanceof ImageNode && !(d.getTitleBar() == src) 
             && e.getClickCount() == 2) {
         	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
         	bus.post(new ViewImage(new ViewImageObject(
         				(ImageData) d.getHierarchyObject()), null));
-        }   
+        }*/
 	}
 	
     /**

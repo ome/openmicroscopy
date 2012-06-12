@@ -28,11 +28,6 @@ from integration.helpers import createTestImage
 
 class TestThumbnailPerms(lib.ITest):
 
-    def set_context(self, client, gid):
-        rv = client.getStatefulServices()
-        for prx in rv:
-            prx.close()
-        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
 
     def testThumbs(self):
 
@@ -54,13 +49,7 @@ class TestThumbnailPerms(lib.ITest):
         #group1 - private
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring(group1name)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(False)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI('rw----')
         new_gr1.details.permissions = p
         gid = admin.createGroup(new_gr1)
         privateGroup = admin.getGroup(gid)
@@ -70,33 +59,21 @@ class TestThumbnailPerms(lib.ITest):
         #group2 - read-only
         new_gr2 = ExperimenterGroupI()
         new_gr2.name = rstring(group2name)
-        p2 = PermissionsI()
-        p2.setUserRead(True)
-        p2.setUserWrite(True)
-        p2.setGroupRead(True)
-        p2.setGroupWrite(False)
-        p2.setWorldRead(False)
-        p2.setWorldWrite(False)
+        p2 = PermissionsI('rwr---')
         new_gr2.details.permissions = p2
         gid2 = admin.createGroup(new_gr2)
         readOnlyGroup = admin.getGroup(gid2)
         self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
         listOfGroups.append(readOnlyGroup)
         
-        #group3 - collaborative
+        #group3 - read-annotate
         new_gr3 = ExperimenterGroupI()
         new_gr3.name = rstring(group3name)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(True)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI('rwra--')
         new_gr3.details.permissions = p
         gid3 = admin.createGroup(new_gr3)
         collaborativeGroup = admin.getGroup(gid3)
-        self.assertEquals('rwrw--', str(collaborativeGroup.details.permissions))
+        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
         listOfGroups.append(collaborativeGroup)
         
         #new user (group owner)
@@ -135,9 +112,8 @@ class TestThumbnailPerms(lib.ITest):
         user2 = admin.getExperimenter(eid2)
         
         ## login as user1 (into their default group)
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
-        
+        client_share1 = self.new_client(user=user1, password="ome")
+
         print len(client_share1.sf.activeServices())
         
         # create image in private group
@@ -174,8 +150,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # now check that the 'owner' of each group can see all 3 thumbnails.
         ## login as owner (into private group)
-        owner_client = omero.client()
-        owner_client.createSession(newOwner.omeName.val,"ome")
+        owner_client = self.new_client(user=newOwner, password="ome")
         
         self.getThumbnail(owner_client.sf, privateImageId)
         # check that we can't get thumbnails for images in other groups
@@ -205,8 +180,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # now check that the 'user2' of each group can see all thumbnails except private.
         ## login as user2 (into private group)
-        user2_client = omero.client()
-        user2_client.createSession(user2.omeName.val,"ome")
+        user2_client = self.new_client(user=user2, password="ome")
         
         # check that we can't get thumbnails for any images in private group
         self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))

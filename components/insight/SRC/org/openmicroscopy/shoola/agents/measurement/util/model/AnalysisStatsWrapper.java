@@ -33,7 +33,6 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -73,13 +72,13 @@ public class AnalysisStatsWrapper
 	{
 		if (shapeStats == null || shapeStats.size() == 0) return null;
 		ROIShapeStats stats;
-		Map<Integer, Double>   channelMin = new TreeMap<Integer, Double>();
-		Map<Integer, Double>   channelSum = new TreeMap<Integer, Double>();
-		Map<Integer, Double>   channelMax = new TreeMap<Integer, Double>();
-		Map<Integer, Double>   channelMean = new TreeMap<Integer, Double>();
-		Map<Integer, Double>   channelStdDev = new TreeMap<Integer, Double>();
-		Map<Integer, double[]>	channelData = new TreeMap<Integer, double[]>();
-		Map<Integer, Map<Point, Double>>	channelPixel = 
+		Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
+		Map<Integer, Double> channelSum = new TreeMap<Integer, Double>();
+		Map<Integer, Double> channelMax = new TreeMap<Integer, Double>();
+		Map<Integer, Double> channelMean = new TreeMap<Integer, Double>();
+		Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
+		Map<Integer, double[]> channelData = new TreeMap<Integer, double[]>();
+		Map<Integer, Map<Point, Double>> channelPixel = 
 			new TreeMap<Integer, Map<Point, Double>>();
 		Iterator<Double> 	pixelIterator;
 		Map<Point, Double> pixels;
@@ -112,6 +111,7 @@ public class AnalysisStatsWrapper
 			}
 			
 			channelData.put(channel, pixelData);
+			pixels.clear();
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
@@ -127,5 +127,3 @@ public class AnalysisStatsWrapper
 	}
 	
 }
-
-

@@ -41,6 +41,8 @@
   <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
   <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
 
+  <bean id="Ice.Communicator" class="Ice.Util" factory-method="initialize"/>
+
 <!--
   <bean id="topicManagerMock" class="org.jmock.Mock">
     <constructor-arg value="ome.services.blitz.fire.TopicManager" type="java.lang.Class"/>

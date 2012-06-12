@@ -122,7 +122,7 @@ public class MockGraphTest extends MockObjectTestCase {
                                 TypeAnnotation.class,
                                 FileAnnotation.class))));
         specXml = new OmeroContext(
-                new String[] { "classpath:ome/services/delete/spec.xml" }, sac);
+                new String[] { "classpath:ome/services/spec.xml" }, sac);
     }
 
     protected GraphSpec spec(String name) throws GraphException {
