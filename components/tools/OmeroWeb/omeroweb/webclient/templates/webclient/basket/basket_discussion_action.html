@@ -48,12 +48,14 @@
     <div>
             {% for field in form %}                
                 {% ifequal field.label_tag form.enable.label_tag %}
-                    <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</div>
-                    <div>{{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</div>
-                {% else %}                
-                    <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</div>
-                    <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
-                    <div>{{ field }}</div>
+                    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+                    {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}<br/>
+                    <br/>
+                {% else %}
+                    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %} {{ field.help_text|safe }}<br/>
+                    {% if field.errors %}{{ field.errors }}{% endif %}<br/>
+                    {{ field }}
+                    <br/>
                 {% endifequal %}
             {% endfor %}
     </div>

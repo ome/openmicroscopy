@@ -89,7 +89,7 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups']
+            self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
 

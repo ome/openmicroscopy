@@ -352,9 +352,7 @@
            <div id="personal_details">
 
                {% for field in form %}
-                      {{ field.label_tag }}
-                   <!-- Commented out until this can sit inside the label -->
-                   <!--{% if field.field.required %}*{% endif %} -->
+                   {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                    {{ field }}
                    {% if field.errors %}{{ field.errors }}{% endif %}
                    {{ field.help_text|safe }}
