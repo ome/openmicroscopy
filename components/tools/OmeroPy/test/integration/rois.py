@@ -121,6 +121,54 @@ class TestRois(lib.ITest):
         self.assertEqual(wrapper.getROICount("Ellipse",1),1)
         self.assertEqual(wrapper.getROICount("Rect"),1)
         self.assertEqual(wrapper.getROICount("Rect",1),0)
-    
+
+    def test8990(self):
+        # RoiOptions.userId
+
+        group = self.new_group(perms="rwrw--")
+        class Fixture(object):
+            def __init__(this):
+                this.client, this.user = self.new_client_and_user(group=group)
+                this.userid = this.user.id.val
+                this.up = this.client.sf.getUpdateService()
+                this.roi = this.client.sf.getRoiService()
+            def save(this, obj):
+                return this.up.saveAndReturnObject(obj)
+
+        fix1 = Fixture()
+        fix2 = Fixture()
+
+        img = self.new_image()
+        img = fix1.save(img)
+        img.unload()
+        iid = img.id.val
+
+        r1 = omero.model.RectI()
+        roi1 = omero.model.RoiI()
+        roi1.setImage(img)
+        roi1.addShape(r1)
+        roi1 = fix1.save(roi1)
+
+        r2 = omero.model.RectI()
+        roi2 = omero.model.RoiI()
+        roi2.setImage(img)
+        roi2.addShape(r2)
+        roi2 = fix2.save(roi2)
+
+        roiOptions = omero.api.RoiOptions()
+        for conn in (fix1, fix2):
+
+            roiOptions.userId = omero.rtypes.rlong(fix1.userid)
+            r = conn.roi.findByImage(iid, roiOptions)
+            self.assertEquals(1, len(r.rois))
+
+            roiOptions.userId = omero.rtypes.rlong(fix2.userid)
+            r = conn.roi.findByImage(iid, roiOptions)
+            self.assertEquals(1, len(r.rois))
+
+            r = conn.roi.findByImage(iid, None)
+            self.assertEquals(2, len(r.rois))
+
+
 if __name__ == '__main__':
     unittest.main()
