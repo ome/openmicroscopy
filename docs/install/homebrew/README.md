@@ -140,7 +140,7 @@ ENV
 Edit your .profile as appropriate. NB. The following are indicators of required entries:
 
     export BREW_DIR=$(brew --prefix)
-    export OMERO_HOME=$(brew --prefix omero43)
+    export OMERO_HOME=$(brew --prefix omero)
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
     export ICE_HOME=$(brew --prefix zeroc-ice33)
     export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/python
