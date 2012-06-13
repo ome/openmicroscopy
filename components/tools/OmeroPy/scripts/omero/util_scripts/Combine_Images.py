@@ -423,8 +423,8 @@ def combineImages(conn, parameterMap):
         if image:
             for link in image.iterateDatasetLinks():
                 ds = link.parent
-                dataset = queryService.get("Dataset", ds.id.val)
-                print "Dataset", dataset.name.val
+                dataset = conn.getObject("Dataset", ds.id.val)
+                print "Dataset", dataset.getName()
                 break    # only use 1st dataset
         else:
             print "No Dataset found for Image ID: %s  Combined Image will not be put into dataset." % imageIds[0]
