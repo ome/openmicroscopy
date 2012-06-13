@@ -31,6 +31,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
@@ -317,7 +318,18 @@ public class BasicACLVoter implements ACLVoter {
      * @DEV.TODO this is less problematic than linking.
      */
     private boolean objectBelongsToUser(IObject iObject, Long uid) {
-        Long oid = iObject.getDetails().getOwner().getId();
+        final Experimenter e = iObject.getDetails().getOwner();
+        if (e == null) {
+            if (iObject.getId() == null) {
+                // ticket:8818 if this object does not yet have an ID
+                // then we'll assume it's a newly created instance
+                // which will eventually be saved with owner==uid
+                return true;
+            }
+
+            throw new NullPointerException("Null owner for " + iObject);
+        }
+        Long oid = e.getId();
         return uid.equals(oid); // Only allow own objects!
     }
 

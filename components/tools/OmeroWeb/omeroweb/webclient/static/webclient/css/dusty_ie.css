@@ -315,6 +315,9 @@
 */
 
 	
+	.standard_form .required label { 
+        color: #E3646F;
+    }
 		.standard_form label {
 			color: #737F8C;
 			text-shadow: 0 1px 0 white;

@@ -315,10 +315,15 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			double min, double max)
 	{
 		Pixels pixels = retrievePixDescription(pixelsId);
-		StatsInfo stats = pixels.getChannel(channelIndex).getStatsInfo();
+		Channel channel = pixels.getChannel(channelIndex);
+		StatsInfo stats = channel.getStatsInfo();
+                if (stats == null) {
+                    stats = new StatsInfo();
+                    channel.setStatsInfo(stats);
+                }
 		stats.setGlobalMax(max);
 		stats.setGlobalMin(min);
-		iUpdate.saveAndReturnObject(stats);
+		iUpdate.saveAndReturnObject(channel);
 	}
 
 	@RolesAllowed("user")

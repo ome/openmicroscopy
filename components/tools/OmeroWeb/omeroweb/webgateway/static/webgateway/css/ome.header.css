@@ -601,19 +601,6 @@
 			background: url(../img/icon_basket.png) 8px center no-repeat;
 			display:inline-block;
 		}
-		
-	
-		#cartTotal {
-			color:white;
-			padding:0 7px;
-			line-height:1.4em;
-			margin-left:20px;
-			margin-top:5px;
-			font-weight:bold;
-			display:inline-block;
-			text-shadow:0 1px 0 hsl(210,40%,20%);
-		}
-	
 
 	/* Basket Panel */
 	
@@ -771,7 +758,7 @@
 				line-height:1.3em;
 			}
 		
-			#jobstatus {
+			#jobstatus, #cartTotal {
 				background-color: hsl( 0, 60%, 50% );
 				border: 1px solid hsl( 0, 80%, 30% );
 				text-shadow: 0 1px 0 hsl( 0, 80%, 30% );

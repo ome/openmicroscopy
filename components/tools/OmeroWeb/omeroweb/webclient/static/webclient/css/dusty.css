@@ -483,23 +483,23 @@ button::-moz-focus-inner {
 		overflow:visible;
 	}
 	
-	
+	    .standard_form .required label { 
+	        color: #E3646F;
+	    }
+	    
 		.standard_form label {
 			width:25%;
 			display:inline-block;
 			color:hsl(210,10%,50%);
 			font-size:1.2em;
 			text-shadow: 0 1px 0 white;
+			vertical-align: top;
 		}
 		
 		.standard_form input, .standard_form select, .standard_form textarea {
 			display:inline-block;
 			margin-bottom:5px;
 		}
-		
-		
-
-
 
 	.standard_form input[type=text], input[type=password], textarea {
 		width:70%;
@@ -789,7 +789,7 @@ button::-moz-focus-inner {
 
 	.ui-dialog p, .ui-dialog span {
 		display:inline-block;
-		font-size:1.2em;
+		/*font-size:1.2em;*/
 	}
 
 	
