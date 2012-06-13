@@ -71,6 +71,8 @@ installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
 installed zeroc-ice33 || bin/brew install zeroc-ice33
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
+# Requirements for scipy ============================================
+installed gfortran || bin/brew install gfortran
 
 ###################################################################
 # PIP INSTALLS
@@ -88,6 +90,7 @@ installed(){
 # Python requirements =============================================
 installed numpy  || bin/pip install numpy
 installed PIL || bin/pip install PIL
+installed scipy || bin/pip install scipy
 #
 # Various issues with matplotlib. See the following if you have problems:
 # -----------------------------------------------------------------------
