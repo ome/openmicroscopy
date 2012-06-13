@@ -582,8 +582,8 @@ class OmeroImageServiceImpl
 				index++;
 			}
 			
-			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixels, m, compressionLevel, defs);
+			proxy = PixelsServicesFactory.createRenderingControl(context, ctx,
+					re, pixels, m, compressionLevel, defs);
 		}
 		return proxy;
 	}
@@ -597,7 +597,7 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			return PixelsServicesFactory.render(context, 
+			return PixelsServicesFactory.render(context, ctx,
 						Long.valueOf(pixelsID), pDef, asTexture, largeImage);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);

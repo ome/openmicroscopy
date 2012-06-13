@@ -709,11 +709,11 @@ public class DataServicesFactory
 	 * 
 	 * @param context 	The context to make sure that agents do not
 	 * 					access the method.
+	 * @param ctx The security context.
 	 */
-	public static void isSessionAlive(Registry context)
+	public static void isSessionAlive(Registry context, SecurityContext ctx)
 	{
-		//To review
-		//if (context == registry) omeroGateway.isSessionAlive();
+		if (context == registry) omeroGateway.isSessionAlive(ctx);
 	}
 	
 }
