@@ -2327,8 +2327,6 @@ public class ImportDialog
 	{
 		if (d instanceof ProjectData || d instanceof ScreenData) {
 			createContainer(d);
-		//} else if (d instanceof ScreenData) {
-		//	createScreen((ScreenData) d);
 		} else if (d instanceof DatasetData) {
 			createDataset((DatasetData) d);
 		}
