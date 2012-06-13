@@ -52,41 +52,6 @@ def notification(msg, prio):
     except OSError:
         pass # No growlnotify found, may want to use another tool
 
-def build_hudson():
-    """
-    Top-level build called by hudson for testing all components,
-    generating documentation, etc.
-    """
-    #
-    # Cleaning to prevent strange hudson errors about
-    # stale tests and general weirdness.
-    #
-    java_omero("clean")
-
-    # Build & Test
-    java_omero("build-all")
-    java_omero("test-integration")
-    java_omero("test-dist")
-
-    #
-    # Documentation and build reports
-    #
-    java_omero("release-docs")
-    java_omero("release-findbugs")
-    ## java_omero("release-jdepend") ## Doesn't yet work. Running from hudson
-
-    #
-    # Prepare a distribution
-    #
-    "rm -f OMERO.server-build*.zip"
-    java_omero("release-zip")
-
-    # Install into the hudson repository
-    ## Disabling until 4.1 with more work
-    ## on integration
-    ##java_omero("release-hudson")
-
-
 def java_omero(args):
     command = [ find_java() ]
     p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
@@ -146,17 +111,13 @@ def choose_omero_version():
 
 if __name__ == "__main__":
     #
-    # If this is a hudson build, then call the special build_hudson
-    # method. Otherwise, use java_omero which will specially configure
-    # the build system.
+    # use java_omero which will specially configure the build system.
     #
     args = list(sys.argv)
     args.pop(0)
 
     try:
-        if len(args) > 0 and args[0] == "-hudson":
-            build_hudson()
-        elif len(args) > 0 and args[0] == "-perf":
+        if len(args) > 0 and args[0] == "-perf":
             args.pop(0)
             A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split() + args
             java_omero(A)
