@@ -286,7 +286,7 @@ class login_required(object):
             if url is None or len(url) == 0:
                 url = request.get_full_path()
 
-            ctx.doConnectionCleanup = kwargs.get('doConnectionCleanup', ctx.doConnectionCleanup)
+            doConnectionCleanup = False
 
             conn = kwargs.get('conn', None)
             error = None
@@ -295,6 +295,7 @@ class login_required(object):
             # provided to us via 'conn'. This is useful when in testing
             # mode or when stacking view functions/methods.
             if conn is None:
+                doConnectionCleanup = ctx.doConnectionCleanup
                 logger.debug('Connection not provided, attempting to get one.')
                 try:
                     conn = ctx.get_connection(server_id, request)
@@ -324,8 +325,8 @@ class login_required(object):
             retval = f(request, *args, **kwargs)
             try:
                 logger.debug('Doing connection cleanup? %s' % \
-                        ctx.doConnectionCleanup)
-                if ctx.doConnectionCleanup:
+                        doConnectionCleanup)
+                if doConnectionCleanup:
                     if conn is not None and conn.c is not None:
                         conn.c.closeSession()
             except:
