@@ -577,9 +577,8 @@ class ImporterComponent
 				}
 			}
 			//restarts The import.
-			element = view.getElementToStartImportFor();
-			if (element != null) 
-				importData(element);
+			//element = view.getElementToStartImportFor();
+			//if (element != null) importData(element);
 		}
 	}
 
