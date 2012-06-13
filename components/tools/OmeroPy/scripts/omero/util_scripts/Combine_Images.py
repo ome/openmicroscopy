@@ -416,7 +416,7 @@ def combineImages(conn, parameterMap):
     dataType = parameterMap["Data_Type"]
     if dataType == "Image":
         dataset = None
-        imagesIds = [image.id for image in objects]
+        imageIds = [image.id for image in objects]
         # get dataset from first image
         query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent where i.id in (%s)" % imageIds[0]
         image = queryService.findByQuery(query_string, None)
