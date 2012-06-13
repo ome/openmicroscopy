@@ -61,7 +61,7 @@ class login_required(object):
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
                  isGroupOwner=False, doConnectionCleanup=True, omero_group='-1',
-                 allowPublic=True):
+                 allowPublic=None):
         """
         Initialises the decorator.
         """
@@ -149,7 +149,11 @@ class login_required(object):
         Verifies that the URL for the resource being requested falls within
         the scope of the OMERO.webpublic URL filter.
         """
-        return self.allowPublic and settings.PUBLIC_URL_FILTER.match(request.path) is not None
+        if settings.PUBLIC_ENABLED:
+            if self.allowPublic is None:
+                return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+            return self.allowPublic
+        return False
 
     def get_connection(self, server_id, request):
         """
@@ -159,8 +163,7 @@ class login_required(object):
         connection = self.get_authenticated_connection(server_id, request)
         is_valid_public_url = self.is_valid_public_url(server_id, request)
         logger.debug('Is valid public URL? %s' % is_valid_public_url)
-        if connection is None and settings.PUBLIC_ENABLED \
-           and is_valid_public_url:
+        if connection is None and is_valid_public_url:
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration and use those credentials to
             # create a connection.
