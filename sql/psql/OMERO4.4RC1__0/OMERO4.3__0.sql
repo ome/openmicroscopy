@@ -108,10 +108,40 @@ update experimentergroup
  where (permissions & 32) = 32;
 
 --
+-- Changes of now() function usage (#5862)
+--
+
+CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+        SELECT INTO eid _current_event();
+        IF eid = 0 OR eid IS NULL THEN
+            SELECT INTO eid ome_nextval(''seq_event'');
+            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                SELECT eid, -52, ''TRIGGERED'', clock_timestamp(), 0, 0, 0, 0;
+        END IF;
+        RETURN eid;
+    END;'
+LANGUAGE plpgsql;
+
+create or replace function uuid() returns character(36)
+as '
+    select substring(x.my_rand from 1 for 8)||''-''||
+           substring(x.my_rand from 9 for 4)||''-4''||
+           substring(x.my_rand from 13 for 3)||''-''||x.clock_1||
+           substring(x.my_rand from 16 for 3)||''-''||
+           substring(x.my_rand from 19 for 12)
+from
+(select md5(clock_timestamp()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
+language sql;
+
+--
 -- FINISHED
 --
 
-UPDATE dbpatch set message = 'Database updated.', finished = now()
+UPDATE dbpatch set message = 'Database updated.', finished = clock_timestamp()
  WHERE currentVersion  = 'OMERO4.4RC1'    and
           currentPatch    = 0          and
           previousVersion = 'OMERO4.3' and

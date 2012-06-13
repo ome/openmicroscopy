@@ -232,7 +232,7 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
         IF eid = 0 OR eid IS NULL THEN
             SELECT INTO eid ome_nextval(''seq_event'');
             INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
-                SELECT eid, -52, ''TRIGGERED'', now(), 0, 0, 0, 0;
+                SELECT eid, -52, ''TRIGGERED'', clock_timestmap(), 0, 0, 0, 0;
         END IF;
         RETURN eid;
     END;'
@@ -340,14 +340,14 @@ insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (ome_nextval('seq_experimenter'),0,0,'guest','Guest','Account');
 insert into node
         (id,permissions,uuid,conn,up,down)
-        select 0,-52,'000000000000000000000000000000000000','unknown',now(),now();
+        select 0,-52,'000000000000000000000000000000000000','unkclock_timestampn',clock_timestamp(),clock_timestamp();
 insert into session
         (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select 0,-52,0,0,now(),now(),'BOOTSTRAP',0000, 0,0;
+        select 0,-52,0,0,clock_timestamp(),clock_timestamp(),'BOOTSTRAP',0000, 0,0;
 insert into session
         (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-        select ome_nextval('seq_session'),-52, 0,0,now(),now(),'PREVIOUSITEMS','1111',0,0;
-insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
+        select ome_nextval('seq_session'),-52, 0,0,clock_timestamp(),clock_timestamp(),'PREVIOUSITEMS','1111',0,0;
+insert into event (id,permissions,time,status,experimenter,session) values (0,0,clock_timestamp(),'BOOTSTRAP',0,0);
 
 --
 -- Default group permissions (ticket:1783)
@@ -423,7 +423,7 @@ as '
            substring(x.my_rand from 16 for 3)||''-''||
            substring(x.my_rand from 19 for 12)
 from
-(select md5(now()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
+(select md5(clock_timestamp()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
 language sql;
 
 --
@@ -467,7 +467,7 @@ insert into password values (1,'');
 -- and guest can login with any value
 
 -- Here we have finished initializing this database.
-update dbpatch set message = 'Database ready.', finished = now()
+update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = '@DBVERSION@' and
         currentPatch = @DBPATCH@ and
         previousVersion = '@DBVERSION@' and
