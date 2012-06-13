@@ -595,6 +595,7 @@ class Connector
 	{
 		services.clear();
 		reServices.clear();
+		adminService = null;
 		thumbnailService = null;
 		fileStore = null;
 		metadataService = null;
