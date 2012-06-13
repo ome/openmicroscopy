@@ -69,6 +69,7 @@ installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
 installed zeroc-ice33 || bin/brew install zeroc-ice33
+installed mplayer || bin/brew install mplayer
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
 # Requirements for scipy ============================================
