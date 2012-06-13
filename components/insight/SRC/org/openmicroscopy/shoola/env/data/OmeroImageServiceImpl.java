@@ -179,7 +179,8 @@ class OmeroImageServiceImpl
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
-			if (ImportableObject.isHCSFile(file) || hcs) {
+			if (hcs) {
+			//if (ImportableObject.isHCSFile(file) || hcs) {
 				archived = false;
 				if (!file.getName().endsWith(
 						ImportableObject.DAT_EXTENSION)) {
@@ -1391,10 +1392,10 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
-			
+			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-					importable.isArchived(), ioContainer, list, userID, close,
-					hcs);
+				importable.isArchived(), ioContainer, list, userID, close,
+				false);
 		}
 		return Boolean.valueOf(true);
 	}
