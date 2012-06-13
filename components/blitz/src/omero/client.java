@@ -396,6 +396,9 @@ public class client {
      * configuration property is retrieved from the server and used as the value
      * of "Ice.Default.Router" for the new client. Any exception thrown during
      * creation is passed on to the caller.
+     *
+     * Note: detachOnDestroy has NOT been called on the session in the returned client.
+     * Clients are responsible for doing this immediately if such desired.
      */
     public omero.client createClient(boolean secure) throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {
