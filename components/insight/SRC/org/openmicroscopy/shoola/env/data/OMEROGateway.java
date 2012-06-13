@@ -2373,6 +2373,7 @@ class OMEROGateway
 		if (!in) {
 			throw new DSOutOfServiceException(s);  
 		}
+		/*
 		try {
 			shutDownServices(true);
 			clear();
@@ -2383,6 +2384,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, s);
 		}
+		*/
 	}
 	
 	

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -618,6 +617,7 @@ class Connector
 	void close()
 		throws Throwable
 	{
+		shutDownServices(true);
 		secureClient.closeSession();
 	}
 	
