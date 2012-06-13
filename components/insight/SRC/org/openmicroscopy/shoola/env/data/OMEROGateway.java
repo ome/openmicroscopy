@@ -2481,6 +2481,7 @@ class OMEROGateway
 	boolean reconnect(String userName, String password)
 	{
 		//sList
+		connected = false;
 		clear();
 		Iterator<Connector> i;
 		try {
@@ -2489,70 +2490,18 @@ class OMEROGateway
 				i.next().close();
 			}
 		} catch (Throwable t) {
-			Throwable cause = t.getCause();
 			connected = false;
-			//joining the session did not work so trying to create a session
-			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException || 
-					cause instanceof ClientError ||
-					t instanceof ClientError) {
-				try {
-					connected = true;
-					i = connectors.iterator();
-					while (i.hasNext()) {
-						i.next().reconnect(userName, password);
-					}
-				} catch (Throwable e) {
-					connected = false;
-				}
-			}
 		}
-		
-		/*
+		if (connected) return connected;
 		try {
-			//first to rejoin the session.
+			i = connectors.iterator();
+			while (i.hasNext()) {
+				i.next().reconnect(userName, password);
+			}
 			connected = true;
-			try {
-				secureClient.closeSession();
-			} catch (Exception e) {
-				
-			}
-			entryEncrypted = secureClient.joinSession(
-					secureClient.getSessionId());
-			if (b) {
-				unsecureClient = secureClient.createClient(false);
-				entryUnencrypted = unsecureClient.getSession();
-			}
-		} catch (Throwable t) {
-			Throwable cause = t.getCause();
+		} catch (Throwable e) {
 			connected = false;
-			//joining the session did not work so trying to create a session
-			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException || 
-					cause instanceof ClientError ||
-					t instanceof ClientError) {
-				try {
-					connected = true;
-					entryEncrypted =  secureClient.createSession(
-							userName, password);
-					if (b) {
-						unsecureClient = secureClient.createClient(false);
-						entryUnencrypted = unsecureClient.getSession();
-					}
-				} catch (Throwable e) {
-					connected = false;
-				}
-			}
 		}
-		try {
-			if (connected) {
-				if (unsecureClient != null)
-					unsecureClient = secureClient.createClient(false);
-			}
-		} catch (Exception e) {
-			return false;
-		}
-*/
 		return connected;
 	}
 	
