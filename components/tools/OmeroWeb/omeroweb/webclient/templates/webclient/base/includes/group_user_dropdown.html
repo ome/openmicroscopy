@@ -79,11 +79,14 @@
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
                     <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}" class="switch_to_group">
                         <img
-                        {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                        {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
                         {% else %}
-                            {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                            {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
                             {% else %}
-                                src="{% static "webclient/image/personal16.png" %}"
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                                {% else %}
+                                    src="{% static "webclient/image/personal16.png" %}"
+                                {% endif %}
                             {% endif %}
                         {% endif %} />
                         {{ grp.getName }}

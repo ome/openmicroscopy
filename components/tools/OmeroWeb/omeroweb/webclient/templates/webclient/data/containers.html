@@ -1039,11 +1039,14 @@
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
                             <img
-                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/group_orange16.png" %}"
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
                             {% else %}
-                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                                {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
                                 {% else %}
-                                    src="{% static "webclient/image/personal16.png" %}"
+                                    {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                                    {% else %}
+                                        src="{% static "webclient/image/personal16.png" %}"
+                                    {% endif %}
                                 {% endif %}
                             {% endif %} />
                             {{ grp.name }}
