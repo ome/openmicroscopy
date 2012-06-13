@@ -1192,7 +1192,7 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
-				if (ic != null) //already check if hcs.
+				if (ic == null) //already check if hcs.
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 				candidates = ic.getPaths();
 				int size = candidates.size();
