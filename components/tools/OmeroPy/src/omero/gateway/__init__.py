@@ -1554,16 +1554,17 @@ class _BlitzGateway (object):
         """
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
+        s.detachOnDestroy()
         self._sessionUuid = self._getSessionId()
         ss = self.c.sf.getSessionService()
         self._session = ss.getSession(self._sessionUuid)
         self._lastGroupId = None
-        s.detachOnDestroy()
         self._was_join = False
         if self.group is not None:
             # try something that fails if the user don't have permissions on the group
             self.c.sf.getAdminService().getEventContext()
         self.setSecure(self.secure)
+        self.c.sf.detachOnDestroy()
     
     def _closeSession (self):
         """
