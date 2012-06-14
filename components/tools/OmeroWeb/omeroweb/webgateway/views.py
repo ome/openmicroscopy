@@ -947,7 +947,7 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         opts = {}
         opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
         opts['fps'] = int(request.REQUEST.get('fps', 4))
-        opts['minsize'] = (512,512, '#222222')
+        opts['minsize'] = (512,512, 'Black')
         ext = '.avi'
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
                                   request.REQUEST.get('format', 'quicktime'))
