@@ -57,6 +57,8 @@
 
     <h1>{% trans "Create new share" %}:</h1>
     
+    <p>{% trans "Fields marked in red are mandatory." %}</p>
+    
     <div>
             {% for field in form %}
                 {% ifequal field.label_tag form.image.label_tag %}

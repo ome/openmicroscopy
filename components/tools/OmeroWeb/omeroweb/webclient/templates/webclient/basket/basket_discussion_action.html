@@ -45,6 +45,8 @@
 
     <h1>{% trans "Create new discussion" %}:</h1>
     
+    <p>{% trans "Fields marked in red are mandatory." %}</p>
+    
     <div>
             {% for field in form %}                
                 {% ifequal field.label_tag form.enable.label_tag %}

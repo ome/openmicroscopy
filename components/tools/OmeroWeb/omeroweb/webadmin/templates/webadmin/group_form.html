@@ -89,7 +89,7 @@
 <form class="standard_form settings_form" action="{% url wamanagegroupid "create" %}" method="POST">
 {% endif %}
 
-<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+<p>{% trans "Fields marked in red are mandatory." %}</p>
 
 
     {% for field in form %}

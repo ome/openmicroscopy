@@ -332,8 +332,11 @@
     <div id="personal_settings" class="settings_content">
 
 
-       <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
+       <form class="standard_form settings_form" action="{% url wamyaccount "save" %}" method="POST">
 
+           <p>{% trans "Fields marked in red are mandatory." %}</p>
+           <br/>
+           
            <div id="avatar">
                <img src="{% url wamyphoto %}" class="imgzoom"/>                 
                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
