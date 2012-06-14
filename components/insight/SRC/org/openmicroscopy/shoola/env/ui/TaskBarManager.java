@@ -484,7 +484,7 @@ public class TaskBarManager
     				LookupNames.OMERODS);
         
     	String port = ""+omeroInfo.getPortSSL();
-    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+    	String f = container.getConfigFileRelative(Container.CONFIG_DIR);
 
 		String n = (String) container.getRegistry().lookup(
 				LookupNames.SPLASH_SCREEN_LOGIN);
@@ -941,7 +941,7 @@ public class TaskBarManager
 		    				LookupNames.OMERODS);
 		        
 		    	String port = ""+omeroInfo.getPortSSL();
-		    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
 						LookupNames.SPLASH_SCREEN_LOGIN);
