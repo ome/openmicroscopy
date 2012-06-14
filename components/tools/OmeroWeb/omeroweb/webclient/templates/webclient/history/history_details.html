@@ -117,7 +117,7 @@
             <tbody>
             {% for i in controller.day_items %}
             {% for c in i.project %}
-                <tr id="project-{{ c.id }}">
+                <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
@@ -127,7 +127,7 @@
                 </tr>
             {% endfor %}
             {% for c in i.screen %}
-                <tr id="screen-{{ c.id }}">
+                <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                         <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
@@ -137,7 +137,7 @@
                 </tr>
             {% endfor %}
             {% for c in i.dataset %}
-                <tr id="dataset-{{ c.id }}">
+                <tr id="dataset-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
@@ -147,7 +147,7 @@
                 </tr>
             {% endfor %}
             {% for c in i.plate %}
-                <tr id="plate-{{ c.id }}">
+                <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                         <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
@@ -157,7 +157,7 @@
                 </tr>
             {% endfor %}
             {% for c in i.image %}
-                <tr id="image-{{ c.id }}" >
+                <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
@@ -173,18 +173,6 @@
         {% else %}
             <p class="center_message message_nodata">{% trans "No data." %}</p>
         {% endif %}
-
-        {% if manager.c_size %}
-		<div>
-            <p class="legend">
-				{% trans "Legend" %}: 
-				<img src="{% static "webclient/image/folder16.png" %}" title="Project" alt="project" /> - {% trans "Project" %}; 
-				<img src="{% static "webclient/image/folder_image16.png" %}" title="Dataset" alt="dataset" /> - {% trans "Dataset" %};
-				<img src="{% static "webclient/image/folder_screen16.png" %}" title="Screen" alt="screen" /> - {% trans "Screen" %};
-				<img src="{% url webstatic "image/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};
-			</p>
-        </div>
-		{% endif %}
 
         {% include "webclient/history/history_paging.html" %}
         

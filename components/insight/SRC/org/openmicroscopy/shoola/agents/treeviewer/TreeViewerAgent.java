@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -118,9 +119,9 @@ public class TreeViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -144,7 +145,7 @@ public class TreeViewerAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -177,7 +178,7 @@ public class TreeViewerAgent
 	public static Set getGroupsLeaderOf()
 	{
 		Set values = new HashSet();
-		Set groups = getAvailableUserGroups();
+		Collection groups = getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		Set leaders;
@@ -257,7 +258,7 @@ public class TreeViewerAgent
      * @return See above.
      */
     public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
-    
+	
     /**
      * Handles the {@link CopyRndSettings} event.
      * 

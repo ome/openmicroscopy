@@ -107,7 +107,8 @@ OMERO Groups
                 <th>{% trans "ID" %}</th>
                 <th>{% trans "Group Name" %}</th> 
 				<th>{% trans "Permission" %}</th>
-                <th>{% trans "Description" %}</th> 
+                <th>{% trans "Description" %}</th>
+                <th></th>
             </tr> 
         </thead> 
         <tbody>
@@ -119,25 +120,20 @@ OMERO Groups
                 
                 <td>
 					<strong>{{ group.name }}</strong>
-                  
-				    {% if group.isEditable %}
-                    <a href="{% url wamanagegroupid "members" group.id %}" title="Edit Group" class="btn silver btn_edit">
-                    	<span></span>
-                    </a>
-					{% endif %}
-					
 				</td>
                 <td>
-					{{ group.permissions }}({{ group.details.permissions }})
+					{{ group.getPermissions }} ({{ group.details.permissions }})
+				</td>
+                <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
+				<td>
                     {% if group.isEditable %}
                         <a href="{% url wamanagegroupid "edit" group.id %}" class="btn silver btn_edit">
                         	<span></span>
                         </a>
+                    {% else %}
+                        
 					{% endif %}
-					
-				</td>
-                <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
-				
+                </td>
 				
             </tr>
         {% endfor %}

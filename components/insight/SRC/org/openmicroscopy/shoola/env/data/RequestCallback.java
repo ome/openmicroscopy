@@ -32,8 +32,15 @@ package org.openmicroscopy.shoola.env.data;
 import omero.ServerError;
 import omero.client;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
+import omero.cmd.OK;
+import omero.cmd.Response;
+import omero.cmd.Status;
+
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+
+import Ice.Current;
 
 /** 
  * A handle to a perform operation e.g. delete, move data between groups.
@@ -50,13 +57,27 @@ public class RequestCallback
 	private DSCallAdapter adapter;
 	
 	/** List handling the reports. */
-	//private List<DeleteReport> reports;
+	private Response response;
 	
 	/** Flag indicating that the operation has finished. */
 	private boolean finished;
 	
 	/** Flag indicating that the results have been submitted. */
 	private boolean submitted;
+	
+	/** 
+	 * Handles the response of the data transfer.
+	 * 
+	 * @return The transformation of the response.
+	 */
+	private Object handleResponse()
+	{
+		if (response instanceof OK) {
+			return Boolean.valueOf(true);
+		} else if (response instanceof ERR)
+			return new ProcessReport((ERR) response);
+		return Boolean.valueOf(true);
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -70,7 +91,7 @@ public class RequestCallback
 		throws ServerError
 	{
 		super(client, process);
-		//reports = null;
+		response = null;
 	}
 	
 	/**
@@ -83,7 +104,7 @@ public class RequestCallback
 		this.adapter = adapter;
 		if (finished && adapter != null) {
 			if (!submitted) {
-				//adapter.handleResult(reports);
+				adapter.handleResult(handleResponse());
 				try {
 					close(false); // TODO: try to close handle here?
 				} catch (Exception e) {}
@@ -93,37 +114,38 @@ public class RequestCallback
 	
 	/**
 	 * Overridden to handle the end of the process.
-	 * @see CmdCallbackI#finished(int)
+	 * @see CmdCallbackI#onFinished(Response, Status, Current)
 	 */
-	public void finished(int value)
+	public void onFinished(Response rsp, Status status, Current c)
 	{
-		/*
-		super.finished(value);
+		super.onFinished(rsp, status, c);
 		finished = true;
-		try {
-			DeleteReport[] reports = handle.report();
-			this.reports = new ArrayList<DeleteReport>();
-			if (handle.errors() != 0) {
-				for (int i = 0; i < reports.length; i++) 
-					this.reports.add(reports[i]);
-			}
+		response = rsp;
+		if (isFailure()) {
 			if (adapter != null) {
 				submitted = true;
-				adapter.handleResult(this.reports);
+				if (rsp == null)
+					adapter.handleResult(Boolean.valueOf(false));
+				else adapter.handleResult(handleResponse());
+				return;
+			}
+		}
+		try {
+			if (adapter != null) {
+				submitted = true;
+				adapter.handleResult(handleResponse());
 			}
 		} catch (Exception e) {
 			finished = false;
-		    //if (adapter != null) adapter.handleResult(null);
 		}
 		
 		if (finished && submitted) {
 			try {
-				close();
+				close(true);
 			} catch (Exception e) {
 				//ignore the exception.
 			}
 		}
-		*/
 	}
 
 }

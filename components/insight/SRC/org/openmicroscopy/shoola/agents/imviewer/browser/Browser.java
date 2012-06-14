@@ -197,11 +197,13 @@ public interface Browser
     public double getUnitBarSize();
     
     /**
-     * Returns the size in microns.
+     * Returns the unit used to determine the size of the unit bar.
+     * The unit depends on the size stored. The unit of reference in the
+     * OME model is in microns, but this is a transformed unit.
      * 
      * @return See above.
      */
-    public double getUnitInMicrons();
+    public double getUnitInRefUnits();
     
     /**
      * Returns the color of the unit bar.

@@ -219,6 +219,12 @@ namespace omero {
          */
          std::string getSessionId() const;
 
+        /**
+         * Returns the category which should be used for all callbacks
+         * passed to the server.
+         */
+        std::string getCategory() const;
+
 	/*
 	 * Returns the Ice::ImplicitContext which defiens what properties
 	 * will be sent on every method invocation.

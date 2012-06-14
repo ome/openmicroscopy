@@ -6,6 +6,10 @@ set -u
 OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
+if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
+    CURL_OPTS=${CURL_OPTS:-"--insecure"}
+fi
+
 
 ###################################################################
 # BREW & PIP BASE SYSTEMS
@@ -38,7 +42,7 @@ then
     echo "Using existing pip"
 else
     rm -rf virtualenv.py
-    curl -O "$VENV_URL"
+    curl "$CURL_OPTS" -O "$VENV_URL"
     python virtualenv.py --no-site-packages .
 fi
 
@@ -65,8 +69,11 @@ installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
 installed zeroc-ice33 || bin/brew install zeroc-ice33
+installed mplayer || bin/brew install mplayer
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
+# Requirements for scipy ============================================
+installed gfortran || bin/brew install gfortran
 
 ###################################################################
 # PIP INSTALLS
@@ -84,6 +91,7 @@ installed(){
 # Python requirements =============================================
 installed numpy  || bin/pip install numpy
 installed PIL || bin/pip install PIL
+installed scipy || bin/pip install scipy
 #
 # Various issues with matplotlib. See the following if you have problems:
 # -----------------------------------------------------------------------
@@ -101,5 +109,5 @@ installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
 
 echo "Done."
-echo "You can now install OMERO with: 'bin/brew install omero43 ...'"
+echo "You can now install OMERO with: 'bin/brew install omero ...'"
 

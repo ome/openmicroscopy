@@ -30,8 +30,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -65,7 +63,6 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -410,7 +407,7 @@ class IntensityView
 		JPanel channelPanel = 
 			UIUtilities.buildComponentPanel(channelSelection);
 		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
-		panel.add(channelPanel);
+		//panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
 			UIUtilities.buildComponentPanel(showIntensityTable);
@@ -696,6 +693,13 @@ class IntensityView
 	 */
 	private void interpretResults(Coord3D coord, int channel)
 	{
+		channelMin = minStats.get(coord);
+		channelMax = maxStats.get(coord);
+		channelMean = meanStats.get(coord);
+		channelStdDev = stdDevStats.get(coord);
+		channelSum = sumStats.get(coord);
+		shape = shapeMap.get(coord);
+		
 		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
 		if (pixels == null) return;
 		Iterator<Point> pixelIterator = pixels.keySet().iterator();
@@ -718,29 +722,23 @@ class IntensityView
 		sizeX = (int) (maxX-minX)+1;
 		sizeY = (int) ((maxY-minY)+1);
 		Double[][] data = new Double[sizeX][sizeY];
-		Iterator i = pixels.entrySet().iterator();
+		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
 		int x, y;
 		Double value;
-		Entry entry;
+		Entry<Point, Double> entry;
 		while (i.hasNext())
 		{
-			entry = (Entry) i.next();
-			point = (Point) entry.getKey();
+			entry = i.next();
+			point = entry.getKey();
 			x = (int) (point.getX()-minX);
 			y = (int) (point.getY()-minY);
 			if (x >= sizeX || y >= sizeY) continue;
 			
-			if (pixels.containsKey(point)) value = (Double) entry.getValue();
+			if (pixels.containsKey(point)) value = entry.getValue();
 			else value = new Double(0);
 			data[x][y] = value;
 		}
-		channelMin = minStats.get(coord);
-		channelMax = maxStats.get(coord);
-		channelMean = meanStats.get(coord);
-		channelStdDev = stdDevStats.get(coord);
-		channelSum = sumStats.get(coord);
 		tableModel = new IntensityModel(data);
-		shape = shapeMap.get(coord);
 		intensityDialog.setModel(tableModel);
 	}
 		
@@ -804,16 +802,9 @@ class IntensityView
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
 		FileChooser chooser = view.createSaveToExcelChooser();
 		chooser.addComponentToControls(channelsSelectionForm);
-		int results = chooser.showDialog();
-		if (results != JFileChooser.APPROVE_OPTION) return;
-		File  file = chooser.getFormattedSelectedFile();
-		//TODO: Modify that code when we have various writer.
 		
-		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
-		{
-			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
-			file = new File(fileName);
-		}
+		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+		File  file = chooser.getFormattedSelectedFile();
 		
 		List<Integer> channels = channelsSelectionForm.getUserSelection();
 		if (channels == null || channels.size() == 0) {
@@ -959,22 +950,25 @@ class IntensityView
 	private void outputSummaryRow(ExcelWriter writer, int rowIndex, 
 			Integer channel, int z, int t) 
 	{
-		writer.writeElement(rowIndex, 0, channelName.get(channel));
+		String name = channelName.get(channel);
+		writer.writeElement(rowIndex, 0, name);
 		writer.writeElement(rowIndex, 1, z+"");
 		writer.writeElement(rowIndex, 2, t+"");
 		int col;
 		String v;
 		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
-			col = getColumn(channelName.get(channel));
+			col = getColumn(name);
 			if (col == -1)
 				continue;
 			v = (String) channelSummaryTable.getValueAt(y, col);
-			if (v.contains(".") && v.contains(",")) {
-				v = v.replace(".", "");
-				v = v.replace(",", ".");
+			if (v != null) {
+				if (v.contains(".") && v.contains(",")) {
+					v = v.replace(".", "");
+					v = v.replace(",", ".");
+				}
+				writer.writeElement(rowIndex, 3+y, new Double(v));
 			}
-			writer.writeElement(rowIndex, 3+y, new Double(v));
 		}
 	}
 	

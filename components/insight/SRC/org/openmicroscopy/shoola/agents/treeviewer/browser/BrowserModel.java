@@ -632,14 +632,18 @@ class BrowserModel
 	{
 		SecurityContext ctx = getSecurityContext(expNode);
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
-		Iterator i = n.iterator();
+		Iterator<TreeImageSet> i = n.iterator();
 		Set<Integer> indexes = new HashSet<Integer>();
 		switch (getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
 				TreeImageTimeSet node;
+				TreeImageSet no;
 				while (i.hasNext()) {
-					node = (TreeImageTimeSet) i.next();
-					indexes.add(node.getType());
+					no = i.next();
+					if (no instanceof TreeImageTimeSet) {
+						node = (TreeImageTimeSet) no;
+						indexes.add(node.getType());
+					}
 				}
 				break;
 			case Browser.FILES_EXPLORER:
@@ -832,7 +836,7 @@ class BrowserModel
     	int count = 0;
     	boolean b = false;
 		for (int i = 0; i < selected.length; i++) {
-			b = parent.canEdit(selected[i].getUserObject());
+			b = parent.canDelete(selected[i].getUserObject());
 			if (b) count++;
 		}
 		if (count == selected.length) {
@@ -904,8 +908,14 @@ class BrowserModel
 		}
 		if (node.getUserObject() instanceof ExperimenterData) {
 			TreeImageDisplay parent = node.getParentDisplay();
-			GroupData group = (GroupData) parent.getUserObject();
-			return new SecurityContext(group.getId());
+			Object p = parent.getUserObject();
+			if (p instanceof GroupData) {
+				GroupData group = (GroupData) p;
+				return new SecurityContext(group.getId());
+			} else {
+				return new SecurityContext(
+				getUserDetails().getDefaultGroup().getId());
+			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
 			GroupData group = (GroupData) node.getUserObject();
@@ -914,12 +924,22 @@ class BrowserModel
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					getUserDetails().getDefaultGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
-		GroupData group = (GroupData) parent.getUserObject();
-		return new SecurityContext(group.getId());
+		if (parent == null) {
+			return new SecurityContext(
+					getUserDetails().getDefaultGroup().getId());
+		}
+		Object p = parent.getUserObject();
+		if (p instanceof GroupData) {
+			GroupData group = (GroupData) p;
+			return new SecurityContext(group.getId());
+		}
+		return new SecurityContext(
+				getUserDetails().getDefaultGroup().getId());
 	}
+	
 	
 	/**
 	 * Returns the selected group.
@@ -936,7 +956,7 @@ class BrowserModel
 	 */
 	boolean isSingleGroup()
 	{
-		Set l = TreeViewerAgent.getAvailableUserGroups();
+		Collection l = TreeViewerAgent.getAvailableUserGroups();
 		return l.size() <= 1;
 	}
 

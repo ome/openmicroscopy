@@ -482,11 +482,10 @@ def splitViewFigure(conn, scriptParams):
     log("Split-View figure created by OMERO on %s" % date.today())
     log("")
     
+    message="" # message to be returned to the client
     imageIds = []
     pixelIds = []
     imageLabels = []
-    imageNames = {}
-    omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
     def getLabels(fullName, tagsList, pdList):
@@ -502,29 +501,29 @@ def splitViewFigure(conn, scriptParams):
         def getTags(name, tagsList, pdList):
             return tagsList
         getLabels = getTags
+   
+    # Get the images
+    images, logMessage = scriptUtil.getObjects(conn, scriptParams)
+    message += logMessage
+    if not images:
+        return None, message
+
+    # Attach figure to the first image
+    omeroImage = images[0] 
             
     # process the list of images
-    omeroImage = None
     log("Image details:")
-    for iId in scriptParams["IDs"]:
-        image = conn.getObject("Image", iId)
-        if image == None:
-            print "Image not found for ID:", iId
-            continue
-        imageIds.append(iId)    # only listing valid images here
-        if omeroImage is None:
-            omeroImage = image   # remember the first image to attach figure to
+    for image in images:
+        imageIds.append(image.getId())
         pixelIds.append(image.getPrimaryPixels().getId())
-        imageNames[iId] = image.getName()
-
-    if len(imageIds) == 0:
-        print "No image IDs specified."
+    
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
-    for iId in imageIds:
-        name = imageNames[iId]
+    for image in images:
+        name = image.getName()
         imageDate = image.getAcquisitionDate()
+        iId = image.getId()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]
         
@@ -624,16 +623,20 @@ def splitViewFigure(conn, scriptParams):
     if format == PNG:
         output = output + ".png"
         fig.save(output, "PNG")
+        mimetype = "image/png"
     else:
         output = output + ".jpg"
         fig.save(output)
+        mimetype = "image/jpeg"
 
     # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description.
-    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
-    omeroImage.linkAnnotation(fa)
-
-    return fa._obj  # return the omero.model.FileAnnotationI
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/figure_scripts/Split_View_Figure"
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage,
+        output="Split view figure", mimetype=mimetype, ns=namespace, desc=figLegend)
+    message += faMessage
+    
+    return fileAnnotation, message
     
     
 def runAsScript():
@@ -698,12 +701,15 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
             if client.getInput(key):
                 scriptParams[key] = unwrap(client.getInput(key))
         print scriptParams
+        
         # call the main script, attaching resulting figure to Image. Returns the FileAnnotationI
-        fileAnnotation = splitViewFigure(conn, scriptParams)
-        # return this fileAnnotation to the client. 
-        if fileAnnotation:
-            client.setOutput("Message", rstring("Split-View Figure Created"))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        [fileAnnotation, message] = splitViewFigure(conn, scriptParams)
+        
+        # Return message and file annotation (if applicable) to the client
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+
     finally:
         client.closeSession()
 

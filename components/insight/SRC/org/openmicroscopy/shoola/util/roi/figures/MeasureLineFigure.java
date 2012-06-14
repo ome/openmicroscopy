@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineTextFigure;
 
@@ -73,6 +74,15 @@ public class MeasureLineFigure
 	extends LineTextFigure
 	implements ROIFigure
 {
+	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
 	
 	/** Is this figure read only. */
 	private boolean readOnly;
@@ -113,6 +123,12 @@ public class MeasureLineFigure
 	 */
 	private int 					status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -124,8 +140,11 @@ public class MeasureLineFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt = getPoint(i);
-			return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
-					pt.getY()*units.getMicronsPixelY());
+			double tx = UIUtilities.transformSize(
+					pt.getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					pt.getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
 		}
 		return getPoint(i);
 	}
@@ -133,7 +152,7 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this(DEFAULT_TEXT, false, true);
+		this(DEFAULT_TEXT, false, true, true, true, true);
 	}
 
 
@@ -141,11 +160,16 @@ public class MeasureLineFigure
 	 * Creates a new instance.
 	 *  
 	 * @param readOnly the figure is read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineFigure(boolean readOnly, boolean clientObject)
+	public MeasureLineFigure(boolean readOnly, boolean clientObject, 
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(DEFAULT_TEXT, readOnly, clientObject);
+		this(DEFAULT_TEXT, readOnly, clientObject, editable, deletable, 
+				annotatable);
 	}
 	
 	/**
@@ -153,9 +177,14 @@ public class MeasureLineFigure
 	 * 
 	 * @param text The text to add to the figure.
 	 * @param readOnly the figure is read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineFigure(String text, boolean readOnly, boolean clientObject)
+	public MeasureLineFigure(String text, boolean readOnly,
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -170,6 +199,11 @@ public class MeasureLineFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 	
 	/**
@@ -292,7 +326,7 @@ public class MeasureLineFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -305,7 +339,7 @@ public class MeasureLineFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -356,7 +390,7 @@ public class MeasureLineFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -368,7 +402,7 @@ public class MeasureLineFigure
 	{
 		if (shape == null) return str;
 		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 					
@@ -573,6 +607,8 @@ public class MeasureLineFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -748,6 +784,7 @@ public class MeasureLineFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	/*
@@ -768,6 +805,7 @@ public class MeasureLineFigure
 	 */
 	public void setBezierPath(BezierPath newValue) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setBezierPath(newValue);
 		this.setObjectDirty(true);
 	}
@@ -779,6 +817,7 @@ public class MeasureLineFigure
 	 */
 	public void setEndPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setEndPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -790,6 +829,7 @@ public class MeasureLineFigure
 	 */
 	public void setNode(int index, BezierPath.Node p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setNode(index, p);
 		this.setObjectDirty(true);
 	}
@@ -801,6 +841,7 @@ public class MeasureLineFigure
 	 */
 	public void setPoint(int index, int coord, Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setPoint(index, coord, p);
 		this.setObjectDirty(true);
 	}
@@ -812,6 +853,7 @@ public class MeasureLineFigure
 	 */
 	public void setStartPoint(Point2D.Double p) 
 	{
+		if (isReadOnly() || !interactable) return;
 		super.setStartPoint(p);
 		this.setObjectDirty(true);
 	}
@@ -823,6 +865,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split);
 	}
@@ -834,6 +877,7 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split, tolerance);
 	}
@@ -845,6 +889,7 @@ public class MeasureLineFigure
 	 */
 	public int joinSegments(Point2D.Double join, float tolerance) 
 	{
+		if (isReadOnly() || !interactable) return -1;
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}
@@ -872,4 +917,38 @@ public class MeasureLineFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }

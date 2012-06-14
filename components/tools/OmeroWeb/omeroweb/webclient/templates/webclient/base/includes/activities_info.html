@@ -46,6 +46,14 @@
         $(".dropdown_menu_options").hover(function(){}, function(){
             $(this).css('visibility', 'hidden');
         });
+        // show chgrp errors in new window
+        $(".chgrp_error a").click(function(event) {
+            var error_msg = $(this).next().html();
+            var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
+            newWindow.document.write(error_msg);
+            newWindow.document.close();
+            return false;
+        });
 
     }
 
@@ -74,21 +82,6 @@
             $("#activities_content").append( $("table", $(data)) );
             $("#jobsTable").alternateRowColors();
             setupResultOptions();
-            $(".remove").click(function() {
-                var jobKey = this.id;
-                var $jobRow = $(this).parent().parent();
-                $.ajax({
-                    type: "POST",
-                    url: "{% url activities_update action='clean' %}",
-                    data: {'jobKey':jobKey},
-                    contentType:'json',
-                    success: function(r){
-                         $jobRow.remove();
-                         $("#jobsTable").alternateRowColors();
-                    }
-                });
-
-            });
         }).error(function() {
             // this requires jQuery 1.5 or later
             clearInterval(i);
@@ -160,6 +153,13 @@
         $("#clear_activities").click(function() {
             $.post("{% url activities_update action='clean' %}");
             $("#activities_content").empty();
+        });
+
+        // close panels on 'ESCAPE'
+        $("body").bind('keyup', function(event){
+            if (event.keyCode === $.ui.keyCode.ESCAPE) {
+                $(".info_panel").hide();
+            }
         });
     });
 </script>

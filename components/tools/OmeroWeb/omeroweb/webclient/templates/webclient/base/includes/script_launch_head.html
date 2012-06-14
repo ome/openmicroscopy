@@ -50,7 +50,7 @@
                     // Now show the menu and add ">>" to any <li> with child <ul>
                     $("ul.sub_menu li:has(ul)").find("a:first").append("");
                     // bind links to openPopup
-                    $("ul.sub_menu a").click(openScriptWindow);
+                    $("#scriptList.sub_menu a").click(openScriptWindow);
                     $scriptSpinner.hide();
                 });
             }

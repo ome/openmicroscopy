@@ -385,9 +385,31 @@ class BaseContainer(BaseController):
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
-    
+    def canUseOthersAnns(self):
+        """
+        Test to see whether other user's Tags, Files etc should be provided for annotating.
+        Used to ensure that E.g. Group Admins / Owners don't try to link other user's Annotations
+        when in a private group (even though they could retrieve those annotations)
+        """
+        if self.conn.CONFIG['SERVICE_OPTS'] is None or 'omero.group' not in self.conn.CONFIG['SERVICE_OPTS']:
+            return False
+        gid = self.conn.CONFIG['SERVICE_OPTS']['omero.group']
+        try:
+            group = self.conn.getObject("ExperimenterGroup", long(gid))
+        except:
+            return False
+        if group is None:
+            return False
+        perms = str(group.getDetails().getPermissions())
+        rv = False
+        if perms in ("rwrw--", "rwra--"):
+            return True
+        if perms == "rwr---" and (self.conn.isAdmin() or self.conn.isLeader(group.id)):
+            return True
+        return False
+
     def getTagsByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
         def sort_tags(tag_gen):
             tag_anns = list(tag_gen)
@@ -409,7 +431,6 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
@@ -418,7 +439,7 @@ class BaseContainer(BaseController):
             return sort_tags(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
         def sort_file_anns(file_ann_gen):
@@ -441,13 +462,7 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            if eid is not None:
-                params = omero.sys.Parameters()
-                params.theFilter = omero.sys.Filter()
-                params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return sort_file_anns(self.conn.listFileAnnotations(params=params))
-            return sort_file_anns(self.conn.listFileAnnotations())
+            return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
     # Creation
     
@@ -637,18 +652,25 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 if k.lower() == 'acquisitions':
-                    t = 'PlateAcquisition'
+                    parent_type = 'PlateAcquisition'
                 else:
-                    t = k.lower().title()
-                for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
+                    parent_type = k.lower().title()
+                parent_ids = [o.id for o in oids[k]]
+                # check for existing links
+                links = self.conn.getAnnotationLinks (parent_type, parent_ids=parent_ids, ann_ids=tids)
+                pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
+                # Create link between each object and annotation
+                for ob in self.conn.getObjects(parent_type, parent_ids):
                     parent_objs.append(ob)
                     for a in annotations:
+                        if (ob.id, a.id) in pcLinks:
+                            continue    # link already exists
                         if isinstance(ob._obj, omero.model.WellI):
-                            t = 'Image'
+                            parent_type = 'Image'
                             obj = ob.getWellSample(well_index).image()
                         else:
                             obj = ob
-                        l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                        l_ann = getattr(omero.model, parent_type+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
@@ -869,16 +891,16 @@ class BaseContainer(BaseController):
     def remove(self, parent):
         if self.tag:
             for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.file:
             for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.comment:
             # remove the comment from specified parent
             for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
             # if comment is orphan, delete it directly
             orphan = True

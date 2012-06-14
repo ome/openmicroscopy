@@ -123,15 +123,7 @@ public class TaskBarManager
 	
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
-	
-	/** The title displayed before switching group. */
-	private static final String		SWITCH_GROUP_TITLE = "Switch Group";
-	
-	/** The text displayed before switching group. */
-	private static final String		SWITCH_GROUP_TEXT = 
-		"Switching group will remove data from the display. " +
-		"\nDo you want to continue?";
-	
+
 	/** The title displayed before closing the application. */
 	private static final String		CLOSE_APP_TITLE = "Exit Application";
 		
@@ -166,7 +158,37 @@ public class TaskBarManager
     private ScreenLoginDialog 		login;
     
     /** Flag indicating if the connection was successful or not. */
-    private boolean					success;
+    private boolean success;
+    
+    /** Dialog to reconnect to server.*/
+    private ScreenLoginDialog reconnectDialog;
+    
+    /**
+     * Returns the icon for the splash screen if none set.
+     * 
+     * @param splashScreen The icon or <code>null</code>.
+     * @return See above.
+     */
+    private Icon getSplashScreen(Icon splashScreen)
+    {
+    	if (splashScreen == null) {
+    		Integer v = (Integer) container.getRegistry().lookup(
+    				LookupNames.ENTRY_POINT);
+    		if (v != null) {
+    			switch (v.intValue()) {
+    			case LookupNames.EDITOR_ENTRY:
+    				splashScreen = IconManager.getEditorSplashScreen();
+    				break;
+    			case LookupNames.IMPORTER_ENTRY:
+    				splashScreen = IconManager.getImporterSplashScreen();
+    				break;
+    			default:
+    				splashScreen = IconManager.getSplashScreen();
+    			}
+    		}
+		}
+    	return splashScreen;
+    }
     
 	/** 
 	 * Parses the passed file to determine the value of the URL.
@@ -486,40 +508,37 @@ public class TaskBarManager
     	String port = ""+omeroInfo.getPortSSL();
     	String f = container.getConfigFileRelative(Container.CONFIG_DIR);
 
-		String n = (String) container.getRegistry().lookup(
-				LookupNames.SPLASH_SCREEN_LOGIN);
-		
-		Icon splashLogin = Factory.createIcon(n, f);
-		if (splashLogin == null)
-			splashLogin = IconManager.getLoginBackground();
-    	
-    	
-		ScreenLoginDialog dialog = new ScreenLoginDialog(Container.TITLE, 
-				splashLogin, 
-    			img, v, port);
-		dialog.resetLoginText("Reconnect");
-		
-		dialog.showConnectionSpeed(true);
-		dialog.addPropertyChangeListener(new PropertyChangeListener() {
+    	String n = (String) container.getRegistry().lookup(
+				LookupNames.SPLASH_SCREEN_LOGO);
+
+		reconnectDialog = new ScreenLoginDialog(Container.TITLE, 
+				getSplashScreen(Factory.createIcon(n, f)), img, v, port);
+		reconnectDialog.setStatusVisible(false);
+		reconnectDialog.showConnectionSpeed(true);
+		reconnectDialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (ScreenLogin.QUIT_PROPERTY.equals(name))
-					doExit(false, null);
+					exitApplication(null);
 				else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-					if (lc != null) 
+					
+					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
+						if (success) reconnectDialog = null;
+					}
 				}
 			}
 		});
-		dialog.setModal(true);
-		UIUtilities.centerAndShow(dialog);
-		dialog.requestFocusOnField();
+		//dialog.setModal(true);
+		UIUtilities.centerAndShow(reconnectDialog);
+		reconnectDialog.requestFocusOnField();
+		reconnectDialog.setAlwaysOnTop(true);
 		if (success) {
-			container.getRegistry().getEventBus().post(new ReconnectedEvent());
-			success = false;
+			//container.getRegistry().getEventBus().post(new ReconnectedEvent());
+			//success = false;
 		}
 	}
 	
@@ -553,6 +572,10 @@ public class TaskBarManager
 	 */
 	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
+		if (reconnectDialog != null) {
+			exitApplication(null);
+			return;
+		}
 		Environment env = (Environment) 
 			container.getRegistry().lookup(LookupNames.ENV);
 		String title = CLOSE_APP_TITLE;
@@ -569,6 +592,8 @@ public class TaskBarManager
 		if (askQuestion) {
 			msg = new CheckoutBox(view, title, message,
 					icons.getIcon(IconManager.QUESTION), instances);
+			msg.setYesText("Quit");
+			msg.setNoText("Do Not Quit");
 			option = msg.centerMsgBox();
 		}
 		if (option == MessageBox.YES_OPTION) {
@@ -613,6 +638,7 @@ public class TaskBarManager
 	 */
 	private void exitApplication(SecurityContext ctx)
 	{
+		reconnectDialog = null;
 		//Change group if context not null
 		if (ctx != null) {
 			try {
@@ -653,6 +679,7 @@ public class TaskBarManager
     			LookupNames.SOFTWARE_NAME);
         suDialog = new SoftwareUpdateDialog(view, message, refFile);
         suDialog.setTitle(TITLE_ABOUT+" "+title+"...");
+        suDialog.setAlwaysOnTop(true);
         suDialog.addPropertyChangeListener(
         		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
         UIUtilities.centerAndShow(suDialog);
@@ -670,7 +697,7 @@ public class TaskBarManager
     private void forum()
     {
     	String path = (String) container.getRegistry().lookup(
-    						LookupNames.FORUM);
+    			LookupNames.FORUM);
     	openURL(path);
     }
     
@@ -829,11 +856,17 @@ public class TaskBarManager
 		uc.setGroup(lc.getGroup());
 		LoginService svc = (LoginService) 
 			container.getRegistry().lookup(LookupNames.LOGIN);
+		success = false;
 		switch (svc.login(uc)) {
 			case LoginService.CONNECTED:
 				//needed b/c need to retrieve user's details later.
 	            container.getRegistry().bind(LookupNames.USER_CREDENTIALS, uc);
 	            dialog.close();
+	            if (dialog == reconnectDialog) {
+	            	reconnectDialog = null;
+	            	container.getRegistry().getEventBus().post(
+	            			new ReconnectedEvent());
+	            }
 	            success = true;
 	            break;
 			case LoginService.TIMEOUT:
@@ -944,16 +977,12 @@ public class TaskBarManager
 		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
-						LookupNames.SPLASH_SCREEN_LOGIN);
-				
-				Icon splashLogin = Factory.createIcon(n, f);
-				if (splashLogin == null)
-					splashLogin = IconManager.getLoginBackground();
-		    	
-		    	
-		    	login = new ScreenLoginDialog(Container.TITLE, splashLogin, 
-		    			img, v, port);
+						LookupNames.SPLASH_SCREEN_LOGO);
+
+		    	login = new ScreenLoginDialog(Container.TITLE,
+		    		getSplashScreen(Factory.createIcon(n, f)), img, v, port);
 		    	//login.setModal(true);
+		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
 				login.addPropertyChangeListener(this);
 	    	}

@@ -616,7 +616,7 @@ public class DataServicesFactory
     { 
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
-		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		Collection groups = (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		if (groups != null && groups.size() > 0) {
 			ExperimenterData exp = (ExperimenterData) 
 			registry.lookup(LookupNames.CURRENT_USER_DETAILS);

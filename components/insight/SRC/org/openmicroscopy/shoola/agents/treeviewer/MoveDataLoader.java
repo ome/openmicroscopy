@@ -34,10 +34,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ExperimenterData;
 
 /** 
- * Loads the data for the currently selected user.
+ * Loads the data for the specified user.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,6 +55,9 @@ public class MoveDataLoader
     /** The type.*/
     private Class type;
     
+    /** The identifier of the user.*/
+    private long userID;
+    
     /**
      * Creates a new instance.
      * 
@@ -63,15 +65,17 @@ public class MoveDataLoader
      * @param ctx The security context.
      * @param type The root node type.
      * @param dialog The component where to display the result.
+     * @param userID The id of the user to move the data to.
      */
 	public MoveDataLoader(TreeViewer viewer, SecurityContext ctx,
-			Class type, MoveGroupSelectionDialog dialog)
+			Class type, MoveGroupSelectionDialog dialog, long userID)
 	{
 		super(viewer, ctx);
 		if (dialog == null)
 			throw new IllegalArgumentException("No dialog set.");
 		this.dialog = dialog;
 		this.type = type;
+		this.userID = userID;
 	}
 	
 	/**
@@ -80,9 +84,8 @@ public class MoveDataLoader
      */
     public void load()
     {
-    	ExperimenterData exp = TreeViewerAgent.getUserDetails();
-    	handle = dmView.loadContainerHierarchy(ctx, type, null, false,
-    			exp.getId(), ctx.getGroupID(), this);	
+    	handle = dmView.loadContainerHierarchy(ctx, type, null, false, userID,
+    			ctx.getGroupID(), this);	
     }
 
     /**

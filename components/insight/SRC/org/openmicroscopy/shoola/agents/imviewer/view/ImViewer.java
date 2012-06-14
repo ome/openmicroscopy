@@ -1026,7 +1026,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public double getUnitInMicrons();
+	public double getUnitInRefUnits();
 
 	/** Makes a movie. */
 	public void makeMovie();

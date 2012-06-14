@@ -53,6 +53,7 @@
   </bean>
 
   <bean id="AllGroupsSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
+    <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
   </bean>
 

@@ -930,7 +930,48 @@ public class AdminServiceTest
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test(groups = "changePermissions")
-    public void testChangePermissions()
+    public void testChangePermissionsRWToRWRW()
+    	throws Exception
+    {
+        root = newRootOmeroClient();
+        IAdminPrx prx = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+
+        // First group rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        String representation = "rwr---";
+        g.getDetails().setPermissions(new PermissionsI(representation));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupAnnotate());
+        assertFalse(permissions.isGroupWrite());
+        
+        //change permissions
+        representation = "rwrw--";
+        
+        Chmod mod = createChmodCommand(REF_GROUP,
+        		g.getId().getValue(), representation);
+        doChange(root, root.getSession(), mod, true);
+        //prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertTrue(permissions.isGroupAnnotate());
+        assertTrue(permissions.isGroupWrite());
+    }
+	
+    /**
+	 * Tests to modify the permissions of a group. Creates a <code>rwr---</code>
+	 * group and increases the permissions to <code>rwrw--</code>
+	 * then back again to <code>rwr--</code>. This tests the 
+	 * <code>ChangePermissions</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(groups = "changePermissions")
+    public void testChangePermissionsRWRToRWRA()
     	throws Exception
     {
         root = newRootOmeroClient();
@@ -947,18 +988,100 @@ public class AdminServiceTest
         Permissions permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
         assertFalse(permissions.isGroupWrite());
+        assertFalse(permissions.isGroupAnnotate());
         
         //change permissions
-        representation = "rwrw--";
+        representation = "rwra--";
         
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         doChange(root, root.getSession(), mod, true);
         //prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
+        assertTrue(permissions.isGroupAnnotate());
+        assertFalse(permissions.isGroupWrite());
+    }
+	
+    /**
+	 * Tests to modify the permissions of a group. Creates a <code>rwr---</code>
+	 * group and increases the permissions to <code>rwrw--</code>
+	 * then back again to <code>rwr--</code>. This tests the 
+	 * <code>ChangePermissions</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(groups = "changePermissions")
+    public void testChangePermissionsRWAToRWRW()
+    	throws Exception
+    {
+        root = newRootOmeroClient();
+        IAdminPrx prx = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+
+        // First group rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        String representation = "rwra--";
+        g.getDetails().setPermissions(new PermissionsI(representation));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertTrue(permissions.isGroupAnnotate());
+        assertFalse(permissions.isGroupWrite());
+        
+        //change permissions
+        representation = "rwrw--";
+        
+        Chmod mod = createChmodCommand(REF_GROUP,
+        		g.getId().getValue(), representation);
+        doChange(root, root.getSession(), mod, true);
+        //prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertTrue(permissions.isGroupAnnotate());
         assertTrue(permissions.isGroupWrite());
+    }
+	
+    /**
+	 * Tests to modify the permissions of a group. This tests the 
+	 * <code>ChangePermissions</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(groups = "changePermissions")
+    public void testChangePermissionsRWToRWR()
+    	throws Exception
+    {
+        root = newRootOmeroClient();
+        IAdminPrx prx = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+
+        // First group rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        String representation = "rw----";
+        g.getDetails().setPermissions(new PermissionsI(representation));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        assertFalse(permissions.isGroupRead());
+        assertFalse(permissions.isGroupAnnotate());
+        assertFalse(permissions.isGroupWrite());
+        
+        //change permissions
+        representation = "rwr--";
+        
+        Chmod mod = createChmodCommand(REF_GROUP,
+        		g.getId().getValue(), representation);
+        doChange(root, root.getSession(), mod, true);
+        //prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupAnnotate());
+        assertFalse(permissions.isGroupWrite());
     }
 	
     /**
@@ -983,7 +1106,7 @@ public class AdminServiceTest
         Permissions permissions = g.getDetails().getPermissions();
         //change permissions and promote the group
         representation = "rwrw--";
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);
@@ -1020,7 +1143,7 @@ public class AdminServiceTest
         
         //change permissions and promote the group
         representation = "rwr---";
-        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);
@@ -1031,7 +1154,7 @@ public class AdminServiceTest
         g = prx.getGroup(id);
         //now try to turn it back to rw----
         representation = "rw----";
-        mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
         
         doChange(root, root.getSession(), mod, true);

@@ -29,11 +29,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.Set;
-
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 
@@ -602,7 +601,7 @@ class EditorComponent
 	{
 		SecurityContext ctx = model.getSecurityContext();
 		if (ctx == null) return null;
-		Set groups = EditorAgent.getAvailableUserGroups();
+		Collection groups = EditorAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {

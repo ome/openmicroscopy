@@ -31,14 +31,11 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Importer}.
@@ -101,20 +98,7 @@ public abstract class DataImporterLoader
     {
     	return ImporterAgent.getUserDetails().getId();
     }
-    
-    /** Sets the identifiers of the group and user. */
-    void setIds()
-    {
-    	ExperimenterData exp = ImporterAgent.getUserDetails();
-		userID = getCurrentUserID();
-		groupID = exp.getDefaultGroup().getId();
-		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				userID = -1;
-		}
-    }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 

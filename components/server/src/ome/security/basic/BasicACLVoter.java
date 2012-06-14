@@ -31,6 +31,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
@@ -286,13 +287,25 @@ public class BasicACLVoter implements ACLVoter {
 
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
-            Details details = object.getDetails();
+            final Details details = object.getDetails();
             // Sets context values.s
             this.currentUser.applyContext(details,
                     !(object instanceof ExperimenterGroup));
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
+
+            // ticket:8818 - for some reason details.owner can be null. Try
+            // our best to reset it.
+            if (details.getOwner() == null) {
+                details.setOwner(new Experimenter(c.getCurrentUserId(), false));
+            }
+            if (details.getGroup() == null) {
+                if (c.getCurrentGroupId() >= 0) {
+                    details.setGroup(new ExperimenterGroup(
+                        c.getCurrentGroupId(), false));
+                }
+            }
             boolean disallowAnnotate = !allowUpdateOrDelete(c, object, details, true, ANNOTATE);
             boolean disallowEdit = !allowUpdateOrDelete(c, object, details, true, WRITE);
 

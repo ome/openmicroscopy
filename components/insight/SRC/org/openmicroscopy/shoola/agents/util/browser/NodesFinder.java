@@ -97,7 +97,7 @@ public class NodesFinder
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
-        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
+        	return EditorUtil.formatExperimenter((ExperimenterData) obj);
         } else if (obj instanceof GroupData) {
         	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)

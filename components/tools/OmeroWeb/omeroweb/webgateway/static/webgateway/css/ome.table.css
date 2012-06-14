@@ -17,6 +17,12 @@
  *
  */
 
+table#drivespaceTable th {
+    cursor:default;
+}
+table#drivespaceTable tbody tr:hover{
+    cursor:default;
+}
 
 .tablesorter {
 	 width:100%;

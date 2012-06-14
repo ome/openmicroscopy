@@ -7,6 +7,11 @@
 
 package ome.security.basic;
 
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,12 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.hibernate.Filter;
-import org.hibernate.Session;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
-
-import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -28,9 +27,13 @@ import ome.model.meta.ExperimenterGroup;
 import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;
+import ome.util.SqlAction;
 
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
+import org.hibernate.Filter;
+import org.hibernate.Session;
+
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 
 /**
@@ -70,7 +73,9 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
                 + "\n)"
                 + "\n", isGranted(USER, READ), isGranted(GROUP, READ),
                 isGranted(WORLD, READ));
-    
+
+    final SqlAction sql;
+
     /**
      * default constructor which calls all the necessary setters for this
      * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
@@ -82,12 +87,13 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
      * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
      * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
      */
-    public AllGroupsSecurityFilter() {
-        this(new Roles());
+    public AllGroupsSecurityFilter(SqlAction sql) {
+        this(sql, new Roles());
     }
 
-    public AllGroupsSecurityFilter(Roles roles) {
+    public AllGroupsSecurityFilter(SqlAction sql, Roles roles) {
         super(roles);
+        this.sql = sql;
     }
 
     public String getDefaultCondition() {
@@ -129,8 +135,17 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         final Long g = d.getGroup().getId();
 
         // ticket:8798 - load permissions for group of object regardless.
-        final Permissions p = ((ExperimenterGroup) session.get(ExperimenterGroup.class, g))
-            .getDetails().getPermissions();
+        final ExperimenterGroup group = (ExperimenterGroup) session.get(ExperimenterGroup.class, g);
+        Permissions p = group.getDetails().getPermissions();
+
+        if (p == null) {
+            // Don't know why this is happening, but must do something to
+            // force reloading.
+            p = ome.util.Utils.toPermissions(sql.getGroupPermissions(g));
+            group.getDetails().setPermissions(p);
+            log.warn(String.format(
+                "Forced to reload permissions for group %s: %s", g, p));
+        }
 
         if (share || admin) {
             return true;

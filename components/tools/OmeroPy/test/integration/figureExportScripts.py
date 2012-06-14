@@ -23,6 +23,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
 import omero.util.script_utils as scriptUtil
+from omero.gateway import BlitzGateway
 import omero_ext.uuid as uuid # see ticket:3774
 from omero import ApiUsageException
 
@@ -32,6 +33,7 @@ thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
 splitViewFigurePath = "scripts/omero/figure_scripts/Split_View_Figure.py"
 roiFigurePath = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
 movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
+movieROIFigurePath = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
 
 
 class TestFigureExportScripts(lib.ITest):
@@ -109,17 +111,26 @@ class TestFigureExportScripts(lib.ITest):
             "Tag_IDs": omero.rtypes.rlist(tagIds),
             #"showUntaggedImages": omero.rtypes.rbool(True),
             }
-        fileAnnot1 = runScript(client, session, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
         
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
-        fileAnnot2 = runScript(client, session, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+
+        # should have figures attached to project and first image.
+        checkFileAnnotation(self,fileAnnot1, True, parentType="Dataset")
+        checkFileAnnotation(self,fileAnnot2, True)
         
-        # should have figures attached to project and first image. 
-        self.assertNotEqual(fileAnnot1, None)
-        self.assertNotEqual(fileAnnot2, None)
-        
+        # Run the script with invalid IDs
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}        
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        args = {"Data_Type": omero.rtypes.rstring("Dataset"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        fileAnnot4 = runScript(client, scriptId, args, "File_Annotation")
     
+        # should have no annotation
+        checkFileAnnotation(self,fileAnnot3, False)
+        checkFileAnnotation(self,fileAnnot4, False)
+        
     def testSplitViewFigure(self):
 
         print "testSplitViewFigure"
@@ -199,7 +210,7 @@ class TestFigureExportScripts(lib.ITest):
            "Figure_Name": omero.rtypes.rstring("splitViewTest"),
            #"overlayColour": red,
            }
-        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"),
@@ -207,11 +218,17 @@ class TestFigureExportScripts(lib.ITest):
             "Merged_Colours": mrgdColoursMap,
             "Format": omero.rtypes.rstring("PNG"),
             "Figure_Name": omero.rtypes.rstring("splitViewTest")}
-        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
-
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+                
         # should have figures attached to project and first image. 
-        self.assertNotEqual(fileId1, None)
-        self.assertNotEqual(fileId2, None)
+        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot2, True)
+        
+        # Run the script with invalid args
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        
+        checkFileAnnotation(self,fileAnnot3, False)
         
     
     def testRoiFigure(self):
@@ -295,17 +312,115 @@ class TestFigureExportScripts(lib.ITest):
            "ROI_Zoom":omero.rtypes.rfloat(3),
            "ROI_Label":omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
            }
-        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
-        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        
+        # should have figures attached to project and first image. 
+        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot2, True)
+        
+        # Run the script with invalid IDs
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        
+        checkFileAnnotation(self,fileAnnot3, False)        
+    
+    def testMovieRoiFigure(self):
+
+        print "testMovieRoiFigure"
+
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+
+        session = self.root.sf
+        client = self.root
+        services = {}
+        renderingEngine = session.createRenderingEngine()
+        queryService = session.getQueryService()
+        pixelsService = session.getPixelsService()
+        rawPixelStore = session.createRawPixelsStore()
+        updateService = session.getUpdateService()
+
+        services["containerService"] = session.getContainerService()
+        services["renderingEngine"] = renderingEngine
+        services["queryService"] = queryService
+        services["pixelsService"] = pixelsService
+        services["rawPixelStore"] = rawPixelStore
+
+        # upload script 
+        scriptService = session.getScriptService()
+        scriptId = uploadScript(scriptService, movieROIFigurePath)
+
+        # create several test images in a dataset
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("roiFig-test")
+        dataset = updateService.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("roiFig-test")
+        project = updateService.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        updateService.saveAndReturnObject(link)
+        # put some images in dataset
+        imageIds = []
+        for i in range(5):
+            imageId = self.createTestImage(256,256,10,3,1).getId().getValue()    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(imageId))
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(imageId, False)
+            updateService.saveAndReturnObject(dlink)
+            # add roi
+            addRectangleRoi(updateService, 50 + (i*10), 100 - (i*10), 50+(i*5), 100-(i*5), imageId) # x, y, width, height
+
+        # run the script twice. First with all args...
+        cNamesMap = omero.rtypes.rmap({'0':omero.rtypes.rstring("DAPI"),
+            '1':omero.rtypes.rstring("GFP"), 
+            '2':omero.rtypes.rstring("Red"), 
+            '3':omero.rtypes.rstring("ACA")})
+        blue = omero.rtypes.rint(255)
+        red = omero.rtypes.rint(16711680)
+        mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
+        argMap = {
+            "Data_Type": omero.rtypes.rstring("Image"),
+           "IDs": omero.rtypes.rlist(imageIds),
+           "ROI_Zoom":omero.rtypes.rfloat(3),
+           "Max_Columns": omero.rtypes.rint(10),
+           "Resize_Images": omero.rtypes.rbool(True),
+           "Width": omero.rtypes.rint(200),
+           "Height": omero.rtypes.rint(200),
+           "Image_Labels": omero.rtypes.rstring("Datasets"),
+           "Show_ROI_Duration": omero.rtypes.rbool(True),
+           "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
+           "Scalebar_Colour": omero.rtypes.rstring("White"), # will be ignored since no pixelsize set
+           "Roi_Selection_Label": omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
+           "Algorithm": omero.rtypes.rstring("Mean Intensity"),
+           "Figure_Name": omero.rtypes.rstring("movieROITest") 
+           }
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+
+        # ...then with bare minimum args
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
-        self.assertNotEqual(fileId1, None)
-        self.assertNotEqual(fileId2, None)
-        
-    
+        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot2, True)
+
+        # Run the script with invalid IDs
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+
+        checkFileAnnotation(self,fileAnnot3, False)        
+
     def testMovieFigure(self):
 
         print "testMovieFigure"
@@ -384,21 +499,27 @@ class TestFigureExportScripts(lib.ITest):
            "TimeUnits": omero.rtypes.rstring("MINS"),
            "Overlay_Colour": red,
            }
-        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds),
             "T_Indexes": omero.rtypes.rlist(tIndexes),}
-        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
-        self.assertNotEqual(fileId1, None)
-        self.assertNotEqual(fileId2, None)
+        checkFileAnnotation(self,fileAnnot1, True)
+        checkFileAnnotation(self,fileAnnot2, True)
+        
+        # Run the script with invalid IDs
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist( omero.rtypes.rlong(-1))}        
+        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+
+        checkFileAnnotation(self,fileAnnot3, False)
         
 
-def runScript(client, session, scriptId, argMap, returnKey=None): 
+def runScript(client, scriptId, argMap, returnKey=None): 
     
-    scriptService = session.getScriptService()
+    scriptService = client.sf.getScriptService()
     proc = scriptService.runScript(scriptId, argMap, None)
     try:
         cb = omero.scripts.ProcessCallbackI(client, proc)
@@ -495,7 +616,26 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     rect.setRoi(r)
     r.addShape(rect)    
     updateService.saveAndReturnObject(rect)
-    
+
+def checkFileAnnotation(self, fileAnnotation, hasFileAnnotation=True, parentType="Image", isLinked=True, client=None):
+    """
+    Check validity of file annotation. If hasFileAnnotation, check the size, name and number of objects linked to the original file.
+    """
+    if hasFileAnnotation:
+        self.assertNotEqual(fileAnnotation,None)
+        self.assertTrue(fileAnnotation.val._file._size._val>0)
+        self.assertNotEqual(fileAnnotation.val._file._name._val,None)
+
+        if client is None: client = self.root
+        conn = BlitzGateway(client_obj = client)
+        faWrapper = conn.getObject("FileAnnotation", fileAnnotation.val.id.val)
+        nLinks = sum(1 for i in faWrapper.getParentLinks(parentType))
+        if isLinked:
+            self.assertEqual(nLinks,1)
+        else:
+            self.assertEqual(nLinks,0)
+    else:
+        self.assertEqual(fileAnnotation,None)
 
 if __name__ == '__main__':
     unittest.main()

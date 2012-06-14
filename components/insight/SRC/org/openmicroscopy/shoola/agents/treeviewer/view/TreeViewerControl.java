@@ -148,6 +148,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -746,6 +747,7 @@ class TreeViewerControl
 		Browser browser = model.getSelectedBrowser();
 		List selection = null;
 		Iterator j;
+		List<Long> owners = new ArrayList<Long>();
 		if (browser != null) {
 			selection = browser.getSelectedDataObjects();
 			if (selection == null) return null;
@@ -753,15 +755,46 @@ class TreeViewerControl
 			j = selection.iterator();
 			Object o;
 			DataObject data;
+			
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canChgrp(o)) count++;
+					if (!(o instanceof GroupData ||
+						o instanceof ExperimenterData ||
+						o instanceof PlateAcquisitionData)) {
+						if (model.canChgrp(o)) {
+							data = (DataObject) o;
+							if (!owners.contains(data.getOwner().getId()))
+								owners.add(data.getOwner().getId());
+							count++;
+						}
+					}
 				}
 			}
 			if (count != selection.size()) return null;
+			if (owners.size() > 1) return null;
 		}
-		Set l = TreeViewerAgent.getAvailableUserGroups();
+		long userID = TreeViewerAgent.getUserDetails().getId();
+		long ownerID = owners.get(0);
+		
+		Collection l = null;
+		if (ownerID == userID) {
+			l = TreeViewerAgent.getAvailableUserGroups();
+		} else {
+			if (TreeViewerAgent.isAdministrator()) {
+				//load the group the user is member of
+				SecurityContext ctx = TreeViewerAgent.getAdminContext();
+				try {
+					l = TreeViewerAgent.getRegistry().
+						getAdminService().loadGroupsForExperimenter(ctx,
+								ownerID);
+				} catch (Exception e) {
+					TreeViewerAgent.getRegistry().getLogger().error(this,
+							"cannot retrieve user's groups");
+				}
+			}
+		}
+		if (l == null) return null;
 		if (moveActions == null)
 			moveActions = new ArrayList<MoveToAction>(l.size());
 		moveActions.clear();
@@ -863,7 +896,7 @@ class TreeViewerControl
 	List<GroupSelectionAction> getUserGroupAction(boolean add)
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Set m = TreeViewerAgent.getAvailableUserGroups();
+		Collection m = TreeViewerAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();

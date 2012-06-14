@@ -204,24 +204,7 @@ public class ROITable
 	 */
 	void onSelectedFigures(Collection<Figure> figures)
 	{
-		boolean enabled = true;
-		if (figures == null || figures.size() == 0) 
-			enabled = false;
-		else {
-			Iterator<Figure> i = figures.iterator();
-			Figure figure;
-			int readable = 0;
-			while (i.hasNext()) {
-				figure = i.next();
-				if (figure instanceof ROIFigure) {
-					if (!(((ROIFigure) figure).isReadOnly())) {
-						readable++;
-					}
-				}
-			}
-			enabled = readable == figures.size();
-		}
-		popupMenu.setActionsEnabled(enabled);
+		popupMenu.setActionsEnabled(figures);
 	}
 	
 	/** 

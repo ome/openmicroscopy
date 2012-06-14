@@ -38,6 +38,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -103,7 +105,7 @@ public class CreateTopContainerAction
     private static final String NAME_GROUP = "New Group...";
     
     /** The name of the action for the creation of a <code>Screen</code>. */
-    private static final String NAME_EXPERIMENTER = "New Experimenter...";
+    private static final String NAME_EXPERIMENTER = "New User...";
     
     /** Description of the action for a <code>Tag</code> . */
     private static final String DESCRIPTION_TAG_SET = "Create a new Tag Set.";
@@ -235,34 +237,34 @@ public class CreateTopContainerAction
         	if (selectedDisplay != null) {
         		Object ho = selectedDisplay.getUserObject();
         		if (ho instanceof ExperimenterData) {
-					ExperimenterData data = (ExperimenterData) ho;
-					long id = TreeViewerAgent.getUserDetails().getId();
-					setEnabled(data.getId() == id);
+        			long id = TreeViewerAgent.getUserDetails().getId();
+	    			ExperimenterData exp = (ExperimenterData) ho;
+	    			setEnabled(exp.getId() == id);
+        			//setEnabled(model.canLink(ho));
 					return;
 				}
-        		/*
+        		if (ho instanceof GroupData) {
+        			setEnabled(false);
+        			return;
+        		}
         		switch (nodeType) {
 					case TAG:
 						if (ho instanceof TagAnnotationData) {
 							TagAnnotationData tag = (TagAnnotationData) ho;
 							String ns = tag.getNameSpace();
 							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-								setEnabled(model.isUserOwner(ho));
+								setEnabled(model.canLink(ho));
 							} else setEnabled(false);
-						}
-						//setEnabled(model.isUserOwner(ho));
+						} else setEnabled(model.canLink(ho));
 						break;
 					case DATASET:
-						if (ho instanceof DatasetData) {
-							setEnabled(false);
-						} else
-							setEnabled(model.isUserOwner(ho));
+						if (ho instanceof DatasetData) setEnabled(false);
+						else setEnabled(model.canLink(ho));
 						break;
 					default:
-						setEnabled(true);
+						setEnabled(model.canLink(ho));
 				}
-				*/
-        		setEnabled(true);
+        		//setEnabled(true);
         	}
         } else {
         	Browser browser = model.getSelectedBrowser();
@@ -333,7 +335,7 @@ public class CreateTopContainerAction
         		switch (nodeType) {
 					case DATASET:
 						if (uo instanceof ProjectData) 
-							withParent = model.canEdit(uo);
+							withParent = model.canLink(uo);
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
@@ -346,7 +348,7 @@ public class CreateTopContainerAction
 							if (ns != null && 
 								TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 											ns));
-								withParent = model.canEdit(tag);
+								withParent = model.canLink(tag);
 						}
 				}
         	}

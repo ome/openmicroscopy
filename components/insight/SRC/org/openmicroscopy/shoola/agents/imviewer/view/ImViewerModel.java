@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -78,7 +77,6 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -91,6 +89,8 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -304,6 +304,9 @@ class ImViewerModel
 	
 	/** The security context.*/
     private SecurityContext ctx;
+    
+    /** The units corresponding to the pixels size.*/
+    private UnitsObject refUnits;
     
 	/**
 	 * Creates the plane to retrieve.
@@ -2208,11 +2211,13 @@ class ImViewerModel
 	void setLastProjectionTime(int time) { lastProjTime = time; }
 
 	/**
-	 * Returns the unit in microns.
+	 * Returns the unit used to determine the size of the unit bar.
+	 * The unit depends on the size stored. The unit of reference in the
+	 * OME model is in microns, but this is a transformed unit.
 	 * 
 	 * @return See above.
 	 */
-	double getUnitInMicrons() { return browser.getUnitInMicrons(); }
+	double getUnitInRefUnits() { return browser.getUnitInRefUnits(); }
 	
 	/** Loads all the available datasets. */
 	void loadAllContainers()
@@ -2225,7 +2230,7 @@ class ImViewerModel
 	void makeMovie()
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.makeMovie((int) getUnitInMicrons(), 
+		metadataViewer.makeMovie((int) getUnitInRefUnits(), 
 				getBrowser().getUnitBarColor());
 	}
 	
@@ -2829,7 +2834,7 @@ class ImViewerModel
      */
     GroupData getSelectedGroup()
     {
-    	Set set = (Set) ImViewerAgent.getRegistry().lookup(
+    	Collection set = (Collection) ImViewerAgent.getRegistry().lookup(
     			LookupNames.USER_GROUP_DETAILS);
     	if (set == null || set.size() <= 1)
     		return null;
@@ -2842,5 +2847,19 @@ class ImViewerModel
 		}
     	return null;
     }
+
+    /**
+     * Returns the relevant units associated to the pixels size.
+     * 
+     * @return See above.
+     */
+	String getUnits()
+	{
+		if (refUnits != null) return refUnits.getUnits();
+		double size = getPixelsSizeX();
+		if (size < 0) return UnitsObject.MICRONS;
+		refUnits = EditorUtil.transformSize(size); 
+		return refUnits.getUnits();
+	}
     
 }

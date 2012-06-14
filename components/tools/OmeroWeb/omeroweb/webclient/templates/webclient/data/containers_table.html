@@ -83,7 +83,8 @@
 
             // double-click handler on image - launches image viewer
             $("table#dataTable tbody tr").dblclick(function(event) {
-                openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                var iId = $(this).attr('id').split('-')[1];
+                openPopup("{% url web_image_viewer 0 %}".replace('0', iId ));
             });
 
             // single click handler on image (container). Selection then update toolbar & metadata pane

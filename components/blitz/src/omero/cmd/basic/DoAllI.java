@@ -18,15 +18,12 @@
 package omero.cmd.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-
-import ome.util.SqlAction;
-
+import ome.services.messages.ContextMessage;
+import ome.system.OmeroContext;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
@@ -45,70 +42,267 @@ import omero.cmd.Status;
  */
 public class DoAllI extends DoAll implements IRequest {
 
-    private final Log log = LogFactory.getLog(DoAllI.class);
-
     private static final long serialVersionUID = -323423435135556L;
 
+    //
+    // Mapping from steps to subrequests
+    //
+
     /**
-     * Provides the offsets of each status into the total number
-     * of offsets. For each if there are 3 actions, each of which
-     * contain 3 steps, then the offsets list will contain 3, 6 and
-     * 9. Then if step 4 is requested, only 2 steps will need to be
-     * made through the offset list.
+     * Pointer-like object which is saved for each
+     * sub-request. The logic for properly mapping
+     * from the global step number to the individual
+     * substep number is done here. In order to find
+     * the proper {@link X} instance, use the current
+     * index:
+     *
+     * <pre>
+     * X x = substeps.get(current);
+     * </pre>
      */
-    private List<Integer> offsets = new ArrayList<Integer>();
+    private static class X {
 
-    private List<Status> statuses = new ArrayList<Status>();
+        /**
+         * Number of steps that should be deducted from the global step
+         * count in order to have the proper substep number
+         */
+        final int offset;
 
-    private List<Response> responses = new ArrayList<Response>();
+        /**
+         * Sub-{@link Helper} instance for the {@link #r}
+         */
+        final Helper h;
 
+        /**
+         * Sub-{@link Request} instance which is to be run.
+         */
+        final IRequest r;
+
+        final OmeroContext ctx;
+
+        /**
+         * Calculated context which should be in effect for {@link #r}.
+         */
+        Map<String, String> c = null;
+
+        X(int offset, Helper h, IRequest r, OmeroContext ctx) {
+            this.offset = offset;
+            this.h = h;
+            this.r = r;
+            this.ctx = ctx;
+        }
+
+        /**
+         * Run the {@link IRequest#step(int)} passing in the proper substep
+         * value after being calculated via {@link #offset}
+         */
+        Object step(int step) {
+            return r.step(step - offset);
+        }
+
+        /**
+         * Run the {@link IRequest#buildResponse(int, Object)} passing in the
+         * proper substep value after being calculated via {@link #offset}
+         */
+        void buildResponse(int step, Object object) {
+            r.buildResponse(step - offset, object);
+        }
+
+        /**
+         * Fill in the call context for this instance ignoring nulls and empty
+         * maps.
+         * @param classContext The return value of {@link IRequest#getCallContext()}
+         * @param callContext The corresponding instance from {@link DoAll#contexts}
+         */
+        void calculateContext(Map<String, String> classContext,
+            Map<String, String> callContext) {
+            putAll(classContext);
+            putAll(callContext);
+        }
+
+        /**
+         * Helper
+         */
+        private void putAll(Map<String, String> context) {
+            if (context != null && context.size() > 0) {
+                if (c == null) {
+                    c = new HashMap<String, String>();
+                }
+                c.putAll(context);
+            }
+        }
+
+        /**
+         * Send a {@link PushContextMessage} to apply this context if not null.
+         */
+        void login() throws Throwable {
+            if (c !=  null) {
+                h.debug("Login: %s", c);
+                ctx.publishMessage(new ContextMessage.Push(this, c));
+            }
+        }
+
+        /**
+         * If a {@link PushContextMessage} was sent, send a {@link PopContextMessage}
+         * so that the context for following actions are not polluted.
+         */
+        void logout() throws Throwable {
+            if (c != null) {
+                ctx.publishMessage(new ContextMessage.Pop(this ,c));
+            }
+        }
+    }
+
+    /**
+     * State-objects for each subrequest
+     */
+    private final List<X> substeps = new ArrayList<X>();
+
+    /**
+     * current substep.
+     */
+    private int current = -1;
+
+    /**
+     * step at which we flip to the next current.
+     */
+    private int nextAt = 0;
+
+    /**
+     * Looks up the current substep based on the total step count using
+     * {@link #nextAt} to determine if {@link #current} needs to be incremented.
+     * If login is true, then {@link X#login()} and {@link X#logout} will be
+     * called as appropriate.
+     *
+     * @param step
+     * @param login
+     * @return
+     */
+    private X substep(final int step, final boolean login) {
+        X x = null;
+        try {
+            if (step == 0) {
+                // Restart
+                x = substeps.get(0);
+                current = 0;
+                nextAt = x.offset + x.h.getSteps();
+                if (login) {
+                    x.login();
+                }
+            } else if (step == nextAt) {
+                // Flip to next substep. We should never have
+                // a step which makes current >= substeps.size()
+
+                X prev = substeps.get(current);
+                if (login) {
+                    prev.logout();
+                }
+
+                current += 1;
+                x = substeps.get(current);
+                nextAt = x.offset + x.h.getSteps();
+                if (login) {
+                    x.login();
+                }
+            } else {
+                x = substeps.get(current);
+            }
+            return x;
+        } catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "substep-lookup-failed", "step",
+                ""+step, "req", (x==null ? "null" : ""+x.r));
+        }
+    }
+
+    //
+    // Primary state
+    //
+
+    private final List<Status> statuses = new ArrayList<Status>();
+
+    private final List<Response> responses = new ArrayList<Response>();
+
+    /**
+     * Helper instance for this class. Will create a number of sub-helper
+     * instances for each request.
+     */
     private Helper helper;
+
+    //
+    // For publishing messages
+    //
+    //
+
+    private final OmeroContext ctx;
+
+    public DoAllI(OmeroContext ctx) {
+        this.ctx = ctx;
+    }
+
+    //
+    // IRequest methods
+    //
 
     public Map<String, String> getCallContext() {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session,
-            ome.system.ServiceFactory sf) {
-        this.helper = new Helper(this, status, sql, session, sf);
-        status.steps = 0;
-        for (Request req : this.requests) {
-            Status substatus = new Status();
-            if (req instanceof IRequest) {
-                IRequest ireq = (IRequest) req;
-                ireq.init(substatus, sql, session, sf);
-                status.steps += substatus.steps;
-                statuses.add(substatus);
-                offsets.add(status.steps);
+    public void init(Helper helper) {
+        this.helper = helper;
+        int steps = 0;
+        try {
+            for (int i = 0; i < this.requests.size(); i++) {
+                final Request req = requests.get(i);
+                final Status substatus = new Status();
+                final Helper subhelper = helper.subhelper(req, substatus);
+                if (req instanceof IRequest) {
+                    IRequest ireq = (IRequest) req;
+                    final X x = new X(steps, subhelper, ireq, ctx);
+                    try {
+                        x.calculateContext(ireq.getCallContext(),
+                                (contexts == null || contexts.length <= i)
+                                    ? null : contexts[i]);
+                        x.login();
+                        try {
+                            ireq.init(subhelper);
+                            statuses.add(substatus);
+                            substeps.add(x);
+                            steps += substatus.steps;
+                        } finally {
+                            x.logout();
+                        }
+                    } catch (Cancel c) {
+                        throw subcancel(c, x);
+                    }
+                }
+                else {
+                    throw helper.cancel(new ERR(), null, "bad-request",
+                        "type", req.ice_id());
+                }
             }
-            else {
-                log.error("Bad request: " + req);
-                substatus.steps = 0;
-                statuses.add(substatus);
-                offsets.add(status.steps);
-            }
+        }  catch (Cancel c) {
+            throw c; // just re-throw
+        } catch (Throwable t) {
+            helper.cancel(new ERR(), t, "bad-init");
         }
+        helper.setSteps(steps);
     }
 
     public Object step(int step) {
         helper.assertStep(step);
-        Pointer p = new Pointer(this, step);
-
+        final X x = substep(step, true);
         try {
-            return p.step();
+            return x.step(step);
         }
         catch (Cancel c) {
-            // TODO: Better to have our own ERR here with the responses
-            // of all the other subrequests for partial results.
-            helper.cancel(new ERR(), c, "subrequest-cancel");
-            return null; // Never reached.
+            throw subcancel(c, x);
         }
     }
 
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        Pointer p = new Pointer(this, step);
-        p.buildResponse(object);
+        final X x = substep(step, false);
+        x.buildResponse(step, object);
 
         if (helper.isLast(step)) {
             for (Request subreq : requests) {
@@ -117,7 +311,7 @@ public class DoAllI extends DoAll implements IRequest {
                 responses.add(ireq.getResponse());
             }
             DoAllRsp rsp = new DoAllRsp(responses, statuses);
-            helper.setResponse(rsp);
+            helper.setResponseIfNull(rsp);
         }
     }
 
@@ -125,60 +319,21 @@ public class DoAllI extends DoAll implements IRequest {
         return helper.getResponse();
     }
 
-    /**
-     * Class to calculate which subrequest is intended by a given top-level
-     * step. For example, if the subrequests have the steps:
-     * 
-     * <pre>
-     * [0,1,2], [0,1,2,3], [0,1,2]
-     * </pre>
-     * 
-     * these would map to:
-     * 
-     * <pre>
-     * [0,1,2,  3,4,5,6,    7,8,9]
-     * </pre>
-     * 
-     * And if 5 were mapped in for "step" then the {@link #req} instance would
-     * be the second from {@link DoAllI#list} and the substep value would be 2.
-     */
-    static class Pointer {
-        IRequest req;
-        int substep;
-
-        Pointer(DoAllI doall, int step) {
-            List<Integer> offsets = doall.offsets;
-            // Find the right offset
-            int i = 0;
-            int last = 0;
-            int current = 0;
-            while (i < offsets.size()) {
-                current = offsets.get(i);
-                if (step < current) {
-                    break;
-                }
-                ++i;
-                last = current;
-            }
-
-            if (i > offsets.size()) {
-                throw new RuntimeException(
-                        "Wrong step! This should never happen!");
-            }
-
-            // At this point, it must also be an IRequest, because otherwise the
-            // offset would have not changed.
-            Request subrequest = doall.requests.get(i);
-            req = (IRequest) subrequest;
-            substep = step - last;
+    protected Cancel subcancel(Cancel c, X x) {
+        final Response subrsp = x.h.getResponse();
+        final Status substatus = x.h.getStatus();
+        final Status status = helper.getStatus();
+        helper.setResponseIfNull(subrsp);
+        status.flags.addAll(substatus.flags);
+        if (status.parameters == null) {
+            status.parameters = new HashMap<String, String>();
         }
-
-        Object step() {
-            return req.step(substep);
+        if (substatus.parameters != null) {
+            status.parameters.putAll(substatus.parameters);
         }
-
-        void buildResponse(Object object) {
-            req.buildResponse(substep, object);
-        }
+        status.parameters.put("subrequest", ""+subrsp);
+        status.category = ice_id();
+        status.name = "subcancel";
+        throw c;
     }
 }

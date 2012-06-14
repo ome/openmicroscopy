@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -93,7 +95,6 @@ public class DMRefreshLoader
     	OmeroDataService os = context.getDataService();
         Iterator users = nodes.entrySet().iterator();
         long userID;
-        //TODO Review that code for refresh.
         long groupID = -1;
         List containers;
         
@@ -195,7 +196,6 @@ public class DMRefreshLoader
             	Map<SecurityContext, Object> r = 
             		new HashMap<SecurityContext, Object>(nodes.size());
             	results = r;
-                //retrieveData(ProjectData.class, nodes);
                 retrieveData(rootNodeType, nodes, r);
             }
         };
@@ -251,69 +251,55 @@ public class DMRefreshLoader
         return new BatchCall("Loading groups: ") {
             public void doCall() throws Exception
             {
-            	/* TODO, move that outside.
-                AdminService svc = context.getAdminService();
-                Entry entry;
-                Iterator i = nodes.entrySet().iterator();
-                Iterator j;
-                long groupID;
-                //Check if the user is an administrator
+            	AdminService svc = context.getAdminService();
+            	//Check if the user is an administrator
                 Boolean admin = (Boolean)
                 	context.lookup(LookupNames.USER_ADMINISTRATOR);
                 if (admin != null && admin.booleanValue()) {
-                	List<GroupData> groups = svc.loadGroups(ctx, -1);
-                    List<GroupData> r = new ArrayList<GroupData>();
-                    List<Long> toRemove = new ArrayList<Long>();
-                    List<GroupData> l;
-                    List list;
-                    SecurityContext ctx;
-                    while (i.hasNext()) {
-    					entry = (Entry) i.next();
-    					ctx = (SecurityContext) entry.getKey();
-    					list = (List) entry.getValue();
-    					j = list.iterator();
+                	Iterator<Entry<SecurityContext, List>> i = 
+                		nodes.entrySet().iterator();
+                	Entry<SecurityContext, List> e;
+                	SecurityContext ctx;
+                	while (i.hasNext()) {
+    					e = i.next();
+    					ctx = e.getKey();
+    					List<GroupData> groups = svc.loadGroups(ctx, -1);
+                        List<GroupData> r = new ArrayList<GroupData>();
+                        List<Long> toRemove = new ArrayList<Long>();
+                        List<GroupData> l;
+                        List list;
+                        list = e.getValue();
+    					Iterator j = list.iterator();
     					while (j.hasNext()) {
-    						groupID = (Long) j.next();
+    						long groupID = (Long) j.next();
     						l = svc.loadGroups(ctx, groupID);
     						toRemove.add(groupID);
     						if (l.size() == 1) r.add(l.get(0));
     					}
+    					Iterator<GroupData> k = groups.iterator();
+                        GroupData g;
+                        while (k.hasNext()) {
+        					g = (GroupData) k.next();
+        					if (!toRemove.contains(g.getId())) 
+        						r.add(g);
+        				}
+                        results = r;
     				}
-                    i = groups.iterator();
-                    GroupData g;
-                    while (i.hasNext()) {
-    					g = (GroupData) i.next();
-    					if (!toRemove.contains(g.getId())) 
-    						r.add(g);
-    				}
-                    results = r;
-                } else {
-                	ExperimenterData exp = 
-        				(ExperimenterData) context.lookup(
-        						LookupNames.CURRENT_USER_DETAILS);
-                	List<GroupData> groups = svc.reloadPIGroups(ctx, exp);
-                	Iterator<GroupData> g = groups.iterator();
-                	GroupData gd;
-                	List<GroupData> toKeep = new ArrayList<GroupData>();
-                	Set leaders;
-                	Iterator k;
-                	ExperimenterData leader;
-                	while (g.hasNext()) {
-						gd = (GroupData) g.next();
-						leaders = gd.getLeaders();
-						if (leaders != null) {
-							k = leaders.iterator();
-							while (k.hasNext()) {
-								leader = (ExperimenterData) k.next();
-								if (leader.getId() == exp.getId()) {
-									toKeep.add(gd);
-								}
-							}
-						}
+                } else { //Not admin groups owner.
+                	Collection groups = (Collection) context.lookup(
+        						LookupNames.USER_GROUP_DETAILS);
+                	Iterator i = groups.iterator();
+                	GroupData group;
+                	SecurityContext ctx;
+                	List<GroupData> l = new ArrayList<GroupData>();
+                	while (i.hasNext()) {
+                		group = (GroupData) i.next();
+						ctx = new SecurityContext(group.getId());
+						l.addAll(svc.loadGroups(ctx, group.getId()));
 					}
-                	results = toKeep;
+                	context.bind(LookupNames.USER_GROUP_DETAILS, l);
+                	results = l;
                 }
-                */
             }
         };
     }

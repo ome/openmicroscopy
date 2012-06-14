@@ -197,6 +197,21 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Loads the groups the specified experimenter is a member of.
+	 * 
+	 * @param ctx The security context.
+	 * @param id The experimenter identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<GroupData> loadGroupsForExperimenter(SecurityContext ctx,
+			long id) 
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Loads the experimenters contained in the specified group.
 	 * 
 	 * @param ctx The security context.

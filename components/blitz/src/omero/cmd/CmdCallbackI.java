@@ -20,15 +20,10 @@ package omero.cmd;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import Ice.Current;
+import java.util.concurrent.atomic.AtomicReference;
 
 import omero.ServerError;
-import omero.cmd.CmdCallbackPrx;
-import omero.cmd.CmdCallbackPrxHelper;
-import omero.cmd.HandlePrx;
-import omero.cmd.Response;
-import omero.cmd._CmdCallbackDisp;
+import Ice.Current;
 
 /**
  *
@@ -55,13 +50,30 @@ import omero.cmd._CmdCallbackDisp;
  */
 public class CmdCallbackI extends _CmdCallbackDisp {
 
+    private static class State {
+        final Response rsp;
+        final Status status;
+
+        State(Response rsp, Status status) {
+                this.rsp = rsp;
+                this.status = status;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     private final Ice.ObjectAdapter adapter;
 
     private final Ice.Identity id;
 
+    /**
+     * Latch which is released once {@link #finished(Response, Current)} is
+     * called. Other methods will block on this value.
+     */
     private final CountDownLatch latch = new CountDownLatch(1);
+
+    private final AtomicReference<State> state = new AtomicReference<State>(
+            new State(null, null));
 
     /**
      * Proxy passed to this instance on creation. Can be used by subclasses
@@ -86,17 +98,59 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         Ice.ObjectPrx prx = adapter.add(this, id);
         CmdCallbackPrx cb = CmdCallbackPrxHelper.uncheckedCast(prx);
         handle.addCallback(cb);
-
         // Now check just in case the process exited VERY quickly
-        Response rsp = handle.getResponse();
-        if (rsp != null) {
-            finished(rsp); // Only time that current should be null.
-        }
+        poll();
     }
 
     //
     // Local invocations
     //
+
+    /**
+     * Returns possibly null Response value. If null, then neither has
+     * the remote server nor the local poll method called finish with
+     * non-null values.
+     */
+    public Response getResponse() {
+        return state.get().rsp;
+    }
+
+    /**
+     * Returns possibly null Status value. If null, then neither has
+     * the remote server nor the local poll method called finish with
+     * non-null values.
+     */
+    public Status getStatus() {
+        return state.get().status;
+    }
+
+    protected Status getStatusOrThrow() {
+        Status s = getStatus();
+        if (s == null) {
+            throw new omero.ClientError("Status not present!");
+        }
+        return s;
+    }
+
+    /**
+     * Returns whether Status::CANCELLED is contained in
+     * the flags variable of the Status instance. If no
+     * Status is available, a ClientError will be thrown.
+     */
+    public boolean isCancelled() {
+        Status s = getStatusOrThrow();
+        return s.flags.contains(omero.cmd.State.CANCELLED);
+    }
+
+    /**
+     * Returns whether Status::FAILURE is contained in
+     * the flags variable of the Status instance. If no
+     * Status is available, a ClientError will be thrown.
+     */
+    public boolean isFailure() {
+        Status s = getStatusOrThrow();
+        return s.flags.contains(omero.cmd.State.FAILURE);
+    }
 
     /**
      * Calls block(long) "loops" number of times with the "ms"
@@ -113,15 +167,17 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         omero.LockTimeout {
 
         int count = 0;
+        boolean found = false;
         while (count < loops) {
             count++;
-            if (block(ms)) {
+            found = block(ms);
+            if (found) {
                 break;
             }
         }
 
-        if (block(ms)) {
-            return handle.getResponse();
+        if (found) {
+            return getResponse();
         } else {
             double waited = (ms/1000.0) * loops;
             throw new omero.LockTimeout(null, null,
@@ -131,8 +187,8 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     }
 
     /**
-     * Blocks for the given number of milliseconds unless either {@link #cancelled(Response, Current)}
-     * or {@link #finished(Response, Current)} has been called in which case
+     * Blocks for the given number of milliseconds unless
+     * {@link #finished(Response, Status, Current)} has been called in which case
      * it returns immediately with true. If false is returned, then the timeout
      * was reached.
      *
@@ -149,6 +205,22 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     //
 
     /**
+     * Calls {@link HandlePrx#getResponse} in order to check for a non-null
+     * value. If so, {@link Handle#getStatus} is also called, and the two
+     * non-null values are passed to
+     * {@link #finished(Response, Status, Current)}. This should typically
+     * not be used. Instead, favor the use of block and loop.
+     *
+     */
+    public void poll() {
+        Response rsp = handle.getResponse();
+        if (rsp != null) {
+            Status s = handle.getStatus();
+            finished(rsp, s, null); // Only time that current should be null.
+        }
+    }
+
+    /**
      * Called periodically by the server to signal that processing is
      * moving forward. Default implementation does nothing.
      */
@@ -157,36 +229,19 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     }
 
     /**
-     * Called when cancelled successfully, i.e. handle.cancel would return
-     * true.
+     * Called when the command has completed.
      */
-    public final void cancelled(Response rsp, Current __current) {
+    public final void finished(Response rsp, Status status, Current __current) {
+        state.set(new State(rsp, status));
         latch.countDown();
-        onCancelled(rsp, __current);
+        onFinished(rsp, status, __current);
     }
 
     /**
      * Method intended to be overridden by subclasses. Default logic does
      * nothing.
      */
-    protected void onCancelled(Response rsp, Current __current) {
-        // no-op
-    }
-
-    /**
-     * Called when the command has completed with anything other than
-     * a cancellation.
-     */
-    public final void finished(Response rsp, Current __current) {
-        latch.countDown();
-        onFinished(rsp, __current);
-    }
-
-    /**
-     * Method intended to be overridden by subclasses. Default logic does
-     * nothing.
-     */
-    public void onFinished(Response rsp, Current __current) {
+    public void onFinished(Response rsp, Status status, Current __current) {
         // no-op
     }
 

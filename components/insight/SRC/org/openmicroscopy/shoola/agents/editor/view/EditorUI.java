@@ -31,10 +31,9 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -314,7 +313,7 @@ class EditorUI
 					groupMenu = new JPopupMenu();
 					groupMenu.setBorder(
 		        		BorderFactory.createBevelBorder(BevelBorder.RAISED));
-					Set groups = EditorAgent.getAvailableUserGroups();
+					Collection groups = EditorAgent.getAvailableUserGroups();
 					List<GroupSelectionAction> l = 
 						controller.getUserGroupAction();
 		        	Iterator<GroupSelectionAction> i = l.iterator();

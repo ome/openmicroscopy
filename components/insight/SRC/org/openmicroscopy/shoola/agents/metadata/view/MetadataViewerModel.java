@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -397,7 +399,6 @@ class MetadataViewerModel
 	{
 		Object uo = refNode.getUserObject();
 		//if (!(uo instanceof DataObject)) return;
-		
 		if (uo instanceof ExperimenterData) return;
 		if ((uo instanceof DataObject)) {
 			//DataObject data = (DataObject) uo;
@@ -485,7 +486,7 @@ class MetadataViewerModel
 		else if (ref instanceof ScreenData)
 			return ((ScreenData) ref).getName();
 		else if (ref instanceof ExperimenterData)
-			return EditorUtil.getExperimenterName((ExperimenterData) ref);
+			return EditorUtil.formatExperimenter((ExperimenterData) ref);
 		else if (ref instanceof GroupData)
 			return ((GroupData) ref).getName();
 		return "";
@@ -520,7 +521,7 @@ class MetadataViewerModel
 			v = "Screen's Data: ";
 			v += EditorUtil.truncate(((ScreenData) ref).getName());
 		} else if (ref instanceof ExperimenterData) {
-			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
+			v = EditorUtil.formatExperimenter((ExperimenterData) ref);
 			v += "'s details";
 		} if (ref instanceof GroupData) {
 			v = ((GroupData) ref).getName();
@@ -534,16 +535,21 @@ class MetadataViewerModel
 	 * Fires an asynchronous call to save the data, add (resp. remove)
 	 * annotations to (resp. from) the object.
 	 * 
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+	void fireSaving(DataToSave object, 
 			List<Object> metadata, Collection<DataObject> data, boolean asynch)
 	{
+		List<AnnotationData> toAdd = null;
+		List<Object> toRemove = null;
+		if (object != null) {
+			toAdd = object.getToAdd();
+			toRemove = object.getToRemove();
+		}
 		if (asynch) {
 			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
 					toRemove, metadata);
@@ -620,11 +626,14 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
-					loader = new GroupEditor(component, ctx, group, 
-							data.getPermissions());
+					loader = new GroupEditor(component, getAdminContext(),
+							group, data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					loader = new AdminEditor(component, ctx, data.getGroup(),
+					SecurityContext c = ctx;
+					if (MetadataViewerAgent.isAdministrator())
+						c = getAdminContext();
+					loader = new AdminEditor(component, c, data.getGroup(),
 							data.getExperimenters());
 			}	
 			if (loader != null) {
@@ -639,13 +648,14 @@ class MetadataViewerModel
 				case AdminObject.UPDATE_GROUP:
 					try {
 						GroupData group = data.getGroup();
-						GroupData g = svc.lookupGroup(ctx, group.getName());
+						GroupData g = svc.lookupGroup(getAdminContext(),
+								group.getName());
 						if (g == null || group.getId() == g.getId())
-							svc.updateGroup(ctx, data.getGroup(),
+							svc.updateGroup(getAdminContext(), data.getGroup(),
 									data.getPermissions());
 						else {
 							UserNotifier un = 
-								MetadataViewerAgent.getRegistry().getUserNotifier();
+							MetadataViewerAgent.getRegistry().getUserNotifier();
 							un.notifyInfo("Update Group", "A group with the " +
 									"same name already exists.");
 						}
@@ -733,7 +743,7 @@ class MetadataViewerModel
 	 * @param toRemove	Collection of annotations to remove.
 	 * @param toSave    Collection of data objects to handle.
 	 */
-	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
+	void fireBatchSaving(List<AnnotationData> toAdd, List<Object> 
 						toRemove, Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, ctx,
@@ -879,12 +889,20 @@ class MetadataViewerModel
 	 */
 	void setViewedBy(Map viewedBy)
 	{ 
-		Map m = new HashMap();
+		Map m = new LinkedHashMap();
 		if (viewedBy != null) {
 			long id = MetadataViewerAgent.getUserDetails().getId();
 			Entry entry;
 			Iterator i = viewedBy.entrySet().iterator();
 			ExperimenterData exp;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (ExperimenterData) entry.getKey();
+				if (exp.getId() == id) {
+					m.put(exp, entry.getValue());
+				}
+			}
+			i = viewedBy.entrySet().iterator();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (ExperimenterData) entry.getKey();

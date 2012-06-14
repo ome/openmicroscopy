@@ -32,8 +32,6 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -51,12 +49,18 @@ import pojos.TagAnnotationData;
  * </small>
  * @since OME3.0
  */
-public class TagsLoader 	
+public class TagsLoader
 	extends DataBrowserLoader
 {
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle				handle;
+    private CallHandle handle;
+    
+    /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean loadAll;
     
     /**
      * Creates a new instance.
@@ -64,10 +68,14 @@ public class TagsLoader
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 				  annotations available if the user can annotate,
+     *                <code>false</code> to only load the user's annotation.
      */
-	public TagsLoader(DataBrowser viewer, SecurityContext ctx)
+	public TagsLoader(DataBrowser viewer, SecurityContext ctx, boolean loadAll)
 	{
 		super(viewer, ctx);
+    	this.loadAll = loadAll;
 	}
 
 	/** 
@@ -85,20 +93,10 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		ExperimenterData exp = DataBrowserAgent.getUserDetails();
-		long userID = exp.getId();//viewer.getUserID();
-		long groupID = -1;
-		switch (exp.getPermissions().getPermissionsLevel()) {
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				groupID = exp.getDefaultGroup().getId();
-				userID = -1;
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				userID = -1;
-		}
-		
+		long userID = getCurrentUser();
+		if (loadAll) userID = -1;
 		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
-												userID, groupID, this);
+												userID, this);
 	}
 	
 	/**

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -81,10 +80,7 @@ class SplashScreenManager
 	
 	/** The component's UI. */
 	private ScreenLogin			view;
-	
-	/** The component's UI. */
-	private ScreenLogo			viewTop;
-	
+
 	/** Tells whether or not the splash screen window is open. */
 	private boolean				isOpen;
 	
@@ -102,9 +98,6 @@ class SplashScreenManager
 	
 	/** Reference to the component. */
 	private SplashScreen		component;
-    
-	/** The splash login. */
-	private Icon 				splashLogin;
 	
 	/**
 	 * Attempts to log onto <code>OMERO</code>.
@@ -146,14 +139,17 @@ class SplashScreenManager
     private void updateView()
     {
     	if (view != null) view.setAlwaysOnTop(true);
-    	viewTop.setAlwaysOnTop(true); 
     	if (view != null) {
     		view.requestFocusOnField();
     	}
     }
     
-    /** Initializes the view. */
-    private void initializedView()
+    /** 
+     * Initializes the view. 
+     * 
+     * @param splashscreen The splash-screen
+     */
+    private void initializedView(Icon splashscreen)
     {
     	if (view != null) return;	
     	Image img = IconManager.getOMEImageIcon();
@@ -165,16 +161,32 @@ class SplashScreenManager
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
     	String port = ""+omeroInfo.getPortSSL();
-    	view = new ScreenLogin(Container.TITLE, splashLogin, img, v, port, 
-    			omeroInfo.getHostName());
+    	
+    	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port, 
+    			omeroInfo.getHostName(), connectToServer());
 		view.showConnectionSpeed(true);
-		Dimension d = viewTop.getExtendedSize();
-		Dimension dlogin = view.getPreferredSize();
-		Rectangle r = viewTop.getBounds();
-		view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension d = view.getPreferredSize();
+		view.setBounds((screenSize.width-d.width)/2, 
+	    		 	(screenSize.height-d.height)/2, d.width, d.height);
+		
 		view.addPropertyChangeListener(this);
 		view.addWindowStateListener(this);
 		view.addWindowFocusListener(this);
+    }
+    
+    /**
+     * Returns <code>true</code> if the client connects to a server, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean connectToServer()
+    {
+    	Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.ENTRY_POINT);
+		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
+		return false;
     }
     
 	/**
@@ -188,56 +200,30 @@ class SplashScreenManager
 	{
 		container = c;
 		this.component = component;
-		Image img = IconManager.getOMEImageIcon();
 		Registry reg = c.getRegistry();
 		String n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGO);
 		
 		String f = container.getConfigFileRelative(null);
 		Icon splashScreen = Factory.createIcon(n, f);
-		if (splashScreen == null) {
-			/*
-			Boolean online = (Boolean) container.getRegistry().lookup(
-					LookupNames.SERVER_AVAILABLE);
-			if (!online) splashScreen = IconManager.getEditorSplashScreen();
-			else splashScreen = IconManager.getSplashScreen();
-			*/
+		if (splashscreen == null) {
 			Integer v = (Integer) container.getRegistry().lookup(
 					LookupNames.ENTRY_POINT);
 			if (v != null) {
 				switch (v.intValue()) {
 					case LookupNames.EDITOR_ENTRY:
-						splashScreen = IconManager.getEditorSplashScreen();
+						splashscreen = IconManager.getEditorSplashScreen();
 						break;
 					case LookupNames.IMPORTER_ENTRY:
-						splashScreen = IconManager.getImporterSplashScreen();
+						splashscreen = IconManager.getImporterSplashScreen();
 						break;
 					default:
-						splashScreen = IconManager.getSplashScreen();
+						splashscreen = IconManager.getSplashScreen();
 				}
 			}
-			
 		}
-		n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGIN);
-		
-		splashLogin = Factory.createIcon(n, f);
-		if (splashLogin == null)
-			splashLogin = IconManager.getLoginBackground();
-		
-    	view = new ScreenLogin(Container.TITLE, splashLogin, img);
-		viewTop = new ScreenLogo(Container.TITLE, splashScreen, img);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension d = viewTop.getExtendedSize();
-		Dimension dlogin = view.getPreferredSize();
-		int totalHeight = d.height+dlogin.height;
-		viewTop.setBounds((screenSize.width-d.width)/2, 
-	    		 	(screenSize.height-totalHeight)/2, d.width, 
-	    		 	viewTop.getSize().height);
-		view = null;
-		viewTop.addPropertyChangeListener(this);
-		viewTop.addWindowStateListener(this);
-		viewTop.addWindowFocusListener(this);
 		isOpen = false;
 		doneTasks = 0;
+		initializedView(splashscreen);
 	}
     
 	/**
@@ -247,11 +233,9 @@ class SplashScreenManager
 	void open()
 	{
 		//close() has already been called.
-		if (viewTop == null) return;
-		initializedView();
-		//view.setVisible(true);
-		viewTop.setVisible(true);
-		isOpen = true;	
+		view.setVisible(true);
+		view.setStatusVisible(true);
+		isOpen = true;
 	}
 
 	/**
@@ -261,13 +245,10 @@ class SplashScreenManager
 	void close()
 	{
 		//close() has already been called.
-		if (view == null || viewTop == null) return;
+		if (view == null) return;
 		view.setVisible(false);
-		viewTop.setVisible(false);
 		view.dispose();
-		viewTop.dispose();
 		view = null;
-		viewTop = null;
 		isOpen = false;
 	}
 
@@ -285,7 +266,7 @@ class SplashScreenManager
 		//NB: Increment to show that the execution process is finished 
 		// i.e. all tasks executed.
 		totalTasks++;
-		viewTop.initProgressBar(value);
+		view.initProgressBar(value);
 	}
 	
 	/**
@@ -300,15 +281,11 @@ class SplashScreenManager
 	{
 		if (!isOpen) return;
 		int n = doneTasks++;
-		viewTop.setStatus(task, n);
+		view.setStatus(task, n);
 		if (doneTasks == totalTasks) {
-			viewTop.setStatusVisible(false);
-			boolean online = false;
-	        Integer v = (Integer) container.getRegistry().lookup(
-					LookupNames.ENTRY_POINT);
-			if (v != null) online = v.intValue() != LookupNames.EDITOR_ENTRY;
-			if (online) view.setVisible(true);
-			else viewTop.setVisible(false);
+			view.setStatusVisible(false);
+			view.requestFocusOnField();
+			if (!connectToServer()) view.setVisible(false);
 		}
 	}
     
@@ -369,20 +346,15 @@ class SplashScreenManager
 	}
 
 	/**
-	 * Reacts to state changes fired by the {@link ScreenLogo} and
-	 * {@link ScreenLogin}.
+	 * Reacts to state changes fired by the {@link ScreenLogin}.
 	 * @see WindowStateListener#windowStateChanged(WindowEvent)
 	 */
 	public void windowStateChanged(WindowEvent e)
 	{
 		Object src = e.getSource();
 		int state = e.getNewState();
-		if (src instanceof ScreenLogo) {
-			//setWindowState(view, state);
-		}
-		else if (src instanceof ScreenLogin) setWindowState(viewTop, state);
+		if (src instanceof ScreenLogin) setWindowState(view, state);
 		if (view != null) view.setAlwaysOnTop(state == JFrame.NORMAL);
-		if (viewTop != null) viewTop.setAlwaysOnTop(state == JFrame.NORMAL);
 	}
 
 	/**
@@ -393,7 +365,6 @@ class SplashScreenManager
 	{
 		if (e.getOppositeWindow() == null) {
 			if (view != null) view.setAlwaysOnTop(false);
-			if (view != null) viewTop.setAlwaysOnTop(false);
 		}
 	}
 	

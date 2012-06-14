@@ -347,7 +347,7 @@ class JsonTest (WGTest):
         self.loginAsAuthor()
         iid = self.getTestImage().getId()
         r = fakeRequest()
-        v = views.imageData_json(r, iid=iid, _conn=self.gateway)
+        v = views.imageData_json(r, iid=iid, server_id=1, conn=self.gateway, _internal=True)
         self.assert_(type(v) == type(''))
         self.assert_('"width": 512' in v)
         self.assert_('"split_channel":' in v)

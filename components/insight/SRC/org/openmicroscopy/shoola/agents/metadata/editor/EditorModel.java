@@ -70,15 +70,18 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -139,6 +142,15 @@ import pojos.XMLAnnotationData;
  */
 class EditorModel 
 {
+	
+	/** Identifies <code>all</code> the objects.*/
+	static final int ALL = PermissionMenu.ALL;
+	
+	/** Identifies the objects added by current user.*/
+	static final int ME = PermissionMenu.ME;
+	
+	/** Identifies the objects added by others.*/
+	static final int OTHER = PermissionMenu.OTHER;
 	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
@@ -414,7 +426,7 @@ class EditorModel
 	 */
 	private GroupData getGroup(long groupId)
 	{
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return null;
 		Iterator i = groups.iterator();
 		GroupData group;
@@ -425,6 +437,38 @@ class EditorModel
 		return null;
 	}
 	
+	/**
+	 * Indicates to load all annotations available if the user can annotate
+	 * and is an administrator/group owner or to only load the user's
+	 * annotation.
+	 * 
+	 * @return See above
+	 */
+	private boolean canRetrieveAll()
+	{
+		if (!canAnnotate()) return false;
+		//check the group level
+		GroupData group = getGroup(getRefObjectGroupID());
+		if (group == null) return false;
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				if (MetadataViewerAgent.isAdministrator()) return true;
+				Set leaders = group.getLeaders();
+				Iterator i = leaders.iterator();
+				long userID = getCurrentUser().getId();
+				ExperimenterData exp;
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					if (exp.getId() == userID)
+						return true;
+				}
+				return false;
+			case GroupData.PERMISSIONS_PRIVATE:
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -610,6 +654,20 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the group's id of the reference object if it is an instance of 
+	 * <code>DataObject</code> or <code>-1</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	long getRefObjectGroupID()
+	{
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return ((DataObject) ref).getGroupId();
+		return -1;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the user currently logged in is
 	 * the one currently edited, <code>false</code> otherwise.
 	 * 
@@ -740,6 +798,32 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDeleteLink(Object data)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		StructuredDataResults result = parent.getStructuredData();
+		if (result == null) return false;
+		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		if (links == null) return false;
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData link;
+		
+		while (i.hasNext()) {
+			link = i.next();
+			if (d.getId() == link.getChild().getId())
+				return link.canDelete();
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the selected objects belong to several
 	 * groups, <code>false</code> otherwise.
 	 * 
@@ -767,7 +851,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isAnnotationAllowed()
+	boolean canAddAnnotationLink()
 	{
 		if (!canAnnotate()) return false;
 		if (!isMultiSelection()) return true;
@@ -786,6 +870,30 @@ class EditorModel
 			}
 		}
 		return ids.size() <= 1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDeleteAnnotationLink()
+	{
+		if (!isMultiSelection()) return true;
+		
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
+		if (list == null) return false;
+		AnnotationLinkData link;
+		Iterator<AnnotationLinkData> i = list.iterator();
+		while (i.hasNext()) {
+			link = i.next();
+			if (link.canDelete()) return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -911,6 +1019,52 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the links corresponding to the level and the annotation.
+	 * 
+	 * @param level The level to handle.
+	 * @param ho The annotation.
+	 * @return
+	 */
+	List<Object> getLinks(int level, AnnotationData ho)
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
+		if (links == null) return new ArrayList<Object>();
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData d;
+		List<Object> results = new ArrayList<Object>();
+		long userID = getCurrentUser().getId();
+		switch (level) {
+			case ALL:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case ME:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID == d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+				break;
+			case OTHER:
+				while (i.hasNext()) {
+					d = i.next();
+					if (ho.getId() == d.getChild().getId() &&
+							userID != d.getOwner().getId()) {
+						results.add(d.getLink());
+					}
+				}
+		}
+		return results;
+	}
+	/**
 	 * Returns <code>true</code> if the annotation is already used by the 
 	 * current user, <code>false</code> otherwise.
 	 * 
@@ -992,10 +1146,21 @@ class EditorModel
 	 * 
 	 * @return
 	 */
+	boolean isAdministrator()
+	{
+		return MetadataViewerAgent.isAdministrator();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in, is a leader
+	 * of the selected group, <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
 	boolean isGroupLeader()
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return false;
 		long groupID = exp.getDefaultGroup().getId();
 		Iterator i = groups.iterator();
@@ -1647,7 +1812,7 @@ class EditorModel
 		}
 		if (exist) return;
 		TagsLoader loader = new TagsLoader(component,
-				parent.getSecurityContext());
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1670,7 +1835,7 @@ class EditorModel
 		}
 		if (exist) return;
 		AttachmentsLoader loader = new AttachmentsLoader(component,
-				parent.getSecurityContext());
+				parent.getSecurityContext(), canRetrieveAll());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1828,14 +1993,12 @@ class EditorModel
 	/**
 	 * Starts an asynchronous call to save the annotations.
 	 * 
-	 * @param toAdd		The annotation to save.
-	 * @param toRemove	The annotation to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param metadata	The metadata to save.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	void fireAnnotationSaving(List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove, List<Object> metadata, 
+	void fireAnnotationSaving(DataToSave object, List<Object> metadata,
 			boolean asynch)
 	{
 		Object ref = getRefObject();
@@ -1852,7 +2015,7 @@ class EditorModel
 					list.add(i.next());
 				toDelete.clear();
 			}
-			parent.saveData(toAdd, toRemove, list, metadata, data, asynch);
+			parent.saveData(object, list, metadata, data, asynch);
 		}
 	}
 	
@@ -1869,8 +2032,7 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			List<AnnotationData> l = new ArrayList<AnnotationData>();
-			parent.saveData(l, l, annotations, new ArrayList<Object>(), data, 
+			parent.saveData(null, annotations, new ArrayList<Object>(), data,
 					true);
 		}
 	}
@@ -1884,7 +2046,7 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))	
+		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
 			parent.updateAdminObject(data, asynch);
 	}
 	
@@ -2724,6 +2886,16 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
+	/**
+	 * Returns the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getCurrentUser()
+	{
+		return MetadataViewerAgent.getUserDetails();
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.
@@ -2790,8 +2962,7 @@ class EditorModel
     			Collection photos = svc.loadAnnotations(
     					parent.getSecurityContext(), 
     					FileAnnotationData.class,
-    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(),
-    					-1);
+    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId());
     			if (photos == null || photos.size() == 0) return;
     			List<DeletableObject> l = new ArrayList<DeletableObject>();
 	    		Iterator<AnnotationData> j = photos.iterator();

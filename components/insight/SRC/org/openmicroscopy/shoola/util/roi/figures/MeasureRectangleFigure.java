@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
 
@@ -68,6 +69,15 @@ public class MeasureRectangleFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
+	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
 	
 	/** Is this figure read only. */
 	protected boolean readOnly;
@@ -98,20 +108,34 @@ public class MeasureRectangleFigure
 	 */
 	protected int 					status;
 
+	/** The units of reference.*/
+	private String refUnits;
+	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
+        this(DEFAULT_TEXT);
     }
 
     /** 
      * Creates a new instance.
      *  
 	 * @param readOnly The figure is read only.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-    public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
+    public MeasureRectangleFigure(boolean readOnly, boolean clientObject,
+    		boolean editable, boolean deletable, boolean annotatable) 
     {
-        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject, editable,
+        		deletable, annotatable);
     }
 
     /** 
@@ -121,9 +145,23 @@ public class MeasureRectangleFigure
      * */
     public MeasureRectangleFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, false, true);
+        this(text, 0, 0, 0, 0);
     }
  
+    /** 
+     * Creates a new instance.
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+      * */
+    public MeasureRectangleFigure(String text, double x, double y, double width, 
+			double height) 
+    {
+    	this(text, x, y, width, height, false, true, true, true, true);
+    }
+    
     /** 
      * Creates a new instance.
      * 
@@ -135,7 +173,7 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height);
     }
 
     /** 
@@ -146,11 +184,16 @@ public class MeasureRectangleFigure
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
-     * */
+ 	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+     */
     public MeasureRectangleFigure(double x, double y, double width, 
-			double height, boolean readOnly, boolean clientObject) 
+			double height, boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject,
+    			editable, deletable, annotatable);
     }
     
     /** 
@@ -162,9 +205,13 @@ public class MeasureRectangleFigure
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
- 	 * */
+ 	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+ 	 */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    					double height, boolean readOnly, boolean clientObject) 
+    	double height, boolean readOnly, boolean clientObject,
+    	boolean editable, boolean deletable, boolean annotatable) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
@@ -178,6 +225,11 @@ public class MeasureRectangleFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
     }
     
     /** 
@@ -187,7 +239,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementX() 
     {
-    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getX()*units.getMicronsPixelX()).getValue();
+    	}
     	return getX();
     }
     
@@ -198,7 +253,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementY() 
     {
-    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getY()*units.getMicronsPixelY()).getValue();
+    	}
     	return getY();
     }
     
@@ -210,7 +268,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementWidth() 
     {
-    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getWidth()*units.getMicronsPixelX()).getValue();
+    	}
     	return getWidth();
     }
     
@@ -221,7 +282,10 @@ public class MeasureRectangleFigure
      */
     public double getMeasurementHeight() 
     {
-    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+    	if (units.isInMicrons()) {
+    		return UIUtilities.transformSize(
+					getHeight()*units.getMicronsPixelY()).getValue();
+    	}
     	return getHeight();
     }
     
@@ -245,14 +309,14 @@ public class MeasureRectangleFigure
      * @return see above.
      */
     public double getWidth() { return rectangle.getWidth(); }
-    
+
     /** 
      * Get the height of the figure. 
      * 
      * @return see above.
      */
     public double getHeight() { return rectangle.getHeight(); }
-    
+
     /**
      * Draw the figure on the graphics context.
      * @param g the graphics context.
@@ -305,7 +369,7 @@ public class MeasureRectangleFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -318,7 +382,7 @@ public class MeasureRectangleFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -390,7 +454,7 @@ public class MeasureRectangleFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons()) 
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
@@ -419,10 +483,13 @@ public class MeasureRectangleFigure
 	 */
 	public Point2D getCentre()
 	{
-     	if (units.isInMicrons())
-    		return new Point2D.Double(
-    				rectangle.getCenterX()*units.getMicronsPixelX(), 
-    				rectangle.getCenterY()*units.getMicronsPixelY());
+     	if (units.isInMicrons()) {
+     		double tx = UIUtilities.transformSize(
+     				rectangle.getCenterX()*units.getMicronsPixelX()).getValue();
+     		double ty = UIUtilities.transformSize(
+     				rectangle.getCenterY()*units.getMicronsPixelY()).getValue();
+     		return new Point2D.Double(tx, ty);
+     	}
     	return new Point2D.Double(rectangle.getCenterX(), 
     							rectangle.getCenterY());
 	}
@@ -479,6 +546,8 @@ public class MeasureRectangleFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -585,6 +654,7 @@ public class MeasureRectangleFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	
@@ -612,4 +682,37 @@ public class MeasureRectangleFigure
 		return figListeners;
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }

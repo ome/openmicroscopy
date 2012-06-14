@@ -122,6 +122,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
+import omero.cmd.Chmod;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -274,6 +275,9 @@ class OMEROGateway
 	
 	/** Identifies the File. */
 	private static final String REF_FILE= "/FileAnnotation";
+	
+	/** Identifies the group. */
+	private static final String REF_GROUP = "/ExperimenterGroup";
 	
 	/** Indicates to keep a certain type of annotations. */
 	static final String KEEP = "KEEP";
@@ -3274,7 +3278,7 @@ class OMEROGateway
 			StringBuffer buffer = new StringBuffer();
 			
 			buffer.append("select link from "+table+" as link ");
-			
+			buffer.append("left outer join fetch link.details.owner ");
 			buffer.append("where link.parent.id = :parentID"); 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
@@ -3480,6 +3484,8 @@ class OMEROGateway
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link ");
 			sb.append("left outer join fetch link.child child ");
+			sb.append("left outer join fetch link.parent parent ");
+			sb.append("left outer join fetch parent.details.owner ");
 			sb.append("left outer join fetch child.details.owner ");
 			sb.append("left outer join fetch link.details.owner ");
 			sb.append("where link.child.id in (:childIDs)");
@@ -3989,8 +3995,9 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
-			save = store.save();
+			OriginalFile f = store.save();
 			closeService(ctx, store);
+			if (f != null) save = f;
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
@@ -4066,16 +4073,18 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	GroupData updateGroup(SecurityContext ctx, ExperimenterGroup group, 
-			Permissions permissions) 
+			String permissions) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		try {
 			IAdminPrx svc = getAdminService(ctx);
 			svc.updateGroup(group);
-			if (permissions != null) {
-				svc.changePermissions(findIObject(ctx, group), permissions);
-			}
+			Chmod chmod = new Chmod(REF_GROUP,
+					group.getId().getValue(), null, permissions);
+			List<Request> l = new ArrayList<Request>();
+			l.add(chmod);
+			getConnector(ctx).submit(l);
 			return (GroupData) PojoMapper.asDataObject(
 					(ExperimenterGroup) findIObject(ctx, group));
 		} catch (Throwable t) {
@@ -4484,7 +4493,6 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive(ctx);
-		ctx = new SecurityContext(-1);
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID, 
@@ -6595,6 +6603,7 @@ class OMEROGateway
 			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
 			Roi rr;
+			int z, t;
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6630,9 +6639,11 @@ class OMEROGateway
 					for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
 						s = serverRoi.getShape(i);
 						if (s != null) {
-							serverCoordMap.put(new ROICoordinate(
-								s.getTheZ().getValue(), s.getTheT().getValue()),
-								s);
+							z = 0;
+							t = 0;
+							if (s.getTheZ() != null) z = s.getTheZ().getValue();
+							if (s.getTheT() != null) t = s.getTheT().getValue();
+							serverCoordMap.put(new ROICoordinate(z, t), s);
 						}
 					}
 				}
@@ -6721,12 +6732,18 @@ class OMEROGateway
 								{
 									if (serverRoi != null) 
 									{
+										z = 0;
+										t = 0;
 										serverShape = serverRoi.getShape(j);
 										if (serverShape != null) {
-											if (serverShape.getTheT().getValue()
-												== shape.getT() && 
-												serverShape.getTheZ().getValue()
-												== shape.getZ())
+											if (serverShape.getTheT() != null)
+												t = 
+												serverShape.getTheT().getValue();
+											if (serverShape.getTheZ() != null)
+												z = 
+												serverShape.getTheZ().getValue();
+											if (t == shape.getT() && 
+												z == shape.getZ())
 											{
 												shapeIndex = j;
 												break;
@@ -6737,7 +6754,8 @@ class OMEROGateway
 								if (shapeIndex !=-1) {
 									if (!removed.contains(coord))
 										updateService.deleteObject(serverShape);
-									serverRoi.addShape((Shape) shape.asIObject());
+									serverRoi.addShape(
+											(Shape) shape.asIObject());
 								} else {
 									throw new Exception("serverRoi.shapeList " +
 										"is corrupted");
@@ -7310,6 +7328,52 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Loads the groups the experimenters.
+	 * 
+	 * @param ctx The security context.
+	 * @param id The group identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<GroupData> loadGroupsForExperimenter(SecurityContext ctx, long id)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		List<GroupData> pojos = new ArrayList<GroupData>();
+		try {
+			IQueryPrx svc = getQueryService(ctx);
+			List<ExperimenterGroup> groups = null;
+			ParametersI p = new ParametersI();
+			p.addId(id);
+			groups = (List) svc.findAllByQuery("select distinct g " +
+					"from ExperimenterGroup g "
+	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch m.child u "
+	                + " where u.id = :id", p);
+			ExperimenterGroup group;
+			GroupData pojoGroup;
+			Iterator<ExperimenterGroup> i = groups.iterator();
+			while (i.hasNext()) {
+				group = i.next();
+				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
+				if (!isSystemGroup(group)) 
+					pojos.add(pojoGroup);	
+				else {
+					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
+						pojos.add(pojoGroup);	
+				}
+			}
+			return pojos;
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the available groups ");
+		}
+		return pojos;
+	}
+	
+	/**
 	 * Loads the experimenters contained in the specified group or all
 	 * experimenters if the value passed is <code>-1</code>.
 	 * 
@@ -7547,36 +7611,6 @@ class OMEROGateway
 	{
 		//root need to login and send an e-mail.
 		
-	}
-	
-	/**
-	 * Sets the permissions level.
-	 * 
-	 * @param p		The permissions of the object.
-	 * @param level The permissions to set.
-	 */
-	void setPermissionsLevel(Permissions p, int level)
-	{
-		switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ:
-				p.setGroupRead(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				p.setGroupRead(true);
-				p.setGroupAnnotate(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				p.setGroupRead(true);
-				p.setGroupAnnotate(true);
-				p.setGroupWrite(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				p.setWorldRead(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				p.setWorldRead(true);
-				p.setWorldWrite(true);
-		}
 	}
 	
 	/**
@@ -7894,7 +7928,6 @@ class OMEROGateway
 		IAdminPrx svc = getAdminService(ctx);
 		
 		try {
-			String sessionUuid = svc.getEventContext().sessionUuid;
 			Entry entry;
 			Iterator i = map.entrySet().iterator();
 			DataObject data;
@@ -7909,15 +7942,14 @@ class OMEROGateway
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
 				id = data.getId();
-				cmd = new Chgrp(sessionUuid, createDeleteCommand(
-					data.getClass().getName()), id, options, 
+				cmd = new Chgrp(createDeleteCommand(
+					data.getClass().getName()), id, options,
 					target.getGroupID());
 				commands.add(cmd);
 				j = l.iterator();
 				while (j.hasNext()) {
 					save = new Save();
 					save.obj = j.next();
-					save.session = sessionUuid;
 					commands.add(save);
 				}
 			}

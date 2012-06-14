@@ -93,9 +93,9 @@
 {% block center_details %}
 {{ block.super }}
 <div class="one_column_content">
-    <h1>My avatar</h1>
+    <h1>{% trans "Change avatar" %}</h1>
     
-    <h1><a href="{% url wamyaccount %}" style="position:relative; top:-38px; float:right" title="Go Back to Account Settings">Cancel</a></h1>
+    <h1><a href="{% url wamyaccount %}" style="position:relative; top:-38px; float:right" title="Go Back to User settings">Cancel</a></h1>
     
     
 {% if edit_mode %}
@@ -106,14 +106,13 @@
     <div class="clear"> </div>
     <p>Drag or adjust the region on the image to select an area.</p>
     
-    <h1><form name="thumbnail" action="{% url wamanageavatar ome.eventContext.userId "crop" %}" method="post">
+    <form name="thumbnail" action="{% url wamanageavatar ome.eventContext.userId "crop" %}" method="post" class="standard_form">
         <input type="hidden" name="x1" value="" id="x1" />
         <input type="hidden" name="y1" value="" id="y1" />
         <input type="hidden" name="x2" value="" id="x2" />
         <input type="hidden" name="y2" value="" id="y2" />
-        <input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
-        <input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
-    </form></h1>
+        <input type="submit" value="Crop" id="save_thumb" />
+    </form>
     
 {% else %}
     <div class="float_left" style="width:150px">

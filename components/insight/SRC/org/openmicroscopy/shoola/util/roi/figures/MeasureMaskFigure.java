@@ -22,9 +22,6 @@
 */
 package org.openmicroscopy.shoola.util.roi.figures;
 
-
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -62,10 +59,13 @@ public class MeasureMaskFigure
 	/** The BufferedImage of the Mask. */
 	protected BufferedImage 			mask;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
-        this(DEFAULT_TEXT, 0, 0, 0, 0, null, false, true);
+        this(DEFAULT_TEXT);
     }
 
     /** 
@@ -74,7 +74,7 @@ public class MeasureMaskFigure
      * */
     public MeasureMaskFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, null, false, true);
+        this(text, 0, 0, 0, 0, null, false, true, true, true, true);
     }
     
     /** 
@@ -88,7 +88,8 @@ public class MeasureMaskFigure
     public MeasureMaskFigure(double x, double y, double width, 
 			double height, BufferedImage mask) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, mask, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, mask, false, true, true, true,
+    			true);
     }
 
     /** 
@@ -99,13 +100,18 @@ public class MeasureMaskFigure
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly Is the figure read only.
-     * @param clientObject the figure is a client object
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
      * */
     public MeasureMaskFigure(double x, double y, double width, 
 			double height, BufferedImage mask, boolean readOnly, 
-			boolean clientObject) 
+			boolean clientObject, boolean editable, boolean deletable,
+	    	boolean annotatable) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, mask, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, mask, readOnly, clientObject,
+    			editable, deletable, annotatable);
     }
     
     /** 
@@ -121,12 +127,15 @@ public class MeasureMaskFigure
      * */
     public MeasureMaskFigure(String text, double x, double y, double width, 
     	double height, BufferedImage mask, boolean readOnly, 
-    	boolean clientObject) 
+    	boolean clientObject, boolean editable, boolean deletable,
+    	boolean annotatable) 
     {
-		super(text, x, y, width, height, readOnly, clientObject);
+		super(text, x, y, width, height, readOnly, clientObject, editable, 
+				deletable, annotatable);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		setMask(mask);
+		interactable = true;
     }
     
     /**
@@ -220,6 +229,7 @@ public class MeasureMaskFigure
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
 		that.setMask(this.getMask());
+		that.setInteractable(true);
 		return that;
 	}
 	
@@ -237,5 +247,18 @@ public class MeasureMaskFigure
 		return figListeners;
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
 }
-

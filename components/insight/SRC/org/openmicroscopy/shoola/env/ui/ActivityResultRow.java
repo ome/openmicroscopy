@@ -38,6 +38,7 @@ import javax.swing.JPopupMenu;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -333,6 +334,12 @@ class ActivityResultRow
 				text += " Unable to delete "+count+" file";
 				if (count > 1) text += "s";
 			}
+		} else if (row instanceof ProcessReport) {
+			ProcessReport report = (ProcessReport) row;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Category:"+report.getCategory());
+			buffer.append("Name:"+report.getName());
+			text = buffer.toString();
 		} else text = row.toString();
 		return text;
 	}

@@ -111,7 +111,7 @@ class PopupMenu
 	private JMenu createMoveToMenu()
 	{
 		List<MoveToAction> actions = controller.getMoveAction();
-		if (actions == null || actions.size() <= 1) return null;
+		if (actions == null || actions.size() == 0) return null;
 		JMenu menu = new JMenu(MoveToAction.NAME);
 		Iterator<MoveToAction> i = actions.iterator();
 		while (i.hasNext()) {
@@ -192,7 +192,7 @@ class PopupMenu
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(tagElement);
 		add(newExperimentElement);
-		add(sendFeedbackElement);
+		//add(sendFeedbackElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(copyRndSettings);
 		add(pasteRndSettings);

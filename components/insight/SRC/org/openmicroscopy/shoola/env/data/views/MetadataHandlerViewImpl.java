@@ -133,14 +133,26 @@ class MetadataHandlerViewImpl
 	 * 											AgentEventListener)
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
-		Class annotation, long userID, long groupID,
-		AgentEventListener observer)
+		Class annotation, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
-														userID, groupID);
+														userID);
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, Class, 
+	 * long, AgentEventListener)
+	 */
+	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx, 
+		Class annotation, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
+														userID);
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#saveData(SecurityContext, Collection, List, List, long, 
@@ -148,7 +160,7 @@ class MetadataHandlerViewImpl
 	 */
 	public CallHandle saveData(SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, List<Object> metadata, long userID, 
+		List<Object> toRemove, List<Object> metadata, long userID, 
 		AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(ctx, data, 
@@ -163,7 +175,7 @@ class MetadataHandlerViewImpl
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(ctx, data, 
@@ -178,7 +190,7 @@ class MetadataHandlerViewImpl
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx,
 		TimeRefObject refObject, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID, AgentEventListener observer)
+		List<Object> toRemove, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(ctx, refObject, 
 									toAdd, toRemove, userID);

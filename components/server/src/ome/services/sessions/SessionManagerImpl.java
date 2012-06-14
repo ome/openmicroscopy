@@ -1261,6 +1261,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             list.add(session);
             return list;
         } catch (Exception e) {
+            log.info("No info for " + principal.getName(), e);
             return null;
         }
     }

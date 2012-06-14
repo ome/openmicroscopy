@@ -33,9 +33,9 @@
 
 {% block title %}
     {% if eid %}
-        {% trans "Edit scientist" %}
+        {% trans "Edit user" %}
     {% else %}
-        {% trans "Add scientist" %}
+        {% trans "New User" %}
     {% endif %}
 
 {% endblock %}
@@ -171,10 +171,6 @@
                     $("div.error", $pw_form).text("New passwords don't match.");
                     return false;
                 }
-                if (new_pw == old_pw) {
-                    $("div.error", $pw_form).text("New password is the same as Old password");
-                    return false;
-                }
                 if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
                     $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
                     return false;
@@ -198,12 +194,12 @@
 
 <div class="one_column_content">
 {% if eid %}
-    <h1>{% trans "Edit scientist" %}</h1>
+    <h1>{% trans "Edit User" %}</h1>
 {% else %}
-    <h1>{% trans "Add scientist" %}</h1>
+    <h1>{% trans "New User" %}</h1>
 {% endif %}
 
-<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Experimenters">Cancel</a></h1>
+<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
 
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>
@@ -273,7 +269,7 @@
         <table>
             <tbody>
                 <tr>
-                    <td class="form"><label for"id_old_password">Admin Password</label></td>
+                    <td class="form"><label for="id_old_password">Admin Password</label></td>
                     <td class="input">{{ password_form.old_password }}</td>
                 </tr>
                 <tr>

@@ -93,20 +93,55 @@ class OutputServerStrategy
 	 * object to supply to the server.
 	 * 
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception 
 	 */
-	private void parseROI(ImageData image, long ownerID) 
+	private void parseROI(ImageData image, int index, long userID) 
 		throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
-		Iterator<ROI> roiIterator = map.values().iterator();
+		Iterator<ROI> i = map.values().iterator();
 		ROI roi;
-		while (roiIterator.hasNext())
-		{
-			roi = roiIterator.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1)
-				ROIList.add(createServerROI(roi, image));
+		switch (index) {
+			case ROIComponent.ANNOTATE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canAnnotate())
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;
+			case ROIComponent.DELETE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete()) 
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;
+			case ROIComponent.DELETE_MINE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete()) {
+						if (roi.getOwnerID() < 0 || roi.getOwnerID() == userID)
+							ROIList.add(createServerROI(roi, image));
+					}
+				}
+				break;
+			case ROIComponent.DELETE_OTHERS:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete() && roi.getOwnerID() >= 0 &&
+						roi.getOwnerID() != userID)
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;	
+			case ROIComponent.ALL:
+				while (i.hasNext())
+					ROIList.add(createServerROI(i.next(), image));
 		}
 	}
 
@@ -619,18 +654,18 @@ class OutputServerStrategy
 	 * 
 	 * @param component See above.
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	List<ROIData> writeROI(ROIComponent component, ImageData image, 
-			long ownerID) 
+	List<ROIData> writeROI(ROIComponent component, ImageData image, int index,
+			long userID)
 		throws Exception
 	{
 		this.component = component;
 		ROIList = new ArrayList<ROIData>();
-		parseROI(image, ownerID);
+		parseROI(image, index, userID);
 		return ROIList;
 	}
 
 }
-

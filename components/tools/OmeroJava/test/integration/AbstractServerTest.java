@@ -7,31 +7,16 @@
 package integration;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import javax.xml.XMLConstants;
-
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
@@ -47,13 +32,12 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
-import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
-import omero.cmd.GraphModify;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
+import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
@@ -110,12 +94,9 @@ import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.w3c.dom.Document;
 
 import spec.AbstractTest;
 //Application-internal dependencies
@@ -1028,12 +1009,11 @@ public class AbstractServerTest
      * @param perms
      * @return
      */
-    Chmod createChmodCommand(String session, String type, long id, 
-    		String perms)
+    Chmod createChmodCommand(String type, long id, String perms)
     {
-    	return new Chmod(session, type, id, null, perms);
+	return new Chmod(type, id, null, perms);
     }
-    
+
     /**
      * Asynchronous command for a single delete, this means a single 
      * report is returned for testing. 
@@ -1547,9 +1527,28 @@ public class AbstractServerTest
 	 * @return See above.
 	 * @throws Exception
 	 */
-	protected Response doChange(GraphModify change)
+	protected Response doChange(Request change)
 	    throws Exception {
-	    return doChange(client, factory, change, true);
+	    return doChange(client, factory, change, true, null);
+	}
+
+	/**
+	 * Modifies the graph.
+	 *
+	 * @param change The object hosting information about data to modify.
+	 * @return See above.
+	 * @throws Exception
+	 */
+	protected Response doChange(Request change, long groupID)
+	    throws Exception {
+	    return doChange(client, factory, change, true, groupID);
+	}
+
+	protected Response doChange(omero.client c, ServiceFactoryPrx f,
+			Request change, boolean pass)
+		throws Exception
+	{
+		return doChange(c, f, change, pass, null);
 	}
 
 	/**
@@ -1562,11 +1561,15 @@ public class AbstractServerTest
 	 * @throws Exception
 	 */
 	protected Response doChange(omero.client c, ServiceFactoryPrx f,
-			GraphModify change, boolean pass)
+			Request change, boolean pass, Long groupID)
 		throws Exception
 	{
-		final HandlePrx prx = f.submit(change);
-		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		final Map<String, String> callContext = new HashMap<String, String>();
+		if (groupID != null) {
+			callContext.put("omero.group", ""+groupID);
+		}
+		final HandlePrx prx = f.submit(change, callContext);
+		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
 		new CmdCallbackI(c, prx).loop(20, 500);
 		assertNotNull(prx.getResponse());
 
@@ -1576,7 +1579,7 @@ public class AbstractServerTest
 		if (pass) {
 		    if (rsp instanceof ERR) {
 		        ERR err = (ERR) rsp;
-		        fail(String.format("Found ERR when pass==true: %s (%s) params=",
+		        fail(String.format("Found ERR when pass==true: %s (%s) params=%s",
 		                err.category, err.name, err.parameters));
 		    }
 		    assertFalse(status.flags.contains(State.FAILURE));

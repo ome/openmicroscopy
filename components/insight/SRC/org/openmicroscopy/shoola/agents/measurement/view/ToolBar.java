@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -53,6 +55,7 @@ import org.jhotdraw.draw.DrawingEditor;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
 import org.openmicroscopy.shoola.agents.measurement.util.workflow.CreateWorkflowDialog;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -194,6 +197,9 @@ class ToolBar
     /** Dialog used to create the workflow. */
     private CreateWorkflowDialog 		createWorkflowDialog;
    
+    /** Menu offering the delete option for Admin/group owner.*/
+    private PermissionMenu deleteMenu;
+    
     /**
      * Sets the property of the toggle button.
      * 
@@ -213,22 +219,22 @@ class ToolBar
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
-				false, true));
+				false, true, true, true, true));
 		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
-				false, true));
+				false, true, true, true, true));
 		textTool = new DrawingObjectCreationTool(
 				new MeasureTextFigure(false, true));
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true));
+				new MeasureLineFigure(false, true, true, true, true));
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), 
 						lineConnectionProperties.getProperties());
 		pointTool = new DrawingPointCreationTool(
-				new MeasurePointFigure(false, true));
+				new MeasurePointFigure(false, true, true, true, true));
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true));
+	    		new MeasureBezierFigure(true, false, true, true, true, true));
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true));
+	    		new MeasureBezierFigure(false, false, true, true, true, true));
 	    
 	    Component component;
 	    
@@ -335,6 +341,20 @@ class ToolBar
     	bar.add(assistantButton);
     	button = new JButton(controller.getAction(
     			MeasurementViewerControl.DELETE));
+    	if (!model.isMember()) {
+    		button.addMouseListener(new MouseAdapter() {
+				
+				public void mousePressed(MouseEvent e) {
+					if (deleteMenu == null) {
+						deleteMenu = new PermissionMenu(PermissionMenu.DELETE, 
+								"ROIs");
+						deleteMenu.addPropertyChangeListener(controller);
+					}
+					deleteMenu.show((JComponent) e.getSource(), e.getX(),
+							e.getY());
+				}
+			});
+    	}
     	UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
     	bar.add(new JSeparator());
@@ -434,13 +454,13 @@ class ToolBar
 			Boolean value;
 			while (i.hasNext()) {
 				figure = i.next();
-				if (!figure.isReadOnly()) {
+				//if (!figure.isReadOnly()) {
 					value = MeasurementAttributes.SHOWTEXT.get(figure);
 					if (value != null && value.booleanValue()) {
 						b = value.booleanValue();
 						break;
 					}
-				}
+				//}
 			}
 			showTextButton.setSelected(b);
 		}

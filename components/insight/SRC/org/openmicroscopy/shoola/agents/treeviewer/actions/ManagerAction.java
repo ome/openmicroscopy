@@ -39,9 +39,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ProjectData;
+import pojos.GroupData;
 
 /** 
  * Brings up the <code>Manager</code> menu.
@@ -100,12 +99,8 @@ public class ManagerAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof String || ho instanceof ExperimenterData) // root
-            setEnabled(false);
-        else if (ho instanceof ProjectData || ho instanceof DatasetData)
-            setEnabled(model.canAnnotate(ho));
-        else 
-            setEnabled(false);
+        setEnabled(!(ho instanceof String || ho instanceof ExperimenterData ||
+        	ho instanceof GroupData));
     }
     
     /**

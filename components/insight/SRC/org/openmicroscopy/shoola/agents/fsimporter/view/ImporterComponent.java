@@ -182,18 +182,16 @@ class ImporterComponent
 	}
 
 	
-	/** 
-	 * Indicate that it was possible to reconnect.
-	 */
+	/** Refreshes the view when a user reconnects.*/
 	void onReconnected()
 	{
-		if (!model.isMaster()) return;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = -1;
 		if (model.getExperimenterId() == exp.getId() &&
 				group.getId() == model.getGroupId())
 			return;
+		view.reset();
 		model.setGroupId(group.getId());
 		chooser.onReconnected(view.buildToolBar());
 		refreshContainers(chooser.getType());
@@ -660,7 +658,7 @@ class ImporterComponent
 	 */
 	public GroupData getSelectedGroup()
 	{
-		Set m = ImporterAgent.getAvailableUserGroups();
+		Collection m = ImporterAgent.getAvailableUserGroups();
 		if (m == null) return null;
 		Iterator i = m.iterator();
 		long id = model.getGroupId();

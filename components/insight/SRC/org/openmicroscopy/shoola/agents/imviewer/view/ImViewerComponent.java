@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -171,6 +172,9 @@ class ImViewerComponent
     /** The color changes preview.*/
     private Map<Integer, Color>				colorChanges;
     
+    /** Flag indicating that it was not possible to save the settings.*/
+    private boolean failureToSave;
+    
 	/**
 	 * Creates and returns an image including the ROI
 	 * 
@@ -290,16 +294,9 @@ class ImViewerComponent
 	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (!canAnnotate()) return true;
+		if (failureToSave) return true;
 		if (!notifyUser) {
-			//savePlane();
-			try {
-				saveRndSettings();
-			} catch (Exception e) {
-				LogMessage logMsg = new LogMessage();
-				logMsg.println("Cannot save rendering settings. ");
-				logMsg.print(e);
-				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-			}
+			saveRndSettings();
 			return true;
 		}
 		boolean showBox = false;
@@ -614,6 +611,18 @@ class ImViewerComponent
     	fireStateChange();
     }
     
+    /**
+     * Returns <code>true</code> if some settings to save, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+	boolean hasSettingsToSave()
+	{
+		if (failureToSave) return false;
+		return !isOriginalSettings();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
@@ -898,7 +907,7 @@ class ImViewerComponent
 			originalImage = model.getOriginalImage();
 			model.setImage((BufferedImage) image);
 		}
-		
+		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -2202,6 +2211,8 @@ class ImViewerComponent
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
+			saveBeforeCopy = false;
+			failureToSave = true;
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
 			logMsg.print("Rendering Exception:");
@@ -2296,15 +2307,22 @@ class ImViewerComponent
     {
     	try {
     		model.saveRndSettings(true);
+    		failureToSave = false;
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Save rendering settings");
+	        msg.print(e);
+	        logger.error(this, msg);
+	        failureToSave = true;
+	        //post event indicating no settings to save
 		}
 		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		List<Long> l = new ArrayList<Long>();
-		l.add(model.getImageID());
-		bus.post(new RndSettingsCopied(l, getPixelsID()));
+		bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
+				getPixelsID()));
 		fireStateChange();
     }
     
@@ -2819,9 +2837,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInMicrons()
+	 * @see ImViewer#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2839,9 +2857,11 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	/** Build the view.*/
 	private void buildView()
 	{
-		int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+		int index = UnitBarSizeAction.getDefaultIndex(
+				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();

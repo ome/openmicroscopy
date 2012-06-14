@@ -76,19 +76,17 @@ public class ServerROIStrategy
 	 * 
 	 * @param rois The server side ROI to convert.
 	 * @param component
-	 * @param readOnly Is the ROI read only.
 	 * @param userID The identifier of the user currently logged in.
 	 * @throws NoSuchROIException
 	 * @throws ROICreationException
 	 * @returns See above.
 	 */
-	public List<ROI> read(Collection rois, ROIComponent component, boolean
-			readOnly, long userID)
+	public List<ROI> read(Collection rois, ROIComponent component, long userID)
 		throws NoSuchROIException, ROICreationException, 
 				ROICreationException	   
 	{
 		if (rois == null || rois.size() == 0) return new ArrayList<ROI>();
-		return inputStrategy.readROI(rois, component, readOnly, userID);
+		return inputStrategy.readROI(rois, component, userID);
 	}
 	
 	/**
@@ -96,16 +94,17 @@ public class ServerROIStrategy
 	 * 
 	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
+	 * @param userID The id of the user currently logged in.
 	 * @throws Exception 
 	 */
-	public List<ROIData> write(ROIComponent component, ImageData image, 
-			long ownerID)
+	public List<ROIData> write(ROIComponent component, ImageData image,
+			int index, long userID)
 		throws Exception
 	{
 		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component, image, ownerID);
+		return outputStrategy.writeROI(component, image, index, userID);
 	}
-	
+
 }

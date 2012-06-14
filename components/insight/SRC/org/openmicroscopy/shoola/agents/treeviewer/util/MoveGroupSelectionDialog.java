@@ -278,8 +278,12 @@ public class MoveGroupSelectionDialog
 		cancel();
 	}
 	
-	/** Initializes the components.*/
-	private void initComponents()
+	/** Initializes the components.
+	 * 
+	 * @param same Pass <code>true</code> if the user moving the data and the 
+	 * 			   owner of the data are the same person, <code>false</code>
+	 */
+	private void initComponents(boolean same)
 	{
 		containerType = null;
 		sorter = new ViewerSorter();
@@ -290,7 +294,7 @@ public class MoveGroupSelectionDialog
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
 		moveButton = new JButton("Move");
-		moveButton.setEnabled(false);
+		moveButton.setEnabled(true);
 		moveButton.addActionListener(this);
 		moveButton.setActionCommand(""+MOVE);
 		Entry<SecurityContext, List<DataObject>> entry;
@@ -312,8 +316,11 @@ public class MoveGroupSelectionDialog
 				}
 			}
 		}
-		
-		createButton.setVisible(containerType != null);
+		createButton.setEnabled(false);
+		if (same) {
+			createButton.setEnabled(containerType != null);
+			createButton.setVisible(containerType != null);
+		}
 	}
 	
 	/** 
@@ -456,9 +463,11 @@ public class MoveGroupSelectionDialog
 	 * @param userID The identifier of the user.
 	 * @param group The group where to move the data to.
 	 * @param toMove The objects to move.
+	 * @param same Pass <code>true</code> if the user moving the data and the 
+	 * 			   owner of the data are the same person, <code>false</code>
 	 */
 	public MoveGroupSelectionDialog(JFrame owner, long userID, GroupData group,
-			Map<SecurityContext, List<DataObject>> toMove)
+			Map<SecurityContext, List<DataObject>> toMove, boolean same)
 	{
 		super(owner);
 		if (group == null)
@@ -469,7 +478,7 @@ public class MoveGroupSelectionDialog
 		this.group = group;
 		this.toMove = toMove;
 		this.userID = userID;
-		initComponents();
+		initComponents(same);
 		buildGUI();
 	}
 
@@ -559,7 +568,15 @@ public class MoveGroupSelectionDialog
 	public void valueChanged(TreeSelectionEvent e)
 	{
 		TreePath[] paths = treeDisplay.getSelectionPaths();
-		moveButton.setEnabled(paths != null && paths.length > 0);
+		if (paths == null || paths.length == 0) {
+			moveButton.setEnabled(false);
+			return;
+		}
+		Object p = paths[0].getLastPathComponent();
+		if (p instanceof TreeImageDisplay) {
+			Object ho = ((TreeImageDisplay) p).getUserObject();
+			moveButton.setEnabled(ho.getClass().equals(containerType));
+		}
 	}
 
 }

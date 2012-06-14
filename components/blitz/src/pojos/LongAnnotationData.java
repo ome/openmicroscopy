@@ -78,6 +78,7 @@ public class LongAnnotationData extends AnnotationData {
      *            The value to set. 
      */
     public void setDataValue(long value) {
+    	setDirty(true);
         omero.RLong l = rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }

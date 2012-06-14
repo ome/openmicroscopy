@@ -53,16 +53,17 @@
 
 {% block body %}
 
+<div style="margin: auto">
 
 <div id="login-logo">
-    <img src="{% static "webclient/image/logo_login.png" %}" />
+    <img src="{% static "webclient/image/logo_login_web.png" %}" />
 </div>
 
 	
 
 
 <div id="login">
-    <form class="standard_form inlined" action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
+    <form class="standard_form inlined" action="{% url weblogin %}{% if url %}?{{url}}{% endif %}" method="post">
         
 			
             {% if error %}
@@ -118,9 +119,7 @@
                   {% endfor %}
 				{% endif %}
 			</div>
-            
-        <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
-			
+
         	<input type="submit" value="Login" />
     </form>
 </div>
@@ -130,22 +129,11 @@
 	
 	<p>
 		OMERO.web {{ version }}.<br/>
-		&copy; 2007-2011 University of Dundee &amp; Open Microscopy Environment<br/><br/>
+		&copy; 2007-2012 University of Dundee &amp; Open Microscopy Environment<br/><br/>
 		OMERO is developed under the GPL. For more information, visit <a href="http://www.openmicroscopy.org">Open Microscopy</a>
 	</p>
 	
 {% endblock %}
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
+</div>

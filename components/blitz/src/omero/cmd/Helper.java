@@ -25,14 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import ome.conditions.InternalException;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+import omero.cmd.HandleI.Cancel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
-import omero.cmd.HandleI.Cancel;
 
 /**
  * Helper object for all omero.cmd implementations.
@@ -46,7 +46,7 @@ import omero.cmd.HandleI.Cancel;
  */
 public class Helper {
 
-    private static final Log log = LogFactory.getLog(Helper.class);
+    private final Log log;
 
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
@@ -59,10 +59,12 @@ public class Helper {
     private final Session session;
 
     private final SqlAction sql;
-    
+
     private int assertSteps = 0;
-    
+
     private int assertResponses = 0;
+
+    private boolean stepsSet = false;
 
     public Helper(Request request, Status status, SqlAction sql,
             Session session, ServiceFactory sf) {
@@ -76,10 +78,44 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
+        this.log = LogFactory.getLog(
+            this.request.toString().replaceAll("@", ".@"));
+    }
+
+    /**
+     * Run {@link IRequest#init(Helper)} on a sub-command by creating a new
+     * Helper instance.
+     * @param ireq
+     * @param substatus
+     */
+    public Helper subhelper(Request req, Status substatus) {
+        return new Helper(req, substatus, sql, session, sf);
+    }
+
+    private void requireStepsSet() {
+        if (!stepsSet) {
+            cancel(new ERR(), new InternalException("Steps unset!"), "steps-unset");
+        }
+    }
+
+    public void setSteps(int steps) {
+        if (stepsSet) {
+            cancel(new ERR(), new InternalException("Steps set!"), "steps-set");
+        }
+        status.steps = steps;
+        stepsSet = true;
+        if (steps == 0) {
+            cancel(new ERR(), null, "no-steps");
+        }
     }
 
     public int getSteps() {
+        requireStepsSet();
         return status.steps;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public Response getResponse() {
@@ -94,12 +130,12 @@ public class Helper {
      *            Can be null.
      * @return
      */
-    public boolean setResponse(Response rsp) {
+    public boolean setResponseIfNull(Response rsp) {
         return this.rsp.compareAndSet(null, rsp);
     }
 
     //
-    // REPORTING
+    // Data access
     // =========================================================================
     //
 
@@ -109,6 +145,47 @@ public class Helper {
 
     public Session getSession() {
         return session;
+    }
+
+    public SqlAction getSql() {
+        return sql;
+    }
+
+    //
+    // Logging
+    // =========================================================================
+    //
+
+    public void debug(String fmt, Object...args) {
+        if (log.isDebugEnabled()) {
+            log.debug(String.format(fmt, args));
+        }
+    }
+
+    public void info(String fmt, Object...args) {
+        if (log.isInfoEnabled()) {
+            log.info(String.format(fmt, args));
+        }
+    }
+
+    public void warn(String fmt, Object...args) {
+        if (log.isWarnEnabled()) {
+            log.warn(String.format(fmt, args));
+        }
+    }
+
+    public void error(String fmt, Object...args) {
+        error(null, fmt, args);
+    }
+
+    public void error(Throwable t, String fmt, Object...args) {
+        if (log.isErrorEnabled()) {
+            if (t != null) {
+                log.error(String.format(fmt, args), t);
+            } else {
+                log.error(String.format(fmt, args));
+            }
+        }
     }
 
     //
@@ -139,23 +216,37 @@ public class Helper {
      * @param name
      * @param paramList
      */
-    protected void fail(ERR err, final String name, final String... paramList) {
-        fail(err, name, params(paramList));
+    public void fail(ERR err, Throwable t, final String name, final String... paramList) {
+        fail(err, t, name, params(paramList));
     }
 
     /**
-     * Sets the status.flags and the ERR properties appropriately.
+     * Sets the status.flags and the ERR properties appropriately and also
+     * stores the message and stacktrace of the throwable in the parameters. 
      *
      * @param err
      * @param name
      * @param params
      */
-    protected void fail(ERR err, final String name,
+    public void fail(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
         status.flags.add(State.FAILURE);
         err.category = request.ice_id();
         err.name = name;
-        err.parameters = params;
+        if (err.parameters == null) {
+            err.parameters = params;
+        } else {
+            err.parameters.putAll(params);
+        }
+        if (t != null) {
+            String msg = t.getMessage();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            String st = sw.toString();
+            err.parameters.put("message", msg);
+            err.parameters.put("stacktrace", st);
+        }
         rsp.set(err);
     }
 
@@ -176,8 +267,7 @@ public class Helper {
     }
 
     /**
-     * Like {@link #fail(ERR, String, String...)} but also stores the message
-     * and stacktrace of the throwable in the parameters and throws a
+     * Like {@link #fail(ERR, String, String...)} throws a
      * {@link Cancel} exception.
      *
      * A {@link Cancel} is thrown, even though one is also specificed as the
@@ -197,22 +287,13 @@ public class Helper {
      */
     public Cancel cancel(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
-        fail(err, name, params);
-
+        fail(err, t, name, params);
+        status.flags.add(State.CANCELLED);
         Cancel cancel = new Cancel(name);
         if (t != null) {
-
-            String msg = t.getMessage();
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            String st = pw.toString();
-            err.parameters.put("message", msg);
-            err.parameters.put("stacktrace", sw.toString());
-
             cancel.initCause(t);
-
         }
+        info("Cancelled");
         throw cancel;
     }
 
@@ -246,7 +327,7 @@ public class Helper {
         assertStep(this.assertSteps, step);
         this.assertSteps++;
     }
-    
+
     /**
      * Checks the given steps against the number of times that this method
      * has been called on this instance and then increments the call count.
@@ -262,4 +343,5 @@ public class Helper {
     public boolean isLast(int step) {
         return step == (status.steps - 1);
     }
+
 }

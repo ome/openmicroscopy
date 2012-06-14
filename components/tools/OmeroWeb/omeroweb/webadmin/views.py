@@ -154,7 +154,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
         if gr.id in excluded_ids:
             flag = True
         if not flag:
-            ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
+            ownedGroups.append(gr)
     return ownedGroups
 
 # myphoto helpers
@@ -168,33 +168,16 @@ def attach_photo(conn, newFile):
     conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
 
 # permission helpers
-def setActualPermissions(permissions, readonly=None):
-    p = PermissionsI()
+def setActualPermissions(permissions):
     permissions = int(permissions)
     if permissions == 0:
-        # 0 private
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(False)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI("rw----")
     elif permissions == 1:
-        # 1 collaborative
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(not readonly)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI("rwr---")
     elif permissions == 2:
-        # 2 public
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(not readonly)
-        p.setWorldRead(True)
-        p.setWorldWrite(not readonly)
+        p = PermissionsI("rwra--")
+    else:
+        p = PermissionsI()
     return p
 
 def getActualPermissions(group):
@@ -205,25 +188,34 @@ def getActualPermissions(group):
         p = group.details.getPermissions()
     
     flag = None
-    if p.isUserRead():
-        flag = 0
-    if p.isGroupRead():
-        flag = 1
-    if p.isWorldRead():
+    if p.isGroupAnnotate():
         flag = 2
+    elif p.isGroupRead():
+        flag = 1
+    elif p.isUserRead():
+        flag = 0
     
     return flag
 
 # getters
 def getSelectedGroups(conn, ids):
-    if len(ids)>0:
+    if ids is not None and len(ids)>0:
         return list(conn.getObjects("ExperimenterGroup", ids))
     return list()
 
 def getSelectedExperimenters(conn, ids):
-    if len(ids)>0:
+    if ids is not None and len(ids)>0:
         return list(conn.getObjects("Experimenter", ids))
     return list()
+
+def mergeLists(list1,list2):
+    if not list1 and not list2: return list()
+    if not list1: return list(list2)
+    if not list2: return list(list1)
+    result = list()
+    result.extend(list1)
+    result.extend(list2)
+    return set(result)
 
 # Drivespace helpers
 def _bytes_per_pixel(pixel_type):
@@ -264,7 +256,7 @@ def usersData(conn, offset=0):
     usage_map = dict()
     exps = dict()
     for e in list(conn.getObjects("Experimenter")):
-        exps[e.id] = e.getFullName()
+        exps[e.id] = e.getNameWithInitial()
         
     PAGE_SIZE = 1000
     offset = long(offset)
@@ -427,11 +419,13 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             context = {'form':form}
     elif action == 'edit' :
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+        defaultGroupId = defaultGroup is not None and defaultGroup.id or None
+        
         initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
                                 'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                 'email':experimenter.email, 'institution':experimenter.institution,
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
-                                'default_group': defaultGroup.id, 'other_groups':[g.id for g in otherGroups],
+                                'default_group': defaultGroupId, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
@@ -556,28 +550,49 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
+                members = form.cleaned_data['members']
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
                 
-                perm = setActualPermissions(permissions, readonly)
+                perm = setActualPermissions(permissions)
                 listOfOwners = getSelectedExperimenters(conn, owners)
-                conn.createGroup(name, perm, listOfOwners, description)
+                gid = conn.createGroup(name, perm, listOfOwners, description)
+                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                group = conn.getObject("ExperimenterGroup", gid)
+                conn.setMembersOfGroup(group, new_members)
+                
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'form':form}
     elif action == 'edit':
         group = conn.getObject("ExperimenterGroup", gid)
         ownerIds = [e.id for e in group.getOwners()]
         
+        experimenterDefaultIds = list()
+        for e in experimenters:
+            if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+                experimenterDefaultIds.append(str(e.id))
+        experimenterDefaultGroups = ",".join(experimenterDefaultIds)
+        
+        memberIds = [m.id for m in group.getMembers()]
+        
         permissions = getActualPermissions(group)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
-                                     'permissions': permissions, 'readonly': group.isReadOnly(), 
-                                     'owners': ownerIds, 'experimenters':experimenters})
-        context = {'form':form, 'gid': gid, 'permissions': permissions}
+                                     'permissions': permissions, 
+                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
+        
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
     elif action == 'save':
+        group = conn.getObject("ExperimenterGroup", gid)
+        
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
         else:
-            group = conn.getObject("ExperimenterGroup", gid)
+            experimenterDefaultIds = list()
+            for e in (experimenters):
+                if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+                    experimenterDefaultIds.append(str(e.id))
+            experimenterDefaultGroups = ",".join(experimenterDefaultIds)
+            
+            permissions = getActualPermissions(group)
             
             name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
             form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
@@ -587,43 +602,20 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
+                members = form.cleaned_data['members']
                 
                 listOfOwners = getSelectedExperimenters(conn, owners)
-                if getActualPermissions(group) != int(permissions) or group.isReadOnly() != readonly:
-                    perm = setActualPermissions(permissions, readonly)
+                if permissions != int(permissions):
+                    perm = setActualPermissions(permissions)
                 else:
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
+                
+                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                conn.setMembersOfGroup(group, new_members)
+                
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'form':form, 'gid': gid}
-    elif action == "update":
-        template = "webadmin/group_edit.html"
-        
-        group = conn.getObject("ExperimenterGroup", gid)
-        memberIds = group.getMembers()
-        
-        form = ContainedExperimentersForm(initial={'experimenters':experimenters, 'members':memberIds}, data=request.POST.copy())
-        if form.is_valid():
-            members = form.cleaned_data['members']
-            new_members = getSelectedExperimenters(conn, members)
-            
-            conn.setMembersOfGroup(group, new_members)
-            return HttpResponseRedirect(reverse("wagroups"))
-            
-        context = {'form':form, 'group':group}
-    elif action == "members":
-        template = "webadmin/group_edit.html"
-        
-        group = conn.getObject("ExperimenterGroup", gid)
-        
-        for i, e in enumerate(experimenters):
-            if e.getDefaultGroup().id == group.id:
-                experimenters[i].setFirstName("*%s" % (e.firstName))
-        
-        memberIds = [m.id for m in group.getMembers()]
-        form = ContainedExperimentersForm(initial={'members':memberIds, 'experimenters':experimenters})
-        context = {'form':form, 'group':group}
+            context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
@@ -640,7 +632,7 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     
     if action == 'edit':
         permissions = getActualPermissions(group)
-        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': group.isReadOnly()})
+        form = GroupOwnerForm(initial={'permissions': permissions})
         context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group}
     elif action == "save":
         if request.method != 'POST':
@@ -649,11 +641,10 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
                 
                 permissions = int(permissions)
-                if getActualPermissions(group) != permissions or group.isReadOnly()!=readonly:
-                    perm = setActualPermissions(permissions, readonly)
+                if getActualPermissions(group) != permissions:
+                    perm = setActualPermissions(permissions)
                     conn.updatePermissions(group, perm)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'form':form, 'gid': gid}
@@ -670,6 +661,7 @@ def my_account(request, action=None, conn=None, **kwargs):
     template = "webadmin/myaccount.html"
     
     experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
+    defaultGroupId = defaultGroup is not None and defaultGroup.id or None
     ownedGroups = ownedGroupsInitial(conn)
     
     password_form = ChangePassword()
@@ -695,14 +687,10 @@ def my_account(request, action=None, conn=None, **kwargs):
         form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
                                     'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                     'email':experimenter.email, 'institution':experimenter.institution,
-                                    'default_group':defaultGroup, 'groups':otherGroups})
+                                    'default_group':defaultGroupId, 'groups':otherGroups})
     
     photo_size = conn.getExperimenterPhotoSize()
-    form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
-                                    'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
-                                    'email':experimenter.email, 'institution':experimenter.institution,
-                                    'default_group':defaultGroup, 'groups':otherGroups})
-        
+    
     context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template
     return context

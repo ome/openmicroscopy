@@ -93,7 +93,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -182,7 +181,7 @@ class TreeViewerComponent
 	 */
 	private String getGroupName(long groupId)
 	{
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		Iterator j = groups.iterator();
 		GroupData group;
 		while (j.hasNext()) {
@@ -1462,7 +1461,7 @@ class TreeViewerComponent
 		if (experimenters == null) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		//Check that the group is displayed.
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups == null) return;
 		TreeImageDisplay refNode = null;
 		ExperimenterVisitor visitor;
@@ -1916,22 +1915,38 @@ class TreeViewerComponent
 		Map<Long, List<DataObject>> elements = 
 			new HashMap<Long, List<DataObject>>();
 		long gid;
-		List<DataObject> l;
+		List<DataObject> l = new ArrayList<DataObject>();
 		TreeImageDisplay n;
 		Object os;
+		boolean admin = false;
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			admin = browser.getBrowserType() == Browser.ADMIN_EXPLORER;
+		}
 		for (int j = 0; j < nodes.length; j++) {
 			n = nodes[j];
 			os = n.getUserObject();
-			if (os instanceof DataObject &&
-				!(os instanceof ExperimenterData ||
+			if (os instanceof DataObject) {
+				if (!(os instanceof ExperimenterData ||
 					os instanceof GroupData)) {
-				gid = ((DataObject) os).getGroupId();
-				if (!elements.containsKey(gid)) {
-					elements.put(gid, new ArrayList<DataObject>());
+					gid = ((DataObject) os).getGroupId();
+					if (!elements.containsKey(gid)) {
+						elements.put(gid, new ArrayList<DataObject>());
+					}
+					l = elements.get(gid);
+					l.add((DataObject) os);
+				} else if (os instanceof ExperimenterData) {
+					l.add((DataObject) os);
 				}
-				l = elements.get(gid);
-				l.add((DataObject) os);
 			}
+		}
+		if (admin && l.size() > 0) {
+			boolean b = model.paste(parents);
+			if (!b) {
+				un.notifyInfo("Paste", 
+				"The Users to copy cannot be added to the selected Groups."); 
+			} else fireStateChange();
+			return;
 		}
 		if (elements.size() == 0) return;
 		Iterator<Long> i;
@@ -2006,8 +2021,8 @@ class TreeViewerComponent
 					(List<DataObject>) entry.getValue(), trans);
 			t.setGroupName(getGroupName(id));
 			param = new TransferableActivityParam(
-					icons.getIcon(IconManager.APPLY_22), t);
-			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+					icons.getIcon(IconManager.MOVE_22), t);
+			param.setFailureIcon(icons.getIcon(IconManager.MOVE_FAILED_22));
 			un.notifyActivity(model.getSecurityContext(), param);
 		}
 	}
@@ -2071,21 +2086,25 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (group == null) group = model.getSelectedGroup();
 		
 		int level = group.getPermissions().getPermissionsLevel();
 		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			ExperimenterData currentUser = model.getExperimenter();
-			Set leaders = group.getLeaders();
-			Iterator k = leaders.iterator();
-			ExperimenterData exp;
 			boolean owner = false;
-			while (k.hasNext()) {
-				exp = (ExperimenterData) k.next();
-				if (exp.getId() == currentUser.getId()) {
-					owner = true;
-					break;
+			if (TreeViewerAgent.isAdministrator()) owner = true;
+			else {
+				ExperimenterData currentUser = model.getExperimenter();
+				Set leaders = group.getLeaders();
+				Iterator k = leaders.iterator();
+				ExperimenterData exp;
+				
+				while (k.hasNext()) {
+					exp = (ExperimenterData) k.next();
+					if (exp.getId() == currentUser.getId()) {
+						owner = true;
+						break;
+					}
 				}
 			}
 			if (!owner) return;
@@ -2271,7 +2290,7 @@ class TreeViewerComponent
 	 */
 	public void pasteRndSettings(TimeRefObject ref)
 	{
-		//TODO Check state.
+		if (model.getState() == DISCARDED) return;
 		if (!hasRndSettings()) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "No rendering settings to" +
@@ -3792,10 +3811,13 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null || browser.getBrowserType() != 
 			Browser.FILE_SYSTEM_EXPLORER) return;
-		if (browser.register(file.getData())) 
+		if (browser.register(file.getData())) {
+			/*
 			model.getMetadataViewer().saveData(file.getToAdd(), 
 					file.getToRemove(), file.getToDelete(), 
 					file.getMetadata(), file.getData(), true);
+					*/
+		}
 	}
 
 	/** 
@@ -3904,7 +3926,7 @@ class TreeViewerComponent
 		model.getMetadataViewer().onGroupSwitched(true);
 		view.createTitle();
 		view.setPermissions();
-		//model.resetMetadataViewer();
+		view.resetLayout();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;
@@ -4174,7 +4196,7 @@ class TreeViewerComponent
 			Object ho; 
 			for (int i = 0; i < selection.length; i++) {
 				ho = selection[i].getUserObject();
-				if (ho instanceof ImageData && canEdit(ho))
+				if (ho instanceof ImageData && canLink(ho))
 					images.add(ho);
 			}
 			if (images.size() == 0) {
@@ -4228,6 +4250,7 @@ class TreeViewerComponent
 		if (browser == null) objects = new ArrayList<DataObject>();
 		else objects = browser.getSelectedDataObjects();
 
+		if (objects == null) objects = new ArrayList<DataObject>();
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4290,7 +4313,7 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		if (!canEdit(ot) && !(ot instanceof ExperimenterData ||
+		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");
@@ -4383,7 +4406,7 @@ class TreeViewerComponent
 		else {
 			if (groupID == -1) return;
 			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"you want to move the selected items to another group?");
+					"sure want to move the selected items to another group?");
 			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 			SecurityContext ctx = new SecurityContext(groupID);
 			otData = null;
@@ -4493,12 +4516,15 @@ class TreeViewerComponent
 		long gid;
 		List<DataObject> l;
 		long refgid = group.getId();
+		List<Long> userIDs = new ArrayList<Long>();
 		while (i.hasNext()) {
 			data = i.next();
 		    if (canChgrp(data)) {
 		    	if (data instanceof ProjectData || data instanceof ScreenData)
 					b = data.getClass();
 				gid = data.getGroupId();
+				if (!userIDs.contains(data.getOwner().getId()))
+					userIDs.add(data.getOwner().getId());
 				if (gid != refgid) {
 					ctx = getKey(map, gid);
 					if (ctx == null) {
@@ -4511,6 +4537,12 @@ class TreeViewerComponent
 				}
 		    }
 		}
+		if (userIDs.size() != 1) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Move Data ", "You can only move the data of one " +
+					"member at a time.");
+			return;
+		}
 		if (map.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Move Data ", "No data to move to "+group.getName());
@@ -4521,10 +4553,13 @@ class TreeViewerComponent
 			moveData(ctx, null, map);
 		} else { //load the collection for the specified group
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
-			MoveGroupSelectionDialog dialog = new MoveGroupSelectionDialog(view,
-					exp.getId(), group,  map);
-			UIUtilities.centerAndShow(dialog);
-			model.fireMoveDataLoading(ctx, dialog, b);
+			long userID = userIDs.get(0);
+			if (userID == exp.getId()) {
+				MoveGroupSelectionDialog dialog = 
+					new MoveGroupSelectionDialog(view, userID, group, map, true);
+				UIUtilities.centerAndShow(dialog);
+				model.fireMoveDataLoading(ctx, dialog, b, userID);
+			} else moveData(ctx, null, map);
 		}
 	}
 	
@@ -4539,7 +4574,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups.size() <= 1) return;
 		
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);

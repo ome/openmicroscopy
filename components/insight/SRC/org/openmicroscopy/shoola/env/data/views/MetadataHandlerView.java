@@ -178,9 +178,23 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
-			Class annotation, long userID, long groupID,
-			AgentEventListener observer);
+			Class annotation, long userID, AgentEventListener observer);
 
+	/**
+	 * Loads the existing annotations defined by the annotation type
+	 * linked to a given type of object.
+	 * Loads all the annotations if the object's type is <code>null</code>.
+	 * 
+	 * @param ctx The security contexts.
+	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
+	 * @param userID		The id of the user the annotations are owned by,
+	 * 						or <code>-1</code> if no user specified.
+	 * @param observer  	Call-back handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx, 
+			Class annotation, long userID, AgentEventListener observer);
+	
 	/**
 	 * Saves the object, adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
@@ -195,7 +209,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveData(SecurityContext ctx, Collection<DataObject> data,
-		List<AnnotationData> toAdd, List<AnnotationData> toRemove,
+		List<AnnotationData> toAdd, List<Object> toRemove,
 		List<Object> metadata,	long userID, AgentEventListener observer);
 	
 	/**
@@ -213,7 +227,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**
@@ -231,7 +245,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**

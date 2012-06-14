@@ -95,6 +95,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
@@ -124,8 +125,7 @@ public class ModelMapper
      */
     public static void unloadCollections(IObject object)
     {
-        if (object == null)
-            throw new IllegalArgumentException("The object mustn't be null.");
+        if (object == null) return;
         if (object.isLoaded())
         	object.unloadCollections();
     }
@@ -157,6 +157,36 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getChild();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getChild();
+    	return null;
+    }
+    
+    /**
+     * Returns the child from the passed link.
+     * 
+     * @param link The link to handle.
+     * @return See above.
+     */
+    public static IObject getParentFromLink(IObject link)
+    {
+    	if (link == null) return null;
+    	if (link instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) link).getParent();
+    	if (link instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) link).getParent();
+    	if (link instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) link).getParent();
+    	if (link instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) link).getParent();
+    	if (link instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) link).getParent();
+    	if (link instanceof WellSampleAnnotationLink)
+    		return ((WellSampleAnnotationLink) link).getParent();
+    	if (link instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) link).getParent();
+    	if (link instanceof PlateAcquisitionAnnotationLink)
+    		return ((PlateAcquisitionAnnotationLink) link).getParent();
+    	if (link instanceof AnnotationAnnotationLink)
+    		return ((AnnotationAnnotationLink) link).getParent();
     	return null;
     }
     

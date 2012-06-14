@@ -121,6 +121,14 @@ class BrowserControl
 	/** Identifies the <code>Reset Password</code> action. */
 	static final Integer    RESET_PASSWORD = Integer.valueOf(12);
 	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    CUT = Integer.valueOf(13);
+	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    COPY = Integer.valueOf(14);
+	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    PASTE = Integer.valueOf(15);
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -151,6 +159,12 @@ class BrowserControl
         actionsMap.put(IMPORT, new BrowserImportAction(model));
         actionsMap.put(REFRESH, new BrowserRefreshAction(model));
         actionsMap.put(RESET_PASSWORD, new BrowserPasswordResetAction(model));
+        actionsMap.put(CUT, new BrowserManageAction(model,
+        		BrowserManageAction.CUT));
+        actionsMap.put(COPY, new BrowserManageAction(model,
+        		BrowserManageAction.COPY));
+        actionsMap.put(PASTE, new BrowserManageAction(model,
+        		BrowserManageAction.PASTE));
     }
     
     /**

@@ -284,7 +284,7 @@ public class IconManager
         relPaths[REPORT_48] = "nuvola_style48.png";
         relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";
         relPaths[TAG] = "nuvola_knotes16.png";
-        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[EDITOR] = "omeroEditor16.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[FIELDS_VIEW] = "nuvola_view_multicolumn16.png";

@@ -112,7 +112,12 @@ public class ProxyCleanupFilter extends ContextFilter {
         } else {
 
             if (f instanceof IObject) {
-                acl.postProcess((IObject) f);
+                if (acl != null) {
+                    // When acl is null, assume this is for internal use
+                    // and therefore the object will not be passed out.
+                    // See ticket:8794 and OmeroMetadata.java
+                    acl.postProcess((IObject) f);
+                }
             }
 
             // Also for security reasons, we're now checking ownership

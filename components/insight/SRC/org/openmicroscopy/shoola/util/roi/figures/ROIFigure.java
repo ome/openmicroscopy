@@ -212,5 +212,44 @@ public interface ROIFigure
 	 * @return See above.
 	 */
 	public List<FigureListener> getFigureListeners();
+	
+	/** 
+	 * Indicates if the ROI can be edited if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canEdit();
+	
+	/** 
+	 * Indicates if the ROI can be annotated if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canAnnotate();
+	
+	/** 
+	 * Indicates if the ROI can be deleted if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canDelete();
+	
+	/**
+	 * Sets to <code>true</code> if the user can move/resize the shape,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param interactable The value to set.
+	 */
+	public void setInteractable(boolean interactable);
+	
+	/** 
+	 * Indicates if the user can or cannot move/resize the figure.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canInteract();
 
 }

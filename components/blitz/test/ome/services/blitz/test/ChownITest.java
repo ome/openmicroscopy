@@ -682,7 +682,7 @@ public class ChownITest extends AbstractGraphTest {
         Ice.Identity id = new Ice.Identity("handle", "chown");
         HandleI handle = new HandleI(1000);
         handle.setSession(user.sf);
-        handle.initialize(id, chown);
+        handle.initialize(id, chown, null);
         handle.run();
         // Client side this would need a try/finally { handle.close() }
         return new _HandleTie(handle);

@@ -159,15 +159,20 @@ class InputServerStrategy
 	 * Transforms a server ROI into its UI representation.
 	 * 
 	 * @param roi The object to transform.
-	 * @param readOnly The object is readOnly.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 */
-	private ROI createROI(ROIData roi, boolean readOnly)
+	private ROI createROI(ROIData roi, long userID)
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
 		//ROI newROI = component.createROI(id, readOnly);
-		ROI newROI = component.createROI(id, id <= 0);
+		boolean edit = roi.canEdit();
+		if (edit) {
+			edit = roi.getOwner().getId() == userID;
+		}
+		ROI newROI = component.createROI(id, id <= 0, roi.canEdit(),
+				roi.canDelete(), roi.canAnnotate());
 		newROI.setOwnerID(roi.getOwner().getId());
 		
 		if (roi.getNamespaces().size() != 0) {
@@ -194,7 +199,7 @@ class InputServerStrategy
 			j = list.iterator();
 			while (j.hasNext()) {
 				shapeData = (ShapeData) j.next();
-				shape = createROIShape(shapeData, newROI, readOnly);
+				shape = createROIShape(shapeData, newROI, userID);
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(
 							component.getMeasurementUnits());
@@ -215,16 +220,19 @@ class InputServerStrategy
 	 * 
 	 * @param data 	The object to transform.
 	 * @param roi	The UI ROI hosting the newly created shape.
-	 * @param readOnly The object is readOnly.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 */
-	private ROIShape createROIShape(ShapeData data, ROI roi, boolean readOnly)
+	private ROIShape createROIShape(ShapeData data, ROI roi, long userID)
 	{
 		int z = data.getZ();
 		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
-		ROIFigure fig = createROIFigure(data, readOnly);
+		ROIFigure fig = createROIFigure(data);
+		fig.setReadOnly(data.isReadOnly());
+		long id = data.getOwner().getId();
+		if (id >= 0) fig.setInteractable(id == userID);
 		try {
 			coord.setChannel(data.getC());
 		} catch (Exception e) {
@@ -237,20 +245,7 @@ class InputServerStrategy
 		shape.setROIShapeID(data.getId());
 		return shape;
 	}
-	
-	/**
-	 * Creates a figure corresponding to the passed shape.
-	 * 
-	 * @param shape The shape to transform.
- 	 * @param readOnly The object is readOnly.
-	 * @return See above.
-	 */
-	private ROIFigure createROIFigure(ShapeData shape, boolean readOnly)
-	{
-		ROIFigure fig = createROIFigure(shape);
-		fig.setReadOnly(readOnly);
-		return fig;
-	}
+
 	
 	/**
 	 * Creates a figure corresponding to the passed shape.
@@ -261,21 +256,21 @@ class InputServerStrategy
 	private ROIFigure createROIFigure(ShapeData shape)
 	{
 		if (shape instanceof RectangleData) {
-			return createRectangleFigure((RectangleData) shape);			
+			return createRectangleFigure((RectangleData) shape);
 		} else if (shape instanceof EllipseData) {
 			return createEllipseFigure((EllipseData) shape);
 		} else if (shape instanceof LineData) {
-			return createLineFigure((LineData) shape);			
+			return createLineFigure((LineData) shape);
 		} else if (shape instanceof PointData) {
-			return createPointFigure((PointData) shape);	
+			return createPointFigure((PointData) shape);
 		} else if (shape instanceof PolylineData) {
-			return createPolyOrlineFigure((PolylineData) shape);			
+			return createPolyOrlineFigure((PolylineData) shape);
 		} else if (shape instanceof PolygonData) {
-			return createPolygonFigure((PolygonData) shape);			
+			return createPolygonFigure((PolygonData) shape);
 		} else if (shape instanceof MaskData) {
-			return createMaskFigure((MaskData) shape);			
+			return createMaskFigure((MaskData) shape);
 		} else if (shape instanceof TextData) {
-			return createTextFigure((TextData) shape);			
+			return createTextFigure((TextData) shape);
 		}
 		return null;
 	}
@@ -299,7 +294,8 @@ class InputServerStrategy
 		double height = ry*2d;
 		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.getText(), 
 				x, y, width, height, data.isReadOnly(), 
-					data.isClientObject());
+					data.isClientObject(), data.canEdit(), data.canDelete(), 
+					data.canAnnotate());
 		fig.setEllipse(x, y, width, height);
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
@@ -326,7 +322,8 @@ class InputServerStrategy
 		double y = Math.abs(data.getY()-r);
 		
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
-				2*r, 2*r, data.isReadOnly(), data.isClientObject());
+				2*r, 2*r, data.isReadOnly(), data.isClientObject(), 
+				data.canEdit(), data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
@@ -349,7 +346,8 @@ class InputServerStrategy
 		double y = data.getY();
 		
 		MeasureTextFigure fig = new MeasureTextFigure(x, y, 
-					data.isReadOnly(), data.isClientObject());
+					data.isReadOnly(), data.isClientObject(), data.canEdit(), 
+					data.canDelete(), data.canAnnotate());
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
@@ -376,7 +374,8 @@ class InputServerStrategy
 		double height = data.getHeight();
 		
 		MeasureRectangleFigure fig = new MeasureRectangleFigure(x, y, width, 
-				height, data.isReadOnly(), data.isClientObject());
+				height, data.isReadOnly(), data.isClientObject(),
+				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
@@ -403,7 +402,8 @@ class InputServerStrategy
 		double height = data.getHeight();
 		BufferedImage mask = data.getMaskAsBufferedImage();
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
-				height, mask, data.isReadOnly(), data.isClientObject());
+				height, mask, data.isReadOnly(), data.isClientObject(),
+				data.canEdit(), data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
@@ -431,7 +431,8 @@ class InputServerStrategy
 		double y2 = data.getY2();
 		
 		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
-				data.isClientObject());
+				data.isClientObject(), data.canEdit(), data.canDelete(),
+				data.canAnnotate());
 		fig.removeAllNodes();
 		fig.setVisible(data.isVisible());
 		fig.addNode(new Node(x1, y1));
@@ -458,7 +459,8 @@ class InputServerStrategy
 	private MeasureBezierFigure createPolygonFigure(PolygonData data)
 	{
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
-				data.isReadOnly(), data.isClientObject());
+				data.isReadOnly(), data.isClientObject(), data.canEdit(),
+				data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		List<Point2D.Double> points = data.getPoints();
 		List<Point2D.Double> points1 = data.getPoints1();
@@ -517,7 +519,8 @@ class InputServerStrategy
 	{
 		List<Point2D.Double> points = data.getPoints();
 		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
-				data.isClientObject());
+				data.isClientObject(), data.canEdit(), data.canDelete(),
+				data.canAnnotate());
 		fig.removeAllNodes();
 		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
@@ -546,7 +549,8 @@ class InputServerStrategy
 		List<Point2D.Double> points2 = data.getPoints2();
 		List<Integer> mask = data.getMaskPoints();
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
-				data.isReadOnly(), data.isClientObject());
+				data.isReadOnly(), data.isClientObject(), data.canEdit(),
+				data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(mask.get(i), points.get(i), 
@@ -602,8 +606,7 @@ class InputServerStrategy
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly,
-			long userID)
+	List<ROI> readROI(Collection rois, ROIComponent component, long userID)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -612,17 +615,11 @@ class InputServerStrategy
 		Iterator i = rois.iterator();
 		Object o;
 		ROIData roi;
-		boolean r;
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof ROIData) {
 				roi = (ROIData) o;
-				r = readOnly;
-				if (!readOnly) {
-					if (roi.getOwner().getId() != userID) 
-						r = true;
-				}
-				roiList.add(createROI(roi, r));
+				roiList.add(createROI(roi, userID));
 			}
 		}
 		return roiList;

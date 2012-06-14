@@ -58,23 +58,28 @@
     <h1>{% trans "Create new share" %}:</h1>
     
     <div>
-            <table>
             {% for field in form %}
                 {% ifequal field.label_tag form.image.label_tag %}
-                {% if field.errors %}<tr><th>{{ field.label_tag }}</th></tr>
-                <tr><td>{% if field.field.required %}*{% endif %}{{ field.errors }}</td></tr>{% endif %}
-                <tr class="hiddenField"><td>{{ field }}</td></tr>
+                    {% if field.errors %}
+                        <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</div>
+                        <div>{{ field.errors }}</div>
+                    {% endif %}
+                    <div class="hiddenField">{{ field }}</div>
                 {% else %}
-                {% ifequal field.label_tag form.enable.label_tag %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-                {% else %}                
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
-                <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-                <tr><td>{{ field }}</td></tr>
-                {% endifequal %}
+                    {% ifequal field.label_tag form.enable.label_tag %}
+                        <div>
+                            {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+                            {{ field }}
+                            {{ field.help_text|safe }}
+                            {% if field.errors %}{{ field.errors }}{% endif %}
+                        </div>
+                    {% else %}                
+                        <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</div>
+                        <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
+                        <div>{{ field }}</div>
+                    {% endifequal %}
                 {% endifequal %}
             {% endfor %}
-            </table>
     </div>
 
 {% endblock %}

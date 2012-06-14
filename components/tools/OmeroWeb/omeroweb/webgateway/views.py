@@ -375,7 +375,7 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     
     # need to find the z indices of the first shape in T
-    roiResult = conn.getRoiService().findByRoi(long(roiId), None)
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG['SERVICE_OPTS'])
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -688,6 +688,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                  r, str(conn)))
     img = conn.getObject("Image", iid)
+    if img is None:
+        return
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -816,16 +818,7 @@ def render_image (request, iid, z, t, conn=None, **kwargs):
         if jpeg_data is None:
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
-    
-    try:
-        from PIL import Image, ImageDraw # see ticket:2597
-    except ImportError:
-        try:
-            import Image, ImageDraw # see ticket:2597
-        except:
-            logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
-            logger.error(traceback.format_exc())
-        
+
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
@@ -1070,7 +1063,7 @@ def jsonp (f):
             kwargs['server_id'] = server_id
             conn = kwargs.get('conn', None)
             rv = f(request, *args, **kwargs)
-            if conn is not None and kwargs.get('_internal', False):
+            if kwargs.get('_raw', False):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
@@ -1078,28 +1071,20 @@ def jsonp (f):
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
-            if conn is not None or kwargs.get('_internal', False):
+            if kwargs.get('_internal', False):
                 return rv
             return HttpResponse(rv, mimetype='application/javascript')
         except omero.ServerError:
-            if kwargs.get('_internal', False):
+            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
         except:
             logger.debug(traceback.format_exc())
-            if kwargs.get('_internal', False):
+            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
     wrap.func_name = f.func_name
     return wrap
-
-#def json_error_catch (f):
-#    def wrap (*args, **kwargs):
-#        try:
-#            return f(*args, **kwargs)
-#        except omero.ServerError:
-#            return HttpResponseServerError('"error in call"', mimetype='application/javascript')
-#    return wrap
 
 @debug
 @login_required()
@@ -1725,6 +1710,7 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 
     if img is not None and img.resetRDefs():
         user_id = conn.getEventContext().userId
+        server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
         json_data = 'true'
@@ -1759,6 +1745,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
+             'roiCount': image.getROICount(),
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
@@ -1802,7 +1789,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
-    result = roiService.findByImage(long(imageId), None)
+    result = roiService.findByImage(long(imageId), None, conn.CONFIG['SERVICE_OPTS'])
     
     for r in result.rois:
         roi = {}

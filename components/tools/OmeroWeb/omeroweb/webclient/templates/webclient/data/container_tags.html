@@ -295,7 +295,10 @@
                                 
                                 return config;
                             }
-                        }
+                        },
+                        
+                        // include hotkeys plugin code
+                        {% include 'webclient/data/includes/hotkeys.js' %}
                         
                 })
                 .delegate("a", "click.jstree", function (event) {
@@ -306,7 +309,7 @@
                 })
                 .delegate("a", "dblclick", function(e, data) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url webgateway_full_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                     $("#dataTree").jstree("open_node", this);
                 })

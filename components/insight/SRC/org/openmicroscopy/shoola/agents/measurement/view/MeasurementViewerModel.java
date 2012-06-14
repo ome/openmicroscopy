@@ -60,6 +60,8 @@ import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -91,6 +93,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -213,7 +216,8 @@ class MeasurementViewerModel
     
     /** The sorter to order shapes.*/
     private ViewerSorter sorter;
-	
+
+    
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
 	 * @param attribute see above.
@@ -235,9 +239,6 @@ class MeasurementViewerModel
 	private void checkIfHasROIToDelete()
 	{
 		if (dataToDelete) return;
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		long ownerID = exp.getId();
 		Collection<ROI> rois = roiComponent.getROIMap().values();
 		Iterator<ROI> i = rois.iterator();
 		List<ROI> ownedRois = new ArrayList<ROI>();
@@ -245,7 +246,8 @@ class MeasurementViewerModel
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			if (roi.canDelete()) {
 				figures.addAll(roi.getAllFigures());
 				ownedRois.add(roi);
 			}
@@ -338,6 +340,17 @@ class MeasurementViewerModel
     {
     	return MeasurementAgent.getRegistry().getAdminService().getLoggingName();
     }
+    
+	/**
+     * Returns the user currently logged in.
+     * 
+     * @return See above.
+     */
+	ExperimenterData getCurrentUser()
+    {
+    	return MeasurementAgent.getUserDetails();
+    }
+    
     
     /**
      * Returns the name of the server the user is connected to.
@@ -614,12 +627,11 @@ class MeasurementViewerModel
 	 * Sets the server ROIS.
 	 * 
 	 * @param rois The collection of Rois.
-	 * @param readOnly Are the ROI read only.
 	 * @return See above.
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois, boolean readOnly)
+	boolean setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
 		measurementResults = rois;
@@ -631,7 +643,7 @@ class MeasurementViewerModel
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
-					result.getROIs(), readOnly, userID));
+					result.getROIs(), userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();
@@ -851,7 +863,7 @@ class MeasurementViewerModel
 	 * @return See above.
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
-	List<ROIFigure> removeAllROI(long ownerID)
+	List<ROIFigure> removeAllROI(long ownerID, int level)
 		throws NoSuchROIException
 	{
 		Collection<ROI> rois = roiComponent.getROIMap().values();
@@ -859,12 +871,31 @@ class MeasurementViewerModel
 		List<ROI> ownedRois = new ArrayList<ROI>();
 		ROI roi;
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
-		while (i.hasNext()) {
-			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
-				figures.addAll(roi.getAllFigures());
-				ownedRois.add(roi);
-			}
+		switch (level) {
+			case MeasurementViewer.ALL:
+				while (i.hasNext()) {
+					roi = i.next();
+					figures.addAll(roi.getAllFigures());
+					ownedRois.add(roi);
+				}
+				break;
+			case MeasurementViewer.ME:
+				while (i.hasNext()) {
+					roi = i.next();
+					if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+						figures.addAll(roi.getAllFigures());
+						ownedRois.add(roi);
+					}
+				}
+				break;
+			case MeasurementViewer.OTHER:
+				while (i.hasNext()) {
+					roi = i.next();
+					if (roi.getOwnerID() != ownerID) {
+						figures.addAll(roi.getAllFigures());
+						ownedRois.add(roi);
+					}
+				}
 		}
 		i = ownedRois.iterator();
 		while (i.hasNext()) {
@@ -1123,19 +1154,19 @@ class MeasurementViewerModel
 	 * 
 	 * @param async Pass <code>true</code> to save the ROI asynchronously,
 	 * 				 <code>false</code> otherwise.
+	 * @param close Indicates to close the component if <code>true</code>.
 	 */
-	void saveROIToServer(boolean async)
+	void saveROIToServer(boolean async, boolean close)
 	{
 		try {
 			List<ROIData> roiList = getROIData();
-			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (roiList.size() == 0) return;
 			roiComponent.reset();
 			if (async) {
 				currentSaver = new ROISaver(component, getSecurityContext(),
-						getImageID(), exp.getId(), roiList);
+						getImageID(), exp.getId(), roiList, close);
 				currentSaver.load();
 				state = MeasurementViewer.SAVING_ROI;
 				notifyDataChanged(false);
@@ -1150,6 +1181,8 @@ class MeasurementViewerModel
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Save ROI", "Unable to save the ROIs");
 		}
 	}
 	
@@ -1161,10 +1194,40 @@ class MeasurementViewerModel
 	 */
 	List<ROIData> getROIData()
 	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			return roiComponent.saveROI(getImage(), exp.getId());
+			long userID = getCurrentUser().getId();
+			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE,
+					userID);
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
+		}
+		return new ArrayList<ROIData>();
+	}
+	
+	/**
+	 * Returns the collection of ROI on the image owned by the user currently
+	 * logged in
+	 * 
+	 * @param level One of the constants defined by the 
+	 * <code>MeasurementViewer</code>.
+	 * @return See above.
+	 */
+	List<ROIData> getROIData(int level)
+	{
+		try {
+			long userID = getCurrentUser().getId();
+			switch (level) {
+			case MeasurementViewer.ALL:
+				return roiComponent.saveROI(getImage(), ROIComponent.DELETE,
+						userID);
+			case MeasurementViewer.ME:
+				return roiComponent.saveROI(getImage(), ROIComponent.DELETE_MINE,
+						userID);
+			case MeasurementViewer.OTHER:
+				return roiComponent.saveROI(getImage(),
+						ROIComponent.DELETE_OTHERS, userID);
+			}
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
@@ -1680,15 +1743,22 @@ class MeasurementViewerModel
     /** 
      * Adds the passed ROI to the collection of ROIs to delete.
      * 
-     * 
+     * @param id The id of the shape.
      * @param roi The ROI to add.
+     * @param force Pass <code>true</code> when the roi is removed via key.
      */
-    void markROIForDelete(long id, ROI roi)
+    void markROIForDelete(long id, ROI roi, boolean force)
     {
     	if (roi == null) return;
     	if (roiToDelete == null) roiToDelete = new ArrayList<ROI>();
-    	if (!roiComponent.containsROI(id) && !roi.isClientSide())
-    		roiToDelete.add(roi);
+    	if (id < 0) return;
+    	if (force) {
+    		if (!roi.isClientSide())
+        		roiToDelete.add(roi);
+    	} else {
+    		if (!roiComponent.containsROI(id) && !roi.isClientSide())
+        		roiToDelete.add(roi);
+    	}
     }
     
     /**
@@ -1753,4 +1823,30 @@ class MeasurementViewerModel
     */
    SecurityContext getSecurityContext() { return ctx; }
 
-}	
+   /**
+    * Returns <code>true</code> if the user is not an owner nor an admin,
+    * <code>false</code> otherwise.
+    * 
+    * @return See above.
+    */
+	boolean isMember()
+	{
+		if (MetadataViewerAgent.isAdministrator()) return false;
+		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g, gRef = null;
+		long gId = getImage().getGroupId();
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == gId) {
+				gRef = g;
+				break;
+			}
+		}
+		if (gRef != null)
+			return EditorUtil.isUserGroupOwner(gRef,
+				MeasurementAgent.getUserDetails().getId());
+		return false;
+	}
+
+}

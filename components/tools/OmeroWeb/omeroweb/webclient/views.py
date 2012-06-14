@@ -59,6 +59,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRespons
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
+from django.utils.http import urlencode
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
@@ -75,7 +76,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
-                    UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    UsersForm, ActiveGroupForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
@@ -161,12 +162,13 @@ def login(request):
     
     if request.method == 'POST' and server_id is not None:
         s = Server.get(server_id)
-        if not _isServerOn(s.host, s.port):
-            error = "Server is not responding, please contact administrator."
-        elif not _checkVersion(s.host, s.port):
-            error = "Client version does not match server, please contact administrator."
-        else:
-            error = "Connection not available, please check your user name and password."
+        if s is not None:
+            if not _isServerOn(s.host, s.port):
+                error = "Server is not responding, please contact administrator."
+            elif not _checkVersion(s.host, s.port):
+                error = "Client version does not match server, please contact administrator."
+            else:
+                error = "Connection not available, please check your user name and password."
     url = request.REQUEST.get("url")
     
     template = "webclient/login.html"
@@ -177,9 +179,9 @@ def login(request):
         else:
             form = LoginForm()
         
-    context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
+    context = {"version": omero_version, 'error':error, 'form':form}
     if url is not None and len(url) != 0:
-        context['url'] = url
+        context['url'] = urlencode({'url':url})
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -273,9 +275,10 @@ def logout(request, conn=None, **kwargs):
         except:
             logger.error('Exception during logout.', exc_info=True)
     try:
-        conn.seppuku()
-    except:
-        logger.error('Exception during logout.', exc_info=True)
+        try:
+            conn.seppuku()
+        except:
+            logger.error('Exception during logout.', exc_info=True)
     finally:
         request.session.flush()
     return HttpResponseRedirect(reverse("webindex"))
@@ -298,10 +301,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
-    
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-    
+
+    # get url without request string - used to refresh page after switch user/group etc
+    url = reverse(viewname="load_template", args=[menu])
+
     #tree support
     init = {'initially_open':[], 'initially_select': None}
     # E.g. path=project=51|dataset=502|image=607:selected
@@ -368,8 +371,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
+    context['active_user'] = conn.getObject("Experimenter", long(user_id))
     
     context['isLeader'] = conn.isLeader()
+    context['current_url'] = url
     context['template'] = template
     return context
 
@@ -954,6 +959,7 @@ def getObjects(request, conn=None):
     shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
+        index = int(request.REQUEST.get('index', 0))
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
@@ -1699,7 +1705,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createShare(host, conn.server_id, images, message, members, enable, expiration)
-            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
+            return HttpResponse("success")
         else:
             template = "webclient/basket/basket_share_action.html"
             context = {'form':form}
@@ -1726,7 +1732,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
-            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
+            return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'form':form}
@@ -1864,24 +1870,11 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     # get page 
     page = int(request.REQUEST.get('page', 1))
     
-    cal_type = None
-    try:
-        cal_type = request.REQUEST['history_type']
-        if cal_type == "all":
-            cal_type = None
-    except:
-        cal_type = None    
-    
     filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
-    controller.get_items(cal_type, page)
+    controller.get_items(page)
     
-    #if cal_type is None:
-    #    form_history_type = HistoryTypeForm()
-    #else:
-    #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
-    
-    context = {'controller':controller}#, 'form_history_type':form_history_type}
+    context = {'controller':controller}
     context['template'] = template
     return context
 
@@ -1918,7 +1911,7 @@ def getObjectUrl(conn, obj):
 
     if isinstance(obj, omero.model.DatasetI):
         blitz_obj = conn.getObject("Dataset", obj.id.val)
-        for p in dataset.listParents():
+        for p in blitz_obj.listParents():
             url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
             break
 
@@ -1990,10 +1983,9 @@ def activities(request, conn=None, **kwargs):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
                         logger.error("chgrp failed with: %s" % rsp_params)
-                        request.session['callback'][cbString]['results'] = "%s %s" % (rsp.name, rsp_params)
+                        request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
                     elif isinstance(rsp, omero.cmd.OK):
                         request.session['callback'][cbString]['status'] = "finished"
-                        request.session['callback'][cbString]['results'] = "Moved OK"
                 else:
                     in_progress+=1
 
@@ -2170,55 +2162,12 @@ def avatar(request, oid=None, conn=None, **kwargs):
 # webgateway extention
 
 @login_required()
-def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
-
-@login_required()
-def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
-
-@login_required()
-def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
-
-@login_required()
-def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
-
-@login_required()
-def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
-
-@login_required()
-def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
+def image_viewer (request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
-    return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
+    kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')   # remove any trailing slash
+    return webgateway_views.full_viewer(request, iid, **kwargs)
 
-@login_required()
-def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
-
-@login_required()
-def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
-
-@login_required()
-def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
-
-@login_required()
-def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
 ####################################################################################
 # scripting service....

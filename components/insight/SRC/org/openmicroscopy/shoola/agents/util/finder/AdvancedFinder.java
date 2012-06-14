@@ -117,6 +117,9 @@ public class AdvancedFinder
 	/** The total number of groups to search.*/
 	private int total;
 	
+	/** The identifier of the group.*/
+	private long groupId;
+	
 	/**
 	 * Returns the name of the group corresponding to the security context.
 	 * 
@@ -365,17 +368,6 @@ public class AdvancedFinder
 				LookupNames.CURRENT_USER_DETAILS);
 	}
 	
-	/**
-	 * Returns the available groups.
-	 * 
-	 * @return See above.
-	 */
-	private Set getAvailableGroups()
-	{
-		return (Set) FinderFactory.getRegistry().lookup(
-				LookupNames.USER_GROUP_DETAILS);
-	}
-	
 	/** Displays the widget allowing the select users. */
 	private void showUserSelection()
 	{
@@ -618,9 +610,22 @@ public class AdvancedFinder
 		SelectionWizard wizard = new SelectionWizard(
 				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
 				available, selected, TagAnnotationData.class, false, id);
+		wizard.setGroups(groups);
 		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
+	}
+	
+	/** 
+	 * Sets the current tags.
+	 * 
+	 * @param groupId The identifier of the group.
+	 */
+	public void setCurrentGroup(long groupId)
+	{
+		if (this.groupId == groupId) return;
+		this.groupId = groupId;
+		tags = null;
 	}
 	
 	/**

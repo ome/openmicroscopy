@@ -62,7 +62,7 @@ public class DataBatchSaver
 	private List<AnnotationData> 	toAdd;
 	
 	/** The annotation to remove from the data object. */
-	private List<AnnotationData> 	toRemove;
+	private List<Object> 	toRemove;
 	
 	/** The object hosting the time period. */
 	private TimeRefObject			timeRefObject;
@@ -83,7 +83,7 @@ public class DataBatchSaver
 	 */
 	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove)
+		List<Object> toRemove)
 	{
 		super(viewer, null);
 		if (data == null)
@@ -106,7 +106,7 @@ public class DataBatchSaver
 	 */
 	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove)
+		List<Object> toRemove)
 	{
 		super(viewer, null);
 		if (timeRefObject == null)

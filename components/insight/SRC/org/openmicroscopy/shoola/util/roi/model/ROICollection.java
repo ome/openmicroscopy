@@ -120,29 +120,23 @@ public class ROICollection
 	{
 		return roiMap.containsROI(id);
 	}
-	
-	/**
-	 * Create an ROI with id. Add the ROI to the ROIMap. The ROI is a client
-	 * side object.
-	 * @param id see above.
-	 * @return see above.
-	 */
-	public ROI createROI(long id)
-	{
-		return createROI(id, true);
-	}
-	
+
 	/**
 	 * Create an ROI with id. Add the ROI to the ROIMap, specifying if the ROI
 	 * is clientside.
 	 * 
 	 * @param id see above.
 	 * @param clientSideObject see above.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 * @return see above.
 	 */
-	public ROI createROI(long id, boolean clientSideObject)
+	public ROI createROI(long id, boolean clientSideObject, 
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		ROI newROI = new ROI(id, clientSideObject);
+		ROI newROI = new ROI(id, clientSideObject, editable, deletable, 
+				annotatable);
 		if (lastID < id) lastID = id+1;
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
@@ -154,7 +148,7 @@ public class ROICollection
 	 */
 	public ROI createROI()
 	{
-		ROI newROI = new ROI(getNextID(), true);
+		ROI newROI = new ROI(getNextID(), true, true, true, true);
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
 	}

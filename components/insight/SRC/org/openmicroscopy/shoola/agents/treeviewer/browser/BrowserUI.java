@@ -266,6 +266,15 @@ class BrowserUI
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
 		}
+        button = new JButton(controller.getAction(BrowserControl.CUT));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
+        button = new JButton(controller.getAction(BrowserControl.COPY));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
+        button = new JButton(controller.getAction(BrowserControl.PASTE));
+        button.setBorderPainted(false);
+        rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.DELETE));
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
@@ -2107,7 +2116,7 @@ class BrowserUI
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
 			TreeImageDisplay node = buildTreeNodes(exp);
-            if (model.isSelected() && node != null) expandNode(node, true);
+            //if (model.isSelected() && node != null) expandNode(node, true);
         }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();

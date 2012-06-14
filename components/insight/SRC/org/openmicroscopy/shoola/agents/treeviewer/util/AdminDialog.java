@@ -90,14 +90,14 @@ public class AdminDialog
 	private static final String TITLE_GROUP = "Create Group";
 	
 	/** The title of the dialog if the object to create is an group.. */
-	private static final String TITLE_EXPERIMENTER = "Create Experimenter";
+	private static final String TITLE_EXPERIMENTER = "Create User";
 	
 	/** The text displayed if the object to create is a group. */
 	private static final String TEXT_GROUP = "Create a new group";
 	
 	/** The text displayed if the object to create is a group. */
 	private static final String TEXT_EXPERIMENTER = 
-		"Create a new Experimenter.";
+		"Create a new User.";
 	
 	/** Action ID to close the dialog. */
 	private static final int CANCEL = 0;

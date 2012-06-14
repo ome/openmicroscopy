@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
-import omero.model.Permissions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -54,7 +53,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.PermissionData;
 
 /** 
  * Implementation of the {@link AdminService} I/F.
@@ -330,6 +328,17 @@ class AdminServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#loadGroupsForExperimenter(SecurityContext, long)
+	 */
+	public List<GroupData> loadGroupsForExperimenter(SecurityContext ctx,
+			long id) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadGroupsForExperimenter(ctx, id);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#deleteExperimenters(List)
 	 */
 	public List<ExperimenterData> deleteExperimenters(SecurityContext ctx,
@@ -365,12 +374,22 @@ class AdminServiceImpl
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
 		ExperimenterGroup g = group.asGroup();
-		Permissions p = null;
-		if (permissions != -1) {
-			p = g.getDetails().getPermissions();
-			gateway.setPermissionsLevel(p, permissions);
+		String r = "rw----";
+		switch (permissions) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				r = "rwr---";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				r = "rwra--";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				r = "rwrw--";
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				r = "rwrwr-";
+				break;
 		}
-		return gateway.updateGroup(ctx, g, p);
+		return gateway.updateGroup(ctx, g, r);
 	}
 
 	/**
