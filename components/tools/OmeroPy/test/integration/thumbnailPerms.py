@@ -206,8 +206,24 @@ class TestThumbnailPerms(lib.ITest):
         # check that we can't get thumbnails for images in other groups
         self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
         self.assertEquals(None, self.getThumbnail(user2_client.sf, readOnlyImageId))
+
+    def test9070(self):
+
+        # Create private group with two member and one image
+        group = self.new_group(perms="rw__--")
+        owner = self.new_client(group=group, admin=True) # Owner of group
+        member = self.new_client(group=group) # Member of group
+        privateImage = self.createTestImage(session=member.sf)
+        pId = privateImage.getPrimaryPixels().getId().getValue()
+
+        ## using owner session access thumbnailStore
+        thumbnailStore = owner.sf.createThumbnailStore()
+        s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), [pId])
+        self.assertNotEqual(s[pId],'')
         
-        
+        s = thumbnailStore.getThumbnailSet(rint(16), rint(16), [pId])
+        self.assertNotEqual(s[pId],'')
+    
     def getThumbnail(self, session, imageId):
     
         thumbnailStore = session.createThumbnailStore()
