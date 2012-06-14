@@ -408,9 +408,7 @@ def writeMovie(commandArgs, conn):
 
     message=""
 
-    sopts = conn.CONFIG['SERVICE_OPTS'] or {}
-    sopts['omero.group'] = '-1'
-    conn.CONFIG['SERVICE_OPTS'] = sopts
+    conn.CONFIG.setOmeroGroup('-1')
     session = conn.c.sf
     gateway = conn
     scriptService = session.getScriptService()
@@ -558,7 +556,7 @@ def writeMovie(commandArgs, conn):
     fileAnnotation, annMessage = scriptUtil.createLinkFileAnnotation(conn, movieName, omeroImage,
         output="Movie", ns=namespace, mimetype=mimetype)
     message += annMessage
-    return fileAnnotation, message
+    return fileAnnotation._obj, message
 
 def runAsScript():
     """
@@ -623,7 +621,7 @@ def runAsScript():
         # return this fileAnnotation to the client. 
         client.setOutput("Message", rstring(message))
         if fileAnnotation is not None:
-            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
     finally:
         client.closeSession()
 
