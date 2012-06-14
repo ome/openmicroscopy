@@ -218,7 +218,7 @@ def processImages(conn, scriptParams):
         # add to parent Project
         parentDs = images[0].getParent()
         project = parentDs is not None and parentDs.getParent() or None
-        if project is not None:
+        if project is not None and project.canLink():
             link = omero.model.ProjectDatasetLinkI()
             link.parent = omero.model.ProjectI(project.getId(), False)
             link.child = omero.model.DatasetI(dataset.getId(), False)
