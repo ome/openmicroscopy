@@ -636,17 +636,21 @@
                             }
                             // if experimenter is selected, use 'locked' flag to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0) {
-                                config["ccp"]["_disabled"] = true;
+                                // see #8879 config["ccp"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
                                 if(obj.attr("rel").indexOf("locked")>=0) {
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 }
                             // if we DON'T have canLink, everything else is disabled
                             } else if(!obj.hasClass('canLink')) {   // this will include 'orphaned' node
-                                config["ccp"]["_disabled"] = true;
+                                // see #8879 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
@@ -657,7 +661,7 @@
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                             } else {
-                                // otherwise the options depend on type of node...
+                                // see #8879 otherwise the options depend on type of node...
                                 var to_paste = this.data.crrm.cp_nodes || this.data.crrm.ct_nodes || false;
                                 if(obj.attr("id").indexOf("project")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
@@ -677,7 +681,7 @@
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
@@ -688,7 +692,7 @@
                                         config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
@@ -696,7 +700,10 @@
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("plate")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
@@ -706,24 +713,34 @@
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                         config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("acquisition")>=0) {
-                                    config["ccp"]["_disabled"] = true;
+                                    // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else {
-                                    config["ccp"]["_disabled"] = true;
-                                    config["create"]["_disabled"] = true;
+                                    // see #8879 config["ccp"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    // see #8879 config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
                                 }
