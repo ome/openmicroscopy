@@ -209,65 +209,20 @@ class TestThumbnailPerms(lib.ITest):
 
     def test9070(self):
 
-        # root session is root.sf
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
-
-        group1name = "private_%s" % uuid
-        ownerName = "owner_%s" % uuid
-        user1name = "user1_%s" % uuid
-
-        ### create three users in 3 groups
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-
-        #group1 - private
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring(group1name)
-        p = PermissionsI('rw----')
-        new_gr1.details.permissions = p
-        gid = admin.createGroup(new_gr1)
-        privateGroup = admin.getGroup(gid)
-        self.assertEquals('rw----', str(privateGroup.details.permissions))
-        listOfGroups.append(privateGroup)
+        # Create private group with two member and one image
+        group = self.new_group(perms="rw__--")
+        owner = self.new_client(group=group) # Owner of share
+        member = self.new_client(group=group) # Member of group
+        privateImage = self.createTestImage(session=member.sf)
+        pId = privateImage.getPrimaryPixels().getId().getValue()
         
-        #new user (group owner)
-        owner = ExperimenterI()
-        owner.omeName = rstring(ownerName)
-        owner.firstName = rstring("Group")
-        owner.lastName = rstring("Owner")
-        owner.email = rstring("owner@emaildomain.com")
-
-        ownerId = admin.createExperimenterWithPassword(owner, rstring("ome"), privateGroup, listOfGroups)
-        newOwner = admin.getExperimenter(ownerId) 
-        admin.setGroupOwner(privateGroup, newOwner) 
-
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring(user1name)
-        new_exp.firstName = rstring("Will")
-        new_exp.lastName = rstring("Moore")
-        new_exp.email = rstring("newtest@emaildomain.com")
-
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), privateGroup, listOfGroups)
-
-        ## get users
-        user1 = admin.getExperimenter(eid)
-
-        ## login as user1 (into their default group)
-        client_share1 = self.new_client(user=user1, password="ome")
-        print len(client_share1.sf.activeServices())
-
-        # create image in private group
-        privateImageId = createTestImage(client_share1.sf)
-        print len(client_share1.sf.activeServices())
-
-        ## login as owner (into their default group)
-        owner_share1 = self.new_client(user=owner, password="ome")
-        self.getThumbnail(owner_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
-
-        #self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
-        print len(client_share1.sf.activeServices())
+        ## using owner session access thumbnailStore
+        thumbnailStore = owner.sf.createThumbnailStore()
+        s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), [pId])
+        self.assertNotEqual(s[pId],'')
+        
+        s = thumbnailStore.getThumbnailSet(rint(16), rint(16), [pId])
+        self.assertNotEqual(s[pId],'')
     
     def getThumbnail(self, session, imageId):
     
