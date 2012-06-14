@@ -737,4 +737,10 @@ class AdminServiceImpl
 		return map.get(experimenter);
 	}
 
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#isConnected()
+	 */
+	public boolean isConnected() { return gateway.isConnected(); }
+
 }
