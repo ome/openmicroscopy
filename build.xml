@@ -379,7 +379,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="examples-py" description="Build and run OmeroPy examples">
-        <scons_py dir="${basedir}/examples">
+        <scons_py dir="${basedir}/examples" pythonpath="${env.PYTHONPATH}"><!-- omit OmeroPy/src -->
             <arg value="run_py=1"/>
             <arg value="no_cpp=1"/>
             <arg value="no_java=1"/>
