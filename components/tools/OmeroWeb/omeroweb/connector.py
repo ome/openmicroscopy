@@ -41,10 +41,6 @@ class Connector(object):
         server = Server.get(self.server_id)
         if server is None:
             server = Server.find(server=self.server_id)
-            if len(server):
-                server = server[0]
-            else:
-                return None
         return (server.host, server.port)
 
     def create_gateway(self, useragent, username=None, password=None):
