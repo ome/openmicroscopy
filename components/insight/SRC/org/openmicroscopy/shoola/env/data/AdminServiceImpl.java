@@ -377,8 +377,32 @@ class AdminServiceImpl
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		gateway.reconnect(uc.getUserName(), uc.getPassword());
-		return (GroupData) PojoMapper.asDataObject(
+		
+		group = (GroupData) PojoMapper.asDataObject(
 				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));
+		//Review update
+		Collection groups = (Collection) context.lookup(
+				LookupNames.USER_GROUP_DETAILS);
+		Iterator j = groups.iterator();
+		GroupData g;
+		Set available = new HashSet<GroupData>();
+		while (j.hasNext()) {
+			g = (GroupData) j.next();
+			if (g.getId() == group.getId()) available.add(group);
+			else  available.add(g);
+		}
+		context.bind(LookupNames.USER_GROUP_DETAILS, available);
+		List agents = (List) context.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			if (agentInfo.isActive()) {
+				agentInfo.getRegistry().bind(
+						LookupNames.USER_GROUP_DETAILS, available);
+			}
+		}
+		return group;
 	}
 	
 	/**
