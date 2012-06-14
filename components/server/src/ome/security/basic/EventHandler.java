@@ -197,6 +197,7 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
                 }
 
             } finally {
+                secSys.disableReadFilter(session);
                 secSys.invalidateEventContext();
             }
         }
