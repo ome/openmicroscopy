@@ -211,11 +211,11 @@ class TestThumbnailPerms(lib.ITest):
 
         # Create private group with two member and one image
         group = self.new_group(perms="rw__--")
-        owner = self.new_client(group=group) # Owner of share
+        owner = self.new_client(group=group, admin=True) # Owner of group
         member = self.new_client(group=group) # Member of group
         privateImage = self.createTestImage(session=member.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
-        
+
         ## using owner session access thumbnailStore
         thumbnailStore = owner.sf.createThumbnailStore()
         s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), [pId])
