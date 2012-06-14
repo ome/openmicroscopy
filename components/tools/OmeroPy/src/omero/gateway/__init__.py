@@ -5558,7 +5558,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             a.setValue(rdid)
             self.linkAnnotation(a, sameOwner=False)
 
-    def _prepareRE (self):
+    def _prepareRE (self, rdid=None):
         """
         Prepare the rendering engine with pixels ID and existing or new rendering def. 
         
@@ -5573,7 +5573,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         if self._conn.canBeAdmin():
             ctx.setOmeroUser(self.getDetails().getOwner().getId())
         re.lookupPixels(pid, ctx)
-        rdid = self._getRDef()
+        if rdid is None:
+            rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, ctx):
                 re.resetDefaults(ctx)
@@ -5584,7 +5585,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         re.load()
         return re
 
-    def _prepareRenderingEngine (self):
+    def _prepareRenderingEngine (self, rdid=None):
         """
         Checks that the rendering engine is prepared, calling L{_prepareRE} if needed.
         Used by the L{assert_re} method to wrap calls requiring rendering engine
@@ -5600,7 +5601,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if self._pd is None:
                 self._pd = omero.romio.PlaneDef(self.PLANEDEF)
             try:
-                self._re = self._prepareRE()
+                self._re = self._prepareRE(rdid=rdid)
             except omero.ValidationException:
                 logger.debug('on _prepareRE()', exc_info=True)
                 self._re = None
