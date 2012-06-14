@@ -4023,7 +4023,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	GroupData updateGroup(SecurityContext ctx, GroupData group, 
+	RequestCallback updateGroup(SecurityContext ctx, GroupData group, 
 			int permissions) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4032,7 +4032,8 @@ class OMEROGateway
 			ExperimenterGroup g = group.asGroup();
 			IAdminPrx svc = getAdminService(ctx);
 			svc.updateGroup(g);
-			if (group.getPermissions().getPermissionsLevel() != permissions) {
+			if (group.getPermissions().getPermissionsLevel() != permissions
+					&& permissions >= 0) {
 				String r = "rw----";
 				switch (permissions) {
 					case GroupData.PERMISSIONS_GROUP_READ:
@@ -4050,11 +4051,8 @@ class OMEROGateway
 				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
 				List<Request> l = new ArrayList<Request>();
 				l.add(chmod);
-				getConnector(ctx).submit(l);
+				return getConnector(ctx).submit(l);
 			}
-			
-			return (GroupData) PojoMapper.asDataObject(
-					(ExperimenterGroup) findIObject(ctx, g));
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
 		}

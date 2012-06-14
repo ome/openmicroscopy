@@ -373,9 +373,14 @@ class AdminServiceImpl
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
-		return gateway.updateGroup(ctx, group, permissions);
+		gateway.updateGroup(ctx, group, permissions);
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+		gateway.reconnect(uc.getUserName(), uc.getPassword());
+		return (GroupData) PojoMapper.asDataObject(
+				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#copyExperimenters(SecurityContext, GroupData, Set)
