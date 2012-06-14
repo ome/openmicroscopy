@@ -5571,6 +5571,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         ctx = self._conn.CONFIG.copy()
+
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         if self._conn.canBeAdmin():
             ctx.setOmeroUser(self.getDetails().getOwner().getId())
@@ -6462,6 +6463,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         params = svc.getParams(mms.id.val)
         args = ['IDs=%d' % self.getId()]
         args.append('Do_Link=False')
+        args.append('Z_Start=%d' % zstart)
+        args.append('Z_End=%d' % zend)
+        args.append('T_Start=%d' % tstart)
+        args.append('T_End=%d' % tend)
         if opts.has_key('fps'):
             args.append('FPS=%d' % opts['fps'])
         if opts.has_key('format'):
