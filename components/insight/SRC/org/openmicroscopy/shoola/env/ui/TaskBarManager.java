@@ -506,7 +506,7 @@ public class TaskBarManager
     				LookupNames.OMERODS);
         
     	String port = ""+omeroInfo.getPortSSL();
-    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+    	String f = container.getConfigFileRelative(Container.CONFIG_DIR);
 
     	String n = (String) container.getRegistry().lookup(
 				LookupNames.SPLASH_SCREEN_LOGO);
@@ -673,8 +673,7 @@ public class TaskBarManager
     	//READ content of the about file.
     	String aboutFile = (String) container.getRegistry().lookup(
     			LookupNames.ABOUT_FILE);
-    	String refFile = container.resolveFilePath(aboutFile, 
-    			Container.CONFIG_DIR);
+    	String refFile = container.getConfigFileRelative(aboutFile);
     	String message = loadAbout(refFile);
     	String title = (String) container.getRegistry().lookup(
     			LookupNames.SOFTWARE_NAME);
@@ -975,7 +974,7 @@ public class TaskBarManager
 		    				LookupNames.OMERODS);
 		        
 		    	String port = ""+omeroInfo.getPortSSL();
-		    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
 						LookupNames.SPLASH_SCREEN_LOGO);

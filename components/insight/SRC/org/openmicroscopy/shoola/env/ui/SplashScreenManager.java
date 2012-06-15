@@ -203,7 +203,7 @@ class SplashScreenManager
 		Registry reg = c.getRegistry();
 		String n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGO);
 		
-		String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+		String f = container.getConfigFileRelative(null);
 		Icon splashscreen = Factory.createIcon(n, f);
 		if (splashscreen == null) {
 			Integer v = (Integer) container.getRegistry().lookup(

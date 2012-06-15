@@ -114,9 +114,8 @@ public final class AgentsInit
 	private Registry createAgentRegistry(String configFile)
 		throws Exception
 	{
-		String absPathName = container.resolveFilePath(configFile, 
-				Container.CONFIG_DIR);
-		Registry agentReg = RegistryFactory.makeNew(absPathName),
+		String relPathName = container.getConfigFileRelative(configFile);
+		Registry agentReg = RegistryFactory.makeNew(relPathName),
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
