@@ -5584,7 +5584,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG))
         else:
             re.loadRenderingDef(rdid, ctx)
-        re.load()
+        re.load(ctx)
         return re
 
     def _prepareRenderingEngine (self):
@@ -5971,7 +5971,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             args = map(lambda x: rint(x), size)
             if pos is not None:
                 args = list(pos) + args
-            args += [self._conn.CONFIG]
+            ctx = self._conn.CONFIG.copy()
+            ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+            args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state

@@ -9,5 +9,5 @@ sudo apt-get update && sudo apt-get install nginx
 # doesn't have write permission to this log location, nginx will raise
 # an alert
 sudo chown -R omero:omero /var/log/nginx
-/home/omero/OMERO.server/bin/omero web config nginx > /home/omero/OMERO.server/omero-web-nginx.conf
+/home/omero/OMERO.server/bin/omero web config nginx --http 8080 > /home/omero/OMERO.server/omero-web-nginx.conf
 /usr/sbin/nginx -c /home/omero/OMERO.server/omero-web-nginx.conf
