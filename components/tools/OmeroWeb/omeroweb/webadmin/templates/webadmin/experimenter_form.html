@@ -231,6 +231,8 @@
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
     <br/>
+    
+    <div>
         {% for field in form %}
 
             {% ifequal field.label_tag form.default_group.label_tag %}
@@ -240,30 +242,26 @@
             <span id="default_group_name">Nothing selected</span>
             {% if field.errors %}{{ field.errors }}{% endif %}
             
-            <br />
-            
             {% else %}{% ifequal field.label_tag form.other_groups.label_tag %}
             
             <span class="required">{{ field.label_tag }}</span>
             {{ field }}
             {% if field.errors %}{{ field.errors }}{% endif %}
-
-            <br />
             
             {% else %}
             
             {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
             {{ field }}
-    		
-    		<br/>
     		{% endifequal %}{% endifequal %}
-
+            
+            <br />
+            
         {% endfor %}
         
         <br />
         
         <input type="submit" value="{% trans 'Save' %}" />
-        
+    <div>
 </form>
 
 {% if eid %}

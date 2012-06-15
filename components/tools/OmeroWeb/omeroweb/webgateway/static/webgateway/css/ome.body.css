@@ -126,8 +126,7 @@ label {
 }
 
 .error, .form_error {
-	color:red;
-	color:hsl(0,70%,40%);
+	color:#E3646F;
 	line-height:1.3em;
 	padding:5px;
 	-webkit-border-radius:2px;

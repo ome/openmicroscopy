@@ -157,7 +157,7 @@ class GroupForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
         
-        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
+        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
         
         self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
@@ -177,7 +177,7 @@ class GroupOwnerForm(forms.Form):
         ('2', 'Collaborative read-annotate (rwra--)'),
     )
 
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
     
 class MyAccountForm(NonASCIIForm):
         
