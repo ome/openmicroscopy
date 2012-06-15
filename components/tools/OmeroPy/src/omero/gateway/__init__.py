@@ -5816,6 +5816,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         ctx = self._conn.CONFIG.copy()
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        if self._conn.canBeAdmin():
+            ctx.setOmeroUser(self.getDetails().getOwner().getId())
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
