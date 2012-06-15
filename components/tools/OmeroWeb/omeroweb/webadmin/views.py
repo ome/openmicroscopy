@@ -71,6 +71,8 @@ from omeroweb.webadmin.custom_models import Server
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
 
+from omero.gateway.utils import ServiceOptsDict
+
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
@@ -261,11 +263,11 @@ def usersData(conn, offset=0):
     PAGE_SIZE = 1000
     offset = long(offset)
     
-    ctx = dict()
+    ctx = ServiceOptsDict()
     if conn.isAdmin():
-        ctx['omero.group'] = '-1'
+        ctx.setOmeroGroup(-1)
     else:
-        ctx['omero.group'] = str(conn.getEventContext().groupId)
+        ctx.setOmeroGroup(conn.getEventContext().groupId)
         
     p = omero.sys.ParametersI()
     p.page(offset, PAGE_SIZE)

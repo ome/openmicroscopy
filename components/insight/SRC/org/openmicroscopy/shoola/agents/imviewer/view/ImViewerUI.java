@@ -2659,7 +2659,7 @@ class ImViewerUI
      * @return See above.
      */
     GroupData getSelectedGroup() { return model.getSelectedGroup(); }
-    
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

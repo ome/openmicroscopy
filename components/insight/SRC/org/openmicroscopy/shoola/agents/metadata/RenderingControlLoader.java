@@ -147,7 +147,9 @@ public class RenderingControlLoader
         	log.print(exc);
     		registry.getLogger().error(this, log);
     	}
-    	registry.getUserNotifier().notifyInfo("Loading Rendering data", msg);
+    	if (registry.getAdminService().isConnected())
+    		registry.getUserNotifier().notifyInfo("Loading Rendering data",
+    				msg);
     	viewer.setRenderingControl(null);
     	registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
     }

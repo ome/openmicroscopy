@@ -131,12 +131,12 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(cls)
             || sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
-            Long uid = currentUser.getOwner().getId();
-            return objectBelongsToUser(iObject, uid);
-        }
+        // Note: removed restriction from #1769 that admins can only
+        // create objects belonging to the current user. Instead,
+        // OmeroInterceptor checks whether or not objects are only
+        // LINKED to one's own objects which is the actual intent.
 
-        else if (tokenHolder.hasPrivilegedToken(iObject)
+        if (tokenHolder.hasPrivilegedToken(iObject)
                 || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
@@ -287,25 +287,13 @@ public class BasicACLVoter implements ACLVoter {
 
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
-            final Details details = object.getDetails();
+            Details details = object.getDetails();
             // Sets context values.s
             this.currentUser.applyContext(details,
                     !(object instanceof ExperimenterGroup));
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-
-            // ticket:8818 - for some reason details.owner can be null. Try
-            // our best to reset it.
-            if (details.getOwner() == null) {
-                details.setOwner(new Experimenter(c.getCurrentUserId(), false));
-            }
-            if (details.getGroup() == null) {
-                if (c.getCurrentGroupId() >= 0) {
-                    details.setGroup(new ExperimenterGroup(
-                        c.getCurrentGroupId(), false));
-                }
-            }
             boolean disallowAnnotate = !allowUpdateOrDelete(c, object, details, true, ANNOTATE);
             boolean disallowEdit = !allowUpdateOrDelete(c, object, details, true, WRITE);
 
@@ -330,7 +318,18 @@ public class BasicACLVoter implements ACLVoter {
      * @DEV.TODO this is less problematic than linking.
      */
     private boolean objectBelongsToUser(IObject iObject, Long uid) {
-        Long oid = iObject.getDetails().getOwner().getId();
+        final Experimenter e = iObject.getDetails().getOwner();
+        if (e == null) {
+            if (iObject.getId() == null) {
+                // ticket:8818 if this object does not yet have an ID
+                // then we'll assume it's a newly created instance
+                // which will eventually be saved with owner==uid
+                return true;
+            }
+
+            throw new NullPointerException("Null owner for " + iObject);
+        }
+        Long oid = e.getId();
         return uid.equals(oid); // Only allow own objects!
     }
 

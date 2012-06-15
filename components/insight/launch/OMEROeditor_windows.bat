@@ -24,4 +24,4 @@ rem If you have problems with memory errors you may need to change the "start"
 rem -Xms or "max" -Xmx memory size. More information about these command line
 rem switches may be found by running "java -X"
 
-java -Xms128000000 -Xmx256000000 -jar omero.insight.jar containerEditor.xml
+java -Xms256000000 -Xmx512000000 -jar omero.insight.jar containerEditor.xml

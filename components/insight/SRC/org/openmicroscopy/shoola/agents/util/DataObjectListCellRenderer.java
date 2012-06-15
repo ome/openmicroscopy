@@ -121,6 +121,24 @@ public class DataObjectListCellRenderer
 	/** Reference to the <code>Tag set</code> icon. */
 	private static final Icon TAG_SET_OTHER_OWNER_ICON;
 	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
+	
 	static { 
 		IconManager icons = IconManager.getInstance();
 		DATASET_ICON = icons.getIcon(IconManager.DATASET);
@@ -138,6 +156,15 @@ public class DataObjectListCellRenderer
 		FILE_EDITOR_ICON = icons.getIcon(IconManager.FILE_EDITOR);
 		EDITOR_EXPERIMENT_ICON = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
 		GROUP_ICON = icons.getIcon(IconManager.GROUP);
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
+		
+		
 		ONTOLOGY_ICON = icons.getIcon(IconManager.ONTOLOGY);
 		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
 		TAG_SET_OTHER_OWNER_ICON = 
@@ -328,9 +355,29 @@ public class DataObjectListCellRenderer
 			setText(d.getName());
 			setIcon(DATASET_ICON);
 		} else if (value instanceof GroupData) {
-			GroupData d = (GroupData) value;
-			setText(d.getName());
-			setIcon(GROUP_ICON);
+			GroupData g = (GroupData) value;
+			setText(g.getName());
+			Icon icon = GROUP_ICON;
+			switch (g.getPermissions().getPermissionsLevel()) {
+	        	case GroupData.PERMISSIONS_PRIVATE:
+	        		icon = GROUP_PRIVATE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ:
+	        		icon = GROUP_READ_ONLY_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_LINK_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	        		icon = GROUP_READ_WRITE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ:
+	        		icon = GROUP_PUBLIC_READ_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+    		}
+			setIcon(icon);
 		} else if (value instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) value;
 			setText(EditorUtil.formatExperimenter(exp));

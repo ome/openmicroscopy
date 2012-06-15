@@ -25,13 +25,17 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,8 +46,13 @@ import javax.swing.border.EmptyBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
+
+import pojos.GroupData;
 
 /** 
  * The tool bar of {@link Editor}.
@@ -61,6 +70,35 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 class EditorToolBar 
 	extends JPanel
 {
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
+	}
 	
 	/** The Actions that are displayed in the File toolbar */
 	static Integer[] FILE_ACTIONS = {
@@ -88,7 +126,7 @@ class EditorToolBar
 	private JLabel groupLabel;
 	
 	/** The component used to display the name of the group.*/
-	private JButton groupButton;
+	private JComboBox groupButton;
 	
 	/** 
 	 * Creates the bar.
@@ -116,6 +154,7 @@ class EditorToolBar
 	private JPanel createManagementBar()
 	{
 		groupLabel = new JLabel();
+		/*
 		PersonalManagementAction a = (PersonalManagementAction)
 		controller.getAction(EditorControl.PERSONAL);
 		groupButton = new JButton(a);
@@ -124,6 +163,24 @@ class EditorToolBar
         Collection l = EditorAgent.getAvailableUserGroups();
         if (l.size() > 1)
         	groupButton.addMouseListener(a);
+        */
+		Collection set = EditorAgent.getAvailableUserGroups();
+		JComboBoxImageObject[] objects = new JComboBoxImageObject[set.size()];
+        Iterator i = set.iterator();
+        int index = 0;
+        GroupData g;
+        while (i.hasNext()) {
+        	g = (GroupData) i.next();
+        	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
+			index++;
+		}
+        groupButton = new JComboBox(objects);
+        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
+        groupButton.setRenderer(rnd);
+        rnd.setPreferredSize(new Dimension(200, 130));
+        groupButton.setActionCommand(""+EditorControl.PERSONAL);
+        groupButton.addActionListener(controller);
+        
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		bar.add(groupLabel);
@@ -132,6 +189,31 @@ class EditorToolBar
 		return bar;
 	}
 
+	/**
+	 * Returns the icon associated to the group.
+	 * 
+	 * @param group The group to handle.
+	 * @return See above.
+	 */
+	private Icon getGroupIcon(GroupData group)
+	{
+		switch (group.getPermissions().getPermissionsLevel()) {
+	    	case GroupData.PERMISSIONS_PRIVATE:
+	    		return GROUP_PRIVATE_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ:
+	    		return GROUP_READ_ONLY_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	    		return GROUP_READ_LINK_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	    		return GROUP_READ_WRITE_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ:
+	    		return GROUP_PUBLIC_READ_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	    		return GROUP_PUBLIC_READ_WRITE_ICON;
+		}
+		return null;
+	}
+	
 	/**
 	 * Convenience method for getting an {@link Action} from the 
 	 * {@link #controller}, creating a {@link CustomButton} and adding
@@ -213,7 +295,8 @@ class EditorToolBar
 			a.setPermissions();
 		} else {
 			groupLabel.setText(SAVED);
-			groupButton.removeMouseListener(a);
+			groupButton.removeActionListener(controller);
+			//groupButton.removeMouseListener(a);
 		}
 	}
 	

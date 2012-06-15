@@ -46,7 +46,8 @@ class ConnCleaningHttpResponse(HttpResponse):
         super(ConnCleaningHttpResponse, self).close()
         try:
             logger.debug('Closing OMERO connection in %r' % self)
-            self.conn.c.closeSession()
+            if self.conn is not None and self.conn.c is not None:
+                self.conn.c.closeSession()
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
 
@@ -76,10 +77,7 @@ class login_required(object):
 
     def get_share_connection (self, request, conn, share_id):
         try:
-            try:
-                conn.CONFIG['SERVICE_OPTS']['omero.share'] = str(share_id)
-            except:
-                conn.CONFIG['SERVICE_OPTS'] = {'omero.share': str(share_id)}
+            conn.CONFIG.setOmeroShare(share_id)
             share = conn.getShare(share_id)
             return conn
         except:
@@ -88,11 +86,8 @@ class login_required(object):
     
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
-        try:
-            # we always need to clear any dirty 'omero.share' values from previous calls
-            del conn.CONFIG['SERVICE_OPTS']['omero.share']
-        except:
-            pass
+        # we always need to clear any dirty 'omero.share' values from previous calls
+        conn.CONFIG.setOmeroShare()
         if share_id is None:
             return None
         share = conn.getShare(share_id)
@@ -117,11 +112,9 @@ class login_required(object):
         Called whenever the users is successfully logged in.
         Sets the 'omero.group' option if specified in the constructor
         """
-        if conn.CONFIG['SERVICE_OPTS'] is None:
-            conn.CONFIG['SERVICE_OPTS'] = {}
         if self.omero_group is not None:
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.omero_group)
-
+            conn.CONFIG.setOmeroGroup(self.omero_group)
+    
     def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
         pass
@@ -200,6 +193,7 @@ class login_required(object):
         is_secure = request.get('ssl', False)
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
+        logger.debug('Connector: %s' % connector)
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
@@ -323,7 +317,8 @@ class login_required(object):
                 logger.debug('Doing connection cleanup? %s' % \
                         ctx.doConnectionCleanup)
                 if ctx.doConnectionCleanup:
-                    conn.c.closeSession()
+                    if conn is not None and conn.c is not None:
+                        conn.c.closeSession()
             except:
                 logger.warn('Failed to clean up connection.', exc_info=True)
             return retval

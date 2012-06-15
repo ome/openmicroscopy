@@ -143,13 +143,13 @@ public class ImportDialog
 	public static final String	REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
 	/** The default text. */
-	private static final String	PROJECT_TXT = "Project";
+	private static final String	PROJECT_TXT = "Project: ";
 	
 	/** The default text. */
-	private static final String	SCREEN_TXT = "Screen";
+	private static final String	SCREEN_TXT = "Screen: ";
 	
 	/** The default text. */
-	private static final String	DATASET_TXT = "Dataset";
+	private static final String	DATASET_TXT = "Dataset: ";
 	
 	/** Action id indicating to import the selected files. */
 	private static final int	IMPORT = 0;
@@ -207,10 +207,10 @@ public class ImportDialog
 	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_PROJECT = "Location: Project/Dataset";
+	private static final String LOCATION_PROJECT = "Project/Dataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_SCREEN = "Location: Screen";
+	private static final String LOCATION_SCREEN = "Screen";
 	
 	static {
 		WARNING = new ArrayList<String>();
@@ -413,7 +413,10 @@ public class ImportDialog
 	private GroupData group;
 	
 	/** The component used to select the group.*/
-	private JComponent groupSelection;
+	private JComboBox groupSelection;
+	
+	/** The pane hosting the location information.*/
+	private JXTaskPane pane;
 	
 	/** 
 	 * Creates the dataset.
@@ -441,34 +444,6 @@ public class ImportDialog
 			datasetsBox.addItem((DataNode) i.next());
 		}
 		datasetsBox.setSelectedItem(nn);
-		/*
-		if (dataset == null || dataset.getName().trim().length() == 0) return;
-		if (newNodesPD == null) 
-			newNodesPD = new HashMap<DataNode, List<DataNode>>();
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
-			n = (DataNode) datasetsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-		}
-		DataNode node = (DataNode) parentsBox.getSelectedItem();
-		n = new DataNode(dataset, node);
-		nodes.add(n);
-		List<DataNode> l = newNodesPD.get(node);
-		if (l == null) l = new ArrayList<DataNode>();
-		l.add(n);
-		node.addNewNode(n);
-		newNodesPD.put(node, l);
-		datasetsBox.removeAllItems();
-		l = sorter.sort(nodes);
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			datasetsBox.addItem((DataNode) i.next());
-		}
-		datasetsBox.setSelectedItem(n);
-		repaint();
-		*/
 	}
 
 	/**
@@ -796,11 +771,7 @@ public class ImportDialog
 		formatSwitchButton(t);
 		if (nodes == null || nodes.size() == 0) //load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
-		else {
-			//Iterator<TreeImageDisplay> i = nodes.iterator();
-			//if (i.hasNext()) display = i.next();
-			reset(display, nodes, t);
-		}
+		else reset(display, nodes, t, false);
 	}
 	
 	/** 
@@ -810,6 +781,9 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
+		pane = new JXTaskPane();
+		pane.setTitle("Import Location");
+		pane.setCollapsed(true);
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -1521,7 +1495,7 @@ public class ImportDialog
 				Iterator<DataNode> i = l.iterator();
 				while (i.hasNext()) {
 					n = i.next();
-					if (!n.isDefaultDataset()) {
+					if (n.isDefaultDataset()) {
 						datasetsBox.setSelectedItem(n);
 						break;
 					}
@@ -1529,10 +1503,6 @@ public class ImportDialog
 			}
 			
 		}
-		//now check what is the selected node
-		//n = (DataNode) datasetsBox.getSelectedItem();
-		//folderAsDatasetBox.setSelected(n.isDefaultNode());
-		//datasetsBox.addActionListener(datasetsBoxListener);
 	}
 	
 	/**
@@ -1546,10 +1516,12 @@ public class ImportDialog
 		//bar.setBackground(UIUtilities.BACKGROUND);
 		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		toolBar.add(reloadContainerButton);
+		/*
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(locationButton);
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(locationLabel);
+		*/
 		toolBar.add(Box.createHorizontalStrut(5));
 		tbItems = toolBar.getComponentCount();
 		return toolBar;
@@ -1563,12 +1535,14 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		//locationPane.add(buildLocationBar());
-		//locationPane.add(new JSeparator());
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
-		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		//row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		//row.add(Box.createHorizontalStrut(5));
+		row.add(locationButton);
+		row.add(Box.createHorizontalStrut(5));
+		row.add(locationLabel);
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		locationPane.add(new JSeparator());
@@ -1581,15 +1555,17 @@ public class ImportDialog
 		}
 		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
-		row.add(parentsBox);
 		row.add(addProjectButton);
+		row.add(parentsBox);
+		
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			locationPane.add(Box.createVerticalStrut(8));
 			row = createRow(null);
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			row.add(datasetsBox);
 			row.add(addButton);
+			row.add(datasetsBox);
+			
 			locationPane.add(row);
 			locationPane.add(new JSeparator());
 		}
@@ -1633,8 +1609,11 @@ public class ImportDialog
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		if (!popUpLocation)
-			container.add(locationPane, "3, 0");
+		if (!popUpLocation) {
+			pane.add(locationPane);
+			container.add(pane, "3, 0");
+		}
+			
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				container);
@@ -2142,7 +2121,7 @@ public class ImportDialog
 				}
 			}
 		}
-		reset(selected, objects, type);
+		reset(selected, objects, type, false);
 	}
 	
     /**
@@ -2152,9 +2131,10 @@ public class ImportDialog
      * @param objects    The possible objects.
      * @param type       One of the constants used to identify the type of 
      * 					 import.
+     * @param remove Pass <code>true</code> o
      */
 	public void reset(TreeImageDisplay selectedContainer, 
-			Collection<TreeImageDisplay> objects, int type)
+			Collection<TreeImageDisplay> objects, int type, boolean remove)
 	{
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
@@ -2206,9 +2186,25 @@ public class ImportDialog
 		buildLocationPane();
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
+		pane.setCollapsed(true);
 		if (b != popUpLocation) {
-			if (b) container.add(locationPane, "3, 0");
-			else container.remove(locationPane);
+			if (b) {
+				Component[] comps = container.getComponents();
+				boolean in = false;
+				for (int i = 0; i < comps.length; i++) {
+					if (comps[i] == pane) {
+						in = true;
+						break;
+					}
+				}
+				if (!in) {
+					pane.removeAll();
+					pane.add(locationPane);
+					container.add(pane, "3, 0");
+				}
+			} else {
+				if (remove) container.remove(pane);
+			}
 			container.repaint();
 		}
 		locationPane.repaint();
@@ -2288,7 +2284,7 @@ public class ImportDialog
 	 * 
 	 * @param bar The component to add.
 	 */
-	public void addToolBar(JComponent bar)
+	public void addToolBar(JComboBox bar)
 	{
 		if (bar == null) return;
 		groupSelection = bar;
@@ -2303,7 +2299,7 @@ public class ImportDialog
 	 * 
 	 * @param bar The component to add.
 	 */
-	public void onReconnected(JComponent bar)
+	public void onReconnected(JComboBox bar)
 	{
 		int n = toolBar.getComponentCount();
 		int diff = n-tbItems;
@@ -2331,8 +2327,6 @@ public class ImportDialog
 	{
 		if (d instanceof ProjectData || d instanceof ScreenData) {
 			createContainer(d);
-		//} else if (d instanceof ScreenData) {
-		//	createScreen((ScreenData) d);
 		} else if (d instanceof DatasetData) {
 			createDataset((DatasetData) d);
 		}

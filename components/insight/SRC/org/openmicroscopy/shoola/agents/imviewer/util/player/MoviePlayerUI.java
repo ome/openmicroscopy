@@ -316,7 +316,7 @@ class MoviePlayerUI
 		int x = insets.left+length*charWidth+insets.left;
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(new GridBagLayout());
-		c.weightx = 0;        
+		c.weightx = 0;
 		c.anchor = GridBagConstraints.WEST;
 		p.add(new JLabel(" Start "), c);
 		c.gridx = 1;
@@ -479,7 +479,7 @@ class MoviePlayerUI
 		throw new IllegalArgumentException("UI index not supported.");
 	}
 
-	/** Sets the moive type to {@link #FORWARD_CMD}. */
+	/** Sets the movie type to {@link #FORWARD_CMD}. */
 	void setDefaultMovieType()
 	{
 		movieTypes.setSelectedIndex(FORWARD_CMD);
@@ -569,12 +569,6 @@ class MoviePlayerUI
 				break;
 			case MoviePlayerDialog.ACROSS_T:
 				acrossT.setSelected(true);
-				break;
-				/*
-			case MoviePlayerDialog.ACROSS_ZT:
-				acrossZT.setSelected(true);
-				break;
-				*/
 		}
 	}
 

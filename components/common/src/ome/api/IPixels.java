@@ -63,7 +63,12 @@ public interface IPixels extends ServiceInterface
 
     /**
      * Retrieves the rendering settings for a given pixels set and the currently
-     * logged in user with the following objects pre-linked:
+     * logged in user. If the current user has no {@link RenderingDef}, and the
+     * user is an administrator, then a {@link RenderingDef} may be returned
+     * for the owner of the {@link Pixels}. This matches the behavior of the
+     * Rendering service.
+     *
+     * The following objects will be pre-linked:
      * <ul>
      * <li>renderingDef.quantization</li>
      * <li>renderingDef.model</li>
@@ -72,7 +77,7 @@ public interface IPixels extends ServiceInterface
      * <li>renderingDef.waveRendering.family</li>
      * <li>renderingDef.spatialDomainEnhancement</li>
      * </ul>
-     * 
+     *
      * @param pixelsId
      *            Pixels id.
      * @return Rendering definition.

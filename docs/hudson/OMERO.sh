@@ -14,6 +14,7 @@ echo Building $OMERO_BRANCH
 
 ./build.py clean
 ./build.py build-default
+./build.py test-compile
 ./build.py release-docs
 ./build.py release-zip
 ./build.py release-src

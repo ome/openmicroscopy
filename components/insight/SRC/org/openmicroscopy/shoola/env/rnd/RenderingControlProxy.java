@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
@@ -154,6 +155,9 @@ class RenderingControlProxy
     /** Flag indicating that the image is a big image or not.*/
     private Boolean bigImage;
     
+    /** The security context associated to that control.*/
+    private SecurityContext ctx;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -232,7 +236,7 @@ class RenderingControlProxy
     /** Checks if the session is still alive.*/
     private void isSessionAlive()
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	DataServicesFactory.isSessionAlive(context, ctx);
     }
     
     /**
@@ -763,21 +767,21 @@ class RenderingControlProxy
     /**
      * Creates a new instance.
      * 
-     * @param context		Helper reference to the registry.
-     * @param re   			The service to render a pixels set.
-     *                  	Mustn't be <code>null</code>.
-     * @param pixels   		The pixels set.
-     *                  	Mustn't be <code>null</code>.
-     * @param m         	The channel metadata. 
-     * @param compression  	Pass <code>0</code> if no compression otherwise 
-	 * 						pass the compression used.
-	 * @param rndDefs		Local copy of the rendering settings used to 
-	 * 						speed-up the client.
-	 * @param cacheSize		The desired size of the cache.
+     * @param ctx The security context.
+     * @param context Helper reference to the registry.
+     * @param re The service to render a pixels set.
+     * Mustn't be <code>null</code>.
+     * @param pixels The pixels set. Mustn't be <code>null</code>.
+     * @param m The channel metadata. 
+     * @param compression Pass <code>0</code> if no compression otherwise 
+	 * 					  pass the compression used.
+	 * @param rndDefs Local copy of the rendering settings used to 
+	 * speed-up the client.
+	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(Registry context, RenderingEnginePrx re, 
-    		Pixels pixels, List m, int compression, List<RndProxyDef> rndDefs, 
-    		int cacheSize)
+    RenderingControlProxy(SecurityContext ctx, Registry context,
+    	RenderingEnginePrx re, Pixels pixels, List m, int compression,
+    	List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -785,6 +789,9 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        if (ctx == null)
+            throw new NullPointerException("No security context.");
+        this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();

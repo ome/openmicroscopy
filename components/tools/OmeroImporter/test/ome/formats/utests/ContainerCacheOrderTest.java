@@ -102,12 +102,12 @@ public class ContainerCacheOrderTest extends TestCase
 		// First Objective, First ObjectiveSettings
 		store.setObjectiveLensNA(1.0, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		store.setObjectiveID("Objective:0", INSTRUMENT_INDEX, OBJECTIVE_INDEX);
-		store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
+		store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX);
 		
 		// Second Objective, Second ObjectiveSettings
 		store.setObjectiveLensNA(1.0, INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
 		store.setObjectiveID("Objective:1", INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
-		store.setImageObjectiveSettingsID("Objective:1", IMAGE_INDEX + 1);
+		store.setObjectiveSettingsID("Objective:1", IMAGE_INDEX + 1);
 		
 		// A Plate
 		store.setPlateName("Plate", 0);

@@ -111,6 +111,7 @@ public class ROILoader
      */
     public void load()
     {
+    	userID = -1; //load all rois
     	handle = idView.loadROI(ctx, imageID, fileID, userID, this);
     }
     

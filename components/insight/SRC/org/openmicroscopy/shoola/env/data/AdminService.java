@@ -182,6 +182,16 @@ public interface AdminService
 	public String getLoggingName();
 
 	/**
+	 * Tells whether the communication channel to <i>OMEDS</i> is currently
+	 * connected.
+	 * This means that we have established a connection and have successfully
+	 * logged in.
+	 * 
+	 * @return	<code>true</code> if connected, <code>false</code> otherwise.
+	 */
+	public boolean isConnected();
+	
+	/**
 	 * Loads the group specified by the passed identifier or all available
 	 * groups if <code>-1</code>.
 	 * 

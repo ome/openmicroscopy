@@ -623,16 +623,17 @@ class MetadataViewerModel
 	{
 		if (asynch) {
 			MetadataLoader loader = null;
+			SecurityContext c = ctx;
+			if (MetadataViewerAgent.isAdministrator())
+				c = getAdminContext();
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
-					loader = new GroupEditor(component, getAdminContext(),
-							group, data.getPermissions());
+					loader = new GroupEditor(component, c, group, 
+							data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					SecurityContext c = ctx;
-					if (MetadataViewerAgent.isAdministrator())
-						c = getAdminContext();
+					
 					loader = new AdminEditor(component, c, data.getGroup(),
 							data.getExperimenters());
 			}	

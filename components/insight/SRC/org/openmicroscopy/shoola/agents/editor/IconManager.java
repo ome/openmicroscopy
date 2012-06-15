@@ -349,12 +349,27 @@ public class IconManager
     
     /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
     public static final int           READ_WRITE_GROUP_DD_12 = 97;
+    
+    /** The <code>Private Group</code> icon. */
+    public static final int           PRIVATE_GROUP = 98;
+    
+    /** The <code>Read Group Drop Down</code> icon. */
+    public static final int           READ_GROUP = 99;
+    
+    /** The <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_LINK_GROUP = 100;
+    
+    /** The <code>Public Group Drop Down</code> icon. */
+    public static final int           PUBLIC_GROUP = 101;
+    
+    /** The <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_WRITE_GROUP = 102;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 97;
+    private static final int          MAX_ID = 102;
 
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -465,6 +480,11 @@ public class IconManager
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[READ_WRITE_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
+        relPaths[PRIVATE_GROUP] = "private16.png";
+        relPaths[READ_GROUP] = "group_read16.png";
+        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";
+        relPaths[PUBLIC_GROUP] = "public_read16.png";
+        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";
     }
     
     

@@ -78,6 +78,7 @@ public class AttachmentsLoader
     		boolean canAnnotate)
     {
     	 super(viewer, ctx);
+    	 this.canAnnotate = canAnnotate;
     }
     
 	/** 

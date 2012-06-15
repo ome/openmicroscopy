@@ -195,10 +195,11 @@ class BaseClient(object):
         self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
                            omero.constants.CONNECTTIMEOUT)
 
-        # ThreadPool to 5 if not present
-        threadpool = id.properties.getProperty("omero.ClientCallback.ThreadPool.Size")
-        if not threadpool or len(threadpool) == 0:
-            id.properties.setProperty("omero.ClientCallback.ThreadPool.Size", str(omero.constants.CLIENTTHREADPOOLSIZE))
+        # Set large thread pool max values for all communicators
+        for x in ("Client", "Server"):
+            sizemax = id.properties.getProperty("Ice.ThreadPool.%s.SizeMax" % x)
+            if not sizemax or len(sizemax) == 0:
+                id.properties.setProperty("Ice.ThreadPool.%s.SizeMax" % x, "50")
 
         # Port, setting to default if not present
         port = self.parseAndSetInt(id, "omero.port",\
@@ -283,6 +284,9 @@ class BaseClient(object):
         "omero.router.insecure" configuration property is retrieved from the server
         and used as the value of "Ice.Default.Router" for the new client. Any exception
         thrown during creation is passed on to the caller.
+
+        Note: detachOnDestroy has NOT been called on the session in the returned client.
+        Clients are responsible for doing this immediately if such desired.
         """
         props = self.getPropertyMap()
         if not secure:

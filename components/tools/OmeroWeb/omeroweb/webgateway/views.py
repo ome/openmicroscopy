@@ -375,7 +375,7 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     
     # need to find the z indices of the first shape in T
-    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG['SERVICE_OPTS'])
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG)
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -947,8 +947,8 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         opts = {}
         opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
         opts['fps'] = int(request.REQUEST.get('fps', 4))
-        opts['minsize'] = (512,512, '#222222')
-        ext = opts['format']== 'video/quicktime' and '.mov' or '.avi'
+        opts['minsize'] = (512,512, 'Black')
+        ext = '.avi'
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
                                   request.REQUEST.get('format', 'quicktime'))
         
@@ -1061,7 +1061,6 @@ def jsonp (f):
             if server_id is None:
                 server_id = request.session['connector'].server_id
             kwargs['server_id'] = server_id
-            conn = kwargs.get('conn', None)
             rv = f(request, *args, **kwargs)
             if kwargs.get('_raw', False):
                 return rv
@@ -1274,8 +1273,8 @@ def imageMarshal (image, key=None):
             rv = None
     return rv
 
-@jsonp
 @login_required()
+@jsonp
 def imageData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
@@ -1295,8 +1294,8 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     rv = imageMarshal(image, key)
     return rv
 
-@jsonp
 @login_required()
+@jsonp
 def wellData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
@@ -1319,8 +1318,8 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
     rv = well.simpleMarshal(xtra=xtra)
     return rv
 
-@jsonp
 @login_required()
+@jsonp
 def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     """
     """
@@ -1365,8 +1364,8 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
         rv = simplejson.loads(rv)
     return rv
 
-@jsonp
 @login_required()
+@jsonp
 def listImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
@@ -1387,8 +1386,8 @@ def listImages_json (request, did, conn=None, **kwargs):
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
-@jsonp
 @login_required()
+@jsonp
 def listWellImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Well, as json
@@ -1409,8 +1408,8 @@ def listWellImages_json (request, did, conn=None, **kwargs):
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
-@jsonp
 @login_required()
+@jsonp
 def listDatasets_json (request, pid, conn=None, **kwargs):
     """
     lists all Datasets in a Project, as json
@@ -1428,8 +1427,8 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
         return HttpResponse('[]', mimetype='application/javascript')
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
 
-@jsonp
 @login_required()
+@jsonp
 def datasetDetail_json (request, did, conn=None, **kwargs):
     """
     return json encoded details for a dataset
@@ -1438,8 +1437,8 @@ def datasetDetail_json (request, did, conn=None, **kwargs):
     ds = conn.getObject("Dataset", did)
     return ds.simpleMarshal()
 
-@jsonp
 @login_required()
+@jsonp
 def listProjects_json (request, conn=None, **kwargs):
     """
     lists all Projects, as json
@@ -1455,8 +1454,8 @@ def listProjects_json (request, conn=None, **kwargs):
         rv.append( {'id': pr.id, 'name': pr.name, 'description': pr.description or ''} )
     return rv
 
-@jsonp
 @login_required()
+@jsonp
 def projectDetail_json (request, pid, conn=None, **kwargs):
     """
     grab details from one specific project
@@ -1509,8 +1508,8 @@ def searchOptFromRequest (request):
         return {}
 
 @TimeIt(logging.INFO)
-@jsonp
 @login_required()
+@jsonp
 def search_json (request, conn=None, **kwargs):
     """
     Search for objects in blitz.
@@ -1540,9 +1539,9 @@ def search_json (request, conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = conn.searchObjects(["image"], opts['search'], conn.CONFIG['SERVICE_OPTS'])
+            sr = conn.searchObjects(["image"], opts['search'], conn.CONFIG)
         else:
-            sr = conn.searchObjects(None, opts['search'], conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
+            sr = conn.searchObjects(None, opts['search'], conn.CONFIG)  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1646,8 +1645,8 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-@jsonp
 @login_required()
+@jsonp
 def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
@@ -1676,11 +1675,11 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
         if fromimg.canWrite():
-            sopts = dict(blitzcon.CONFIG['SERVICE_OPTS'] or {})
-            sopts['omero.group'] = str(fromimg.getDetails().getGroup().getId())
-            sopts['omero.user'] = str(userid)
+            ctx = blitzcon.CONFIG.copy()
+            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
+            ctx.setOmeroUser(userid)
             rsettings = blitzcon.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), sopts)
+            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
@@ -1694,8 +1693,8 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-@jsonp
 @login_required()
+@jsonp
 def reset_image_rdef_json (request, iid, conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
@@ -1789,7 +1788,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
-    result = roiService.findByImage(long(imageId), None, conn.CONFIG['SERVICE_OPTS'])
+    result = roiService.findByImage(long(imageId), None, conn.CONFIG)
     
     for r in result.rois:
         roi = {}
@@ -1890,8 +1889,8 @@ def test (request):
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
-@jsonp
 @login_required(isAdmin=True)
+@jsonp
 def su (request, user, conn=None, **kwargs):
     """
     If current user is admin, switch the session to a new connection owned by 'user'

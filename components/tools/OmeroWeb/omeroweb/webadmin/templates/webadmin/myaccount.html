@@ -323,7 +323,7 @@
     <ul id="settings_tabs">
         <li id="personal_settings_tab"><a href="#personal_settings" title="User Settings">User</a></li>
 
-        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>{% endif %}
+        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Edit Groups that I own">My Groups</a></li>{% endif %}
 
         <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
     </ul>
@@ -332,8 +332,11 @@
     <div id="personal_settings" class="settings_content">
 
 
-       <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
+       <form class="standard_form settings_form" action="{% url wamyaccount "save" %}" method="POST">
 
+           <p>{% trans "Fields marked in red are mandatory." %}</p>
+           <br/>
+           
            <div id="avatar">
                <img src="{% url wamyphoto %}" class="imgzoom"/>                 
                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
@@ -352,9 +355,7 @@
            <div id="personal_details">
 
                {% for field in form %}
-                      {{ field.label_tag }}
-                   <!-- Commented out until this can sit inside the label -->
-                   <!--{% if field.field.required %}*{% endif %} -->
+                   {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                    {{ field }}
                    {% if field.errors %}{{ field.errors }}{% endif %}
                    {{ field.help_text|safe }}
@@ -414,6 +415,8 @@
     {% if ownedGroups %}
     <div id="groups_settings" class="settings_content">
         
+        <h1>Groups I Own</h1>
+        
         <div class="one_column_header">
             <form class="search filtersearch" id="filtersearch" action="#">
                 <input type="text" id="id_search" value="">
@@ -431,7 +434,7 @@
                     <th>{% trans "Name" %}</th> 
                     <th>{% trans "Permissions" %}</th> 
                     <th>{% trans "Description" %}</th>
-                    <th >{% trans "Settings" %}</th>
+                    <th></th>
                 </tr> 
             </thead> 
             <tbody>
@@ -441,8 +444,8 @@
                     <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
                     <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
-                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
-                            <span></span>
+                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver">
+                            <span>Edit</span>
                         </a>
                     </td>
                 </tr>

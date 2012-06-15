@@ -195,11 +195,12 @@ public class IconManager
         relPaths[SWITCH_LOCATION] = "eclipse_hierarchy_co16.png";
         relPaths[DELETE_48] = "nuvola_cancel48.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
-        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
-        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
-        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
-        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
-        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
+        relPaths[PRIVATE_GROUP] = "private16.png";//"nuvola_ledred16.png";
+        relPaths[READ_GROUP] = "group_read16.png";//"nuvola_ledorange_readOnly16.png";
+        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";//"nuvola_ledorange16.png";
+        relPaths[PUBLIC_GROUP] = "public_read16.png";//"nuvola_ledgreen16.png";
+        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";//"nuvola_ledorange16.png";
+        
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";

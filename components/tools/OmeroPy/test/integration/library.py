@@ -250,6 +250,16 @@ class ITest(unittest.TestCase):
         renderingEngine.close()
         rawPixelStore.close()
 
+        # See #9070. Forcing a thumbnail creation
+        tb = session.createThumbnailStore()
+        try:
+            s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
+            self.assertNotEqual(s[pixelsId],'')
+
+        finally:
+            tb.close()
+
+
         # Reloading image to prevent error on old pixels updateEvent
         image = containerService.getImages("Image", [imageId], None)[0]
         return image

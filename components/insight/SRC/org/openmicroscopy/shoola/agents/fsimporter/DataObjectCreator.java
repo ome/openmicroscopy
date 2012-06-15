@@ -104,11 +104,10 @@ public class DataObjectCreator
     */
    public void handleResult(Object result)
    {
-   	if (viewer.getState() == Importer.DISCARDED)
-   		return;
-    List l = (List) result;
-    DataObject d = null;
-    if (l != null && l.size() == 1) d = (DataObject) l.get(0);
-    viewer.onDataObjectSaved(d, parent);
+	   if (viewer.getState() == Importer.DISCARDED) return;
+	   List l = (List) result;
+	   DataObject d = null;
+	   if (l != null && l.size() == 1) d = (DataObject) l.get(0);
+	   viewer.onDataObjectSaved(d, parent);
    }
 }

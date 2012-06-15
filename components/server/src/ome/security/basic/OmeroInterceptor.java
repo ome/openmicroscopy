@@ -451,11 +451,22 @@ public class OmeroInterceptor implements Interceptor {
                 String gname = currentUser.getGroup().getName();
                 String oname = currentUser.getOwner().getOmeName();
 
-                throw new ReadOnlyGroupSecurityViolation(String.format(
+                Long changedUid = null;
+                if (changedObject.getDetails().getOwner() != null) {
+                    changedUid = changedObject.getDetails().getOwner().getId();
+                }
+
+                // ticket:8979 - allow admin users to specify the owner
+                // for such a graph critical situation since if the new
+                // object also belongs to the user of the linked obj, then
+                // visibility will be guaranteed.
+                if (changedUid == null || !changedUid.equals(linkedUid)) {
+                    throw new ReadOnlyGroupSecurityViolation(String.format(
                     "Cannot link to %s\n" +
                     "Current user (%s) is an admin or the owner of\n" +
                     "the private group (%s=%s). It is not allowed to\n" +
                     "link to users' data.", linkedObject, oname, gname, p));
+                }
             }
 
             final Right neededRight = neededRight(changedClass, linkedClass);

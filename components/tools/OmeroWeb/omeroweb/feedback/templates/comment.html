@@ -39,15 +39,15 @@
 
         {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
         
-        <form action="{% url csend %}" method="post">
-        <table>
+        <form action="{% url csend %}" method="post" class="standard_form">
             {% for field in form %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
+                {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+                {{ field }}
+                {% if field.errors %}{{ field.errors }}{% endif %}
+                {{ field.help_text|safe }}
+                <br/>
             {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Send" /></td></tr>
-            </table>
+                <input type="submit" value="Send" />
         </form>
     </div>
 {% endblock %}

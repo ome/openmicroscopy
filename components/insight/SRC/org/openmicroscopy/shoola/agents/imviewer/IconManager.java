@@ -377,11 +377,11 @@ public class IconManager
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[SPLIT_VIEW_FIGURE_22] = "splitViewFigure22.png";
-        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
-        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
-        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
-        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
-        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
+        relPaths[PRIVATE_GROUP] = "private16.png";
+        relPaths[READ_GROUP] = "group_read16.png";
+        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";
+        relPaths[PUBLIC_GROUP] = "group_public_read16.png";
+        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";
     }
     
     /** The sole instance. */

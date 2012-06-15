@@ -1904,6 +1904,7 @@ class ImViewerComponent
 			} else {
 				switch (index) {
 					case PlayMovieAction.ACROSS_Z:
+						d.setZRange(model.getDefaultZ(), model.getMaxZ());
 						controller.getAction(
 								ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
 						break;

@@ -49,10 +49,10 @@ public class LogOffAction
 {
 
 	/** The name of the action. */
-    public static final String NAME = "Log Off...";
+    public static final String NAME = "Switch User...";
     
     /** The description of the action. */
-    public static final String DESCRIPTION = "Log off from the current server.";
+    public static final String DESCRIPTION = "Reconnect as another user.";
     
     /** 
      * Enables the action if the browser is not ready.

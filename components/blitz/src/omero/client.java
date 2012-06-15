@@ -298,12 +298,12 @@ public class client {
         parseAndSetInt(id, "Ice.Override.ConnectTimeout",
                 omero.constants.CONNECTTIMEOUT.value);
 
-        // Threadpool to 5 if not present
-        String threadpool = id.properties
-                .getProperty("omero.ClientCallback.ThreadPool.Size");
-        if (threadpool == null || threadpool.length() == 0) {
-            id.properties.setProperty("omero.ClientCallback.ThreadPool.Size",
-                Integer.toString(omero.constants.CLIENTTHREADPOOLSIZE.value));
+        // Set large thread pool max values for all communicators
+        for (String x : Arrays.asList("Client", "Server")) {
+            String sizemax = id.properties.getProperty(String.format("Ice.ThreadPool.%s.SizeMax", x));
+            if (sizemax == null || sizemax.length() == 0) {
+                id.properties.setProperty(String.format("Ice.ThreadPool.%s.SizeMax", x), "50");
+            }
         }
 
         // Port, setting to default if not present
@@ -396,6 +396,9 @@ public class client {
      * configuration property is retrieved from the server and used as the value
      * of "Ice.Default.Router" for the new client. Any exception thrown during
      * creation is passed on to the caller.
+     *
+     * Note: detachOnDestroy has NOT been called on the session in the returned client.
+     * Clients are responsible for doing this immediately if such desired.
      */
     public omero.client createClient(boolean secure) throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {

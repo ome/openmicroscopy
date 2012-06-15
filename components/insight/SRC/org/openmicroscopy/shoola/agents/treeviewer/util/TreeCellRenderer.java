@@ -38,7 +38,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -410,6 +409,7 @@ public class TreeCellRenderer
 	        		break;
 	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+	        		break;
 	        	default:
 	        		icon = OWNER_GROUP_ICON;
         	}

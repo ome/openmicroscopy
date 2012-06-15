@@ -57,24 +57,26 @@
 
     <h1>{% trans "Create new share" %}:</h1>
     
+    <p>{% trans "Fields marked in red are mandatory." %}</p>
+    
     <div>
             {% for field in form %}
                 {% ifequal field.label_tag form.image.label_tag %}
                     {% if field.errors %}
-                        <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</div>
+                        <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}</div>
                         <div>{{ field.errors }}</div>
                     {% endif %}
                     <div class="hiddenField">{{ field }}</div>
                 {% else %}
                     {% ifequal field.label_tag form.enable.label_tag %}
                         <div>
-                            {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+                            {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                             {{ field }}
                             {{ field.help_text|safe }}
                             {% if field.errors %}{{ field.errors }}{% endif %}
                         </div>
                     {% else %}                
-                        <div>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</div>
+                        <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %} {{ field.help_text|safe }}</div>
                         <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
                         <div>{{ field }}</div>
                     {% endifequal %}
