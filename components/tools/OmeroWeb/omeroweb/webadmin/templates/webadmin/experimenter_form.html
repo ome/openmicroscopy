@@ -201,13 +201,12 @@
 
 <h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
 
-<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-<br/>
+
 
 {% if eid %}
     <!-- We are editing existing user -->
-    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form">
-        
+    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form settings_form">
+
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
@@ -227,32 +226,39 @@
         
 {% else %}
     <!-- We are creating new user -->
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
+    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form settings_form">
 {% endif %}
 
-        
-        {{ form.omename.label_tag }} {% if form.omename.field.required %}*{% endif %} {{ form.omename }} <br />
-        {{ form.password.label_tag }} {% if form.password.field.required %}*{% endif %} {{ form.password }} <br />
-        {{ form.confirmation.label_tag }} {% if form.confirmation.field.required %}*{% endif %} {{ form.confirmation }} <br />
-        <br />
-        {{ form.first_name.label_tag }} {% if form.first_name.field.required %}*{% endif %} {{ form.first_name }} <br />
-        {{ form.middle_name.label_tag }} {% if form.middle_name.field.required %}*{% endif %} {{ form.middle_name }} <br />
-        {{ form.last_name.label_tag }} {% if form.last_name.field.required %}*{% endif %} {{ form.last_name }} <br />
-        <br />
-        {{ form.email.label_tag }} {% if form.email.field.required %}*{% endif %} {{ form.email }} <br />
-        {{ form.institution.label_tag }} {% if form.institution.field.required %}*{% endif %} {{ form.institution }} <br />
-        <br />
-        {{ form.administrator.label_tag }} {% if form.administrator.field.required %}*{% endif %} {{ form.administrator }} <br />
-        {{ form.active.label_tag }} {% if form.active.field.required %}*{% endif %} {{ form.active }} <br />
-        
-        <br />
-        {{ form.default_group.label_tag }}*{{ form.default_group }}
-        <span id="default_group_name">Nothing selected</span>
-        <br />
-        {{ form.other_groups.label_tag }}*
-        {{ form.other_groups }}
-        {% if form.other_groups.errors %}{{ form.other_groups.errors }}{% endif %}
-        {% if form.default_group.errors %}{{ form.default_group.errors }}{% endif %}
+    <p>{% trans "Fields marked in red are mandatory." %}</p>
+    <br/>
+        {% for field in form %}
+
+            {% ifequal field.label_tag form.default_group.label_tag %}
+            
+            <span class="required">{{ field.label_tag }}</span>
+            {{ field }} 
+            <span id="default_group_name">Nothing selected</span>
+            {% if field.errors %}{{ field.errors }}{% endif %}
+            
+            <br />
+            
+            {% else %}{% ifequal field.label_tag form.other_groups.label_tag %}
+            
+            <span class="required">{{ field.label_tag }}</span>
+            {{ field }}
+            {% if field.errors %}{{ field.errors }}{% endif %}
+
+            <br />
+            
+            {% else %}
+            
+            {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+            {{ field }}
+    		
+    		<br/>
+    		{% endifequal %}{% endifequal %}
+
+        {% endfor %}
         
         <br />
         

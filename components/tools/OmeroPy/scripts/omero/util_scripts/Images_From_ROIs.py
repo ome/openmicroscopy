@@ -143,9 +143,6 @@ def processImage(conn, imageId, parameterMap):
 
     # if making a single stack image...
     if imageStack:
-        if parentDataset is not None:
-            dataset = parentDataset._obj
-        else: dataset = None
         print "\nMaking Image stack from ROIs of Image:", imageId
         print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
         plane2Dlist = []
@@ -170,14 +167,24 @@ def processImage(conn, imageId, parameterMap):
         description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
         print description
         image = conn.createImageFromNumpySeq(tileGen(), newImageName,
-            sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=dataset)
+            sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=None)
 
-        return image._obj
+        # Link image to dataset
+        if parentDataset and parentDataset.canLink():
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(parentDataset.getId(), False)
+            link.child = omero.model.ImageI(image.getId(), False)
+            conn.getUpdateService().saveAndReturnObject(link)
+        else:
+            link = None
+            
+        return image, None, link
 
     # ...otherwise, we're going to make a new 5D image per ROI
     else:
         colors = [c.getColor().getRGB() for c in image.getChannels()]
         cNames = [c.getLabel() for c in image.getChannels()]
+        images = []
         iIds = []
         for r in rois:
             x,y,w,h, z1,z2,t1,t2 = r
@@ -231,6 +238,7 @@ def processImage(conn, imageId, parameterMap):
                 px.setPhysicalSizeZ(rdouble(physicalSizeZ))
             conn.getUpdateService().saveObject(px)
 
+            images.append(newImg)
             iIds.append(newImg.getId())
 
         if len(iIds) == 0:
@@ -247,27 +255,33 @@ def processImage(conn, imageId, parameterMap):
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
             dataset.description = rstring(desc)
             dataset = updateService.saveAndReturnObject(dataset)
+            parentDataset = dataset
         else:
             # put new images in existing dataset
-            if parentDataset is not None:
-                dataset = parentDataset._obj
-            else: dataset = None
+            dataset = None
+            if parentDataset is not None and parentDataset.canLink():
+                parentDataset = parentDataset._obj
+            else: 
+                parentDataset = None
             parentProject = None    # don't add Dataset to parent.
 
-        if dataset is None:
+        if parentDataset is None:
+            link = None
             print "No dataset created or found for new images. Images will be orphans."
-            return
-        for iid in iIds:
-            link = omero.model.DatasetImageLinkI()
-            link.parent = omero.model.DatasetI(dataset.id.val, False)
-            link.child = omero.model.ImageI(iid, False)
-            updateService.saveObject(link)
-        if parentProject:        # and put it in the current project
-            link = omero.model.ProjectDatasetLinkI()
-            link.parent = omero.model.ProjectI(parentProject.getId(), False)
-            link.child = omero.model.DatasetI(dataset.id.val, False)
-            updateService.saveAndReturnObject(link)
-        return dataset
+        else:
+            link = []
+            for iid in iIds:
+                dsLink = omero.model.DatasetImageLinkI()
+                dsLink.parent = omero.model.DatasetI(parentDataset.id.val, False)
+                dsLink.child = omero.model.ImageI(iid, False)
+                updateService.saveObject(dsLink)
+                link.append(dsLink)
+            if parentProject and parentProject.canLink():        # and put it in the current project
+                projectLink = omero.model.ProjectDatasetLinkI()
+                projectLink.parent = omero.model.ProjectI(parentProject.getId(), False)
+                projectLink.child = omero.model.DatasetI(dataset.id.val, False)
+                updateService.saveAndReturnObject(projectLink)
+        return images, dataset, link
 
 def makeImagesFromRois(conn, parameterMap):
     """
@@ -275,34 +289,71 @@ def makeImagesFromRois(conn, parameterMap):
     with new image planes coming from the regions in Rectangular ROIs on the parent images. 
     """
     
-    imageIds = []
     dataType = parameterMap["Data_Type"]
     ids = parameterMap["IDs"]
     imageStack = parameterMap['Make_Image_Stack']
     
-    newObjs = []
+    message =""
+    
+    # Get the images
+    objects, logMessage = script_utils.getObjects(conn, parameterMap)
+    message += logMessage
+    if not objects:
+        return None, message
+    
+    # Concatenate images from datasets
     if dataType == 'Image':
-        for iId in ids:
-            new = processImage(conn, iId, parameterMap)
-            if new is not None:
-                newObjs.append(new)
-
+        images = objects
     else:
-        for dsId in ids:
-            ds = conn.getObject("Dataset", dsId)
-            for i in ds.listChildren():
-                new = processImage(conn, i.getId(), parameterMap)
-                if new is not None:
-                    newObjs.append(new)
-
-    plural = (len(newObjs) == 1) and "." or "s."
-    if imageStack:
-        message = "Created %s new Image%s" % (len(newObjs), plural)
-        robj = (len(newObjs) > 0) and newObjs[0] or None
+        images = []
+        for ds in objects:
+            images += ds.listChildren()
+            
+    # Check for rectangular ROIs and filter images list
+    images = [image for image in images if image.getROICount("Rect")>0]
+    if not images:
+        message += "No rectangle ROI found."
+        return None, message
+        
+    imageIds = [i.getId() for i in images]    
+    newImages = []
+    newDatasets = []
+    links = []
+    for iId in imageIds:
+        newImage, newDataset, link = processImage(conn, iId, parameterMap)
+        if newImage is not None:
+            if isinstance(newImage,list):
+                newImages.extend(newImage)
+            else:
+                newImages.append(newImage)
+        if newDataset is not None:
+            newDatasets.append(newDataset)
+        if link is not None:
+            if isinstance(link,list):
+                links.extend(link)
+            else:
+                links.append(link)
+      
+    if newImages:
+        if len(newImages)>1:
+            message += "Created %s new images" % len(newImages)
+        else:
+            message += "Created a new image"
     else:
-        message = "Created %s new Dataset%s" % (len(newObjs), plural)
-        robj = (len(newObjs) > 0) and newObjs[0] or None
-    return message, robj
+        message += "No image created"
+    
+    if newDatasets:
+        if len(newDatasets)>1:
+            message += " and %s new datasets" % len(newDatasets)
+        else:
+            message += " and a new dataset"
+    
+    if not links or not len(links) == len(newImages):
+        message += " but some images could not be attached"
+    message += "."
+
+    robj = (len(newImages) > 0) and newImages[0]._obj or None
+    return robj, message
 
 def runAsScript():
     """
@@ -347,15 +398,11 @@ assumes that all the ROIs on each Image are the same size.""",
         # create a wrapper so we can use the Blitz Gateway.
         conn = BlitzGateway(client_obj=client)
 
-        result = makeImagesFromRois(conn, parameterMap)
-
-        if result:
-            message, robj = result
-            client.setOutput("Message", rstring(message))
-            if robj is not None:
-                client.setOutput("Result", robject(robj))
-        else:
-            client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
+        robj, message = makeImagesFromRois(conn, parameterMap)
+        
+        client.setOutput("Message", rstring(message))
+        if robj is not None:
+            client.setOutput("Result", robject(robj))
 
     finally:
         client.closeSession()

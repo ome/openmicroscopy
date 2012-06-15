@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
@@ -196,14 +197,19 @@ public abstract class GraphStep {
      */
     public static void permissionsClause(EventContext ec, QueryBuilder qb) {
         if (!ec.isCurrentUserAdmin()) {
-            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                qb.and("details.group.id = :gid");
-                qb.param("gid", ec.getCurrentGroupId());
-            } else {
-                // This is only a regular user, then the object must belong to
-                // him/her
-                qb.and("details.owner.id = :oid");
-                qb.param("oid", ec.getCurrentUserId());
+            final Permissions p = ec.getCurrentGroupPermissions();
+            // If this is less than a rwrw group, then we want we require
+            // either ownership of the object or leadership of the group.
+            if (!p.isGranted(Permissions.Role.GROUP, Permissions.Right.WRITE)) {
+                if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                    qb.and("details.group.id = :gid");
+                    qb.param("gid", ec.getCurrentGroupId());
+                } else {
+                    // This is only a regular user, then the object must belong to
+                    // him/her
+                    qb.and("details.owner.id = :oid");
+                    qb.param("oid", ec.getCurrentUserId());
+                }
             }
         }
     }

@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -56,6 +60,7 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 
 import pojos.GroupData;
 
@@ -73,7 +78,7 @@ import pojos.GroupData;
  * @since 3.0-Beta3
  */
 class EditorControl
-	implements ChangeListener
+	implements ActionListener, ChangeListener
 {
 
 	/** Identifies the <code>Close Editor</code> Action. */
@@ -281,6 +286,25 @@ class EditorControl
 				break;
 			case Editor.DISCARDED:
 				view.close();
+		}
+	}
+	
+	/**
+	 * Handles group selection.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		if (index == PERSONAL) {
+			JComboBox box = (JComboBox) e.getSource();
+			Object ho = box.getSelectedItem();
+			if (ho instanceof JComboBoxImageObject) {
+				JComboBoxImageObject o = (JComboBoxImageObject) ho;
+				if (o.getData() instanceof GroupData) {
+					model.setUserGroup(((GroupData) o.getData()).getId());
+				}
+			}
 		}
 	}
 

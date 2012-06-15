@@ -112,6 +112,16 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'omeroweb.decorators': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'omeroweb.connector': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         '': {
             'handlers': ['default'],
             'level': 'DEBUG',
@@ -244,8 +254,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
             
     # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            '["Table", "webclient/data/includes/center_plugin.table.js.html", "image_table"],'\
-            '["Split-view", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"]]', json.loads],
+            '["Table", "webclient/data/includes/center_plugin.table.js.html", "image_table"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.

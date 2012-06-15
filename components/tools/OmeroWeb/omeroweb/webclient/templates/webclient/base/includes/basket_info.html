@@ -26,10 +26,10 @@
 
 var calculateCartTotal = function(total){
     if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
-        $("#launch_basket").css('opacity', 0.2);
+        // turning off, see #9154 $("#launch_basket").css('opacity', 0.5);
         $('#cartTotal').hide();
     } else {
-        $("#launch_basket").css('opacity', 1.0);
+        // turning off, see #9154 $("#launch_basket").css('opacity', 1.0);
         $('#cartTotal').text(total + '').show();
     }
 };
@@ -58,10 +58,8 @@ $(document).ready(function() {
         } else {
             $("#basket_panel").hide();
         }
-    }); // BUT also stop any events bubbling up from panel itself
-    $("#activities_panel").click(function(event) {
-        return false;
-    });
+    }); 
+    
     // BUT also stop any events bubbling up from panel itself
     $("#basket_panel").click(function(event) {
         return false;
@@ -79,8 +77,7 @@ $(document).ready(function() {
 		
 		<li>
 		    <span id="launch_basket" class="toolbar_button" title="Basket">
-		        <span id="cartTotal">0</span>
-				<br/>
+		        <span id="cartTotal" class="notifier">0</span>
 			</span>
 			
 	        <div id="basket_panel" class="info_panel">

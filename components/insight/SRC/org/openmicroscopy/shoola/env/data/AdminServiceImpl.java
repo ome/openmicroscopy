@@ -373,25 +373,38 @@ class AdminServiceImpl
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
-		ExperimenterGroup g = group.asGroup();
-		String r = "rw----";
-		switch (permissions) {
-			case GroupData.PERMISSIONS_GROUP_READ:
-				r = "rwr---";
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				r = "rwra--";
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				r = "rwrw--";
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				r = "rwrwr-";
-				break;
+		gateway.updateGroup(ctx, group, permissions);
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+		gateway.reconnect(uc.getUserName(), uc.getPassword());
+		
+		group = (GroupData) PojoMapper.asDataObject(
+				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));
+		//Review update
+		Collection groups = (Collection) context.lookup(
+				LookupNames.USER_GROUP_DETAILS);
+		Iterator j = groups.iterator();
+		GroupData g;
+		Set available = new HashSet<GroupData>();
+		while (j.hasNext()) {
+			g = (GroupData) j.next();
+			if (g.getId() == group.getId()) available.add(group);
+			else  available.add(g);
 		}
-		return gateway.updateGroup(ctx, g, r);
+		context.bind(LookupNames.USER_GROUP_DETAILS, available);
+		List agents = (List) context.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			if (agentInfo.isActive()) {
+				agentInfo.getRegistry().bind(
+						LookupNames.USER_GROUP_DETAILS, available);
+			}
+		}
+		return group;
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#copyExperimenters(SecurityContext, GroupData, Set)
@@ -747,5 +760,11 @@ class AdminServiceImpl
 			context.getImageService().getExperimenterThumbnailSet(ctx, exp, 0);
 		return map.get(experimenter);
 	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#isConnected()
+	 */
+	public boolean isConnected() { return gateway.isConnected(); }
 
 }

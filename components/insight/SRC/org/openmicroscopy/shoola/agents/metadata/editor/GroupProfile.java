@@ -226,12 +226,12 @@ class GroupProfile
     	ExperimenterData exp;
     	while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
-			p.add(new JLabel(exp.getFirstName()+" "+exp.getLastName()));
+			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
 		}
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createTitledBorder("Owners"));
-    	
+    	content.add(p);
     	return content;
     }
     

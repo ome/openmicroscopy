@@ -159,7 +159,7 @@ class OmeroImageServiceImpl
 		List<Annotation> list, long userID, boolean close, boolean hcs)
 	{
 		if (status.isMarkedAsCancel()) {
-			gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
 		}
 		boolean thumbnail = object.isLoadThumbnail();
@@ -179,7 +179,8 @@ class OmeroImageServiceImpl
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
-			if (ImportableObject.isHCSFile(file) || hcs) {
+			if (hcs) {
+			//if (ImportableObject.isHCSFile(file) || hcs) {
 				archived = false;
 				if (!file.getName().endsWith(
 						ImportableObject.DAT_EXTENSION)) {
@@ -581,8 +582,8 @@ class OmeroImageServiceImpl
 				index++;
 			}
 			
-			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixels, m, compressionLevel, defs);
+			proxy = PixelsServicesFactory.createRenderingControl(context, ctx,
+					re, pixels, m, compressionLevel, defs);
 		}
 		return proxy;
 	}
@@ -596,7 +597,7 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			return PixelsServicesFactory.render(context, 
+			return PixelsServicesFactory.render(context, ctx,
 						Long.valueOf(pixelsID), pDef, asTexture, largeImage);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
@@ -1036,7 +1037,7 @@ class OmeroImageServiceImpl
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
 		if (status.isMarkedAsCancel()) {
-			gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
 		}
 		Object result = null;
@@ -1073,13 +1074,12 @@ class OmeroImageServiceImpl
 		//prepare the container.
 		List<ImageData> images = new ArrayList<ImageData>();
 		//IObject io;
-		List<IObject> links = new ArrayList<IObject>();
 		Set<ImageData> ll;
 		ImageData image;
 		Iterator<ImageData> kk;
 		List<Object> converted;
 		List<String> candidates;
-		ImportCandidates ic;
+		ImportCandidates ic = null;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
 		DatasetData dataset = importable.getDataset();
@@ -1105,7 +1105,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1192,7 +1192,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
-				ic = gateway.getImportCandidates(ctx, object, file, status);
+				if (ic == null) //already check if hcs.
+					ic = gateway.getImportCandidates(ctx, object, file, status);
 				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
@@ -1200,7 +1201,7 @@ class OmeroImageServiceImpl
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}
@@ -1391,10 +1392,10 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
-			
+			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-					importable.isArchived(), ioContainer, list, userID, close,
-					hcs);
+				importable.isArchived(), ioContainer, list, userID, close,
+				false);
 		}
 		return Boolean.valueOf(true);
 	}

@@ -56,6 +56,8 @@ class Connector(object):
         connection.user = UserProxy(connection)
         connection.user.logIn()
         self.omero_session_key = connection._sessionUuid
+        logger.debug('Successfully prepared gateway: %s' % \
+                self.omero_session_key)
         # TODO: Properly handle activating the weblitz_cache
 
     def create_connection(self, useragent, username, password, is_public=False):
@@ -63,6 +65,8 @@ class Connector(object):
         try:
             connection = self.create_gateway(useragent, username, password)
             if connection.connect():
+                logger.debug('Successfully created connection for: %s' % \
+                        username)
                 self.prepare_gateway(connection)
                 return connection
         except:
@@ -73,6 +77,8 @@ class Connector(object):
         try:
             connection = self.create_gateway(useragent)
             if connection.connect(sUuid=self.omero_session_key):
+                logger.debug('Successfully joined connection: %s' % \
+                        self.omero_session_key)
                 self.prepare_gateway(connection)
                 return connection
         except:

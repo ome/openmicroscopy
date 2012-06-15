@@ -89,13 +89,12 @@
 <form class="standard_form settings_form" action="{% url wamanagegroupid "create" %}" method="POST">
 {% endif %}
 
-<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+<p>{% trans "Fields marked in red are mandatory." %}</p>
 
 
     {% for field in form %}
         
-		{{ field.label_tag }}
-		{% if field.field.required %}*{% endif %}
+		{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
 		{{ field }}
 		
 		{% if field.errors %}{{ field.errors }}{% endif %}
@@ -117,9 +116,6 @@
 <p>{% trans "<strong>Collaborative - read-annotate (rwra--)</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
 
 <div class="error"><p>{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</p></div>
-</p>
-
-
 
 </div>
 

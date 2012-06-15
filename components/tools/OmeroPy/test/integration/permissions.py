@@ -722,5 +722,25 @@ class TestPermissions(lib.ITest):
         self.assertTrue( d.getCallContext() is not None)
         self.assertTrue( d.getEventContext() is not None)
 
+    # raw pixels bean
+    # ==================================================
+
+    def testAdminUseOfRawPixelsBean(self):
+        owner = self.new_client()
+        image1 = self.createTestImage(session=owner.sf)
+        pixid1 = image1.getPrimaryPixels().getId().getValue()
+        image2 = self.createTestImage(session=owner.sf)
+        pixid2 = image2.getPrimaryPixels().getId().getValue()
+
+        rps = self.root.sf.createRawPixelsStore()
+        try:
+            rps.setPixelsId(pixid1, False, {'omero.group': '-1'})
+            rps.getByteWidth()
+            rps.setPixelsId(pixid2, False, {'omero.group': '-1'})
+            rps.getByteWidth()
+        finally:
+            rps.close()
+
+
 if __name__ == '__main__':
     unittest.main()

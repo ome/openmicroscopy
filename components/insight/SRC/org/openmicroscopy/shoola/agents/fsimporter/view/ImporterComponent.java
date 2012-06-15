@@ -214,7 +214,8 @@ class ImporterComponent
 			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
-			chooser.reset(selectedContainer, objects, type);
+			boolean remove = selectedContainer == null;
+			chooser.reset(selectedContainer, objects, type, remove);
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -576,9 +577,8 @@ class ImporterComponent
 				}
 			}
 			//restarts The import.
-			element = view.getElementToStartImportFor();
-			if (element != null) 
-				importData(element);
+			//element = view.getElementToStartImportFor();
+			//if (element != null) importData(element);
 		}
 	}
 

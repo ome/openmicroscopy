@@ -111,6 +111,15 @@ public class AbstractServerTest
 	extends AbstractTest
 {
 
+	/** Performs the move as data owner.*/
+	public static final int DATA_OWNER = 100;
+	
+	/** Performs the move as group owner.*/
+	public static final int GROUP_OWNER = 101;
+	
+	/** Performs the move as group owner.*/
+	public static final int ADMIN = 102;
+	
     /** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
 	
@@ -589,6 +598,11 @@ public class AbstractServerTest
      * fields which were set on creation.
      */
     protected void clean() throws Exception {
+        if (importer != null) {
+            importer.closeServices();
+            importer = null;
+        }
+
         if (client != null) {
             client.__del__();
         }

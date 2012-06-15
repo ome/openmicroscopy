@@ -68,6 +68,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
@@ -427,6 +429,7 @@ class OMEROGateway
 		try {
 			getAdminService(ctx).getEventContext();
 		} catch (Exception e) {
+			connected = false;
 			Throwable cause = e.getCause();
 			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
 			if (cause instanceof ConnectionLostException ||
@@ -435,7 +438,9 @@ class OMEROGateway
 			else if (cause instanceof SessionTimeoutException ||
 				e instanceof SessionTimeoutException)
 				index = DataServicesFactory.LOST_CONNECTION;
-			connected = false;
+			else if (cause instanceof CommunicatorDestroyedException ||
+					e instanceof CommunicatorDestroyedException)
+				index = DataServicesFactory.DESTROYED_CONNECTION;
 			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
@@ -2373,6 +2378,7 @@ class OMEROGateway
 		if (!in) {
 			throw new DSOutOfServiceException(s);  
 		}
+		/*
 		try {
 			shutDownServices(true);
 			clear();
@@ -2383,6 +2389,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, s);
 		}
+		*/
 	}
 	
 	
@@ -2479,6 +2486,7 @@ class OMEROGateway
 	boolean reconnect(String userName, String password)
 	{
 		//sList
+		connected = false;
 		clear();
 		Iterator<Connector> i;
 		try {
@@ -2487,70 +2495,18 @@ class OMEROGateway
 				i.next().close();
 			}
 		} catch (Throwable t) {
-			Throwable cause = t.getCause();
 			connected = false;
-			//joining the session did not work so trying to create a session
-			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException || 
-					cause instanceof ClientError ||
-					t instanceof ClientError) {
-				try {
-					connected = true;
-					i = connectors.iterator();
-					while (i.hasNext()) {
-						i.next().reconnect(userName, password);
-					}
-				} catch (Throwable e) {
-					connected = false;
-				}
-			}
 		}
-		
-		/*
+		if (connected) return connected;
 		try {
-			//first to rejoin the session.
+			i = connectors.iterator();
+			while (i.hasNext()) {
+				i.next().reconnect(userName, password);
+			}
 			connected = true;
-			try {
-				secureClient.closeSession();
-			} catch (Exception e) {
-				
-			}
-			entryEncrypted = secureClient.joinSession(
-					secureClient.getSessionId());
-			if (b) {
-				unsecureClient = secureClient.createClient(false);
-				entryUnencrypted = unsecureClient.getSession();
-			}
-		} catch (Throwable t) {
-			Throwable cause = t.getCause();
+		} catch (Throwable e) {
 			connected = false;
-			//joining the session did not work so trying to create a session
-			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException || 
-					cause instanceof ClientError ||
-					t instanceof ClientError) {
-				try {
-					connected = true;
-					entryEncrypted =  secureClient.createSession(
-							userName, password);
-					if (b) {
-						unsecureClient = secureClient.createClient(false);
-						entryUnencrypted = unsecureClient.getSession();
-					}
-				} catch (Throwable e) {
-					connected = false;
-				}
-			}
 		}
-		try {
-			if (connected) {
-				if (unsecureClient != null)
-					unsecureClient = secureClient.createClient(false);
-			}
-		} catch (Exception e) {
-			return false;
-		}
-*/
 		return connected;
 	}
 	
@@ -4072,21 +4028,36 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	GroupData updateGroup(SecurityContext ctx, ExperimenterGroup group, 
-			String permissions) 
+	RequestCallback updateGroup(SecurityContext ctx, GroupData group, 
+			int permissions) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		try {
+			ExperimenterGroup g = group.asGroup();
 			IAdminPrx svc = getAdminService(ctx);
-			svc.updateGroup(group);
-			Chmod chmod = new Chmod(REF_GROUP,
-					group.getId().getValue(), null, permissions);
-			List<Request> l = new ArrayList<Request>();
-			l.add(chmod);
-			getConnector(ctx).submit(l);
-			return (GroupData) PojoMapper.asDataObject(
-					(ExperimenterGroup) findIObject(ctx, group));
+			svc.updateGroup(g);
+			if (group.getPermissions().getPermissionsLevel() != permissions
+					&& permissions >= 0) {
+				String r = "rw----";
+				switch (permissions) {
+					case GroupData.PERMISSIONS_GROUP_READ:
+						r = "rwr---";
+						break;
+					case GroupData.PERMISSIONS_GROUP_READ_LINK:
+						r = "rwra--";
+						break;
+					case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+						r = "rwrw--";
+						break;
+					case GroupData.PERMISSIONS_PUBLIC_READ:
+						r = "rwrwr-";
+				}
+				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+				List<Request> l = new ArrayList<Request>();
+				l.add(chmod);
+				return getConnector(ctx).submit(l);
+			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
 		}
@@ -5860,7 +5831,7 @@ class OMEROGateway
 		}
 
 		Map<String, RType> map = new HashMap<String, RType>();
-		map.put("Image_ID", omero.rtypes.rlong(imageID));
+		map.put("IDs", omero.rtypes.rlist(omero.rtypes.rlong(imageID)));
 		map.put("Movie_Name", omero.rtypes.rstring(param.getName()));
 		map.put("Z_Start", omero.rtypes.rint(startZ));
 		map.put("Z_End", omero.rtypes.rint(endZ));
@@ -6297,7 +6268,7 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
-			closeImport(ctx);
+			if (close) closeImport(ctx);
 			throw new ImportException(e);
 		} finally {
 			if (omsc != null && close)
