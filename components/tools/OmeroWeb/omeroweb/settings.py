@@ -52,7 +52,12 @@ else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
+INSIGHT_JARS = os.path.join(OMERO_HOME, "lib", "insight").replace('\\','/')
+WEBSTART = False
+if os.path.isdir(INSIGHT_JARS):
+    WEBSTART = True
 
+# Logging
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
@@ -224,6 +229,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
+    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     "omero.web.caches": ["CACHES", '{}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -369,8 +375,8 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'
 # STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will 
 # traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
 # findstatic management command or use the static file serving view.
-# STATICFILES_DIRS = ()
-
+if WEBSTART:
+    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
 # in RequestContext. These callables take a request object as their argument and return 
@@ -414,6 +420,7 @@ INSTALLED_APPS = (
     'omeroweb.webgateway',
     'omeroweb.webtest',
     'omeroweb.webredirect',
+    'omeroweb.webstart',
     
 )
 

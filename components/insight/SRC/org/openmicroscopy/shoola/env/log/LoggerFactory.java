@@ -75,9 +75,9 @@ public class LoggerFactory
 		if (!isLoggingOn.booleanValue()) return makeNoOpLogger();
 		
 		//Ok we have to log, so try and read the config file.
-		Properties config = loadConfig(c.resolveFilePath(LOG_CONFIG_FILE, 
-				Container.CONFIG_DIR));
-		if (config == null)	return makeNoOpLogger();	
+		String relPathName = c.getConfigFileRelative(LOG_CONFIG_FILE);
+		Properties config = loadConfig(relPathName);
+		if (config == null)	return makeNoOpLogger();
 		
 		//We have a config file, set up log4j.
 		String logDirName = (String) reg.lookup(LookupNames.LOG_DIR),

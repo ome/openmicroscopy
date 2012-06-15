@@ -256,8 +256,7 @@ public class IOUtil
 		if (System.getProperty("javawebstart.version", null) != null) {
 			// We're running under Java Web Start, read configuration file
 			// from the CLASSPATH.
-			return IOUtil.class.getClassLoader().getResourceAsStream(
-					new java.io.File(fileName).getName());
+			return IOUtil.class.getClassLoader().getResourceAsStream(fileName);
 		}
 		// We're running normally, return as so.
 		return new FileInputStream(fileName);
