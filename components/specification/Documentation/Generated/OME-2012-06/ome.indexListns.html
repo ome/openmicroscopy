@@ -1,0 +1,1796 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Schema documentation for </title>
+      <link rel="stylesheet" href="docHtml.css" type="text/css" /><script type="text/javascript">
+         <!--
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        var button_prefix = 'button_';
+        
+        /**
+        * Returns an element in the current HTML document.
+        *
+        * @param elementID Identifier of HTML element
+        * @return               HTML element object
+        */
+        function getElementObject(elementID) {
+            var elemObj = null;
+            if (document.getElementById) {
+                elemObj = document.getElementById(elementID);
+            }
+            return elemObj;
+        }
+        
+        /**
+        * Switches the state of a collapseable box, e.g.
+        * if it's opened, it'll be closed, and vice versa.
+        *
+        * @param boxID Identifier of box
+        */
+        function switchState(boxID) {
+            var boxObj = getElementObject(boxID);
+            var buttonObj = getElementObject(button_prefix + boxID);
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else if (boxObj.style.display == "none") {
+                // Box is closed, so open it
+                openBox(boxObj, buttonObj);
+            } else if (boxObj.style.display == "block") {
+                // Box is opened, so close it
+                closeBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+        * Opens a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function openBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "block";
+                
+                // Change text of button
+                if (boxObj.style.display == "block") {
+                    buttonObj.src = "img/btM.gif";
+                }
+            }
+        }
+        
+        /**
+        * Closes a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function closeBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "none";
+                
+                // Change text of button
+                if (boxObj.style.display == "none") {
+                    buttonObj.src = "img/btP.gif";
+                }
+            }
+        }
+    
+       function switchStateForAll(buttonObj, boxList) {
+            if (buttonObj == null) {
+                // button not found
+            } else if (buttonObj.value == "+") {
+                // Expand all
+                expandAll(boxList);
+                buttonObj.value = "-";
+            } else if (buttonObj.value == "-") {
+                // Collapse all
+                collapseAll(boxList);
+                buttonObj.value = "+";
+            }
+        }
+        
+        /**
+        * Closes all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function collapseAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                closeBox(boxObj, buttonObj);
+            }
+        }
+            
+        /**
+        * Open all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function expandAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                openBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+         * Update the message presented in the title of the html page.
+         * - If the documentation was splited by namespace we present something like: "Documentation for namespace 'ns'"
+         * - If the documentation was splited by location we present somehing like: "Documentation for 'Schema.xsd'"
+         * - If no split we always present: "Documentation for 'MainSchema.xsd'"
+         */
+        function updatePageTitle(message) {
+            top.document.title = message;
+        }
+        
+          
+                    
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function findAndFloat(id, x_displacement, y_displacement){
+
+            var element = getElementObject(id);            
+            
+            window[id + "_obj"] = element;
+            
+            if(document.layers) {
+               element.style = element;
+            }
+            
+            element.current_y = y_displacement;      
+            element.first_time = true;
+         
+            element.floatElement = function(){
+               // It may be closed by an user action.
+                
+               // Target X and Y coordinates.
+               var x, y;
+               
+               var myWidth = 0, myHeight = 0;
+               if( typeof( window.innerWidth ) == 'number' ) {
+                  //Non-IE
+                  myWidth = window.innerWidth;
+                  myHeight = window.innerHeight;
+               } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+                  //IE 6+ in 'standards compliant mode'
+                  myWidth = document.documentElement.clientWidth;
+                  myHeight = document.documentElement.clientHeight;
+               } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+                  //IE 4 compatible
+                  myWidth = document.body.clientWidth;
+                  myHeight = document.body.clientHeight;
+               }
+               
+               
+               x = myWidth - x_displacement;
+               
+               var ns = (navigator.appName.indexOf("Netscape") != -1);               
+               y = ns ? pageYOffset : document.documentElement && document.documentElement.scrollTop ? 
+                  document.documentElement.scrollTop : document.body.scrollTop;               
+               y = y + y_displacement;               
+               
+               // The current y is the current coordinate of the floating element.
+               // This should be at the limit the y target coordinate.
+               this.current_y += (y - this.current_y)/1.25;
+               
+               // Add the pixels constant after the values
+               // and move the element.
+               var px = document.layers ? "" : "px";
+               this.style.left =  x + px;
+               this.style.top =  this.current_y + px;
+                              
+               setTimeout(this.id + "_obj.floatElement()", 100);
+            }
+            
+            element.floatElement();
+            return element;
+          }
+
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function selectTOCGroupBy(id, isChunked, indexFileLocation, indexFileNamespace, indexFileComponent){
+
+            if (!isChunked) {
+             var selectIds = new Array('toc_group_by_namespace', 'toc_group_by_location', 'toc_group_by_component_type');
+             // Make all the tabs invisible.
+               for (i = 0; i < 3; i++){
+                  var tab = getElementObject(selectIds[i]);
+                  tab.style.display = 'none';
+               }
+               var selTab = getElementObject(id);
+               selTab.style.display = 'block';
+            } else {
+             if (id == 'toc_group_by_namespace') {
+               parent.indexFrame.location = indexFileNamespace;
+             } else  if (id == 'toc_group_by_location') {
+               parent.indexFrame.location = indexFileLocation;
+             } else  if (id == 'toc_group_by_component_type') {
+              parent.indexFrame.location = indexFileComponent;
+             }
+            }
+         }
+          
+
+    --></script></head>
+   <body>
+      <h2><a id="INDEX">Table of Contents</a></h2>
+      <p><a href="ome.indexList.html">Components</a><span> | </span><a href="schHierarchy.html">Resource Hierarchy</a></p>
+      <hr />
+      <div class="toc">
+         <form action="none">
+            <div><span> Group by: <select id="selectTOC"
+                          onchange="selectTOCGroupBy(this.options[this.selectedIndex].value, true, 'ome.indexList.html', 'ome.indexListns.html', 'ome.indexListcomp.html');">
+                     <option value="toc_group_by_namespace" selected="selected">Namespace</option>
+                     <option value="toc_group_by_location">Location</option>
+                     <option value="toc_group_by_component_type">Component Type</option></select></span></div>
+         </form>
+         <div class="level1" id="toc_group_by_namespace" style="display:block">
+            <div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace1" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace1');"
+                            class="control" /><span class="indexGroupTitle">http://www.openmicroscopy.org/Schemas/OME/2012-06</span></p>
+                  <div id="boxIdNamespace1" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Elements
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace1Element" style="display:block">
+                                    <div><b><a href="ome_xsd.html#Arc" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Arc</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ChannelRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ChannelRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dataset" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dataset</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dataset_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dataset/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DatasetRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DatasetRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dichroic" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dichroic</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DichroicRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DichroicRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experiment" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experiment</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experiment_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experiment/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimentRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimentRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroup" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroup</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroup_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroup/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroupRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroupRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filament" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filament</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filter" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filter</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSet" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSet</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSet_EmissionFilterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSet/EmissionFilterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSet_ExcitationFilterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSet/ExcitationFilterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSetRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSetRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Image" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Image</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Image_AcquisitionDate" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Image/AcquisitionDate</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Image_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Image/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImageRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImageRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImagingEnvironment" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImagingEnvironment</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Instrument" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Instrument</a></b></div>
+                                    <div><b><a href="ome_xsd.html#InstrumentRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">InstrumentRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Leader" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Leader</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightEmittingDiode" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightEmittingDiode</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightPath" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightPath</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightPath_EmissionFilterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightPath/EmissionFilterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightPath_ExcitationFilterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightPath/ExcitationFilterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSource" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSource</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSourceSettings" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSourceSettings</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MetadataOnly" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MetadataOnly</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulation</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulation_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulation/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulationRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulationRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Microscope" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Microscope</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME_BinaryOnly" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME/BinaryOnly</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveSettings" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveSettings</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_HashSHA1" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/HashSHA1</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Project" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Project</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Project_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Project/Description</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ProjectRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ProjectRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pump" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pump</a></b></div>
+                                    <div><b><a href="ome_xsd.html#StageLabel" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">StageLabel</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_UUID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/UUID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Complex Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace1Complex_Type" style="display:block">
+                                    <div><b><a href="ome_xsd.html#FilterRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterRef</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ManufacturerSpec" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ManufacturerSpec</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Reference" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Reference</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Settings" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Settings</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Simple Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace1Simple_Type" style="display:block">
+                                    <div><b><a href="ome_xsd.html#ChannelID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ChannelID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Color" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Color</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DatasetID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DatasetID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DichroicID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DichroicID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimentID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimentID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroupID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroupID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSetID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSetID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Hex40" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Hex40</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImageID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImageID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#InstrumentID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">InstrumentID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LSID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LSID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSourceID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSourceID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulationID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulationID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ModuleID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ModuleID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#NonNegativeInt" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">NonNegativeInt</a></b></div>
+                                    <div><b><a href="ome_xsd.html#NonNegativeLong" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">NonNegativeLong</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#PercentFraction" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">PercentFraction</a></b></div>
+                                    <div><b><a href="ome_xsd.html#PixelType" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">PixelType</a></b></div>
+                                    <div><b><a href="ome_xsd.html#PixelsID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">PixelsID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#PositiveFloat" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">PositiveFloat</a></b></div>
+                                    <div><b><a href="ome_xsd.html#PositiveInt" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">PositiveInt</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ProjectID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ProjectID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#UniversallyUniqueIdentifier" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">UniversallyUniqueIdentifier</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace2" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace2');"
+                            class="control" /><span class="indexGroupTitle">http://www.openmicroscopy.org/Schemas/SA/2012-06</span></p>
+                  <div id="boxIdNamespace2" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Elements
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace2Element" style="display:block">
+                                    <div><b><a href="SA_xsd.html#Annotation_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">Annotation/Description</a></b></div>
+                                    <div><b><a href="SA_xsd.html#AnnotationRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">AnnotationRef</a></b></div>
+                                    <div><b><a href="SA_xsd.html#BooleanAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">BooleanAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#BooleanAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">BooleanAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#CommentAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">CommentAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#CommentAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">CommentAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#DoubleAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">DoubleAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#DoubleAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">DoubleAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#FileAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">FileAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#ListAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">ListAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#LongAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">LongAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#LongAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">LongAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#StructuredAnnotations" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">StructuredAnnotations</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TagAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TagAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TagAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TagAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TermAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TermAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TermAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TermAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TimestampAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TimestampAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TimestampAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TimestampAnnotation/Value</a></b></div>
+                                    <div><b><a href="SA_xsd.html#XMLAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">XMLAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#XMLAnnotation_Value" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">XMLAnnotation/Value</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Simple Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace2Simple_Type" style="display:block">
+                                    <div><b><a href="SA_xsd.html#AnnotationID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">AnnotationID</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Complex Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace2Complex_Type" style="display:block">
+                                    <div><b><a href="SA_xsd.html#Annotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">Annotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#BasicAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">BasicAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#NumericAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">NumericAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TextAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TextAnnotation</a></b></div>
+                                    <div><b><a href="SA_xsd.html#TypeAnnotation" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">TypeAnnotation</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace3" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace3');"
+                            class="control" /><span class="indexGroupTitle">http://www.openmicroscopy.org/Schemas/ROI/2012-06</span></p>
+                  <div id="boxIdNamespace3" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Elements
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace3Element" style="display:block">
+                                    <div><b><a href="ROI_xsd.html#Ellipse" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Ellipse</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Label" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Label</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Mask" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Point" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Point</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polygon" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polygon</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polyline" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polyline</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI/Description</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI_Union" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI/Union</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROIRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROIRef</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Rectangle" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Rectangle</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_Transform" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/Transform</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Simple Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace3Simple_Type" style="display:block">
+                                    <div><b><a href="ROI_xsd.html#Marker" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Marker</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROIID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROIID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ShapeID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ShapeID</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Complex Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace3Complex_Type" style="display:block">
+                                    <div><b><a href="ROI_xsd.html#AffineTransform" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace4" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace4');"
+                            class="control" /><span class="indexGroupTitle">http://www.openmicroscopy.org/Schemas/SPW/2012-06</span></p>
+                  <div id="boxIdNamespace4" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Elements
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace4Element" style="display:block">
+                                    <div><b><a href="SPW_xsd.html#Plate" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/Description</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/Description</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Reagent" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Reagent</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Reagent_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Reagent/Description</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#ReagentRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">ReagentRef</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_Description" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/Description</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_PlateRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/PlateRef</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSampleRef" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSampleRef</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Simple Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace4Simple_Type" style="display:block">
+                                    <div><b><a href="SPW_xsd.html#NamingConvention" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">NamingConvention</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisitionID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisitionID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#ReagentID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">ReagentID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#ScreenID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">ScreenID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSampleID" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSampleID</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace5" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace5');"
+                            class="control" /><span class="indexGroupTitle">http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06</span></p>
+                  <div id="boxIdNamespace5" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Elements
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace5Element" style="display:block">
+                                    <div><b><a href="BinaryFile_xsd.html#BinData" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinaryFile" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#External" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Simple Types
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace5Simple_Type" style="display:block">
+                                    <div><b><a href="BinaryFile_xsd.html#http___www.openmicroscopy.org_Schemas_BinaryFile_2012-06_Hex40"
+                                             target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:Hex40</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace6" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace6');"
+                            class="control" /><span class="indexGroupTitle">No namespace</span></p>
+                  <div id="boxIdNamespace6" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Attributes
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace6Attribute" style="display:block">
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A00" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A00</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A01" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A01</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A02" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A02</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A10" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A10</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A11" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A11</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#AffineTransform_A12" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">AffineTransform/@A12</a></b></div>
+                                    <div><b><a href="SA_xsd.html#Annotation_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">Annotation/@ID</a></b></div>
+                                    <div><b><a href="SA_xsd.html#Annotation_Namespace" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">Annotation/@Namespace</a></b></div>
+                                    <div><b><a href="SA_xsd.html#AnnotationRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">AnnotationRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Arc_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Arc/@Type</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinData_BigEndian" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData/@BigEndian</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinData_Compression" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData/@Compression</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinData_Length" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData/@Length</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinaryFile_FileName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile/@FileName</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinaryFile_MIMEType" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile/@MIMEType</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#BinaryFile_Size" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile/@Size</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#External_Compression" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External/@Compression</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#External_SHA1" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External/@SHA1</a></b></div>
+                                    <div><b><a href="BinaryFile_xsd.html#External_href" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External/@href</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_AcquisitionMode" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@AcquisitionMode</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_Color" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@Color</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_ContrastMethod" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@ContrastMethod</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_EmissionWavelength" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@EmissionWavelength</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_ExcitationWavelength" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@ExcitationWavelength</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_Fluor" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@Fluor</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_IlluminationType" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@IlluminationType</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_NDFilter" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@NDFilter</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_PinholeSize" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@PinholeSize</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_PockelCellSetting" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@PockelCellSetting</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Channel_SamplesPerPixel" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Channel/@SamplesPerPixel</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ChannelRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ChannelRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dataset_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dataset/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dataset_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dataset/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DatasetRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DatasetRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_AmplificationGain" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@AmplificationGain</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_Gain" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@Gain</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_Offset" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@Offset</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_Voltage" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@Voltage</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Detector_Zoom" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Detector/@Zoom</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_Binning" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@Binning</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_Gain" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@Gain</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_Offset" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@Offset</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_ReadOutRate" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@ReadOutRate</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DetectorSettings_Voltage" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DetectorSettings/@Voltage</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Dichroic_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Dichroic/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#DichroicRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">DichroicRef/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Ellipse_RadiusX" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Ellipse/@RadiusX</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Ellipse_RadiusY" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Ellipse/@RadiusY</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Ellipse_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Ellipse/@X</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Ellipse_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Ellipse/@Y</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experiment_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experiment/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experiment_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experiment/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimentRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimentRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_Email" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@Email</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_FirstName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@FirstName</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_Institution" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@Institution</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_LastName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@LastName</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_MiddleName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@MiddleName</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Experimenter_UserName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Experimenter/@UserName</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroup_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroup/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroup_Name" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroup/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterGroupRef_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterGroupRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ExperimenterRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ExperimenterRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filament_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filament/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filter_FilterWheel" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filter/@FilterWheel</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filter_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filter/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Filter_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Filter/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSet_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSet/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#FilterSetRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">FilterSetRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Image_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Image/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Image_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Image/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImageRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImageRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImagingEnvironment_AirPressure" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImagingEnvironment/@AirPressure</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImagingEnvironment_CO2Percent" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImagingEnvironment/@CO2Percent</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImagingEnvironment_Humidity" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImagingEnvironment/@Humidity</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ImagingEnvironment_Temperature" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ImagingEnvironment/@Temperature</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Instrument_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Instrument/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#InstrumentRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">InstrumentRef/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Label_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Label/@X</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Label_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Label/@Y</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_FrequencyMultiplication" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@FrequencyMultiplication</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_LaserMedium" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@LaserMedium</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_PockelCell" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@PockelCell</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_Pulse" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@Pulse</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_RepetitionRate" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@RepetitionRate</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_Tuneable" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@Tuneable</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Laser_Wavelength" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Laser/@Wavelength</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Leader_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Leader/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSource_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSource/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSource_Power" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSource/@Power</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSourceSettings_Attenuation" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSourceSettings/@Attenuation</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSourceSettings_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSourceSettings/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#LightSourceSettings_Wavelength" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">LightSourceSettings/@Wavelength</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_MarkerEnd" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@MarkerEnd</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_MarkerStart" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@MarkerStart</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_X1" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@X1</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_X2" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@X2</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_Y1" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@Y1</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Line_Y2" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Line/@Y2</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ManufacturerSpec_LotNumber" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ManufacturerSpec/@LotNumber</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ManufacturerSpec_Manufacturer" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ManufacturerSpec/@Manufacturer</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ManufacturerSpec_Model" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ManufacturerSpec/@Model</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ManufacturerSpec_SerialNumber" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ManufacturerSpec/@SerialNumber</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Mask_Height" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask/@Height</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Mask_Width" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask/@Width</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Mask_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask/@X</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Mask_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask/@Y</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulation_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulation/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulation_Type" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulation/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#MicrobeamManipulationRef_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">MicrobeamManipulationRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Microscope_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Microscope/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME_Creator" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME/@Creator</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME_UUID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME/@UUID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME_OME_BinaryOnly_MetadataFile" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME/BinaryOnly/@MetadataFile</a></b></div>
+                                    <div><b><a href="ome_xsd.html#OME_OME_BinaryOnly_UUID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OME/BinaryOnly/@UUID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_CalibratedMagnification" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@CalibratedMagnification</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_Correction" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@Correction</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_Immersion" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@Immersion</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_Iris" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@Iris</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_LensNA" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@LensNA</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_NominalMagnification" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@NominalMagnification</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Objective_WorkingDistance" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Objective/@WorkingDistance</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveSettings_CorrectionCollar" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveSettings/@CorrectionCollar</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveSettings_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveSettings/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveSettings_Medium" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveSettings/@Medium</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ObjectiveSettings_RefractiveIndex" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ObjectiveSettings/@RefractiveIndex</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_DimensionOrder" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@DimensionOrder</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_PhysicalSizeX" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@PhysicalSizeX</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_PhysicalSizeY" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@PhysicalSizeY</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_PhysicalSizeZ" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@PhysicalSizeZ</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_SizeC" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@SizeC</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_SizeT" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@SizeT</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_SizeX" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@SizeX</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_SizeY" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@SizeY</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_SizeZ" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@SizeZ</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_TimeIncrement" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@TimeIncrement</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pixels_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels/@Type</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_DeltaT" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@DeltaT</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_ExposureTime" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@ExposureTime</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_PositionX" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@PositionX</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_PositionY" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@PositionY</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_PositionZ" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@PositionZ</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_TheC" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@TheC</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_TheT" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@TheT</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Plane_TheZ" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Plane/@TheZ</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_ColumnNamingConvention" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@ColumnNamingConvention</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_Columns" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@Columns</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_ExternalIdentifier" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@ExternalIdentifier</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_FieldIndex" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@FieldIndex</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@Name</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_RowNamingConvention" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@RowNamingConvention</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_Rows" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@Rows</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_Status" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@Status</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_WellOriginX" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@WellOriginX</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Plate_WellOriginY" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Plate/@WellOriginY</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_EndTime" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/@EndTime</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_MaximumFieldCount" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/@MaximumFieldCount</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_Name" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/@Name</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#PlateAcquisition_StartTime" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">PlateAcquisition/@StartTime</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Point_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Point/@X</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Point_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Point/@Y</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polygon_Points" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polygon/@Points</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polyline_MarkerEnd" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polyline/@MarkerEnd</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polyline_MarkerStart" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polyline/@MarkerStart</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Polyline_Points" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Polyline/@Points</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Project_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Project/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Project_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Project/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#ProjectRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ProjectRef/@ID</a></b></div>
+                                    <div><b><a href="ome_xsd.html#Pump_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pump/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI/@Name</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROI_Namespace" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI/@Namespace</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#ROIRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROIRef/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Reagent_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Reagent/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Reagent_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Reagent/@Name</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Reagent_ReagentIdentifier" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Reagent/@ReagentIdentifier</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#ReagentRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">ReagentRef/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Rectangle_Height" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Rectangle/@Height</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Rectangle_Width" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Rectangle/@Width</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Rectangle_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Rectangle/@X</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Rectangle_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Rectangle/@Y</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@Name</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_ProtocolDescription" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@ProtocolDescription</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_ProtocolIdentifier" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@ProtocolIdentifier</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_ReagentSetDescription" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@ReagentSetDescription</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_ReagentSetIdentifier" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@ReagentSetIdentifier</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/@Type</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Screen_Screen_PlateRef_ID" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Screen/PlateRef/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_FillColor" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@FillColor</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_FillRule" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@FillRule</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_FontFamily" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@FontFamily</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_FontSize" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@FontSize</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_FontStyle" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@FontStyle</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@ID</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_LineCap" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@LineCap</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_Locked" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@Locked</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_StrokeColor" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@StrokeColor</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_StrokeDashArray" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@StrokeDashArray</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_StrokeWidth" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@StrokeWidth</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_Text" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@Text</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_TheC" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@TheC</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_TheT" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@TheT</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_TheZ" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@TheZ</a></b></div>
+                                    <div><b><a href="ROI_xsd.html#Shape_Visible" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Shape/@Visible</a></b></div>
+                                    <div><b><a href="ome_xsd.html#StageLabel_Name" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">StageLabel/@Name</a></b></div>
+                                    <div><b><a href="ome_xsd.html#StageLabel_X" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">StageLabel/@X</a></b></div>
+                                    <div><b><a href="ome_xsd.html#StageLabel_Y" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">StageLabel/@Y</a></b></div>
+                                    <div><b><a href="ome_xsd.html#StageLabel_Z" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">StageLabel/@Z</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_FirstC" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/@FirstC</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_FirstT" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/@FirstT</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_FirstZ" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/@FirstZ</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_IFD" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/@IFD</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_PlaneCount" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/@PlaneCount</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TiffData_TiffData_UUID_FileName" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TiffData/UUID/@FileName</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange_CutIn" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange/@CutIn</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange_CutInTolerance" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange/@CutInTolerance</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange_CutOut" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange/@CutOut</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange_CutOutTolerance" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange/@CutOutTolerance</a></b></div>
+                                    <div><b><a href="ome_xsd.html#TransmittanceRange_Transmittance" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">TransmittanceRange/@Transmittance</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_Color" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@Color</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_Column" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@Column</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_ExternalDescription" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@ExternalDescription</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_ExternalIdentifier" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@ExternalIdentifier</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_Row" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@Row</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#Well_Type" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">Well/@Type</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample/@ID</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample_Index" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample/@Index</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample_PositionX" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample/@PositionX</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample_PositionY" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample/@PositionY</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSample_Timepoint" target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSample/@Timepoint</a></b></div>
+                                    <div><b><a href="SPW_xsd.html#WellSampleRef_ID" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for SPW.xsd')">WellSampleRef/@ID</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+               <div class="level2">
+                  <p><input id="button_boxIdNamespace7" type="image" value="-" src="img/btM.gif"
+                            onclick="switchState('boxIdNamespace7');"
+                            class="control" /><span class="indexGroupTitle">http://www.w3.org/XML/1998/namespace</span></p>
+                  <div id="boxIdNamespace7" style="display:block">
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Attributes
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace7Attribute" style="display:block">
+                                    <div><b><a href="xml_xsd.html#base" target="mainFrame"
+                                             title="http://www.w3.org/XML/1998/namespace"
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">@xml:base</a></b></div>
+                                    <div><b><a href="xml_xsd.html#id" target="mainFrame"
+                                             title="http://www.w3.org/XML/1998/namespace"
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">@xml:id</a></b></div>
+                                    <div><b><a href="xml_xsd.html#lang" target="mainFrame"
+                                             title="http://www.w3.org/XML/1998/namespace"
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">@xml:lang</a></b></div>
+                                    <div><b><a href="xml_xsd.html#space" target="mainFrame"
+                                             title="http://www.w3.org/XML/1998/namespace"
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">@xml:space</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div class="horizontalLayout">
+                        <table class="rt">
+                           <tr>
+                              <td class="rt_cornerTopLeft"></td>
+                              <td class="rt_lineTop"></td>
+                              <td class="rt_cornerTopRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_lineLeft"></td>
+                              <td class="rt_content">
+                                 <div class="componentGroupTitle">Attribute Groups
+                                    
+                                 </div>
+                                 <div id="boxIdNamespace7Attribute_Group" style="display:block">
+                                    <div><b><a href="xml_xsd.html#specialAttrs" target="mainFrame"
+                                             title="http://www.w3.org/XML/1998/namespace"
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">xml:specialAttrs</a></b></div>
+                                 </div>
+                              </td>
+                              <td class="rt_lineRight"></td>
+                           </tr>
+                           <tr>
+                              <td class="rt_cornerBottomLeft"></td>
+                              <td class="rt_lineBottom"></td>
+                              <td class="rt_cornerBottomRight"></td>
+                           </tr>
+                        </table>
+                     </div>
+                     <div style="clear:left"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="footer">
+         <hr />
+         <div align="center">XML Schema documentation generated by <a href="http://www.oxygenxml.com" target="_parent"><span class="oXygenLogo"><span class="redX">&lt;</span>o<span class="redX">X</span>ygen<span class="redX">/&gt;</span></span></a><sup>®</sup> XML Editor.
+         </div>
+      </div>
+   </body>
+</html>
