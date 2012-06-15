@@ -28,6 +28,9 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.chosen/chosen.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/chosen.css" %}" type="text/css" media="screen"/>
+    
     <!--[if lte IE 8]>
         <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
     <![endif]-->
@@ -41,12 +44,16 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    <script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.chosen/chosen.jquery.js" %}"></script>
     
     <script type="text/javascript">
     
     $(document).ready(function () {
+        
+        $("#id_default_group").chosen();
+        
         $("#groupTable").tablesorter( {
             //sortList: [[1,0]]
             headers: {0: { sorter: 'digit' } }
