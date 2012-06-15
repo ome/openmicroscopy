@@ -76,7 +76,7 @@
             $("#default_group_name").text(selected.html);
         };
 
-        $("#id_other_groups").chosen().change(function(evt, data) {
+        $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
                     $("input[name='administrator']").attr('checked', false);
