@@ -68,6 +68,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
@@ -427,6 +429,7 @@ class OMEROGateway
 		try {
 			getAdminService(ctx).getEventContext();
 		} catch (Exception e) {
+			connected = false;
 			Throwable cause = e.getCause();
 			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
 			if (cause instanceof ConnectionLostException ||
@@ -435,7 +438,9 @@ class OMEROGateway
 			else if (cause instanceof SessionTimeoutException ||
 				e instanceof SessionTimeoutException)
 				index = DataServicesFactory.LOST_CONNECTION;
-			connected = false;
+			else if (cause instanceof CommunicatorDestroyedException ||
+					e instanceof CommunicatorDestroyedException)
+				index = DataServicesFactory.DESTROYED_CONNECTION;
 			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}

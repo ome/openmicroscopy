@@ -96,6 +96,9 @@ public class DataServicesFactory
 	/** Indicates that the server is out of service. */
 	public static final int SERVER_OUT_OF_SERVICE = 1;
 	
+	/** Indicates that the server is out of service. */
+	public static final int DESTROYED_CONNECTION = 2;
+	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
 
@@ -617,7 +620,9 @@ public class DataServicesFactory
     { 
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
-		Collection groups = (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		omeroGateway.logout();
+		Collection groups = (Collection) 
+		registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		if (groups != null && groups.size() > 0) {
 			ExperimenterData exp = (ExperimenterData) 
 			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
@@ -639,7 +644,7 @@ public class DataServicesFactory
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		omeroGateway.logout(); 
+		 
         if (executor != null) executor.shutdown();
         executor = null;
     }
