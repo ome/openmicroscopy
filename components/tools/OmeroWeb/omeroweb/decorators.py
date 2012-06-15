@@ -60,7 +60,8 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1'):
+                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1',
+                 allowPublic=None):
         """
         Initialises the decorator.
         """
@@ -69,6 +70,7 @@ class login_required(object):
         self.isGroupOwner = isGroupOwner
         self.doConnectionCleanup = doConnectionCleanup
         self.omero_group = omero_group
+        self.allowPublic = allowPublic
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -147,7 +149,11 @@ class login_required(object):
         Verifies that the URL for the resource being requested falls within
         the scope of the OMERO.webpublic URL filter.
         """
-        return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+        if settings.PUBLIC_ENABLED:
+            if self.allowPublic is None:
+                return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+            return self.allowPublic
+        return False
 
     def get_connection(self, server_id, request):
         """
@@ -157,8 +163,7 @@ class login_required(object):
         connection = self.get_authenticated_connection(server_id, request)
         is_valid_public_url = self.is_valid_public_url(server_id, request)
         logger.debug('Is valid public URL? %s' % is_valid_public_url)
-        if connection is None and settings.PUBLIC_ENABLED \
-           and is_valid_public_url:
+        if connection is None and is_valid_public_url:
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration and use those credentials to
             # create a connection.
@@ -250,6 +255,8 @@ class login_required(object):
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
                     self.useragent, username, password)
+            session['connector'] = connector
+            return connection
 
         logger.debug('Django session connector: %r' % connector)
         if connector is not None:
@@ -279,6 +286,8 @@ class login_required(object):
             if url is None or len(url) == 0:
                 url = request.get_full_path()
 
+            doConnectionCleanup = False
+
             conn = kwargs.get('conn', None)
             error = None
             server_id = kwargs.get('server_id', None)
@@ -286,6 +295,7 @@ class login_required(object):
             # provided to us via 'conn'. This is useful when in testing
             # mode or when stacking view functions/methods.
             if conn is None:
+                doConnectionCleanup = ctx.doConnectionCleanup
                 logger.debug('Connection not provided, attempting to get one.')
                 try:
                     conn = ctx.get_connection(server_id, request)
@@ -315,8 +325,8 @@ class login_required(object):
             retval = f(request, *args, **kwargs)
             try:
                 logger.debug('Doing connection cleanup? %s' % \
-                        ctx.doConnectionCleanup)
-                if ctx.doConnectionCleanup:
+                        doConnectionCleanup)
+                if doConnectionCleanup:
                     if conn is not None and conn.c is not None:
                         conn.c.closeSession()
             except:
