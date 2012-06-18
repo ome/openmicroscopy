@@ -5621,7 +5621,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 ctx = self._conn.CONFIG.copy()
                 self._conn.CONFIG.setOmeroGroup(self.getDetails().getGroup().getId())
                 self.removeAnnotations(rdefns)
-                self._conn.CONFIG.clean()
+                self._conn.CONFIG.clear()
                 self._conn.CONFIG = ServiceOptsDict(ctx)
             return True
         return False
