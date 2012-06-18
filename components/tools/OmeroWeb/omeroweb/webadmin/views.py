@@ -421,7 +421,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             context = {'form':form}
     elif action == 'edit' :
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
-        defaultGroupId = defaultGroup is not None and defaultGroup.id or None
+        try:
+            defaultGroupId = defaultGroup.id
+        except:
+            defaultGroupId = None
         
         initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
                                 'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
@@ -443,7 +446,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             initial={'active':True, 'groups':otherGroupsInitialList(groups)}
             
             form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-               
+            
             if form.is_valid():
                 logger.debug("Update experimenter form:" + str(form.cleaned_data))
                 omename = form.cleaned_data['omename']
@@ -458,6 +461,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 otherGroups = form.cleaned_data['other_groups']
                 
                 # default group
+                # if default group was not selected take first from the list.
+                if defaultGroup is None:
+                    defaultGroup = otherGroups[0]
                 for g in groups:
                     if long(defaultGroup) == g.id:
                         dGroup = g
@@ -663,7 +669,11 @@ def my_account(request, action=None, conn=None, **kwargs):
     template = "webadmin/myaccount.html"
     
     experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
-    defaultGroupId = defaultGroup is not None and defaultGroup.id or None
+    try:
+        defaultGroupId = defaultGroup.id
+    except:
+        defaultGroupId = None
+    
     ownedGroups = ownedGroupsInitial(conn)
     
     password_form = ChangePassword()

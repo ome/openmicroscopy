@@ -121,12 +121,6 @@ class ExperimenterForm(NonASCIIForm):
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
     
-    def clean_default_group(self):
-        if self.cleaned_data.get('default_group') is None or len(self.cleaned_data.get('default_group')) <= 0:
-            raise forms.ValidationError('Choose default group by clicking on the one of chosen groups.')
-        else:
-            return self.cleaned_data.get('default_group')
-    
     def clean_other_groups(self):
         if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
             raise forms.ValidationError('User must to be a member of at least one group.')
