@@ -41,6 +41,9 @@ class TestAdmin(lib.ITest):
 
         a.setDefaultGroup(e, grp)
 
+        dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
+        self.assertEqual(dg.id.val, grp.id.val)
+    
     def testThumbnail(self):
         q = self.client.getSession().getQueryService()
 
