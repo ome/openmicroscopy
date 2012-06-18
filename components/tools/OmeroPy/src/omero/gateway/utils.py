@@ -43,7 +43,7 @@ class ServiceOptsDict(dict):
                 if self._testItem(item):
                     self[key] = str(item)
                 else:
-                    logger.warning("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
+                    logger.debug("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
         else:
             raise AttributeError("%s argument must be a dictionary" % self.__class__.__name__)
     
@@ -55,7 +55,7 @@ class ServiceOptsDict(dict):
         """Set key to value as string."""
         if self._testItem(item):
             super(ServiceOptsDict, self).__setitem__(key, str(item))
-            logger.info("Setting %r to %r" % (key, item))
+            logger.debug("Setting %r to %r" % (key, item))
         else:
             raise AttributeError("%s argument must be a string, unicode or numeric type" % self.__class__.__name__)
         
@@ -69,7 +69,7 @@ class ServiceOptsDict(dict):
     def __delitem__(self, key):
         """Remove dict[key] from dict. Raises a KeyError if key is not in the map."""
         super(ServiceOptsDict, self).__delitem__(key)
-        logger.info("Deleting %r" % (key))
+        logger.debug("Deleting %r" % (key))
     
     def copy(self):
         """Returns a copy of this object."""
@@ -100,7 +100,7 @@ class ServiceOptsDict(dict):
             try:
                 del self['omero.group']
             except KeyError:
-                logger.warning("Key 'omero.group' not found in %r" % self)
+                logger.debug("Key 'omero.group' not found in %r" % self)
     
     def getOmeroUser(self):
         return self.get('omero.user')
@@ -112,7 +112,7 @@ class ServiceOptsDict(dict):
             try:
                 del self['omero.user']
             except KeyError:
-                logger.warning("Key 'omero.user' not found in %r" % self)
+                logger.debug("Key 'omero.user' not found in %r" % self)
     
     def getOmeroShare(self):
         return self.get('omero.share')
@@ -124,7 +124,7 @@ class ServiceOptsDict(dict):
             try:
                 del self['omero.share']
             except KeyError:
-                logger.warning("Key 'omero.share' not found in %r" % self)
+                logger.debug("Key 'omero.share' not found in %r" % self)
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
