@@ -941,7 +941,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         # system group
         if isAdmin:
             g = self.getObject("ExperimenterGroup", attributes={'name':'system'})
-            new_groups.append(g._obj)
+            if defaultGroup.id != g.id:
+                new_groups.append(g._obj)
 
         # user group
         if isActive:
