@@ -1409,8 +1409,8 @@
             float: left;
             text-align: center;
 			
-            max-width:80px;
-			max-height:80px;
+            width:80px;
+			height:80px;
             background-color:hsl(0,0%,95%);
             margin:5px;
             padding:5px 5px 2px;
