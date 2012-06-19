@@ -245,6 +245,7 @@ class ITest(unittest.TestCase):
             rgba = None
             if theC in colourMap:
                 rgba = colourMap[theC]
+        for theC in range(sizeC):
             script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
 
         renderingEngine.close()
