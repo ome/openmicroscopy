@@ -1195,11 +1195,25 @@ def imageMarshal (image, key=None):
         logger.warn('Security violation while retrieving Dataset when ' \
                     'marshaling image metadata: %s' % e.message)
 
+    rv = {
+            'id': image.id,
+            'meta': {'imageName': image.name or '',
+                     'imageDescription': image.description or '',
+                     'imageAuthor': image.getAuthor(),
+                     'projectName': pr and pr.name or 'Multiple',
+                     'projectId': pr and pr.id or None,
+                     'projectDescription':pr and pr.description or '',
+                     'datasetName': ds and ds.name or 'Multiple',
+                     'datasetId': ds and ds.id or '',
+                     'datasetDescription': ds and ds.description or '',
+                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
+                     'imageId': image.id,},
+            }
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
             logger.debug("Failed to prepare Rendering Engine for imageMarshal")
-            return None
+            return rv
     except omero.ConcurrencyException, ce:
         backOff = ce.backOff
         rv = {
@@ -1216,13 +1230,12 @@ def imageMarshal (image, key=None):
     init_zoom = image._re.getResolutionLevel()
 
     try:
-        rv = {
+        rv.update({
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
             'init_zoom': init_zoom,
             'levels': levels,
-            'id': image.id,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
@@ -1231,18 +1244,7 @@ def imageMarshal (image, key=None):
             'pixel_size': {'x': image.getPixelSizeX(),
                            'y': image.getPixelSizeY(),
                            'z': image.getPixelSizeZ(),},
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
-            }
+            })
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
