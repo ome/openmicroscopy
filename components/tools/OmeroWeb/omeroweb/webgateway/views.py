@@ -1649,7 +1649,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
+def copy_image_rdef_json (request, conn=None, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1662,6 +1662,7 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
     @return:            json dict of Boolean:[Image-IDs]
     """
     
+    server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
     try:
@@ -1673,19 +1674,19 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
         fromid = None
     if fromid is not None and len(toids) > 0:
         
-        fromimg = blitzcon.getObject("Image", fromid)
+        fromimg = conn.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
         if fromimg.canWrite():
-            ctx = blitzcon.CONFIG.copy()
+            ctx = conn.CONFIG.copy()
             ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
             ctx.setOmeroUser(userid)
-            rsettings = blitzcon.getRenderingSettingsService()
+            rsettings = conn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = blitzcon.getObject("Image", iid)
+                img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
 #
