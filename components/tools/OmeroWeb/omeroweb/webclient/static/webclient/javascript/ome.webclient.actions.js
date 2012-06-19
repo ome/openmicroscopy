@@ -168,24 +168,6 @@ var multipleAnnotation = function(selected, index, prefix){
 };
 
 
-function saveMetadata (image_id, metadata_type, metadata_value) {
-    if (image_id == null) {
-        alert("No image selected.")
-    } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="../../static/webgateway/img/spinner.gif"/>');
-        $.ajax({
-            type: "POST",
-            url: "/webclient/metadata/image/"+image_id+"/", //this.href,
-            data: "matadataType="+metadata_type+"&metadataValue="+metadata_value,
-            contentType:'html',
-            cache:false,
-            success: function(responce){
-                $($('#id_'+metadata_type).parent().find('img')).remove()
-            }
-        });
-    }
-}
-
 // This is called by the Pagination controls at the bottom of icon or table pages.
 // We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
 function doPagination(view, page) {
