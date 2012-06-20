@@ -1466,13 +1466,6 @@
 
 .legend {
 	font-size:1.2em;
-	background-color:hsl(210,10%,90%);
-	-webkit-border-radius:3px;
-	
-	-webkit-border-radius: 3px; /* Saf3+, Chrome */
-	   -moz-border-radius: 3px; /* FF1+ */
-	        border-radius: 3px; /* Opera 10.5, IE 9 */ 
-	
 	margin:5px;
 	padding:5px;
 	display:inline-block;
