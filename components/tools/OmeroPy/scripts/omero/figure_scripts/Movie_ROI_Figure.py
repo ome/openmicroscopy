@@ -256,33 +256,36 @@ def getRectangle(roiService, imageId, roiLabel):
     foundLabelledRoi = False
     
     for roi in result.rois:
+        rectangles = [shape for shape in roi.copyShapes() if isinstance(shape,omero.model.RectI)]
+        if len(rectangles) == 0:
+            continue
+        
         timeShapeMap = {} # map of tIndex: (x,y,zMin,zMax) for a single roi
-        for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
-                t = shape.getTheT().getValue()
-                z = shape.getTheZ().getValue()
-                x = int(shape.getX().getValue())
-                y = int(shape.getY().getValue())
-                text = shape.getTextValue() and shape.getTextValue().getValue() or None
+        for shape in rectangles:
+            t = shape.getTheT().getValue()
+            z = shape.getTheZ().getValue()
+            x = int(shape.getX().getValue())
+            y = int(shape.getY().getValue())
+            text = shape.getTextValue() and shape.getTextValue().getValue() or None
+            
+            # build a map of tIndex: (x,y,zMin,zMax)
+            if t in timeShapeMap:
+                xx, yy, minZ, maxZ = timeShapeMap[t]
+                tzMin = min(minZ, z)
+                tzMax = max(maxZ, z)
+                timeShapeMap[t] = (x,y,tzMin,tzMax)
+            else:
+                timeShapeMap[t] = (x,y,z,z)
                 
-                # build a map of tIndex: (x,y,zMin,zMax)
-                if t in timeShapeMap:
-                    xx, yy, minZ, maxZ = timeShapeMap[t]
-                    tzMin = min(minZ, z)
-                    tzMax = max(maxZ, z)
-                    timeShapeMap[t] = (x,y,tzMin,tzMax)
-                else:
-                    timeShapeMap[t] = (x,y,z,z)
-                    
-                # get ranges for whole ROI
-                if rectCount == 0:
-                    width = shape.getWidth().getValue()
-                    height = shape.getHeight().getValue()
-                    x1 = x
-                    y1 = y
-                rectCount += 1
-                if text != None and text.lower() == roiText:
-                    foundLabelledRoi = True
+            # get ranges for whole ROI
+            if rectCount == 0:
+                width = shape.getWidth().getValue()
+                height = shape.getHeight().getValue()
+                x1 = x
+                y1 = y
+            rectCount += 1
+            if text != None and text.lower() == roiText:
+                foundLabelledRoi = True
         # will return after the first ROI that matches text
         if foundLabelledRoi:
             return (int(x1), int(y1), int(width), int(height), timeShapeMap)
