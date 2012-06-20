@@ -22,20 +22,47 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+{% endblock %}
+
 {% block title %}
-{% if gid %}
     {% trans "Edit group" %}
-{% else %}
-    {% trans "Add group" %}
-{% endif %}
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
+                
+                var highlightDefaultGroup = function() {
+                    var experimenterDefaultIds = [{{ experimenterDefaultGroups }}];
+                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
+                        if ($.inArray(parseInt(item.value), experimenterDefaultIds) > -1) {
+                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-default').find("a").first().unbind("click").remove();                            
+                        }
+                    });
+                }
+                
+                var highlightGroupOwner = function() {
+                    var ownerIds = [{{ ownerIds }}];
+                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
+                        if ($.inArray(parseInt(item.value), ownerIds) > -1) {
+                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-owner').find("a").first().unbind("click").remove();                            
+                        }
+                    });
+                }
+                
+                $("#id_members").chosen({placeholder_text:'Choose one or more members'});
+                
+                highlightDefaultGroup();
+                highlightGroupOwner();
+                
                 {% if gid %}
                 {% ifnotequal permissions 0 %}
                     $('#id_permissions_0').attr('disabled', true);
@@ -51,7 +78,7 @@
 
 <div class="one_column_content">
 	
-<h1>{% trans "Group permissions" %} for <strong>{{ group.name }}</strong></h1>
+<h1>{% trans "Edit group" %}</h1>
 
 <h1><a href="{% url wamyaccount "edit" %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
 

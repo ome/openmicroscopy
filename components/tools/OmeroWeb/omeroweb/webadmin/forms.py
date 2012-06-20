@@ -127,13 +127,14 @@ class ExperimenterForm(NonASCIIForm):
         else:
             return self.cleaned_data.get('other_groups')
 
+
+PERMISSION_CHOICES = (
+    ('0', 'Private'),
+    ('1', 'Collaborative read-only'),
+    ('2', 'Collaborative read-annotate'),
+)
+
 class GroupForm(NonASCIIForm):
-    
-    PERMISSION_CHOICES = (
-        ('0', 'Private'),
-        ('1', 'Collaborative read-only'),
-        ('2', 'Collaborative read-annotate'),
-    )
     
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
@@ -151,7 +152,7 @@ class GroupForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
         
-        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
+        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
         
         self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
@@ -164,13 +165,17 @@ class GroupForm(NonASCIIForm):
         return self.cleaned_data.get('name')
 
 class GroupOwnerForm(forms.Form):
-    
-    PERMISSION_CHOICES = (
-        ('0', 'Private (rw----)'),
-        ('1', 'Collaborative read-only (rwr---)'),
-        ('2', 'Collaborative read-annotate (rwra--)'),
-    )
 
+    def __init__(self, *args, **kwargs):
+        super(GroupOwnerForm, self).__init__(*args, **kwargs)
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            
+        self.fields.keyOrder = ['members', 'permissions']
+            
     permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
     
 class MyAccountForm(NonASCIIForm):

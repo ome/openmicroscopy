@@ -637,23 +637,37 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     template = "webadmin/group_form_owner.html"
     
     group = conn.getObject("ExperimenterGroup", gid)
+    memberIds = [m.id for m in group.getMembers()]
+    ownerIds = [str(e.id) for e in group.getOwners()]
+    experimenters = list(conn.getObjects("Experimenter"))
+    
+    experimenterDefaultIds = list()
+    for e in experimenters:
+        if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+            experimenterDefaultIds.append(str(e.id))
+    experimenterDefaultGroups = ",".join(experimenterDefaultIds)
     
     if action == 'edit':
         permissions = getActualPermissions(group)
-        form = GroupOwnerForm(initial={'permissions': permissions})
-        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group}
+        form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'experimenters':experimenters})
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':experimenterDefaultGroups, 'ownerIds':(",".join(ownerIds))}
     elif action == "save":
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
         else:
-            form = GroupOwnerForm(data=request.POST.copy())
+            form = GroupOwnerForm(data=request.POST.copy(), initial={'experimenters':experimenters})
             if form.is_valid():
+                members = form.cleaned_data['members']
                 permissions = form.cleaned_data['permissions']
+                
+                new_members = getSelectedExperimenters(conn, members)
+                conn.setMembersOfGroup(group, new_members)
                 
                 permissions = int(permissions)
                 if getActualPermissions(group) != permissions:
                     perm = setActualPermissions(permissions)
                     conn.updatePermissions(group, perm)
+                
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'form':form, 'gid': gid}
     else:
