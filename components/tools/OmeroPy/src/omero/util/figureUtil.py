@@ -248,3 +248,23 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
         draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
         scaleBarY -= 1
     return True,  "  Scalebar added to the image."
+
+def getVerticalLabels(labels, font, textGap):
+    """ Returns an image with the labels written vertically with the given font, black on white background """
+
+    maxWidth = 0
+    height = 0
+    textHeight = font.getsize("testq")[1]
+    for label in labels:
+        maxWidth = max(maxWidth, font.getsize(label)[0])
+        if height > 0: height += textGap
+        height += textHeight
+    size = (maxWidth, height)
+    textCanvas = Image.new("RGB", size, WHITE)
+    textdraw = ImageDraw.Draw(textCanvas)
+    py = 0
+    for label in labels:
+        indent = (maxWidth - font.getsize(label)[0]) / 2
+        textdraw.text((indent, py), label, font=font, fill=(0,0,0))
+        py += textHeight + textGap
+    return textCanvas.rotate(90)

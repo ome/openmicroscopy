@@ -298,27 +298,6 @@ def getRectangle(roiService, imageId, roiLabel):
         return (int(x1), int(y1), int(width), int(height), timeShapeMap)
     
     
-def getVerticalLabels(labels, font, textGap):
-    """ Returns an image with the labels written vertically with the given font, black on white background """
-    
-    maxWidth = 0
-    height = 0
-    textHeight = font.getsize("testq")[1]
-    for label in labels:
-        maxWidth = max(maxWidth, font.getsize(label)[0])
-        if height > 0: height += textGap
-        height += textHeight
-    size = (maxWidth, height)
-    textCanvas = Image.new("RGB", size, WHITE)
-    textdraw = ImageDraw.Draw(textCanvas)
-    py = 0
-    for label in labels:
-        indent = (maxWidth - font.getsize(label)[0]) / 2
-        textdraw.text((indent, py), label, font=font, fill=(0,0,0))
-        py += textHeight + textGap
-    return textCanvas.rotate(90)
-    
-    
 def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
         mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
         overlayColour, roiZoom, maxColumns, showRoiDuration, roiLabel):
@@ -456,7 +435,7 @@ def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
     
     rowY = spacer
     for row, image in enumerate(mergedImages):
-        labelCanvas = getVerticalLabels(imageLabels[row], font, textGap)
+        labelCanvas = figUtil.getVerticalLabels(imageLabels[row], font, textGap)
         vOffset = (image.size[1] - labelCanvas.size[1]) / 2
         imgUtil.pasteImage(labelCanvas, figureCanvas, spacer/2, rowY+topSpacers[row]+ vOffset)
         imgUtil.pasteImage(image, figureCanvas, leftTextWidth, rowY+topSpacers[row])
