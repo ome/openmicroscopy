@@ -55,6 +55,7 @@ params:
 
 import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
+import omero.util.figureUtil as figUtil
 import omero
 import omero.min # Constants etc.
 import getopt, sys, os, subprocess

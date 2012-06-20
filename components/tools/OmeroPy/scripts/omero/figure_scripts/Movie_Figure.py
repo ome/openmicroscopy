@@ -208,8 +208,9 @@ def getImageFrames(conn, pixelIds, tIndexes, zStart, zEnd, width, height, spacer
             yIndent = xIndent
             zoom = imgUtil.getZoomFactor(scaledImage.size, width, height)     # if we've scaled to half size, zoom = 2
             sbar = float(scalebar) / zoom            # and the scale bar will be half size
-            if not figUtil.addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour):
-                log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
+            status, logMsg = figUtil.addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour)
+            log(logMsg)
+
                 
         px = spacer
         py = spacer + fontHeight

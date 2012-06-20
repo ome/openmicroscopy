@@ -268,8 +268,9 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
             yIndent = xIndent
             zoom = imgUtil.getZoomFactor(i.size, width, height)     # if we've scaled to half size, zoom = 2
             sbar = float(scalebar) / zoom            # and the scale bar will be half size
-            if not figUtil.addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour):
-                log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
+            status, logMsg = figUtil.addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour)
+            log(logMsg)
+
         imgUtil.pasteImage(scaledImage, canvas, px, py)
     
         totalWidth = max(totalWidth, canvasWidth)    # most should be same width anyway

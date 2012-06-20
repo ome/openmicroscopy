@@ -233,18 +233,18 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     """
     draw = ImageDraw.Draw(image)
     if pixels.getPhysicalSizeX() == None:
-        return False
+        return False, "  Failed to add scale bar: Pixel size not defined."
     pixelSizeX = pixels.getPhysicalSizeX().getValue()
     if pixelSizeX <= 0:
-        return False
+        return False, "  Failed to add scale bar: Pixel size not defined."
     iWidth, iHeight = image.size
     lineThickness = (iHeight//100) + 1
     scaleBarY = iHeight - yIndent
     scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
     scaleBarX2 = iWidth - xIndent
     if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
-        return False
+        return False, "  Failed to add scale bar: Scale bar is too large."
     for l in range(lineThickness):
         draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
         scaleBarY -= 1
-    return True
+    return True,  "  Scalebar added to the image."

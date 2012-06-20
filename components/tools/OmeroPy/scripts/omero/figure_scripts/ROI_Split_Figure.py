@@ -469,8 +469,8 @@ def getSplitView(conn, imageIds, pixelIds, splitIndexes, channelNames, mergedNam
             xIndent = spacer
             yIndent = xIndent
             sbar = float(scalebar) / imageZoom            # and the scale bar will be half size
-            if not figUtil.addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour):
-                log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
+            status, logMsg = figUtil.addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour)
+            log(logMsg)
                 
         # draw ROI onto mergedImage...
         # recalculate roi if the image has been zoomed
