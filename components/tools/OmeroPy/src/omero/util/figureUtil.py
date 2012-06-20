@@ -37,6 +37,11 @@ publication type of figures.
  
 """
 
+try:
+    from PIL import Image, ImageDraw, ImageFont # see ticket:2597
+except ImportError:
+    import Image, ImageDraw, ImageFont # see ticket:2597
+
 SECS_MILLIS = "SECS_MILLIS"
 SECS = "SECS"
 MINS = "MINS"
@@ -215,3 +220,31 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits = None, sho
     labels.append(timeUnits)
     return labels
 
+def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
+    """
+    Adds a scalebar at the bottom right of an image, No text.
+
+    @param scalebar     length of scalebar in microns
+    @param xIndent      indent from the right of the image
+    @param yIndent      indent from the bottom of the image
+    @param image        the PIL image to add scalebar to
+    @param pixels       the pixels object
+    @param colour       colour of the overlay as r,g,b tuple
+    """
+    draw = ImageDraw.Draw(image)
+    if pixels.getPhysicalSizeX() == None:
+        return False
+    pixelSizeX = pixels.getPhysicalSizeX().getValue()
+    if pixelSizeX <= 0:
+        return False
+    iWidth, iHeight = image.size
+    lineThickness = (iHeight//100) + 1
+    scaleBarY = iHeight - yIndent
+    scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
+    scaleBarX2 = iWidth - xIndent
+    if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
+        return False
+    for l in range(lineThickness):
+        draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
+        scaleBarY -= 1
+    return True

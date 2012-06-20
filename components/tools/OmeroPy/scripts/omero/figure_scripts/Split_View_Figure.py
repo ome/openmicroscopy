@@ -69,35 +69,6 @@ def log(text):
     logStrings.append(text)
     
 
-def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
-    """ adds a scalebar at the bottom right of an image, No text. 
-    
-    @scalebar         length of scalebar in microns 
-    @xIndent        indent from the right of the image
-    @yIndent         indent from the bottom of the image
-    @image            the PIL image to add scalebar to. 
-    @pixels         the pixels object
-    @colour         colour of the overlay as r,g,b tuple
-    """
-    draw = ImageDraw.Draw(image)
-    if pixels.getPhysicalSizeX() == None:
-        return False
-    pixelSizeX = pixels.getPhysicalSizeX().getValue()
-    if pixelSizeX <= 0:
-        return False
-    iWidth, iHeight = image.size
-    lineThickness = (iHeight//100) + 1
-    scaleBarY = iHeight - yIndent
-    scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
-    scaleBarX2 = iWidth - xIndent
-    if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
-        return False
-    for l in range(lineThickness):
-        draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
-        scaleBarY -= 1
-    return True
-    
-
 def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
         mergedColours, width=None, height=None, spacer = 12, algorithm = None, stepping = 1, scalebar = None, overlayColour=(255,255,255)):
     """ This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -297,7 +268,7 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
             yIndent = xIndent
             zoom = imgUtil.getZoomFactor(i.size, width, height)     # if we've scaled to half size, zoom = 2
             sbar = float(scalebar) / zoom            # and the scale bar will be half size
-            if not addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour):
+            if not figUtil.addScalebar(sbar, xIndent, yIndent, scaledImage, pixels, overlayColour):
                 log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
         imgUtil.pasteImage(scaledImage, canvas, px, py)
     

@@ -44,7 +44,6 @@ import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 from omero.model import ImageI
 from omero.rtypes import *      # includes wrap()
-# import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
 from omero_sys_ParametersI import ParametersI
@@ -71,34 +70,6 @@ def log(text):
     print text
     logStrings.append(text)    
 
-
-def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
-    """ adds a scalebar at the bottom right of an image, No text. 
-    
-    @scalebar         length of scalebar in microns 
-    @xIndent        indent from the right of the image
-    @yIndent         indent from the bottom of the image
-    @image            the PIL image to add scalebar to. 
-    @pixels         the pixels object
-    @colour         colour of the overlay as r,g,b tuple
-    """
-    draw = ImageDraw.Draw(image)
-    if pixels.getPhysicalSizeX() == None:
-        return False
-    pixelSizeX = pixels.getPhysicalSizeX().getValue()
-    if pixelSizeX <= 0:
-        return False
-    iWidth, iHeight = image.size
-    lineThickness = (iHeight//100) + 1
-    scaleBarY = iHeight - yIndent
-    scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
-    scaleBarX2 = iWidth - xIndent
-    if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
-        return False
-    for l in range(lineThickness):
-        draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
-        scaleBarY -= 1
-    return True
 
 
 def getTimeIndexes(timePoints, maxFrames):
@@ -457,7 +428,7 @@ def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
             xIndent = spacer
             yIndent = xIndent
             sbar = float(scalebar) / imageZoom            # and the scale bar will be half size
-            if not addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour):
+            if not figUtil.addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour):
                 log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
                 
         # draw ROI onto mergedImage...
