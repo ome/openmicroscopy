@@ -57,8 +57,6 @@ except ImportError:
 JPEG = "image/jpeg"
 PNG = "image/png"
 
-WHITE = (255,255,255)
-
 COLOURS = scriptUtil.COLOURS
 OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 

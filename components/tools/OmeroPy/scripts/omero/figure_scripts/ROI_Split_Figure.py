@@ -56,7 +56,6 @@ except ImportError:
 JPEG = "image/jpeg"
 PNG = "image/png"
 
-WHITE = (255,255,255)
 COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 

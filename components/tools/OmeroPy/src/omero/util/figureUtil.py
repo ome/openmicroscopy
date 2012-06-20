@@ -42,6 +42,8 @@ try:
 except ImportError:
     import Image, ImageDraw, ImageFont # see ticket:2597
 
+WHITE = (255,255,255)
+
 SECS_MILLIS = "SECS_MILLIS"
 SECS = "SECS"
 MINS = "MINS"
