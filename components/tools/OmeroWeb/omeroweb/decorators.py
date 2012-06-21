@@ -163,7 +163,7 @@ class login_required(object):
                 settings.PUBLIC_ENABLED = False
                 return False
             if self.allowPublic is None:
-                return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+                return settings.PUBLIC_URL_FILTER.search(request.path) is not None
             return self.allowPublic
         return False
 
