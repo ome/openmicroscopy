@@ -767,6 +767,12 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
     context['template'] = template
     return context
 
+@login_required()
+@render_response_admin()
+def stats(request, conn=None, **kwargs):
+    template = "webadmin/statistics.html"
+    context= {'template': template}
+    return context
 
 @login_required()
 @render_response_admin()
