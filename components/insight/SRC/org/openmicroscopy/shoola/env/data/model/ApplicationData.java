@@ -116,7 +116,7 @@ public class ApplicationData {
 			this.applicationIcon = data.applicationIcon;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			//TODO register
 		}
 	}
 

@@ -73,7 +73,9 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 	}
 
 	/**
-	 * @return the Mac specific directory where applications are located
+	 * Returns the Mac specific directory where applications are located.
+	 * 
+	 * @return See above.
 	 */
 	public String getDefaultAppDirectory() {
 		return LOCATION_MAC;
