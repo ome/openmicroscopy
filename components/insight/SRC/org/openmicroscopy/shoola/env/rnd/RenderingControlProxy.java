@@ -40,13 +40,16 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.TimeoutException;
 
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import ome.conditions.SessionTimeoutException;
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
 import omero.model.Pixels;
@@ -206,31 +209,36 @@ class RenderingControlProxy
      * Methods in this class are required to fill in a meaningful context
      * message.
      * 
-     * @param t			The exception.
-     * @param message	The context message.  
-     * @param message
+     * @param e The exception.
+     * @param message The context message.
      * @throws RenderingServiceException A rendering problem
      * @throws DSOutOfServiceException A connection problem.
      */
-    private void handleException(Throwable t, String message)
+    private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	Throwable cause = t.getCause();
-    	if (cause instanceof ConnectionRefusedException || 
-				t instanceof ConnectionRefusedException ||
+    	Throwable cause = e.getCause();
+		int index = -1;
+		if (cause instanceof ConnectionLostException ||
+			e instanceof ConnectionLostException ||
+			cause instanceof SessionTimeoutException ||
+			e instanceof SessionTimeoutException || 
+			cause instanceof TimeoutException || e instanceof TimeoutException)
+			index = DataServicesFactory.LOST_CONNECTION;
+		else if (cause instanceof CommunicatorDestroyedException ||
+				e instanceof CommunicatorDestroyedException)
+			index = DataServicesFactory.DESTROYED_CONNECTION;
+		else if (cause instanceof ConnectionRefusedException || 
+				e instanceof ConnectionRefusedException ||
 				cause instanceof ConnectionTimeoutException || 
-				t instanceof ConnectionTimeoutException) {
-			//context.getTaskBar().sessionExpired(
-			//		TaskBar.SERVER_OUT_OF_SERVICE);
-			return;
-		} else if (cause instanceof ConnectionLostException ||
-				t instanceof ConnectionLostException) {
-			//context.getTaskBar().sessionExpired(
-			//		TaskBar.LOST_CONNECTION);
-			return;
+				e instanceof ConnectionTimeoutException) 
+			index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
+		if (index >= 0) {
+			context.getTaskBar().sessionExpired(index);
+		} else {
+			throw new RenderingServiceException(message+"\n\n"+ 
+					printErrorText(e), e);
 		}
-    	throw new RenderingServiceException(message+"\n\n"+
-				printErrorText(t), t);
     }
     
     /** Checks if the session is still alive.*/

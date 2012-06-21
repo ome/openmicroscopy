@@ -375,6 +375,7 @@ public class DataServicesFactory
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
+			case DESTROYED_CONNECTION:
 			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
@@ -394,7 +395,7 @@ public class DataServicesFactory
             				uc.getPassword());
 					connectionDialog = null;
 					if (b) {
-						//reactivate the rendering engine.
+						//reactivate the rendering engine. Need to review that
 						Iterator<Long> i = l.iterator();
 						OmeroImageService svc = registry.getImageService();
 						Long id;
@@ -406,6 +407,7 @@ public class DataServicesFactory
 							} catch (Exception e) {
 								failure.add(id);
 							}
+							failure.add(id);
 						}
 						message = "You are reconnected to the server.";
 						un.notifyInfo("Reconnection Success", message);

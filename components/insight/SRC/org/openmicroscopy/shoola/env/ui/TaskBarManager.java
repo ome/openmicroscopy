@@ -937,17 +937,11 @@ public class TaskBarManager
 	 */
 	void sessionExpired(int index)
 	{
-		switch (index) {
-			case DataServicesFactory.LOST_CONNECTION:
-			case DataServicesFactory.SERVER_OUT_OF_SERVICE:
-			try {
-				DataServicesFactory factory = 
-					DataServicesFactory.getInstance(container);
-				factory.sessionExpiredExit(index, null);
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
+		try {
+			DataServicesFactory factory = 
+				DataServicesFactory.getInstance(container);
+			factory.sessionExpiredExit(index, null);
+		} catch (Exception e) {}
 	}
 	
 	/**
