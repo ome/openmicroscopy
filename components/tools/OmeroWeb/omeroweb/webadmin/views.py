@@ -401,6 +401,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 password = form.cleaned_data['password']
                 
                 # default group
+                # if default group was not selected take first from the list.
+                if defaultGroup is None:
+                    defaultGroup = otherGroups[0]
                 for g in groups:
                     if long(defaultGroup) == g.id:
                         dGroup = g
@@ -459,7 +462,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 active = toBoolean(form.cleaned_data['active'])
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
-                
+
                 # default group
                 # if default group was not selected take first from the list.
                 if defaultGroup is None:
