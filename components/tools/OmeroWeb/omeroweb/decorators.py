@@ -150,6 +150,18 @@ class login_required(object):
         the scope of the OMERO.webpublic URL filter.
         """
         if settings.PUBLIC_ENABLED:
+            if not hasattr(settings, 'PUBLIC_USER'):
+                logger.warn('OMERO.webpublic enabled but public user ' \
+                            '(omero.web.public.user) not set, disabling ' \
+                            'OMERO.webpublic.')
+                settings.PUBLIC_ENABLED = False
+                return False
+            if not hasattr(settings, 'PUBLIC_PASSWORD'):
+                logger.warn('OMERO.webpublic enabled but public user ' \
+                            'password (omero.web.public.password) not set, ' \
+                            'disabling OMERO.webpublic.')
+                settings.PUBLIC_ENABLED = False
+                return False
             if self.allowPublic is None:
                 return settings.PUBLIC_URL_FILTER.match(request.path) is not None
             return self.allowPublic
