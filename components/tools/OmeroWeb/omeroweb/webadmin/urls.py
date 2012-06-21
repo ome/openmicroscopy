@@ -26,15 +26,16 @@ import os.path
 
 from django.conf.urls.defaults import *
 from django.views.static import serve
+from django.views.generic.simple import direct_to_template
 
 from omeroweb.webadmin import views
-import omeroweb.webclient.views
+from omeroweb.webclient import views as webclient_views
 
 # url patterns
 urlpatterns = patterns('',
 
     url( r'^$', views.index, name="waindex" ),
-    url( r'^login/$', omeroweb.webclient.views.login, name="walogin" ),
+    url( r'^login/$', webclient_views.login, name="walogin" ),
     url( r'^logout/$', views.logout, name="walogout" ),
     url( r'^forgottenpassword/$', views.forgotten_password, name="waforgottenpassword" ),
     url( r'^experimenters/$', views.experimenters, name="waexperimenters" ),
@@ -44,6 +45,7 @@ urlpatterns = patterns('',
     url( r'^group/(?P<action>((?i)new|create|edit|save))/(?:(?P<gid>[0-9]+)/)?$', views.manage_group, name="wamanagegroupid" ),
     url( r'^group_owner/(?P<action>((?i)edit|save))/(?P<gid>[0-9]+)/$', views.manage_group_owner, name="wamanagegroupownerid" ),
     url( r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount" ),
+    url( r'^stats/$', direct_to_template, {"template":"webadmin/statistics.html"}, name="wastats" ),
     url( r'^drivespace/$', views.drivespace, {'template':'json'}, name="wadrivespace"),
     url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
 

@@ -1630,7 +1630,9 @@
 				background:url(../image/icon_scientist_group_36.png) center 40% no-repeat;
 			}
 			
-			
+			#drivespace_tab a{
+				background:url(../../webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
+			}
     
 			
 	.one_column_header .btn {

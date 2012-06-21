@@ -22,9 +22,7 @@
 -->
 {% endcomment %}
 
-{% block title %}
-OMERO Users
-{% endblock %}
+{% block title %}{% trans "OMERO Users" %}{% endblock %}
 
 {% block link %}
     {{ block.super }}
@@ -35,7 +33,6 @@ OMERO Users
 	<!--[if lte IE 8]>
 		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
 	<![endif]-->
-	
 	
 {% endblock %}
 
@@ -57,6 +54,7 @@ OMERO Users
                     'loader': 'span.loading'
                 });
                 $("#webadmin_main_tabs").tabs({
+                    selected : 0,
                     select: function(event, ui) {
                         var url = $.data(ui.tab, 'load.tabs');
                         if( url ) {
@@ -80,6 +78,7 @@ OMERO Users
     <ul>
         <li id="experimenters_tab"><a href="#experimenters_content" title="Edit Users">{% trans "Users" %}</a></li>
         <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+        <li id="drivespace_tab"><a href="{% url wastats %}" title="Statistics">{% trans "Statistics" %}</a></li>
     </ul>
 
     <div id="experimenters_content">
