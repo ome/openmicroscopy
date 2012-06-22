@@ -36,7 +36,7 @@ from django.utils.encoding import smart_unicode
 # Fields
 
 class OmeNameField(forms.CharField):
-    def clean(self, value):
+    def to_python(self, value):
         omeName = value
         if not value:
             raise forms.ValidationError('This field is required.')
@@ -88,8 +88,7 @@ class ServerModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
         if value in EMPTY_VALUES:
             return None
         res = False
@@ -117,7 +116,7 @@ class GroupQuerySetIterator(object):
             l = len(name)
             if l > 35:
                 name = name[:35] + "..."
-            
+            name += " (%s)" % str(obj.getDetails().permissions)
             if hasattr(obj.id, 'val'):
                 oid = obj.id.val
             else:
@@ -147,17 +146,23 @@ class GroupModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
         if value in EMPTY_VALUES:
             return None
         res = False
-        for q in self.queryset:
-            if hasattr(q.id, 'val'):
-                if long(value) == q.id.val:
+        exps = []
+        try:
+            for experimenter_type, experimenters in self.queryset:
+                for experimenter in experimenters:
+                    exp.append(experimenter)
+        except:
+            exps = self.queryset
+        for experimenter in exps:
+            if hasattr(experimenter.id, 'val'):
+                if long(value) == experimenter.id.val:
                     res = True
             else:
-                if long(value) == q.id:
+                if long(value) == experimenter.id:
                     res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
@@ -179,7 +184,7 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
 
-    def clean(self, value):
+    def to_python(self, value):
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])
         elif not self.required and not value:
@@ -211,50 +216,64 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
         self.queryset = queryset
+        
         self.empty_label = empty_label
+        
+        self.rendered_set = []
+        if self.empty_label is not None:
+            self.rendered_set.append( (u"", self.empty_label) )
+
+        # queryset may be a list of Experimenters 'exp_list' OR may be (  ("Leaders", exp_list), ("Members", exp_list)  )
+        for obj in queryset:
+            if hasattr(obj, 'id'):
+                self.rendered_set.append(self.render(obj))
+            else:
+                subset = [self.render(m) for m in obj[1]]
+                self.rendered_set.append( (obj[0], subset) )
 
     def __iter__(self):
-        if self.empty_label is not None:
-            yield (u"", self.empty_label)
-        for obj in self.queryset:
-            try:
-                # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
-                # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
-                # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
-                if hasattr(obj, 'getFullName'):
-                    name = "%s (%s)" % (obj.getFullName(), obj.omeName)
-                else:
-                    omeName = None
-                    if hasattr(obj.omeName, 'val'):
-                        omeName = obj.omeName.val
-                    lastName = None
-                    if hasattr(obj.lastName, 'val'):
-                        lastName = obj.lastName.val
-                    firstName = None
-                    if hasattr(obj.firstName, 'val'):
-                        firstName = obj.firstName.val
-                    middleName = None
-                    if hasattr(obj.middleName, 'val'):
-                        middleName = obj.middleName.val
-                    
-                    if middleName != '' and middleName is not None:
-                        name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
-                    else:
-                        name = "%s %s (%s)" % (firstName, lastName, omeName)
+        for obj in self.rendered_set:
+            yield obj
 
 
-                l = len(name)
-                if l > 50:
-                    name = name[:50] + "..."
-            except:
-                name = _("Unknown")
-            
-            if hasattr(obj.id, 'val'):
-                oid = obj.id.val
+    def render(self, obj):
+        try:
+            # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
+            # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
+            # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
+            if hasattr(obj, 'getFullName'):
+                name = "%s (%s)" % (obj.getFullName(), obj.omeName)
             else:
-                oid = obj.id
+                omeName = None
+                if hasattr(obj.omeName, 'val'):
+                    omeName = obj.omeName.val
+                lastName = None
+                if hasattr(obj.lastName, 'val'):
+                    lastName = obj.lastName.val
+                firstName = None
+                if hasattr(obj.firstName, 'val'):
+                    firstName = obj.firstName.val
+                middleName = None
+                if hasattr(obj.middleName, 'val'):
+                    middleName = obj.middleName.val
+                
+                if middleName != '' and middleName is not None:
+                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
+                else:
+                    name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
 
-            yield (smart_unicode(oid), smart_unicode(name))
+
+            l = len(name)
+            if l > 50:
+                name = name[:50] + "..."
+        except:
+            name = _("Unknown")
+
+        if hasattr(obj.id, 'val'):
+            oid = obj.id.val
+        else:
+            oid = obj.id
+        return (smart_unicode(oid), smart_unicode(name))
 
 class ExperimenterModelChoiceField(ModelChoiceField):
     
@@ -279,17 +298,38 @@ class ExperimenterModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
+        """
+        Go through all values in queryset, looking to find 'value'. If not found raise ValidationError.
+        
+        @return value:      The input value
+        """
+
         if value in EMPTY_VALUES:
             return None
         res = False
-        for q in self.queryset:
+
+        def checkValue(q, value):
+            if not hasattr(q, 'id'):
+                return False
             if hasattr(q.id, 'val'):
                 if long(value) == q.id.val:
-                    res = True
+                    return True
+            if long(value) == q.id:
+                return True
+
+        for q in self.queryset:
+            if isinstance(q, tuple) or isinstance(q, list):
+                for qu in q:
+                    if isinstance(qu, tuple) or isinstance(qu, list):
+                        for qq in qu:
+                            if checkValue(qq, value):
+                                res = True
+                    else:
+                        if checkValue(qu, value):
+                            res = True
             else:
-                if long(value) == q.id:
+                if checkValue(q, value):
                     res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
@@ -312,7 +352,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
             *args, **kwargs)
         
 
-    def clean(self, value):
+    def to_python(self, value):
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])
         elif not self.required and not value:
@@ -342,7 +382,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
 
 class DefaultGroupField(ChoiceField):
     
-    def clean(self, value):
+    def to_python(self, value):
         """
         Check that the field was selected.
         """

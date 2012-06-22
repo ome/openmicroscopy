@@ -6,6 +6,7 @@
 # this file to etc/local.properties and manually
 # editing it.
 #
+omero.version=UNKNOWN
 omero.rootpass=ome
 omero.db.profile=psql
 
@@ -39,6 +40,12 @@ ivy.log.modules.in.use=false
 ivy.log.module.when.found=false
 ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
+
+# Default keystore values
+jarsign.keystore=${omero.home}/lib/keystore
+jarsign.alias=omedev
+jarsign.storepass=omedev
+jarsign.validity=1000
 
 ############################################
 # Testing

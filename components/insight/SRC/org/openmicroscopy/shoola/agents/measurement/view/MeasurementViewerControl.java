@@ -63,6 +63,8 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
@@ -72,6 +74,8 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -169,6 +173,9 @@ class MeasurementViewerControl
     /** Maps actions identifiers onto actual <code>Action</code> object. */
     private Map<Integer, MeasurementViewerAction>	actionsMap;
     
+    /** Flag indicating that the shape is removed via the delete key.*/
+    private boolean keyRemove;
+    
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -234,29 +241,7 @@ class MeasurementViewerControl
 	{
     	view.onSelectedFigures();
     	ROI roi = figure.getROI();
-    	/*
-    	if (roi.hasAnnotation(AnnotationKeys.NAMESPACE))
-    	{
-    		String namespaceString = (String) roi.getAnnotation(
-    				AnnotationKeys.NAMESPACE);
-    		String keywordsString = (String) roi.getAnnotation(
-    				AnnotationKeys.KEYWORDS);
-    		if (keywordsString != null)
-    		{
-    			List<String> stringList = new ArrayList<String>();
-        		if (keywordsString != "")
-    			{
-    				String[] splitStrings = keywordsString.split(",");
-    			    
-        			for (String word: splitStrings)
-        				stringList.add(word);				
-    			}
-    			model.setWorkflow(namespaceString);
-    			model.setKeyword(stringList);
-    			view.updateWorkflow();
-     		}
-    	}
-		*/
+    	
 		//TODO clean that code
     	if ((figure instanceof MeasureLineFigure) || 
 				(figure instanceof MeasurePointFigure)) {
@@ -319,7 +304,7 @@ class MeasurementViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
-        model.addChangeListener(this);   
+        model.addChangeListener(this);
         model.addPropertyChangeListener(this);
         actionsMap = new HashMap<Integer, MeasurementViewerAction>();
         createActions();
@@ -514,6 +499,9 @@ class MeasurementViewerControl
 			view.setCellColor((Color) evt.getNewValue());
 		else if (LoadingWindow.CLOSED_PROPERTY.equals(name)) 
             model.discard();
+		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
+			model.deleteAllROIs((Integer) evt.getNewValue());
+		}
 	}
 
 	/**
@@ -526,6 +514,7 @@ class MeasurementViewerControl
 		switch (state) {
 			case MeasurementViewer.ANALYSE_SHAPE:
 				view.setStatus("Analysing Shape.");
+				view.onAnalysed(true);
 				break;
 			case MeasurementViewer.LOADING_DATA:
 				LoadingWindow w = view.getLoadingWindow();
@@ -535,6 +524,7 @@ class MeasurementViewerControl
 			case MeasurementViewer.READY:
 				view.getLoadingWindow().setVisible(false);
 				view.setStatus("Ready.");
+				view.onAnalysed(false);
 				if(!view.isVisible())
 					view.setOnScreen();
 				break;
@@ -558,7 +548,8 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);
-		roiFigure.addFigureListener(this);
+		if (roiFigure.canEdit())
+			roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
@@ -584,8 +575,21 @@ class MeasurementViewerControl
 	{
 		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);
-		model.setDataChanged();
+		if (f instanceof ROIFigure) {
+			ROIFigure roi = (ROIFigure) f;
+			if (keyRemove) {
+				if (roi.isReadOnly() || !roi.canDelete()) {
+					view.getDrawing().removeDrawingListener(this);
+					view.getDrawing().add(roi);
+					view.getDrawing().addDrawingListener(this);
+					return;
+				}
+				view.markROIForDelete(roi);
+				keyRemove = false;
+			}
+			view.removeROI(roi);
+			model.setDataChanged();
+		}
 	}
 
 	/**
@@ -596,7 +600,6 @@ class MeasurementViewerControl
 	{	
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
-		
 		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			if (figure == null) return;
@@ -629,8 +632,9 @@ class MeasurementViewerControl
 			view.onAttributeChanged(fig);
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
-			if (!fig.isReadOnly())
-				model.setDataChanged();
+			if (!fig.isReadOnly()) {
+				if (fig.canEdit()) model.setDataChanged();
+			}
 		}
 	}
 
@@ -642,16 +646,27 @@ class MeasurementViewerControl
 	public void figureChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) 
-			handleFigureChange((ROIFigure) f);
+		if (f instanceof ROIFigure) {
+			ROIFigure fig = (ROIFigure) f;
+			Coord3D coord = fig.getROIShape().getCoord3D();
+	    	int c = coord.getChannel();
+	    	if (c >= 0 && !view.isChannelActive(c)) {
+	    		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+	    		bus.post(new SelectChannel(view.getPixelsID(), c));
+	    	}
+			handleFigureChange(fig);
+		}
 	}
 	
 	/** 
 	 * Calculates the statistics for the selected shape.
-	 * @see KeyListener#keyTyped(KeyEvent)
+	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyTyped(KeyEvent e)
+	public void keyPressed(KeyEvent e)
 	{
+		keyRemove = false;
+		if (e.getKeyCode() == KeyEvent.VK_DELETE)
+			keyRemove = true;
 		char ANALYSECHAR = 'a';
 		if (e.getKeyChar() == ANALYSECHAR) {
 			Collection<Figure> selectedFigures = 
@@ -734,7 +749,7 @@ class MeasurementViewerControl
 	 * in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyPressed(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {}
 
 	/**
 	 * Required by the {@link KeyListener} I/F but no-operation implementation

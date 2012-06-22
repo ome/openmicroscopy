@@ -40,6 +40,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -159,6 +161,12 @@ public abstract class TreeImageDisplay
     /** Flag indicating that the node has to be refreshed. */
     protected boolean					toRefresh;
     
+    /** Indicates to display or not the number of items.*/
+    private boolean displayItems;
+    
+    /** The annotation count.*/
+    private int count;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -197,6 +205,8 @@ public abstract class TreeImageDisplay
         numberItems = -1;
         partialName = true;
         fontStyle = FONT_PLAIN;
+        displayItems = true;
+        count = 0;
     }
     
     /**
@@ -439,7 +449,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
-        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
+        	return EditorUtil.formatExperimenter((ExperimenterData) obj);
         } else if (obj instanceof GroupData) {
         	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)
@@ -449,9 +459,12 @@ public abstract class TreeImageDisplay
         else if (obj instanceof PlateData) {
         	PlateData plate = (PlateData) obj;
         	return plate.getName()+" ("+plate.getPlateType()+")";
-        } else if (obj instanceof FileAnnotationData)
-        	return ((FileAnnotationData) obj).getFileName();
-        else if (obj instanceof File)
+        } else if (obj instanceof FileAnnotationData) {
+        	String name = ((FileAnnotationData) obj).getFileName();
+        	if (name.trim().length() == 0) 
+        		return "ID: "+((FileAnnotationData) obj).getId();
+        	return name;
+        } else if (obj instanceof File)
         	return ((File) obj).getName();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
@@ -474,7 +487,7 @@ public abstract class TreeImageDisplay
         String name = getNodeName();
         Object uo = getUserObject();
         if (uo instanceof ImageData) {
-        	if (partialName) return EditorUtil.getPartialName(name);
+        	if (partialName) return UIUtilities.formatPartialName(name);
         	return name;
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
@@ -487,6 +500,7 @@ public abstract class TreeImageDisplay
         	return name;
         else if ((uo instanceof PlateData) && !hasChildrenDisplay())
         	return name;
+        if (!displayItems) return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
@@ -499,7 +513,7 @@ public abstract class TreeImageDisplay
      */
     public boolean isAnnotated()
     {
-    	return EditorUtil.isAnnotated(getUserObject());
+    	return EditorUtil.isAnnotated(getUserObject(), count);
     }
     
     /**
@@ -588,6 +602,13 @@ public abstract class TreeImageDisplay
      */
     public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
     
+    /** 
+     * Sets the annotation count.
+     * 
+     * @param count The value to set.
+     */
+    public void setAnnotationCount(int count) { this.count = count; }
+    
     /**
      * Returns <code>true</code> to indicate that the node needs
      * to be refreshed, <code>false</code> otherwise.
@@ -595,6 +616,17 @@ public abstract class TreeImageDisplay
      * @return See above.
      */
     public boolean isToRefresh() { return toRefresh; }
+    
+    /**
+     * Sets to <code>true</code> to display the number of items,
+     * <code>false</code> otherwise.
+     * 
+     * @param displayItems The value to set.
+     */
+    public void setDisplayItems(boolean displayItems)
+    {
+    	this.displayItems = displayItems;
+    }
     
     /** 
      * Overridden to return the name of the hierarchy object. 

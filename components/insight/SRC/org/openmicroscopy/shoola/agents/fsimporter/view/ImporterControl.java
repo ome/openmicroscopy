@@ -23,18 +23,21 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
@@ -60,6 +63,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -86,7 +90,7 @@ import pojos.GroupData;
  * @since 3.0-Beta4
  */
 class ImporterControl
-	implements PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Action ID indicating to send the files that could not imported. */
@@ -302,7 +306,7 @@ class ImporterControl
 	List<GroupSelectionAction> getUserGroupAction()
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Set m = ImporterAgent.getAvailableUserGroups();
+		Collection m = ImporterAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();
@@ -375,6 +379,25 @@ class ImporterControl
 			}
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			view.appendDebugText((String) evt.getNewValue());
+		}
+	}
+
+	/**
+	 * Handles group selection.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		if (index == GROUP_BUTTON) {
+			JComboBox box = (JComboBox) e.getSource();
+			Object ho = box.getSelectedItem();
+			if (ho instanceof JComboBoxImageObject) {
+				JComboBoxImageObject o = (JComboBoxImageObject) ho;
+				if (o.getData() instanceof GroupData) {
+					model.setUserGroup((GroupData) o.getData());
+				}
+			}
 		}
 	}
 	

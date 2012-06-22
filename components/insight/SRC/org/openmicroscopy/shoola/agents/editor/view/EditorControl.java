@@ -23,10 +23,18 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -39,15 +47,22 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenWwwFileAction;
+import org.openmicroscopy.shoola.agents.editor.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveAsProtocolAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+
+import pojos.GroupData;
 
 /** 
  * The {@link Editor}'s controller. 
@@ -63,7 +78,7 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
  * @since 3.0-Beta3
  */
 class EditorControl
-	implements ChangeListener
+	implements ActionListener, ChangeListener
 {
 
 	/** Identifies the <code>Close Editor</code> Action. */
@@ -90,6 +105,9 @@ class EditorControl
 	/** Identifies the <code>SaveFileAsProtocol</code> Action. */
 	static final Integer	SAVE_AS_PROTOCOL = Integer.valueOf(8);
 	
+	/** Identifies the <code>SaveFileAsProtocol</code> Action. */
+	static final Integer	PERSONAL = Integer.valueOf(9);
+	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
 	 * is regarded as the Model.
@@ -113,6 +131,7 @@ class EditorControl
 		actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(model));
 		actionsMap.put(SAVE_FILE_SERVER, new SaveFileServerAction(model));
 		actionsMap.put(SAVE_AS_PROTOCOL, new SaveAsProtocolAction(model));
+		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
 	}
 	
 	/** 
@@ -226,6 +245,26 @@ class EditorControl
 	EditorAction getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
+	 * Returns the list of group the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupSelectionAction> getUserGroupAction()
+	{
+		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
+		Collection m = EditorAgent.getAvailableUserGroups();
+		if (m == null || m.size() == 0) return l;
+		ViewerSorter sorter = new ViewerSorter();
+		Iterator i = sorter.sort(m).iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			l.add(new GroupSelectionAction(model, group));
+		}
+		return l;
+	}
+	
+	/**
 	 * Reacts to state changes in the {@link Editor}.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
@@ -247,6 +286,25 @@ class EditorControl
 				break;
 			case Editor.DISCARDED:
 				view.close();
+		}
+	}
+	
+	/**
+	 * Handles group selection.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		if (index == PERSONAL) {
+			JComboBox box = (JComboBox) e.getSource();
+			Object ho = box.getSelectedItem();
+			if (ho instanceof JComboBoxImageObject) {
+				JComboBoxImageObject o = (JComboBoxImageObject) ho;
+				if (o.getData() instanceof GroupData) {
+					model.setUserGroup(((GroupData) o.getData()).getId());
+				}
+			}
 		}
 	}
 

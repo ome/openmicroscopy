@@ -74,6 +74,7 @@ public class TermAnnotationData extends AnnotationData {
      */
     public void setTerm(String term) {
     	if (term == null) return;
+    	setDirty(true);
         ((TermAnnotation) asAnnotation()).setTermValue(rstring(term));
     }
 

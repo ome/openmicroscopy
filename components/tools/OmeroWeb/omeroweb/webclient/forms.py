@@ -42,13 +42,13 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
 
-logger = logging.getLogger('forms-web')
+logger = logging.getLogger(__name__)
              
 ##################################################################
 # Static values
 
 # TODO: change to reverse
-help_button = "%scommon/image/help16.png" % settings.STATIC_URL
+help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
@@ -70,11 +70,10 @@ class ShareForm(NonASCIIForm):
             if kwargs['initial']['shareMembers']: pass
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], widget=forms.SelectMultiple(attrs={'size':5}))
         except:
-            logger.error(traceback.format_exc())
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':5}))
         self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), help_text=help_wiki_c) 
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 7, 'cols': 39}), help_text=help_wiki_c) 
     expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire, required=False)
     enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False, help_text=help_enable)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
@@ -102,18 +101,12 @@ class BasketShareForm(ShareForm):
         try:
             self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected'], widget=forms.SelectMultiple(attrs={'size':10}))
         except:
-            logger.error(traceback.format_exc())
             self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
 
-
-class ShareCommentForm(NonASCIIForm):
-
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))# help_text=help_wiki_c
-    
 class ContainerForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}), required=False, help_text=help_wiki)
 
 class ContainerNameForm(NonASCIIForm):
     
@@ -123,96 +116,96 @@ class ContainerDescriptionForm(NonASCIIForm):
     
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
 
-class CommentAnnotationForm(NonASCIIForm):
-    
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
 
-class TagFilterForm(NonASCIIForm):
-    
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
-
-class TagAnnotationForm(NonASCIIForm):
-    
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
-
-class TagListForm(forms.Form):
-    
+class BaseAnnotationForm(NonASCIIForm):
+    """
+    This is the superclass of the various forms used for annotating single or multiple objects.
+    All these forms use hidden fields to specify the object(s) currently being annotated.
+    """
     def __init__(self, *args, **kwargs):
-        super(TagListForm, self).__init__(*args, **kwargs)
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['tags']
+        super(BaseAnnotationForm, self).__init__(*args, **kwargs)
+        
+        images = 'images' in kwargs['initial'] and kwargs['initial']['images'] or list()
+        if len(images) > 0:
+            try:
+                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        datasets = 'datasets' in kwargs['initial'] and kwargs['initial']['datasets'] or list()
+        if len(datasets) > 0:
+            try:
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        projects = 'projects' in kwargs['initial'] and kwargs['initial']['projects'] or list()
+        if len(projects) > 0:
+            try:
+                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        screens = 'screens' in kwargs['initial'] and kwargs['initial']['screens'] or list()
+        if len(screens) > 0:
+            try:
+                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        plates = 'plates' in kwargs['initial'] and kwargs['initial']['plates'] or list()
+        if len(plates) > 0:
+            try:
+                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        acquisitions = 'acquisitions' in kwargs['initial'] and kwargs['initial']['acquisitions'] or list()
+        if len(acquisitions) > 0:
+            try:
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        wells = 'wells' in kwargs['initial'] and kwargs['initial']['wells'] or list()
+        if len(wells) > 0:
+            try:
+                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        shares = 'shares' in kwargs['initial'] and kwargs['initial']['shares'] or list()
+        if len(shares) > 0:
+            try:
+                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, initial=kwargs['initial']['selected']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
 
-class FileListForm(forms.Form):
-    
+class TagsAnnotationForm(BaseAnnotationForm):
+    """ Form for annotating one or more objects with existing Tags or New tags """
+
     def __init__(self, *args, **kwargs):
-        super(FileListForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['files']
+        super(TagsAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], 
+                widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
 
-class UploadFileForm(NonASCIIForm):
-    annotation_file  = forms.FileField(required=False)
-    
-    def clean_annotation_file(self):
-        if self.cleaned_data['annotation_file'] is None:
-            raise forms.ValidationError('This field is required.')
-
-class MultiAnnotationForm(NonASCIIForm):
-    
-    def __init__(self, *args, **kwargs):
-        super(MultiAnnotationForm, self).__init__(*args, **kwargs)
-        try:
-            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        try:
-            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-            
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
-        
-        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'acquisition', 'well']
-        
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}), required=False)
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
-    annotation_file  = forms.FileField(required=False)
+
+
+class FilesAnnotationForm(BaseAnnotationForm):
     
+    def __init__(self, *args, **kwargs):
+        super(FilesAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}), required=False)
+    
+    annotation_file = forms.FileField(required=False)
+
+
+class CommentAnnotationForm(BaseAnnotationForm):
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
+
 class UsersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -233,7 +226,7 @@ class UsersForm(forms.Form):
         
         self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=users, initial=user, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=[menu])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
         
-        if users is None or len(users)<1:
+        if users is None or len(users)<2:
             self.fields['experimenter'].widget.attrs['disabled'] = True
             self.fields['experimenter'].widget.attrs['class'] = 'disabled'
         
@@ -248,17 +241,6 @@ class ActiveGroupForm(forms.Form):
         except:
             self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
         self.fields.keyOrder = ['active_group']
-
-class HistoryTypeForm(forms.Form):
-    HISTORY_CHOICES = (
-        ('all', '---------'),
-        ('project', 'Projects'),
-        ('dataset', 'Datasets'),
-        ('image', 'Images'),
-        #('renderdef', 'Views'),
-    )
-    
-    data_type = forms.ChoiceField(choices=HISTORY_CHOICES,  widget=forms.Select(attrs={'onchange':'window.location.href=\'?history_type=\'+this.options[this.selectedIndex].value'}))
 
 
 class WellIndexForm(forms.Form):
@@ -288,7 +270,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['name'].widget.attrs['disabled'] = True 
             self.fields['name'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['name'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['name'].widget.attrs['disabled'] = True 
             self.fields['name'].widget.attrs['class'] = 'disabled-metadata'
@@ -302,7 +283,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['excitationWave'].widget.attrs['disabled'] = True 
             self.fields['excitationWave'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['excitationWave'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Excitation", required=False)
             self.fields['excitationWave'].widget.attrs['disabled'] = True 
             self.fields['excitationWave'].widget.attrs['class'] = 'disabled-metadata'
@@ -316,7 +296,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['emissionWave'].widget.attrs['disabled'] = True 
             self.fields['emissionWave'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['emissionWave'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Emission", required=False)
             self.fields['emissionWave'].widget.attrs['disabled'] = True 
             self.fields['emissionWave'].widget.attrs['class'] = 'disabled-metadata'
@@ -329,7 +308,6 @@ class MetadataChannelForm(forms.Form):
                 self.fields['ndFilter'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="ND filter [%]", required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True 
         except:
-            logger.error(traceback.format_exc())
             self.fields['ndFilter'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="ND filter [%]", required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True
         
@@ -341,7 +319,6 @@ class MetadataChannelForm(forms.Form):
                 self.fields['pinHoleSize'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="Pin hole size", required=False)
             self.fields['pinHoleSize'].widget.attrs['disabled'] = True 
         except:
-            logger.error(traceback.format_exc())
             self.fields['pinHoleSize'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Pin hole size", required=False)
             self.fields['pinHoleSize'].widget.attrs['disabled'] = True
         
@@ -353,7 +330,6 @@ class MetadataChannelForm(forms.Form):
                 self.fields['fluor'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), required=False)
             self.fields['fluor'].widget.attrs['disabled'] = True
         except:
-            logger.error(traceback.format_exc())
             self.fields['fluor'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['fluor'].widget.attrs['disabled'] = True
         
@@ -365,7 +341,6 @@ class MetadataChannelForm(forms.Form):
                 self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['illumination'].widget.attrs['disabled'] = True
         except:
-            logger.error(traceback.format_exc())
             self.fields['illumination'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['illumination'].widget.attrs['disabled'] = True
         
@@ -378,7 +353,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['contrastMethod'].widget.attrs['disabled'] = True 
             self.fields['contrastMethod'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['contrastMethod'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Contrast method", required=False)
             self.fields['contrastMethod'].widget.attrs['disabled'] = True 
             self.fields['contrastMethod'].widget.attrs['class'] = 'disabled-metadata'
@@ -392,7 +366,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['mode'].widget.attrs['disabled'] = True 
             self.fields['mode'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['mode'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['mode'].widget.attrs['disabled'] = True 
             self.fields['mode'].widget.attrs['class'] = 'disabled-metadata'
@@ -406,7 +379,6 @@ class MetadataChannelForm(forms.Form):
             self.fields['pockelCellSetting'].widget.attrs['disabled'] = True 
             self.fields['pockelCellSetting'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['pockelCellSetting'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Pockel cell" ,required=False)
             self.fields['pockelCellSetting'].widget.attrs['disabled'] = True 
             self.fields['pockelCellSetting'].widget.attrs['class'] = 'disabled-metadata'
@@ -428,7 +400,6 @@ class MetadataDichroicForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -442,7 +413,6 @@ class MetadataDichroicForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -456,7 +426,6 @@ class MetadataDichroicForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -470,7 +439,6 @@ class MetadataDichroicForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Lot number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -492,7 +460,6 @@ class MetadataMicroscopeForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -506,7 +473,6 @@ class MetadataMicroscopeForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -520,7 +486,6 @@ class MetadataMicroscopeForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -534,7 +499,6 @@ class MetadataMicroscopeForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -548,7 +512,6 @@ class MetadataMicroscopeForm(forms.Form):
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
@@ -570,7 +533,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -584,7 +546,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -598,7 +559,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -612,7 +572,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -626,7 +585,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['nominalMagnification'].widget.attrs['disabled'] = True 
             self.fields['nominalMagnification'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['nominalMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Nominal magnification", required=False)
             self.fields['nominalMagnification'].widget.attrs['disabled'] = True 
             self.fields['nominalMagnification'].widget.attrs['class'] = 'disabled-metadata'
@@ -640,7 +598,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['calibratedMagnification'].widget.attrs['disabled'] = True 
             self.fields['calibratedMagnification'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['calibratedMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Calibrated magnification", required=False)
             self.fields['calibratedMagnification'].widget.attrs['disabled'] = True 
             self.fields['calibratedMagnification'].widget.attrs['class'] = 'disabled-metadata'
@@ -654,7 +611,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['lensNA'].widget.attrs['disabled'] = True 
             self.fields['lensNA'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lensNA'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Lens NA", required=False)
             self.fields['lensNA'].widget.attrs['disabled'] = True 
             self.fields['lensNA'].widget.attrs['class'] = 'disabled-metadata'
@@ -668,7 +624,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['immersion'].widget.attrs['disabled'] = True 
             self.fields['immersion'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['immersion'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['immersion'].widget.attrs['disabled'] = True 
             self.fields['immersion'].widget.attrs['class'] = 'disabled-metadata'
@@ -682,7 +637,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['correction'].widget.attrs['disabled'] = True 
             self.fields['correction'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['correction'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['correction'].widget.attrs['disabled'] = True 
             self.fields['correction'].widget.attrs['class'] = 'disabled-metadata'
@@ -696,7 +650,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
             self.fields['workingDistance'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['workingDistance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Working distance", required=False)
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
             self.fields['workingDistance'].widget.attrs['class'] = 'disabled-metadata'
@@ -710,7 +663,6 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['iris'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disabled-metadata'
@@ -740,7 +692,6 @@ class MetadataObjectiveSettingsForm(MetadataObjectiveForm):
             self.fields['correctionCollar'].widget.attrs['disabled'] = True
             self.fields['correctionCollar'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['correctionCollar'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Correction collar", required=False)
             self.fields['correctionCollar'].widget.attrs['disabled'] = True
             self.fields['correctionCollar'].widget.attrs['class'] = 'disabled-metadata'
@@ -754,7 +705,6 @@ class MetadataObjectiveSettingsForm(MetadataObjectiveForm):
             self.fields['medium'].widget.attrs['disabled'] = True
             self.fields['medium'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['medium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['medium'].widget.attrs['disabled'] = True
             self.fields['medium'].widget.attrs['class'] = 'disabled-metadata'
@@ -768,7 +718,6 @@ class MetadataObjectiveSettingsForm(MetadataObjectiveForm):
             self.fields['refractiveIndex'].widget.attrs['disabled'] = True
             self.fields['refractiveIndex'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['refractiveIndex'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Refractive index", required=False)
             self.fields['refractiveIndex'].widget.attrs['disabled'] = True
             self.fields['refractiveIndex'].widget.attrs['class'] = 'disabled-metadata'
@@ -793,7 +742,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -807,7 +755,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -821,7 +768,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -835,7 +781,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Lot number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -849,7 +794,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['filterWheel'].widget.attrs['disabled'] = True 
             self.fields['filterWheel'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['filterWheel'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Filter wheel", required=False)
             self.fields['filterWheel'].widget.attrs['disabled'] = True 
             self.fields['filterWheel'].widget.attrs['class'] = 'disabled-metadata'
@@ -863,7 +807,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
@@ -877,7 +820,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['cutIn'].widget.attrs['disabled'] = True 
             self.fields['cutIn'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['cutIn'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Cut in", required=False)
             self.fields['cutIn'].widget.attrs['disabled'] = True 
             self.fields['cutIn'].widget.attrs['class'] = 'disabled-metadata'
@@ -891,7 +833,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['cutOut'].widget.attrs['disabled'] = True 
             self.fields['cutOut'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['cutOut'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Cut out", required=False)
             self.fields['cutOut'].widget.attrs['disabled'] = True 
             self.fields['cutOut'].widget.attrs['class'] = 'disabled-metadata'
@@ -905,7 +846,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['cutInTolerance'].widget.attrs['disabled'] = True 
             self.fields['cutInTolerance'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['cutInTolerance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Cut in tolerance", required=False)
             self.fields['cutInTolerance'].widget.attrs['disabled'] = True 
             self.fields['cutInTolerance'].widget.attrs['class'] = 'disabled-metadata'
@@ -919,7 +859,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['cutOutTolerance'].widget.attrs['disabled'] = True 
             self.fields['cutOutTolerance'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['cutOutTolerance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Cut out tolerance", required=False)
             self.fields['cutOutTolerance'].widget.attrs['disabled'] = True 
             self.fields['cutOutTolerance'].widget.attrs['class'] = 'disabled-metadata'
@@ -933,7 +872,6 @@ class MetadataFilterForm(forms.Form):
             self.fields['transmittance'].widget.attrs['disabled'] = True 
             self.fields['transmittance'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['transmittance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['transmittance'].widget.attrs['disabled'] = True 
             self.fields['transmittance'].widget.attrs['class'] = 'disabled-metadata'
@@ -957,7 +895,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -971,7 +908,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -985,7 +921,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -999,7 +934,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -1013,7 +947,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
@@ -1029,7 +962,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['gain'].widget.attrs['disabled'] = True 
             self.fields['gain'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['gain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['gain'].widget.attrs['disabled'] = True 
             self.fields['gain'].widget.attrs['class'] = 'disabled-metadata'
@@ -1045,7 +977,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['voltage'].widget.attrs['disabled'] = True 
             self.fields['voltage'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['voltage'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['voltage'].widget.attrs['disabled'] = True 
             self.fields['voltage'].widget.attrs['class'] = 'disabled-metadata'
@@ -1061,7 +992,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['offsetValue'].widget.attrs['disabled'] = True 
             self.fields['offsetValue'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['offsetValue'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Offset", required=False)
             self.fields['offsetValue'].widget.attrs['disabled'] = True 
             self.fields['offsetValue'].widget.attrs['class'] = 'disabled-metadata'
@@ -1075,7 +1005,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['zoom'].widget.attrs['disabled'] = True 
             self.fields['zoom'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['zoom'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['zoom'].widget.attrs['disabled'] = True 
             self.fields['zoom'].widget.attrs['class'] = 'disabled-metadata'
@@ -1089,7 +1018,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['amplificationGain'].widget.attrs['disabled'] = True 
             self.fields['amplificationGain'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['amplificationGain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Amplification gain", required=False)
             self.fields['amplificationGain'].widget.attrs['disabled'] = True 
             self.fields['amplificationGain'].widget.attrs['class'] = 'disabled-metadata'
@@ -1103,7 +1031,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['readOutRate'].widget.attrs['disabled'] = True 
             self.fields['readOutRate'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['readOutRate'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Read out rate", required=False)
             self.fields['readOutRate'].widget.attrs['disabled'] = True 
             self.fields['readOutRate'].widget.attrs['class'] = 'disabled-metadata'
@@ -1117,7 +1044,6 @@ class MetadataDetectorForm(forms.Form):
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['binning'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled-metadata'
@@ -1148,7 +1074,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
@@ -1162,7 +1087,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
@@ -1176,7 +1100,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -1190,7 +1113,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Lot number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
@@ -1204,7 +1126,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['power'].widget.attrs['disabled'] = True 
             self.fields['power'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['power'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['power'].widget.attrs['disabled'] = True 
             self.fields['power'].widget.attrs['class'] = 'disabled-metadata'
@@ -1218,7 +1139,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lstype'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Type", required=False)
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
@@ -1232,7 +1152,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['lmedium'].widget.attrs['disabled'] = True 
             self.fields['lmedium'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['lmedium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Medium", required=False)
             self.fields['lmedium'].widget.attrs['disabled'] = True 
             self.fields['lmedium'].widget.attrs['class'] = 'disabled-metadata'
@@ -1246,7 +1165,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['wavelength'].widget.attrs['disabled'] = True 
             self.fields['wavelength'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['wavelength'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['wavelength'].widget.attrs['disabled'] = True 
             self.fields['wavelength'].widget.attrs['class'] = 'disabled-metadata'
@@ -1260,7 +1178,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['frequencyMultiplication'].widget.attrs['disabled'] = True 
             self.fields['frequencyMultiplication'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['frequencyMultiplication'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Frequency Multiplication", required=False)
             self.fields['frequencyMultiplication'].widget.attrs['disabled'] = True 
             self.fields['frequencyMultiplication'].widget.attrs['class'] = 'disabled-metadata'
@@ -1274,7 +1191,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['tuneable'].widget.attrs['disabled'] = True 
             self.fields['tuneable'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['tuneable'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['tuneable'].widget.attrs['disabled'] = True 
             self.fields['tuneable'].widget.attrs['class'] = 'disabled-metadata'
@@ -1288,7 +1204,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['pulse'].widget.attrs['disabled'] = True 
             self.fields['pulse'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['pulse'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['pulse'].widget.attrs['disabled'] = True 
             self.fields['pulse'].widget.attrs['class'] = 'disabled-metadata'
@@ -1302,7 +1217,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['repetitionRate'].widget.attrs['disabled'] = True 
             self.fields['repetitionRate'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['repetitionRate'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Repetition rate", required=False)
             self.fields['repetitionRate'].widget.attrs['disabled'] = True 
             self.fields['repetitionRate'].widget.attrs['class'] = 'disabled-metadata'
@@ -1316,7 +1230,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['pockelCell'].widget.attrs['disabled'] = True 
             self.fields['pockelCell'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['pockelCell'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Pockel Cell", required=False)
             self.fields['pockelCell'].widget.attrs['disabled'] = True 
             self.fields['pockelCell'].widget.attrs['class'] = 'disabled-metadata'
@@ -1330,7 +1243,6 @@ class MetadataLightSourceForm(forms.Form):
         #    self.fields['attenuation'].widget.attrs['disabled'] = True 
         #    self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
         #except:
-        #    logger.error(traceback.format_exc())
         #    self.fields['attenuation'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
         #    self.fields['attenuation'].widget.attrs['disabled'] = True 
         #    self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
@@ -1354,7 +1266,6 @@ class MetadataEnvironmentForm(forms.Form):
             self.fields['temperature'].widget.attrs['disabled'] = True 
             self.fields['temperature'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['temperature'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['temperature'].widget.attrs['disabled'] = True 
             self.fields['temperature'].widget.attrs['class'] = 'disabled-metadata'
@@ -1368,7 +1279,6 @@ class MetadataEnvironmentForm(forms.Form):
             self.fields['airPressure'].widget.attrs['disabled'] = True 
             self.fields['airPressure'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['airPressure'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), label="Air Pressure", initial="N/A", required=False)
             self.fields['airPressure'].widget.attrs['disabled'] = True 
             self.fields['airPressure'].widget.attrs['class'] = 'disabled-metadata'
@@ -1382,7 +1292,6 @@ class MetadataEnvironmentForm(forms.Form):
             self.fields['humidity'].widget.attrs['disabled'] = True 
             self.fields['humidity'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['humidity'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['humidity'].widget.attrs['disabled'] = True 
             self.fields['humidity'].widget.attrs['class'] = 'disabled-metadata'
@@ -1396,7 +1305,6 @@ class MetadataEnvironmentForm(forms.Form):
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['co2percent'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="CO2 [%]", required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
@@ -1419,7 +1327,6 @@ class MetadataStageLabelForm(forms.Form):
             self.fields['positionx'].widget.attrs['disabled'] = True 
             self.fields['positionx'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position X", required=False)
             self.fields['positionx'].widget.attrs['disabled'] = True 
             self.fields['positionx'].widget.attrs['class'] = 'disabled-metadata'
@@ -1433,7 +1340,6 @@ class MetadataStageLabelForm(forms.Form):
             self.fields['positiony'].widget.attrs['disabled'] = True 
             self.fields['positiony'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position Y", required=False)
             self.fields['positiony'].widget.attrs['disabled'] = True 
             self.fields['positiony'].widget.attrs['class'] = 'disabled-metadata'
@@ -1447,7 +1353,6 @@ class MetadataStageLabelForm(forms.Form):
             self.fields['positionz'].widget.attrs['disabled'] = True 
             self.fields['positionz'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            logger.error(traceback.format_exc())
             self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position Z", required=False)
             self.fields['positionz'].widget.attrs['disabled'] = True 
             self.fields['positionz'].widget.attrs['class'] = 'disabled-metadata'

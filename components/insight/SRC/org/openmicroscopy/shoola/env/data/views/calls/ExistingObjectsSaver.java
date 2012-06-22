@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -59,11 +60,14 @@ public class ExistingObjectsSaver
 {
 
     /** Loads the specified tree. */
-    private BatchCall   call;
-    
-    
+    private BatchCall call;
+
     /** The result of the save action. */
-    private Object      result;
+    private Object result;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     
     /**
      * Creates a {@link BatchCall} to add the given children to the 
@@ -88,7 +92,7 @@ public class ExistingObjectsSaver
                 while (i.hasNext()) {
 					obj = i.next();
 					if (obj instanceof DataObject) {
-						os.addExistingObjects((DataObject) obj, children);
+						os.addExistingObjects(ctx, (DataObject) obj, children);
 					}
 				}
                 
@@ -118,12 +122,12 @@ public class ExistingObjectsSaver
                 	entry = (Entry) i.next();
                 	p = entry.getKey();
                 	if (p instanceof GroupData) {
-                		as.copyExperimenters((GroupData) p, (Collection)
+                		as.copyExperimenters(ctx, (GroupData) p, (Collection)
                                 entry.getValue());
                 	} else {
                 		if (p instanceof DataObject) {
-                            os.addExistingObjects((DataObject) p, (Collection)
-                                    entry.getValue());
+                            os.addExistingObjects(ctx,
+                            	(DataObject) p, (Collection) entry.getValue());
                         }
                 	}
                     
@@ -151,11 +155,11 @@ public class ExistingObjectsSaver
             {
             	if (admin) {
             		AdminService as = context.getAdminService();
-            		as.cutAndPasteExperimenters(toPaste, toRemove);
+            		as.cutAndPasteExperimenters(ctx, toPaste, toRemove);
                     result = toPaste;
             	} else {
             		OmeroDataService os = context.getDataService();
-                    os.cutAndPaste(toPaste, toRemove);
+                    os.cutAndPaste(ctx, toPaste, toRemove);
                     result = toPaste;
             	}
                 
@@ -182,35 +186,19 @@ public class ExistingObjectsSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
      * @param parent    The <code>DataObject</code> to update. Either a 
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
      */
-    public ExistingObjectsSaver(Collection parent, Collection children, 
-    		boolean admin)
+    public ExistingObjectsSaver(SecurityContext ctx, Collection parent,
+    	Collection children, boolean admin)
     {
         if (children == null || children.size() == 0)
             throw new IllegalArgumentException("No item to add.");
         if (parent == null)
             throw new IllegalArgumentException("No parent to update.");
-        /*
-        if (parent instanceof ProjectData) {
-            try {
-                children.toArray(new DatasetData[] {});
-            } catch (ArrayStoreException ase) {
-                throw new IllegalArgumentException(
-                        "items can only be datasets.");
-            }
-        } else if (parent instanceof DatasetData) {
-            try {
-                children.toArray(new ImageData[] {});
-            } catch (ArrayStoreException ase) {
-                throw new IllegalArgumentException(
-                        "items can only be images.");
-            }
-        } else
-            throw new IllegalArgumentException("parent object not supported");
-            */
+        this.ctx = ctx;
         call = makeBatchCall(parent, children, admin);
     }
 
@@ -219,13 +207,16 @@ public class ExistingObjectsSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param toPaste   The <code>DataObject</code>s to update. 
      * @param toRemove  The <code>DataObject</code>s to cut. 
      * @param admin 	Pass <code>true</code> to indicate to handle 
 	 * 					experimenters, <code>false</code> otherwise.
      */
-    public ExistingObjectsSaver(Map toPaste, Map toRemove, boolean admin)
+    public ExistingObjectsSaver(SecurityContext ctx, Map toPaste, Map toRemove,
+    		boolean admin)
     {
+    	this.ctx = ctx;
     	if (toPaste == null) toPaste = new HashMap();
         if (toRemove == null) call = makeBatchCall(toPaste);
         else call = makeBatchCall(toPaste, toRemove, admin);

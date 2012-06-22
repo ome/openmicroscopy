@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -60,11 +61,14 @@ public class ScriptsLoader
 	public static final int	DEFAULT_SCRIPTS = 2;
 	
 	/** Result of the call. */
-	private Object    	result;
+	private Object result;
 
 	/** Loads the specified tree. */
-	private BatchCall	loadCall;
+	private BatchCall loadCall;
 	
+	/** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a {@link BatchCall} to load the scripts.
 	 * 
@@ -77,7 +81,7 @@ public class ScriptsLoader
 			public void doCall() throws Exception
 			{
 				OmeroImageService svc = context.getImageService();
-				result = svc.loadAvailableScripts(userID);
+				result = svc.loadAvailableScripts(ctx, userID);
 			}
 		};
 	}
@@ -94,7 +98,7 @@ public class ScriptsLoader
 			public void doCall() throws Exception
 			{
 				OmeroImageService svc = context.getImageService();
-				result = svc.loadScript(scriptID);
+				result = svc.loadScript(ctx, scriptID);
 			}
 		};
 	}
@@ -118,12 +122,14 @@ public class ScriptsLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
-	 * @param id 	The id of the experimenter, the id of the script
-	 * 			 	or <code>-1</code>.
-	 * @param index	One of the constants defined by this class.
+	 * @param ctx The security context.
+	 * @param id The id of the experimenter, the id of the script 
+	 *           or <code>-1</code>.
+	 * @param index One of the constants defined by this class.
 	 */
-	public ScriptsLoader(long id, int index)
+	public ScriptsLoader(SecurityContext ctx, long id, int index)
 	{
+		this.ctx = ctx;
 		switch (index) {
 			case ALL_SCRIPTS:
 			case DEFAULT_SCRIPTS:
@@ -132,7 +138,6 @@ public class ScriptsLoader
 			case SINGLE_SCRIPT:
 				loadCall = makeLoadScriptBatchCall(id);
 		}
-		
 	}
 	
 }

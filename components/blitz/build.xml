@@ -42,6 +42,7 @@
                     <include name="omero/model/**"/>
 		    <include name="ome/services/blitz/impl/CloseableServant.java"/>
 		    <include name="ome/services/blitz/util/ConvertToBlitzExceptionMessage.java"/>
+		    <include name="ome/services/blitz/util/ObjectFactoryRegistry.java"/>
 		</myjavac>
 		<myjavac>
 		    <src path="${src.dir}"/>
@@ -106,8 +107,10 @@
 		<property name="gen.dir" value="${basedir}/generated"/>
 		<property name="comb.dir" value="${basedir}/target/combined"/>
 		<mkdir dir="${comb.dir}/omero/api"/>
+		<mkdir dir="${comb.dir}/omero/cmd"/>
 		<mkdir dir="${comb.dir}/omero/model"/>
 		<mkdir dir="${gen.dir}/omero/api"/>
+		<mkdir dir="${gen.dir}/omero/cmd"/>
 		<mkdir dir="${gen.dir}/omero/model"/>
 	</target>
 
@@ -124,19 +127,16 @@
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ObjectFactoryRegistrar.java">
+		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ModelObjectFactoryRegistry.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-
-		<!-- "combined" files which must be further parsed. be sure to generate ImageI.combined
-                last since that is our test for "newness"
-                -->
-		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${comb.dir}/FactoryMap.combined">
+		<dsl template="${resrc.dir}/templates/py_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.py">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
+
 		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${comb.dir}/{class-name}I.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
@@ -185,15 +185,6 @@
 				<selector refid="ifNewerThanOutput"/>
 			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1.ice"/>
-		</split-combined>
-		<!--
-		    This does the same for the factorymap.vm template.
-		-->
-		<split-combined todir="${gen.dir}" prefix="pyc">
-			<fileset dir="${comb.dir}" includes="FactoryMap.combined">
-				<selector refid="ifNewerThanOutput"/>
-			</fileset>
-			<regexpmapper from="FactoryMap.combined" to="omero/util/FactoryMap.py"/>
 		</split-combined>
 
 		<!--

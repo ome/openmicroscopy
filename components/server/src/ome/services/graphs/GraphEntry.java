@@ -304,6 +304,14 @@ public class GraphEntry {
         return Op.SOFT.equals(operation);
     }
 
+    /**
+     * Primarily used for passing back a string representation of the default
+     * operation to users for setting options.
+     */
+    public String getOpString() {
+        return operation.toString();
+    }
+
     //
     // GraphOpts interaction. Necessary since this instance hides its
     // "operation" field.

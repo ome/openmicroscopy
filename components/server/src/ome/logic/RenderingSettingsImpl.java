@@ -97,7 +97,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     protected transient IPixels pixelsMetadata;
 
     /**
-     * Returns the Id of the currently logged in user.
+     * Returns the Id of the currently logged in user. Opposed to ThumbnailBean,
+     * here we do not support share contexts since this service requires a viable
+     * write context which doesn't exist in shares.
+     *
      * @return See above.
      */
     private Long getCurrentUserId()
@@ -122,7 +125,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             && !PlateAcquisition.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
-        			"Class parameter for resetDefaultsInSet() must be in " +
+        			"Class parameter for changing settings must be in " +
         			"{Project, Dataset, Image, Plate, Screen, PlateAcquisition, " +
         			"Pixels}, not " + 
         				klass);
@@ -584,9 +587,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	
     	// Load our dependencies for rendering settings manipulation
     	StopWatch s1 = new CommonsLogStopWatch("omero.resetDefaultsInSet");
-        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        List<RenderingModel> renderingModels = 
-            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
     	List<Pixels> pixels = new ArrayList<Pixels>();
@@ -597,7 +598,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	// created rendering settings in the database.
     	Set<Long> imageIds = new HashSet<Long>();
     	if (pixels.size() == 0) return imageIds; //nothing retrieve.
-    	
+    	List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settings;
@@ -609,13 +613,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			settings = createNewRenderingDef(p);
     		}
     		try {
-			 RenderingDef newSettings =
-			     resetDefaults(settings, p, false, computeStats,
-							families, renderingModels);
-			 if (newSettings != null) {
-			     toSave.add(newSettings);
-			 }
-    			 imageIds.add(p.getImage().getId());
+    			RenderingDef newSettings =
+    				resetDefaults(settings, p, false, computeStats,
+    						families, renderingModels);
+    			if (newSettings != null) {
+    				toSave.add(newSettings);
+    			}
+    			imageIds.add(p.getImage().getId());
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
             } catch (ConcurrencyException e) {
@@ -628,9 +632,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
-        RenderingDef[] toSaveArray = 
-        	toSave.toArray(new RenderingDef[toSave.size()]);
-        iUpdate.saveAndReturnArray(toSaveArray);
+        if (toSave.size() > 0) {
+        	RenderingDef[] toSaveArray = 
+        		toSave.toArray(new RenderingDef[toSave.size()]);
+        	iUpdate.saveAndReturnArray(toSaveArray);
+        }
         s2.stop();
         s1.stop();
     	return imageIds;
@@ -1374,24 +1380,32 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetDefaultsByOwnerInSet(
             Class<T> klass, Set<Long> nodeIds)
     {
+    	checkValidContainerClass(klass);
         // Pre-process our list of potential containers. This will resolve down
         // to a list of Pixels objects for us to work on.
+    	 Set<Long> toReturn = new HashSet<Long>();
         List<Pixels> pixelsList = new ArrayList<Pixels>();
         updatePixelsForNodes(pixelsList, klass, nodeIds);
+        if (pixelsList.size() == 0)
+        	return toReturn;
         Map<Long, RenderingDef> ownerSettings =
             loadRenderingSettingsByOwner(pixelsList);
         Map<Long, RenderingDef> mySettings =
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
-        Set<Long> toReturn = new HashSet<Long>();
+       
+        RenderingDef def, from, to;
         for (Pixels pixels : pixelsList)
         {
-            RenderingDef from = ownerSettings.get(pixels.getId());
-            RenderingDef to = mySettings.get(pixels.getId());
+            from = ownerSettings.get(pixels.getId());
+            to = mySettings.get(pixels.getId());
             try
             {
-                toSave.add(applySettings(pixels, pixels, from, to));
-                toReturn.add(pixels.getImage().getId());
+            	def = applySettings(pixels, pixels, from, to);
+            	if (def != null) {
+            		toSave.add(def);
+            		toReturn.add(pixels.getImage().getId());
+            	}
             }
             catch (Exception e)
             {
@@ -1400,7 +1414,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                         "%s from %s to %s", pixels, from, to), e);
             }
         }
-        iUpdate.saveCollection(toSave);
+        if (toSave.size() > 0) iUpdate.saveCollection(toSave);
         return toReturn;
     }
 
@@ -1412,6 +1426,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetMinMaxInSet(Class<T> klass,
                                                           Set<Long> nodeIds)
     {
+    	checkValidContainerClass(klass);
         StopWatch s1 = new CommonsLogStopWatch("omero.resetMinMaxInSet");
         // Load our dependencies for rendering settings manipulation
         List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
@@ -1422,7 +1437,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         List<Pixels> pixelsList = new ArrayList<Pixels>();
         updatePixelsForNodes(pixelsList, klass, nodeIds);
         Set<Long> toReturn = new HashSet<Long>();
-        if (pixelsList.size() == 0) return toReturn; 
+        if (pixelsList.size() == 0) return toReturn;
+        
         Map<Long, RenderingDef> mySettings =
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
@@ -1439,10 +1455,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             {
                 try
                 {
-                    resetDefaults(settings, pixels, false, false, families,
-                                  renderingModels);
-                    toReturn.add(pixels.getId());
-                    toSave.add(settings);
+                    settings = resetDefaults(settings, pixels, false, false,
+                    		families, renderingModels);
+                    if (settings != null) {
+                    	toReturn.add(pixels.getId());
+                    	toSave.add(settings);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1468,7 +1486,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // IUpdate.touch() or similar once that functionality exists.
             settings.setVersion(settings.getVersion() + 1);
         }
-        iUpdate.saveCollection(toSave);
+        if (toSave.size() > 0) iUpdate.saveCollection(toSave);
         s1.stop();
         return toReturn;
     }

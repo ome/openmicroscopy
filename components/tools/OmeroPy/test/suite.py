@@ -28,6 +28,8 @@ def additional_tests():
     suite.addTest(load("t_parameters"))
     suite.addTest(load("t_permissions"))
     suite.addTest(load("t_tempfiles"))
+    suite.addTest(load("clitest.suite"))
+    suite.addTest(load("cmdtest.suite"))
     #suite.addTest(load("scriptstest.harness"))
     suite.addTest(load("clitest.suite._additional_tests"))
     suite.addTest(load("scriptstest.suite._additional_tests"))

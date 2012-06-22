@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -68,6 +69,15 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
+
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
 	
 	/** Is this figure read only. */
 	private boolean 			readOnly;
@@ -96,35 +106,16 @@ public class MeasureEllipseFigure
 	 */
 	private int 				status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
+	/** The units of reference.*/
+	private String refUnits;
+	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
-	}
-	
-	/** 
-	 * Creates a new instance.
-	 * 
-	 * @param text  The text of the ellipse. 
-	 * @param x     The x-coordinate of the figure. 
-	 * @param y     The y-coordinate of the figure.
-	 * @param width	The width of the figure. 
-	 * @param height The height of the figure. 
-	 * @param readOnly The figure is read only.
-     * @param clientObject the figure is a client object
-	 */
-	public MeasureEllipseFigure(String text, double x, double y, double width,
-			double height, boolean readOnly, boolean clientObject)
-	{
-		super(text, x, y, width, height);
-		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
-		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
-		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
-	   	shape = null;
-		roi = null;
-		status = IDLE;
-		setReadOnly(readOnly);
-		setClientObject(clientObject);
+		this(DEFAULT_TEXT);
 	}
 	
 	/** 
@@ -134,7 +125,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(String text)
 	{
-		this(text, 0, 0, 0, 0, false, true);
+		this(text, 0, 0, 0, 0, false, true, true, true, true);
 	}
 
 	/** 
@@ -142,11 +133,16 @@ public class MeasureEllipseFigure
 	 * 
 	 * @param readOnly Pass <code>true</code> if the ROI is read only, 
 	 * 				   <code>false</code> otherwise.
-     * @param isClientObject the figure is a client object
+     * @param isClientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject)
+	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(ROIFigure.DEFAULT_TEXT, 0, 0, 0, 0, readOnly, isClientObject);
+		this(ROIFigure.DEFAULT_TEXT, 0, 0, 0, 0, readOnly, isClientObject, 
+				editable, deletable, annotatable);
 	}
 	
 	/** 
@@ -159,30 +155,69 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(double x, double y, double width, double height)
 	{
-		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false, true);
+		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false, true,
+				true, true, true);
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param text  The text of the ellipse. 
+	 * @param x     The x-coordinate of the figure. 
+	 * @param y     The y-coordinate of the figure.
+	 * @param width	The width of the figure. 
+	 * @param height The height of the figure. 
+	 * @param readOnly The figure is read only.
+     * @param clientObject the figure is a client object.
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 */
+	public MeasureEllipseFigure(String text, double x, double y, double width,
+			double height, boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable)
+	{
+		super(text, x, y, width, height);
+		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+	   	shape = null;
+		roi = null;
+		status = IDLE;
+		setReadOnly(readOnly);
+		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 	
 	/** 
 	 * Returns the x-coordinate of the figure, 
-	 * convert to microns if <code>isInMicrons</code> is <code>true</code>. 
+	 * convert to the size in the reference units 
 	 * 
 	 * @return See above.
 	 */
 	public double getMeasurementX()
 	{
-		if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+		if (units.isInMicrons()) 
+			return UIUtilities.transformSize(
+					getX()*units.getMicronsPixelX()).getValue();
 		return getX();
 	}
 	
 	/** 
 	 * Returns the y-coordinate of the figure, 
-	 * convert to microns if <code>isInMicrons</code> is <code>true</code>. 
+	 * convert to the size in the reference units 
 	 * 
 	 * @return See above.
 	 */
 	public double getMeasurementY()
 	{
-		if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getY()*units.getMicronsPixelY()).getValue();
 		return getY();
 	}
 	
@@ -194,7 +229,9 @@ public class MeasureEllipseFigure
 	 */
 	public double getMeasurementWidth()
 	{
-		if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getWidth()*units.getMicronsPixelX()).getValue();
 		return getWidth();
 	}
 		
@@ -206,7 +243,9 @@ public class MeasureEllipseFigure
 	 */
 	public double getMeasurementHeight()
 	{
-		if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+		if (units.isInMicrons())
+			return UIUtilities.transformSize(
+					getHeight()*units.getMicronsPixelY()).getValue();
 		return getHeight();
 	}
 		
@@ -218,10 +257,13 @@ public class MeasureEllipseFigure
 	 */
 	public Point2D getMeasurementCentre()
 	{
-		if (units.isInMicrons()) 
-			return new Point2D.Double(getCentre().getX()
-				*units.getMicronsPixelX(), getCentre().getY()
-				*units.getMicronsPixelY());
+		if (units.isInMicrons()) {
+			double tx = UIUtilities.transformSize(
+					getCentre().getX()*units.getMicronsPixelX()).getValue();
+			double ty = UIUtilities.transformSize(
+					getCentre().getY()*units.getMicronsPixelY()).getValue();
+			return new Point2D.Double(tx, ty);
+		}
 		return getCentre();
 	}
 		
@@ -378,7 +420,7 @@ public class MeasureEllipseFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons()) 
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
@@ -471,6 +513,8 @@ public class MeasureEllipseFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 
 	/**
@@ -527,7 +571,7 @@ public class MeasureEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.transform(tx);
@@ -540,7 +584,7 @@ public class MeasureEllipseFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.setBounds(anchor, lead);
@@ -641,6 +685,7 @@ public class MeasureEllipseFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	
@@ -667,4 +712,38 @@ public class MeasureEllipseFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }

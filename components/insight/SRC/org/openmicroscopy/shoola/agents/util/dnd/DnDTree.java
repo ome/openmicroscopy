@@ -32,6 +32,7 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
@@ -142,6 +143,44 @@ public class DnDTree
 	/** The location of the drop.*/
 	private int dropLocation;
 	
+	/**
+	 * Auto-scrolls when dragging nodes.
+	 * 
+	 * @param tree The component to handle.
+	 * @param p The location of the cursor.
+	 */
+	private void autoscroll(JTree tree, Point p)
+	{
+		Insets insets = getAutoscrollInsets();
+		Rectangle outer = tree.getVisibleRect();
+		Rectangle inner = new Rectangle(
+				outer.x+insets.left,
+				outer.y+insets.top,
+				outer.width-(insets.left+insets.right),
+				outer.height-(insets.top+insets.bottom));
+		if (!inner.contains(p)) {
+			Rectangle scrollRect = new Rectangle(p.x-insets.left,
+					p.y-insets.top, insets.left+insets.right,
+					insets.top+insets.bottom);
+			tree.scrollRectToVisible(scrollRect);
+		}
+	}
+
+	/**
+	 * Returns the insets when auto-scrolling.
+	 * 
+	 * @return See above.
+	 */
+	private Insets getAutoscrollInsets()
+	{
+		int margin = 12;
+		Rectangle outer = getBounds();
+		Rectangle inner = getParent().getBounds();
+		return new Insets(inner.y-outer.y+margin, inner.x-outer.x+margin,
+		outer.height-inner.height-inner.y+outer.y+margin,
+		outer.width-inner.width-inner.x+outer.x+margin);
+	}
+	
 	/** 
 	 * Sets the cursor depending on the selected node.
 	 * 
@@ -156,12 +195,15 @@ public class DnDTree
 			parent = (TreeImageDisplay) node.getParent();
 		}
 		Object ot = parent.getUserObject();
+		/*
 		if (ot instanceof GroupData && !administrator) {
 			setCursor(createCursor());
 			dropAllowed = false;
 			return;
 		}
-		if (!isUserOwner(ot)) {
+		*/
+		if (!canLink(ot) &&
+				!(ot instanceof ExperimenterData || ot instanceof GroupData)) {
 			dropAllowed = false;
 			setCursor(createCursor());
 			return;
@@ -183,6 +225,15 @@ public class DnDTree
 				nodes.add((TreeImageDisplay) droppedObject);
 			}
 			if (nodes.size() == 0) return;
+			//Check the first node
+			TreeImageDisplay first = nodes.get(0);
+			Object child = first.getUserObject();
+			if (ot instanceof GroupData && child instanceof ExperimenterData &&
+				!administrator) {
+				setCursor(createCursor());
+				dropAllowed = false;
+				return;
+			}
 			List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 			Iterator<TreeImageDisplay> i = nodes.iterator();
 			TreeImageDisplay n;
@@ -195,11 +246,15 @@ public class DnDTree
 				if (parent.contains(n)) {
 					childCount++;
 				} else {
-					if (EditorUtil.isTransferable(ot, os)) {
+					if (EditorUtil.isTransferable(ot, os, userID)) {
 						if (ot instanceof GroupData) {
-							if (administrator) list.add(n);
+							if (os instanceof ExperimenterData &&
+									administrator) list.add(n);
+							else {
+								if (canLink(os)) list.add(n);
+							}
 						} else {
-							if (isUserOwner(os)) list.add(n);
+							if (canLink(os)) list.add(n);
 						}
 					}	
 				}
@@ -221,7 +276,7 @@ public class DnDTree
 	 * @param ho The object to handle.
 	 * @return See above.
 	 */
-	private boolean isUserOwner(Object ho)
+	private boolean canLink(Object ho)
 	{
 		if (ho instanceof TreeImageTimeSet) {
 			TreeImageDisplay n = EditorUtil.getDataOwner((TreeImageDisplay) ho);
@@ -397,6 +452,8 @@ public class DnDTree
 		TreePath path = getPathForLocation(dragPoint.x, dragPoint.y);
 		if (path == null) dropTargetNode = null; 
 		else dropTargetNode = (TreeNode) path.getLastPathComponent();
+		JTree tree = (JTree) dtde.getDropTargetContext().getComponent();
+		autoscroll(tree, dragPoint);
 		repaint();
 	}
 	
@@ -410,18 +467,24 @@ public class DnDTree
 		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
 		dropLocation = getRowForPath(path);
 		setCursor(defaultCursor);
-		if (!dropAllowed) {
-			dtde.rejectDrop();
-			repaint();
-			return;
-		}
-		Transferable transferable = dtde.getTransferable();
-		if (!transferable.isDataFlavorSupported(localFlavor)) {
-			dtde.rejectDrop();
-			repaint();
+		Transferable transferable;
+		try {
+			if (!dropAllowed) {
+				dtde.rejectDrop();
+				repaint();
+				return;
+			}
+			transferable = dtde.getTransferable();
+			if (!transferable.isDataFlavorSupported(localFlavor)) {
+				dtde.rejectDrop();
+				repaint();
+				return;
+			}
+		} catch (Exception e) {
 			return;
 		}
 		boolean dropped = false;
+		
 		try {
 			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
 			Object droppedObject = transferable.getTransferData(localFlavor);
@@ -452,7 +515,7 @@ public class DnDTree
 			//if (dropNode instanceof TreeImageDisplay) {
 				if (dropNode instanceof TreeImageDisplay)
 					parent = (TreeImageDisplay) dropNode;
-				if (dropNode.isLeaf()) {
+				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
 				int action = DnDConstants.ACTION_MOVE;
@@ -461,7 +524,14 @@ public class DnDTree
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			//}
 			dropped = true;
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			try {
+				dtde.rejectDrop();
+			} catch (Exception ex) {
+				//ignore
+			}
+			repaint();
+		}
 		dtde.dropComplete(dropped);
 		repaint();
 	}
@@ -512,7 +582,6 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {}
-	
 	
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
@@ -593,4 +662,5 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dragExit(DropTargetEvent dte) {}
+
 }

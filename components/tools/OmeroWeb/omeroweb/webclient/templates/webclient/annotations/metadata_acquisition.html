@@ -22,24 +22,8 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block script %}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    
     <script type="text/javascript">
-        var acquisition_loaded = function() 
-            {
+        $(document).ready(function(){
                 // hide any unset fields. 
                 var invalidRows = $(".metadata_details input:not([value])").parent().parent();
                 invalidRows.hide();
@@ -78,8 +62,6 @@
                     'delay': 300,
                     'loader': 'span.loading_series'
                 });
-                
-                $("#annotation_tabs").tabs();
 
                 
                 $('.can-collapse').click(function () {
@@ -90,19 +72,17 @@
                   $(this).removeClass('defclose').toggleClass('closed').next().hide();
                 });
 
-            }
-
+            });
     </script>
-    
-{% endblock %}
-
-{% block content %}
 
     <!-- METADATA "Acquisition" TAB -->
-    <div id="metadata_tab">
+	
+		
             
         {% if manager.well or manager.image%}
             
+			<div class="right_tab_inner">
+			
             {% if manager.companion_files %}
             <h1 class="can-collapse defclose">{% trans "Companion Files" %}</h1>                
                 <div>
@@ -111,7 +91,7 @@
                         <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
                             {{ fileann.getFileName|shortening:40 }}
                         </a>
-                        ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                        ({{ fileann.getFileSize|default:0|filesizeformat }})
                     </p>
                     {% endfor %}
                 </div>
@@ -125,7 +105,7 @@
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
                         <table id="global_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for gm in manager.global_metadata %}
@@ -140,7 +120,7 @@
                     <hr />
                     <h1>Series Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series"> <span class="loading_series"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
                         <table id="series_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for sm in manager.series_metadata %}
@@ -362,8 +342,9 @@
                 {% endif %}
             </div>
             {% endfor %}
+			
+			</div>
 
         {% endif %}
-    </div>
-
-{% endblock %}
+		
+		

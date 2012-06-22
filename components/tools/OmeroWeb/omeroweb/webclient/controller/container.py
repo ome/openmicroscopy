@@ -28,7 +28,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
 
-logger = logging.getLogger('web-container')
+logger = logging.getLogger(__name__)
 
 from webclient.controller import BaseController
 
@@ -137,6 +137,47 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
         if orphaned:
             self.orphaned = True
+            
+    def _get_object(self):
+        """
+        Since the container is often used to wrap a single Project, Dataset etc, several methods need access to 
+        the underlying object. E.g. obj_type(), obj_id(), canAnnotate(), canEdit().
+        This removes many if statements from the metadata_general.html template for places that are displaying
+        data for a single Object. E.g. Edit Name etc.
+        """
+        if self.project is not None: return self.project
+        if self.dataset is not None: return self.dataset
+        if self.image is not None: return self.image
+        if self.screen is not None: return self.screen
+        if self.plate is not None: return self.plate
+        if self.acquisition is not None: return self.acquisition
+        if self.well is not None: return self.well
+        if self.tag is not None: return self.tag
+        if self.file is not None: return self.file
+        
+    def obj_type(self):
+        if self.project is not None: return "project"
+        if self.dataset is not None: return "dataset"
+        if self.image is not None: return "image"
+        if self.screen is not None: return "screen"
+        if self.plate is not None: return "plate"
+        if self.acquisition is not None: return "acquisition"
+        if self.well is not None: return "well"
+        if self.tag is not None: return "tag"
+        if self.file is not None: return "file"
+
+    def obj_id(self):
+        obj = self._get_object()
+        return obj is not None and obj.id or None
+
+    def canAnnotate(self):
+        obj = self._get_object()
+        return obj is not None and obj.canAnnotate() or False
+
+    def canEdit(self):
+        obj = self._get_object()
+        return obj is not None and obj.canEdit() or None
+
 
     def openAstexViewerCompatible(self):
         """
@@ -177,6 +218,7 @@ class BaseContainer(BaseController):
         # TODO: hardcoded values.
         self.global_metadata = list()
         self.series_metadata = list()
+        self.companion_files =  list()
         if self.image is not None:
             om = self.image.loadOriginalMetadata()
         elif self.well.getWellSample().image is not None:
@@ -185,6 +227,18 @@ class BaseContainer(BaseController):
             self.original_metadata = om[0]
             self.global_metadata = om[1]
             self.series_metadata = om[2]
+        # Look for companion files on the Image
+        if self.image is not None:
+            comp_obj = self.image
+            p = self.image.getPlate()
+            # in SPW model, companion files can be found on Plate
+            if p is not None:
+                comp_obj = p
+            for ann in comp_obj.listAnnotations():
+                if hasattr(ann._obj, "file") and ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
+                    if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
+                        self.companion_files.append(ann)
+
 
     def channelMetadata(self):
         self.channel_metadata = None
@@ -215,78 +269,26 @@ class BaseContainer(BaseController):
         sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
         pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
         
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        im_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
+        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        im_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
         
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-            
-            for sc in sc_list:
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-        
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
-            
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-        
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters, 'screens':sc_list_with_counters, 'plates':pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
         
     def listImagesInDataset(self, did, eid=None, page=None):
         if eid is not None:
             self.experimenter = self.conn.getObject("Experimenter", eid)  
         
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
-        # Not displaying annotation icons (same as Insight). #5514.
-        #im_list_with_counters = list()
-        
-        #im_ids = [im.id for im in im_list]
-        #if len(im_ids) > 0:
-        #    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-        #    for im in im_list:
-        #        im.annotation_counter = im_annotation_counter.get(im.id)
-        #        im_list_with_counters.append(im)
-        
-        im_list_with_counters = im_list
-        im_list_with_counters.sort(key=lambda x: x.getName().lower())
-        self.containers = {'images': im_list_with_counters}
+        im_list.sort(key=lambda x: x.getName().lower())
+        self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
         if page is not None:
-            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+            self.paging = self.doPaging(page, len(im_list), self.c_size)
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
@@ -299,52 +301,15 @@ class BaseContainer(BaseController):
         sc_list = list(self.conn.listScreens(eid))
         pl_list = list(self.conn.listOrphans("Plate", eid))
 
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
-        
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-                
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-
-            for sc in sc_list:
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
-
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-
-        pr_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
 
         self.orphans = self.conn.countOrphans("Image", eid)
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'screens': sc_list, 'plates': pl_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
@@ -353,24 +318,12 @@ class BaseContainer(BaseController):
             eid = self.conn.getEventContext().userId
         
         im_list = list(self.conn.listOrphans("Image", eid=eid, page=page))
-        # Not displaying annotation icons (same as Insight). #5514.
-        #im_list_with_counters = list()
-        
-        #im_ids = [im.id for im in im_list]
-        #if len(im_ids) > 0:
-            #im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-            #for im in im_list:
-                #im.annotation_counter = im_annotation_counter.get(im.id)
-                #im_list_with_counters.append(im)
-        
-        im_list_with_counters = im_list
-        im_list_with_counters.sort(key=lambda x: x.getName().lower())
-        self.containers = {'orphaned': True, 'images': im_list_with_counters}
+        im_list.sort(key=lambda x: x.getName().lower())
+        self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
         
         if page is not None:
-            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+            self.paging = self.doPaging(page, len(im_list), self.c_size)
 
     # Annotation list
     def annotationList(self):
@@ -418,7 +371,7 @@ class BaseContainer(BaseController):
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
                     self.rating_annotations.append(ann)
                 elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
-                    if ann.getFileName != omero.constants.annotation.file.ORIGINALMETADATA:
+                    if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
                 else:
                     annTypes[annClass].append(ann)
@@ -432,55 +385,84 @@ class BaseContainer(BaseController):
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
-    
+    def canUseOthersAnns(self):
+        """
+        Test to see whether other user's Tags, Files etc should be provided for annotating.
+        Used to ensure that E.g. Group Admins / Owners don't try to link other user's Annotations
+        when in a private group (even though they could retrieve those annotations)
+        """
+        gid = self.conn.CONFIG.getOmeroGroup()
+        if gid is None:
+            return False
+        try:
+            group = self.conn.getObject("ExperimenterGroup", long(gid))
+        except:
+            return False
+        if group is None:
+            return False
+        perms = str(group.getDetails().getPermissions())
+        rv = False
+        if perms in ("rwrw--", "rwra--"):
+            return True
+        if perms == "rwr---" and (self.conn.isAdmin() or self.conn.isLeader(group.id)):
+            return True
+        return False
+
     def getTagsByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
+        def sort_tags(tag_gen):
+            tag_anns = list(tag_gen)
+            try:
+                tag_anns.sort(key=lambda x: x.getValue().lower())
+            except: pass
+            return tag_anns
+
         if self.image is not None:
-            return list(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.dataset is not None:
-            return list(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.project is not None:
-            return list(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:
-            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.plate is not None:
-            return list(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
-            return list(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
                 params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return list(self.conn.getObjects("TagAnnotation", params=params))
-            return list(self.conn.getObjects("TagAnnotation"))
+                return sort_tags(self.conn.getObjects("TagAnnotation", params=params))
+            return sort_tags(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
+        def sort_file_anns(file_ann_gen):
+            file_anns = list(file_ann_gen)
+            try:
+                file_anns.sort(key=lambda x: x.getFile().getName().lower())
+            except: pass
+            return file_anns
+        
         if self.image is not None:
-            return list(self.image.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.image.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.dataset is not None:
-            return list(self.dataset.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.dataset.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.project is not None:
-            return list(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.well is not None:
-            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.plate is not None:
-            return list(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
-            return list(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            if eid is not None:
-                params = omero.sys.Parameters()
-                params.theFilter = omero.sys.Filter()
-                params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return list(self.conn.listFileAnnotations(params=params))
-            return list(self.conn.listFileAnnotations())
+            return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
     # Creation
     
@@ -509,121 +491,15 @@ class BaseContainer(BaseController):
         if description is not None and description != "" :
             sc.description = rstring(str(description))
         return self.conn.saveAndReturnId(sc)
-    
-    # Comment annotation
-    def createCommentAnnotation(self, otype, content):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        ann = omero.model.CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-        l_ann.setParent(selfobject._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    # Tag annotation 
-    def createTagAnnotationOnly(self, tag, desc):
-        ann = None
-        try:
-            ann = self.conn.findTag(tag, desc)._obj
-        except:
-            pass
-        if ann is None:
-            ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
-            self.conn.saveObject(ann)
-     
-    def createTagAnnotation(self, otype, tag, desc):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-        
-        ann = None
-        try:
-            ann = self.conn.findTag(tag, desc)._obj
-        except:
-            pass
-        if ann is None:
-            ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))            
-            t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-            t_ann.setParent(selfobject._obj)
-            t_ann.setChild(ann)
-            self.conn.saveObject(t_ann)
-        else:
-            # Tag exists - check it isn't already linked to parent by this user
-            params = omero.sys.Parameters()
-            params.theFilter = omero.sys.Filter()
-            params.theFilter.ownerId = rlong(self.conn.getUser().id) # linked by current user
-            links = self.conn.getAnnotationLinks(otype, parent_ids=[selfobject.id], ann_ids=[ann.id.val], params=params)
-            links = list(links)
-            if len(links) == 0:     # current user has not already tagged this object
-                t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-                t_ann.setParent(selfobject._obj)
-                t_ann.setChild(ann)
-                self.conn.saveObject(t_ann)
-    
+
+
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"
         return file_type
-            
-    def createFileAnnotation(self, otype, newFile):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        format = self.checkMimetype(newFile.content_type)
-        
-        oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(smart_str(newFile.name)));
-        oFile.setPath(rstring(smart_str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = omero.model.FileAnnotationI()
-        fa.setFile(of)
-        l_ia = getattr(omero.model, otype+"AnnotationLinkI")()
-        l_ia.setParent(selfobject._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
-    
-    def createCommentAnnotations(self, content, oids):
+
+
+    def createCommentAnnotations(self, content, oids, well_index=0):
         ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
         ann = self.conn.saveAndReturnObject(ann)
@@ -634,7 +510,7 @@ class BaseContainer(BaseController):
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
@@ -645,11 +521,20 @@ class BaseContainer(BaseController):
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
-        
+
         if len(new_links) > 0 :
             self.conn.saveArray(new_links)
+        return self.conn.getObject("CommentAnnotation", ann.getId())
+
     
-    def createTagAnnotations(self, tag, desc, oids):
+    def createTagAnnotations(self, tag, desc, oids, well_index=0):
+        """
+        Creates a new tag (with description) OR uses existing tag with the specified name if found.
+        Links the tag to the specified objects.
+        @param tag:         Tag text/name
+        @param desc:        Tag description
+        @param oids:        Dict of Objects and IDs. E.g. {"Image": [1,2,3], "Dataset", [6]}
+        """
         ann = None
         try:
             ann = self.conn.findTag(tag, desc)
@@ -660,28 +545,48 @@ class BaseContainer(BaseController):
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
             ann = self.conn.saveAndReturnObject(ann)
-        
+
         new_links = list()
+        parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
                     else:
                         t = k.lower().title()
                         obj = ob
+                    parent_objs.append(obj)
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
+
         if len(new_links) > 0 :
-            self.conn.saveArray(new_links)
-    
-    def createFileAnnotations(self, newFile, oids):
+            # If we retrieved an existing Tag above, link may already exist...
+            try:
+                self.conn.saveArray(new_links)
+            except omero.ValidationException, x:
+                for l in new_links:
+                    try:
+                        self.conn.saveObject(l)
+                    except:
+                        pass
+        # if we only annotated a single object, return file-anns with link loaded
+        if len(parent_objs) == 1:
+            parent = parent_objs[0]
+            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=[ann.id])
+            lnk = links.next()
+            return lnk.getAnnotation()
+        # Each tag will have several new links - Just return the tag
+        return ann
+
+
+    def createFileAnnotations(self, newFile, oids, well_index=0):
         format = self.checkMimetype(newFile.content_type)
         
         oFile = omero.model.OriginalFileI()
@@ -699,95 +604,96 @@ class BaseContainer(BaseController):
         fa = self.conn.saveAndReturnObject(fa)
         
         new_links = list()
+        otype = None    # needed if we only have a single Object
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
                     else:
                         t = k.lower().title()
                         obj = ob
+                    otype = t
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
-            self.conn.saveArray(new_links)
-    
-    # Create links
-    def createAnnotationLinks(self, otype, atype, ids):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well.")
-        atype = str(atype).lower()
-        if not atype in ("tag", "comment", "file"):
-            raise AttributeError("Object type must be: tag, comment, file.")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        new_links = list()
-        for a in self.conn.getObjects("Annotation", ids):
-            ann = getattr(omero.model, otype+"AnnotationLinkI")()
-            ann.setParent(selfobject._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
+            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG)
         
-        failed = 0
-        try:
-            self.conn.saveArray(new_links)
-        except omero.ValidationException, x:
-            for l in new_links:
-                try:
-                    self.conn.saveObject(l)
-                except:
-                    failed+=1
-        return failed
-    
-    def createAnnotationsLinks(self, atype, tids, oids):
-        #TODO: check if link already exist !!!
+        # if we only annotated a single object, return file-ann with link loaded
+        if len(new_links) == 1:
+            links = self.conn.getAnnotationLinks (otype, ann_ids=[new_links[0].child.getId().getValue()])
+            fa_link = links.next()  # get first item in generator
+            fa = fa_link.getAnnotation()
+            return fa
+        return self.conn.getObject("FileAnnotation", fa.getId())
+
+
+    def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
+        """
+        Links existing annotations to 1 or more objects
+        
+        @param atype:       Annotation type E.g. "tag", "file"
+        @param tids:        Annotation IDs
+        @param oids:        Dict of Objects and IDs. E.g. {"Image": [1,2,3], "Dataset", [6]}
+        """
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
         
         new_links = list()
+        annotations = list(self.conn.getObjects("Annotation", tids))
+        parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
                 if k.lower() == 'acquisitions':
-                    t = 'PlateAcquisition'
+                    parent_type = 'PlateAcquisition'
                 else:
-                    t = k.lower().title()
-                for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
-                    for a in self.conn.getObjects("Annotation", tids):
+                    parent_type = k.lower().title()
+                parent_ids = [o.id for o in oids[k]]
+                # check for existing links
+                links = self.conn.getAnnotationLinks (parent_type, parent_ids=parent_ids, ann_ids=tids)
+                pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
+                # Create link between each object and annotation
+                for ob in self.conn.getObjects(parent_type, parent_ids):
+                    parent_objs.append(ob)
+                    for a in annotations:
+                        if (ob.id, a.id) in pcLinks:
+                            continue    # link already exists
                         if isinstance(ob._obj, omero.model.WellI):
-                            t = 'Image'
-                            obj = ob.getWellSample().image()
+                            parent_type = 'Image'
+                            obj = ob.getWellSample(well_index).image()
                         else:
                             obj = ob
-                        l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                        l_ann = getattr(omero.model, parent_type+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
         failed = 0
+        saved_links = []
         try:
-            self.conn.saveArray(new_links)            
+            # will fail if any of the links already exist
+            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG)
         except omero.ValidationException, x:
             for l in new_links:
                 try:
-                    self.conn.saveObject(l)
+                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.CONFIG))
                 except:
                     failed+=1
-        return failed
+
+        # if we only annotated a single object, return file-anns with link loaded
+        if len(parent_objs) == 1:
+            parent = parent_objs[0]
+            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=tids)
+            fas = [fa_link.getAnnotation() for fa_link in links]
+            return fas
+        # Each annotation will have several new links - Just return the annotations
+        return annotations
             
     ################################################################
     # Update
@@ -852,21 +758,8 @@ class BaseContainer(BaseController):
         else:
             container.description = None
         self.conn.saveObject(container)
-    
-    def saveCommentAnnotation(self, content):
-        ann = self.comment._obj
-        ann.textValue = rstring(str(content))
-        self.conn.saveObject(ann)
-    
-    def saveTagAnnotation(self, tag, description=None):
-        ann = self.tag._obj
-        ann.textValue = rstring(str(tag))
-        if description is not None and description != "" :
-            ann.description = rstring(str(description))
-        else:
-            ann.description = None
-        self.conn.saveObject(ann)
-    
+
+
     def move(self, parent, destination):
         if self.project is not None:
             return 'Cannot move project.'
@@ -998,16 +891,16 @@ class BaseContainer(BaseController):
     def remove(self, parent):
         if self.tag:
             for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.file:
             for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.comment:
             # remove the comment from specified parent
             for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
             # if comment is orphan, delete it directly
             orphan = True

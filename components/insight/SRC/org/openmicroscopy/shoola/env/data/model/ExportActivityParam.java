@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.io.File;
 import javax.swing.Icon;
 
+import org.openmicroscopy.shoola.env.data.util.Target;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -63,24 +65,37 @@ public class ExportActivityParam
     /** The icon associated to the parameters. */
     private Icon		icon;
 
+    /** The selected schema.*/
+    private Target target;
+    
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param folder The folder where to store the exported file.
 	 * @param image	 The image to export.
 	 * @param index	 One of the constants defined by this class.
+	 * @param target The selected schema.
 	 */
-	public ExportActivityParam(File folder, ImageData image, int index)
+	public ExportActivityParam(File folder, ImageData image, int index,
+			Target target)
 	{
 		if (image == null)
 			throw new IllegalArgumentException("No image to export");
 		if (folder == null)
 			throw new IllegalArgumentException("No image name");
+		this.target = target;
 		this.image = image;
 		this.folder = folder;
 		this.index = index;
 	}
 
+	/**
+	 * Returns the selected schema.
+	 * 
+	 * @return See above.
+	 */
+	public Target getTarget() { return target; }
+	
 	/**
 	 * Sets the icon associated to the activity.
 	 * 

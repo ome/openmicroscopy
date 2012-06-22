@@ -1,0 +1,42 @@
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp codebase="{{ codebase }}" href="{{ href }}">
+  <information>
+    <title>OMERO.insight</title>
+    <vendor>The Open Microscopy Environment</vendor>
+    <homepage href="http://openmicroscopy.org"/>
+    <icon href="{% static 'webstart/img/icon-omero-insight.png' %}"/>
+    <shortcut online="false">
+      <desktop/>
+    </shortcut>
+    <offline-allowed/>
+  </information>
+  <security>
+      <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.5+" max-heap-size="512m"/>{% for jar in jarlist %}
+    <jar href="{{jar}}"/>{% endfor %}
+  </resources>
+  <application-desc main-class="org.openmicroscopy.shoola.Main"/>
+</jnlp>
+

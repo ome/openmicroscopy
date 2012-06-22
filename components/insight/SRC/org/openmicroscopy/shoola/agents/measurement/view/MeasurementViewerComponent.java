@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -48,9 +50,9 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -68,6 +70,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
@@ -101,13 +104,13 @@ class MeasurementViewerComponent
 {
 	
 	/** The Model sub-component. */
-    private MeasurementViewerModel 		model;
+    private MeasurementViewerModel model;
 	
     /** The Control sub-component. */
-    private MeasurementViewerControl	controller;
+    private MeasurementViewerControl controller;
     
     /** The View sub-component. */
-    private MeasurementViewerUI          view;
+    private MeasurementViewerUI view;
     
     /**
      * Posts an event to indicating to add or remove the component 
@@ -120,7 +123,8 @@ class MeasurementViewerComponent
     {
     	MeasurementToolLoaded response = 
 			new MeasurementToolLoaded(
-					MeasurementViewerFactory.getRequest(model.getPixelsID()), 
+					MeasurementViewerFactory.getRequest(model.getPixelsID()),
+					model.getSecurityContext(),
 					model.getDrawingView(), index);
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		bus.post(response);
@@ -205,7 +209,7 @@ class MeasurementViewerComponent
     /** Saves the ROI (not asynchronously) and discards. */
     void saveAndDiscard()
     {
-    	model.saveROIToServer(false);
+    	model.saveROIToServer(false, false);
     	model.saveWorkflowToServer(false);	
     	discard();
     }
@@ -414,12 +418,15 @@ class MeasurementViewerComponent
 			TreeMap map = list.getList();
 			Iterator i = map.values().iterator();
 			ROIShape shape;
+			ROIFigure fig;
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
 				if (shape != null)
 				{
-					drawing.add(shape.getFigure());
-					shape.getFigure().addFigureListener(controller);
+					fig = shape.getFigure();
+					drawing.add(fig);
+					if (fig.canAnnotate())
+						fig.addFigureListener(controller);
 				}
 			}
 		}
@@ -507,34 +514,38 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#saveROIToServer()
+     * @see MeasurementViewer#saveROIToServer(boolean)
      */
-	public void saveROIToServer()
+	public void saveROIToServer(boolean close)
 	{
-		if (!isImageWritable()) return;
+		if (!canAnnotate()) return;
 		List<ROI> l = model.getROIToDelete();
 		if (l != null && l.size() > 0) {
 			List<DeletableObject> objects = new ArrayList<DeletableObject>();
 			Iterator<ROI> i = l.iterator();
 			ROI roi;
 			ROIData data;
+			SecurityContext ctx = model.getSecurityContext();
+			DeletableObject d;
 			while (i.hasNext()) {
 				roi = i.next();
-				if (!roi.isClientSide()) {
+				if (!roi.isClientSide() && roi.canDelete()) {
 					data = new ROIData();
 					data.setId(roi.getID());
 					data.setImage(model.getImage().asImage());
-					objects.add(new DeletableObject(data));
+					d = new DeletableObject(data);
+					d.setSecurityContext(ctx);
+					objects.add(d);
 				}
 			}
 			if (objects.size() == 0) {
-				model.saveROIToServer(true);
+				model.saveROIToServer(true, close);
 				//model.saveWorkflowToServer(true);
 			} else {
 				model.deleteAllROIs(objects);
 			}
 		} else {
-			model.saveROIToServer(true);
+			model.saveROIToServer(true, close);
 			//model.saveWorkflowToServer(true);
 		}
 		fireStateChange();
@@ -593,18 +604,55 @@ class MeasurementViewerComponent
 						"state: "+state);
 		}
 		model.setActiveChannels(activeChannels);
+		//Show or hide some shapes if they are visible on a channel or not
+		TreeMap<Long, ROI> rois = model.getROI();
+		Collection<ROIFigure> figures = model.getAllFigures();
+		ROIFigure figure, f;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapeMap;
 		
+		ROIShape shape;
+		Entry entry;
+		if (rois != null) {
+			Iterator j = rois.entrySet().iterator();
+			Iterator k;
+			Coord3D coord;
+			int c;
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				roi = (ROI) entry.getValue();
+				shapeMap = roi.getShapes();
+				k = shapeMap.entrySet().iterator();
+				while (k.hasNext()) {
+					entry = (Entry) k.next();
+					shape = (ROIShape) entry.getValue();
+					coord = shape.getCoord3D();
+					f = shape.getFigure();
+					c = coord.getChannel();
+					if (c >= 0) {
+						if (f.canAnnotate()) {
+							f.removeFigureListener(controller);
+							f.setVisible(model.isChannelActive(c));
+							f.addFigureListener(controller);
+						}
+					}
+				}
+			}
+			view.repaint();
+		}
 		if (!view.inDataView() || !view.isVisible()) return;
-		Collection<ROIFigure> collection = getSelectedFigures();
-		if (collection.size() != 1) return;
-		ROIFigure figure = collection.iterator().next();
+		figures = getSelectedFigures();
+		if (figures.size() != 1) return;
+		figure = figures.iterator().next();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
-		ROI roi = figure.getROI();
-		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-		while (shapeIterator.hasNext())
-			shapeList.add(shapeMap.get(shapeIterator.next()));
-		
+		roi = figure.getROI();
+		shapeMap = roi.getShapes();
+		Iterator j = shapeMap.entrySet().iterator();
+		while (j.hasNext()) {
+			entry = (Entry) j.next();
+			shapeList.add( (ROIShape) entry.getValue());
+		}
 		if (shapeList.size() != 0) analyseShapeList(shapeList);
 	}
 
@@ -682,7 +730,7 @@ class MeasurementViewerComponent
 			case ANALYSE_SHAPE:
 				return;
 		}
-		if(!validShapeList(shapeList))
+		if (!validShapeList(shapeList))
 			return;
 		
 		if (model.getActiveChannels().size() == 0) {
@@ -715,27 +763,6 @@ class MeasurementViewerComponent
 	public Collection getSelectedFigures()
 	{
 		return model.getSelectedFigures();
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#attachListeners(List)
-	 */
-	public void attachListeners(List<ROI> roiList)
-	{
-		ROI roi;
-		Iterator<ROIShape> shapeIterator;
-		ROIShape shape;
-		for (int i = 0; i < roiList.size(); i++)
-		{
-			roi = roiList.get(i);
-			shapeIterator = roi.getShapes().values().iterator();
-			while (shapeIterator.hasNext())
-			{
-				shape = shapeIterator.next();
-				shape.getFigure().addFigureListener(controller);
-			}
-		}
 	}
 	
 	/** 
@@ -820,7 +847,7 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result, true);
+				model.setServerROI(result);
 			} 	
 		} catch (Exception e) {
 			String s = "Cannot convert server ROI into UI objects:";
@@ -873,7 +900,7 @@ class MeasurementViewerComponent
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge
-				model.setServerROI(result, false);	
+				model.setServerROI(result);	
 			} else {
 				model.fireROILoading(null);
 				return;
@@ -946,34 +973,52 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isImageWritable()
+     * @see MeasurementViewer#canAnnotate()
      */
-	public boolean isImageWritable()
+	public boolean canAnnotate()
 	{
 		if (model.getState() == DISCARDED) return false;
 		//Check if current user can write in object
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		long id = exp.getId();
-		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
 		if (b) return b;
-		int level = 
-			MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				
-				
-				return true;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canAnnotate();
 		}
 		return false;
 	}
 	
 	/** 
-	 * Overridden to return the name of the instance to save. 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#canDelete()
+     */
+	public boolean canDelete()
+	{
+		if (model.getState() == DISCARDED) return false;
+		//Check if current user can write in object
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long id = exp.getId();
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
+		if (b) return b;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canDelete();
+		}
+		return false;
+	}
+	
+	/** 
+	 * Overridden to return the name of the instance to save.
 	 * @see #toString()
 	 */
-	public String toString() { return view.getTitle(); }
+	public String toString()
+	{ 
+		return "ROI for: "+EditorUtil.truncate(model.getImageName());
+	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -990,28 +1035,38 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#deleteAllROIs()
      */
-	public void deleteAllROIs()
+	public void deleteAllROIs(int level)
 	{
-		if (!isImageWritable()) return;
-		List<ROIData> list = model.getROIData();
-		//ROI owned by the current user.
+		if (!canDelete()) return;
+		List<ROIData> list;
+		if (model.isMember()) level = MeasurementViewer.ME;
+		list = model.getROIData(level);
+		if (list.size() == 0) return;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
 		ROIData roi;
+		SecurityContext ctx = model.getSecurityContext();
+		DeletableObject d;
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getId() > 0)
-				l.add(new DeletableObject(roi));
+			if (roi.getId() > 0) {
+				d = new DeletableObject(roi);
+				d.setSecurityContext(ctx);
+				l.add(d);
+			}
 		}
 		//if (l.size() == 0) return;
 		//clear view. and table.
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			List<ROIFigure> figures = model.removeAllROI(exp.getId());
-			//clear all tables.
-			view.deleteROIs(figures);
-			model.getROIComponent().reset();
+			List<ROIFigure> figures = model.removeAllROI(exp.getId(), level);
+			if (figures != null) {
+				//clear all tables.
+				view.deleteROIs(figures);
+				model.getROIComponent().reset();
+			}
+			
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");
@@ -1031,5 +1086,11 @@ class MeasurementViewerComponent
 		if (model.getState() == DISCARDED) return false;
 		return model.hasROIToDelete();
 	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#isMember()
+     */
+	public boolean isMember() { return model.isMember(); }
 	
 }

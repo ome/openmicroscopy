@@ -51,11 +51,11 @@ module omero {
 
     // END: TRANSFERRED FROM COLLECTIONS
 
-    /*
+    /**
      * Maps the ome.system.EventContext interface. Represents the
      * information known by the server security system about the
      * current user login.
-     */
+     **/
     class EventContext
     {
       long   shareId;
@@ -73,7 +73,7 @@ module omero {
       omero::model::Permissions groupPermissions;
     };
 
-    /*
+    /**
      * Provides common filters which MAY be applied to a
      * query. Check the documentation for the particular
      * method for more information on how these values will
@@ -98,7 +98,7 @@ module omero {
      *  start/endTime := (some) objects queried shoud have been
      *                   created and/or modified within time span.
      *
-     */
+     **/
     class Filter
     {
       omero::RBool  unique;
@@ -111,7 +111,7 @@ module omero {
       // omero::RBool  preferOwner; Not yet implemented
     };
 
-    /*
+    /**
      * Similar to Filter, provides common options which MAY be
      * applied on a given method. Check each interface's
      * documentation for more details.
@@ -125,7 +125,7 @@ module omero {
      *  acquisition...:= whether or not acquisitionData (objectives, etc.)
      *                  should be loaded
      *
-     */
+     **/
     class Options
     {
       omero::RBool  leaves;
@@ -133,9 +133,9 @@ module omero {
       omero::RBool  acquisitionData;
     };
 
-    /*
+    /**
      * Holder for all the parameters which can be taken to a query.
-     */
+     **/
     class Parameters
     {
       /*
@@ -148,9 +148,9 @@ module omero {
       Options theOptions;
     };
 
-    /*
+    /**
      * Principal used for login, etc.
-     */
+     **/
     class Principal
     {
       string name;
@@ -159,10 +159,10 @@ module omero {
       omero::model::Permissions umask;
     };
 
-    /*
+    /**
      * Server-constants used for determining particular groups and
      * users.
-     */
+     **/
     class Roles
     {
       // Root account

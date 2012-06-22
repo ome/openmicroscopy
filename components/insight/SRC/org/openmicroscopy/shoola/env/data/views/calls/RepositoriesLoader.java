@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -50,24 +51,26 @@ public class RepositoriesLoader
 {
 
 	/** Call to control if the files can be imported. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
 	/**
 	 * Creates a {@link BatchCall} to load the repositories.
 	 * 
+	 *  @param ctx The security context.
 	 * @param userID The id of the user.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final long userID)
+	private BatchCall makeBatchCall(final SecurityContext ctx, 
+			final long userID)
 	{
 		return new BatchCall("Loading repositories.") {
 			public void doCall() throws Exception
 			{
 				OmeroDataService service = context.getDataService();
-				result = service.getFSRepositories(userID);
+				result = service.getFSRepositories(ctx, userID);
 			}
 		};
 	}
@@ -87,11 +90,12 @@ public class RepositoriesLoader
     /** 
      * Creates a new instance. 
      * 
+     * @param ctx The security context.
      * @param userID The id of the user.
      */
-    public RepositoriesLoader(long userID)
+    public RepositoriesLoader(SecurityContext ctx, long userID)
     {
-    	loadCall = makeBatchCall(userID);
+    	loadCall = makeBatchCall(ctx, userID);
     }
     
 }

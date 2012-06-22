@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -96,14 +97,15 @@ public class RenderingControlLoader
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param index		One of the constants defined by this class.
      */
-    public RenderingControlLoader(Editor viewer, long pixelsID, int index)
+    public RenderingControlLoader(Editor viewer, SecurityContext ctx,
+    		long pixelsID, int index)
     {
-        super(viewer);
+        super(viewer, ctx);
         checkIndex(index);
         this.pixelsID = pixelsID;
         this.index = index;
@@ -115,7 +117,7 @@ public class RenderingControlLoader
      */
     public void load()
     {
-        handle = imView.loadRenderingControl(pixelsID, index, this);
+        handle = imView.loadRenderingControl(ctx, pixelsID, index, this);
     }
 
     /**
@@ -145,7 +147,9 @@ public class RenderingControlLoader
         	log.print(exc);
     		registry.getLogger().error(this, log);
     	}
-    	registry.getUserNotifier().notifyInfo("Loading Rendering data", msg);
+    	if (registry.getAdminService().isConnected())
+    		registry.getUserNotifier().notifyInfo("Loading Rendering data",
+    				msg);
     	viewer.setRenderingControl(null);
     	registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
     }

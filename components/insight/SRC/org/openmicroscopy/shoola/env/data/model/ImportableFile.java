@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import pojos.DatasetData;
+import pojos.GroupData;
 
 /** 
  * Store information about the file or folder to import.
@@ -47,6 +48,9 @@ import pojos.DatasetData;
  */
 public class ImportableFile
 {
+	
+	/** The group where to import the data. */
+	private GroupData group;
 	
 	/** The file or folder to import. */
 	private File file;
@@ -196,6 +200,20 @@ public class ImportableFile
 	public void setFile(File file) { this.file = file; }
 	
 	/**
+	 * Sets the group.
+	 * 
+	 * @param group The group where to import the data.
+	 */
+	public void setGroup(GroupData group) { this.group = group; }
+	
+	/**
+	 * Returns the group.
+	 * 
+	 * @return See above.
+	 */
+	public GroupData getGroup() { return group; }
+	
+	/**
 	 * Returns a copy of the object.
 	 * 
 	 * @return See above.
@@ -208,6 +226,7 @@ public class ImportableFile
 		newObject.parent = this.parent;
 		newObject.file = this.file;
 		newObject.refNode = this.refNode;
+		newObject.group = this.group;
 		newObject.status = new StatusLabel();
 		return newObject;
 	}

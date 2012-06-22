@@ -387,8 +387,8 @@ class IntensityResultsView
 	private void saveResults()
 	{
 		FileChooser chooser = view.createSaveToExcelChooser();
-		int option = chooser.showDialog();
-		if (option != JFileChooser.APPROVE_OPTION) return;
+		
+		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
 		try
 		{

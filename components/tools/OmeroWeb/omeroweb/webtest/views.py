@@ -1,12 +1,12 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
-from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webclient.views import isUserConnected
 from omeroweb.webadmin.custom_models import Server
 
-from webtest_utils import getSpimData
+from omeroweb.webclient.decorators import login_required
+from omeroweb.connector import Connector
+
 from cStringIO import StringIO
 
 import settings
@@ -15,8 +15,10 @@ import traceback
 import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
+import random
 
-logger = logging.getLogger('webtest')    
+
+logger = logging.getLogger(__name__)    
 
 
 try:
@@ -28,65 +30,40 @@ except: #pragma: nocover
         logger.error('No PIL installed, line plots and split channel will fail!')
 
 
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def dataset(request, datasetId, **kwargs):
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def dataset(request, datasetId, conn=None, **kwargs):
     """ 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb """
-    conn = kwargs['conn']
     ds = conn.getObject("Dataset", datasetId)     # before OMERO 4.3 this was conn.getDataset(datasetId)
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
+
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def index(request, conn=None, **kwargs):
+    # use Image IDs from request...
+    if request.REQUEST.get("Image", None):
+        imageIds = request.REQUEST.get("Image", None)
+        ids = [int(iid) for iid in imageIds.split(",")]
+        images = list(conn.getObjects("Image", ids))
+    else:
+        # OR find a random image and dataset to display & can be used in links to other pages
+        all_images = list(conn.getObjects("Image"))
+        img = random.choice(all_images)
+        images = [img]
     
-def login (request):
-    """
-    Attempts to get a connection to the server by calling L{omeroweb.webgateway.views.getBlitzConnection} with the 'request'
-    object. If a connection is created, the user is directed to the 'webtest_index' page. 
-    If a connection is not created, this method returns a login page.
+    imgIds = ",".join([str(img.getId()) for img in images])
     
-    @param request:     The django http request
-    @return:            The http response - webtest_index or login page
-    """
-    if request.method == 'POST' and request.REQUEST['server']:
-        blitz = Server.get(pk=request.REQUEST['server'])
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-    
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    logger.debug(conn)
-    if conn is not None:
-        return HttpResponseRedirect(reverse('webtest_index'))
-    return render_to_response('webtest/login.html', {'gw':Server})
+    all_datasets = list(conn.getObjects("Dataset"))
+    dataset = random.choice(all_datasets)
+
+    return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
 
-def logout (request):
-    _session_logout(request, request.session['server'])
-    try:
-        del request.session['username']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['password']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    
-    #request.session.set_expiry(1)
-    return HttpResponseRedirect(reverse('webtest_index'))
-
-
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def index(request, **kwargs):
-    conn = kwargs['conn']
-    return render_to_response('webtest/index.html', {'conn': conn})
-
-
-@isUserConnected
-def channel_overlay_viewer(request, imageId, **kwargs):
+@login_required()
+def channel_overlay_viewer(request, imageId, conn=None, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or different images
     and adjusting horizontal and vertical alignment of each
     """
-    conn = kwargs['conn']
-
     image = conn.getObject("Image", imageId)
     default_z = image.getSizeZ()/2
     
@@ -137,19 +114,19 @@ def channel_overlay_viewer(request, imageId, **kwargs):
         'image': image, 'channels':channels, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 
-@isUserConnected
-def render_channel_overlay (request, **kwargs):
+@login_required()
+def render_channel_overlay (request, conn=None, **kwargs):
     """
     Overlays separate channels (red, green, blue) from the same image or different images
     manipulating each indepdently (translate, scale, rotate etc? )
     """
-    conn = kwargs['conn']
-
     # request holds info on all the planes we are working on and offset (may not all be visible)
     # planes=0|imageId:z:c:t$x:shift_y:shift_rot:etc,1|imageId...
     # E.g. planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0&red=2&blue=0&green=1
     planes = {}
     p = request.REQUEST.get('planes', None)
+    if p is None:
+        return HttpResponse("Request needs plane info to render jpeg. E.g. ?planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0&red=2&blue=0&green=1")
     for plane in p.split(','):
         infoMap = {}
         plane_info = plane.split('|')
@@ -199,6 +176,10 @@ def render_channel_overlay (request, **kwargs):
         img.setActiveChannels((planeInfo['c']+1,))
         img.setGreyscaleRenderingModel()
         rgb = img.renderImage(planeInfo['z'], planeInfo['t'])
+
+        # somehow this line is required to prevent an error at 'rgb.split()'
+        rgb.save(StringIO(), 'jpeg', quality=90)
+
         r,g,b = rgb.split()  # go from RGB to L
 
         x,y = 0,0
@@ -243,146 +224,9 @@ def render_channel_overlay (request, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-@isUserConnected
-def metadata (request, iid, **kwargs):
-    from omeroweb.webclient.forms import MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
-                        MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
-                        MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm
-                        
-    conn = kwargs['conn']
-    
-    form_environment = None
-    form_objective = None
-    form_microscope = None
-    form_stageLabel = None
-    form_filters = list()
-    form_detectors = list()
-    form_channels = list()
-    form_lasers = list()
-    
-    image = conn.getObject("Image", iid)
-    om = image.loadOriginalMetadata()
-    global_metadata = sorted(om[1])
-    series_metadata = sorted(om[2])
-        
-        
-    for ch in image.getChannels():
-        if ch.getLogicalChannel() is not None:
-            channel = dict()
-            channel['form'] = MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
-                                    'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
-                                    'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
-                                    'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-            channel['form_emission_filters'] = list()
-            if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                    channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
-            channel['form_excitation_filters'] = list()
-            if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                    channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
-                                    
-            if ch.getLogicalChannel().getDetectorSettings()._obj is not None:
-                channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
-                                    'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-            if ch.getLogicalChannel().getLightSourceSettings()._obj is not None:      
-                channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings(),
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
-                                    'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                    'pulses': list(conn.getEnumerationEntries("PulseI"))})
-            if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic()._obj:
-                channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
-            channel['name'] = ch.getName()
-            channel['color'] = ch.getColor().getHtml()
-            form_channels.append(channel)
-            
-    if image.getObjectiveSettings() is not None:
-        form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(), 
-                                'mediums': list(conn.getEnumerationEntries("MediumI")), 
-                                'immersions': list(conn.getEnumerationEntries("ImmersionI")), 
-                                'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
-    if image.getImagingEnvironment() is not None:
-        form_environment = MetadataEnvironmentForm(initial={'image': image})
-    if image.getStageLabel() is not None:
-        form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
-    if image.getInstrument() is not None:
-        if image.getInstrument().getMicroscope() is not None:
-            form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
-
-        if image.getInstrument().getFilters() is not None:
-            filters = list(image.getInstrument().getFilters())    
-            for f in filters:
-                form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
-                form_filters.append(form_filter)
-    
-        if image.getInstrument().getDetectors() is not None:
-            detectors = list(image.getInstrument().getDetectors())    
-            for d in detectors:
-                form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                form_detectors.append(form_detector)
-    
-        if image.getInstrument().getLightSources() is not None:
-            lasers = list(image.getInstrument().getLightSources())
-            for l in lasers:
-                form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
-                                'types':list(conn.getEnumerationEntries("FilterTypeI")), 
-                                'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                form_lasers.append(form_laser)
-
-    # Annotations #
-    text_annotations = list()
-    long_annotations = {'rate': 0.00 , 'votes': 0}
-    url_annotations = list()
-    file_annotations = list()
-    tag_annotations = list()
-    
-    from omero.model import CommentAnnotationI, LongAnnotationI, TagAnnotationI, FileAnnotationI
-                            
-    for ann in image.listAnnotations():
-        if isinstance(ann._obj, CommentAnnotationI):
-            text_annotations.append(ann)
-        elif isinstance(ann._obj, LongAnnotationI):
-            long_annotations['votes'] += 1
-            long_annotations['rate'] += int(ann.longValue)
-        elif isinstance(ann._obj, FileAnnotationI):
-            file_annotations.append(ann)
-        elif isinstance(ann._obj, TagAnnotationI):
-            tag_annotations.append(ann)
-
-    txannSize = len(text_annotations)
-    urlannSize = len(url_annotations)
-    fileannSize = len(file_annotations)
-    tgannSize = len(tag_annotations)
-    if long_annotations['votes'] > 0:
-        long_annotations['rate'] /= long_annotations['votes']
-    
-    return render_to_response('webtest/metadata.html', {'image': image, 'text_annotations': text_annotations, 'txannSize':txannSize, 'long_annotations': long_annotations, 'url_annotations': url_annotations, 'urlannSize':urlannSize, 'file_annotations': file_annotations, 'fileannSize':fileannSize, 'tag_annotations': tag_annotations, 'tgannSize':tgannSize, 'global_metadata':global_metadata, 'serial_metadata':series_metadata, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel})
-    
-@isUserConnected
-def roi_viewer(request, roi_library, imageId, **kwargs):
-    """
-    Displays an image, using 'jquery.drawinglibrary.js' to draw ROIs on the image. 
-    """
-    conn = kwargs['conn']
-    
-    image = conn.getObject("Image", imageId)
-    default_z = image.getSizeZ()/2
-    
-    templates = {"processing":'webtest/roi_viewers/processing_viewer.html',
-            "jquery": "webtest/roi_viewers/jquery_drawing.html",
-            "raphael":"webtest/roi_viewers/raphael_viewer.html"}
-    
-    template = templates[roi_library]
-    
-    return render_to_response(template, {'image':image, 'default_z':default_z})
-
-
-@isUserConnected
-def add_annotations (request, **kwargs):
+@login_required()
+def add_annotations (request, conn=None, **kwargs):
     """
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
     to variables in the http request. 
@@ -395,9 +239,6 @@ def add_annotations (request, **kwargs):
                             
     @return:            A simple html page with a success message 
     """
-    
-    conn = kwargs['conn']
-    
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
@@ -435,8 +276,8 @@ def add_annotations (request, **kwargs):
     return render_to_response('webtest/util/add_annotations.html', {'images':images, 'comment':comment})
     
 
-@isUserConnected
-def split_view_figure (request, **kwargs):
+@login_required()
+def split_view_figure (request, conn=None, **kwargs):
     """
     Generates an html page displaying a number of images in a grid with channels split into different columns. 
     The page also includes a form for modifying various display parameters and re-submitting
@@ -449,13 +290,11 @@ def split_view_figure (request, **kwargs):
     
     @return:            The http response - html page displaying split view figure.  
     """
-    
-    conn = kwargs['conn']
-    
     query_string = request.META["QUERY_STRING"]
     
     
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
+    idList = request.REQUEST.get('Image', idList)    # we also support 'Image'
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
     else:
@@ -479,7 +318,10 @@ def split_view_figure (request, **kwargs):
     def getChannelData(image):
         channels = []
         i = 0;
-        for i, c in enumerate(image.getChannels()):
+        channel_data = image.getChannels()
+        if channel_data is None:    # E.g. failed import etc
+            return None
+        for i, c in enumerate(channel_data):
             name = request.REQUEST.get('cName%s' % i, c.getLogicalChannel().getName())
             # if we have channel info from a form, we know that checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cName%s' % i, None):
@@ -504,13 +346,15 @@ def split_view_figure (request, **kwargs):
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":iId, "z":default_z, "name": image.getName() })
-        if channels == None:
+        if channels is None:
             channels = getChannelData(image)
         if height == 0:
             height = image.getSizeY()
         if width == 0:
             width = image.getSizeX()
     
+    if channels is None:
+        return HttpResponse("Couldn't load channels for images")
     size = {"height": height, "width": width}
     c_strs = []
     if channels:    # channels will be none when page first loads (no images)
@@ -532,12 +376,13 @@ def split_view_figure (request, **kwargs):
         # turn merged channels on in the last image
         c_strs.append( ",".join(mergedFlags) )
     
-    return render_to_response('webtest/demo_viewers/split_view_figure.html', {'images':images, 'c_strs': c_strs,'imageIds':idList,
+    template = kwargs.get('template', 'webtest/demo_viewers/split_view_figure.html')
+    return render_to_response(template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
-@isUserConnected
-def dataset_split_view (request, datasetId, **kwargs):
+@login_required()
+def dataset_split_view (request, datasetId, conn=None, **kwargs):
     """
     Generates a web page that displays a dataset in two panels, with the option to choose different
     rendering settings (channels on/off) for each panel. It uses the render_image url for each
@@ -552,21 +397,13 @@ def dataset_split_view (request, datasetId, **kwargs):
     
     @return:            The http response - html page displaying split view figure.
     """
-    
-    conn = kwargs['conn']
-        
     dataset = conn.getObject("Dataset", datasetId)
     
     try:
-        w = request.REQUEST.get('width', 100)
-        width = int(w)
+        size = request.REQUEST.get('size', 100)
+        size = int(size)
     except:
-        width = 100
-    try:
-        h = request.REQUEST.get('height', 100)
-        height = int(h)
-    except:
-        height = 100
+        size = 100
         
     # returns a list of channel info from the image, overridden if values in request
     def getChannelData(image):
@@ -598,9 +435,10 @@ def dataset_split_view (request, datasetId, **kwargs):
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":image.getId(), "z":default_z, "name": image.getName() })
-    
-    size = {'width':width, 'height':height}
-    
+
+    if channels is None:
+        return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
+
     indexes = range(1, len(channels)+1)
     c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
 
@@ -620,21 +458,18 @@ def dataset_split_view (request, datasetId, **kwargs):
     c_left = ",".join(leftFlags)
     c_right = ",".join(rightFlags)
     
-    return render_to_response('webtest/demo_viewers/dataset_split_view.html', {'dataset': dataset, 'images': images, 
+    template = kwargs.get('template', 'webtest/webclient_plugins/dataset_split_view.html')
+
+    return render_to_response(template, {'dataset': dataset, 'images': images, 
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
-@isUserConnected
-def image_dimensions (request, imageId, **kwargs):
+@login_required()
+def image_dimensions (request, imageId, conn=None, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
-    E.g. x-axis = Time, y-axis = Channel. 
-    If the image has spim data, then combine images with different SPIM angles to provide an additional
-    dimension. Also get the SPIM data from various XML annotations and display on page. 
+    E.g. x-axis = Time, y-axis = Channel.
     """
-        
-    conn = kwargs['conn']
-    
     image = conn.getObject("Image", imageId)
     if image is None:
         return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
@@ -643,11 +478,6 @@ def image_dimensions (request, imageId, **kwargs):
     dims = {'Z':image.getSizeZ(), 'C': image.getSizeC(), 'T': image.getSizeT()}
     
     default_yDim = 'Z'
-    
-    spim_data = getSpimData(conn, image)
-    if spim_data is not None:
-        dims['Angle'] = len(spim_data['images'])
-        default_yDim = 'Angle'
     
     xDim = request.REQUEST.get('xDim', 'T')
     if xDim not in dims.keys():
@@ -680,36 +510,30 @@ def image_dimensions (request, imageId, **kwargs):
                 theC = x
             if xDim == 'T':
                 theT = x
-            if xDim == 'Angle':
-                iid = spim_data['images'][x].id
             if yDim == 'Z':
                 theZ = y
             if yDim == 'C':
                 theC = y
             if yDim == 'T':
                 theT = y
-            if yDim == 'Angle':
-                iid = spim_data['images'][y].id
                 
             grid[y].append( (iid, theZ, theC is not None and theC+1 or None, theT) )
     
         
     size = {"height": 125, "width": 125}
     
-    return render_to_response('webtest/demo_viewers/image_dimensions.html', {'image':image, 'spim_data':spim_data, 'grid': grid, 
+    return render_to_response('webtest/demo_viewers/image_dimensions.html', {'image':image, 'grid': grid, 
         "size": size, "mode":mode, 'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 
         'xFrames':xFrames, 'yFrames':yFrames})
 
 
-@isUserConnected
-def image_viewer (request, iid, **kwargs):
-    """ This view is responsible for showing pixel data as images """
-    
-    conn = kwargs['conn']
-    
-    kwargs['viewport_server'] = '/webclient'
-    
-    return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
+@login_required()
+def image_rois (request, imageId, conn=None, **kwargs):
+    """ Simply shows a page of ROI thumbnails for the specified image """
+    roiService = conn.getRoiService()
+    result = roiService.findByImage(long(imageId), None)
+    roiIds = [r.getId().getValue() for r in result.rois]
+    return render_to_response('webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
 
 
 def common_templates (request, base_template):
@@ -717,3 +541,14 @@ def common_templates (request, base_template):
     template_name = 'webtest/common/%s.html' % base_template
     from django.template import RequestContext
     return render_to_response(template_name, context_instance=RequestContext(request))
+
+@login_required()
+def image_viewer (request, iid=None, conn=None, **kwargs):
+    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
+    
+    if iid is None:
+        iid = request.REQUEST.get('image')
+
+    template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
+    
+    return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)

@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
@@ -60,15 +61,15 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadHierarchy(Class, List, long, long,
+     * @see HierarchyBrowsingView#loadHierarchy(SecurityContext, Class, List, long, long,
      *                                      AgentEventListener)
      */
-    public CallHandle loadHierarchy(Class rootNodeType, List nodesID, 
-                                    long userID, long groupID,
-                                    AgentEventListener observer)
+    public CallHandle loadHierarchy(SecurityContext ctx, Class rootNodeType,
+    		List nodesID, long userID, long groupID,
+    		AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodesID, userID, 
-        		groupID);
+        BatchCallTree cmd = new HierarchyLoader(ctx, rootNodeType, nodesID,
+        		userID, groupID);
         return cmd.exec(observer);
     }
     
@@ -77,23 +78,24 @@ class HierarchyBrowsingViewImpl
      * @see HierarchyBrowsingView#loadThumbnails(Collection, int, int, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadThumbnails(Collection<DataObject> images, 
-    								int maxWidth, int maxHeight, long userID,
-                                    int type, AgentEventListener observer)
+    public CallHandle loadThumbnails(SecurityContext ctx,
+    	Collection<DataObject> images, int maxWidth, int maxHeight, long userID,
+        int type, AgentEventListener observer)
     {
-    	BatchCallTree cmd = new ThumbnailSetLoader(images, maxHeight, type);
+    	BatchCallTree cmd = new ThumbnailSetLoader(ctx, images, maxHeight, type);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadImagesAsThumbnails(Collection, long,
+     * @see HierarchyBrowsingView#loadImagesAsThumbnails(SecurityContext, Collection, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadImagesAsThumbnails(Collection<DataObject> images, 
-    								long userID, AgentEventListener observer)
+    public CallHandle loadImagesAsThumbnails(SecurityContext ctx,
+    	Collection<DataObject> images, long userID,
+    	AgentEventListener observer)
     {
-        BatchCallTree cmd = new ThumbnailLoader(images, userID);
+        BatchCallTree cmd = new ThumbnailLoader(ctx, images, userID);
         return cmd.exec(observer);
     }
 

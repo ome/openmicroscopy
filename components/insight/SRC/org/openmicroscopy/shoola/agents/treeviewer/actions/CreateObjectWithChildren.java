@@ -66,7 +66,7 @@ public class CreateObjectWithChildren
 	/** 
 	 * Name of the action if the selected node is a <code>Dataset</code>.
 	 */
-	private static final String NAME_DATASET = "New Dataset...";
+	private static final String NAME_DATASET = "New Dataset From Selection...";
 	
 	/** 
 	 * Description of the action if the selected node is a <code>Dataset</code>.
@@ -138,7 +138,7 @@ public class CreateObjectWithChildren
 			case DATASET:
 				if (ho instanceof ImageData) {
 					for (int i = 0; i < selection.length; i++) {
-						if (model.isUserOwner(selection[i].getUserObject()))
+						if (model.canAnnotate(selection[i].getUserObject()))
 								count++;
 					}
 					setEnabled(count == selection.length);

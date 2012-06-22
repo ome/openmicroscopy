@@ -22,17 +22,28 @@
 -->
 {% endcomment %}
 
+{% block title %}
+OMERO Users
+{% endblock %}
+
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+	<![endif]-->
+	
+	
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
     
-    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -43,9 +54,19 @@
                 } );
                 $('input#id_search').quicksearch('table#experimenterTable tbody tr', {
                     'delay': 300,
-                    'loader': 'span.loading'     
+                    'loader': 'span.loading'
                 });
-        })
+                $("#webadmin_main_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+            })
     </script>
     
     
@@ -53,61 +74,87 @@
 
 {% block center_details %}
 {{ block.super }}
-    <h1>{% trans "Scientists" %}</h1>
-    
-    <div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanageexperimenterid "new" %}">{% trans "Add new scientist" %}</a></div>
-    
-    {% if controller.experimentersCount %}
 
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">{% trans "Filter:" %}</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+<div id="webadmin_main_tabs">
 
-    <table id="experimenterTable" class="tablesorter">
+    <ul>
+        <li id="experimenters_tab"><a href="#experimenters_content" title="Edit Users">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+    </ul>
+
+    <div id="experimenters_content">
+        
+    {% if experimenterList %}
+        
+    <div class="one_column_header">
+        <form class="search filtersearch" id="filtersearch" action="#">
+            <input type="text" id="id_search">
+            <input type="submit" value="Go" /> 
+            <span class="loading">
+                <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+            </span>
+        </form>
+        
+        <div class="btn blue"><a href="{% url wamanageexperimenterid "new" %}"><span>{% trans "Add new User" %}</span></a></div>
+        
+    </div>
+   
+
+    <table id="experimenterTable" class="tablesorter tablesorter_basic">
         <thead> 
             <tr>
-                <th class="action">{% trans "ID" %}</th>
-                <th class="link">{% trans "Full name" %}</th> 
-                <th class="link">{% trans "Username" %}</th>
-                <th class="desc">{% trans "Institution" %}</th>
-                <th class="roles">{% trans "Roles" %}</th>
+                <th>{% trans "ID" %}</th>
+                <th>{% trans "Full name" %}</th> 
+                <th>{% trans "Username" %}</th>
+                <th>{% trans "Institution" %}</th>
+                <th>{% trans "Roles" %}</th>
+                <th></th>
             </tr> 
         </thead> 
         <tbody>
-        {% for dict in controller.experimenters %}
+        {% for experimenter in experimenterList %}
             <tr>
-                <td class="action">
-                    {{ dict.experimenter.id }}
-                    {% if dict.experimenter.isEditable %}<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
-                        <img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit">
-                    </a>{% endif %}
+                <td>
+                    {{ experimenter.id }}
                 </td>
-                <td class="link">{{ dict.experimenter.getFullName }}</td>
-                <td class="link">{{ dict.experimenter.omeName }}</td>
-                <td class="desc">{{ dict.experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
-                <td class="roles">
-                      {% if dict.admin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
-                      {% if dict.guest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
-                      {% if dict.ldap %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
-                      {% if dict.active %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
+                <td>{{ experimenter.getFullName }}</td>
+                <td>{{ experimenter.omeName }}</td>
+                <td>{{ experimenter.institution|default:"-"|truncatewords:"3" }}</td>
+                <td>
+                      {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
+                      {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
+                      {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+                      {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
                 </td>
+                <td>
+                    {% if experimenter.isEditable %}
+                    <a href="{% url wamanageexperimenterid "edit" experimenter.id %}" title="Edit User" class="btn silver btn_edit">
+                        <span></span>
+                    </a>
+                    {% endif %}
+                </td>
+                
             </tr>
         {% endfor %}
       </tbody>
     </table>
-
+    
     {% else %}
     <p>{% trans "No scientists in OMERO." %}</p>
     {% endif %}
+    </div>
 
+</div>
 {% endblock %}
 
 {% block metadata_details %}
 
-    <h1>{% trans "Legend" %}:</h1>
-    <div><img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active</div>
-    
-    <h1>{% trans "Summary" %}</h1>
-    <p>Currently there are <strong>{{ controller.experimentersCount.experimenters }} {% plural controller.experimentersCount.experimenters 'account' 'accounts' %}</strong> in total including following roles: {{ controller.experimentersCount.active }} active, {{ controller.experimentersCount.admin }} admin, {{ controller.experimentersCount.guest }} guest, {{ controller.experimentersCount.ldap }} ldap.
-    </p>
-
-    
+    <div>
+        <img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; 
+        <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; 
+        <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; 
+        <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; 
+        <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active;
+    <div>
+        
 {% endblock %}

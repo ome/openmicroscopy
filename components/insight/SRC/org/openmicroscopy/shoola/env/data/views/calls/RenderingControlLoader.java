@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -64,12 +65,18 @@ public class RenderingControlLoader
 	/** Indicates to reload the rendering engine. */
 	public static final int RESET = 2;
 	
+	/** Indicates to reload the rendering engine. */
+	public static final int SHUTDOWN = 3;
+	
 	/** Result of the call. */
-	private Object    	result;
+	private Object result;
 
 	/** Loads the specified tree. */
-	private BatchCall	loadCall;
+	private BatchCall loadCall;
 
+	/** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a {@link BatchCall} to retrieve rendering control.
 	 * 
@@ -87,15 +94,18 @@ public class RenderingControlLoader
 				switch (index) {
 					default:
 					case LOAD:
-						result = rds.loadRenderingControl(pixelsID);
+						result = rds.loadRenderingControl(ctx, pixelsID);
 						break;
 					case RELOAD:
-						result = rds.reloadRenderingService(pixelsID);
+						result = rds.reloadRenderingService(ctx, pixelsID);
 						break;
 					case RESET:
-						result = rds.resetRenderingService(pixelsID);
+						result = rds.resetRenderingService(ctx, pixelsID);
+						break;
+					case SHUTDOWN:
+						rds.shutDown(ctx, pixelsID);
 				}
-				if (result == null) {
+				if (result == null && index != SHUTDOWN) {
 					throw new DSOutOfServiceException("Cannot start the " +
 							"rendering engine for pixelsID "+pixelsID);
 				}
@@ -122,13 +132,15 @@ public class RenderingControlLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
 	 * @param index		One of the constants defined by this class.
 	 */
-	public RenderingControlLoader(long pixelsID, int index)
+	public RenderingControlLoader(SecurityContext ctx, long pixelsID, int index)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("ID not valid.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(pixelsID, index);
 	}
 

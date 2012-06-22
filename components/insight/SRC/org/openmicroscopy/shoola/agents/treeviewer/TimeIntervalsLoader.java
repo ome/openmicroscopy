@@ -31,6 +31,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -63,12 +64,14 @@ public class TimeIntervalsLoader
      * 
      * @param viewer The viewer this loader is for. 
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param node   The node hosting the time interval to browse.
      *               Mustn't be <code>null</code>.
      */
-    public TimeIntervalsLoader(TreeViewer viewer, TreeImageTimeSet node)
+    public TimeIntervalsLoader(TreeViewer viewer, SecurityContext ctx,
+    		TreeImageTimeSet node)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
@@ -82,7 +85,7 @@ public class TimeIntervalsLoader
     {
     	long id = TreeViewerAgent.getUserDetails().getId();
     	TimeRefObject ref = node.getTimeObject(id);
-    	handle = dhView.loadImages(ref.getStartTime(), ref.getEndTime(), 
+    	handle = dhView.loadImages(ctx, ref.getStartTime(), ref.getEndTime(),
     			ref.getUserID(), this);
     }
 

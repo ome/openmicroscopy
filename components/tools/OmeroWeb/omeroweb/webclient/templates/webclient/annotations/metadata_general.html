@@ -1,8 +1,8 @@
-{% extends "common/base/base_frame.html" %}
+
+
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
-{% load wikitags %}
 
 
 {% comment %}
@@ -25,100 +25,45 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-    
-{% endblock %}
-
-{% block script %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-  
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
-
-    <script type="text/javascript">        
-        $(document).ready(function() 
+    <script type="text/javascript">
+        
+        $(document).ready(function()
             {
-                {% if manager.image.isOwned %}
-                $( "#imagename-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.image.id %}', '{% url manage_action_containers "savename" "image" manager.image.id %}', "imagename-{{ manager.image.id }}" );
-                $( "#imagedescription-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.image.id %}', "imagedescription-{{ manager.image.id }}" );                
-                {% endif %}
+                jQuery.fn.tooltip_init = function() {
+                    $(this).tooltip({
+                        bodyHandler: function() {
+                                return $(this).parent().children("span.tooltip_html").html();
+                            },
+                        track: true,
+                        delay: 0,
+                        showURL: false,
+                        fixPNG: true,
+                        showBody: " - ",
+                        top: 10,
+                        left: -100
+                    });
+                  return this;
+                };
+
+                $("#comments_container").hide_if_empty();
+                $("#fileanns_container").hide_if_empty();
+                $("#tags_container").hide_if_empty();
                 
-                {% if manager.dataset.isOwned %}
-                $( "#datasetname-{{ manager.dataset.id }} img" ).editable('{% url manage_action_containers "editname" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savename" "dataset" manager.dataset.id %}', "datasetname-{{ manager.dataset.id }}" );
-                $( "#datasetdescription-{{ manager.dataset.id }} img" ).editable('{% url manage_action_containers "editdescription" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savedescription" "dataset" manager.dataset.id %}', "datasetdescription-{{ manager.dataset.id }}" );                
-                {% endif %}
-                
-                {% if manager.project.isOwned %}
-                $( "#projectname-{{ manager.project.id }} img" ).editable('{% url manage_action_containers "editname" "project" manager.project.id %}', '{% url manage_action_containers "savename" "project" manager.project.id %}', "projectname-{{ manager.project.id }}" );
-                $( "#projectdescription-{{ manager.project.id }} img" ).editable('{% url manage_action_containers "editdescription" "project" manager.project.id %}', '{% url manage_action_containers "savedescription" "project" manager.project.id %}', "projectdescription-{{ manager.project.id }}" );                
-                {% endif %}
-                
-                {% if manager.well.isOwned %}
-                $( "#wellname-{{ manager.well.getWellSample.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savename" "image" manager.well.getWellSample.image.id %}', "wellname-{{ manager.well.getWellSample.image.id }}" );
-                $( "#welldescription-{{ manager.well.getWellSample.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.well.getWellSample.image.id %}', "welldescription-{{ manager.well.getWellSample.image.id }}" );                
-                {% endif %}
-                
-                {% if manager.acquisition.isOwned %}
-                $( "#acquisitionname-{{ manager.acquisition.id }} img" ).editable('{% url manage_action_containers "editname" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savename" "acquisition" manager.acquisition.id %}', "acquisitionname-{{ manager.acquisition.id }}" );                
-                $( "#acquisitiondescription-{{ manager.acquisition.id }} img" ).editable('{% url manage_action_containers "editdescription" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savedescription" "acquisition" manager.acquisition.id %}', "acquisitiondescription-{{ manager.acquisition.id }}" );             
-                               
-                {% endif %}
-                
-                {% if manager.plate.isOwned %}
-                $( "#platename-{{ manager.plate.id }} img" ).editable('{% url manage_action_containers "editname" "plate" manager.plate.id %}', '{% url manage_action_containers "savename" "plate" manager.plate.id %}', "platename-{{ manager.plate.id }}" );
-                $( "#platedescription-{{ manager.plate.id }} img" ).editable('{% url manage_action_containers "editdescription" "plate" manager.plate.id %}', '{% url manage_action_containers "savedescription" "plate" manager.plate.id %}', "platedescription-{{ manager.plate.id }}" );                
-                {% endif %}
-                
-                {% if manager.screen.isOwned %}
-                $( "#screenname-{{ manager.screen.id }} img" ).editable('{% url manage_action_containers "editname" "screen" manager.screen.id %}', '{% url manage_action_containers "savename" "screen" manager.screen.id %}', "screenname-{{ manager.screen.id }}" );
-                $( "#screendescription-{{ manager.screen.id }} img" ).editable('{% url manage_action_containers "editdescription" "screen" manager.screen.id %}', '{% url manage_action_containers "savedescription" "screen" manager.screen.id %}', "screendescription-{{ manager.screen.id }}" );                
-                {% endif %}
-                
-                {% if manager.tag.isOwned %}
-                $( "#tagname-{{ manager.tag.id }} img" ).editable('{% url manage_action_containers "editname" "tag" manager.tag.id %}', '{% url manage_action_containers "savename" "tag" manager.tag.id %}', "tagname-{{ manager.tag.id }}" );
-                $( "#tagdescription-{{ manager.tag.id }} img" ).editable('{% url manage_action_containers "editdescription" "tag" manager.tag.id %}', '{% url manage_action_containers "savedescription" "tag" manager.tag.id %}', "tagdescription-{{ manager.tag.id }}" );                
+                {% if manager.canEdit %}
+                $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}',
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}',
+                        "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
+                $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}',
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}',
+                        "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
                 var acquisition_load = false;
                 var preview_load = false;
                 var hierarchy_load = false;
-                
-                $('#annotation_tabs').tabs();
-                
-                $('#acquisition').click(function() {
-                    var $tab = $("#metadata_tab");
-                    var href = $("#acquisition-link").attr('href');
-                    if (!acquisition_load) {
-                        $tab.load(href, function() {
-                            acquisition_loaded();
-                        });
-                        acquisition_load = true;
-                    }
-                });
-                
-                $('#preview').click(function() {
-                    var $tab = $("#preview_tab");
-                    var href = $("#preview-link").attr('href');
-                    if (!preview_load) {
-                        $tab.load(href, function() {
-                            preview_loaded();
-                        });
-                        preview_load = true;
-                    }
-                });
+
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
@@ -134,7 +79,7 @@
                 $("#custom_annotations td span").hide() // hide the tool tip source elements
                 $("#custom_annotations td").tooltip({ 
                     bodyHandler: function() { 
-                            return $(this).children("span").html(); 
+                            return $("span.tooltip_html", $(this)).html(); 
                         },
                     track: true, 
                     delay: 0, 
@@ -145,18 +90,7 @@
                     left: -100 
                 });
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
-                $(".tooltip").tooltip({
-                    bodyHandler: function() {
-                            return $(this).parent().children("span").html();
-                        },
-                    track: true,
-                    delay: 0,
-                    showURL: false,
-                    fixPNG: true,
-                    showBody: " - ",
-                    top: 10,
-                    left: -100
-                });
+                $(".tooltip").tooltip_init();
 
                 $(".show_xml").next().hide();   // hide any XML annotation blocks
                 // display in a new window      
@@ -179,6 +113,7 @@
                 })
                 {% endif %}
 
+
                 // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
                 var removeItem = function(event, domClass) {
@@ -187,8 +122,9 @@
                     var annId = parseInt(removeId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
+                    var url = '{% url manage_action_containers "remove" %}'+ dType +'/'+ annId +'/';
                     var $parent = $(event.target).parents("."+domClass);
+                    var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
@@ -196,17 +132,17 @@
                                     type: "POST",
                                     url: url,
                                     data: {'parent':parentId},
-                                    contentType:'json',
+									contentType: 'application/javascript',
+                                    dataType: 'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
+                                            //console.log("Success function");
                                             $parent.remove();
+                                            $annContainer.hide_if_empty();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot remove object.");
                                     }
                                 });
                             }
@@ -215,15 +151,35 @@
                     return false;
                 }
 
+                // handle submit of Add Comment form
+                $("#add_comment_form").ajaxForm({
+                    beforeSubmit: function(data) {
+                        var textArea = $('#add_comment_form textarea');
+                        if ($.trim(textArea.val()).length == 0) return false;
+                    },
+                    success: function(html) {
+                        var $comment = $(html)
+                        $('#comments_container').prepend( $comment ).show();
+                        $(".removeComment", $comment).click(function(event) {
+                            removeItem(event, "ann_comment_wrapper");
+                        });
+                        var textArea = $('#add_comment_form textarea');
+                        textArea.val('');
+                    },
+                });
+
                 // bind removeItem to various [-] buttons
                 $(".removeComment").click(function(event) {
                     removeItem(event, "ann_comment_wrapper");
+                    return false;
                 });
                 $(".removeTag").click(function(event) {
                     removeItem(event, "tag_annotation_wrapper");
+                    return false;
                 });
                 $(".removeFile").click(function(event) {
                     removeItem(event, "file_ann_wrapper");
+                    return false;
                 });
                 
                 var deleteItem = function(event, domClass) {
@@ -232,26 +188,26 @@
                     var annId = parseInt(deleteId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
+                    var url = '{% url manage_action_containers "delete" %}'+ dType +'/'+ annId +'/';
                     var $parent = $(event.target).parents("."+domClass);
+                    var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Delete '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 $.ajax({
                                     type: "POST",
                                     url: url,
-                                    contentType:'json',
+                                    contentType: 'application/javascript',
+									dataType:'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
                                             $parent.remove();
-                                            window.parent.refreshProgressBar();
+                                            $annContainer.hide_if_empty();
+                                            window.parent.refreshActivities();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot delete object.");
                                     }
                                 });
                             }
@@ -263,36 +219,117 @@
                 $(".deleteFile").click(function(event) {
                     deleteItem(event, "file_ann_wrapper");
                 });
+                
+                $(".dropdown_menu .menu_launch").click(function(e){
+                    $(this).parent().find('ul').css('visibility', 'visible');
+                    $(this).parent().find('.dropdown_menu_options').show();
+                    return false;
+                });
+                // on hover-out of the menu itself, hide drop-down menus
+                $(".dropdown_menu_options").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                }).hide();
+
+
+                // Choose to add tags...
+                $("#launch_tags_form").click(function(event) {
+                    $("#add_tags_form").dialog("open");
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("#add_tags_form").load(load_url);
+                    return false;
+                });
+                // set-up the tags form to use dialog
+                $("#add_tags_form").dialog({
+                    autoOpen: false,
+                    resizable: false,
+                    height: 450,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#add_tags_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#add_tags_form').ajaxForm({
+                    success: function(data) {
+                        $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
+                        // update the list of tags
+                        var $tag = $(data);
+                        $("#tags_container").prepend($tag).hide_if_empty();
+                        $(".removeTag", $tag).click(function(event) {
+                            removeItem(event, "tag_annotation_wrapper");
+                        });
+                        $(".tooltip", $tag).tooltip_init();
+                    }
+                });
+
+
+                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+                $('#choose_attachments_form').ajaxForm({
+                    beforeSubmit: function(data) {
+                        $("#batch_attachments_form").dialog( "close" );
+                        $("#fileann_spinner").show();
+                    },
+                    success: function(data) {
+                        $("#fileann_spinner").hide();
+                        // update the list of file annotations and bind actions
+                        var $fileanns = $(data)
+                        $("#fileanns_container").prepend( $fileanns ).show();
+                        $(".deleteFile", $fileanns).click(function(event) {
+                            deleteItem(event, "file_ann_wrapper");
+                        });
+                        $(".removeFile", $fileanns).click(function(event) {
+                            removeItem(event, "file_ann_wrapper");
+                        });
+                        $(".tooltip", $fileanns).tooltip_init();
+                    },
+                    error: function(data){
+                        $("#fileann_spinner").hide();
+                        alert(data.response);
+                    }
+                });
+                // prepare dialog for choosing file to attach...
+                $("#choose_attachments_form").dialog({
+                    autoOpen: false,
+                    resizable: false,
+                    height: 420,
+                    width:360,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#choose_attachments_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // show dialog for choosing file to attach...
+                $("#choose_file_anns").click(function() {
+                    // show dialog first, then do the AJAX call to load files...
+                    var attach_form = $( "#choose_attachments_form" );
+                    attach_form.dialog( "open" );
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    attach_form.load(load_url);
+                    return false;
+                });
 
             });
             
     </script>
-    
-{% endblock %}
 
-{% block body %}
 
-{% comment %}
-    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
-    {% include "webtest/webtest-toolbar-include.html" %}
-{% endcomment %}
 
-<div style="clear:both"></div>
-
-<div id="annotation_form" >
-    <div id="annotation_tabs" class="ui-tabs">
-        <ul>
-            {% if manager.tag %}
-                <li><a href="#metadata_tab">{% trans "General" %}</a></li>
-            {% else %}
-                <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-                {% if manager.image or manager.well %}
-                    <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
-                    <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
-                {% endif %}
-            {% endif %}
-        </ul>
-        <div class="clear"></div>        
         
         <div id='parent-id' style="display:none">
             {% if manager.image %}image-{{ manager.image.id}}{% else %}
@@ -308,47 +345,34 @@
                 {% endif %}
             {% endif %}
         </div>
-        
-        {% if manager.image %}
-        <!-- VIEWER "Preview"-->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
-        </div>
-        {% endif %}
-        {% if manager.well %}
-        <!-- VIEWER "Preview" -->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
-        </div>
-        {% endif %}
-        
-        
-        <!-- METADATA "Acquisition" TAB  - only show for images -->
-        {% if manager.image %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
-        </div>
-        {% endif %}
-        {% if manager.well %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
-        </div>
-        {% endif %}
-                
-        
+
+
         {% if not manager.tag %}
-        <!-- ANNOTATIONS "General" -->
-        <div id="annotation_tab">
-            {% if manager.image %}            
-            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
+        
+		
+		<!-- ANNOTATIONS "General" -->
+        <div id="general_tab" class="right_tab_inner" >
+           
+		    {% if manager.image %}            
+            {% if manager.image.canEdit %}
+				<div class="data_heading" id="imagename-{{ manager.image.id }}">
+					<h1>
+						<span id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</span>
+					</h1>
+					<button class="btn silver btn_edit" alt="e" title="edit">
+						<span></span>
+					</button>
+						
+					{% comment %}
+					<img src="{% static "webclient/image/color_line12.png" %}" /> 
+					{% endcomment %}
+					
+				</div>{% else %}
+				
+				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
-            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>
+            	<h2 id='image_id'><strong>Image ID:</strong> {{ manager.image.id }}</h2>
+				
             <!-- open-image link -->
             <div style="padding-bottom:6px">
                 {% if manager.image.countArchivedFiles %}
@@ -359,28 +383,65 @@
                         </a>
                     </div>
                 {% endif %}
-                {% trans "Launch full viewer" %} 
-                <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
-                    <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
-                </a>
+				
+				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"
+				        title="Open full image viewer in new window">
+					<span>
+	                {% trans "Launch full viewer" %} 
+					</span>
+				</button>
+				
                 {% if manager.openAstexViewerCompatible %}
-                | Volume viewer
-                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')">
-                    <img src="{% static "webclient/image/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
-                </a>
+                
+                <button class="btn silver btn_text" href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
+                        title="Open with Open Astex Viewer">
+					<span>
+	                {% trans "Volume viewer" %} 
+					</span>
+				</button>
                 {% endif %}
+				
             </div>
-                    
+                  
+				  
+				  
+				  
+				  
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+				  
+				  
+				  
+				  
+			<!-- Image Description -->	    
             <div class="description">
-                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.image.canEdit %}
+					<div class="data_heading" id="imagedescription-{{ manager.image.id }}">
+						<p>
+						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default:"Add Description"|linebreaksbr}}</span>
+						<button class="btn silver btn_edit" alt="e" title="edit">
+							<span></span>
+						</button>
+						</p>
+					</div>
+					
+					{% else %}
+					<span id='image_desc'>{{ manager.image.description|default:""|linebreaksbr }} </span>{% endif %}
             </div>
-            <table>                    
-                {% if not manager.image.isOwned %}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+            <table class="metadata_details">
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -404,7 +465,7 @@
                         <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
                         </div>
-                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
+                        <span class="tooltip_html" style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
                         </span>
                     </td>
@@ -423,21 +484,57 @@
             </table>
             {% else %}
                 {% if manager.dataset %}
-                {% if manager.dataset.isOwned %}<div id="datasetname-{{ manager.dataset.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>{% endif %}
+                {% if manager.dataset.canEdit %}
 
-                <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>    
+				<!-- Dataset Name - Dataset Level -->
+				<div class="data_heading" id="datasetname-{{ manager.dataset.id }}">
+					
+					<h1>
+						<p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p>
+					</h1>
+					
+					<button class="btn silver btn_edit" alt="e" title="edit">
+						<span></span>
+					</button>
+					
+				</div>
+				
+				{% else %}
+					
+					<h1 style="word-wrap: break-word;">
+						{{ manager.dataset.name }}
+					</h1>
+					
+					
+					
+					{% endif %}
+
+                <h2 class="data_heading_id">Dataset ID: <strong>{{ manager.dataset.id }}</strong></h2>    
                 
+				<hr/>
+				
+				<!-- Dataset Description -->
                 <div class="description">
-                    {% if manager.dataset.isOwned %}<div id="datasetdescription-{{ manager.dataset.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""}}</span><p></div>{% else %}<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.dataset.canEdit %}
+					<div class="data_heading" id="datasetdescription-{{ manager.dataset.id }}">
+						<p>
+							<span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default:"Add a Description"|linebreaksbr}}</span>
+						    <button class="btn silver btn_edit" alt="e" title="edit">
+    							<span></span>
+    						</button>
+						</p>
+
+					</div>
+					{% else %}
+					<span id='dataset_desc'>{{ manager.dataset.description|default:""|linebreaksbr }}</span>
+					{% endif %}
                 </div>
                 
                 <table>
-                    {% if not manager.dataset.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -449,19 +546,50 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    {% if manager.project.isOwned %}<div id="projectname-{{ manager.project.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="projectname-{{ manager.project.id }}-name" style="word-wrap: break-word;">{{ manager.project.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
+                    {% if manager.project.canEdit %}
+					
+					
+					<!-- Project Name - Project Level -->
+					<div id="projectname-{{ manager.project.id }}" class="data_heading">
+						<h1>
+							<p id="projectname-{{ manager.project.id }}-name" style="word-wrap: break-word;">{{ manager.project.name }}</p>
+						</h1>
+						
+						<button class="btn silver btn_edit" alt="e" title="edit">
+							<span></span>
+						</button>
+					</div>
+					{% else %}
+					
+					<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
                     
-                    <h2 id='project_id'>Project ID: {{ manager.project.id }}</h2>
-                    <div class="description">
-                        {% if manager.project.isOwned %}<div id="projectdescription-{{ manager.project.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""}}</span><p></div>{% else %}<span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    <h2 class="data_heading_id">Project ID: <strong>{{ manager.project.id }}</strong></h2>
+                    
+					<hr/>
+					
+					<!--Project Description -->
+					<div class="description">
+                        {% if manager.project.canEdit %}
+						<div class="data_heading" id="projectdescription-{{ manager.project.id }}">
+						    <p>                          
+						        <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default:"Add a Description"|linebreaksbr}}
+						        </span>
+						        <button class="btn silver btn_edit" alt="e" title="edit">
+        							<span></span>
+        						</button>
+						    </p>
+						</div>
+					    {% else %}
+					    
+					    <span id='project_desc'>{{ manager.project.description|default:""|linebreaksbr }}</span>
+					    {% endif %}
                     </div>
+                    
                     <table>
-                        {% if not manager.project.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -476,20 +604,51 @@
             {% endif %}
             
             {% if manager.well %}            
-            {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
+            {% if manager.well.getWellSample.image.canEdit %}
+			
+			<div id="wellname-{{ manager.well.getWellSample.image.id }}" class="data_heading">
+				<h1>
+					<p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
+				</h1>
+				<button class="btn silver btn_edit" alt="e" title="edit">
+					<span></span>
+				</button>
+			</div>
+			{% else %}
+			
+			<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
                    
-            <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <h2 class="data_heading_id">Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong></h2>
+            
+			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
+				<span>
+                {% trans "Launch full viewer" %} 
+				</span>
+			</button>
+			
+			<hr/>
+			
             <div class="description">
-                {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.well.getWellSample.image.canEdit %}
+                <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
+                    <p>
+                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
+                        <button class="btn silver btn_edit" alt="e" title="edit">
+							<span></span>
+						</button>
+                    </p>
+                </div>
+                {% else %}
+                
+                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaksbr }}</span>
+                {% endif %}
             </div>
-            <table>                    
-                {% if not manager.well.getWellSample.image.isOwned %}
+            
+            <table>
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -512,7 +671,7 @@
                         <div class='tooltip'>{{ manager.well.getWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.getWellSample.image.getPixelSizeY|floatformat:4 }} 
                             {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
                         </div>
-                        <span style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
+                        <span class="tooltip_html" style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
                             {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ }} {% endif %}
                         </span>
                     </td>
@@ -530,27 +689,51 @@
                 <tr>
                     <th>Status:</th>
                     <td id='well_status'>
-                        {{ manager.well.status|default_if_none:"None" }}
+                        {{ manager.well.status|default:"None" }}
                     </td>
                 </tr>
             </table>
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
+                {% if manager.acquisition.canEdit %}
+				<div id="acquisitionname-{{ manager.acquisition.id }}" class="data_heading">
+					<h1>
+						<p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p>
+					</h1>
+					<button class="btn silver btn_edit" alt="e" title="edit">
+						<span></span>
+					</button>
+				</div>
+				{% else %}
+				
+				<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
                 
-                <h2 id='acquisition_id'>Plate acquisition ID: {{ manager.acquisition.id }}</h2>
+                <h2 class="data_heading_id">Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong></h2>
                 
+				<hr/>
+				
                 <div class="description">
-                    {% if manager.acquisition.isOwned %}<div id="acquisitiondescription-{{ manager.acquisition.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""}}</span><p></div>{% else %}<span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.acquisition.canEdit %}
+                    <div class="data_heading" id="acquisitiondescription-{{ manager.acquisition.id }}">
+                        <p>
+                            <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default:" Add a Description"|linebreaksbr}}</span>
+                            <button class="btn silver btn_edit" alt="e" title="edit">
+    							<span></span>
+    						</button>
+                        </p>
+                        
+                    </div>
+                {% else %}
+                
+                    <span id='acquisition_desc'>{{ manager.acquisition.description|default:""|linebreaksbr }}</span>
+                {% endif %}
                 </div>
                 
                 <table>
-                    {% if not manager.acquisition.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -564,19 +747,45 @@
                 </table>
                 {% else %}
                     {% if manager.plate %}
-                    {% if manager.plate.isOwned %}<div id="platename-{{ manager.plate.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.plate.name }}</h1>{% endif %}
+                    {% if manager.plate.canEdit %}<div class="data_heading" id="platename-{{ manager.plate.id }}">
+						<h1>
+							<p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p>
+						</h1>
+						<button class="btn silver btn_edit" alt="e" title="edit">
+							<span></span>
+						</button>
+						</div>
+						{% else %}
+						
+						<h1 style="word-wrap: break-word;">{{ manager.plate.name }}</h1>{% endif %}
               
-                    <h2 id='plate_id'>Plate ID: {{ manager.plate.id }}</h2>
+			  		  
+			  
+                    <h2 class="data_heading_id">Plate ID: <strong>{{ manager.plate.id }}</strong></h2>
+					
+					<hr/>
+					
                     <div class="description">
-                        {% if manager.plate.isOwned %}<div id="platedescription-{{ manager.plate.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""}}</span><p></div>{% else %}<span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        {% if manager.plate.canEdit %}
+                        <div class="data_heading" id="platedescription-{{ manager.plate.id }}">
+                            <p>
+                                <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default:"Add a Description"|linebreaksbr}}</span>
+                                <button class="btn silver btn_edit" alt="e" title="edit">
+        							<span></span>
+        						</button>
+                                
+                            </p>
+                            
+                    </div>
+                    {% else %}
+                    
+                    <span id='plate_desc'>{{ manager.plate.description|default:""|linebreaksbr }}</span>{% endif %}
                     </div>
                     <table>
-                        {% if not manager.plate.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -590,19 +799,46 @@
                     </table>
                     {% else %}
                         {% if manager.screen %}
-                        {% if manager.screen.isOwned %}<div id="screenname-{{ manager.screen.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
+                        {% if manager.screen.canEdit %}
+						<div class="data_heading" id="screenname-{{ manager.screen.id }}">
+							<h1>
+								<p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p>
+							</h1>	
+							<button class="btn silver btn_edit" alt="e" title="edit">
+								<span></span>
+							</button>
+						</div>
+						{% else %}
+						
+						<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
             
-                        <h2 id='screen_id'>Screen ID: {{ manager.screen.id }}</h2>
-                        <div class="description">
-                            {% if manager.screen.isOwned %}<div id="screendescription-{{ manager.screen.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""}}</span><p></div>{% else %}<span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        <h2 class="data_heading_id">Screen ID: <strong>{{ manager.screen.id }}</strong></h2>
+							
+						<hr/>	
+							
+  						 <div class="description">
+                            {% if manager.screen.canEdit %}
+                            
+                            <div class="data_heading" id="screendescription-{{ manager.screen.id }}">
+                                <p>
+                                    <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default:"Add a Description"|linebreaksbr}}</span>
+                                    <button class="btn silver btn_edit" alt="e" title="edit">
+            							<span></span>
+            						</button>
+                                </p>
+                                
+                            </div>
+                            {% else %}
+                            
+                            <span id='screen_desc'>{{ manager.screen.description|default:""|linebreaksbr }}</span>
+                            {% endif %}
+                            
                         </div>
                         <table>
-                            {% if not manager.screen.isOwned %}
                             <tr>
                                 <th>Owner:</th>
                                 <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
                             </tr>
-                            {% endif %}
                             <tr>
                                 <th>Creation Date:</th>
                                 <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -618,132 +854,120 @@
             {% endif %}
         
         
-            <!-- ANNOTATIONS -->
-            <h1>{% trans "Annotations" %}</h1>
-            <table>
+		
+			
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
+			
+			
+			
+			
+		
+		
+    <!-- ANNOTATIONS -->
+    <!--<h1>{% trans "Annotations" %}</h1>-->
+            
+			<div class="annotations_section">
             <!-- RATING -->
-            <tr>
-                <th colspan="2">{% trans "Rate" %}:</th>
-                <td>
+      
+			      	<h2>{% trans "Rating" %}</h2>
+                    <div style="clear:both"></div>
                     {% if manager.rating_annotations %}
                     <div class="lntags">
-                        <table>
+                
                     {% for rating in manager.rating_annotations %}
-                    <tr><td valign="middle">
+                
                         {% ifequal rating.getValue 0 %}<img src="{% static "webclient/image/rating0.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 1 %}<img src="{% static "webclient/image/rating1.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 2 %}<img src="{% static "webclient/image/rating2.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 3 %}<img src="{% static "webclient/image/rating3.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 4 %}<img src="{% static "webclient/image/rating4.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 5 %}<img src="{% static "webclient/image/rating5.png" %}">{% endifequal %}
-                        </td>
-                        <td>
+                       
+					   
                         {{ rating.getDetails.getOwner.getNameWithInitial }}
-                        </td>
-                    </tr>
+                        
                     {% endfor %}
-                        </table>
+                       
                     </div>
                     {% else %}
                         {% trans "No ratings" %}
                     {% endif %}
-                </td>
-            </tr> 
+             
+			 </div>
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
             <!-- TAGS -->               
-            <tr>
-                <th>{% trans "Tag" %}:</th>
-                <td>
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newtag" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
-                    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                </td>
-                <td>
-                    {% if manager.tgannSize %}
-                    <div class="lntags">
-                    {% for tag in manager.tag_annotations %}
-                        <span class="tag_annotation_wrapper">
-                            <a class='tooltip' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a> 
-                            {% if tag.link.isOwned %}
-                                <img class='removeTag' id="{{ tag.id }}-tag" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-                            {% endif %}
-                            <span style='display:none'>
-                                <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
-                                <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-                                <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                                <b>Description:</b> {{ tag.description|default_if_none:""|truncatewords:10  }}
-                            </span>
-                        </span>
-                    {% endfor %}
-                    </div>
-                    {% else %}
-                        {% trans "No tags" %}
-                    {% endif %}
-                </td>
-            </tr>
+            <div class="annotations_section">
+                
+				<h2>{% trans "Tags" %}</h2>
+                
+				
+				
+                {% if manager.canAnnotate %}
+					<div>
+						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
+					</div>
+                {% endif %}
+                
+				<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
+                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
+                </form>
+				
+                <!-- display existing Tags -->
+                <div id="tags_container" class="lntags">
+                {% for tag in manager.tag_annotations %}
+                    {% include "webclient/annotations/tag.html" %}
+                {% endfor %}
+                </div>
+ 
+            </div>
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
+			
             <!-- FILES -->
-            <tr>
-                <th>{% trans "Attach" %}:</th>
-                <td>
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newfile" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
-                    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                </td>
-                <td>
-                    {% if manager.fileannSize %}
-                    <div class="lnfiles">
-                        {% for fileann in manager.file_annotations %}
-                        {% if fileann.getFileName %}
-                        <div style="padding:4px 0px" class="file_ann_wrapper">
-                            <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
-                                title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
-                                {{ fileann.getFileName|shortening:40 }}
-                            </a>
-                            <span style='display:none'>
-                                <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
-                                <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
-                                <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                                <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
-                            </span>
-                            {% if fileann.getFileSize %}({{ fileann.getFileSize|default_if_none:0|filesizeformat }}){% endif %}
-                            {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-                                <img class='removeFile' id="{{ fileann.id }}-file" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-                            {% endif %}
-                            {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-                                <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete"/>
-                            {% endif %}
-                            <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
-                            {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-                            {% endifequal %}
-                            {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-                            {% endifequal %}
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                        {% trans "No attachments." %}
+            <div class="annotations_section">
+                <h2>{% trans "Attachments" %}</h2>
+
+                    {% if manager.canAnnotate %}
+                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add">
+                            <span></span>
+                        </a>
                     {% endif %}
-                </td>
-            </tr>  
+                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+                    
+                    <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
+                    <form id="choose_attachments_form" style="display:none" title="Choose Attachments" action="{% url annotate_file %}" method="post">
+                    </form>
+                    
+
+                <!-- display existing file annotations -->
+
+                    <ul id="fileanns_container" class="lnfiles">
+                        {% for fileann in manager.file_annotations %}
+                            {% include "webclient/annotations/fileann.html" %}
+                        {% endfor %}
+                    </ul>
+
+			</div>
+
+
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+
             <!-- CUSTOM ANNOTATIONS -->
-            <tr>
-                <th>{% trans "Others" %}:</th>
-                <td>
-                    <!-- no editing of custom annotations-->
-                </td>
-                <td>
+            <div class="annotations_section">
+                <h2>{% trans "Others" %}:</h2>
+				
                     <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
                     <table id="custom_annotations">
                         {% for ann in manager.xml_annotations %}
@@ -751,7 +975,7 @@
                             <td>
                                 <div>{{ ann.getValue|escape|slice:"0:30" }}...</div>
                                 <div class="show_xml">Open in window</div><div>{{ ann.getValue }}</div>
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -763,7 +987,7 @@
                         <tr><th>Boolean:</th>
                             <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -774,7 +998,18 @@
                         <tr><th>Double:</th>
                             <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for ann in manager.long_annotations %}
+                        <tr><th>Long:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -785,7 +1020,7 @@
                         <tr><th>Term:</th>
                             <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -796,7 +1031,7 @@
                         <tr><th>Time:</th>
                             <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -804,101 +1039,120 @@
                         </tr>
                         {% endfor %}
                     </table>
-                </td>
-            </tr>
-                      
-            <!-- COMMENT -->
-            <tr>
-                <th colspan="3">                
-                    {% trans "Comment:" %}
-                    {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.acquisition.isEditable or  manager.well.isEditable %}
-                    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addcomment" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
+            </div>
+                    
+					
+					
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+			
+			
+			<!-- COMMENTS -->
+            <div class="annotations_section">
+				<h2>{% trans "Comment:" %}</h2>
+				
+                    {% if manager.canAnnotate %}
+                    <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
                     <table>
-                        {% for field in form_comment %}
-                            <tr>
-                                <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                            </tr>
-                        {% endfor %}
-                            <tr><td colspan="2"><input type="submit" value="{% trans 'Add Comment' %}" /></td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                        <tr>
+                            <td>{{ form_comment.comment }}</td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                        </tr>
                     </table>
                     </form>
                     {% endif %}                        
-                </th>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    {% if manager.txannSize %}
-                    <div class="lncomments">            
+                
+					<div id="comments_container" class="lncomments">
                         {% for tann in manager.text_annotations %}
-                        <div class="ann_comment_wrapper">
-                            <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
-                            <div>
-                                <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
-                                {% if tann.canDelete %}
-                                    <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/cancel12.png" %}" title="Delete comment"/>
-                                {% endif %}
-                                <div class='commentText'>
-                                {{ tann.textValue|wikify|safe|linebreaks }}
-                                </div>
-                            </div>
-                        </div>
+                            {% include "webclient/annotations/comment.html" %}
                         {% endfor %}
                     </div>
-                    {% else %}
-                        {% trans "No comments." %}                        
-                    {% endif %}
-                </td>
-            </tr>            
-            </table>            
+           
             <div class="clear"></div>          
 
-            {% if manager.image %}
-            <!-- HIERARCHY - Contained In -->
-            <h1>Contained in Datasets</h1>
-            <div id="hierarchy-pane">
-                <!-- content is loaded by ajax when this tab is first displayed -->
-                <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
-                <img id="hierarchy-spinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
-            </div>
-            {% endif %}
+
+
+
+
+
+			<div class="annotations_section">
+	            {% if manager.image %}
+	            <!-- HIERARCHY - Contained In -->
+	            <h2>Contained in Datasets</h2>
+	            <div id="hierarchy-pane">
+	                <!-- content is loaded by ajax when this tab is first displayed -->
+	                <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
+	                <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
+	            </div>
+	            {% endif %}
+			</div>
             
         </div>
-        </div>
         {% endif %}
+
+
+
+
 
         {% if manager.tag %}
-        {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
+            <div id="general_tab" class="right_tab_inner" >
+                {% if manager.tag.canEdit %}
+				<div class="data_heading" id="tagname-{{ manager.tag.id }}">
+					<h1>
+						<p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>
+					</h1>
+					<button class="btn silver btn_edit" alt="e" title="edit">
+						<span></span>
+					</button>
+				</div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
         
-        <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   
+                <h2 class="data_heading_id">Tag ID: <strong>{{ manager.tag.id }}</strong></h2>   
 
-        <div class="description">
-            {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
-        </div>
+				<hr/>
+
+                <div class="description">
+                    {% if manager.tag.canEdit %}
+                    <div class="data_heading" id="tagdescription-{{ manager.tag.id }}">
+                        <p>
+                            <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default:"Add a Description"|linebreaksbr}}</span>
+                            <button class="btn silver btn_edit" alt="e" title="edit">
+    							<span></span>
+    						</button>
+                        </p>
+                    </div>
+                    
+                    {% else %}
+                    
+                    <span id='tag_desc'>{{ manager.tag.description|default:""|linebreaksbr }}</span>{% endif %}
+                </div>
         
-        <table>
-            {% if not manager.tag.isOwned %}
-            <tr>
-                <th>Owner:</th>
-                <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
-            </tr>
-            {% endif %}
-            <tr>
-                <th>Creation Date:</th>
-                <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            <tr>
-                <th>Image Count:</th>
-                {% if False %}
-                <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
-                {% endif %}
-            </tr>
-        </table>
+                <table>
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
+                    </tr>
+                    <tr>
+                        <th>Creation Date:</th>
+                        <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Image Count:</th>
+                        {% if False %}
+                        <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
+                        {% endif %}
+                    </tr>
+                </table>
+            </div>
         {% endif %}
-    </div>
     
     
-</div>
-{% endblock %}
+

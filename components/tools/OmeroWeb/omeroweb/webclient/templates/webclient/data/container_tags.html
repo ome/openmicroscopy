@@ -21,32 +21,35 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>
-    
-    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/external/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
+
+    <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
         $(function() 
             {
-                //var h = $(window).height()-200;
+
+                $("#left_panel_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                }).tabs("select", 1);
+
                 
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {                            
-                            toolbar_config = {'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
+                            toolbar_config = {'delete':{% if isLeader %}true{% else %}false{% endif %}};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config = {'delete':false};
@@ -110,7 +113,7 @@
                             }
                         },
                         // Using types - most of the time this is an overkill
-                        // Still meny people use them - here is how
+                        // Still many people use them - here is how
                         "types" : {
                             // I want only `drive` nodes to be root nodes 
                             // This will prevent moving or creating any other type as a root node
@@ -131,7 +134,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/knotesred16.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tags.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -141,7 +144,7 @@
                                 "tagset-locked" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/knotesred_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tags_locked.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -151,7 +154,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "common/image/knotes16.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tag.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,
@@ -162,7 +165,7 @@
                                 "tag-locked" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/knotes_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tag_locked.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -292,7 +295,10 @@
                                 
                                 return config;
                             }
-                        }
+                        },
+                        
+                        // include hotkeys plugin code
+                        {% include 'webclient/data/includes/hotkeys.js' %}
                         
                 })
                 .delegate("a", "click.jstree", function (event) {
@@ -307,19 +313,10 @@
                     }
                     $("#dataTree").jstree("open_node", this);
                 })
-                .bind("select_node.jstree", function (e, data) {
+                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    if (selected.attr("rel").replace("-locked","") === "tag") {
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    } else {
-                        if (selected.attr("rel").replace("-locked","") === "image" && selected.parent().parent().attr("rel").replace("-locked","") === "tag") {
-                            loadOtherPanels(data.inst, '{% url webindex %}');
-                        } else {
-                            loadOtherPanels(data.inst, '{% url webindex %}');
-                        }
-                    }
-                    syncPanels(selected);
+                    tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
@@ -335,29 +332,12 @@
                                       $.jstree.rollback(data.rlbk);
                                       alert(r.errs);
                                   } else {
-                                      refreshCenterPanel();
-                                      var i = setInterval(function (){
-                                        $.getJSON("/webclient/progress/", function(data) {
-                                            if (data.inprogress== 0) {
-                                                clearInterval(i);
-                                                $("#progress").hide();
-                                                if(data.failure>0) {
-                                                    $("#jobstatus").html(data.failure + ' job(s) failed');
-                                                } else {
-                                                    $("#jobstatus").html(data.jobs + ' job(s)');
-                                                }
-                                                return;
-                                            }
-
-                                            $("#progress").show();
-                                            $("#jobstatus").html(data.inprogress + ' job(s) in progress');
-                                        });
-                                    }, 10000);
+                                      // change in tree selection will update panels etc.
+                                      refreshActivities();
                                   }
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. Cannot remove object.");
                             }
                         });
                     });
@@ -366,9 +346,10 @@
         
     </script>
     
+    <!-- handle toolbar button clicks -->
     <script type="text/javascript">
     $(function () {
-        $("#buttons input").click(function () {
+        $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
                     var confirm_delete = confirm_dialog('Delete selected Tags?',
@@ -381,7 +362,6 @@
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
-                    refreshCenterPanel();
                     break;
                 default:
                     break;
@@ -389,42 +369,136 @@
         });
     });
     </script>
+
+    <!-- set up the middle panel to only show the div chosen by <select> -->
+    {% include "webclient/data/includes/center_plugin_init.js.html" %}
+
+    <!-- include code to handle primary 'thumbs' middle plugin -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
+
+
+    {% for cp in ome.center_plugins %}
+        {% include cp.include %}
+    {% endfor %}
+
 {% endblock %}
+
 
 {% block left %}
 
-    <div class="toolbar">
-        <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input class="button" type="image" src="{% static "webclient/image/view_tree16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
-            <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
-        </div>
-    </div>
 
 
-<div id="tree_details">
-    <div class="dataTree" id="dataTree"></div>
+
+<div id="user_selection">
+	
+    <!-- Switch Group / User -->
+    <script>
+        $(document).ready(function(){
+
+            $('body').click(function(event) {
+                if (event.target.id != 'groupsUsersButton') {
+                    $("#groupList").css('visibility', 'hidden');
+                }
+            });
+            // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+            // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+            $("#groupsUsersButton").click(function(e){
+                // show menu
+                $('#groupList').css('visibility', 'visible');
+            });
+            // on hover-out, hide drop-down menus
+            $("#groupList").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+                
+                
+
+        });
+    </script>
+	
+	
+	{% include "webclient/base/includes/group_user_dropdown.html" %}
+	
 </div>
 
+
+
+
+
+<div id="left_panel_tabs" class="absolute_fill">
+    <ul id="left_panel_tab_list">
+        <li id="explore_tab"><a href="{% url load_template 'userdata' %}">{% trans "Explore" %}</a></li>
+        <li id="tags_tab"><a href="#Tags">{% trans "Tags" %}</a></li>
+        <li id="public_tab"><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+    </ul>
+    
+    
+    
+    <div id="Tags">
+        <ul class="toolbar">
+                
+				<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"><li>
+				
+				<li class="seperator"></li>
+				
+				<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
+				
+        </ul>
+
+
+        <div id="tree_details" class="left_panel_inner">
+            <div class="dataTree" id="dataTree"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
+
+
+
+
+
 
 {% block center %}
 
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
+<div id="center_panel_header">
+	<div id="center_panel_chooser">
+	    <select>
+	        <option value="#content_details">Thumbnails</option>
+	        {% for cp in ome.center_plugins %}
+	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+	        {% endfor %}
+	    </select>
+	</div>
+</div>
 
-<div id="content_details"> </div>
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in ome.center_plugins %}
+    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
+{% endfor %}
 
 {% endblock %}
 
 
+
 {% block right %}
-
-<div id="metadata_details">
-    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
+        {% endfor %}
+    </div>
 </div>
-
-
 {% endblock %}
 
 

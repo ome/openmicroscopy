@@ -38,12 +38,18 @@
                 $('iframe#help_search').load();
                 
                 $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{% static "common/image/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                $("#swapMeta").html('<img tabindex="0" src="{% static "webgateway/img/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
         })
     </script>
     
 {% endblock %}
+
+
+{% block thin_header_right %}
+    <a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a>
+{% endblock %}
+
 
 {% block center %}
 

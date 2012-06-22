@@ -35,6 +35,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.model.TransferableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
@@ -42,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectRemover;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.DataObjectTransfer;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesChecker;
@@ -74,48 +77,52 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadContainerHierarchy(Class, List, boolean, long,
-	 * 						long, AgentEventListener)
+	 * @see DataManagerView#loadContainerHierarchy(SecurityContext, Class, List,
+	 * boolean, long, long, AgentEventListener)
 	 */
-	public CallHandle loadContainerHierarchy(Class rootNodeType,
-			List<Long> rootNodeIDs, boolean withLeaves, long userID,
-			long groupID, AgentEventListener observer)
+	public CallHandle loadContainerHierarchy(SecurityContext ctx,
+			Class rootNodeType, List<Long> rootNodeIDs, boolean withLeaves,
+			long userID, long groupID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
-				userID, groupID);
+		BatchCallTree cmd = new DMLoader(ctx, rootNodeType, rootNodeIDs,
+				withLeaves, userID, groupID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadImages(long, AgentEventListener)
+	 * @see DataManagerView#loadImages(SecurityContext, long,
+	 * AgentEventListener)
 	 */
-	public CallHandle loadImages(long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ImagesLoader(userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#getImages(Class, List, long, AgentEventListener)
-	 */
-	public CallHandle getImages(Class nodeType, List nodeIDs, long userID, 
+	public CallHandle loadImages(SecurityContext ctx, long userID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, userID);
+		BatchCallTree cmd = new ImagesLoader(ctx, userID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#createDataObject(DataObject, DataObject, 
-	 * 										AgentEventListener)
+	 * @see DataManagerView#getImages(SecurityContext, Class, List, long,
+	 * AgentEventListener)
 	 */
-	public CallHandle createDataObject(DataObject userObject, DataObject parent,
+	public CallHandle getImages(SecurityContext ctx, Class nodeType,
+			List nodeIDs, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImagesLoader(ctx, nodeType, nodeIDs, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#createDataObject(SecurityContext, DataObject,
+	 * DataObject, AgentEventListener)
+	 */
+	public CallHandle createDataObject(SecurityContext ctx, 
+		DataObject userObject, DataObject parent,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DataObjectSaver(userObject, parent,
+		BatchCallTree cmd = new DataObjectSaver(ctx, userObject, parent,
 				DataObjectSaver.CREATE);
 		return cmd.exec(observer);
 	} 
@@ -124,69 +131,74 @@ class DataManagerViewImpl
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#countContainerItems(Set, AgentEventListener)
 	 */
-	public CallHandle countContainerItems(Set rootIDs, 
+	public CallHandle countContainerItems(SecurityContext ctx, Set rootIDs,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ContainerCounterLoader(rootIDs);
+		BatchCallTree cmd = new ContainerCounterLoader(ctx, rootIDs);
 		return cmd.exec(observer);  
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadThumbnail(ImageData, int, int, long,
-	 *                                          AgentEventListener)
+	 * @see DataManagerView#loadThumbnail(SecurityContext, ImageData, int, int,
+	 * long, AgentEventListener)
 	 */
-	public CallHandle loadThumbnail(ImageData image, int maxWidth, 
-			int maxHeight, long userID, AgentEventListener observer)
+	public CallHandle loadThumbnail(SecurityContext ctx, ImageData image,
+		int maxWidth, int maxHeight, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ThumbnailLoader(image, maxWidth, maxHeight, 
+		BatchCallTree cmd = new ThumbnailLoader(ctx, image, maxWidth, maxHeight,
 				userID);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#addExistingObjects(Collection, Collection, 
+	 * @see DataManagerView#addExistingObjects(SecurityContext, Collection,
+	 * Collection, AgentEventListener)
+	 */
+	public CallHandle addExistingObjects(SecurityContext ctx, 
+		Collection parents, Collection children, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ExistingObjectsSaver(ctx, parents, children,
+				false);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#addExistingObjects(SecurityContext, Map, Map
 	 *                                          AgentEventListener)
 	 */
-	public CallHandle addExistingObjects(Collection parents, Collection children, 
-			AgentEventListener observer)
+	public CallHandle addExistingObjects(SecurityContext ctx, Map toPaste,
+			Map toRemove, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(parents, children, false);
+		BatchCallTree cmd = new ExistingObjectsSaver(ctx, toPaste, toRemove,
+				false);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#addExistingObjects(Map, Map
-	 *                                          AgentEventListener)
+	 * @see DataManagerView#cutAndPaste(SecurityContext, Map, Map, boolean,
+	 * AgentEventListener)
 	 */
-	public CallHandle addExistingObjects(Map toPaste, Map toRemove,
-			AgentEventListener observer)
+	public CallHandle cutAndPaste(SecurityContext ctx, Map toPaste, Map toCut,
+		boolean admin, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toRemove, false);
+		BatchCallTree cmd = new ExistingObjectsSaver(ctx, toPaste, toCut,
+				admin);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#cutAndPaste(Map, Map, boolean, AgentEventListener)
+	 * @see DataManagerView#loadChannelsData(SecurityContext, long, long,
+	 * AgentEventListener)
 	 */
-	public CallHandle cutAndPaste(Map toPaste, Map toCut, boolean admin,
-			AgentEventListener observer)
+	public CallHandle loadChannelsData(SecurityContext ctx, long pixelsID,
+			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toCut, admin);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadChannelsData(long, long, AgentEventListener)
-	 */
-	public CallHandle loadChannelsData(long pixelsID, long userID,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ChannelMetadataLoader(pixelsID, userID);
+		BatchCallTree cmd = new ChannelMetadataLoader(ctx, pixelsID, userID);
 		return cmd.exec(observer);
 	}
 
@@ -195,7 +207,7 @@ class DataManagerViewImpl
 	 * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
 	 */
 	public CallHandle refreshHierarchy(Class rootNodeType,
-			Map<Long, List> m, AgentEventListener observer)
+			Map<SecurityContext, List> m, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DMRefreshLoader(rootNodeType, m);
 		return cmd.exec(observer);
@@ -203,27 +215,28 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#countExperimenterImages(long, Map, 
+	 * @see DataManagerView#countExperimenterImages(SecurityContext, long, Map,
 	 * 												AgentEventListener)
 	 */
-	public CallHandle countExperimenterImages(long userID, 
+	public CallHandle countExperimenterImages(SecurityContext ctx, long userID,
 			Map<Integer, TimeRefObject> m,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExperimenterImagesCounter(userID, m);
+		BatchCallTree cmd = new ExperimenterImagesCounter(ctx, userID, m);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTags(Long, boolean, boolean, long, long,
-	 *  AgentEventListener)
+	 * @see DataManagerView#loadTags(SecurityContext, Long, boolean, boolean,
+	 * long, long, AgentEventListener)
 	 */
-	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel,
-			long userID, long groupID, AgentEventListener observer)
+	public CallHandle loadTags(SecurityContext ctx, Long id, boolean dataObject,
+			boolean topLevel, long userID, long groupID,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new TagsLoader(id, dataObject, topLevel, userID,
-				groupID);
+		BatchCallTree cmd = new TagsLoader(ctx, id, dataObject, topLevel,
+				userID, groupID);
 		return cmd.exec(observer);
 	}
 
@@ -231,31 +244,21 @@ class DataManagerViewImpl
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#loadPlateWells(Map, long, AgentEventListener)
 	 */
-	public CallHandle loadPlateWells(Map<Long, Long> ids, long userID, 
-									AgentEventListener observer)
+	public CallHandle loadPlateWells(SecurityContext ctx, Map<Long, Long> ids,
+			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new PlateWellsLoader(ids, userID);
+		BatchCallTree cmd = new PlateWellsLoader(ctx, ids, userID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#delete(Collection, AgentEventListener)
+	 * @see DataManagerView#delete(Map, AgentEventListener)
 	 */
-	public CallHandle delete(Collection<DeletableObject> values, 
-			AgentEventListener observer)
+	public CallHandle delete(Map<SecurityContext, Collection<DeletableObject>>
+	 values, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataObjectRemover(values);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#delete(DeletableObject, AgentEventListener)
-	 */
-	public CallHandle delete(DeletableObject value, AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new DataObjectRemover(value);
 		return cmd.exec(observer);
 	}
 
@@ -272,23 +275,37 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadRepositories(long, AgentEventListener)
+	 * @see DataManagerView#loadRepositories(SecurityContext, long,
+	 * AgentEventListener)
 	 */
-	public CallHandle loadRepositories(long userID, AgentEventListener observer)
+	public CallHandle loadRepositories(SecurityContext ctx, long userID,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RepositoriesLoader(userID);
+		BatchCallTree cmd = new RepositoriesLoader(ctx, userID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadParentsOfAnnotation(long, AgentEventListener)
+	 * @see DataManagerView#loadParentsOfAnnotation(SecurityContext, long,
+	 * AgentEventListener)
 	 */
-	public CallHandle loadParentsOfAnnotation(long annotationId,
-			AgentEventListener observer)
+	public CallHandle loadParentsOfAnnotation(SecurityContext ctx,
+			long annotationId, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AnnotationParentLoader(annotationId);
+		BatchCallTree cmd = new AnnotationParentLoader(ctx, annotationId);
 		return cmd.exec(observer);
 	}
-  
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#changeGroup(TransferableObject, AgentEventListener)
+	 */
+	public CallHandle changeGroup(TransferableObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DataObjectTransfer(object);
+		return cmd.exec(observer);
+	}
+
 }

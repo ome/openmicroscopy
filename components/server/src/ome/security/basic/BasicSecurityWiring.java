@@ -78,20 +78,23 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
         boolean close = "close".equals(mi.getMethod().getName());
 
         if (!close  && methodSecurity.isActive()) {
-
             methodSecurity.checkMethod(mi.getThis(), mi.getMethod(), p, hp);
         }
 
+        // First try a login
         try {
-            try {
-                login(mi, p);
-            } catch (SessionTimeoutException ste) {
-                if (!close) {
-                    throw ste;
-                }
-                log.warn("SessionTimeoutException on close:" + p);
-                principalHolder.login(new CloseOnNoSessionContext());
+            login(mi, p);
+        } catch (SessionTimeoutException ste) {
+            if (!close) {
+                throw ste;
             }
+            log.warn("SessionTimeoutException on close:" + p);
+            principalHolder.login(new CloseOnNoSessionContext());
+        }
+
+        // Assuming the above block didn't throw an
+        // exception, then continue and cleanup.
+        try {
             return mi.proceed();
         } finally {
             logout();

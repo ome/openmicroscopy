@@ -27,7 +27,7 @@ import logging
 
 from django.core.management import execute_manager
 
-logger = logging.getLogger('manage')
+logger = logging.getLogger(__name__)
 
 try:
     import settings # Assumed to be in the same directory.
@@ -37,7 +37,9 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
-    logger = logging.getLogger()
-    logger.info("Application Starting...")
+    from omero.util import configure_logging
+    if settings.DEBUG:
+        configure_logging(settings.LOGDIR, 'OMEROweb.log', loglevel=logging.DEBUG)
     
+    logger.info("Application Starting...")    
     execute_manager(settings)

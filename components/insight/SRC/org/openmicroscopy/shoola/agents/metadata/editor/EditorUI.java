@@ -32,15 +32,18 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -49,7 +52,9 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -163,8 +168,15 @@ class EditorUI
     
     /** The dummy panel displayed instead of the rendering component. */
     private JPanel						dummyPanel;
+
+    /** The menu showing the option to remove tags.*/
+    private PermissionMenu tagMenu;
     
-    /** Adds the renderer to the tab pane. 
+    /** The menu showing the option to remove attachments.*/
+    private PermissionMenu docMenu;
+    
+    /**
+     * Adds the renderer to the tab pane. 
      * 
      * @param init 	Pass <code>true</code> if it is invoked at initialization
      * 				time, <code>false</code> otherwise.
@@ -189,9 +201,9 @@ class EditorUI
 	private void initComponents()
 	{
 		dummyPanel = new JPanel();
-		groupUI = new GroupProfile(model);
+		groupUI = new GroupProfile(model, this);
 		groupUI.addPropertyChangeListener(controller);
-		userUI = new UserUI(model, controller);
+		userUI = new UserUI(model, controller, this);
 		toolBar = new ToolBar(model, controller);
 		generalPane = new GeneralPaneUI(this, model, controller, toolBar);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
@@ -245,14 +257,11 @@ class EditorUI
     	Object uo = model.getRefObject();
     	remove(component);
     	setDataToSave(false);
-    	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-			//if (current.getId() == exp.getId()) {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		component = userTabbedPane; 
-			//} else add = false;
+    		component = userTabbedPane;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
     		groupUI.buildUI();
@@ -273,7 +282,7 @@ class EditorUI
 				tabPane.setEnabledAt(RND_INDEX, false);
 			}
     	}
-    	if (add) add(component, BorderLayout.CENTER);
+    	add(component, BorderLayout.CENTER);
     	validate();
     	repaint();
     }
@@ -332,7 +341,6 @@ class EditorUI
 					
 					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						//tabPane.setSelectedIndex(GENERAL_INDEX);
 						if (!preview && 
 								model.getRndIndex() != 
 									MetadataViewer.RND_SPECIFIC) 
@@ -342,7 +350,7 @@ class EditorUI
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (model.isWritable())
+						if (model.canEdit())
 							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 					if (img != null && img.getId() >= 0) {
@@ -404,15 +412,13 @@ class EditorUI
 			model.fireAdminSaving(o, async);
 			return;
 		}
-		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();
-		List<AnnotationData> toAdd = m.get(TO_ADD);
-		List<AnnotationData> toRemove = m.get(TO_REMOVE);
+		DataToSave object = generalPane.prepareDataToSave();
 		List<Object> metadata = null;
 		Object refObject = model.getRefObject();
 		if (refObject instanceof ImageData)
 			metadata = acquisitionPane.prepareDataToSave();
 
-		model.fireAnnotationSaving(toAdd, toRemove, metadata, async);
+		model.fireAnnotationSaving(object, metadata, async);
 	}
 
 	/**
@@ -465,6 +471,7 @@ class EditorUI
 			return userUI.hasDataToSave();
 		else if (ref instanceof GroupData)
 			return groupUI.hasDataToSave();
+			
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.
@@ -476,6 +483,7 @@ class EditorUI
 	{
 		saved = false;
 		userUI.clearData();
+		groupUI.clearData();
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();
@@ -525,22 +533,6 @@ class EditorUI
 	void attachFiles(File[] files)
 	{
 		if (files == null || files.length == 0) return;
-		//Check if valid file
-		//file w/o extension
-		/*
-		String name = file.getName();
-		int dot = name.lastIndexOf(".")+1;
-		String extension = name.substring(dot);
-		if (extension == null ||extension.trim().length() == 0 || 
-			extension.equals(name)) {
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Attachment Selection", "The selected file " +
-					"has no extension. It is not possible to upload it.");
-			return;
-		}
-		*/
-		//if (generalPane.attachFile(file))
 		generalPane.attachFiles(files);
 		saveData(true);
 	}
@@ -562,17 +554,59 @@ class EditorUI
 	}
 	
 	/**
+	 * Removes the links, tags attachments.
+	 * 
+	 * @param level One of the constants defined by this class.
+	 */
+	private void removeLinks(int level, Collection l)
+	{
+		saved = true;
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		toolBar.setDataToSave(false);
+		Iterator<AnnotationData> i = l.iterator();
+		AnnotationData o;
+		List<Object> toRemove = new ArrayList<Object>();
+		List<Object> links;
+		while (i.hasNext()) {
+			o = i.next();
+			links = model.getLinks(level, o);
+			if (links != null) toRemove.addAll(links);
+		}
+		DataToSave object = new DataToSave(new ArrayList<AnnotationData>(), 
+				toRemove);
+		model.fireAnnotationSaving(object, null, true);
+	}
+	
+	/**
 	 * Removes the tags.
 	 * 
+	 * @param src The mouse clicked location.
 	 * @param location The location of the mouse pressed.
 	 */
-	void removeTags(Point location)
+	void removeTags(JComponent src, Point location)
 	{
-		
 		if (!generalPane.hasTagsToUnlink()) return;
+		if (model.isGroupLeader() || model.isAdministrator()) {
+			if (tagMenu == null) {
+				tagMenu = new PermissionMenu(PermissionMenu.UNLINK, "Tags");
+				tagMenu.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String n = evt.getPropertyName();
+						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
+							removeLinks((Integer) evt.getNewValue(), 
+								model.getTags());
+						}
+					}
+				});
+			}
+			tagMenu.show(src, location.x, location.y);
+			return;
+		}
+		SwingUtilities.convertPointToScreen(location, src);
 		MessageBox box = new MessageBox(model.getRefFrame(),
-				"Remove All Tags", 
-				"Are you sure you want to remove all Tags?");
+				"Remove All Your Tags", 
+		"Are you sure you want to remove all your Tags?");
 		Dimension d = box.getPreferredSize();
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
@@ -591,8 +625,7 @@ class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		//if (TagAnnotationData.class.equals(type))
-			saveData(true);	
+		saveData(true);	
 	}
 	
 	/** 
@@ -613,11 +646,31 @@ class EditorUI
 	/**
 	 * Returns the collection of attachments.
 	 * 
+	 * @param src The source of the mouse pressed.
 	 * @param location The location of the mouse pressed.
 	 */
-	void removeAttachedFiles(Point location)
+	void removeAttachedFiles(Component src, Point location)
 	{
 		if (!generalPane.hasAttachmentsToUnlink()) return;
+		if (model.isAdministrator() || model.isGroupLeader()) {
+			if (docMenu == null) {
+				docMenu = new PermissionMenu(PermissionMenu.UNLINK,
+						"Attachments");
+				docMenu.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String n = evt.getPropertyName();
+						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
+							removeLinks((Integer) evt.getNewValue(), 
+									model.getAttachments());
+						}
+					}
+				});
+			}
+			docMenu.show(src, location.x, location.y);
+			return;
+		}
+		SwingUtilities.convertPointToScreen(location, src);
 		MessageBox box = new MessageBox(model.getRefFrame(),
 				"Remove All Attachments", 
 				"Are you sure you want to remove all Attachments?");
@@ -700,7 +753,8 @@ class EditorUI
 			if (name != null && name.trim().length() > 0) {
 				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
 				ShowEditorEvent event = new ShowEditorEvent(
-						(DataObject) object, name, 
+						model.getSecurityContext(),
+						(DataObject) object, name,
 						ShowEditorEvent.EXPERIMENT);
 				bus.post(event);
 			}
@@ -928,6 +982,23 @@ class EditorUI
 		if (tabPane.isEnabledAt(index)) return true;
 		tabPane.setSelectedIndex(GENERAL_INDEX);
 		return false;
+	}
+
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		generalPane.onRelatedNodesSet();
+	}
+
+	/**
+	 * Overridden to wrap the description.
+	 * @see JComponent#setSize(Dimension)
+	 */
+	public void setSize(Dimension d)
+	{
+		super.setSize(d);
+		if (generalPane != null) 
+			generalPane.setExtentWidth(getVisibleRect().width);
 	}
 	
 }

@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -162,9 +163,11 @@ public class ImViewerAgent
         		pixels = ((WellSampleData) image).getImage().getDefaultPixels();
         	}
         	if (pixels != null)
-        		view = ImViewerFactory.getImageViewer(image, r, b);
+        		view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+        				image, r, b);
         } else
-        	view = ImViewerFactory.getImageViewer(object.getImageID(), r, b);
+        	view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+        			object.getImageID(), r, b);
         if (view != null) {
         	view.activate(object.getSettings(), object.getSelectedUserID());
         	view.setContext(object.getParent(), object.getGrandParent());
@@ -194,7 +197,9 @@ public class ImViewerAgent
     	PixelsData pixels = request.getPixels();
     	if (pixels == null) return;
     	long pixelsID = pixels.getId();
-    	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
+    	//TODO: review
+    	ImViewer view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+    			pixelsID);
     	if (view != null) {
     		switch (evt.getIndex()) {
 				case MeasurementToolLoaded.ADD:
@@ -215,7 +220,7 @@ public class ImViewerAgent
     {
     	if (evt == null) return;
     	long pixelsID = evt.getPixelsID();
-    	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
+    	ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
     	if (view != null && !view.isPlayingMovie()) {
     		Rectangle r = evt.getBounds();
     		if (r != null) {
@@ -226,6 +231,29 @@ public class ImViewerAgent
     	}
     }
     
+    /**
+     * Handles the {@link SelectChannel} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSelectChannel(SelectChannel evt)
+    {
+    	if (evt == null) return;
+    	long pixelsID = evt.getPixelsID();
+    	ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
+    	if (view != null && !view.isPlayingMovie()) {
+    		List<Integer> l = view.getActiveChannels();
+    		List<Integer> channels = evt.getChannels();
+    		Iterator<Integer> i = channels.iterator();
+    		Integer c;
+    		while (i.hasNext()) {
+				c = i.next();
+				if (!l.contains(c)) {
+					view.setChannelSelection(c, true);
+				}
+			}
+    	}
+    }
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
@@ -256,6 +284,7 @@ public class ImViewerAgent
      */
     private void handleFocusGainedEvent(FocusGainedEvent evt)
     {
+    	/*
     	ImViewer viewer = ImViewerFactory.getImageViewer(
 				evt.getPixelsID());
     	if (viewer == null) return;
@@ -263,6 +292,7 @@ public class ImViewerAgent
     		evt.getIndex() != FocusGainedEvent.VIEWER_FOCUS) {
 			//viewer.toFront();
 		}
+		*/
     }
 
     /**
@@ -273,7 +303,7 @@ public class ImViewerAgent
     private void handleImageViewportEvent(ImageViewport evt)
     {
     	if (evt == null) return;
-    	ImViewer viewer = ImViewerFactory.getImageViewer(
+    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
 				evt.getPixelsID());
     	if (viewer == null) return;
     	viewer.scrollToViewport(evt.getBounds());
@@ -314,7 +344,8 @@ public class ImViewerAgent
     	if (evt.browseObject()) return;
     	if (o instanceof ImageData) {
     		ImViewer view = ImViewerFactory.getImageViewer(
-    				((ImageData) o).getId(), null, true);
+    				evt.getSecurityContext(), ((ImageData) o).getId(),
+    				null, true);
     		if (view != null) {
     			view.activate(null, getUserDetails().getId());
     			JComponent src = evt.getSource();
@@ -331,7 +362,7 @@ public class ImViewerAgent
     private void handleRendererUnloadedEvent(RendererUnloadedEvent evt)
     {
     	if (evt == null) return;
-    	ImViewer viewer = ImViewerFactory.getImageViewer(
+    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
 				evt.getPixelsID());
     	if (viewer == null) return;
     	viewer.discard();
@@ -370,7 +401,7 @@ public class ImViewerAgent
     {
     	if (evt == null) return;
     	ImageData image = evt.getImage();
-    	ImViewer viewer = ImViewerFactory.getImageViewer(
+    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
     			image.getDefaultPixels().getId());
     	if (viewer != null) {
     		viewer.displayFLIMResults(evt.getResults());
@@ -393,7 +424,7 @@ public class ImViewerAgent
     	UserNotifier un = registry.getUserNotifier();
     	while (i.hasNext()) {
 			id = i.next();
-			viewer = ImViewerFactory.getImageViewer(id);
+			viewer = ImViewerFactory.getImageViewer(null, id);
 			if (viewer != null) {
 				un.notifyInfo("Reload", "The rendering engine could not be " +
 						"reloaded for " + viewer.getUI().getTitle()+
@@ -413,7 +444,7 @@ public class ImViewerAgent
     	if (image.getId() < 0) return;
     	PixelsData pixels = image.getDefaultPixels();
     	if (pixels == null) return;
-    	ImViewer viewer = ImViewerFactory.getImageViewer(pixels.getId());
+    	ImViewer viewer = ImViewerFactory.getImageViewer(null, pixels.getId());
     	if (viewer != null) viewer.discard();
     }
 
@@ -430,7 +461,12 @@ public class ImViewerAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		ImViewerFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -455,6 +491,7 @@ public class ImViewerAgent
         bus.register(this, FLIMResultsEvent.class);
         bus.register(this, ReloadRenderingEngine.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, SelectChannel.class);
     }
 
     /**
@@ -519,6 +556,8 @@ public class ImViewerAgent
         	handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
         else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+        else if (e instanceof SelectChannel)
+			handleSelectChannel((SelectChannel) e);
     }
 
 }

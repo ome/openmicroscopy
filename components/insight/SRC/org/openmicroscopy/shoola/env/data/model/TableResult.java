@@ -104,9 +104,9 @@ public class TableResult
 	 * @param index One of the constants defined by this class.
 	 * @return See above.
 	 */
-	public int getColumnIndex(int index)
+	public int getColumnIndex(Integer index)
 	{ 
-		if (indexes == null) return -1;
+		if (indexes == null || index == null) return -1;
 		Integer value = indexes.get(index);
 		if (value == null) return -1;
 		return value.intValue(); 

@@ -35,6 +35,7 @@ from django.contrib.auth import authenticate, login
 from django.core.handlers.base import BaseHandler
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.signals import got_request_exception
+from django.core.urlresolvers import reverse
 from django.http import SimpleCookie, HttpRequest, QueryDict
 from django.template import TemplateDoesNotExist
 from django.test import signals
@@ -46,7 +47,7 @@ from django.utils.itercompat import is_iterable
 from django.db import transaction, close_connection
 from django.test.utils import ContextList
 
-from omeroweb.webgateway import views as webgateway_views
+from omeroweb.connector import Connector
 
 __all__ = ('Client', 'RequestFactory', 'encode_file', 'encode_multipart')
 
@@ -529,7 +530,7 @@ class Client(RequestFactory):
             response = self._handle_redirects(response, **extra)
         return response
 
-    def login(self, login,password, server_id=1, secure=True):
+    def login(self, login, password, server_id=1, secure=True):
         """
         Sets the Factory to appear as if it has successfully logged into a site.
 
@@ -545,7 +546,7 @@ class Client(RequestFactory):
             'server':server_id,
             'ssl':'on'
         }        
-        request = fakeRequest(method="post", path="/webadmin/login/", params=params)
+        request = fakeRequest(method="post", path=(reverse(viewname="walogin")), params=params)
         
         if self.session:
             request.session = self.session
@@ -564,21 +565,19 @@ class Client(RequestFactory):
         }
         self.cookies[session_cookie].update(cookie_data)
         
-        from omeroweb.webadmin.custom_models import Server
-        blitz = Server.get(pk=request.REQUEST.get('server')) 
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-
-        conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
+        connector = Connector(request.REQUEST.get('server'), True)
+        conn = connector.create_connection('TEST.webadmin', login, password)
         if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()
             return True
         else:
-            webgateway_views._session_logout(request, request.session.get('server'))
+            try:
+                try:
+                    conn.seppuku()
+                except:
+                    self.fail('Exception during logout.', exc_info=True)
+            finally:
+                request.session.flush()
             return False
     
     def logout(self):
@@ -587,15 +586,26 @@ class Client(RequestFactory):
 
         Causes the authenticated user to be logged out.
         """
-        request = fakeRequest(method="get", path="/webadmin/logout/")
-        webgateway_views._session_logout(request, request.session.get('server'))
-                    
+        
         session = import_module(settings.SESSION_ENGINE).SessionStore()
         session_cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if session_cookie:
             session.delete(session_key=session_cookie.value)
         self.cookies = SimpleCookie()
 
+        from omeroweb.webclient.decorators import login_required
+        
+        request = fakeRequest(method="get", path=reverse(viewname="weblogout"))
+        @login_required()
+        def foo(request, conn=None):
+            return conn
+        
+        try:
+            conn = foo(request)
+            conn.seppuku()
+        finally:
+            request.session.flush()
+    
     def _handle_redirects(self, response, **extra):
         "Follows any redirects by requesting responses from the server using GET."
 

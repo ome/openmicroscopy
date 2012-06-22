@@ -14,21 +14,19 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
+    <!-- Bioformats -->
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,server,client->build">
+        <artifact name="bio-formats"/>
+        <artifact name="jai_imageio"/>
+        <artifact name="loci-common"/>
+        <artifact name="mdbtools-java"/>
+        <artifact name="metakit"/>
+        <artifact name="ome-io"/>
+        <artifact name="ome-xml"/>
+        <artifact name="poi-loci"/>
+        <artifact name="scifio"/>
+    </dependency>
+    <!-- Other -->
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}" conf="build,server,client->default"/>
-    <!-- Loci -->
-    <dependency org="OME" name="scifio" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="metakit" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="scifio" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="xalan" rev="${versions.xalan}"/>
-    <dependency org="loci" name="serializer" rev="${versions.xalan}"/>
-    <dependency org="loci" name="poi-loci" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="mdbtools-java" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="jai_imageio" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="bufr" rev="1.1.00"/>
-    <dependency org="loci" name="grib" rev="5.1.03"/>
-    <dependency org="loci" name="netcdf" rev="4.0"/>
   </dependencies>
 </ivy-module>

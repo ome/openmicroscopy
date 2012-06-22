@@ -486,7 +486,7 @@ class ScriptControl(BaseControl):
 
         try:
             try:
-                impl = usermode_processor(client, serverid = "omer.scripts.serve", accepts_list = who, omero_home=self.ctx.dir)
+                impl = usermode_processor(client, serverid = "omero.scripts.serve", accepts_list = who, omero_home=self.ctx.dir)
                 self._processors.append(impl)
             except exceptions.Exception, e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
@@ -498,17 +498,10 @@ class ScriptControl(BaseControl):
                     logging.getLogger().handlers = roots
                 atexit.register(cleanup)
             else:
-                try:
-                    def handler(signum, frame):
-                        raise SystemExit()
-                    old = signal.signal(signal.SIGALRM, handler)
-                    signal.alarm(timeout)
-                    self.ctx.input("Press any key to exit...\n")
-                    signal.alarm(0)
-                finally:
-                    self.ctx.dbg("DONE")
-                    signal.signal(signal.SIGTERM, old)
-                    impl.cleanup()
+                if self._isWindows():
+                    self.foreground_win(impl, timeout)
+                else:
+                    self.foreground_nix(impl, timeout)
         finally:
             if not background:
                 logging._handlerList = original
@@ -516,6 +509,38 @@ class ScriptControl(BaseControl):
 
         return impl
 
+    def foreground_nix(self, impl, timeout):
+        """
+        Use signal.SIGALRM to wait for the timeout to signal
+        """
+
+        def handler(signum, frame):
+            raise SystemExit()
+
+        old = signal.signal(signal.SIGALRM, handler)
+        try:
+            signal.alarm(timeout)
+            self.ctx.input("Press any key to exit...\n")
+            signal.alarm(0)
+        finally:
+            self.ctx.dbg("DONE")
+            signal.signal(signal.SIGTERM, old)
+            impl.cleanup()
+
+    def foreground_win(self, impl, timeout):
+        """
+        Note: currently simply fails.
+        An implementation might be possible using msvcrt.
+        See: http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
+        """
+        try:
+            if timeout != 0:
+                self.ctx.die(144, "Timeout not supported on Windows")
+            else:
+                self.ctx.input("Press any key to exit...\n")
+                self.ctx.dbg("DONE")
+        finally:
+            impl.cleanup()
 
     def upload(self, args):
 

@@ -1,4 +1,4 @@
-{% extends "common/base/base_header.html" %}
+{% extends "webgateway/base/base_header.html" %}
 
 {% comment %}
 <!--
@@ -21,23 +21,13 @@
 {% endcomment %}
 
 {% block title %}
-Extends "common/base/base_header.html"
-{% endblock %}
-
-
-{% block link %}
-    {{ block.super }}
-    <style type="text/css">
-        #content {
-            top: 80px;
-        }
-    </style>
+Extends "webgateway/base/base_header.html"
 {% endblock %}
 
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    {% include "webclient/base/menu.html" %}
+    {% include "webclient/base/includes/menu.html" %}
     <li><a href="{% url common 'base_header' %}">base_header</a></li>
 {% endblock %}
 
@@ -47,9 +37,9 @@ Extends "common/base/base_header.html"
     <h1>block content</h1>
     
     <p>
-        This page extends "common/base/base_header.html" and makes the following changes:
+        This page extends "webgateway/base/base_header.html" and makes the following changes:
         <ul>
-            <li>Includes "webclient/base/menu.html" links within the 'nav_links' block (main top links)</li>
+            <li>Includes "webclient/base/includes/menu.html" links within the 'middle_header_right' block (main top links)</li>
             <li>Over-writes the 'thin_header' block to remove the thin header</li>
             <li>Over-writes the 'footer' block (and 'footer_css') to remove footer and it's css</li>
             <li>Adds this text to the 'content' block</li>

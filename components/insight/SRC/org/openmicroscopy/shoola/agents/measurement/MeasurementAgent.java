@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -85,10 +86,11 @@ public class MeasurementAgent
     {
     	PixelsData pixels = evt.getPixels();
     	if (pixels == null) return;
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     			pixels.getId());
     	if (viewer == null) {
     		viewer = MeasurementViewerFactory.getViewer(
+    				evt.getSecurityContext(),
         			evt.getPixels(), evt.getImageID(), evt.getName(),
         			evt.getRequesterBounds(), evt.getDefaultZ(), 
         			evt.getDefaultT(), evt.getMagnification(), 
@@ -110,7 +112,7 @@ public class MeasurementAgent
      */
     private void handleMeasurePlaneEvent(MeasurePlane evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) 
     		viewer.setMagnifiedPlane(evt.getDefaultZ(), evt.getDefaultT(), 
@@ -124,7 +126,7 @@ public class MeasurementAgent
      */
     private void handleViewerStateEvent(ViewerState evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		switch (evt.getIndex()) {
@@ -147,7 +149,7 @@ public class MeasurementAgent
      */
     private void handleFocusGainedEvent(FocusGainedEvent evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
 				evt.getPixelsID());
     	if (viewer == null) return;
     	if (viewer.getState() != MeasurementViewer.DISCARDED ||
@@ -163,7 +165,7 @@ public class MeasurementAgent
      */
     private void handleChannelSelectionEvent(ChannelSelection evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		switch (evt.getIndex()) {
@@ -184,10 +186,10 @@ public class MeasurementAgent
      */
     private void handleSaveData(SaveData evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
-    		viewer.saveROIToServer();
+    		viewer.saveROIToServer(true);
     		viewer.discard();
     	}
     }
@@ -199,7 +201,7 @@ public class MeasurementAgent
      */
     private void handleImageRenderedEvent(ImageRendered evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());
@@ -251,6 +253,16 @@ public class MeasurementAgent
      */
     public static Registry getRegistry() { return registry; }
     
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Collection getAvailableUserGroups()
+	{
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
     /**
 	 * Helper method returning the current user's details.
 	 * 
@@ -260,6 +272,19 @@ public class MeasurementAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		if (b == null) return false;
+		return b.booleanValue();
 	}
 	
     /**
@@ -318,7 +343,12 @@ public class MeasurementAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-	public void terminate() {}
+	public void terminate()
+	{
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		MeasurementViewerFactory.onGroupSwitched(true);
+	}
 
 	/**
 	 * Listens to events.

@@ -48,26 +48,17 @@ class BaseShare(BaseController):
     comments = None
     cmSize = None
 
-    def __init__(self, conn, conn_share=None, share_id=None, **kw):
+    def __init__(self, conn, share_id=None, **kw):
         BaseController.__init__(self, conn)
-        if conn_share is None:
-            if share_id is not None: 
-                self.share = self.conn.getShare(share_id)
-                if self.share is None:
-                    raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
-                if self.share._obj is None:
-                    raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
-                if self.share is not None and not self.share.active and not self.share.isOwned():
-                    raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
-        else:
-            self.conn_share = conn_share
+        
+        if share_id is not None: 
             self.share = self.conn.getShare(share_id)
-            if self.share is not None and not self.share.active and not self.share.isOwned:
-                raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
             if self.share is None:
                 raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
             if self.share._obj is None:
                 raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
+            if self.share is not None and not self.share.active and not self.share.isOwned():
+                raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
 
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
         # only for python 2.5
@@ -126,7 +117,7 @@ class BaseShare(BaseController):
         self.conn.updateShareOrDiscussion(host, int(blitz_id), self.share.id, message, add_mem, rm_mem, enable, expiration_date)
     
     def addComment(self, host, blitz_id, comment):
-        self.conn.addComment(host, int(blitz_id), self.share.id, comment)
+        return self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
     def getShares(self):
         sh_list = list(self.conn.getOwnShares())
@@ -147,7 +138,7 @@ class BaseShare(BaseController):
 
     def getComments(self, share_id):
         self.comments = list(self.conn.getComments(share_id))
-        self.comments.sort(key=lambda x: x.creationEventDate())
+        self.comments.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.cmSize = len(self.comments)
 
     def removeImage(self, image_id):
@@ -160,22 +151,6 @@ class BaseShare(BaseController):
          self.allInShare = list(self.conn.getAllMembers(share_id))#list(self.conn.getAllUsers(share_id))
 
     def loadShareContent(self):
-        try:
-            if self.conn_share._shareId is not None:
-                content = self.conn_share.getContents(self.conn_share._shareId)
-            else:
-                raise AttributeError('Share was not activated.')
-        except:
-            raise AttributeError('Share was not activated.')
-        self.imageInShare = list()
-
-        for ex in content:
-            if isinstance(ex._obj, omero.model.ImageI):
-                self.imageInShare.append(ex)
-
-        self.imgSize = len(self.imageInShare)
-    
-    def loadShareOwnerContent(self):
         content = self.conn.getContents(self.share.id)
         
         self.imageInShare = list()

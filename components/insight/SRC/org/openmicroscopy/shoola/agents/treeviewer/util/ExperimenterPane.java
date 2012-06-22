@@ -55,7 +55,6 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.SelectionWizardUI;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -188,8 +187,7 @@ class ExperimenterPane
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
-            
-     
+
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
@@ -272,7 +270,7 @@ class ExperimenterPane
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     		p.add(UIUtilities.buildComponentPanel(
     				UIUtilities.setTextFont("Select the group(s) to add the " +
-    				"Experimenter to")));
+    				"User to")));
     		p.add(selectionComponent);
     		c.gridy++;
     		add(new JSeparator(), c);
@@ -311,11 +309,11 @@ class ExperimenterPane
 		ExperimenterData data = new ExperimenterData();
 		field = items.get(EditorUtil.FIRST_NAME);
 		String value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setFirstName(value);
 		field = items.get(EditorUtil.LAST_NAME);
 		value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
 		value = field.getText();
@@ -372,6 +370,19 @@ class ExperimenterPane
 		return groups;
 	}
 
+	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasLoginName()
+	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		return (s.length() != 0);
+	}
+	
 	/**
 	 * Controls if criteria are met to create a new user.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

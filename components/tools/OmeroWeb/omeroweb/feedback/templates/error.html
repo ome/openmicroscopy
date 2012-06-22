@@ -1,19 +1,21 @@
+{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
+{% block link %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static "feedback/css/layout.css" %}" type="text/css" />
-    <link rel="shortcut icon" href="{% static "common/image/ome.ico" %}" type="image/x-icon" />
-    
-    <title>{% trans "Web - Internal Error" %}</title>
-    
-</head>
+{% endblock %}
 
-<body>
+{% block title %}
+    {% trans "Web - Internal Error" %}
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    {% include "webgateway/base/includes/shortcut_icon.html" %}
+{% endblock %}
+
+{% block body %}
 <div class="error"><h1>
     {% trans "Go back to" %}: <a href="{% url waindex %}" target="_top">{% trans "Webadmin" %}</a>, <a href="{% url webindex %}" target="_top">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url weblogout %}" target="_top">{% trans "Logout" %}</a>
 </h1>
@@ -23,8 +25,6 @@
 {% endblock %}
 
 </div>
-<div id="footer"><p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p></div>
 
 </div>
-</body>
-</html>
+{% endblock %}

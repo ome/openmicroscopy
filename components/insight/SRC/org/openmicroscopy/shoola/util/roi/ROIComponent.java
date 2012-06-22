@@ -81,6 +81,21 @@ public class ROIComponent
 	extends Component 
 {
 
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int ANNOTATE = 0;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE = 1;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_MINE = 2;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE_OTHERS = 3;
+	
+	/** Flag indicating to check if the roi can be deleted.*/
+	public static final int ALL = 4;
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 
@@ -194,25 +209,11 @@ public class ROIComponent
 	public void setMicronsPixelX(double x) { units.setMicronsPixelX(x); }
 
 	/**
-	 * Returns the number of microns per pixel in the x-axis. 
-	 * 
-	 * @return microns see above.
-	 */
-	public double getMicronsPixelX() { return units.getMicronsPixelX(); }
-	
-	/**
 	 * Sets the number of microns per pixel in the y-axis. 
 	 * 
 	 * @param y The value to set.
 	 */
 	public void setMicronsPixelY(double y) { units.setMicronsPixelY(y); }
-	
-	/**
-	 * Returns the number of microns per pixel in the y-axis.
-	 *  
-	 * @return See above.
-	 */
-	public double getMicronsPixelY() { return units.getMicronsPixelY(); }
 	
 	/**
 	 * Sets the number of microns per pixel in the z-axis. 
@@ -222,13 +223,6 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelZ(double z) { units.setMicronsPixelZ(z); }
 	
-	/**
-	 * Returns the number of microns per pixel in the z-axis. 
-	 * 
-	 * @return See above.
-	 */
-	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
-    
     /**
      * Adds the specified figure to the display.
      * 
@@ -278,16 +272,17 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by this class.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, long ownerID) 
+	public List<ROIData> saveROI(ImageData image, int index, long userID)
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, ownerID);
+		return serverStrategy.write(this, image, index, userID);
 	}
 	
 	/**
@@ -324,7 +319,6 @@ public class ROIComponent
 	 * 
 	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
-	 * @param readOnly Are the ROI readOnly.
 	 * @param userID The identifier of the user currently logged in.
 	 * @return See above.
 	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
@@ -336,15 +330,14 @@ public class ROIComponent
 	 * @throws ROICreationException		 	Thrown while trying to create an 
 	 * 										ROI.
 	 */
-	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly, 
-			long userID) 
+	public List<ROI> loadROI(long fileID, Collection rois, long userID) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly, userID);
+		List<ROI> l = serverStrategy.read(rois, this, userID);
 		if (fileID > 0)
 			roiResult.put(fileID, l);
 		return l;
@@ -388,7 +381,7 @@ public class ROIComponent
 	public ROI createROI(long id)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id, true);
+		return roiCollection.createROI(id, true, true, true, true);
 	}
 
 	/**
@@ -399,16 +392,21 @@ public class ROIComponent
 	 * old one.
 	 * 
 	 * @param id The ROI id. 
-	 * @param clientSideObject Is this object a client-side object
+	 * @param clientSideObject Is this object a client-side object.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 * @return See above.
 	 * @throws ROICreationException	If an error occurred while creating 
 	 * 								an ROI, basic assumption is this is 
 	 * 								linked to memory issues.
 	 */
-	public ROI createROI(long id, boolean clientSideObject)
+	public ROI createROI(long id, boolean clientSideObject,
+			boolean editable, boolean deletable, boolean annotatable)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id, clientSideObject);
+		return roiCollection.createROI(id, clientSideObject, editable,
+				deletable, annotatable);
 	}
 
 	/**

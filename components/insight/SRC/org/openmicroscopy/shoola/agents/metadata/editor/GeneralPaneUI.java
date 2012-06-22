@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +49,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -161,7 +165,7 @@ class GeneralPaneUI
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
-		annotationUI = new AnnotationDataUI(model, controller);
+		annotationUI = new AnnotationDataUI(view, model, controller);
 
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
@@ -186,13 +190,16 @@ class GeneralPaneUI
 		annotationTaskPane.add(p);
 	}
 	
+	/** The Component hosting the container.*/
+	private JScrollPane pane;
+	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
 		container.add(propertiesTaskPane);
 		container.add(annotationTaskPane);
-		JScrollPane pane = new JScrollPane();
+		pane = new JScrollPane();
 		JViewport viewport = pane.getViewport();
 		viewport.add(container);
 		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -348,18 +355,18 @@ class GeneralPaneUI
 				loadParents(true);
 		}
 	}
+
 	
 	/** 
-	 * Returns an array of size 2 with the collection of 
-	 * annotation to save. 
+	 * Returns the object hosting the annotation/link to save.
 	 * 
 	 * @return See above.
 	 */
-	Map<Integer, List<AnnotationData>> prepareDataToSave()
+	DataToSave prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
-		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+		List<Object> toRemove = new ArrayList<Object>();
 		List<AnnotationData> l = annotationUI.getAnnotationToSave();
 		//To add
 		if (l != null && l.size() > 0)
@@ -368,17 +375,14 @@ class GeneralPaneUI
 		if (l != null && l.size() > 0)
 			toAdd.addAll(l);
 		//To remove
-		l = annotationUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		Map<Integer, List<AnnotationData>> 
-			map = new HashMap<Integer, List<AnnotationData>>();
-		map.put(EditorUI.TO_ADD, toAdd);
-		map.put(EditorUI.TO_REMOVE, toRemove);
-		return map;
+		List<Object> ll = annotationUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		ll = textualAnnotationsUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		
+		return new DataToSave(toAdd, toRemove);
 	}
 	
 	/** Updates display when the parent of the root node is set. */
@@ -586,6 +590,18 @@ class GeneralPaneUI
 	{
 		if (objects == null) return;
 		annotationUI.handleObjectsSelection(type, objects, true);
+	}
+	
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		annotationUI.onRelatedNodesSet();
+	}
+
+	void setExtentWidth(int width)
+	{
+		if (propertiesUI != null)
+			propertiesUI.setExtentWidth(width);
 	}
 	
 }

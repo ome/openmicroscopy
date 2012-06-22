@@ -58,8 +58,6 @@ public class ModelObjectHandlerFactory
 			     new LaserHandler(enumProvider));
 	handlers.put(LogicalChannelHandler.HANDLER_FOR,
 	        new LogicalChannelHandler(enumProvider));
-        handlers.put(OTFHandler.HANDLER_FOR,
-                new OTFHandler(enumProvider));
         handlers.put(MicroscopeHandler.HANDLER_FOR,
                 new MicroscopeHandler(enumProvider));
         handlers.put(ExperimentHandler.HANDLER_FOR,

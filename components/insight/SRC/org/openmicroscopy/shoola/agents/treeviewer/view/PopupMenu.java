@@ -45,6 +45,8 @@ import javax.swing.border.BevelBorder;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -102,6 +104,9 @@ class PopupMenu
 	/** Button to refresh the experimenter data. */
 	private JMenuItem			refreshExperimenterElement;
 
+	/** Button to add experimenter node from the display. */
+	private JMenuItem			addExperimenterElement;
+	
 	/** Button to refresh the tree data. */
 	private JMenuItem			refreshTreeElement;
 
@@ -172,7 +177,10 @@ class PopupMenu
 	private JMenuItem			newExperimentElement;
 	
 	/** Button to send feedback. */
-	private JMenuItem			sendFeedbackElement;	
+	private JMenuItem			sendFeedbackElement;
+	
+	/** Button to view an Image using ImageJ. */
+	private JMenuItem			viewInIJ;
 	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
@@ -188,6 +196,9 @@ class PopupMenu
 	
 	/** Button to activate or not user. */
     private JCheckBoxMenuItem   activatedUser;
+    
+    /** Button to remove group from the display. */
+	private JMenuItem removeGroupElement;
     
 	/**
 	 * Sets the defaults of the specified menu item.
@@ -212,6 +223,16 @@ class PopupMenu
 		populateMenu();
 		TreeViewerAction a;
 		switch (index) {
+			case TreeViewer.VIEW_MENU:
+				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+					a = controller.getAction(TreeViewerControl.VIEW);
+					view = new JMenuItem(a);
+					initMenuItem(view, a.getActionName());
+					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+					viewInIJ = new JMenuItem(a);
+					initMenuItem(viewInIJ, a.getActionName());
+				}
+				break;
 			case TreeViewer.FULL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.BROWSE);
 				browse = new JMenuItem(a);
@@ -223,6 +244,11 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
+				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+					viewInIJ = new JMenuItem(a);
+					initMenuItem(viewInIJ, a.getActionName());
+				}
 				a = controller.getAction(
 						TreeViewerControl.EDITOR_WITH_SELECTION);
 				editFile = new JMenuItem(a);
@@ -260,6 +286,15 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
 				removeExperimenterElement = new JMenuItem(a);
 				initMenuItem(removeExperimenterElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.REMOVE_GROUP);
+				removeGroupElement = new JMenuItem(a);
+				initMenuItem(removeGroupElement, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.SWITCH_USER);
+				addExperimenterElement = new JMenuItem(a);
+				addExperimenterElement.addMouseListener((SwitchUserAction) a);
+				initMenuItem(addExperimenterElement, a.getActionName());
+				
 				a = controller.getAction(
 						TreeViewerControl.REFRESH_EXPERIMENTER);
 				refreshExperimenterElement = new JMenuItem(a);
@@ -403,6 +438,23 @@ class PopupMenu
 		}
 	}
 
+	/**
+	 * Creates a menu if the various groups the data can be moved to.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu createMoveToMenu()
+	{
+		List<MoveToAction> actions = controller.getMoveAction();
+		if (actions == null || actions.size() == 0) return null;
+		JMenu menu = new JMenu(MoveToAction.NAME);
+		Iterator<MoveToAction> i = actions.iterator();
+		while (i.hasNext()) {
+			menu.add(new JMenuItem(i.next()));
+		}
+		return menu;
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -411,11 +463,18 @@ class PopupMenu
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
 				add(browseNoThumbnails);
-				add(view);
+				if (viewInIJ != null) {
+					JMenu menu = new JMenu();
+					initMenuItem(menu, TreeViewerWin.VIEW_MENU);
+					menu.setIcon(view.getIcon());
+					menu.add(view);
+					menu.add(viewInIJ);
+					add(menu);
+				} else add(view);
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
-				add(sendFeedbackElement);
+				//add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(createDatasetFromSelection);
 				add(importElement);
@@ -423,6 +482,8 @@ class PopupMenu
 				add(cutElement);
 				add(copyElement);
 				add(pasteElement);
+				JMenu m = createMoveToMenu();
+				if (m != null) add(m);
 				add(deleteElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);
@@ -434,6 +495,8 @@ class PopupMenu
 				add(setMinMaxElement);
 				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(removeGroupElement);
+				add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
 				break;
@@ -469,6 +532,12 @@ class PopupMenu
 				add(copyElement);
 				add(pasteElement);
 				add(deleteElement);
+				break;
+			case TreeViewer.VIEW_MENU:
+				if (viewInIJ != null) {
+					add(view);
+					add(viewInIJ);
+				}
 		}
 	}
 

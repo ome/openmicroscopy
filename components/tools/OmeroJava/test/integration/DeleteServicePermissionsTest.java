@@ -121,9 +121,9 @@ public class DeleteServicePermissionsTest
     }
     
     /**
-     * Test to try to delete an image owned by another user in a collaborative
+     * Test to try to delete an image owned by another user in a read-write
      * group i.e. RWR---
-     * @throws Exception Thrown if an error occurred.     
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
     public void testDeleteImageOwnedByOtherRWR()
@@ -173,8 +173,8 @@ public class DeleteServicePermissionsTest
 
     /**
      * Test to try to delete an object by the owner of a private group
-     * i.e. RW----
-     * @throws Exception Thrown if an error occurred.     
+     * i.e. RWRW--
+     * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = true)
     public void testDeleteObjectByGroupOwnerRWRW()
@@ -226,7 +226,7 @@ public class DeleteServicePermissionsTest
     /**
      * Test to try to delete an object by the administrator in a read-only
      * collaborative group i.e. RWR---
-     * @throws Exception Thrown if an error occurred.     
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
     public void testDeleteObjectByAdminRWR()
@@ -859,4 +859,177 @@ public class DeleteServicePermissionsTest
     	assertExists(dataset2);
     }
     
+    /**
+     * Test to try to delete an object by the administrator in a read-annotate
+     * collaborative group i.e. RWRA--
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectByAdminRWRA()
+    	throws Exception
+    {
+
+        // set up collaborative group
+        newUserAndGroup("rwra--");
+
+        // owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+		//admin deletes the object.
+		logRootIntoGroup();
+		delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertDoesNotExist(img);
+    }
+    
+    /**
+     * Test to try to delete an object by the administrator in a read-write
+     * collaborative group i.e. RWRW--
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectByAdminRWRW()
+    	throws Exception
+    {
+
+        // set up collaborative group
+        newUserAndGroup("rwrw--");
+
+        // owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+		//admin deletes the object.
+		logRootIntoGroup();
+		delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertDoesNotExist(img);
+    }
+    
+    /**
+     * Test to try to delete an object by the owner of a read-annotate
+     * i.e. RWRA--
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByGroupOwnerRWRA()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rwra--");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		makeGroupOwner();
+
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertDoesNotExist(img);
+    }
+    
+    /**
+     * Test to try to delete an object by a member of a private group
+     * i.e. RW----
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByMemberRW()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rw----");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+		disconnect();
+		loginUser(ownerEc);
+		assertExists(img);
+    }
+    
+    /**
+     * Test to try to delete an object by a member of a read-only group
+     * i.e. RWR---
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByMemberRWR()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rwr---");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertExists(img);
+    }
+    
+    /**
+     * Test to try to delete an object by a member of a read-annotate group
+     * i.e. RWRA--
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByMemberRWRA()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rwra--");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertExists(img);
+    }
+    
+    /**
+     * Test to try to delete an object by a member of a read-write group
+     * i.e. RWRW--
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByMemberRWRW()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rwrw--");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertDoesNotExist(img);
+    }
+
 }

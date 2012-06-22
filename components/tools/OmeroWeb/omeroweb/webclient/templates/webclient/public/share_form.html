@@ -1,4 +1,3 @@
-{% extends "common/base/base_frame.html" %}
 {% load i18n %}
 
 
@@ -22,64 +21,28 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/share.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block script %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-
-    <script>
-      $(document).ready(function(){
-          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
-          
-      });
-    </script>
-        
-    <script type="text/javascript">
-        $(function() {
-            $("#markup_c, #enable, #expire").tooltip({ 
-                track: true, 
-                delay: 0, 
-                showURL: false, 
-                opacity: 1, 
-                fixPNG: true, 
-                showBody: " - ", 
-                top: -15, 
-                left: 5 
-            });
-        });
-    </script>
-    
-{% endblock %}
-
-{% block body %}
-
 <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 
 <div id="share_content"></div>
-<div class="clear"> </div>
 
     <div>
-        <form action="{% url manage_action_containers "save" "share" share.share.id %}?url={{ url }}" method="post">
-            <table>
+        <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' share.share.id %}" method="post" class="standard_form">
+        
+            <p>{% trans "Fields marked in red are mandatory." %}</p>
+            
             {% for field in form %}
                 {% ifequal field.label_tag form.enable.label_tag %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+                <div>
+                    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+                    {{ field }} {{ field.help_text|safe }}
+                    {% if field.errors %}{{ field.errors }}{% endif %}
+                </div>
                 {% else %}                
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
-                <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-                <tr><td>{{ field }}</td></tr>
+                <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %} {{ field.help_text|safe }}</div>
+                <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
+                <div>{{ field }}</div>
                 {% endifequal %}
             {% endfor %}
-                <tr><td><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
-            </table>
         </form>
     </div>
 
-{% endblock %}

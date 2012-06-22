@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -59,13 +60,15 @@ public class UserPhotoLoader
     /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param experimenter The experimenter to handle.              
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param experimenter The experimenter to handle.
      */
-    public UserPhotoLoader(Editor viewer, ExperimenterData experimenter)
+    public UserPhotoLoader(Editor viewer, SecurityContext ctx,
+    		ExperimenterData experimenter)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (experimenter == null)
     		 throw new IllegalArgumentException("No experimenter specified.");
     	 this.experimenter = experimenter;
@@ -83,7 +86,7 @@ public class UserPhotoLoader
 	 */
 	public void load()
 	{
-		handle = adminView.loadExperimenterPhoto(experimenter, this);
+		handle = adminView.loadExperimenterPhoto(ctx, experimenter, this);
 	}
 	
 	/** 

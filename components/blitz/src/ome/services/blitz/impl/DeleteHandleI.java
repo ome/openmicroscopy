@@ -14,9 +14,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
 
 import ome.conditions.InternalException;
 import ome.io.bioformats.BfPyramidPixelBuffer;
@@ -35,19 +48,7 @@ import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
-import omero.api.delete._DeleteHandleDisp;
-
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
+import omero.api.delete._DeleteHandleOperations;
 
 /**
  * Servant for the handle proxy from the IDelete service. This is also a
@@ -70,8 +71,8 @@ import Ice.Current;
  * @since 4.2.1
  * @see ome.api.IDelete
  */
-public class DeleteHandleI extends _DeleteHandleDisp implements
-        CloseableServant, Runnable {
+public class DeleteHandleI extends AbstractAmdServant implements
+        _DeleteHandleOperations, Runnable {
 
     private static enum State {
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
@@ -138,20 +139,34 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     private final ServiceFactoryI sf;
 
+    private final Map<String, String> callContext;
+
     /**
-     * Create and
+     * Call the main constructor with a null call context.
+     */
+    public DeleteHandleI(final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
+            final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs) {
+        this(ctx, id, sf, afs, commands, cancelTimeoutMs, null);
+    }
+
+    /**
+     * Main constructor.
      *
      * @param id
      * @param sf
      * @param factory
      * @param commands
      * @param cancelTimeoutMs
+     * @param callContext
      */
     public DeleteHandleI(final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
-            final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs) {
+            final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs,
+            Map<String, String> callContext) {
+        super(null, null);
         this.id = id;
         this.sf = sf;
         this.afs = afs;
+        this.callContext = callContext;
         this.principal = sf.getPrincipal();
         this.executor = sf.getExecutor();
         this.cancelTimeoutMs = cancelTimeoutMs;
@@ -297,8 +312,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     // CloseableServant. See documentation in interface.
     //
 
-    public void close(Ice.Current current) throws ServerError {
-        sf.unregisterServant(id);
+    @Override
+    protected void preClose(Ice.Current current) throws ServerError {
         if (!finished(current)) {
             log.warn("Handle closed before finished! State=" + state.get());
         }
@@ -322,8 +337,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            executor.execute(principal, new Executor.SimpleWork(this, "run",
-                    Ice.Util.identityToString(id), "size=" + commands.length) {
+            executor.execute(callContext, principal,
+                    new Executor.SimpleWork(this, "run",
+                        Ice.Util.identityToString(id), "size=" + commands.length) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
                     try {

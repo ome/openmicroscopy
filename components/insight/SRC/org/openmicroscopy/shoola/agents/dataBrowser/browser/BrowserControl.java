@@ -104,7 +104,7 @@ class BrowserControl
     private boolean			leftMouseButton;
     
     /** The location of the mouse pressed.*/
-    private Point anchor;
+    private Point anchor = new Point();
     
     /** The source of the mouse pressed.*/
     private Component source;
@@ -201,7 +201,7 @@ class BrowserControl
             if (d == view) return;
             if (d instanceof ImageNode && !(d.getTitleBar() == src)
                 && isSelectionValid(d)) {
-            	model.viewDisplay(d);
+            	model.viewDisplay(d, false);
             }
     	}
     }
@@ -530,7 +530,7 @@ class BrowserControl
     	ctrl = me.isControlDown();
     	if (UIUtilities.isMacOS()) ctrl = me.isMetaDown();
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
-    	if (UIUtilities.isMacOS() || UIUtilities.isLinuxOS()) 
+    	if (!UIUtilities.isWindowsOS()) 
     		onClick(me, false); 
     }
     
@@ -625,6 +625,7 @@ class BrowserControl
 		if (e.getSource() != view.getInternalDesktop()) return;
 		dragging = true;
 		Point p = e.getPoint();
+		if (p == null) p = new Point();
 		selection.width = Math.abs(p.x-anchor.x);
 		selection.height = Math.abs(p.y-anchor.y);
 		if (anchor.x < p.x) selection.x = anchor.x;

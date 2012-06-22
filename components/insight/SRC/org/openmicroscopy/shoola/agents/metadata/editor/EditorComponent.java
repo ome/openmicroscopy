@@ -59,6 +59,8 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -697,9 +699,9 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#exportImageAsOMETIFF(File)
+	 * @see Editor#exportImageAsOMETIFF(File, Target)
 	 */
-	public void exportImageAsOMETIFF(File folder)
+	public void exportImageAsOMETIFF(File folder, Target target)
 	{
 		Object refObject = model.getRefObject();
 		ImageData image = null;
@@ -711,11 +713,11 @@ class EditorComponent
 		if (image == null) return;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		ExportActivityParam param = new ExportActivityParam(folder, 
-				image, ExportActivityParam.EXPORT_AS_OME_TIFF);
+				image, ExportActivityParam.EXPORT_AS_OME_TIFF, target);
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(param);
+		un.notifyActivity(model.getSecurityContext(), param);
 	}
 
 	/** 
@@ -955,9 +957,21 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#isWritable()
+	 * @see Editor#canLink()
 	 */
-	public boolean isWritable() { return model.isWritable(); }
+	public boolean canLink() { return model.canLink(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canEdit()
+	 */
+	public boolean canEdit() { return model.canEdit(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canAnnotate()
+	 */
+	public boolean canAnnotate() { return model.canAnnotate(); }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -1051,5 +1065,14 @@ class EditorComponent
 			dialog = null;
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getSecurityContext()
+	 */
+    public SecurityContext getSecurityContext()
+    { 
+    	return model.getSecurityContext();
+    }
 
 }

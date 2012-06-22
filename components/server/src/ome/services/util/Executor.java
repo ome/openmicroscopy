@@ -9,6 +9,7 @@ package ome.services.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -70,20 +71,10 @@ public interface Executor extends ApplicationContextAware {
     public Principal principal();
 
     /**
-     * Delegates to {@link CurrentDetails#setCallGroup(Long)} to permit thread-specific
-     * setting of the group.
-     * @param gid
-     * @see ticket:1434
+     * Call {@link #execute(Map<String, String>, Principal, Work)} with
+     * a null call context.
      */
-    public void setCallGroup(long gid);
-
-    /**
-     * Delegates to {@link CurrentDetails#resetCallGroup()}.
-     *
-     * @see #setCallGroup(long)
-     * @see ticket:1434
-     */
-    public void resetCallGroup();
+    public Object execute(final Principal p, final Work work);
 
     /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
@@ -91,25 +82,45 @@ public interface Executor extends ApplicationContextAware {
      * {@link Work#doWork(Session, ServiceFactory)} from the
      * {@link OmeroContext}, and the second performs all the standard service
      * actions for any normal method call.
-     * 
+     *
+     * If the {@link Map<String, String>} argument is not null, then additionally,
+     * setContext will be called in a try/finally block. The first login
+     * within this thread will then pick up this delayed context.
+     *
      * If the {@link Principal} argument is not null, then additionally, a
      * login/logout sequence will be performed in a try/finally block.
-     * 
+     *
      * {@link Work} implementation must be annotated with {@link Transactional}
      * in order to properly specify isolation, read-only status, etc.
-     * 
+     *
+     * @param callContext
+     *            Possibly null.
      * @param p
      *            Possibly null.
      * @param work
      *            Not null.
      */
-    public Object execute(final Principal p, final Work work);
+    public Object execute(final Map<String, String> callContext,
+            final Principal p, final Work work);
+
+    /**
+     * Call {@link #submit(Map, Callable)} with a null callContext.
+     * @param <T>
+     * @param callable
+     * @return
+     */
+    public <T> Future<T> submit(final Callable<T> callable);
 
     /**
      * Simple submission method which can be used in conjunction with a call to
      * {@link #execute(Principal, Work)} to overcome the no-multiple-login rule.
+     *
+     * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
+     * @param callable. Not null. Action to be taken.
      */
-    public <T> Future<T> submit(final Callable<T> callable);
+
+    public <T> Future<T> submit(final Map<String, String> callContext,
+            final Callable<T> callable);
 
     /**
      * Helper method to perform {@link Future#get()} and properly unwrap the
@@ -205,8 +216,12 @@ public interface Executor extends ApplicationContextAware {
         final protected String description;
 
         public Descriptive(Object o, String method, Object...params) {
+            this(o.getClass().getName(), method, params);
+        }
+
+        public Descriptive(String name, String method, Object...params) {
             StringBuilder sb = new StringBuilder();
-            sb.append(o.getClass().getName());
+            sb.append(name);
             sb.append(".");
             sb.append(method);
             boolean first = true;
@@ -328,19 +343,29 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
+         * Call {@link #execute(Map<String, String>, Principal, Work)}
+         * with a null call context.
+         */
+        public Object execute(final Principal p, final Work work) {
+            return execute(null, p, work);
+        }
+
+        /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
          * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for
          * the {@link OmeroContext}, and the second performs all the standard
          * service actions for any normal method call.
-         * 
+         *
          * If the {@link Principal} argument is not null, then additionally, a
          * login/logout sequence will be performed in a try/finally block.
-         * 
+         *
+         * @param callContext Possibly null key-value map. See #3529
          * @param p
          * @param work
          */
-        public Object execute(final Principal p, final Work work) {
+        public Object execute(final Map<String, String> callContext,
+                final Principal p, final Work work) {
 
             if (work instanceof SimpleWork) {
                 ((SimpleWork) work).setSqlAction(sqlAction);
@@ -372,19 +397,51 @@ public interface Executor extends ApplicationContextAware {
             if (p != null) {
                 this.principalHolder.login(p);
             }
+            if (callContext != null) {
+                this.principalHolder.setContext(callContext);
+            }
 
             try {
                 // Arguments will be replaced after hibernate is in effect
                 return wrapper.doWork(null, isf);
             } finally {
+                if (callContext != null) {
+                    this.principalHolder.setContext(null);
+                }
                 if (p != null) {
-                    this.principalHolder.logout();
+                    int left = this.principalHolder.logout();
+                    if (left > 0) {
+                        log.warn("Logins left: " + left);
+                        for (int j = 0; j < left; j++) {
+                            this.principalHolder.logout();
+	                    }
+                    }
                 }
             }
         }
 
         public <T> Future<T> submit(final Callable<T> callable) {
-            return service.submit(callable);
+            return submit(null, callable);
+        }
+
+        public <T> Future<T> submit(final Map<String, String> callContext,
+            final Callable<T> callable) {
+
+            if (callContext == null) {
+                return service.submit(callable); // Early exit.
+            } else {
+                Callable<T> wrapper = new Callable<T>() {
+                    public T call() throws Exception {
+                        principalHolder.setContext(callContext);
+                        try {
+                            return callable.call();
+                        } finally {
+                            principalHolder.setContext(null);
+                        }
+                    }
+                };
+                return service.submit(wrapper);
+            }
         }
 
         public <T> T get(final Future<T> future) {
@@ -450,14 +507,6 @@ public interface Executor extends ApplicationContextAware {
                 args[0] = factory.getSession();
                 return mi.proceed();
             }
-        }
-
-        public void resetCallGroup() {
-            principalHolder.resetCallGroup();
-        }
-
-        public void setCallGroup(long gid) {
-            principalHolder.setCallGroup(gid);
         }
 
     }

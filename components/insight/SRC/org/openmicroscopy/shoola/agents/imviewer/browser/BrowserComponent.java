@@ -224,7 +224,7 @@ class BrowserComponent
     		if (!reset) {
     			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
     			else if (index == ImViewer.PROJECTION_INDEX)
-    				projectionView.zoomImage();
+    				projectionView.zoomImage(true);
     		}
     	} else {
     		if (ImViewerAgent.hasOpenGLSupport()) {
@@ -250,7 +250,7 @@ class BrowserComponent
         		if (!reset) {
         			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
         			else if (index == ImViewer.PROJECTION_INDEX)
-        				projectionView.zoomImage();
+        				projectionView.zoomImage(true);
         		}
     		} else {
     			BufferedImage img = null;
@@ -276,8 +276,7 @@ class BrowserComponent
         			if (index == ImViewer.VIEW_INDEX || 
         					index == ImViewer.PROJECTION_INDEX) {
         				view.zoomImage();
-        				
-        				projectionView.zoomImage();
+        				projectionView.zoomImage(true);
         			}
         		}
     		}
@@ -336,7 +335,7 @@ class BrowserComponent
      */
     public void setUnitBarSize(double size)
     {
-    	double oldUnit = model.getUnitInMicrons();
+    	double oldUnit = model.getUnitInRefUnits();
         model.setUnitBarSize(size);
         
         Rectangle viewRect = view.getViewport().getBounds();
@@ -600,8 +599,7 @@ class BrowserComponent
 		} else if (image instanceof TextureData) {
 			model.setProjectedImageAsTexture((TextureData) image);
 		}
-		projectionView.zoomImage();
-        //canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+		projectionView.zoomImage(false);
         projectionView.repaint();
 	}
 
@@ -644,9 +642,9 @@ class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getUnitInMicrons()
+	 * @see Browser#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.

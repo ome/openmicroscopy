@@ -36,6 +36,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
+import ome.security.basic.CurrentDetails;
 import ome.security.basic.PrincipalHolder;
 import ome.services.fulltext.FullTextThread;
 import ome.services.sessions.SessionManager;
@@ -141,7 +142,7 @@ public class AbstractManagedContextTest extends TestCase {
 
         // Service setup
         JamonPerformanceMonitorInterceptor jamon = new JamonPerformanceMonitorInterceptor();
-        loginAop = new LoginInterceptor(holder);
+        loginAop = new LoginInterceptor((CurrentDetails) holder);
         factory = new ServiceFactory((OmeroContext) applicationContext);
         factory = new InterceptingServiceFactory(factory, loginAop, jamon);
         iQuery = (LocalQuery) factory.getQueryService();
@@ -179,6 +180,11 @@ public class AbstractManagedContextTest extends TestCase {
 
     protected void loginRoot(String groupName) {
         login(roles.getRootName(), groupName, "Test");
+    }
+
+    protected Experimenter currentUser() {
+        long gid = iAdmin.getEventContext().getCurrentUserId();
+        return iAdmin.getExperimenter(gid);
     }
 
     protected ExperimenterGroup currentGroup() {

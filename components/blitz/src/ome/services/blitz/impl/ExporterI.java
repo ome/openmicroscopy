@@ -279,7 +279,7 @@ public class ExporterI extends AbstractAmdServant implements
      */
     private void do_xml(final AMD_Exporter_generateXml __cb) {
         try {
-            factory.executor.execute(factory.principal,
+            factory.getExecutor().execute(factory.getPrincipal(),
                     new Executor.SimpleWork(this, "generateXml") {
                         @Transactional(readOnly = true)
                         public Object doWork(Session session, ServiceFactory sf) {

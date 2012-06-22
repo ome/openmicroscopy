@@ -2,21 +2,23 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="error">
+    <div id="form-500">   <!-- This div used for 500 dialog box (handling ajaxError) -->
         <h1>{% trans "Server Error." %} <em>(500)</em></h1>
 
-        <p>{% trans "There's been an error. Please give us feedback to help to improve the OMERO applications. Thanks for your patience." %}</p>
+        <p class="error">{% trans "There's been an error. Please give us feedback to help to improve the OMERO applications. Thanks for your patience." %}</p>
         {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
         
-        <form action="{% url fsend %}" method="post">
-        <table>
+        <p>{% trans "Fields marked in red are mandatory." %}</p>
+        
+        <form action="{% url fsend %}" method="post" class="standard_form">
             {% for field in form %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
+                {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+                {{ field }}
+                {% if field.errors %}{{ field.errors }}{% endif %}
+                {{ field.help_text|safe }}
+                <br/>
             {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Send" /></td></tr>
-            </table>
+                <input type="submit" value="Send" />
         </form>
     </div>
 {% endblock %}

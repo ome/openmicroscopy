@@ -57,6 +57,18 @@ public class PostgresSqlAction extends SqlAction.Impl {
     // Interface methods
     //
 
+    /**
+     * The temp_ids infrastructure was never properly put
+     * in place for the "psql" profile. This method simply
+     * bypasses all query rewriting until that's functional.
+     *
+     * @see ticket 3961
+     * @see ticket 9077
+     */
+    public String rewriteHql(String query, String key, Object value) {
+        return query;
+    }
+
     public void prepareSession(final long eventId, final long userId, final long groupId) {
         JdbcTemplate jt = (JdbcTemplate) _jdbc().getJdbcOperations(); // FIXME
         SimpleJdbcCall call = new SimpleJdbcCall(jt).withFunctionName("_prepare_session");

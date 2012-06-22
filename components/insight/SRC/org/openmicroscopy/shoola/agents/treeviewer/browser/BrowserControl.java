@@ -121,6 +121,14 @@ class BrowserControl
 	/** Identifies the <code>Reset Password</code> action. */
 	static final Integer    RESET_PASSWORD = Integer.valueOf(12);
 	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    CUT = Integer.valueOf(13);
+	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    COPY = Integer.valueOf(14);
+	
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    PASTE = Integer.valueOf(15);
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -151,6 +159,12 @@ class BrowserControl
         actionsMap.put(IMPORT, new BrowserImportAction(model));
         actionsMap.put(REFRESH, new BrowserRefreshAction(model));
         actionsMap.put(RESET_PASSWORD, new BrowserPasswordResetAction(model));
+        actionsMap.put(CUT, new BrowserManageAction(model,
+        		BrowserManageAction.CUT));
+        actionsMap.put(COPY, new BrowserManageAction(model,
+        		BrowserManageAction.COPY));
+        actionsMap.put(PASTE, new BrowserManageAction(model,
+        		BrowserManageAction.PASTE));
     }
     
     /**
@@ -187,6 +201,8 @@ class BrowserControl
      * Selects the specified nodes.
      * 
      * @param nodes The nodes to select.
+     * @param updateView Pass <code>true</code> to update the view,
+     * <code>false</code> otherwise.
      */
     void selectNodes(List nodes, Class ref)
     {
@@ -205,7 +221,7 @@ class BrowserControl
     	if (values == null || values.size() == 0) return;
     	TreeImageDisplay[] array = values.toArray(
     			new TreeImageDisplay[values.size()]);
-    	model.setSelectedDisplay(array[0]);
+    	//model.setSelectedDisplay(array[0]);
     	model.setSelectedDisplays(array, false);
     	view.setFoundNode(array);
     }
@@ -220,7 +236,7 @@ class BrowserControl
     		model.setSelectedDisplay(node);
     	}
     }
-    
+
     /**
      * Reacts to tree expansion events.
      * 
@@ -273,21 +289,33 @@ class BrowserControl
         	if (display.getNumberOfItems() == 0) return;
         }
         
-        view.loadAction(display);
+       
         if ((display instanceof TreeImageTimeSet) ||  
         	(display instanceof TreeFileSet)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
         		) {//|| (ho instanceof PlateData)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         } else if (ho instanceof ExperimenterData) {
+        	view.loadAction(display);
         	model.loadExperimenterData(display, null);
         } else if (ho instanceof GroupData) {
-        	model.loadExperimenterData(display, display); 
+        	if (browserType == Browser.ADMIN_EXPLORER) {
+        		view.loadAction(display);
+        		model.loadExperimenterData(display, display);
+        	} else {
+        		//Load the data of the logged in user.
+        		List l = display.getChildrenDisplay();
+        		if (l != null & l.size() > 0) {
+            		view.expandNode((TreeImageDisplay) l.get(0), true);
+        		}
+        	}
         }
     }
     

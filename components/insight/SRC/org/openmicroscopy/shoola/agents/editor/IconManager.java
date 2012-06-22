@@ -331,21 +331,53 @@ public class IconManager
     
     /** The <code>Clear Values</code> icon */
     public  static final int			CLEAR_VALUES_ICON = 91;
+
+    /** The 12x12 <code>Private Group Drop Down</code> icon. */
+    public static final int           PRIVATE_GROUP_DD_12 = 92;
     
+    /** The 12x12 <code>Read Group Drop Down</code> icon. */
+    public static final int           READ_GROUP_DD_12 = 93;
+    
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_LINK_GROUP_DD_12 = 94;
+    
+    /** The 12x12 <code>Public Group Drop Down</code> icon. */
+    public static final int           PUBLIC_GROUP_DD_12 = 95;
+    
+    /** The <code>Load Defaults</code> icon */
+    public  static final int			LOAD_DEFAULTS_ICON = 96;
+    
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_WRITE_GROUP_DD_12 = 97;
+    
+    /** The <code>Private Group</code> icon. */
+    public static final int           PRIVATE_GROUP = 98;
+    
+    /** The <code>Read Group Drop Down</code> icon. */
+    public static final int           READ_GROUP = 99;
+    
+    /** The <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_LINK_GROUP = 100;
+    
+    /** The <code>Public Group Drop Down</code> icon. */
+    public static final int           PUBLIC_GROUP = 101;
+    
+    /** The <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_WRITE_GROUP = 102;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 91;
-   
-    
+    private static final int          MAX_ID = 102;
+
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
     
     static {
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CREATE] = "nuvola_messagebox_info16.png";
-        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[EDITOR] = "omeroEditor16.png";
         
         //Icons for the JTree rendering of text-only outline. 
         relPaths[TEXT_LINE_ICON] = "eclipse_textLine16.png";
@@ -407,7 +439,7 @@ public class IconManager
         relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
         relPaths[TEMPLATE_LOCK] = "nuvola_encrypted16.png";
         relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
-        relPaths[OMERO_EDITOR] = "omeroEditorLink16.png";
+        relPaths[OMERO_EDITOR] = "omeroEditor16.png";
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";
@@ -442,6 +474,17 @@ public class IconManager
         relPaths[ADD_STEP_NOTE_ICON] = "addStepNote.png";
         relPaths[STEP_NOTE_ICON] = "stepNote.png";
         relPaths[CLEAR_VALUES_ICON] = "nuvola_news_unsubscribe16.png";
+        relPaths[LOAD_DEFAULTS_ICON] = "nuvola_bookmarks_list_add16.png";
+        relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
+        relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
+        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
+        relPaths[READ_WRITE_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
+        relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
+        relPaths[PRIVATE_GROUP] = "private16.png";
+        relPaths[READ_GROUP] = "group_read16.png";
+        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";
+        relPaths[PUBLIC_GROUP] = "public_read16.png";
+        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";
     }
     
     

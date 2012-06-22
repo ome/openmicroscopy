@@ -1,4 +1,4 @@
-{% extends "common/base/base_main.html" %}
+{% extends "webgateway/base/base_main.html" %}
 
 {% comment %}
 <!--
@@ -21,11 +21,11 @@
 {% endcomment %}
 
 {% block title %}
-Extends "common/base/base_main.html"
+Extends "webgateway/base/base_main.html"
 {% endblock %}
 
 
-{% block nav_links %}
+{% block middle_header_right %}
     <li><a href="#">Link</a></li>
     <li><a href="#">One</a></li>
     <li><a href="#">Two</a></li>
@@ -36,9 +36,9 @@ Extends "common/base/base_main.html"
 <h1>block content</h1>
 
 <p>
-    This page extends "common/base/base_main.html" and makes the following changes:
+    This page extends "webgateway/base/base_main.html" and makes the following changes:
     <ul>
-        <li>Adds links to the 'nav_links' block (main top links)</li>
+        <li>Adds links to the 'middle_header_right' block (main top links)</li>
         <li>Adds this text to the 'content' block</li>
     </ul>
 </p>

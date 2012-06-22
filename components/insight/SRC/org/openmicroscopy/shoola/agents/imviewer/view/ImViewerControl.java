@@ -44,8 +44,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
@@ -58,9 +58,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
@@ -102,17 +99,14 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
-import org.openmicroscopy.shoola.agents.util.ui.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -560,6 +554,7 @@ class ImViewerControl
 	/** Uploads the script.*/
 	private void uploadScript()
 	{
+		/*
 		Map<Long, String> map;
     	Registry reg = ImViewerAgent.getRegistry();
 		try {
@@ -595,6 +590,7 @@ class ImViewerControl
 			}
 		});
     	UIUtilities.centerAndShow(dialog);
+    	*/
 	}
 	/**
 	 * Downloads the possible script.
@@ -625,7 +621,7 @@ class ImViewerControl
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					UserNotifier un = 
 						ImViewerAgent.getRegistry().getUserNotifier();
-					un.notifyActivity(activity);
+					un.notifyActivity(model.getSecurityContext(), activity);
 				}
 			}
 		});
@@ -875,27 +871,35 @@ class ImViewerControl
 			return;
 		}
 		int state = model.getState();
-		LoadingWindow window;
+		LoadingWindow window = view.getLoadingWindow();
 		switch (state) {
 			case ImViewer.DISCARDED:
-				window = view.getLoadingWindow();
-				window.setVisible(false);
-				window.dispose();
+				window.close();
 				view.setVisible(false);
 				if (view.isLensVisible())
 					view.setLensVisible(false, model.getSelectedIndex());
 				view.dispose();
 				historyState = state;
 				break;
+			case ImViewer.LOADING_RND:
+			case ImViewer.LOADING_BIRD_EYE_VIEW:
+				if (!window.isVisible())
+					UIUtilities.centerAndShow(window);
+				break;
+			case ImViewer.CANCELLED:
+				window.setVisible(false);
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
-					view.getLoadingWindow().setVisible(false);
+					window.setVisible(false);
 				view.onStateChange(false);
+				window.setVisible(false);
+				/*
 				window = view.getLoadingWindow();
 				if (!window.isVisible())
 					UIUtilities.centerAndShow(window);
+					*/
 				historyState = state;
-				break;  
+				break;
 			case ImViewer.PROJECTING:
 			case ImViewer.PROJECTION_PREVIEW:
 			case ImViewer.PASTING:
@@ -904,7 +908,7 @@ class ImViewerControl
 				break;
 			case ImViewer.READY:
 				view.setStatus(false);
-				view.getLoadingWindow().setVisible(false);
+				window.setVisible(false);
 				if (historyState == ImViewer.CHANNEL_MOVIE)
 					view.onStateChange(false);
 				else {
@@ -913,6 +917,7 @@ class ImViewerControl
 				}
 				break;
 			case ImViewer.LOADING_TILES:
+				window.setVisible(false);
 				view.onStateChange(false);
 				break;
 			case ImViewer.CHANNEL_MOVIE:
@@ -961,7 +966,7 @@ class ImViewerControl
 						(Boolean) entry.getValue());
 			}
 		} else if (LoadingWindow.CANCEL_LOADING_PROPERTY.equals(pName)) {
-			model.cancelRendering();
+			model.cancelInit();
 		} else if (MetadataViewer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (MetadataViewer.RND_LOADED_PROPERTY.equals(pName)) {
@@ -1059,16 +1064,16 @@ class ImViewerControl
 				String path = env.getOmeroFilesHome();
 				path += File.separator+script.getName();
 				File f = new File(path);
-				DownloadActivityParam activity;
-				activity = new DownloadActivityParam(
+				DownloadAndLaunchActivityParam activity;
+				activity = new DownloadAndLaunchActivityParam(
 						p.getScript().getScriptID(), 
-						DownloadActivityParam.ORIGINAL_FILE, f, null);
-				activity.setApplicationData(new ApplicationData(""));
-				un.notifyActivity(activity);
+						DownloadAndLaunchActivityParam.ORIGINAL_FILE, f, null);
+				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
 			} else {
-				un.notifyActivity(pce.getNewValue());
+				un.notifyActivity(model.getSecurityContext(),
+						pce.getNewValue());
 			}
 		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(pName)) {
 			uploadScript();
@@ -1100,7 +1105,7 @@ class ImViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
 

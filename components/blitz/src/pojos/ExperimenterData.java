@@ -100,10 +100,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getFirstName() {
         omero.RString n = asExperimenter().getFirstName();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been null");
-        }
+        if (n == null || n.getValue() == null) return "";
         return n.getValue();
     }
 
@@ -125,10 +122,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getLastName() {
         omero.RString n = asExperimenter().getLastName();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been null");
-        }
+        if (n == null || n.getValue() == null) return "";
         return n.getValue();
     }
 
@@ -294,4 +288,14 @@ public class ExperimenterData extends DataObject {
 		return false;
     }
     
+    /**
+     * Overridden to return the id of the default group.
+     * @see DataObject#getGroupId()
+     */
+    public long getGroupId() {
+    	GroupData g = getDefaultGroup();
+    	if (g == null) return -1;
+    	return g.getId();
+    }
+
 }

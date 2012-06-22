@@ -11,6 +11,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.util.Assert;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.local.LocalAdmin;
@@ -36,6 +48,8 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.model.roi.Shape;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
+import ome.security.SecurityFilter;
+import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.messages.EventLogMessage;
@@ -43,26 +57,13 @@ import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.stats.PerSessionStats;
+import ome.services.sharing.ShareStore;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.SecurityFilter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Filter;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.util.Assert;
 
 /**
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
@@ -99,7 +100,11 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final ServiceFactory sf;
 
+    protected final SecurityFilter filter;
+
     protected/* final */OmeroContext ctx;
+
+    protected/* final */ShareStore store;
 
     /**
      * Simpilifed factory method which generates all the security primitives
@@ -113,8 +118,12 @@ public class BasicSecuritySystem implements SecuritySystem,
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd));
+        Roles roles = new Roles();
+        SecurityFilterHolder holder = new SecurityFilterHolder(
+                cd, new OneGroupSecurityFilter(roles),
+                new AllGroupsSecurityFilter(null, roles));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                new Roles(), sf, new TokenHolder());
+                roles, sf, new TokenHolder(), holder);
         return sec;
     }
 
@@ -124,11 +133,12 @@ public class BasicSecuritySystem implements SecuritySystem,
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder) {
+            TokenHolder tokenHolder, SecurityFilter filter) {
         this.sessionManager = sessionManager;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
         this.sysTypes = sysTypes;
+        this.filter = filter;
         this.roles = roles;
         this.cd = cd;
         this.sf = sf;
@@ -137,6 +147,7 @@ public class BasicSecuritySystem implements SecuritySystem,
     public void setApplicationContext(ApplicationContext arg0)
             throws BeansException {
         this.ctx = (OmeroContext) arg0;
+        this.store = this.ctx.getBean("shareStore", ShareStore.class);
     }
 
     // ~ Login/logout
@@ -213,30 +224,13 @@ public class BasicSecuritySystem implements SecuritySystem,
         checkReady("enableReadFilter");
         // beware
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
-        EventContext ec = getEventContext();
-        Session sess = (Session) session;
-        Filter filter = sess.enableFilter(SecurityFilter.filterName);
-
-        Long shareId = ec.getCurrentShareId();
-        int share01 = shareId != null ? 1 : 0;
-
-        int admin01 = (ec.isCurrentUserAdmin() ||
-                ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()))
-                ? 1 : 0;
-
-        int nonpriv01 = (ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
-                || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ))
-                ? 1 : 0;
-
-        filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
-        filter.setParameter(SecurityFilter.is_adminorpi, admin01);
-        filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
-        filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
-        filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
+        final EventContext ec = getEventContext();
+        final Session sess = (Session) session;
+        filter.enable(sess, ec);
     }
 
     public void  updateReadFilter(Session session) {
-        session.disableFilter(SecurityFilter.filterName);
+        filter.disable(session);
         enableReadFilter(session);
     }
 
@@ -256,7 +250,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         // checkReady("disableReadFilter");
 
         Session sess = (Session) session;
-        sess.disableFilter(SecurityFilter.filterName);
+        filter.disable(sess);
     }
 
     // ~ Subsystem disabling
@@ -339,7 +333,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         // Refill current details
-        cd.copy(ec);
+        cd.checkAndInitialize(ec, admin, store);
+        ec = cd.getCurrentEventContext(); // Replace with callContext
 
         // Experimenter
         Experimenter exp;
@@ -359,30 +354,47 @@ public class BasicSecuritySystem implements SecuritySystem,
             }
         }
 
-        // Active group
-        ExperimenterGroup grp;
-        Long groupId = cd.getCallGroup();
+        // Active group - starting with #3529, the current group and the current
+        // share values should be definitive as setting the context on
+        // BasicEventContext will automatically update the global values. For
+        // security reasons, we need only guarantee that non-admins are
+        // actually members of the noted groups.
+        //
+        // Joined with public group block (ticket:1940)
         Long shareId = ec.getCurrentShareId();
-        if (groupId == null) {
-            groupId = ec.getCurrentGroupId();
-        } else {
-            if (groupId >= 0) {
-                log.debug("Using call-requested group: " + groupId);
-            } else {
-                // ticket:2950
-                if (!isAdmin) {
-                    throw new SecurityViolation("Only administrators can use negative groups!");
-                }
-                log.info("Setting share id to -1");
-                shareId = -1L;
-                groupId = ec.getCurrentGroupId();
-            }
-        }
+        Long groupId = ec.getCurrentGroupId();
+        ExperimenterGroup callGroup = null;
+        ExperimenterGroup eventGroup = null;
+        long eventGroupId;
+        Permissions callPerms;
 
-        if (isReadOnly) {
-            grp = new ExperimenterGroup(groupId, false);
+        if (groupId >= 0) { // negative groupId means all member groups
+            eventGroupId = groupId;
+            callGroup = admin.groupProxy(groupId);
+            eventGroup = callGroup;
+            callPerms = callGroup.getDetails().getPermissions();
+
+            // tickets:2950, 1940, 3529
+            if (!isAdmin && !ec.getMemberOfGroupsList().contains(groupId)) {
+                if (!callPerms.isGranted(Role.WORLD, Right.READ)) {
+                    throw new SecurityViolation(String.format(
+                        "User %s is not a member of group %s and cannot login",
+                                ec.getCurrentUserId(), groupId));
+                }
+            }
+
         } else {
-            grp = admin.groupProxy(groupId);
+            List<Long> memList = ec.getMemberOfGroupsList();
+            eventGroupId = memList.get(0);
+            if (eventGroupId == roles.getUserGroupId() && memList.size() > 1) {
+                eventGroupId = memList.get(1);
+            }
+            log.debug("Choice for event group: " + eventGroupId);
+
+            eventGroup = admin.getGroup(eventGroupId);
+            callGroup = new ExperimenterGroup(groupId, false);
+            callPerms = Permissions.DUMMY;
+
         }
 
         long sessionId = ec.getCurrentSessionId().longValue();
@@ -393,23 +405,11 @@ public class BasicSecuritySystem implements SecuritySystem,
             sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
         }
 
-        // public groups (ticket:1940)
-        if (!isAdmin && !ec.getMemberOfGroupsList().contains(grp.getId())) {
-            // Only force loading the group if we would otherwise throw an exception.
-            // The extra performance hit on READ is just the price of browsing
-            // public data
-            ExperimenterGroup publicGroup = admin.groupProxy(groupId);
-            if (!publicGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
-                throw new SecurityViolation(String.format(
-                    "User %s is not a member of group %s and cannot login",
-                            ec.getCurrentUserId(), grp.getId()));
-            }
-        }
-        tokenHolder.setToken(grp.getGraphHolder());
+        tokenHolder.setToken(callGroup.getGraphHolder());
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
-        // All properities are now set in one shot, except for Event.
-        cd.setValues(exp, grp, isAdmin, isReadOnly, shareId);
+        // All properties are now set in one shot, except for Event.
+        cd.setValues(exp, callGroup, callPerms, isAdmin, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();
@@ -424,9 +424,11 @@ public class BasicSecuritySystem implements SecuritySystem,
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
+            if (event.getExperimenterGroup().getId() < 0) {
+                event.setExperimenterGroup(eventGroup);
+            }
             cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
         }
-
     }
 
     private Principal clearAndCheckPrincipal() {
@@ -573,11 +575,19 @@ public class BasicSecuritySystem implements SecuritySystem,
     }
 
     /**
+     * Calls {@link #runAsAdmin(AdminAction)} with a null-group id.
+     */
+    public void runAsAdmin(final AdminAction action) {
+        runAsAdmin(null, action);
+    }
+
+    /**
      * merge event is disabled for {@link #runAsAdmin(AdminAction)} because
      * passing detached (client-side) entities to this method is particularly
      * dangerous.
      */
-    public void runAsAdmin(final AdminAction action) {
+    public void runAsAdmin(final ExperimenterGroup group, final AdminAction action) {
+
         Assert.notNull(action);
 
         // Need to check here so that no exception is thrown
@@ -591,14 +601,21 @@ public class BasicSecuritySystem implements SecuritySystem,
 
                 BasicEventContext c = cd.current();
                 boolean wasAdmin = c.isCurrentUserAdmin();
+                ExperimenterGroup oldGroup = c.getGroup();
 
                 try {
                     c.setAdmin(true);
+                    if (group != null) {
+                        c.setGroup(group, group.getDetails().getPermissions());
+                    }
                     disable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session);
                     action.runAsAdmin();
                 } finally {
                     c.setAdmin(wasAdmin);
+                    if (group != null) {
+                        c.setGroup(oldGroup, oldGroup.getDetails().getPermissions());
+                    }
                     enable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session); // Now as non-admin
                 }
@@ -641,6 +658,25 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     public EventContext getEventContext() {
         return getEventContext(false);
+    }
+
+    /**
+     * Returns the Id of the currently logged in user.
+     * Returns owner of the share while in share
+     * @return See above.
+     */
+    public Long getEffectiveUID() {
+        final EventContext ec = getEventContext();
+        final Long shareId = ec.getCurrentShareId();
+        if (shareId != null) {
+            if (shareId < 0) {
+                return null;
+            }
+            ome.model.meta.Session s = sf.getQueryService().get(
+                    ome.model.meta.Session.class, shareId);
+            return s.getOwner().getId();
+        }
+        return ec.getCurrentUserId();
     }
 
     // ~ Helpers

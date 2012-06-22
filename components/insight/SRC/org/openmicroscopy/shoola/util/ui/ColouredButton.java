@@ -82,8 +82,7 @@ public class ColouredButton
 	 */
 	public ColouredButton(String text, Color color)
 	{
-		if (color == null) 
-			throw new IllegalArgumentException("No color.");
+		if (color == null) color = Color.GRAY;
 		setModel(new DefaultButtonModel());
 		init(text, null);
 		colourButtonUI = new ColouredButtonUI(this, color);
@@ -155,7 +154,7 @@ public class ColouredButton
 
 	/**
 	 * Overridden. Does nothing as it's overwritten by L&F and breaks the 
-	 * coloured button.
+	 * colored button.
 	 * @see javax.swing.JComponent#setBackground(Color)
 	 */
 	public void setBackground(Color c) {}

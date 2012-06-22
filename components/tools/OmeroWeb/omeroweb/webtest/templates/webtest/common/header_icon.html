@@ -30,7 +30,7 @@ Extends "webtest/common/base_header.html"
 {% endblock %}
 
 
-{% block header_left %}
+{% block thin_header_left %}
 {{ block.super }}
  | <a href="#">Extra Link for this page</a>
 {% endblock %}
@@ -43,13 +43,13 @@ Extends "webtest/common/base_header.html"
         This page extends "<a href="{% url common 'base_header' %}">webtest/common/base_header.html</a>" and makes the following changes:
         <ul>
             <li>Overwrites the 'logo' block to change the icon at the top-left of the page</li>
-            <li>Add extra link to the 'header_left' block (while including the links from the parent template)
+            <li>Add extra link to the 'thin_header_left' block (while including the links from the parent template)
             <li>Adds this text to the 'content' block</li>
         </ul>
     </p>
     
     <p>
-        The links in the thin header (left) take you to other pages that also extend common/base/base_header OR extend this one, 
+        The links in the thin header (left) take you to other pages that also extend webgateway/base/base_header OR extend this one, 
         showing other options for customising things.
     </p>
     

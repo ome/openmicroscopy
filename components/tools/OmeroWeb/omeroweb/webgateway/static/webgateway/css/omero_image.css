@@ -81,17 +81,7 @@ hr {
   margin-right: auto;
   padding:0px;
 }
-.omelogo {
-  width: 150px;
-  text-align: center;
-  margin: 0px;
-  padding: 0px;
-  background-image: url("/static/common/images/logo.png");
-  background-repeat: no-repeat;
-  background-position: top;
-  height: 80px;
-  font-size: 1em;
-}
+
 .box { 
   display: block;
   background-color: #eee;

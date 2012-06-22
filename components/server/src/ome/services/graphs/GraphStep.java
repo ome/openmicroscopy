@@ -14,12 +14,19 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
+import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -32,6 +39,8 @@ public abstract class GraphStep {
     public interface Callback {
 
         void add();
+
+        void addGraphIds(GraphStep step);
 
         void savepoint(String savepoint);
 
@@ -54,7 +63,7 @@ public abstract class GraphStep {
     /**
      * Used to mark {@link #savepoint} after usage.
      */
-    private final static String INVALIDATED = "INVALIDATED:";
+    private final static String INVALIDATED = "INVALIDATED_";
 
     /**
      * Location of this step in {@link GraphState#steps}.
@@ -91,7 +100,7 @@ public abstract class GraphStep {
     private final long[] ids;
 
     /**
-     * The actual id to be deleted as opposed to {@link GraphEntry#getId()}
+     * The actual id to be processed as opposed to {@link GraphEntry#getId()}
      * which is the id of the root object.
      *
      * @see #ids
@@ -104,7 +113,7 @@ public abstract class GraphStep {
     public final String table;
 
     /**
-     * Type of object which is being deleted, using during
+     * Type of object which is being processed, using during
      * {@link GraphState#release(String)} to send an {@link EventLogMessage}.
      */
     public final Class<IObject> iObjectType;
@@ -155,6 +164,78 @@ public abstract class GraphStep {
             iObjectType = null;
         }
     }
+
+
+    public long[] getIds() {
+        if (this.ids == null) {
+            return null;
+        }
+
+        long[] copy = new long[ids.length];
+        System.arraycopy(ids, 0, copy, 0, copy.length);
+        return copy;
+    }
+
+    //
+    // Main action
+    //
+
+    /**
+     * Primary action which should perform the main modifications required by
+     * the step.
+     */
+    public abstract void action(Callback cb, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException;
+
+    /**
+     * Appends a clause to the {@link QueryBuilder} based on the current user.
+     *
+     * If the user is an admin like root, then nothing is appended, and any
+     * action is permissible. If the user is a leader of the current group, then
+     * the object must be in the current group. Otherwise, the object must
+     * belong to the current user.
+     */
+    public static void permissionsClause(EventContext ec, QueryBuilder qb) {
+        if (!ec.isCurrentUserAdmin()) {
+            final Permissions p = ec.getCurrentGroupPermissions();
+            // If this is less than a rwrw group, then we want we require
+            // either ownership of the object or leadership of the group.
+            if (!p.isGranted(Permissions.Role.GROUP, Permissions.Right.WRITE)) {
+                if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                    qb.and("details.group.id = :gid");
+                    qb.param("gid", ec.getCurrentGroupId());
+                } else {
+                    // This is only a regular user, then the object must belong to
+                    // him/her
+                    qb.and("details.owner.id = :oid");
+                    qb.param("oid", ec.getCurrentUserId());
+                }
+            }
+        }
+    }
+
+
+    protected void logPhase(String phase) {
+        log.debug(String.format("%s %s from %s: root=%s", phase, id,
+                pathMsg, entry.getId()));
+    }
+
+    protected void logResults(final int count) {
+        if (count > 0) {
+            if (log.isDebugEnabled()) {
+                logPhase("Processed");
+            }
+        } else {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Missing object %s from %s: root=%s",
+                        id, pathMsg, entry.getId()));
+            }
+        }
+    }
+
+    //
+    // Stack
+    //
 
     public void push(GraphOpts opts) throws GraphException {
         for (GraphStep parent : stack) {
@@ -214,15 +295,39 @@ public abstract class GraphStep {
         return savepoint;
     }
 
-    public void release(Callback cb) throws GraphException {
-
+    /**
+     * Return false if the current action (release or rollback) should be
+     * skipped or throw an exception if the current state is invalid. Otherwise,
+     * return true.
+     *
+     * Note:
+     * <p>
+     * Ok for cb.savepoint to already be invalidated since a second child entry
+     * might also fail and attempt a rollback. But if it has been invalidated,
+     * then there's no expectation that cb.size() be greater than 0.
+     * </p>
+     * @param cb
+     * @throws GraphException
+     */
+    private boolean sanityCheck(Callback cb) throws GraphException {
+        if (savepoint.startsWith(INVALIDATED)) {
+            return false;
+        }
         if (cb.size() == 0) {
             throw new GraphException("Action at depth 0!");
+        }
+        return true;
+    }
+
+    public void release(Callback cb) throws GraphException {
+
+        if (!sanityCheck(cb)) {
+            return;
         }
 
         int count = cb.collapse(true);
 
-        // If this is the last map, i.e. the truly deleted ones, then
+        // If this is the last map, i.e. the truly processed ones, then
         // raise the EventLogMessage
         if (cb.size() == 0) {
             for (Map.Entry<String, Set<Long>> entry : cb.entrySet()) {
@@ -239,14 +344,47 @@ public abstract class GraphStep {
 
     public void rollback(Callback cb) throws GraphException {
 
-        if (cb.size() == 0) {
-            throw new GraphException("Action at depth 0!");
+        if (!sanityCheck(cb)) {
+            return;
         }
 
         int count = cb.collapse(false);
         rollbackOnly = true;
         cb.rollback(savepoint, count);
         savepoint =  INVALIDATED + savepoint;
+    }
+
+
+    /*
+     * Workaround for refactoring to {@link GraphState}.
+     *
+     * If more logic is needed by subclasses, then
+     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
+     * should no longer return list of ids, but rather a "Action" class
+     * so that it can inject its own logic as needed, though it would be necessary
+     * to give that method its place in the graph to detect "top-ness".
+     */
+    protected void deleteAnnotationLinks(AnnotationGraphSpec aspec, Session session, List<Long> ids) {
+        String sspec = aspec.getSuperSpec();
+        if (sspec == null || sspec.length() == 0) {
+            if (ids != null && ids.size() > 0) {
+                StopWatch swTop = new CommonsLogStopWatch();
+
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete("ome.model.IAnnotationLink"); // FIXME
+                qb.where();
+                qb.and("child.id in (:ids)");
+                qb.paramList("ids", ids);
+                // ticket:2962
+                EventContext ec = spec.getCurrentDetails().getCurrentEventContext();
+                GraphStep.permissionsClause(ec, qb);
+
+                Query q = qb.query(session);
+                int count = q.executeUpdate();
+                log.info("Deleted " + count + " annotation links");
+                swTop.stop("omero.graphstep.deleteannotationlinks." + id);
+            }
+        }
     }
 
 }

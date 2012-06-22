@@ -25,13 +25,14 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -40,10 +41,12 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The MetadataViewerAgent agent. This agent displays metadata related to 
@@ -73,6 +76,22 @@ public class MetadataViewerAgent
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return MetadataViewer.IMAGE_J;
+		}
+    	return -1;
+    }
+    
 	/**
 	 * Helper method returning the current user's details.
 	 * 
@@ -89,9 +108,9 @@ public class MetadataViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -105,6 +124,26 @@ public class MetadataViewerAgent
 		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
 		if (b == null) return false;
 		return b.booleanValue();
+	}
+	
+	/**
+	 * Returns the context for an administrator.
+	 * 
+	 * @return See above.
+	 */
+	public static SecurityContext getAdminContext()
+	{
+		if (!isAdministrator()) return null;
+		Collection groups = getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getName().equals(GroupData.SYSTEM)) {
+				return new SecurityContext(g.getId());
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -228,7 +267,12 @@ public class MetadataViewerAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		MetadataViewerFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 

@@ -135,9 +135,6 @@ public class TreeCellRenderer
 	/** Reference to the Annotated<code>Plate Acquisition</code> icon. */
 	private static final Icon PLATE_ACQUISITION_ANNOTATED_ICON;
 	
-	/** Reference to the <code>File</code> icon. */
-	private static final Icon FILE_ICON;
-	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon TAG_ICON;
 	
@@ -219,11 +216,36 @@ public class TreeCellRenderer
 	/** Reference to the <code>Date</code> icon. */
 	private static final Icon DATE_ICON;
 	
-	/** Reference to the <code>Date</code> icon. */
+	/** Reference to the <code>Group</code> icon. */
 	private static final Icon OWNER_GROUP_ICON;
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
@@ -232,7 +254,6 @@ public class TreeCellRenderer
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
 		PLATE_ICON = icons.getIcon(IconManager.PLATE);
-		FILE_ICON = icons.getIcon(IconManager.FILE);
 		PROJECT_ANNOTATED_ICON = icons.getIcon(IconManager.PROJECT_ANNOTATED);
 		PROJECT_TO_REFRESH_ICON = icons.getIcon(IconManager.PROJECT_TO_REFRESH);
 		DATASET_ANNOTATED_ICON = icons.getIcon(IconManager.DATASET_ANNOTATED);
@@ -286,9 +307,6 @@ public class TreeCellRenderer
 	
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
-    
-    /** The ID of the current user. */
-    private long				userID;
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
@@ -305,6 +323,9 @@ public class TreeCellRenderer
     /** Indicates if the node is selected or not.*/
     private boolean selected;
     
+    /** The location of the text.*/
+    private int xText;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -316,27 +337,24 @@ public class TreeCellRenderer
         Icon icon = FILE_TEXT_ICON;
         if (usrObject instanceof ProjectData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
+        		if (node.isAnnotated())
             		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
             	else icon = PROJECT_TO_REFRESH_ICON;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = PROJECT_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
             	else icon = PROJECT_ICON;
         	}
         } else if (usrObject instanceof DatasetData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
+        		if (node.isAnnotated())
+        			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
                 else icon = DATASET_TO_REFRESH_ICON;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = DATASET_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = DATASET_ANNOTATED_ICON;
                 else icon = DATASET_ICON;
         	}
         } else if (usrObject instanceof ImageData) {
-            if (EditorUtil.isAnnotated(usrObject))
-        		icon = IMAGE_ANNOTATED_ICON;
+            if (node.isAnnotated()) icon = IMAGE_ANNOTATED_ICON;
             else {
             	ImageData o = (ImageData) usrObject;
             	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
@@ -358,24 +376,43 @@ public class TreeCellRenderer
         	}
         } else if (usrObject instanceof ScreenData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
+        		if (node.isAnnotated())
             		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
             	else icon = SCREEN_TO_REFRESH_ICON;;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = SCREEN_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
             	else icon = SCREEN_ICON;
         	}
         } else if (usrObject instanceof PlateData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = PLATE_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ANNOTATED_ICON;
         	else icon = PLATE_ICON; 
         } else if (usrObject instanceof PlateAcquisitionData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = PLATE_ACQUISITION_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
-        	icon = OWNER_GROUP_ICON;
+        	GroupData g = (GroupData) usrObject;
+        	switch (g.getPermissions().getPermissionsLevel()) {
+	        	case GroupData.PERMISSIONS_PRIVATE:
+	        		icon = GROUP_PRIVATE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ:
+	        		icon = GROUP_READ_ONLY_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_LINK_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	        		icon = GROUP_READ_WRITE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ:
+	        		icon = GROUP_PUBLIC_READ_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+	        		break;
+	        	default:
+	        		icon = OWNER_GROUP_ICON;
+        	}
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();
@@ -480,6 +517,7 @@ public class TreeCellRenderer
     public TreeCellRenderer(boolean b)
     {
         numberChildrenVisible = b;
+        selected = false;
         filter = new EditorFileFilter();
         draggedColor = new Color(backgroundSelectionColor.getRed(),
 				backgroundSelectionColor.getGreen(),
@@ -544,11 +582,13 @@ public class TreeCellRenderer
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
+        xText = w;
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
@@ -560,15 +600,17 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-    	//super.paintComponent(g);
     	if (isTargetNode) {
-			g.setColor(draggedColor);
 			if (!droppedAllowed) {
 				if (selected) g.setColor(backgroundSelectionColor);
 				else g.setColor(backgroundNonSelectionColor);
-			}
-			g.fillRect(0, 0, getSize().width, getSize().height);
+				
+			} else g.setColor(draggedColor);
+			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
+    	selected = false;
+    	isTargetNode = false;
+    	droppedAllowed = false;
     	super.paintComponent(g);
 	}
   

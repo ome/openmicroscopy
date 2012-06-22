@@ -214,7 +214,7 @@ public class ProjSavingDialog
 		List l;
 		if (list == null || list.size() == 0) {
 			l = new ArrayList();
-			l.add(DataNode.createDefaultDataset());
+			l.add(new DataNode(DataNode.createDefaultDataset()));
 		} else l = sorter.sort(list);
 		
 		datasetsBox.removeActionListener(datasetsBoxListener);

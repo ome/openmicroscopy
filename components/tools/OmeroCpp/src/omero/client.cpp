@@ -70,6 +70,16 @@ namespace omero {
 	    id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
 	}
 
+        // Set large thread pool max values for all communicators
+        std::string xs[] = {"Client", "Server"};
+        for (int i = 0; i < 2; i++) {
+            std::string key = "Ice.ThreadPool." + xs[i] + ".SizeMax";
+            std::string sizemax = id.properties->getProperty(key);
+            if (sizemax.length() == 0) {
+                id.properties->setProperty(key.c_str(), "50");
+            }
+        }
+
 	// ThreadPool to 5 if not present
 	std::string threadpool = id.properties->getProperty("omero.ClientCallback.ThreadPool.Size");
 	if ( threadpool.length() == 0 ) {
@@ -143,7 +153,7 @@ namespace omero {
 	}
 
 	// Register Object Factory
-	omero::registerObjectFactory(__ic);
+	omero::registerObjectFactory(__ic, this);
         omero::rtypes::registerObjectFactory(__ic);
 
 	// Define our unique identifier (used during close/detach)
@@ -306,6 +316,9 @@ namespace omero {
 	return getSession()->ice_getIdentity().name;
     }
 
+    std::string client::getCategory() const {
+        return getRouter(getCommunicator())->getCategoryForClient();
+    }
 
     // --------------------------------------------------------------------
     omero::api::ServiceFactoryPrx client::getSession() const {

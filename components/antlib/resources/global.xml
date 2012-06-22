@@ -214,6 +214,19 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
+        <!-- prevent direct use of ant -->
+        <if><not><isset property="build.py"/></not>
+            <then>
+                <fail> ERROR!
+
+========================================================
+Please use ./build.py which uses the ant version bundled
+with OMERO.
+========================================================
+                </fail>
+            </then>
+        </if>
+
         <!-- Define properties :
                 The user's environment (env) overrides all other
                 variables, then comes the user defined
@@ -274,11 +287,22 @@
         <property name="ice.home" value="/usr/share/Ice"/>
 
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="slice2java">
+        <exec outputproperty="executable.ice.version" executable="slice2java"
+            failifexecutionfails="false" failonerror="false" resultproperty="slice2java.result">
             <arg value="--version"/>
         </exec>
 
         <!-- Checking ice compatibility and choose the proper version -->
+        <if><not><equals arg1="${slice2java.result}" arg2="0"/></not>
+            <then>
+                <fail> Cannot find slice2java!
+
+                    *******************************************************
+                    Ice is not properly installed. Cannot find slice2java
+                    *******************************************************
+                </fail>
+            </then>
+        </if>
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]3"/>
@@ -309,7 +333,7 @@
                 </then>
             </elseif>
             <else>
-                <fail> Bad configuraiton!
+                <fail> Bad configuration!
 
                     *******************************************************
                     Unknown Ice compatibility setting: ${ice.compatibility}
@@ -329,6 +353,7 @@
                 <attribute name="target"/>
                 <sequential>
                 <subant verbose="on" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
+                        <property name="omero.version" value="${omero.version}"/>
                         <property name="multi.test.with.fail" value="${test.with.fail}"/>
                         <property name="multi.test.skip" value="${test.skip}"/>
                         <property name="multi.generate.skip" value="${generate.skip}"/>
@@ -346,6 +371,10 @@
 
         <macrodef name="installIvy">
             <sequential>
+            <!-- Necessary to store version in a file for etc/ivysettings.xml to
+            read in, since there's no clean way to pass properties -->
+            <mkdir dir="${omero.home}/target"/>
+            <echo file="${omero.home}/target/omero.version">omero.version=${omero.version}</echo>
             <classloader name="ivy.loader">
                 <classpath id="ivy.classpath">
                     <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
@@ -527,11 +556,16 @@
 
         <macrodef name = "git">
             <attribute name = "command" />
-            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "dir" default = "${user.dir}" />
             <attribute name = "output" />
+            <attribute name = "failonerror" default = "false" />
             <element name = "args" optional = "true" />
             <sequential>
-                <exec executable = "git" dir = "@{dir}" outputproperty = "@{output}">
+                <exec executable = "git" dir = "@{dir}"
+                    outputproperty = "@{output}"
+                    errorproperty = "@{output}.err"
+                    resultproperty = "@{output}.rc"
+                    failonerror = "@{failonerror}">
                     <arg value = "@{command}" />
                     <args/>
                 </exec>
@@ -540,7 +574,7 @@
 
         <macrodef name = "svn">
             <attribute name = "command" />
-            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "dir" default = "${user.dir}" />
             <attribute name = "output" />
             <element name = "args" optional = "true" />
             <sequential>

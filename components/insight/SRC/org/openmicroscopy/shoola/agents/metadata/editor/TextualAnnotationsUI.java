@@ -220,7 +220,7 @@ class TextualAnnotationsUI
 		moreComponent = UIUtilities.buildComponentPanel(moreButton, 0, 0);
 		moreComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 
-		JButton hideButton = new JButton("hide");
+		JButton hideButton = new JButton("less");
 		UIUtilities.unifiedButtonLookAndFeel(hideButton);
 		hideButton.setBorder(null);
 		hideButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -354,7 +354,11 @@ class TextualAnnotationsUI
 			setAreaText(DEFAULT_TEXT_COMMENT, true);
 		}
 		
-		commentArea.setEnabled(model.isWritable());
+		boolean enabled = model.canAnnotate();
+		if (enabled && model.isMultiSelection()) {
+			enabled = !model.isAcrossGroups();
+		}
+		commentArea.setEnabled(enabled);
 		if (hasPrevious) {
 			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
 			String text = data.getText();
@@ -438,7 +442,11 @@ class TextualAnnotationsUI
 			buildGUI();
 			init = true;
 		//}
-		displayAnnotations(model.getTextualAnnotationsByDate());
+		if (model.isMultiSelection()) {
+			displayAnnotations(null);
+		} else {
+			displayAnnotations(model.getTextualAnnotationsByDate());
+		}
 		revalidate();
 		repaint();
 	}
@@ -453,20 +461,9 @@ class TextualAnnotationsUI
 	 * Returns the collection of annotations to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		/*
-		if (originalText != null && originalText.length() > 0) {
-			String text = commentArea.getText();
-			if (text != null) {
-				text = text.trim();
-				if (text.length() == 0) {
-					TextualAnnotationData data = model.getLastUserAnnotation();
-					if (data != null) l.add(data);
-				}
-			}
-		}*/
+		List<Object> l = new ArrayList<Object>();
 		if (annotationToRemove != null)
 			l.addAll(annotationToRemove);
 		return l;

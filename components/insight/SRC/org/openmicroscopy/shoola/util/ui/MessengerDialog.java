@@ -139,7 +139,7 @@ public class MessengerDialog
 			"Your feedback will be used to further the development of " +
 			"OMERO and improve our software. Any personal details you " +
 			"provide are purely optional, and will only be used for " +
-			"development purposes.\n\n";
+			"development purposes.\n";
 	
 	/** The default message displayed. */
 	private static final String		DEBUG_MESSAGE = "An error message has " +
@@ -148,7 +148,7 @@ public class MessengerDialog
 			"out the following form. Your personal details are purely " +
 			"optional, and will only be used for development purposes.\n\n" +
 			"Please note that your application may need to be restarted " +
-			"to work properly.";
+			"to work properly.\n";
 	
 	/** The default message displayed. */
 	private static final String		SUBMIT_MESSAGE = "Submit to the " +
@@ -157,7 +157,7 @@ public class MessengerDialog
 			"out the following form. Your personal details are purely " +
 			"optional, and will only be used for development purposes.\n\n" +
 			"Please note that your application may need to be restarted " +
-			"to work properly.";
+			"to work properly.\n";
 	
 	/** The default message displayed when a non valid e-mail is entered. */
 	private static final String		EMAIL_MESSAGE = "The e-mail address " +

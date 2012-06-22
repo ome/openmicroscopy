@@ -13,6 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
@@ -26,6 +34,7 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
+
 import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
@@ -46,14 +55,14 @@ import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
-import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
+import omero.grid.ParamsHelper.Acquirer;
 import omero.grid.ProcessPrx;
 import omero.grid.ProcessorPrx;
 import omero.grid.ScriptProcessPrx;
-import omero.grid.SharedResourcesPrx;
+import omero.grid._InteractiveProcessorOperations;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
@@ -62,14 +71,6 @@ import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
 
 /**
  * implementation of the IScript service interface.
@@ -97,8 +98,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        SharedResourcesI resources = (SharedResourcesI) sf.getServant(sf.sharedResources().ice_getIdentity());
-        helper = new ParamsHelper(resources, sf.getExecutor(), sf.getPrincipal());
+        helper = new ParamsHelper(acquirer(), sf.getExecutor(), sf.getPrincipal());
+    }
+
+    protected Acquirer acquirer() throws ServerError {
+        return (Acquirer) this.factory.getServant(
+                this.factory.sharedResources(null).ice_getIdentity());
     }
 
     // ~ Process Service methods
@@ -117,13 +122,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     timeout = waitSecs.getValue();
                 }
 
-                SharedResourcesPrx srPrx = factory.sharedResources(__current);
-                SharedResourcesI sr = (SharedResourcesI) factory.getServant(srPrx.ice_getIdentity());
-                InteractiveProcessorPrx ipPrx = sr.acquireProcessor(job, timeout, __current);
-                InteractiveProcessorI ip = (InteractiveProcessorI) factory.getServant(ipPrx.ice_getIdentity());
+                InteractiveProcessorPrx ipPrx = acquirer().acquireProcessor(job, timeout, __current);
+                _InteractiveProcessorOperations ip =
+                    (_InteractiveProcessorOperations) factory.getServant(ipPrx.ice_getIdentity());
                 ProcessPrx proc = ip.execute(omero.rtypes.rmap(inputs), __current);
 
                 ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
+                process.setApplicationContext(factory.context);
                 return process.getProxy();
             }
 
@@ -146,6 +151,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // processor about.
 
                 ProcessorCallbackI callback = new ProcessorCallbackI(factory);
+                callback.setApplicationContext(factory.context);
                 ProcessorPrx server = callback.activateAndWait(__current);
 
                 return server != null;
@@ -196,8 +202,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final String path, final String scriptText, final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
-                OriginalFile file = makeFile(path, scriptText);
-                file = writeContent(file, scriptText);
+                OriginalFile file = makeFile(path, scriptText, __current);
+                file = writeContent(file, scriptText, __current);
                 validateParams(__current, file);
                 return file.getId();
             }
@@ -253,7 +259,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     IceMapper mapper = new IceMapper();
                     file = (OriginalFile) mapper.reverse(fileObject);
                 } else {
-                    file = getOriginalFileOrNull(fileObject.getId().getValue());
+                    file = getOriginalFileOrNull(fileObject.getId().getValue(),
+                            __current);
                 }
 
                 if (file == null) {
@@ -264,7 +271,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // Removing update event
                 // to prevent optimistic locking
                 file.setMimetype("text/x-python");
-                file = updateFile(file);
+                file = updateFile(file, __current);
 
                 OriginalFile official = scripts.load(file.getId(), true);
                 if (official != null) {
@@ -272,7 +279,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     RepoFile f = scripts.write(fullname, scriptText);
                     file = scripts.update(f, file.getId());
                 } else {
-                    file = writeContent(file, scriptText);
+                    file = writeContent(file, scriptText, __current);
                 }
                 validateParams(__current, file);
                 return null; // void
@@ -294,27 +301,28 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void getScriptWithDetails_async(
             final AMD_IScript_getScriptWithDetails __cb, final long id,
-            Current __current) throws ServerError {
+            final Current __current) throws ServerError {
 
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
 
             public Object call() throws Exception {
 
-                final OriginalFile file = getOriginalFileOrNull(id);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
 
                 if (file == null) {
                     return null;
                 }
 
                 Map<String, RType> scr = new HashMap<String, RType>();
-                scr.put(loadText(file), new omero.util.IceMapper().toRType(file));
+                scr.put(loadText(file, __current), new omero.util.IceMapper().toRType(file));
                 return scr;
             }
 
         });
     }
 
-        private String loadText(final OriginalFile file) throws ServerError {
+    private String loadText(final OriginalFile file, final Ice.Current current)
+        throws ServerError {
 
         if (scripts.isInRepo(file.getId())) {
             try {
@@ -334,7 +342,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             + " invalid on Blitz.OMERO server.");
         }
 
-        return (String) factory.executor.execute(factory.principal,
+        return (String) factory.executor.execute(current.ctx, factory.principal,
                 new Executor.SimpleWork(this, "getScriptWithDetails") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -364,17 +372,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *             validation, api usage.
      */
     public void getScriptText_async(final AMD_IScript_getScriptText __cb, final long id,
-            Current __current) throws ServerError {
+            final Current __current) throws ServerError {
 
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
 
-                final OriginalFile file = getOriginalFileOrNull(id);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
                 if (file == null) {
                     return null;
                 }
 
-                return loadText(file);
+                return loadText(file, __current);
             }
         });
     }
@@ -422,7 +430,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     @SuppressWarnings("unchecked")
     public void getUserScripts_async(AMD_IScript_getUserScripts __cb,
-            final List<IObject> acceptsList, Current __current) throws ServerError {
+            final List<IObject> acceptsList, final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
 
@@ -443,7 +451,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 }
 
                 List<OriginalFile> files = (List<OriginalFile>)
-                factory.executor.execute(factory.principal,
+                factory.executor.execute(__current.ctx, factory.principal,
                         new Executor.SimpleWork(this, "getUserScripts") {
                             @Transactional(readOnly = true)
                             public Object doWork(Session session,
@@ -459,7 +467,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     @SuppressWarnings("unchecked")
     public void validateScript_async(AMD_IScript_validateScript __cb, final Job j,
-            final List<IObject> acceptsList, Current __current) throws ServerError {
+            final List<IObject> acceptsList, final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
 
@@ -477,7 +485,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 qb.param("id", j.getId().getValue());
 
 
-                OriginalFile file = (OriginalFile) factory.executor.execute(factory.principal,
+                OriginalFile file = (OriginalFile) factory.executor.execute(__current.ctx, factory.principal,
                         new Executor.SimpleWork(this, "validateScript", j.getId().getValue(), acceptsList) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -511,17 +519,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * 
      */
     public void deleteScript_async(final AMD_IScript_deleteScript cb,
-            final long id, Current __current) throws ServerError {
+            final long id, final Current __current) throws ServerError {
         safeRunnableCall(__current, cb, true, new Callable<Object>() {
             public Object call() throws Exception {
 
-                OriginalFile file = getOriginalFileOrNull(id);
+                OriginalFile file = getOriginalFileOrNull(id, __current);
                 if (file == null) {
                     throw new ApiUsageException(null, null,
                             "No script with id " + id + " on server.");
                 }
 
-                deleteOriginalFile(file);
+                deleteOriginalFile(file, __current);
                 return null; // void
 
             }
@@ -563,14 +571,15 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return OriginalFile tempfile..
      * @throws ServerError
      */
-    private OriginalFile makeFile(final String path, final String script) throws ServerError {
+    private OriginalFile makeFile(final String path, final String script,
+            Ice.Current current) throws ServerError {
         OriginalFile file = new OriginalFile();
         file.setName(FilenameUtils.getName(path));
         file.setPath(FilenameUtils.getFullPath(path));
         file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
         file.setSha1(Utils.bufferToSha1(script.getBytes()));
-        return updateFile(file);
+        return updateFile(file, current);
     }
 
     /**
@@ -581,9 +590,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return updated file.
      * @throws ServerError
      */
-    private OriginalFile updateFile(final OriginalFile file) throws ServerError {
+    private OriginalFile updateFile(final OriginalFile file, final Ice.Current current) throws ServerError {
         OriginalFile updatedFile = (OriginalFile) factory.executor.execute(
-                factory.principal, new Executor.SimpleWork(this, "updateFile") {
+                current.ctx, factory.principal, new Executor.SimpleWork(this, "updateFile") {
 
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -606,9 +615,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *            script
      * @throws ServerError
      */
-    private OriginalFile writeContent(final OriginalFile file, final String script)
-            throws ServerError {
-        return (OriginalFile) factory.executor.execute(factory.principal, new Executor.SimpleWork(
+    private OriginalFile writeContent(final OriginalFile file, final String script,
+            final Ice.Current current) throws ServerError {
+        return (OriginalFile) factory.executor.execute(current.ctx, factory.principal, new Executor.SimpleWork(
                 this, "writeContent") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -633,7 +642,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *            the original file.
      * 
      */
-    private void deleteOriginalFile(final OriginalFile file) throws ServerError {
+    private void deleteOriginalFile(final OriginalFile file, final Ice.Current current)
+        throws ServerError {
 
         if (file == null) {
             return;
@@ -643,7 +653,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             return;
         }
 
-        Boolean success = (Boolean) factory.executor.execute(factory.principal,
+        Boolean success = (Boolean) factory.executor.execute(current.ctx, factory.principal,
                 new Executor.SimpleWork(this, "deleteOriginalFile") {
 
                     @Transactional(readOnly = false)
@@ -676,13 +686,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *         script with name exists.
      */
     @SuppressWarnings("unchecked")
-    private OriginalFile getOriginalFileOrNull(long id) {
+    private OriginalFile getOriginalFileOrNull(long id, final Ice.Current current) {
 
         try {
             final String queryString = "from OriginalFile as o where o.mimetype = '"
                     + ParamsHelper.PYTHONSCRIPT + "' and o.id = " + id;
             OriginalFile file = (OriginalFile) factory.executor.execute(
-                    factory.principal, new Executor.SimpleWork(this,
+                    current.ctx, factory.principal, new Executor.SimpleWork(this,
                             "getOriginalFileOrNull", id) {
 
                         @Transactional(readOnly = true)
@@ -718,7 +728,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
             // Disable file - ticket:2282
             file.setMimetype("text/plain");
-            file = updateFile(file);
+            file = updateFile(file, __current);
 
             // ticket:2184 - No longer catching ValidationException
             // so that if a processor is available that users get

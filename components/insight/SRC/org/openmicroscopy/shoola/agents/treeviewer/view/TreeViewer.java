@@ -42,10 +42,12 @@ import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -94,6 +96,9 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;
 	
@@ -179,8 +184,11 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_SCREENS = 8;
 
+	/** Identifies the <code>View pop-up menu</code> menu. */
+	public static final int         VIEW_MENU = 9;
+	
 	/** Identifies the <code>Available Scripts</code> menu. */
-	public static final int         AVAILABLE_SCRIPTS_MENU = 9;
+	public static final int         AVAILABLE_SCRIPTS_MENU = 10;
 	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
@@ -440,37 +448,57 @@ public interface TreeViewer
 	 * Sets the root of the retrieved hierarchies. 
 	 * 
 	 * @param rootID    	The Id of the root.
-	 * @param experimenter	The experimenter or <code>null</code> if 
+	 * @param experimenters	The experimenters or <code>null</code> if 
 	 * 						the level is {@link #GROUP_ROOT}.
 	 */
-	public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
+	public void setHierarchyRoot(long rootID, 
+			List<ExperimenterData> experimenters);
 
 	/**
-	 * Returns <code>true</code> if the specified object is writable,
+	 * Returns <code>true</code> if the specified object can be moved to another
+	 * group, <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canChgrp(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be deleted.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canDelete(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be edited.
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
 	 * @param ho    The data object to check.
 	 * @return See above.
 	 */
-	public boolean isObjectWritable(Object ho);
-
-	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
-	 * 
-	 * @param ho The data object to check.
-	 * @return See above.
-	 */
-	public boolean isUserOwner(Object ho);
+	public boolean canEdit(Object ho);
 	
 	/**
-	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
+	 * Returns <code>true</code> if the specified object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
+	public boolean canAnnotate(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can have hard links
+	 * i.e. image added to dataset, <code>false</code> otherwise,
+	 * depending on the permission.
 	 * 
 	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean canDeleteObject(Object ho);
+	public boolean canLink(Object ho);
 	
 	/** 
 	 * Adds existing objects to the currently selected node. 
@@ -497,8 +525,7 @@ public interface TreeViewer
 	 * Brings up the menu on top of the specified component at 
 	 * the specified location.
 	 * 
-	 * @param menuID    The id of the menu. One out of the following constants:
-	 *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
+	 * @param menuID    The id of the menu.
 	 * @param invoker   The component that requested the pop-up menu.
 	 * @param loc       The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.
@@ -564,18 +591,12 @@ public interface TreeViewer
 	public void showPreSavingDialog();
 
 	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	public long getUserGroupID();
-
-	/** 
 	 * Retrieves the user groups. 
 	 * 
 	 * @param location The location of the mouse pressed.
+	 * @param group The group to handle.
 	 */
-	public void retrieveUserGroups(Point location);
+	public void retrieveUserGroups(Point location, GroupData group);
 
 	/**
 	 * Returns the first name and the last name of the currently 
@@ -809,12 +830,11 @@ public interface TreeViewer
 	public void deleteObjects(List nodes);
 
 	/**
-	 * Returns the type of objects to copy or <code>null</code> if no objects
-	 * selected.
+	 * Returns the objects to copy or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public Class hasDataToCopy();
+	public List<DataObject> getDataToCopy();
 
 	/** 
 	 * Refreshes the view when nodes have been deleted. A collection of nodes
@@ -895,12 +915,11 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Sets the default group for the currently selected user and updates the 
-	 * view.
+	 * Adds/Removes the groups to/from the display.
 	 * 
-	 * @param group The group to set.
+	 * @param groups The groups to set.
 	 */
-	void setUserGroup(GroupData group);
+	void setUserGroup(List<GroupData> groups);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -914,14 +933,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Map<Long, String> getScriptsAsString();
-
-	/**
-	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isLeaderOfSelectedGroup();
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
@@ -949,16 +960,10 @@ public interface TreeViewer
 	 * Returns the permission level of the selected group. One of the constants
 	 * defined by the <code>AdminObject</code> class.
 	 * 
+	 * @param group The group to handle.
 	 * @return See above.
 	 */
-	int getSelectedGroupPermissions();
-	
-	/**
-	 * Returns the currently selected group.
-	 * 
-	 * @return See above.
-	 */
-	GroupData getSelectedGroup();
+	int getGroupPermissions(GroupData group);
 
 	/**
 	 * Resets the password of the selected experimenters.
@@ -1075,4 +1080,43 @@ public interface TreeViewer
 	 */
 	void setSelectedNodes(Object nodes);
 
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
+	/** Remove group.*/
+	void removeGroup();
+
+	/** 
+	 * Move the selected data to the specified group.
+	 * 
+	 * @param group The data to move.
+	 */
+	void moveTo(GroupData group, List<DataObject> nodes);
+
+	/**
+	 * Displays the groups to select.
+	 * 
+	 * @param point The location of the mouse pressed.
+	 */
+	void displayUserGroups(Point point);
+
+	/** Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID);
+	
 }

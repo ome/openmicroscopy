@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -44,14 +42,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -69,6 +68,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -76,10 +76,11 @@ import org.jdesktop.swingx.JXPanel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
-import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
-import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -87,7 +88,8 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+
+import pojos.GroupData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -107,6 +109,9 @@ class ImporterUI
 	extends TopWindow
 {
 
+	/** Indicates the percentage of the screen to use to display the viewer. */
+	private static final double SCREEN_RATIO = 0.8;
+	
 	/** The window's title. */
 	private static final String TITLE = "Import Data";
 	
@@ -119,6 +124,35 @@ class ImporterUI
 	
 	/** The maximum number of characters in the debug text.*/
 	private static final int 	MAX_CHAR = 2000;
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
+	}
 	
 	/** Reference to the model. */
 	private ImporterModel	model;
@@ -153,6 +187,31 @@ class ImporterUI
     /** The debug text.*/
     private JTextPane	debugTextPane;
 	
+    /**
+     * Returns the icon associated to the group.
+     * 
+     * @param group The group to handle.
+     * @return See above.
+     */
+    private Icon getGroupIcon(GroupData group)
+    {
+    	switch (group.getPermissions().getPermissionsLevel()) {
+	    	case GroupData.PERMISSIONS_PRIVATE:
+	    		return GROUP_PRIVATE_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ:
+	    		return GROUP_READ_ONLY_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	    		return GROUP_READ_LINK_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	    		return GROUP_READ_WRITE_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ:
+	    		return GROUP_PUBLIC_READ_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	    		return GROUP_PUBLIC_READ_WRITE_ICON;
+		}
+    	return null;
+    }
+    
 	/**
 	 * Creates the component hosting the debug text.
 	 * 
@@ -225,8 +284,8 @@ class ImporterUI
         	GroupSelectionAction a;
         	JCheckBoxMenuItem item;
         	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	//ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
         	while (i.hasNext()) {
 				a = i.next();
 				item = new JCheckBoxMenuItem(a);
@@ -362,6 +421,29 @@ class ImporterUI
     	return bar;
     }
     
+    /** Packs the window and resizes it if the screen is too small. */
+	private void packWindow()
+	{
+		pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension size = getSize();
+		int width = (int) (screenSize.width*SCREEN_RATIO);
+		int height = (int) (screenSize.height*SCREEN_RATIO);
+		int w = size.width;
+		int h = size.height;
+		boolean reset = false;
+		if (w > width) {
+			reset = true;
+		}
+		if (h > height) {
+			reset = true;
+			h = height;
+		} 
+		if (reset) {
+			setSize(h, h);
+		}
+	}
+	
 	/** Creates a new instance. */
 	ImporterUI()
 	{
@@ -399,7 +481,8 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
@@ -459,7 +542,7 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller,
+		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
 		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
@@ -471,6 +554,16 @@ class ImporterUI
 			display();
 		}
 		return element;
+	}
+	
+	/** Resets the import.*/
+	void reset()
+	{
+		int n = tabs.getTabCount();
+		for (int i = 1; i < n; i++) {
+			tabs.remove(i);
+		}
+		uiElements.clear();
 	}
 	
 	/**
@@ -665,17 +758,26 @@ class ImporterUI
      * 
      * @return See above.
      */
-    JComponent buildToolBar()
+    JComboBox buildToolBar()
     {
-        Set set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() == 0) return null;
-        
-    	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
-    	a.setEnabled(set.size() > 1);
-    	JButton b = new JButton(a);
-    	UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((PersonalManagementAction) a);
-        return b;
+    	Collection set = ImporterAgent.getAvailableUserGroups();
+        if (set == null || set.size() <= 1) return null;
+        JComboBoxImageObject[] objects = new JComboBoxImageObject[set.size()];
+        Iterator i = set.iterator();
+        int index = 0;
+        GroupData g;
+        while (i.hasNext()) {
+        	g = (GroupData) i.next();
+        	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
+			index++;
+		}
+        JComboBox groups = new JComboBox(objects);
+        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
+        groups.setRenderer(rnd);
+        rnd.setPreferredSize(new Dimension(200, 130));
+        groups.setActionCommand(""+ImporterControl.GROUP_BUTTON);
+        groups.addActionListener(controller);
+    	return groups;
     }
     
     /**
@@ -714,6 +816,16 @@ class ImporterUI
 		ImporterUIElement element = getSelectedPane();
 		if (element == null) return false;
 		return element.hasFailuresToReimport();
+	}
+	
+	/** 
+	 * Overridden to the set the location of the {@link ImViewer}.
+	 * @see TopWindow#setOnScreen() 
+	 */
+	public void setOnScreen()
+	{
+		packWindow();
+		UIUtilities.centerAndShow(this);
 	}
 
 }

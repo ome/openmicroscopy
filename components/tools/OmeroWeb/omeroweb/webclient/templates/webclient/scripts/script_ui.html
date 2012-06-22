@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -34,8 +34,7 @@
 
 
 {% block link %}
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-    
+
     <style type="text/css">
         h3 {
             margin: 0px;
@@ -91,57 +90,20 @@
 
 {% block script %}
     {{ block.super }}
-    {% include "common/base/includes/script_src_jquery.html" %}
-    {% include "common/base/includes/script_src_popup.html" %}
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/script_src_popup.html" %}
+    {% include "webgateway/base/includes/jquery-ui.html" %}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     <script type="text/javascript">
-        jQuery.fn.runScript = function(actWindow) {
-            var $form = $(this);
-            var postData = $form.serialize();
-            var actionUrl="{% url script_run paramData.id %}";
-            $.ajaxSetup({ cache: false });
-            $.ajax({
-                type: "POST",
-                url: actionUrl,
-                data: postData,
-                contentType:'json',
-                success: function(data){
-                    $.ajaxSetup({ cache: true });
-                    if(data.status == 'in progress') {
-                        window.opener.refreshProgressBar();     // also refreshes Activities window
-                        self.close();
-                    }
-                    else {
-                        window.opener.refreshProgressBar();     // also refreshes Activities window
-                        self.close();
-                    }
-                },
-                error: function(data) {
-                    window.opener.refreshProgressBar();
+
+        $(document).ready(function() {
+
+            $('#script_form').ajaxForm({
+                success: function(data) {
+                    window.opener.showActivities();
                     self.close();
                 }
             });
-            return false;
-        };
-
-
-        $(document).ready(function() {
-            $("#submit").click(function(e){
-                window.open('', 'Activities').close();
-                
-                var actWindow = popupActivites('{% url status %}');
-                window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
-                actWindow.webclient_window = window.opener;
-                $('#script_form').runScript(actWindow);
-                e.preventDefault();
-                return false;
-            });
-
-            // this simply prevents any attempt to 'submit' the form (default behavior)
-            $('form').submit(function(e){
-                e.preventDefault();
-                return false;
-            });
-
 
             // for any 'list' parameters with enum options, controls to add / remove
             $(".addListSelect").click(function(e) {
@@ -192,7 +154,7 @@
 
 
 {% block body %}
-    <form id='script_form' method="post">
+    <form id='script_form' method="post" action="{% url script_run paramData.id %}">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}

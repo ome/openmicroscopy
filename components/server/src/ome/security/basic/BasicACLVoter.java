@@ -10,10 +10,17 @@ package ome.security.basic;
 // Java imports
 
 // Third-party libraries
+import static ome.model.internal.Permissions.Right.ANNOTATE;
 import static ome.model.internal.Permissions.Right.WRITE;
-import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.WORLD;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.util.Assert;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
@@ -22,17 +29,15 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Token;
 import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
+import ome.model.internal.Token;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
+import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
-import ome.tools.hibernate.SecurityFilter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
+import ome.system.EventContext;
 
 /**
  * 
@@ -86,7 +91,7 @@ public class BasicACLVoter implements ACLVoter {
      * different {@link ACLVoter} implementation will almost certainly be active
      * for share use.
      */
-    public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
+    public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
         if (d == null ||
@@ -96,15 +101,22 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        final BasicEventContext c = currentUser.current();
-        final boolean nonPrivate = c.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ) ||
-            c.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ);
-        final boolean isShare = c.getCurrentShareId() != null;
-        final boolean adminOrPi = c.isCurrentUserAdmin() ||
-            c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
-        return securityFilter.passesFilter(d,
-                c.getGroup().getId(), c.getOwner().getId(),
-                nonPrivate, adminOrPi, isShare);
+        boolean rv = securityFilter.passesFilter(session, d, currentUser.current());
+
+        // Misusing this location to store the loaded objects perms for later.
+        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
+            // For every object that gets loaded when omero.group = -1, we
+            // cache it's permissions in the session context so that when the
+            // session is over we can re-apply all the permissions.
+            ExperimenterGroup g = d.getGroup();
+            if (g != null) { // Null for system types
+                Long gid = g.getId();
+                Permissions p = g.getDetails().getPermissions();
+                this.currentUser.current().setPermissionsForGroup(gid, p);
+            }
+        }
+
+        return rv;
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
@@ -119,12 +131,12 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(cls)
             || sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
-            Long uid = currentUser.getOwner().getId();
-            return objectBelongsToUser(iObject, uid);
-        }
+        // Note: removed restriction from #1769 that admins can only
+        // create objects belonging to the current user. Instead,
+        // OmeroInterceptor checks whether or not objects are only
+        // LINKED to one's own objects which is the actual intent.
 
-        else if (tokenHolder.hasPrivilegedToken(iObject)
+        if (tokenHolder.hasPrivilegedToken(iObject)
                 || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
@@ -154,7 +166,8 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails, true);
+        EventContext c = currentUser.current();
+        return allowUpdateOrDelete(c, iObject, trustedDetails, true, WRITE);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -172,7 +185,8 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails, false);
+        EventContext c = currentUser.current();
+        return allowUpdateOrDelete(c, iObject, trustedDetails, false, WRITE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -180,10 +194,21 @@ public class BasicACLVoter implements ACLVoter {
         throw new SecurityViolation("Deleting " + iObject + " not allowed.");
     }
 
-    private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails, boolean update) {
-        Assert.notNull(iObject);
+    /**
+     * Determines whether or not the {@link Right} is available on this object
+     * based on the ownership, group-membership, and group-permissions.
+     *
+     * Note: group leaders are automatically granted all rights.
+     *
+     * @param iObject
+     * @param trustedDetails
+     * @param update
+     * @param right
+     * @return
+     */
+    private boolean allowUpdateOrDelete(EventContext c, IObject iObject,
+            Details trustedDetails, boolean update, Right right) {
 
-        BasicEventContext c = currentUser.current();
         Long uid = c.getCurrentUserId();
 
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
@@ -225,7 +250,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        Permissions p = d.getPermissions();
+        Permissions p = c.getCurrentGroupPermissions(); // From Group!
 
         // this should never occur.
         if (p == null) {
@@ -236,21 +261,54 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         // standard
-        if (p.isGranted(WORLD, WRITE)) {
+        if (p.isGranted(WORLD, right)) {
             return true;
         }
-        if (p.isGranted(USER, WRITE) && o != null
-                && o.equals(c.getOwner().getId())) {
+        if (p.isGranted(USER, right) && o != null
+                && o.equals(c.getCurrentUserId())) {
+            // Using cuId rather than getOwner since postProcess is also
+            // post-login!
             return true;
         }
-        /* ticket:1992 - removing concept of GROUP-WRITE
-        if (p.isGranted(GROUP, WRITE) && g != null
+        // Previously restricted by ticket:1992
+        // As of ticket:8562 this is handled by
+        // the separation of ANNOTATE and WRITE
+        if (p.isGranted(GROUP, right) && g != null
                 && c.getMemberOfGroupsList().contains(g)) {
             return true;
         }
-        */
 
         return false;
+    }
+
+    public EventContext getEventContext() {
+        return this.currentUser.getCurrentEventContext();
+    }
+
+    public void postProcess(IObject object) {
+        if (object.isLoaded()) {
+            Details details = object.getDetails();
+            // Sets context values.s
+            this.currentUser.applyContext(details,
+                    !(object instanceof ExperimenterGroup));
+
+            final BasicEventContext c = currentUser.current();
+            final Permissions p = details.getPermissions();
+            boolean disallowAnnotate = !allowUpdateOrDelete(c, object, details, true, ANNOTATE);
+            boolean disallowEdit = !allowUpdateOrDelete(c, object, details, true, WRITE);
+
+            boolean[] restrictions = new boolean[4];
+            restrictions[Permissions.ANNOTATERESTRICTION] = disallowAnnotate;
+            restrictions[Permissions.DELETERESTRICTION] = disallowEdit;
+            restrictions[Permissions.EDITRESTRICTION] = disallowEdit;
+            restrictions[Permissions.LINKRESTRICTION] = disallowEdit;
+            if (currentUser.isGraphCritical()) {
+                // If we're in the graph critical situation, then we open back
+                // up the permissions for delete.
+                restrictions[Permissions.DELETERESTRICTION] = false;
+            }
+            p.copyRestrictions(restrictions);
+        }
     }
 
     /**
@@ -260,7 +318,18 @@ public class BasicACLVoter implements ACLVoter {
      * @DEV.TODO this is less problematic than linking.
      */
     private boolean objectBelongsToUser(IObject iObject, Long uid) {
-        Long oid = iObject.getDetails().getOwner().getId();
+        final Experimenter e = iObject.getDetails().getOwner();
+        if (e == null) {
+            if (iObject.getId() == null) {
+                // ticket:8818 if this object does not yet have an ID
+                // then we'll assume it's a newly created instance
+                // which will eventually be saved with owner==uid
+                return true;
+            }
+
+            throw new NullPointerException("Null owner for " + iObject);
+        }
+        Long oid = e.getId();
         return uid.equals(oid); // Only allow own objects!
     }
 

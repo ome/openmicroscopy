@@ -17,11 +17,11 @@ package ome.services.query;
 // Java imports
 
 // Third-party libraries
+import ome.parameters.Parameters;
+import ome.util.SqlAction;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Application-internal dependencies
-import ome.parameters.Parameters;
 
 /**
  * interprets the query id as an HQL query. In this implementation, no parsing
@@ -42,11 +42,26 @@ public class StringQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(StringQuerySource.class);
 
+    private final SqlAction sql;
+
+    /**
+     * Default constructor, used primarily for testing.
+     * Passes as null {@link SqlAction} to created {@link StringQuery}
+     * instances.
+     */
+    public StringQuerySource() {
+        this(null);
+    }
+
+    public StringQuerySource(SqlAction sql) {
+        this.sql = sql;
+    }
+
     @Override
     public Query lookup(String queryID, Parameters parameters) {
         Parameters p = new Parameters(parameters);
         p.addString(StringQuery.STRING, queryID);
-        return new StringQuery(p);
+        return new StringQuery(sql, p);
     }
 
 }

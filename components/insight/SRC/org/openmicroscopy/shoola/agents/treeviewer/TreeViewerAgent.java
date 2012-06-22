@@ -25,11 +25,11 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -40,7 +40,9 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -53,12 +55,12 @@ import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -117,9 +119,9 @@ public class TreeViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getAvailableUserGroups()
+	public static Collection getAvailableUserGroups()
 	{
-		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -133,6 +135,26 @@ public class TreeViewerAgent
 		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
 		if (b == null) return false;
 		return b.booleanValue();
+	}
+	
+	/**
+	 * Returns the context for an administrator.
+	 * 
+	 * @return See above.
+	 */
+	public static SecurityContext getAdminContext()
+	{
+		if (!isAdministrator()) return null;
+		Collection groups = TreeViewerAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getName().equals(GroupData.SYSTEM)) {
+				return new SecurityContext(g.getId());
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -156,7 +178,7 @@ public class TreeViewerAgent
 	public static Set getGroupsLeaderOf()
 	{
 		Set values = new HashSet();
-		Set groups = getAvailableUserGroups();
+		Collection groups = getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		Set leaders;
@@ -178,34 +200,19 @@ public class TreeViewerAgent
 		return values;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the user currently logged in 
-	 * is an owner of the current group, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public static boolean isLeaderOfCurrentGroup()
-	{
-		ExperimenterData exp = getUserDetails();
-		Set groups = getGroupsLeaderOf();
-		if (groups.size() == 0) return false;
-    	GroupData group = null;
-    	try {
-    		group = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-		if (group == null) return false;
-		Iterator i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getId() == group.getId())
-				return true;
-		}
-		return false;
-	}
-	
+    /**
+     * Returns <code>true</code> if all groups are displayed at the same time
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isMultiGroups()
+    {
+    	Boolean b = (Boolean) registry.lookup("MutliGroup");
+		if (b == null) return false;
+		return b.booleanValue();
+    }
+    
 	/**
 	 * Returns the default hierarchy i.e. P/D, HCS etc.
 	 * 
@@ -228,6 +235,30 @@ public class TreeViewerAgent
     	return Browser.PROJECTS_EXPLORER;
     }
     
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return TreeViewer.IMAGE_J;
+		}
+    	return -1;
+    }
+    
+    /** 
+     * Returns <code>true</code> if the application is used as a plugin,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
+	
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
@@ -272,15 +303,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) {
         	viewer.onActivityProcessed(evt.getActivity(), evt.isFinished());
         }
@@ -307,15 +330,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null)
         	viewer.findDataObject(evt.getDataType(), evt.getID(), 
         			evt.isSelectTab());
@@ -354,15 +369,7 @@ public class TreeViewerAgent
     		ExperimenterData exp = (ExperimenterData) registry.lookup(
     				LookupNames.CURRENT_USER_DETAILS);
     		if (exp == null) return;
-        	GroupData gp = null;
-        	try {
-        		gp = exp.getDefaultGroup();
-    		} catch (Exception e) {
-    			//No default group
-    		}
-    		long id = -1;
-			if (gp != null) id = gp.getId();
-			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
 			if (viewer != null)  {
 				viewer.browseContainer(data, null);
 			}
@@ -385,15 +392,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.setImporting(evt.isImporting(), evt.getContainers(), 
         			evt.isToRefresh());
@@ -412,15 +411,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.browseContainer(evt.getData(), evt.getNode());
     }
@@ -438,15 +429,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.indicateToRefresh(evt.getObjects(), evt.getRefresh());
     }
@@ -460,7 +443,33 @@ public class TreeViewerAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
-    	TreeViewerFactory.onGroupSwitched(true);
+    	TreeViewerFactory.onReconnected();
+    }
+    
+    /**
+     * Indicates to move the data.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleMoveToEvent(MoveToEvent evt)
+    {
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+    	if (viewer != null) viewer.moveTo(evt.getGroup(), evt.getObjects());
+    }
+    
+    /**
+     * Indicates that some objects have been annotated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleAnnotatedEvent(AnnotatedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
     /**
@@ -476,15 +485,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) viewer.activate();
     }
 
@@ -492,7 +493,12 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		TreeViewerFactory.terminate();
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -501,6 +507,7 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
@@ -514,6 +521,8 @@ public class TreeViewerAgent
         bus.register(this, NodeToRefreshEvent.class);
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, MoveToEvent.class);
+        bus.register(this, AnnotatedEvent.class);
     }
 
     /**
@@ -568,6 +577,10 @@ public class TreeViewerAgent
 			handleNodeToRefreshEvent((NodeToRefreshEvent) e);
 		else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+		else if (e instanceof MoveToEvent)
+			handleMoveToEvent((MoveToEvent) e);
+		else if (e instanceof AnnotatedEvent)
+			handleAnnotatedEvent((AnnotatedEvent) e);
 	}
 
 }

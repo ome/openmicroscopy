@@ -35,11 +35,14 @@ public class PermissionsITest extends TestCase {
 
     public void testPermissionsDefault() throws Exception {
         pI = new PermissionsI();
-        assertTrue(pI.isUserRead());
-        assertTrue(pI.isUserWrite());
+        assertFalse(pI.isUserRead());
+        assertFalse(pI.isUserAnnotate());
+        assertFalse(pI.isUserWrite());
         assertFalse(pI.isGroupRead());
-        assertFalse(pI.isWorldRead());
+        assertFalse(pI.isGroupAnnotate());
         assertFalse(pI.isGroupWrite());
+        assertFalse(pI.isWorldRead());
+        assertFalse(pI.isWorldAnnotate());
         assertFalse(pI.isWorldWrite());
     }
     
@@ -51,7 +54,16 @@ public class PermissionsITest extends TestCase {
         pI.setUserRead(false);
         verify(p,pI);
     }
-    
+
+    public void testPermissionsUserAnnotate() throws Exception {
+        p.grant(USER, ANNOTATE);
+        pI.setUserAnnotate(true);
+        verify(p,pI);
+        p.revoke(USER, ANNOTATE);
+        pI.setUserAnnotate(false);
+        verify(p,pI);
+    }
+
     public void testPermissionsUserWrite() throws Exception {
         p.grant(USER, WRITE);
         pI.setUserWrite(true);
@@ -70,6 +82,15 @@ public class PermissionsITest extends TestCase {
         verify(p,pI);
     }
     
+    public void testPermissionsGroupAnnotate() throws Exception {
+        p.grant(GROUP, ANNOTATE);
+        pI.setGroupAnnotate(true);
+        verify(p,pI);
+        p.revoke(GROUP, ANNOTATE);
+        pI.setGroupAnnotate(false);
+        verify(p,pI);
+    }
+
     public void testPermissionsGroupWrite() throws Exception {
         p.grant(GROUP, WRITE);
         pI.setGroupWrite(true);
@@ -88,6 +109,15 @@ public class PermissionsITest extends TestCase {
         verify(p,pI);
     }
 
+    public void testPermissionsWorldAnnotate() throws Exception {
+        p.grant(WORLD, ANNOTATE);
+        pI.setWorldAnnotate(true);
+        verify(p,pI);
+        p.revoke(WORLD, ANNOTATE);
+        pI.setWorldAnnotate(false);
+        verify(p,pI);
+    }
+
     public void testPermissionsWorldWrite() throws Exception {
         p.grant(WORLD, WRITE);
         pI.setWorldWrite(true);
@@ -99,10 +129,13 @@ public class PermissionsITest extends TestCase {
 
     void verify(Permissions p, PermissionsI pI) {
         assertEquals(p.isGranted(USER, READ), pI.isUserRead());
+        assertEquals(p.isGranted(USER, ANNOTATE), pI.isUserAnnotate());
         assertEquals(p.isGranted(USER, WRITE), pI.isUserWrite());
         assertEquals(p.isGranted(GROUP, READ), pI.isGroupRead());
+        assertEquals(p.isGranted(GROUP, ANNOTATE), pI.isGroupAnnotate());
         assertEquals(p.isGranted(GROUP, WRITE), pI.isGroupWrite());
         assertEquals(p.isGranted(WORLD, READ), pI.isWorldRead());
+        assertEquals(p.isGranted(WORLD, ANNOTATE), pI.isWorldAnnotate());
         assertEquals(p.isGranted(WORLD, WRITE), pI.isWorldWrite());
     }
 

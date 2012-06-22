@@ -8,9 +8,12 @@
 # General build scripts.
 
 import os
+import re
 import sys
 import time
 import subprocess
+
+BUILD_PY = "-Dbuild.py=true"
 
 
 def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
@@ -49,45 +52,11 @@ def notification(msg, prio):
     except OSError:
         pass # No growlnotify found, may want to use another tool
 
-def build_hudson():
-    """
-    Top-level build called by hudson for testing all components,
-    generating documentation, etc.
-    """
-    #
-    # Cleaning to prevent strange hudson errors about
-    # stale tests and general weirdness.
-    #
-    java_omero("clean")
-
-    # Build & Test
-    java_omero("build-all")
-    java_omero("test-integration")
-    java_omero("test-dist")
-
-    #
-    # Documentation and build reports
-    #
-    java_omero("release-docs")
-    java_omero("release-findbugs")
-    ## java_omero("release-jdepend") ## Doesn't yet work. Running from hudson
-
-    #
-    # Prepare a distribution
-    #
-    "rm -f OMERO.server-build*.zip"
-    java_omero("release-zip")
-
-    # Install into the hudson repository
-    ## Disabling until 4.1 with more work
-    ## on integration
-    ##java_omero("release-hudson")
-
-
 def java_omero(args):
     command = [ find_java() ]
     p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
     command.append("-Dlog4j.configuration=%s" % p)
+    command.append(BUILD_PY)
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
     command.extend(choose_omero_version())
@@ -109,23 +78,32 @@ def choose_omero_version():
     ant. Returned as an array so that an empty value can
     be extended into the build command.
 
-    If OMERO_BULID is set, then "-Domero.version=${omero-version}-${OMERO_BUILD}"
+    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
     otherwise nothing.
     """
 
-    omero_build = os.environ.get("OMERO_BUILD", "")
+    omero_build = os.environ.get("BUILD_NUMBER", "")
     if omero_build:
-        omero_build = "-%s" % omero_build
+        omero_build = "-b%s" % omero_build
 
-    command = [ find_java(), "omero","-q","version" ]
+    command = [ find_java(), "omero",BUILD_PY,"-q","version" ]
     err = ""
     try:
         p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         omero_version, err = p.communicate()
         omero_version = omero_version.split()[1]
+
+        # If we're not on hudson, then we don't want to force
+        # users to deal with rebuilding after each commit.
+        # Instead, drop everything except for "-DEV"
+        #
+        # See gh-67 for the discussion.
+        if not omero_build:
+            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
+                    "-DEV", omero_version)
         return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
-        print "Error getting version for OMERO_BUILD=%s" % omero_build
+        print "Error getting version for BUILD_NUMBER=%s" % omero_build
         if err:
             print err
         sys.exit(1)
@@ -133,17 +111,13 @@ def choose_omero_version():
 
 if __name__ == "__main__":
     #
-    # If this is a hudson build, then call the special build_hudson
-    # method. Otherwise, use java_omero which will specially configure
-    # the build system.
+    # use java_omero which will specially configure the build system.
     #
     args = list(sys.argv)
     args.pop(0)
 
     try:
-        if len(args) > 0 and args[0] == "-hudson":
-            build_hudson()
-        elif len(args) > 0 and args[0] == "-perf":
+        if len(args) > 0 and args[0] == "-perf":
             args.pop(0)
             A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split() + args
             java_omero(A)

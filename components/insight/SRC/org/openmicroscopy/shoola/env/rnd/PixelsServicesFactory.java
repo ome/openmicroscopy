@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import com.sun.opengl.util.texture.TextureData;
@@ -243,12 +244,12 @@ public class PixelsServicesFactory
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
-			RenderingEnginePrx re, Pixels pixels, List<ChannelData> metadata, 
-			int compression, List<RndProxyDef> defs)
+			SecurityContext ctx, RenderingEnginePrx re, Pixels pixels,
+			List<ChannelData> metadata, int compression, List<RndProxyDef> defs)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(re, pixels, metadata, compression, defs);
+		return singleton.makeNew(ctx, re, pixels, metadata, compression, defs);
 	}
 
 	/**
@@ -463,6 +464,7 @@ public class PixelsServicesFactory
 	 * @param pDef      The plane to render.
 	 * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
+	 * @param largeImage Indicates to set the resolution to <code>0</code>.
 	 * @return          The image representing the plane.
 	 * @return See above.
 	 * 
@@ -470,8 +472,8 @@ public class PixelsServicesFactory
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public static Object render(Registry context, Long pixelsID, 
-			PlaneDef pDef, boolean asTexture)
+	public static Object render(Registry context, SecurityContext ctx,
+			Long pixelsID, PlaneDef pDef, boolean asTexture, boolean largeImage)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -482,7 +484,14 @@ public class PixelsServicesFactory
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
 		if (asTexture) return proxy.renderAsTexture(pDef);
-		return proxy.render(pDef);
+		int level = proxy.getSelectedResolutionLevel();
+		if (largeImage) {
+			proxy.setCompression(RenderingControl.LOW);
+			proxy.setSelectedResolutionLevel(0);
+		}
+		Object o = proxy.render(pDef);
+		if (largeImage) proxy.setSelectedResolutionLevel(level);
+		return o;
 	}
 
 	/**
@@ -633,19 +642,19 @@ public class PixelsServicesFactory
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
-	 * @param re        	The rendering control.
-	 * @param pixels   		The pixels set.
-	 * @param metadata		The related metadata.
-	 * @param compression  	Pass <code>0</code> if no compression otherwise 
-	 * 						pass the compression used.
-	 * @param defs			The rendering definitions linked to the 
-	 * 						rendering engine.This is passed to speed up the 
-	 * 						initialization sequence.
+	 * @param ctx The security context.
+	 * @param re The rendering control.
+	 * @param pixels The pixels set.
+	 * @param metadata The related metadata.
+	 * @param compression Pass <code>0</code> if no compression otherwise 
+	 * 					 pass the compression used.
+	 * @param defs The rendering definitions linked to the 
+	 * rendering engine.This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 */
-	private RenderingControl makeNew(RenderingEnginePrx re, Pixels pixels, 
-							List metadata, int compression, 
-							List<RndProxyDef> defs)
+	private RenderingControl makeNew(SecurityContext ctx, RenderingEnginePrx re,
+			Pixels pixels, List metadata, int compression, 
+			List<RndProxyDef> defs)
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = pixels.getId().getValue();
@@ -653,7 +662,7 @@ public class PixelsServicesFactory
 			(RenderingControl) singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
 		singleton.rndSvcProxiesCount.put(id, 1);
-		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
+		rnd = new RenderingControlProxy(ctx, registry, re, pixels, metadata, 
 										compression, defs, getCacheSize());
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;

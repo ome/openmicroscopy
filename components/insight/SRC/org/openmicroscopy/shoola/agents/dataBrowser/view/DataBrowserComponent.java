@@ -59,15 +59,14 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -80,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -162,6 +162,26 @@ class DataBrowserComponent
 		view = new DataBrowserUI();
 		controller.initialize(this, view);
 		view.initialize(model, controller);
+	}
+	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	void onAnnotated(List<DataObject> containers, int count)
+	{
+		if (containers == null || containers.size() == 0) return;
+		NodesFinder visitor = new NodesFinder(containers);
+		model.getBrowser().accept(visitor);
+		List<ImageDisplay> nodes = visitor.getFoundNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) {
+			i.next().setAnnotationCount(count);
+		}
 	}
 	
 	/** 
@@ -657,7 +677,7 @@ class DataBrowserComponent
 			Collection list = new HashSet();
 			while (i.hasNext()) {
 				img = (ImageData) i.next();
-				if (isUserOwner(img)) list.add(img);
+				if (canLink(img)) list.add(img);
 			}
 			if (list.size() == 0) {
 				UserNotifier un = 
@@ -860,31 +880,95 @@ class DataBrowserComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		long id = DataBrowserAgent.getUserDetails().getId();
+		ExperimenterData exp = DataBrowserAgent.getUserDetails();
+		long id = exp.getId();
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+		switch (exp.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return false;
 	}
 
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isObjectWritable(Object)
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canDelete(Object)
 	 */
-	public boolean isUserOwner(Object ho)
+	public boolean canDelete(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		long id = DataBrowserAgent.getUserDetails().getId();
+		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canDelete();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canEdit(Object)
+	 */
+	public boolean canEdit(Object ho)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = DataBrowserAgent.getUserDetails().getId();
+		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canEdit();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canChgrp(Object)
+	 */
+	public boolean canChgrp(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (DataBrowserAgent.isAdministrator()) return true;
+		long id = DataBrowserAgent.getUserDetails().getId();
 		return EditorUtil.isUserOwner(ho, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canLink(Object)
+	 */
+	public boolean canLink(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		long id = DataBrowserAgent.getUserDetails().getId();
+		return (EditorUtil.isUserOwner(ho, id)); //user it the owner.
+		/*
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canLink();
+		*/
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canAnnotate(Object)
+	 */
+	public boolean canAnnotate(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		return model.canAnnotate(ho);
 	}
 	
 	/**
@@ -1300,6 +1384,15 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#areSettingsCompatible(long)
+	 */
+	public boolean areSettingsCompatible(long groupID)
+	{
+		return DataBrowserFactory.areSettingsCompatible(groupID);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#hasDataToCopy()
 	 */
 	public Class hasDataToCopy()
@@ -1533,9 +1626,9 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#viewDisplay(ImageDisplay)
+	 * @see DataBrowser#viewDisplay(ImageDisplay, boolean)
 	 */
-	public void viewDisplay(ImageDisplay node)
+	public void viewDisplay(ImageDisplay node, boolean internal)
 	{
 		if (!(node instanceof ImageNode)) return;
 		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
@@ -1545,28 +1638,58 @@ class DataBrowserComponent
 		Object go;
 		ViewImageObject object;
 		if (uo instanceof ImageData) {
-			/*
-			object = new ViewImageObject((ImageData) uo);
-			go =  view.getParentOfNodes();
-			if (go instanceof DataObject) 
-				data = (DataObject) go;
-			object.setContext(data, null);
-			bus.post(new ViewImage(object, null));
-			if (go instanceof DataObject) data = (DataObject) go;
-			*/
-			firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+			if (model instanceof SearchModel) {
+				ImageData img = (ImageData) uo;
+				SecurityContext ctx = new SecurityContext(img.getGroupId());
+				object = new ViewImageObject(img);
+				go =  view.getParentOfNodes();
+				if (go instanceof DataObject) 
+					data = (DataObject) go;
+				object.setContext(data, null);
+				if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+					ViewInPluginEvent evt = new ViewInPluginEvent(ctx,
+							img, DataBrowser.IMAGE_J);
+					bus.post(evt);
+				} else {
+					bus.post(new ViewImage(ctx, object, null));
+				}
+			} else {
+				if (internal)
+					firePropertyChange(INTERNAL_VIEW_NODE_PROPERTY, null, uo);
+				else firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+			}
 		} else if (uo instanceof WellSampleData) {
-			object = new ViewImageObject((WellSampleData) uo);
+			WellSampleData wellSample = (WellSampleData) uo;
+			object = new ViewImageObject(wellSample);
 			WellSampleNode wsn = (WellSampleNode) node;
 			Object parent = wsn.getParentObject();
+			
 			if (parent instanceof DataObject) {
 				go =  view.getGrandParentOfNodes();
 				if (go instanceof DataObject)
 					data = (DataObject) go;
 				object.setContext((DataObject) parent, data);
 			}
-			bus.post(new ViewImage(object, null));
+			if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+				
+				ViewInPluginEvent evt = new ViewInPluginEvent(
+						model.getSecurityContext(),
+						wellSample.getImage(), DataBrowser.IMAGE_J);
+				bus.post(evt);
+			} else {
+				bus.post(new ViewImage(model.getSecurityContext(), object, 
+						null));
+			}
 		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getSecurityContext()
+	 */
+	public SecurityContext getSecurityContext()
+	{
+		return model.getSecurityContext();
 	}
 	
 	/** 

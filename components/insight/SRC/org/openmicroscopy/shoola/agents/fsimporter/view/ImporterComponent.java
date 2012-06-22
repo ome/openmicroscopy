@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
-import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -183,18 +182,16 @@ class ImporterComponent
 	}
 
 	
-	/** 
-	 * Indicate that it was possible to reconnect.
-	 */
+	/** Refreshes the view when a user reconnects.*/
 	void onReconnected()
 	{
-		if (!model.isMaster()) return;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = -1;
 		if (model.getExperimenterId() == exp.getId() &&
 				group.getId() == model.getGroupId())
 			return;
+		view.reset();
 		model.setGroupId(group.getId());
 		chooser.onReconnected(view.buildToolBar());
 		refreshContainers(chooser.getType());
@@ -217,10 +214,12 @@ class ImporterComponent
 			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
-			chooser.reset(selectedContainer, objects, type);
+			boolean remove = selectedContainer == null;
+			chooser.reset(selectedContainer, objects, type, remove);
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
+		chooser.setSelectedGroup(getSelectedGroup());
 		if (model.isMaster() || objects == null || objects.size() == 0)
 			refreshContainers(type);
 		//load available disk space
@@ -578,9 +577,8 @@ class ImporterComponent
 				}
 			}
 			//restarts The import.
-			element = view.getElementToStartImportFor();
-			if (element != null) 
-				importData(element);
+			//element = view.getElementToStartImportFor();
+			//if (element != null) importData(element);
 		}
 	}
 
@@ -660,7 +658,7 @@ class ImporterComponent
 	 */
 	public GroupData getSelectedGroup()
 	{
-		Set m = ImporterAgent.getAvailableUserGroups();
+		Collection m = ImporterAgent.getAvailableUserGroups();
 		if (m == null) return null;
 		Iterator i = m.iterator();
 		long id = model.getGroupId();
@@ -699,8 +697,16 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		long oldId = model.getGroupId();
 		if (group.getId() == oldId) return;
+		/*
 		Registry reg = ImporterAgent.getRegistry();
 		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
+		*/
+		//Load data for
+		
+		model.setGroupId(group.getId());
+		chooser.setSelectedGroup(getSelectedGroup());
+		refreshContainers(chooser.getType());
+		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
 	/** 

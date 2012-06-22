@@ -24,10 +24,11 @@ import exceptions
 import omero
 
 from django.conf import settings
-from request_factory import Client
 
+from request_factory import Client
 from webadmin.custom_models import Server
-from omeroweb.webgateway import views as webgateway_views
+
+from omeroweb.connector import Connector
 
 class WebTest(unittest.TestCase):
         
@@ -39,14 +40,24 @@ class WebTest(unittest.TestCase):
         finally:
             c.__del__()
 
-        blitz = Server.find(server_host=omero_host)
+        blitz = Server.find(host=omero_host)
+        if blitz is None:
+            Server.reset()
+            for s in settings.SERVER_LIST:
+                server = (len(s) > 2) and unicode(s[2]) or None
+                Server(host=unicode(s[0]), port=int(s[1]), server=server)
+            Server.freeze()
+            blitz = Server.find(server=omero_host)
+        
         if blitz is not None:
             self.server_id = blitz.id
-            self.rootconn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username='root', passwd=self.root_password, secure=True, useragent="TEST.webadmin")
+            connector = Connector(self.server_id, True)
+            self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password)
+
             if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
                 raise exceptions.Exception("Cannot connect")
         else:
-            raise exceptions.Exception("'%s' is not on omero.web.server_list")
+            raise exceptions.Exception("'%s' is not on omero.web.server_list" % omero_host)
     
     def tearDown(self):
         try:
@@ -56,13 +67,14 @@ class WebTest(unittest.TestCase):
     
     def loginAsUser(self, username, password):
         blitz = Server.get(pk=self.server_id) 
-        if blitz is not None:       
-            conn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username=username, passwd=password, secure=True, useragent="TEST.webadmin")
+        if blitz is not None:
+            connector = Connector(self.server_id, True)
+            conn = connector.create_connection('TEST.webadmin', username, password)
             if conn is None or not conn.isConnected() or not conn.keepAlive():
                 raise exceptions.Exception("Cannot connect")
             return conn
         else:
-            raise exceptions.Exception("'%s' is not on omero.web.server_list")
+            raise exceptions.Exception("'%s' is not on omero.web.server_list"  % omero_host)
 
 class WebAdminClientTest(WebTest):
         

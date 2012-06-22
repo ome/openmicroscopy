@@ -7,11 +7,18 @@
 
 package ome.security.basic;
 
-// Java imports
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import ome.api.local.LocalAdmin;
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
@@ -20,6 +27,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.stats.SessionStats;
+import ome.services.sharing.ShareStore;
+import ome.services.sharing.data.ShareData;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.SimpleEventContext;
@@ -30,7 +39,9 @@ import ome.system.SimpleEventContext;
  * 
  * Not-thread-safe. Intended to be held by a {@link ThreadLocal}
  */
-class BasicEventContext extends SimpleEventContext {
+public class BasicEventContext extends SimpleEventContext {
+
+    private final static Log log = LogFactory.getLog(BasicEventContext.class);
 
     // Additions beyond simple event context
     // =========================================================================
@@ -57,12 +68,30 @@ class BasicEventContext extends SimpleEventContext {
 
     private ExperimenterGroup group;
 
+    private Map<String, String> callContext;
+
+    private Map<Long, Permissions> groupPermissions;
+
     public BasicEventContext(Principal p, SessionStats stats) {
         if (p == null || stats == null) {
             throw new RuntimeException("Principal and stats canot be null.");
         }
         this.p = p;
         this.stats = stats;
+    }
+
+    /**
+     * Copy-constructor to not have to allow the mutator {@link #copy(EventContext)}
+     * or {@link #copyContext(EventContext)} out of the {@link EventContext}
+     * hierarchy.
+     *
+     * @param p
+     * @param stats
+     * @param ec
+     */
+    public BasicEventContext(Principal p, SessionStats stats, EventContext ec) {
+        this(p, stats);
+        copyContext(ec);
     }
 
     void invalidate() {
@@ -79,7 +108,96 @@ class BasicEventContext extends SimpleEventContext {
         super.copy(ec);
     }
 
-    // ~ Setters for superclass state
+    void checkAndInitialize(EventContext ec, LocalAdmin admin, ShareStore store) {
+        this.copyContext(ec);
+
+        // Now re-apply values.
+        List<String> toPrint = null;
+
+        final Long sid = parseId(callContext, "omero.share");
+        if (sid != null) {
+            if (!isAdmin) {
+                // If the user is not an admin then we need to verify that
+                // s/he is a valid member of the share.
+                ShareData data = store.getShareIfAccessible(sid, isAdmin, this.cuId);
+                if (data == null) {
+                    throw new SecurityViolation(String.format(
+                            "User %s cannot access share %s", this.cuId, sid));
+                }
+            }
+            setShareId(sid);
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
+            toPrint.add("share="+sid);
+            return; // IGNORE all other settings for share (#8608)
+        }
+
+        final Long uid = parseId(callContext, "omero.user");
+        if (uid != null) {
+            // Here we trust the setting of the admin flag if we also have
+            // a user setting. In other words, if this has been initialized
+            // by the session context, then it's safe to say that we're just
+            // overwriting values.
+            if (cuId != null && !isAdmin && !cuId.equals(uid)) {
+                throw new SecurityViolation(String.format(
+                        "User %s is not an admin and so cannot set uid to %s",
+                        cuId, uid));
+            }
+            setOwner(admin.userProxy(uid));
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
+            toPrint.add("owner="+uid);
+        }
+
+        final Long gid = parseId(callContext, "omero.group");
+        if (gid != null) {
+            if (gid < 0) {
+                setGroup(new ExperimenterGroup(gid, false), Permissions.DUMMY);
+            } else {
+                ExperimenterGroup g = admin.groupProxy(gid);
+                setGroup(g, g.getDetails().getPermissions());
+            }
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
+            toPrint.add("group="+gid);
+        }
+
+        if (toPrint != null && toPrint.size() > 0) {
+            log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
+        }
+    }
+
+    // Call Context (ticket:3529)
+    // =========================================================================
+
+    static Long parseId(Map<String, String> ctx, String key) {
+        Long rv = null;
+        if (ctx != null && ctx.containsKey(key)) {
+            String s = ctx.get(key);
+            try {
+                rv = Long.valueOf(ctx.get(key));
+                log.debug("Using call requested group: " + key + "=" + s);
+            } catch (Exception e) {
+                log.warn("Ignoring invalid requested group: " + key + "=" + s);
+            }
+        }
+        return rv;
+    }
+
+    public Map<String, String> getCallContext() {
+        return callContext;
+    }
+
+    public Map<String, String> setCallContext(Map<String, String> ctx) {
+        final Map<String, String> rv = callContext;
+        callContext = ctx;
+        return rv;
+    }
+
+    // ~ Getters/Setters for superclass state
     // =========================================================================
 
     @Override
@@ -149,12 +267,18 @@ class BasicEventContext extends SimpleEventContext {
         return group;
     }
 
-    public void setGroup(ExperimenterGroup group) {
+    public void setGroup(ExperimenterGroup group, Permissions p) {
         this.group = group;
-        this.cgId = group.getId();
-        if (group.isLoaded()) {
-            this.cgName = group.getName();
-            this.groupPermissions = group.getDetails().getPermissions();
+        setGroupPermissions(p);
+        if (this.cgId.equals(group.getId())) {
+            // Do nothing.
+        } else {
+            this.cgId = group.getId();
+            this.cgName = null;
+            // If unloaded or group.id < -1 these will remain null
+            if (group.isLoaded()) {
+                this.cgName = group.getName();
+            }
         }
     }
 
@@ -214,6 +338,34 @@ class BasicEventContext extends SimpleEventContext {
 
     // Other
     // =========================================================================
+
+    public Permissions getPermissionsForGroup(Long group) {
+        if (group == null || groupPermissions == null) {
+            return null;
+        }
+        return groupPermissions.get(group);
+    }
+
+    public Permissions setPermissionsForGroup(Long group, Permissions perms) {
+        if (groupPermissions == null) {
+            groupPermissions = new HashMap<Long, Permissions>();
+        }
+        return groupPermissions.put(group, perms);
+    }
+
+    public void loadPermissions(org.hibernate.Session session) {
+        if (groupPermissions != null) {
+            for (Map.Entry<Long, Permissions> entry :
+                groupPermissions.entrySet()) {
+                if (entry.getValue() == null) {
+                    Long id = entry.getKey();
+                    ExperimenterGroup g = (ExperimenterGroup)
+                        session.get(ExperimenterGroup.class, id);
+                    entry.setValue(g.getDetails().getPermissions());
+                }
+            }
+        }
+    }
 
     @Override
     public String toString() {

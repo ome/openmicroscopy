@@ -463,10 +463,24 @@ class TwoKnobsSliderUI
 			else img = disabledUpArrowImage;
 		}
 		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
+			if (model.allowOverlap() && !component.getColourGradient()) {
+				img = thumbImageDarker;
+				if (!model.isEnabled()) 
+					img = disabledThumbImageDarker;
+			}
 			g2D.drawImage(img, x, down, w, h, null);
+			if (!component.getColourGradient()) {
+				if (model.isEnabled()) img = thumbImage;
+				else img = disabledThumbImage;
+			}
 			g2D.drawImage(img, x, up, w, h, null);
 		} else {
 			g2D.drawImage(img, x, up, w, h, null);
+			if (model.allowOverlap() && !component.getColourGradient()) {
+				img = thumbImageDarker;
+				if (!model.isEnabled()) 
+					img = disabledThumbImageDarker;
+			}
 			g2D.drawImage(img, x, down, w, h, null);
 		}
 	}
@@ -698,9 +712,9 @@ class TwoKnobsSliderUI
 			int distanceFromTrackTop = trackBottom-yPosition;
 			if (start) distanceFromTrackTop = yPosition-trackTop;
 			double valueRange = (double) maxValue-(double) minValue;
-			double valuePerPixel = Math.ceil(valueRange/trackLength*10)/10;
+			double valuePerPixel = Math.ceil(valueRange/trackLength*1000)/1000;
 			int valueFromTrackTop = 
-				(int) Math.round(distanceFromTrackTop*valuePerPixel);
+				(int) Math.ceil(distanceFromTrackTop*valuePerPixel);
 			//value = maxValue-valueFromTrackTop;
 			if (!start) value = minValue+valueFromTrackTop;
 			else value = maxValue-valueFromTrackTop;

@@ -21,13 +21,19 @@
 -->
 {% endcomment %}
 
-<h1>{% trans "Most recent share comments" %}:</h1>
+
+
+<div class="clear"></div>
+
+<hr/>
+
+<h2>{% trans "Most recent share comments" %}:</h2>
 {% if controller.mostRecentSharesComments %}
     <table>
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% static "common/image/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
+                <img src="{% static "webgateway/img/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
             </td></tr>
         {% endfor %}
         </tbody>
@@ -36,7 +42,12 @@
     <div><p>{% trans "No data commented." %}</p></div>
 {% endif %}
 
-<h1>{% trans "Most recent shares" %}:</h1>
+<hr/>
+
+<div class="clear"></div>
+
+
+<h2>{% trans "Most recent shares" %}:</h2>
 {% if controller.mostRecentShares %}
     <table>
         <tbody>

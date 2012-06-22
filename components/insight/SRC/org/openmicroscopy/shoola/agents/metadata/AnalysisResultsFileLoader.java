@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -53,12 +54,12 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class AnalysisResultsFileLoader 
+public class AnalysisResultsFileLoader
 	extends EditorLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  		handle;
+    private CallHandle handle;
     
     /** The files to load. */
     private Map<FileAnnotationData, File> results;
@@ -74,12 +75,13 @@ public class AnalysisResultsFileLoader
      * 
      * @param viewer The viewer this data loader is for. 
      * 				 Mustn't be <code>null</code>.
+     * @param ctx The security context.
 	 * @param item	 The object hosting information about the results to load.
      */
-    public AnalysisResultsFileLoader(Editor viewer, 
+    public AnalysisResultsFileLoader(Editor viewer, SecurityContext ctx,
     		AnalysisResultsItem item)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	if (item == null)
     		throw new IllegalArgumentException("No files to load");
     	this.item = item;
@@ -120,7 +122,7 @@ public class AnalysisResultsFileLoader
 			f.deleteOnExit();
 			map.put(fa, f);
     	}
-		handle = mhView.loadFiles(map, this);
+		handle = mhView.loadFiles(ctx, map, this);
 	}
 	
 	/** 

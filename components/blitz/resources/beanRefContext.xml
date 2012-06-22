@@ -14,6 +14,7 @@
       <list>
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
+        <value>classpath:ome/services/objectfactories.xml</value>
         <value>classpath:ome/services/throttling/throttling.xml</value>
         <value>classpath*:ome/services/blitz-*.xml</value>   
       </list>
@@ -47,6 +48,7 @@
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath:ome/services/objectfactories.xml</value>
         <!-- Primary reason for this context -->
         <value>classpath:ome/services/repository/repository.xml</value>
       </list>

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 //Java imports
 import java.awt.Point;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -54,20 +56,20 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 public class ROIAnalyser
 {
 
-	 /** 
-     * Iterates an {@link ROIShape} over our pixels set.
-     * Observers compute the statistics as the iteration moves forward. 
-     */
-	private PointIterator 		runner;
+	/** 
+	 * Iterates an {@link ROIShape} over our pixels set.
+	 * Observers compute the statistics as the iteration moves forward.
+	 */
+	private PointIterator runner;
 	
 	/** The number of z-sections. */
-	private int					sizeZ;   
+	private int sizeZ;
 	
 	/** The number of time-points. */
-	private int					sizeT;   
+	private int sizeT;
 	
 	/** The number of channels. */
-	private int					sizeC;   
+	private int sizeC;
     
 	/**
 	 * Controls if the specified coordinates are valid. 
@@ -131,16 +133,18 @@ public class ROIAnalyser
      * Computes an {@link ROIShapeStats} object for each {@link ROIShape} 
      * specified
      * 
-     * @param shapes 	The shapes to analyse.
-     * @param channels	Collection of selected channels.
-     * @return 	A map whose keys are the {@link ROIShape} objects specified 
-     * 			and whose values are a map (keys: channel index, value 
-     * 			the corresponding {@link ROIShapeStats} objects computed by 
-     * 			this method).
+     * @param ctx The security context.
+     * @param shapes The shapes to analyze.
+     * @param channels Collection of selected channels.
+     * @return A map whose keys are the {@link ROIShape} objects specified 
+     *         and whose values are a map (keys: channel index, value 
+     *         the corresponding {@link ROIShapeStats} objects computed by 
+     *         this method).
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public Map analyze(ROIShape[] shapes, List channels) 
+    public Map analyze(SecurityContext ctx, ROIShape[] shapes,
+    		Collection channels) 
         throws DataSourceException
     {
     	if (shapes == null) throw new NullPointerException("No shapes.");
@@ -166,7 +170,7 @@ public class ROIAnalyser
     				if (checkChannel(w.intValue())) {
     					computer =  new ROIShapeStats();
         				runner.register(computer);
-        				runner.iterate(shape, points, w.intValue());
+        				runner.iterate(ctx, shape, points, w.intValue());
         				runner.remove(computer);
         				stats.put(w, computer);
     				}

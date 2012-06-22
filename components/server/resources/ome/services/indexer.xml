@@ -36,7 +36,13 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
   <alias name="org.hibernate.EmptyInterceptor.INSTANCE" alias="omeroInterceptor"/>
 
-  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+  <bean id="oneGroupSecurityFilter" class="ome.security.basic.OneGroupSecurityFilter">
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
+  <bean id="allGroupSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 
@@ -58,6 +64,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="securityFilterHolder"/>
   </bean>
 
   <bean id="eventHandler" class="ome.security.basic.NullEventHandler">

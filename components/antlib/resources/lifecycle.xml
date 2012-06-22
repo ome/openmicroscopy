@@ -78,6 +78,9 @@
 		<echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
+		<echo file="${resrc.dest}/omero.properties" append="true">
+omero.version=${omero.version}
+		</echo>
                 <for list="${classes.dir},${resrc.dest}" param="dir">
                   <sequential>
                     <if><not><isfileselected file="@{dir}/hibernate.properties">
@@ -314,7 +317,7 @@ omero.version=${omero.version}
 			<flattenmapper/>
 		</pathconvert>
                 <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} services.jar extensions.jar"/>
-		<jar destfile="${target.dir}/${ivy.module}.jar" update="true">
+		<jar destfile="${target.dir}/${ivy.module}-UNSIGNED.jar" update="true">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
 				<attribute name="Main-Class" value="${main.class}"/>
@@ -380,6 +383,13 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="install" depends="package">
+                <signjar
+                        jar="${target.dir}/${ivy.module}-UNSIGNED.jar"
+                        signedjar="${target.dir}/${ivy.module}.jar"
+                        alias="${jarsign.alias}"
+                        keystore="${jarsign.keystore}"
+                        storepass="${jarsign.storepass}"
+                        preservelastmodified="true"/>
 		<publishArtifact/>
 	</target>
 

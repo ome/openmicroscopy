@@ -31,9 +31,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
+import org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 //Third-party libraries
 
@@ -77,16 +80,21 @@ class BrowserModel
     /** The type of browser. */
     private int 				type;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates an instance. 
      * 
+     * @param ctx The security context.
      * @param state	The editing mode of the browser. 
      * 				Either {@link Browser#EDIT_EXPERIMENT} or 
      * 				{@link Browser#EDIT_PROTOCOL}
      * @param type 
      */
-    BrowserModel(int state, int type) 
+    BrowserModel(SecurityContext ctx, int state, int type) 
     {
+    	this.ctx = ctx;
     	setEditingMode(state);
     	this.savedState = Browser.TREE_SAVED;
     	this.type = type;
@@ -256,4 +264,18 @@ class BrowserModel
      */
     int getType() { return type; }
     
+    /**
+     * Loads the file annotation.
+     * 
+     * @param fileID The id of the file to load.
+     * @param handler The handler used when the annotation is returned.
+     */
+    void getFileAnnotation(long fileID, AnnotationHandler handler)
+    {
+    	FileAnnotationLoader fal = new FileAnnotationLoader(component, ctx,
+    			fileID);
+    	fal.setAnnotationHandler(handler);
+    	fal.load();
+    }
+
 }

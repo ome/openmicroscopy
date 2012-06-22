@@ -20,6 +20,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.meta.ExperimenterGroup;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -72,6 +73,37 @@ public interface SecuritySystem {
      * @return
      */
     EventContext getEventContext();
+
+    /**
+     * Returns UID based on whether a share is active, etc. This is the UID
+     * value that should be used for writing data.
+     *
+     * The return value <em>may be</em> null if the user is currently querying
+     * across multiple contents. In this case another method for
+     * choosing the UID must be chosen, for example by taking the UID of
+     * another element under consideration.
+     *
+     * For example,
+     * <pre>
+     * Annotation toSave = ...;
+     * if (toSave.getDetails().getOwner() == null) // No owner need to find one.
+     * {
+     *     Long uid = sec.getEffectiveUID();
+     *     if (uid != null)
+     *     {
+     *         toSave.getDetails().setOwner(new Experimenter(uid, false));
+     *     }
+     *     else
+     *     {
+     *         toSave.getDetails().setOwner(
+     *            image.getDetails().getOwner()); // may be null.
+     *     }
+     * }
+     * image.linkAnnotation(toSave);
+     * etc.
+     * <pre>
+     */
+    Long getEffectiveUID();
 
     /**
      * If refresh is false, returns the current {@link EventContext} stored
@@ -243,10 +275,20 @@ public interface SecuritySystem {
      * handled. The merging of detached entity graphs should be disabled for the
      * extent of the execution.
      * 
+     * Due to the addition of the group permission system, we also permit
+     * setting the group on the call so that the administrator can work within
+     * all groups. A value of null will not change the current group.
+     *
      * Note: the {@link ome.api.IUpdate} save methods should not be used, since
      * they also accept detached entities, which could pose security risks.
      * Instead load an entity from the database via {@link ome.api.IQuery},
      * make changes, and save the changes with {@link ome.api.IUpdate#flush()}.
+     */
+    void runAsAdmin(ExperimenterGroup group, AdminAction action);
+
+    /**
+     * Calls {@link #runAsAdmin(ExperimenterGroup, AdminAction)} with a
+     * null group.
      */
     void runAsAdmin(AdminAction action);
 

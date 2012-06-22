@@ -105,7 +105,7 @@ public class BrowserImportAction
                 */
             	if (ho instanceof ProjectData || ho instanceof DatasetData ||
             			ho instanceof ScreenData || ho instanceof ImageData) 
-            		setEnabled(model.isUserOwner(ho));
+            		setEnabled(model.canEdit(ho));
             	else if (ho instanceof ExperimenterData && 
             			t != Browser.ADMIN_EXPLORER) {
             		ExperimenterData exp = TreeViewerAgent.getUserDetails();
@@ -163,8 +163,9 @@ public class BrowserImportAction
 				type = BrowserSelectionEvent.SCREEN_TYPE;
     	}
     	event = new LoadImporter(display, type);
-    	long id = TreeViewerAgent.getUserDetails().getId();
-    	event.setObjects(model.getNodesForUser(id));
+    	event.setGroup(model.getSecurityContext(display).getGroupID());
+    	//long id = TreeViewerAgent.getUserDetails().getId();
+    	//event.setObjects(model.getNodesForUser(id, display));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(event);
     }

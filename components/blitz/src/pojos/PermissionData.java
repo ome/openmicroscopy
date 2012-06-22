@@ -48,20 +48,51 @@ public class PermissionData {
     	else p = permissions;
     }
 
+    /**
+     * Returns the permissions level.
+     * 
+     * @return See above.
+     */
+    public int getPermissionsLevel()
+    {
+    	if (isGroupRead()) {
+    		if (isGroupAnnotate()) {
+    			if (isGroupWrite())
+    				return GroupData.PERMISSIONS_GROUP_READ_WRITE;
+    			return GroupData.PERMISSIONS_GROUP_READ_LINK;
+    		}
+    		return GroupData.PERMISSIONS_GROUP_READ;
+    	}
+    	if (isWorldRead()) {
+    		if (isWorldWrite())
+    			return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+    		return GroupData.PERMISSIONS_PUBLIC_READ;
+    	}
+    	return GroupData.PERMISSIONS_PRIVATE;
+    }
+    
     // ~ Rights
     // =====================================================================
 
     /**
-     * Returns <code>true </code> if the group has read access,
-     * <code>false</code> otherwise.
+     * Returns <code>true </code> if the group has read access
+     * i.e. <code>RWR---</code>, <code>false</code> otherwise.
      * 
      * @return See above.
      */
     public boolean isGroupRead() { return p.isGroupRead(); }
 
     /**
-     * Returns <code>true </code> if the group has write access,
-     * <code>false</code> otherwise.
+     * Returns <code>true </code> if the group has annotate access i.e.
+     * <code>RWRA--</code>, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isGroupAnnotate() { return p.isGroupAnnotate(); }
+    
+    /**
+     * Returns <code>true </code> if the group has write access i.e.
+     * <code>RWRW--</code>, <code>false</code> otherwise.
      * 
      * @return See above.
      */
@@ -107,6 +138,17 @@ public class PermissionData {
      */
     public void setGroupRead(boolean groupRead) { p.setGroupRead(groupRead); }
 
+    /**
+     * Sets to <code>true</code> if the group has annotate access,
+     * <code>false</code> otherwise.
+     * 
+     * @param groupAnnotate The value to set.
+     */
+    public void setGroupAnnotate(boolean groupAnnotate)
+    {
+    	p.setGroupAnnotate(groupAnnotate);
+    }
+    
     /**
      * Sets to <code>true</code> if the group has write access,
      * <code>false</code> otherwise.

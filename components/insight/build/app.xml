@@ -64,7 +64,7 @@
     <pathelement location="${app.compiled.dir}"/>
   </path>
   <property name="app.mainclass" value="org.openmicroscopy.shoola.Main"/>
- 
+  <property name="app.mainclass.ij" value="org.openmicroscopy.shoola.MainIJPlugin"/>
 <property name="app.compiled.util.dir" location="${app.dir}/compiled/util"/> 
 <fileset id="app.resources.util" dir="${base.src.dir}">
 	<include name="org/openmicroscopy/shoola/util/**" />
@@ -109,6 +109,10 @@
     <replace file="${app.config.dir}/about.xml"
         token="@DATE@"
         value="${about.time}"/>
+    <replace dir="${app.config.dir}"
+        token="@OMERO_DISPLAY_VERSION@"
+        value="${omero.display_version}"/>
+
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy> 

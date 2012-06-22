@@ -307,6 +307,7 @@ public class FileAnnotationData extends AnnotationData {
     public void setDescription(String description)
     {
     	 if (description == null || description.trim().length() == 0) return;
+    	 setDirty(true);
          asAnnotation().setDescription(rstring(description));
     }
     
@@ -449,13 +450,22 @@ public class FileAnnotationData extends AnnotationData {
         if (attachedFile != null) {
             return attachedFile.getName();
         }
-        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        FileAnnotation fa = (FileAnnotation) asAnnotation();
+        OriginalFile f = fa.getFile();
+        String name = "";
         if (f != null) {
             if (f.getName() != null) {
-                return f.getName().getValue();
+            	name = f.getName().getValue();
             }
+            if (name != null && name.trim().length() != 0)
+            	return name;
+            if (f.getPath() != null) {
+            	name = f.getPath().getValue();
+            }
+            if (name != null && name.trim().length() != 0)
+            	return name;
         }
-        return "";
+        return ""+getFileID();
     }
 
     /**
@@ -551,6 +561,7 @@ public class FileAnnotationData extends AnnotationData {
                     + "Original file");
         }
         if (content instanceof OriginalFile) {
+        	setDirty(true);
             ((FileAnnotation) asAnnotation()).setFile((OriginalFile) content);
         } else {
             throw new IllegalArgumentException("Content must be an "

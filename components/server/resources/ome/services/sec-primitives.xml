@@ -42,8 +42,28 @@
 
   <bean id="roles" class="ome.system.Roles"/>
 
-  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+  <bean id="securityFilterHolder" class="ome.security.SecurityFilterHolder">
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="&amp;OneGroupSecurityFilter"/><!-- filter is a factory -->
+    <constructor-arg ref="&amp;AllGroupsSecurityFilter"/><!-- filter is a factory -->
+  </bean>
+
+  <bean id="OneGroupSecurityFilter" class="ome.security.basic.OneGroupSecurityFilter">
     <constructor-arg ref="roles"/>
+  </bean>
+
+  <bean id="AllGroupsSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
+  </bean>
+
+  <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>
+
+  <bean id="groupChmodStrategy" class="ome.security.basic.GroupChmodStrategy">
+    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="omeroSessionFactory"/>
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="extendedMetadata"/>
   </bean>
 
   <bean id="systemTypes" class="ome.security.SystemTypes"/>
@@ -60,13 +80,14 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="shareStore"/>
+    <constructor-arg ref="tokenHolder"/>
   </bean>
   
   <bean id="basicACLVoter" class="ome.security.basic.BasicACLVoter">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="&amp;securityFilter"/><!-- filter is a factory -->
+    <constructor-arg ref="securityFilterHolder"/>
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
