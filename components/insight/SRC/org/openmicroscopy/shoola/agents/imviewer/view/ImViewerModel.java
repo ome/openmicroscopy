@@ -2606,19 +2606,6 @@ class ImViewerModel
 				pDef, ratio);
 		loader.load();
 		loaders.put(BIRD_EYE_BVIEW, loader);
-		/*
-		if (image != null) {
-			BufferedImage newImage;
-			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
-			else newImage = image;
-			component.setBirdEyeView(newImage);
-		} else {
-			BirdEyeLoader loader = new BirdEyeLoader(component, ctx,
-					getImage());
-			loader.load();
-		}
-		*/
-		//rnd.setSelectedResolutionLevel(level);
 	}
 
 	/**
