@@ -65,6 +65,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -1538,8 +1539,6 @@ public class ImportDialog
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
-		//row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
-		//row.add(Box.createHorizontalStrut(5));
 		row.add(locationButton);
 		row.add(Box.createHorizontalStrut(5));
 		row.add(locationLabel);
@@ -1569,6 +1568,8 @@ public class ImportDialog
 			locationPane.add(row);
 			locationPane.add(new JSeparator());
 		}
+		locationPane.validate();
+		locationPane.repaint();
 	}
 
 	/** 
@@ -1610,7 +1611,7 @@ public class ImportDialog
 		
 		buildLocationPane();
 		if (!popUpLocation) {
-			pane.add(locationPane);
+			pane.add(new JScrollPane(locationPane));
 			container.add(pane, "3, 0");
 		}
 			
@@ -2186,7 +2187,7 @@ public class ImportDialog
 		buildLocationPane();
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
-		pane.setCollapsed(true);
+		//pane.setCollapsed(true);
 		if (b != popUpLocation) {
 			if (b) {
 				Component[] comps = container.getComponents();
@@ -2199,7 +2200,7 @@ public class ImportDialog
 				}
 				if (!in) {
 					pane.removeAll();
-					pane.add(locationPane);
+					pane.add(new JScrollPane(locationPane));
 					container.add(pane, "3, 0");
 				}
 			} else {

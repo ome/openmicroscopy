@@ -766,12 +766,16 @@ class ImporterUI
         Iterator i = set.iterator();
         int index = 0;
         GroupData g;
+        long gid = model.getGroupId();
+        int selected = 0;
         while (i.hasNext()) {
         	g = (GroupData) i.next();
+        	if (g.getId() == gid) selected = index;
         	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
 			index++;
 		}
         JComboBox groups = new JComboBox(objects);
+        groups.setSelectedIndex(selected);
         JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
         groups.setRenderer(rnd);
         rnd.setPreferredSize(new Dimension(200, 130));
