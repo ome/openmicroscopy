@@ -62,8 +62,6 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
-
 /** 
  * The {@link Editor}'s View.
  *
@@ -161,7 +159,7 @@ class EditorUI
 		bar.removeAll();
 		bar.add(menu);
 		for (int i = 0; i < existingMenus.length; i++) 
-			bar.add(existingMenus[i]);
+			if (i != TaskBar.FILE_MENU) bar.add(existingMenus[i]);
         return bar;	
 	}
 

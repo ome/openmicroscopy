@@ -416,7 +416,7 @@ class ImporterUI
  		bar.removeAll();
  		bar.add(createFileMenu());
  		for (int i = 0; i < existingMenus.length; i++) {
-			bar.add(existingMenus[i]);
+ 			if (i != TaskBar.FILE_MENU) bar.add(existingMenus[i]);
 		}
     	return bar;
     }
