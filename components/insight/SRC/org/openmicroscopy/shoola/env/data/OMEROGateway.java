@@ -312,10 +312,7 @@ class OMEROGateway
 	
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
-	
-	/** Identifies the client. */
-	private static final String				AGENT = "OMERO.insight";
-	
+
 	/** The collection of system groups. */
 	private static final List<String>		SYSTEM_GROUPS;
 
@@ -2263,13 +2260,14 @@ class OMEROGateway
 	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
      * 					<code>false</code> otherwise.
+     * @param agentName The name to register with the server.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
 	ExperimenterData login(String userName, String password, String hostName,
-							float compression, long groupID, boolean encrypted)
+		float compression, long groupID, boolean encrypted, String agentName)
 		throws DSOutOfServiceException
 	{
 		try {
@@ -2278,7 +2276,7 @@ class OMEROGateway
 			client secureClient;
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
-			secureClient.setAgent(AGENT);
+			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			
 			

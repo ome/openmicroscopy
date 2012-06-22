@@ -85,6 +85,18 @@ public class LookupNames
 	/** Field indicating the Attachment is the default hierarchy.*/
 	public static final int ATTACHMENT_ENTRY = 3;
 	
+    /** Field to access the <code>master</code> agent. */
+	public static final String MASTER = "master";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_INSIGHT = "OMERO.insight";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_IMPORTER = "OMERO.importer";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_EDITOR = "OMERO.editor";
+	
     /** Field to access the <code>Version</code> information. */
 	public static final String VERSION = "Version";	
 	
@@ -131,7 +143,7 @@ public class LookupNames
     
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
-    
+	
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";
     

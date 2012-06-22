@@ -482,10 +482,13 @@ public class DataServicesFactory
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
 		omeroGateway.setPort(uc.getPort());
+		String name = (String) 
+		 container.getRegistry().lookup(LookupNames.MASTER);
+		if (name == null) name = LookupNames.MASTER_INSIGHT;
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
-                                uc.getGroup(), uc.isEncrypted());
+                                uc.getGroup(), uc.isEncrypted(), name);
         compatible = true;
         //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);

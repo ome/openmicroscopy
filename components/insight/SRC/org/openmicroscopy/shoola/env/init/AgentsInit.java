@@ -31,7 +31,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -64,11 +63,12 @@ public final class AgentsInit
 	 * passed <code>info</code> object.
 	 * 
 	 * @param info	Specifies which class to instantiate and collects the 
-	 * 				agent instance as well as its registry.  
+	 * 				agent instance as well as its registry.
+	 * @param value The number of the master.
 	 * @throws StartupException If the agent couldn't be instantiated or its
 	 * 							registry couldn't be populated.
 	 */
-	private void createAgent(AgentInfo info)
+	private void createAgent(AgentInfo info, int value)
 		throws StartupException
 	{
 		if (!info.isActive()) return;
@@ -90,10 +90,19 @@ public final class AgentsInit
 			
 			//Fill up info. (Recall that this object is already in the
 			//agents list within the container's registry.)
-			info.setAgent((Agent) agentInstance);
+			Agent agent = (Agent) agentInstance;
+			info.setAgent(agent);
 			info.setRegistry(reg);
+			//Register the master
+			if (info.isActive()) {
+				if (info.getNumber() == value) {
+					container.getRegistry().bind(LookupNames.MASTER,
+							LookupNames.MASTER_IMPORTER);
+				} else if (info.getNumber() == value)
+					container.getRegistry().bind(LookupNames.MASTER,
+						LookupNames.MASTER_EDITOR);
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);
 		}
@@ -153,10 +162,25 @@ public final class AgentsInit
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
+		Integer v = (Integer) reg.lookup(LookupNames.ENTRY_POINT);
+		int value = -1;
+		if (v != null) {
+			switch (v.intValue()) {
+				case LookupNames.EDITOR_ENTRY:
+				case LookupNames.IMPORTER_ENTRY:
+					value = v.intValue();
+			}
+		}
+		
 		List agents = (List) reg.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
 		while (i.hasNext()) 
-			createAgent((AgentInfo) i.next());
+			createAgent((AgentInfo) i.next(), value);
+		String name = (String) container.getRegistry().lookup(
+				LookupNames.MASTER);
+		if (name == null)
+			container.getRegistry().bind(LookupNames.MASTER,
+					LookupNames.MASTER_INSIGHT);
 	}
 
 	/** 
