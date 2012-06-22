@@ -35,6 +35,7 @@ import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
@@ -340,7 +341,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
         errorIfNotLoaded();
 
-        int cubeSize = buffer.getHypercubeSize(offset, size, step);
+        int cubeSize = RomioPixelBuffer.safeLongToInteger(
+                buffer.getHypercubeSize(offset, size, step));
         if (readBuffer == null || readBuffer.length != cubeSize) {
             readBuffer = new byte[cubeSize];
         }
@@ -357,7 +359,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getPlaneRegion(int z, int c, int t, int count, int offset) {
         errorIfNotLoaded();
 
-        int size = buffer.getByteWidth() * count;
+        int size = RomioPixelBuffer.safeLongToInteger(
+                buffer.getByteWidth() * (long) count);
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -374,7 +377,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getPlane(int arg0, int arg1, int arg2) {
         errorIfNotLoaded();
 
-        int size = buffer.getPlaneSize();
+        int size = RomioPixelBuffer.safeLongToInteger(buffer.getPlaneSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -399,7 +402,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public synchronized int getPlaneSize() {
+    public synchronized long getPlaneSize() {
         errorIfNotLoaded();
 
         return buffer.getPlaneSize();
@@ -475,7 +478,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getStack(int arg0, int arg1) {
         errorIfNotLoaded();
 
-        int size = buffer.getStackSize();
+        int size = RomioPixelBuffer.safeLongToInteger(buffer.getStackSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -500,7 +503,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public synchronized int getStackSize() {
+    public synchronized long getStackSize() {
         errorIfNotLoaded();
 
         return buffer.getStackSize();
@@ -510,7 +513,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getTimepoint(int arg0) {
         errorIfNotLoaded();
 
-        int size = buffer.getTimepointSize();
+        int size = RomioPixelBuffer.safeLongToInteger(
+                buffer.getTimepointSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -535,14 +539,14 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public synchronized int getTimepointSize() {
+    public synchronized long getTimepointSize() {
         errorIfNotLoaded();
 
         return buffer.getTimepointSize();
     }
 
     @RolesAllowed("user")
-    public synchronized int getTotalSize() {
+    public synchronized long getTotalSize() {
         errorIfNotLoaded();
 
         return buffer.getTotalSize();
@@ -757,7 +761,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     {
         errorIfNotLoaded();
 
-        int size = w * h * buffer.getByteWidth();
+        int size = RomioPixelBuffer.safeLongToInteger(
+                (long) w * (long) h * buffer.getByteWidth());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
