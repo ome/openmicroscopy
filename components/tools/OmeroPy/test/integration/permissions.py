@@ -741,6 +741,31 @@ class TestPermissions(lib.ITest):
         finally:
             rps.close()
 
+    # raw file bean
+    # ==================================================
+
+    def assertValidScript(self, f):
+        user = self.new_client()
+        srv = user.sf.getScriptService()
+        script = srv.getScripts()[0]
+        store = user.sf.createRawFileStore()
+        params = f(script)
+        store.setFileId(script.id.val, params)
+        data = store.read(0, long(script.size.val))
+        self.assertEquals(script.size.val, len(data))
+
+    def testUseOfRawFileBeanScriptReadGroupMinusOne(self):
+        self.assertValidScript(lambda v: {'omero.group': '-1'})
+
+    def testUseOfRawFileBeanScriptReadCorrectGroup(self):
+        self.assertValidScript(lambda v: {'omero.group':
+                str(v.details.group.id.val)})
+
+    def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
+        self.assertValidScript(lambda v: {
+            'omero.group': str(v.details.group.id.val),
+            'omero.user': str(v.details.owner.id.val)
+        })
 
 if __name__ == '__main__':
     unittest.main()
