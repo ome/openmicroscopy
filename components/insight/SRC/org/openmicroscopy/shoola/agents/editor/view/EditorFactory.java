@@ -134,7 +134,7 @@ public class EditorFactory
 	 */
 	public static Editor getEditor(SecurityContext ctx, File file)
 	{
-		if (file == null) return getEditor(ctx);	// just in case. Never used! 
+		if (file == null) return getEditor(ctx, false);	// just in case. Never used! 
 		
 		EditorModel model = new EditorModel(ctx, file);
 		
