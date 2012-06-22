@@ -118,16 +118,145 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         assertEquals(shapeIds.size(), movedShapes.size());
     }
 
+    /**
+     * Test moving data as the data owner from a private to a private group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWtoRW() throws Exception {
+        moveImageBetweenPermissionGroups("rw----", "rw----");
+    }
+
+    /**
+     * Test moving data as the data owner from a private to a read-only group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWtoRWR() throws Exception {
+        moveImageBetweenPermissionGroups("rw----", "rwr---");
+    }
+
+    /**
+     * Test moving data as the data owner from a private to a read-annotate group
+     * @throws Exception
+     */
     @Test
     public void moveImageRWtoRWRA() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rwra--");
     }
-
+    
+    /**
+     * Test moving data as the data owner from a private to a read-write group
+     * @throws Exception
+     */
     @Test
     public void moveImageRWtoRWRW() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rwrw--");
     }
+    
 
+    /**
+     * Test moving data as the data owner from a read-only to a private group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRtoRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwr---", "rw----");
+    }
+    /**
+     * Test moving data as the data owner from a read-only to a read-only group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRtoRWR() throws Exception {
+        moveImageBetweenPermissionGroups("rwr---", "rwr---");
+    }
+    /**
+     * Test moving data as the data owner from a read-only to a read-annotate group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRtoRWRA() throws Exception {
+        moveImageBetweenPermissionGroups("rwr---", "rwra--");
+    }
+    /**
+     * Test moving data as the data owner from a read-only to a read-write group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRtoRWRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwr---", "rwrw--");
+    }
+
+    /**
+     * Test moving data as the data owner from a read-annotate to a private group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRAtoRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwra--", "rw----");
+    }
+    
+    /**
+     * Test moving data as the data owner from a read-annotate to a read-only group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRAtoRWR() throws Exception {
+        moveImageBetweenPermissionGroups("rwra--", "rwr---");
+    }
+    
+    /**
+     * Test moving data as the data owner from a read-annotate to a read-annotate group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRAtoRWRA() throws Exception {
+        moveImageBetweenPermissionGroups("rwra--", "rwra--");
+    }
+    
+    /**
+     * Test moving data as the data owner from a read-annotate to a read-write group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRAtoRWRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwra--", "rwrw--");
+    }
+    
+    /**
+     * Test moving data as the data owner from a read-write to a private group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRWtoRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwrw--", "rw----");
+    }
+    /**
+     * Test moving data as the data owner from a read-write to a read-only group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRWtoRWR() throws Exception {
+        moveImageBetweenPermissionGroups("rwrw--", "rwr---");
+    }
+    /**
+     * Test moving data as the data owner from a read-write to a read-annotate group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRWtoRWRA() throws Exception {
+        moveImageBetweenPermissionGroups("rwrw--", "rwra--");
+    }
+    /**
+     * Test moving data as the data owner from a read-write to a read-write group
+     * @throws Exception
+     */
+    @Test
+    public void moveImageRWRWtoRWRW() throws Exception {
+        moveImageBetweenPermissionGroups("rwrw--", "rwrw--");
+    }
+    
     /**
      * Creates a new private group for the currently logged in user
      * 
