@@ -53,16 +53,29 @@ import org.testng.annotations.Test;
  */
 public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
-    @Test
-    public void moveImageRWtoRWRW() throws Exception {
-        EventContext privateGroupContext = createPrivateGroup();
-        ExperimenterGroup rwGroup = createReadWriteGroupWithUser(privateGroupContext.userId);
+    
+    /**
+     * Performs the changing of group for an image with an ROI owned by the same
+     * user
+     * 
+     * @param sourceGroupPermissions
+     * @param targetGroupPermissions
+     * @throws Exception
+     */
+    private void moveImageBetweenPermissionGroups(
+            String sourceGroupPermissions, String targetGroupPermissions)
+            throws Exception {
 
-        long rwGroupId = rwGroup.getId().getValue();
+        long userId = iAdmin.getEventContext().userId;
 
-        // force an eventcontext?
-        // I don't know why or how I'm meant to know to do this?
-        // is this to force
+        ExperimenterGroup sourceGroup = createGroupWithMember(userId,
+                sourceGroupPermissions);
+
+        ExperimenterGroup targetGroup = createGroupWithMember(userId,
+                targetGroupPermissions);
+        long rwGroupId = targetGroup.getId().getValue();
+
+        // force a refresh of the user's group membership
         iAdmin.getEventContext();
 
         Image image = createSimpleImage();
@@ -78,7 +91,10 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
             shapeIds.add(shape.getId().getValue());
         }
 
-        // Move the image.
+        // make sure we are in the source group
+        loginUser(sourceGroup);
+
+        // Perform the move operation.
         Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, originalImageId,
                 null, rwGroupId);
         doChange(command);
@@ -92,7 +108,7 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         assertEquals(0, orginalShapes.size());
 
         // Move the user into the RW group!
-        loginUser(rwGroup);
+        loginUser(targetGroup);
 
         // Check that the ROI has moved
         Roi movedRoi = getRoiWithId(originalRoiId);
@@ -100,6 +116,16 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
         List<IObject> movedShapes = getShapesWithIds(shapeIds);
         assertEquals(shapeIds.size(), movedShapes.size());
+    }
+
+    @Test
+    public void moveImageRWtoRWRA() throws Exception {
+        moveImageBetweenPermissionGroups("rw----", "rwra--");
+    }
+
+    @Test
+    public void moveImageRWtoRWRW() throws Exception {
+        moveImageBetweenPermissionGroups("rw----", "rwrw--");
     }
 
     /**
@@ -114,16 +140,16 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
     }
 
     /**
-     * Creates a new Read-Write group for the user
+     * Creates a new group for the user with the permissions detailed
      * 
      * @param userId
+     * @param permissions
      * @return
      * @throws Exception
      */
-    private ExperimenterGroup createReadWriteGroupWithUser(long userId)
-            throws Exception {
-        ExperimenterGroup readWriteGroup = newGroupAddUser("rwrw--", userId);
-        return readWriteGroup;
+    private ExperimenterGroup createGroupWithMember(long userId,
+            String permissions) throws Exception {
+        return newGroupAddUser(permissions, userId);
     }
 
     /**
