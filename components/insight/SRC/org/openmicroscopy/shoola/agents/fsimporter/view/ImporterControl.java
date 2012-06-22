@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
@@ -69,6 +70,7 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -170,6 +172,13 @@ class ImporterControl
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
+		if (UIUtilities.isMacOS() && model.isMaster()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {}
+        }
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { model.close(); }
@@ -379,6 +388,11 @@ class ImporterControl
 			}
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			view.appendDebugText((String) evt.getNewValue());
+		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Action a = getAction(EXIT);
+			ActionEvent event = 
+				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+			a.actionPerformed(event);
 		}
 	}
 

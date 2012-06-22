@@ -152,14 +152,6 @@ class ImporterComponent
 		controller.initialize(view);
 		view.initialize(model, controller);
 	}
-
-	/**
-	 * Returns <code>true</code> if the agent is the entry point
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isMaster() { return model.isMaster(); }
 	
 	/** 
 	 * Indicates that the group has been successfully switched if 
@@ -719,5 +711,11 @@ class ImporterComponent
 		Registry reg = ImporterAgent.getRegistry();
 		reg.getEventBus().post(new LogOff());
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#isMaster()
+	 */
+	public boolean isMaster() { return model.isMaster(); }
 
 }

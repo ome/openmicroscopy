@@ -124,6 +124,9 @@ class EditorModel
 	/** The security context.*/
 	private SecurityContext ctx;
 	
+	/** Returns <code>true</code> if it is opened as a standalone app.*/
+	private boolean master;
+	
 	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
 	 * Returns <code>true</code> if the file can be parsed, <code>false</code>
@@ -174,6 +177,14 @@ class EditorModel
 		this.fileID = annotationID;
 		type = Editor.PROTOCOL;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the application is used a standalone 
+	 * application, <code>false</code> otherwise.
+	 * 
+	 * @param master The value to set
+	 */
+	void setMaster(boolean master) { this.master = master; }
 	
 	/**
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
@@ -640,5 +651,13 @@ class EditorModel
 		if (ctx.getGroupID() != groupId)
 			ctx = new SecurityContext(groupId);
 	}
+	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return master; }
 	
 }

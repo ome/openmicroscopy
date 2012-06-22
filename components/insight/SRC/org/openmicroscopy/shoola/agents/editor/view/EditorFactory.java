@@ -153,16 +153,24 @@ public class EditorFactory
 	 * it doesn't matter which editor/file you show.
 	 * 
 	 * @param ctx The security context.
+	 * @param master Pass <code>true</code> if the importer is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static Editor getEditor(SecurityContext ctx)
+	public static Editor getEditor(SecurityContext ctx, boolean master)
 	{
 		EditorModel model;
-		if (singleton.editors.isEmpty())
-			return getNewBlankEditor(ctx);
-		Editor e = singleton.editors.iterator().next();
+		Editor e;
+		if (singleton.editors.isEmpty()) {
+			e = getNewBlankEditor(ctx);
+			model = ((EditorComponent) e).getModel();
+			model.setMaster(master);
+			return e;
+		}
+		e = singleton.editors.iterator().next();
 		if (e == null) return e;
 		model = ((EditorComponent) e).getModel();
+		model.setMaster(master);
 		return singleton.getEditor(model);
 	}
 	

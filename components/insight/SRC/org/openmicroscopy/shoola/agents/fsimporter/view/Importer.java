@@ -304,4 +304,12 @@ public interface Importer
 	/** Logs off from the current server.*/
 	void logOff();
 
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster();
+
 }
