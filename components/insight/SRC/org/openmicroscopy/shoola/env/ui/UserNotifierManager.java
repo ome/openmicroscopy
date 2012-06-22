@@ -97,12 +97,6 @@ class UserNotifierManager
 	private static final String ERROR_REPLY = "Thanks, the error message " +
 										"has been successfully posted.";
 	
-	/** The tool invoking the service. */
-	private static final String INVOKER_ERROR = "insight_bugs";
-	
-	/** The tool invoking the service. */
-	private static final String INVOKER_COMMENT = "insight_comments";
-	
 	/** Default title for the comment dialog. */
     private static final String DEFAULT_COMMENT_TITLE = "Comment";
 
@@ -124,6 +118,33 @@ class UserNotifierManager
 	/** The collection of running activities. */
 	private List<ActivityComponent> activities;
 
+	/**
+	 * Returns the invoker depending on which application is running e.g.
+	 * insight, importer or editor.
+	 * 
+	 * @param comment Pass <code>true</code> to return the invoker for the 
+	 * comments, <code>false </code>
+	 * 
+	 * @return
+	 */
+	private String getInvoker(boolean comment)
+	{
+		Registry reg = container.getRegistry();
+		String master = (String) reg.lookup(LookupNames.MASTER);
+		if (comment) {
+			if (LookupNames.MASTER_EDITOR.equals(master))
+				return "editor_comments";
+			if (LookupNames.MASTER_IMPORTER.equals(master))
+				return "importer_comments";
+			return "insight_comments";
+		}
+		if (LookupNames.MASTER_EDITOR.equals(master))
+			return "editor_bugs";
+		if (LookupNames.MASTER_IMPORTER.equals(master))
+			return "importer_bugs";
+		return "insight_bugs";
+	}
+	
 	/**
 	 * Sends a message.
 	 * 
@@ -166,12 +187,13 @@ class UserNotifierManager
 			
 			StringBuilder builder = new StringBuilder();
 			String reply = "";
-			if (!bug) c.submitComment(INVOKER_COMMENT,
-								details.getEmail(), details.getComment(), 
-								details.getExtra(), appName, v, builder);
-			else c.submitError(INVOKER_ERROR, 
-							details.getEmail(), details.getComment(), 
-					details.getExtra(), error, appName, v, builder);
+			String invoker = getInvoker(bug);
+			if (!bug) c.submitComment(invoker, details.getEmail(),
+					details.getComment(), details.getExtra(), appName, v, 
+					builder);
+			else c.submitError(invoker, details.getEmail(),
+					details.getComment(), details.getExtra(), error, appName, v,
+					builder);
 			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;
 			
