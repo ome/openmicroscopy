@@ -3920,13 +3920,22 @@ class TreeViewerComponent
 		model.setNodesToCopy(null, -1);
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
-		
+		clearFoundResults();
 		ExperimenterData exp = model.getUserDetails();
 		model.setSelectedGroupId(exp.getDefaultGroup().getId());
-		model.getMetadataViewer().onGroupSwitched(true);
 		view.createTitle();
 		view.setPermissions();
-		view.resetLayout();
+		Browser b = view.resetLayout();
+		if (b != null) {
+			Browser old = model.getSelectedBrowser();
+			model.setSelectedBrowser(b);
+			model.getMetadataViewer().setSelectionMode(false);
+			firePropertyChange(SELECTED_BROWSER_PROPERTY, old, b);
+			int t = b.getBrowserType();
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			bus.post(new BrowserSelectionEvent(t));
+			view.updateMenuItems();
+		}
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;

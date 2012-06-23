@@ -110,15 +110,18 @@ public class TaggingAction
 			ho instanceof PlateData) {
         	if (model.canAnnotate(ho)) {
         		List selected = browser.getSelectedDataObjects();
-        		List<Long> ids = new ArrayList<Long>();
-        		Iterator i = selected.iterator();
-        		DataObject data;
-        		while (i.hasNext()) {
-					data = (DataObject) i.next();
-					if (!ids.contains(data.getGroupId()))
-						ids.add(data.getGroupId());
-				}
-        		setEnabled(ids.size() == 1);
+        		if (selected == null) setEnabled(false);
+        		else {
+        			List<Long> ids = new ArrayList<Long>();
+            		Iterator i = selected.iterator();
+            		DataObject data;
+            		while (i.hasNext()) {
+    					data = (DataObject) i.next();
+    					if (!ids.contains(data.getGroupId()))
+    						ids.add(data.getGroupId());
+    				}
+            		setEnabled(ids.size() == 1);
+        		}
         	} else setEnabled(false);
         } else setEnabled(false);
     }

@@ -1184,17 +1184,24 @@ class TreeViewerWin
 	/** Indicates the group context.*/
 	void setPermissions() { toolBar.setPermissions(); }
 	
-	/** Resets the layout.*/
-	void resetLayout()
+	/** 
+	 * Resets the layout and returns the newly selected browser or 
+	 * <code>null</code> if no new browser selected.
+	 * 
+	 * @return See above
+	 */
+	Browser resetLayout()
 	{
 		layoutBrowsers();
 		splitPane.setLeftComponent(browsersDisplay);
+		Browser result = null;
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
     		//if (firstPane != null) firstPane.setCollapsed(false);
     		Browser browser = model.getSelectedBrowser();
     		Browser b;
     		List<JXTaskPane> list = container.getTaskPanes();
     		TaskPaneBrowser tpb;
+    		container.removePropertyChangeListener(controller);
     		if (browser != null) {
     			if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
         			if (TreeViewerAgent.isAdministrator()) {
@@ -1208,7 +1215,10 @@ class TreeViewerWin
         					}
         				}
         			} else {
-        				if (firstPane != null) firstPane.setCollapsed(false);
+        				if (firstPane != null) {
+        					result = ((TaskPaneBrowser) firstPane).getBrowser();
+        					firstPane.setCollapsed(false);
+        				}
         			}
         		} else {
         			for (JXTaskPane pane: list) {
@@ -1229,10 +1239,12 @@ class TreeViewerWin
         		for (JXTaskPane pane: list) 
             		pane.setAnimated(true);
         	}
+			container.addPropertyChangeListener(controller);
     	}
     	
 		validate();
 		repaint();
+		return result;
 	}
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
