@@ -3530,6 +3530,56 @@ class OMEROGateway
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);
 	}
+	
+	/**
+	 * Finds the links if any between the specified parent and children.
+	 * 
+	 * @param ctx The security context.
+	 * @param childID The id of the child.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	Set<DataObject> findPlateFromImage(SecurityContext ctx, long childID, 
+			long userID)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		Set<DataObject> data = new HashSet<DataObject>();
+		List<Long> ids = new ArrayList<Long>();
+		ParametersI param = new ParametersI();
+		param.addLong("imageID", childID);
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+        sb.append("where img.id = :imageID");
+        IQueryPrx service = getQueryService(ctx);
+        try {
+            List results = service.findAllByQuery(sb.toString(), param);
+    		Iterator i = results.iterator();
+    		Well well;
+    		Plate plate;
+    		long id;
+    		while (i.hasNext()) {
+    			well = (Well) i.next();
+    			plate = well.getPlate();
+    			id = plate.getId().getValue();
+    			if (!ids.contains(id)) {
+    				data.add(PojoMapper.asDataObject(plate));
+    				ids.add(id);
+    			}
+    		}
+		} catch (Throwable t) {
+			handleException(t, "Cannot find the plates containing the image.");
+		}
+		
+		return data;
+	}
 
 	/**
 	 * Retrieves an updated version of the specified object.

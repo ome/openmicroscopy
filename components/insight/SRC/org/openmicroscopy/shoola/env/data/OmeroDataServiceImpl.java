@@ -55,10 +55,12 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.sys.Parameters;
@@ -716,6 +718,10 @@ class OmeroDataServiceImpl
 				parentClass = Plate.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(ctx, parentClass, id, userID);
+			if (ImageData.class.equals(type) && (links == null ||
+					links.size() == 0)) {
+				return gateway.findPlateFromImage(ctx, id, userID);
+			}
 			if (links == null) return new HashSet();
 			Iterator i = links.iterator();
 			Set<DataObject> nodes = new HashSet<DataObject>();
@@ -741,6 +747,10 @@ class OmeroDataServiceImpl
 						parent = ((DatasetAnnotationLink) link).getParent();
 					else if (link instanceof ImageAnnotationLink)
 						parent = ((ImageAnnotationLink) link).getParent();
+					else if (link instanceof PlateAnnotationLink)
+						parent = ((PlateAnnotationLink) link).getParent();
+					else if (link instanceof ScreenAnnotationLink)
+						parent = ((ScreenAnnotationLink) link).getParent();
 				}
 				parentId = parent.getId().getValue();
 				if (!ids.contains(parentId)) {
