@@ -40,28 +40,31 @@
         $(document).ready(function() 
             {
                 
-                var highlightDefaultGroup = function() {
-                    var experimenterDefaultIds = [{{ experimenterDefaultGroups }}];
+                var highlightCurrent = function() {
+                    var userId = {{ userId }};
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if ($.inArray(parseInt(item.value), experimenterDefaultIds) > -1) {
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-default').find("a").first().unbind("click").remove();                            
+                        if (parseInt(item.value) === userId) {
+                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
+                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
                         }
                     });
                 }
                 
-                var highlightGroupOwner = function() {
-                    var ownerIds = [{{ ownerIds }}];
-                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if ($.inArray(parseInt(item.value), ownerIds) > -1) {
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-owner').find("a").first().unbind("click").remove();                            
-                        }
-                    });
-                }
+                $("#id_owners").chosen({placeholder_text:'Choose one or more owners'});
+                $("#id_members").chosen({placeholder_text:'Choose one or more members'}).change(function(evt, data) {
+                    if (data && data.deselected) {
+                        $.grep($('#id_owners').data('chosen').results_data, function(item){
+                            if(item.selected && item.value === data.deselected) {
+                                $('#id_owners option[value='+data.deselected+']').prop('selected', false);
+                                $("#id_owners").trigger("liszt:updated");
+                                highlightCurrent();
+                            }
+                        });
+                        
+                    }
+                });
                 
-                $("#id_members").chosen({placeholder_text:'Choose one or more members'});
-                
-                highlightDefaultGroup();
-                highlightGroupOwner();
+                highlightCurrent();
                 
                 {% if gid %}
                 {% ifnotequal permissions 0 %}
@@ -89,9 +92,6 @@
 	    
 		<dt><strong>Description</strong></dt> 
 		<dd>{{ group.description|default:"no description" }}</dd>
-	    
-		<dt><strong>Owners</strong></dt> 
-		<dd>{{ group.getOwnersNames }}</dd>
 		
 	</dl>
 	
@@ -104,9 +104,13 @@
             {% for field in form %}
     
         	{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
-        	{{ field }}
-        	{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
-            <br/>
+		    {{ field }}
+		    
+        	{% if field.errors %}{{ field.errors }}{% endif %}
+		
+		    <div>{{ field.help_text|safe }}</div>
+	        <br/>
+	        
             {% endfor %}  
             
 	        <input type="submit" value="{% trans 'Save' %}" />

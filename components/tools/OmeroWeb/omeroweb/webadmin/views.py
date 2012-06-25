@@ -577,12 +577,6 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         group = conn.getObject("ExperimenterGroup", gid)
         ownerIds = [e.id for e in group.getOwners()]
         
-        experimenterDefaultIds = list()
-        for e in experimenters:
-            if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
-                experimenterDefaultIds.append(str(e.id))
-        experimenterDefaultGroups = ",".join(experimenterDefaultIds)
-        
         memberIds = [m.id for m in group.getMembers()]
         
         permissions = getActualPermissions(group)
@@ -590,19 +584,13 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                                      'permissions': permissions, 
                                      'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
         
-        context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
+        context = {'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
         group = conn.getObject("ExperimenterGroup", gid)
         
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
         else:
-            experimenterDefaultIds = list()
-            for e in (experimenters):
-                if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
-                    experimenterDefaultIds.append(str(e.id))
-            experimenterDefaultGroups = ",".join(experimenterDefaultIds)
-            
             permissions = getActualPermissions(group)
             
             name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
@@ -626,7 +614,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 conn.setMembersOfGroup(group, new_members)
                 
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
+            context = {'form':form, 'gid': gid, 'permissions': permissions}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
@@ -639,21 +627,21 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
     template = "webadmin/group_form_owner.html"
     
+    userId = conn.getEventContext().userId
     group = conn.getObject("ExperimenterGroup", gid)
     memberIds = [m.id for m in group.getMembers()]
-    ownerIds = [str(e.id) for e in group.getOwners()]
+    ownerIds = [e.id for e in group.getOwners()]
     experimenters = list(conn.getObjects("Experimenter"))
     
     experimenterDefaultIds = list()
     for e in experimenters:
-        if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+        if e != userId and e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
             experimenterDefaultIds.append(str(e.id))
-    experimenterDefaultGroups = ",".join(experimenterDefaultIds)
     
     if action == 'edit':
         permissions = getActualPermissions(group)
-        form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'experimenters':experimenters})
-        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':experimenterDefaultGroups, 'ownerIds':(",".join(ownerIds))}
+        form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'owners':ownerIds, 'experimenters':experimenters})
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
     elif action == "save":
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
@@ -661,7 +649,11 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy(), initial={'experimenters':experimenters})
             if form.is_valid():
                 members = form.cleaned_data['members']
+                owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
+                
+                listOfOwners = getSelectedExperimenters(conn, owners)
+                conn.setOwnersOfGroup(group, listOfOwners)
                 
                 new_members = getSelectedExperimenters(conn, members)
                 conn.setMembersOfGroup(group, new_members)
@@ -672,7 +664,7 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                     conn.updatePermissions(group, perm)
                 
                 return HttpResponseRedirect(reverse("wamyaccount"))
-            context = {'form':form, 'gid': gid}
+            context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
