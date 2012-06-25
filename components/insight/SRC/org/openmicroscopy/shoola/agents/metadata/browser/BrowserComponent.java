@@ -178,7 +178,7 @@ class BrowserComponent
 		if (node == null) node = model.getRoot();
 		//	throw new IllegalArgumentException("No node to handle.");
 		if (parents == null || parents.size() == 0) {
-			view.addDefaultNode(node, BrowserUI.NO_PARENTS_MSG);
+			view.addDefaultNode(node, null);//BrowserUI.NO_PARENTS_MSG);
 			return;
 		}
 		Iterator i = parents.iterator();
