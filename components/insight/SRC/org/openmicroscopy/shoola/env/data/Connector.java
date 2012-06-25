@@ -747,11 +747,16 @@ class Connector
 	}
 
 	/**
-	 * Returns the secured client.
+	 * Returns the unsecured client if not <code>null</code> otherwise
+	 * returns the secured client.
 	 * 
 	 * @return See above.
 	 */
-	client getClient() { return secureClient; }
+	client getClient()
+	{
+		if (unsecureClient != null) return unsecureClient;
+		return secureClient;
+	}
 
 	/**
 	 * Executes the commands.
