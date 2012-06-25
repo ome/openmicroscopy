@@ -1019,8 +1019,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         to_add = list()
         for e in experimenters:
             if e.id in rm_exps:
-                if e.getDefaultGroup().id != group.id:
-                    to_remove.append(e._obj)
+                # removing user from their default group #9193 
+                # if e.getDefaultGroup().id != group.id:
+                to_remove.append(e._obj)
             if e.id in add_exps:
                 to_add.append(e._obj)
         
@@ -1029,6 +1030,53 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             admin_serv.addGroups(e, [group._obj])
         for e in to_remove:
             admin_serv.removeGroups(e, [group._obj])
+    
+    def setOwnersOfGroup(self, group, new_owners):
+        """
+        Change members of the group.
+        
+        @param group            An existing ExperimenterGroup instance.
+        @type group             ExperimenterGroupI
+        @param new_members      List of new new Experimenter Ids.
+        @type new_members       L{Long}
+        """
+        
+        experimenters = list(self.getObjects("Experimenter"))
+        
+        new_ownersIds = [no.id for no in new_owners]
+        
+        old_owners = group.getOwners()
+        old_ownersIds = [oo.id for oo in old_owners]
+        
+        old_available = list()
+        for e in experimenters:
+            if e.id not in old_ownersIds:
+                old_available.append(e)
+        old_availableIds = [oa.id for oa in old_available]
+        
+        new_available = list()
+        for e in experimenters:
+            if e.id not in new_ownersIds:
+                new_available.append(e)
+        
+        new_availableIds = [na.id for na in new_available]
+        
+        rm_exps = list(set(old_ownersIds) - set(new_ownersIds))
+        add_exps = list(set(old_availableIds) - set(new_availableIds))
+        
+        to_remove = list()
+        to_add = list()
+        for e in experimenters:
+            if e.id in rm_exps:
+                # removing user from their default group #9193 
+                # if e.getDefaultGroup().id != group.id:
+                to_remove.append(e._obj)
+            if e.id in add_exps:
+                to_add.append(e._obj)
+        
+        admin_serv = self.getAdminService()
+        admin_serv.addGroupOwners(group._obj, to_add)
+        admin_serv.removeGroupOwners(group._obj, to_remove)
     
     #def deleteExperimenter(self, experimenter):
     #    """
