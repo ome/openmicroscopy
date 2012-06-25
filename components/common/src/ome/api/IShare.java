@@ -302,8 +302,8 @@ public interface IShare extends ServiceInterface {
     Set<String> getAllGuests(long shareId);
 
     /**
-     * Get a single set containing the {@link Experimenter#getOmeName() login
-     * names} of the {@link Experimenters} as well email addresses for guests.
+     * Get a single set containing the {@link Experimenter#getOmeName() login names}
+     * of the {@link Experimenters} as well email addresses for guests.
      * 
      * @param shareId
      * @return
