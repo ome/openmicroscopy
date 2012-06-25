@@ -290,12 +290,14 @@ class UserNotifierManager
 	String getServerVersion()
 	{
 		if (container == null) return "";
-		String version = 
-			container.getRegistry().getAdminService().getServerVersion();
-		if (version == null || version.trim().length() == 0)
-			version = "not available";
 		String name = container.getRegistry().getAdminService().getServerName();
 		if (name == null) name = "";
+		String version = 
+			container.getRegistry().getAdminService().getServerVersion();
+		if (name == null || name.trim().length() == 0) return "";
+		if (version == null || version.trim().length() == 0)
+			version = "not available";
+		
 		return "Server name: "+name+", version: "+version;
 	}
 	
