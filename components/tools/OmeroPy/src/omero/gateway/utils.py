@@ -26,6 +26,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class GatewayConfigDict(dict):
+    """
+    Dict-like class holding gateway configuration key/value pairs
+    """
+
 class ServiceOptsDict(dict):
     
     def __new__(cls, *args, **kwargs):

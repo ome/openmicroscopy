@@ -27,7 +27,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
-from omero.gateway.utils import ServiceOptsDict
+from omero.gateway.utils import ServiceOptsDict, GatewayConfigDict
 import omero.scripts as scripts
 
 import Ice
@@ -1221,6 +1221,7 @@ class _BlitzGateway (object):
     """
     
     SOPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
+    GCONFIG = GatewayConfigDict()
     """
     Holder for class wide configuration properties:
      - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
@@ -5530,7 +5531,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:            Rendering definition ID or None if no custom
                             logic has found a rendering definition.
         """
-        rdefns = self._conn.SOPTS.get('IMG_RDEFNS', None)
+        rdefns = self._conn.GCONFIG.get('IMG_RDEFNS', None)
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5550,7 +5551,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param rdid:         Current Rendering Def ID
         @type rdid:          Long
         """
-        rdefns = self._conn.SOPTS.get('IMG_RDEFNS', None)
+        rdefns = self._conn.GCONFIG.get('IMG_RDEFNS', None)
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5614,7 +5615,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         logger.debug('resetRDefs')
         if self.canWrite():
             self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SOPTS)
-            rdefns = self._conn.SOPTS.get('IMG_RDEFNS', None)
+            rdefns = self._conn.GCONFIG.get('IMG_RDEFNS', None)
             logger.debug(rdefns)
             if rdefns:
                 # Use the same group as the image in the context
@@ -7007,7 +7008,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Dict of rendering options
         @rtype:     Dict 
         """
-        ns = self._conn.SOPTS.get('IMG_ROPTSNS', None)
+        ns = self._conn.GCONFIG.get('IMG_ROPTSNS', None)
         if ns:
             ann = self.getAnnotation(ns)
             if ann is not None:
@@ -7038,7 +7039,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         if not self.canAnnotate():
             return False
-        ns = self._conn.SOPTS.get('IMG_ROPTSNS', None)
+        ns = self._conn.GCONFIG.get('IMG_ROPTSNS', None)
         if ns:
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
