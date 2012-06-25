@@ -493,7 +493,7 @@ class Connector
 	 * @return See above.
 	 * @throws Throwable Thrown if the service cannot be initialized.
 	 */
-	RenderingEnginePrx getRenderingService()
+	RenderingEnginePrx getRenderingService(long pixelsID)
 		throws Throwable
 	{
 		RenderingEnginePrx prx;
@@ -501,6 +501,7 @@ class Connector
 			prx = entryUnencrypted.createRenderingEngine();
 		else prx = entryEncrypted.createRenderingEngine();
 		prx.setCompressionLevel(context.getCompression());
+		reServices.put(pixelsID, prx);
 		return prx;
 	}
 
@@ -773,4 +774,22 @@ class Connector
 				entryEncrypted.submit(all));
 	}
 
+	/**
+	 * Returns the rendering engines that are currently active.
+	 * 
+	 * @return See above.
+	 */
+	Map<SecurityContext, Set<Long>> getRenderingEngines()
+	{ 
+		Map<SecurityContext, Set<Long>> 
+		map = new HashMap<SecurityContext, Set<Long>>();
+		Set<Long> list = new HashSet<Long>();
+		Iterator<Long> i = reServices.keySet().iterator();
+		while (i.hasNext())
+			list.add(i.next());
+
+		map.put(context, list);
+		return map; 
+	}
+	
 }

@@ -1730,12 +1730,14 @@ class OMEROGateway
 	 * Returns the {@link RenderingEnginePrx Rendering service}.
 	 * 
 	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private RenderingEnginePrx getRenderingService(SecurityContext ctx)
+	private RenderingEnginePrx getRenderingService(SecurityContext ctx, long 
+			pixelsID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
@@ -1743,7 +1745,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			RenderingEnginePrx prx = c.getRenderingService();
+			RenderingEnginePrx prx = c.getRenderingService(pixelsID);
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Rendering Engine.");
@@ -2486,24 +2488,18 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the pixels id corresponding to the Rendering engine to
-	 * reactivate.
+	 * Returns the rendering engines to re-activate.
 	 * 
 	 * @return See above.
 	 */
-	List<Long> getRenderingServices()
+	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		List<Long> l = new ArrayList<Long>();
-		//TODO: review 
-		/*
-		if (reServices == null || reServices.size() == 0) return l;
-		Entry entry;
-		Iterator i = reServices.entrySet().iterator();
+		Map<SecurityContext, Set<Long>> l = 
+			new HashMap<SecurityContext, Set<Long>>();
+		Iterator<Connector> i = connectors.iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			l.add((Long) entry.getKey());
+			l.putAll(i.next().getRenderingEngines());
 		}
-		*/
 		return l;
 	}
 	
@@ -3224,11 +3220,9 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		RenderingEnginePrx service = null;
 		try {
-			service = getRenderingService(ctx);
+			service = getRenderingService(ctx, pixelsID);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
-			//TO be reviewed. For server 
-			//reServices.put(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
