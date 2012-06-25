@@ -711,7 +711,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         Ice.Current adjustedCurr = new Ice.Current();
         adjustedCurr.ctx = __current.ctx;
         adjustedCurr.operation = __current.operation;
-        String sessionUuid = __current.ctx.get("omero.session");
+        String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
 
         // TODO: Refactor all this into a single helper method.
