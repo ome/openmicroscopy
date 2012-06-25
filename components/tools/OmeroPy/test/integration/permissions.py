@@ -750,7 +750,14 @@ class TestPermissions(lib.ITest):
         script = srv.getScripts()[0]
         store = user.sf.createRawFileStore()
         params = f(script)
-        store.setFileId(script.id.val, params)
+        # ticket:9192. For some actions to be possible
+        # server-side, it's necessary to use a copy of
+        # the implicit context in order to have the
+        # client uuid present.
+        ctx = user.getImplicitContext().getContext().copy()
+        ctx.update(params)
+        store.setFileId(script.id.val, ctx)
+
         data = store.read(0, long(script.size.val))
         self.assertEquals(script.size.val, len(data))
 
