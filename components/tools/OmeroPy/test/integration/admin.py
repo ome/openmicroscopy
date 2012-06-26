@@ -199,5 +199,60 @@ class TestAdmin(lib.ITest):
         # And then it should succeed
         admin.changeUserPassword(experimenter.omeName.val, new_password)
 
+    def new_client_FAILS(self, user):
+        import Glacier2
+        try:
+            self.new_client(user=user)
+            self.fail("Where's the CCSE?")
+        except Glacier2.CannotCreateSessionException, ccse:
+            pass
+
+    def new_client_RESTRICTED(self, user):
+        c = self.new_client(user=user)
+        try:
+            c.sf.getQueryService().find("Image", -1) # Should be disallowed
+            self.fail("Where's the security violation?")
+        except omero.SecurityViolation, sv:
+            pass
+
+    def test9193(self):
+        # Test the removal of removing users
+        # from a group when the group in question
+        # may be their last (i.e. default) group
+
+        g = self.new_group()
+        u = self.new_user(group=g)
+
+        # Test removing the default group
+        self.remove_experimenters(g, [u])
+        self.new_client_FAILS(user=u)
+
+        self.add_experimenters(g, [u])
+        c = self.new_client(user=u)
+
+        # Now we'll try removing and re-adding user
+        UG = c.sf.getAdminService().lookupGroup("user")
+        self.remove_experimenters(UG, [u])
+        self.new_client_RESTRICTED(user=u)
+
+        self.add_experimenters(UG, [u])
+        c = self.new_client(user=u)
+
+        # Now we'll try with both
+        admin = self.root.sf.getAdminService()
+        admin.removeGroups(u, [g, UG])
+        self.new_client_FAILS(user=u)
+
+        admin.addGroups(u, [g, UG])
+        c = self.new_client(user=u)
+
+        # And now in the other order
+        admin.removeGroups(u, [UG, g])
+        self.new_client_FAILS(user=u)
+
+        admin.addGroups(u, [UG, g])
+        c = self.new_client(user=u)
+
+
 if __name__ == '__main__':
     unittest.main()
