@@ -40,11 +40,12 @@
 	<dirname property="antlib.dir"     file="${import.dir}"/>
 	<dirname property="components.dir" file="${antlib.dir}"/>
 	<dirname property="root.dir"       file="${components.dir}"/>
-
+	<dirname property="config.dir"     file="${root.dir}/etc"/>
+	
         <!-- Reading local.properties here to allow overwriting
         dist.dir since this is no longer possible with insight.
         See other property files below. -->
-        <property file="${root.dir}/etc/local.properties" />
+        <property file="${config.dir}/local.properties" />
 
 	<!-- Absolute paths: same for all components -->
 	<property name="omero.home"    value="${root.dir}"/>
