@@ -108,9 +108,6 @@ public class AdvancedFinder
 	/** The collection of tags. */
 	private Collection tags;
 	
-	/** The available groups.*/
-	private Collection<GroupData> groups;
-	
 	/** Host the result per group.*/
 	private Map<SecurityContext, Set> results;
 	
@@ -119,6 +116,9 @@ public class AdvancedFinder
 	
 	/** The identifier of the group.*/
 	private long groupId;
+	
+	/** The components used to sort the nodes.*/
+	private ViewerSorter sorter;
 	
 	/**
 	 * Returns the name of the group corresponding to the security context.
@@ -452,8 +452,7 @@ public class AdvancedFinder
 	AdvancedFinder(Collection<GroupData> groups)
 	{
 		//sort
-		this.groups = groups;
-		ViewerSorter sorter = new ViewerSorter();
+		sorter = new ViewerSorter();
 		List<GroupData> l = sorter.sort(groups);
 		initialize(createControls(), l);
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
@@ -626,6 +625,24 @@ public class AdvancedFinder
 		if (this.groupId == groupId) return;
 		this.groupId = groupId;
 		tags = null;
+	}
+	
+	/** 
+	 * Resets the component after switching users.
+	 * 
+	 * @param groups The collection of groups to handle.
+	 */
+	public void reset(Collection<GroupData> groups)
+	{
+		sorter = new ViewerSorter();
+		this.groups = sorter.sort(groups);
+		users.clear();
+		results.clear();
+		if (tags != null) tags.clear();
+		tags = null;
+		groupsContext.clear();
+		addResult(null, true);
+		uiDelegate.reset();
 	}
 	
 	/**

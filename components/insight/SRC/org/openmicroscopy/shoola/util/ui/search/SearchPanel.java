@@ -67,6 +67,8 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.GroupData;
+
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -82,7 +84,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-class SearchPanel
+public class SearchPanel
 	extends JPanel
 	implements ActionListener
 {
@@ -294,6 +296,8 @@ class SearchPanel
 	
 	/** The box displaying the groups.*/
 	private List<JComboBox> groupsBoxes;
+	
+	private JPanel groupRow;
 	
 	/**
 	 * Returns the selected groups.
@@ -683,6 +687,20 @@ class SearchPanel
 		return p;
 	}
 	
+	private void layoutGroup()
+	{
+		if (groupRow == null) {
+			groupRow = new JPanel();
+			groupRow.setLayout(new FlowLayout(FlowLayout.LEFT));
+			groupRow.setBackground(UIUtilities.BACKGROUND_COLOR);
+		}
+		groupRow.removeAll();
+		if (groupsBox != null) {
+			groupRow.add(new JLabel("Search in Group:"));
+			groupRow.add(groupsBox);
+		}
+	}
+	
 	/** 
 	 * Builds and lays out the component displaying the various options.
 	 * 
@@ -693,21 +711,13 @@ class SearchPanel
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
-        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        //c.insets = new Insets(3, 3, 3, 3);
-        //c.gridx = 0;
         c.gridy = 0;
-        if (model.getGroups().size() > 1) {
-        	JPanel row = new JPanel();
-            row.setLayout(new FlowLayout(FlowLayout.LEFT));
-            row.setBackground(UIUtilities.BACKGROUND_COLOR);
-            row.add(new JLabel("Search in Group:"));
-            row.add(groupsBox);
-            p.add(row, c);
-        }
+        layoutGroup();
+        p.add(groupRow, c);
+        groupRow.setVisible(model.getGroups().size() > 1);
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
 		int m = nodes.size();
@@ -1093,6 +1103,19 @@ class SearchPanel
 		buildGUI();
 	}
 
+	/** Resets.*/
+	public void reset()
+	{
+		groupsBoxes.clear();
+		int n = model.getGroups().size();
+		if (n == 1) groupsBox = null;
+		else groupsBox = createBox();
+		layoutGroup();
+		groupRow.setVisible(n > 1);
+		validate();
+		repaint();
+	}
+	
 	/** 
 	 * Enables the date fields if the selected index is 
 	 * {@link SearchContext#RANGE}. 

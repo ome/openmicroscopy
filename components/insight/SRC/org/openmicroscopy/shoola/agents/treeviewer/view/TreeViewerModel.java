@@ -821,10 +821,9 @@ class TreeViewerModel
 	/**
 	 * Creates the advanced finder.
 	 * 
-	 * @param ctx The security context.
 	 * @return See above.
 	 */
-	AdvancedFinder getAdvancedFinder(SecurityContext ctx)
+	AdvancedFinder getAdvancedFinder()
 	{ 
 		if (advancedFinder == null)
 			advancedFinder = FinderFactory.getAdvancedFinder(
