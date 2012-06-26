@@ -187,4 +187,4 @@ if [ "$TARGET" == "QA" ]; then
 else
   EXPORTVMNAME="${VMNAME}-${RELEASE_VERSION}"
 fi
-bash export_ova.sh
+bash export_ova.sh ${VNNAME} ${EXPORTVMNAME}
