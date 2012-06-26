@@ -247,6 +247,10 @@ begin
                 return next rec2.txt;
             end loop;
 
+        elsif ACTION = 'ABORT' then
+
+            raise exception '%', txt;
+
         else
 
             return next txt;
@@ -318,6 +322,10 @@ begin
                 for rec2 in execute mod loop
                     return next rec2.txt;
                 end loop;
+            elsif ACTION = 'ABORT' then
+
+                raise exception '%', 'Non-private permissions:' || tbl || '(id=' || rec.id || ')';
+
             else
 
                 return next 'Non-private permissions:' || tbl || '(id=' || rec.id || ')';
