@@ -62,15 +62,15 @@ public interface RawPixelsStore extends StatefulServiceInterface {
      * @return
      * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
-    public int getPlaneSize();
+    public long getPlaneSize();
 
     public int getRowSize();
 
-    public int getStackSize();
+    public long getStackSize();
 
-    public int getTimepointSize();
+    public long getTimepointSize();
 
-    public int getTotalSize();
+    public long getTotalSize();
 
     public long getRowOffset(int y, int z, int c, int t);
 

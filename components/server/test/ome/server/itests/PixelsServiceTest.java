@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import ome.api.IPixels;
 import ome.api.RawPixelsStore;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -139,8 +140,8 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         raw.setPixelsId(pix.getId(), false);
         raw.calculateMessageDigest();
 
-        int size = raw.getPlaneSize();
-        byte[] data = new byte[size];
+        long size = raw.getPlaneSize();
+        byte[] data = new byte[RomioPixelBuffer.safeLongToInteger(size)];
         raw.setPlane(data, 0, 0, 0);
         raw.getPlane(0, 0, 0);
     }

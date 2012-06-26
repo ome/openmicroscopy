@@ -718,7 +718,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getHypercubeSize(java.util.List, java.util.List, java.util.List)
      */
-    public synchronized Integer getHypercubeSize(List<Integer> offset,
+    public synchronized Long getHypercubeSize(List<Integer> offset,
             List<Integer> size, List<Integer> step)
         throws DimensionsOutOfBoundsException
     {
@@ -813,7 +813,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
-    public synchronized Integer getPlaneSize()
+    public synchronized Long getPlaneSize()
     {
         return delegate().getPlaneSize();
     }
@@ -974,7 +974,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getStackSize()
      */
-    public synchronized Integer getStackSize()
+    public synchronized Long getStackSize()
     {
         return delegate().getStackSize();
     }
@@ -1038,7 +1038,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTimepointSize()
      */
-    public synchronized Integer getTimepointSize()
+    public synchronized Long getTimepointSize()
     {
         return delegate().getTimepointSize();
     }
@@ -1046,7 +1046,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTotalSize()
      */
-    public synchronized Integer getTotalSize()
+    public synchronized Long getTotalSize()
     {
         return delegate().getTotalSize();
     }
