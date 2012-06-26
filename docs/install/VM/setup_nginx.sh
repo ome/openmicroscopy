@@ -4,8 +4,8 @@ set -e -u -x
 
 PASSWORD=${PASSWORD:-"omero"}
 
-echo $PASSWORD | sudo -S apt-get update 
-echo $PASSWORD | sudo -S apt-get install nginx
+echo $PASSWORD | sudo -S apt-get -q -y update 
+echo $PASSWORD | sudo -S apt-get -q -y install nginx
 # ugly -- but required for nginx to start
 # as of version 0.7.53, nginx will use a compiled-in default error log
 # location until it has read the config file. If the user running nginx
