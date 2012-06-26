@@ -3920,6 +3920,9 @@ class TreeViewerComponent
 		model.setNodesToCopy(null, -1);
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
+		MetadataViewer mv = view.resetMetadataViewer();
+		mv.addPropertyChangeListener(controller);
+		
 		clearFoundResults();
 		ExperimenterData exp = model.getUserDetails();
 		model.setSelectedGroupId(exp.getDefaultGroup().getId());

@@ -1097,7 +1097,6 @@ class TreeViewerWin
 			rightComponent = new JScrollPane(
 					model.getMetadataViewer().getEditorUI());
     	}
-			
 		if (metadataVisible) {
 			Component[] components = rightPane.getComponents();
 			if (components != null && components.length > 0) {
@@ -1119,6 +1118,25 @@ class TreeViewerWin
 			}
 		}
 		metadataVisible = !metadataVisible;
+	}
+	
+	/**
+	 * Resets the metadata viewer.
+	 * 
+	 * @return See above.
+	 */
+	MetadataViewer resetMetadataViewer()
+	{
+		MetadataViewer v = model.resetMetadataViewer();
+		if (rightComponent != null) rightPane.remove(rightComponent);
+		rightComponent = new JScrollPane(v.getEditorUI());
+		if (metadataVisible) {
+			rightPane.add(rightComponent);
+			if (dividerRightLocation > 0) 
+				rightPane.setDividerLocation(dividerRightLocation);
+			else rightPane.setResizeWeight(WEIGHT);
+		}
+		return v;
 	}
 	
 	/**
