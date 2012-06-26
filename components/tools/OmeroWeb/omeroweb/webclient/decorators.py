@@ -56,9 +56,9 @@ class login_required(omeroweb.decorators.login_required):
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
         if request.session.get('active_group'):
-            conn.SOPTS.setOmeroGroup(request.session.get('active_group'))
+            conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
         else:
-            conn.SOPTS.setOmeroGroup(conn.getEventContext().groupId)
+            conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
         """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""

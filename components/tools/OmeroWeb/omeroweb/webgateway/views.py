@@ -375,7 +375,7 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     
     # need to find the z indices of the first shape in T
-    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.SOPTS)
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.SERVICE_OPTS)
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -1539,9 +1539,9 @@ def search_json (request, conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = conn.searchObjects(["image"], opts['search'], conn.SOPTS)
+            sr = conn.searchObjects(["image"], opts['search'], conn.SERVICE_OPTS)
         else:
-            sr = conn.searchObjects(None, opts['search'], conn.SOPTS)  # searches P/D/I
+            sr = conn.searchObjects(None, opts['search'], conn.SERVICE_OPTS)  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1675,7 +1675,7 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
         if fromimg.canWrite():
-            ctx = blitzcon.SOPTS.copy()
+            ctx = blitzcon.SERVICE_OPTS.copy()
             ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
             ctx.setOmeroUser(userid)
             rsettings = blitzcon.getRenderingSettingsService()
@@ -1788,7 +1788,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
-    result = roiService.findByImage(long(imageId), None, conn.SOPTS)
+    result = roiService.findByImage(long(imageId), None, conn.SERVICE_OPTS)
     
     for r in result.rois:
         roi = {}

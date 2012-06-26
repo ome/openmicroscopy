@@ -1465,7 +1465,7 @@ def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
     # May be viewing results of a script run in a different group.
-    conn.SOPTS.setOmeroGroup(-1)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
@@ -1952,7 +1952,7 @@ def activities(request, conn=None, **kwargs):
     """
 
     # need to be able to retrieve the results from any group
-    conn.SOPTS.setOmeroGroup(-1)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     in_progress = 0
     failure = 0
@@ -2433,7 +2433,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     try:
-        handle = scriptService.runScript(sId, inputMap, None, conn.SOPTS)
+        handle = scriptService.runScript(sId, inputMap, None, conn.SERVICE_OPTS)
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
         request.session['callback'][jobId] = {
