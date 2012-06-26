@@ -10,6 +10,7 @@ export OMERO_PORT=${OMERO_PORT:-"4063"}
 export OMERO_PF=${OMERO_PF:-"4063"}
 export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
+export RELEASE_VERSION="4.3.4"
 
 set -e
 set -u
@@ -181,4 +182,9 @@ fi
 echo "Network up after $ATTEMPTS tries"
 installvm
 
+if [ "$TARGET" == "QA" ]; then
+  EXPORTVMNAME="${VMNAME}-latest-build"
+else
+  EXPORTVMNAME="${VMNAME}-${RELEASE_VERSION}"
+fi
 bash export_ova.sh
