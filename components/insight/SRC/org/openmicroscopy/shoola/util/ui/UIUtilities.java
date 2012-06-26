@@ -108,6 +108,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** Bound property indicating that the font changes.*/
+	public static final String HINTS_PROPERTY = "awt.font.desktophints";
+	
 	/** The default background color.*/
 	public static final Color TOOLTIP_COLOR = new Color(255, 252, 180, 200);
 	

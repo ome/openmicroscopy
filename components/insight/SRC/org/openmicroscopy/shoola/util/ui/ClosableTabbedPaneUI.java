@@ -180,6 +180,14 @@ class ClosableTabbedPaneUI
 		initialize();
 	}
 	
+	/**
+	 * Resets the pane when the font is modified while the application
+	 * is running.
+	 * 
+	 * @param tabPane The pane this UI is for.
+	 */
+	void setTab(JTabbedPane tabPane) { this.tabPane = tabPane; }
+	
 	/** Clears the maps. */
 	void resetDefault()
 	{
@@ -277,6 +285,7 @@ class ClosableTabbedPaneUI
 		int y = e.getY();
 		Rectangle r;
 		if (rectangles == null || images == null) return;
+		System.err.println(e.getSource());
 		for (int i = 0; i < tabPane.getTabCount(); i++) {
 			r = rectangles.get(i);
 			if (r != null && r.contains(x, y)) images.put(i, closeOverImage);
