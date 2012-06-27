@@ -40,7 +40,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
     private byte[] getTestPlane() {
         if (testPlane == null) {
-            Integer planeSize = pixbuf.getPlaneSize();
+            Long planeSize = pixbuf.getPlaneSize();
             testPlane = new byte[planeSize.intValue()];
 
             for (int i = 0; i < planeSize; i++) {

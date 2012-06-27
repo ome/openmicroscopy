@@ -60,16 +60,16 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     private Integer colSize;
 
     /** The size of a plane. */
-    private Integer planeSize;
+    private Long planeSize;
 
     /** The size of a stack. */
-    private Integer stackSize;
+    private Long stackSize;
 
     /** The size of a timepoint. */
-    private Integer timepointSize;
+    private Long timepointSize;
 
     /** The total size. */
-    private Integer totalSize;
+    private Long totalSize;
 
     /**
      * Whether or not any of the mutators to write data can be called.
@@ -108,6 +108,24 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         if (!permitModification) {
             throw new ApiUsageException("Write-method not permitted.");
         }
+    }
+    
+    /**
+     * Converts a Long value to an Integer safely.
+     * @param v Long value to convert.
+     * @throws ApiUsageException If the conversion would cause an overflow
+     * or an underflow.
+     */
+    public static Integer safeLongToInteger(Long v) {
+        if (v > Integer.MAX_VALUE) {
+            throw new ApiUsageException(String.format(
+                    "Converting Long %d to Integer is an overflow.", v));
+        }
+        if (v < Integer.MIN_VALUE) {
+            throw new ApiUsageException(String.format(
+                    "Converting Long %d to Integer is an underflow.", v));
+        }
+        return v.intValue();
     }
 
     /**
@@ -183,9 +201,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getPlaneSize()
 	 */
-    public Integer getPlaneSize() {
+    public Long getPlaneSize() {
         if (planeSize == null) {
-            planeSize = getSizeX() * getSizeY() * getByteWidth();
+            planeSize = (long) getSizeX() * (long) getSizeY() * getByteWidth();
         }
 
         return planeSize;
@@ -219,7 +237,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getStackSize()
 	 */
-    public Integer getStackSize() {
+    public Long getStackSize() {
         if (stackSize == null) {
             stackSize = getPlaneSize() * getSizeZ();
         }
@@ -231,7 +249,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getTimepointSize()
 	 */
-    public Integer getTimepointSize() {
+    public Long getTimepointSize() {
         if (timepointSize == null) {
             timepointSize = getStackSize() * getSizeC();
         }
@@ -243,7 +261,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getTotalSize()
 	 */
-    public Integer getTotalSize() {
+    public Long getTotalSize() {
         if (totalSize == null) {
             totalSize = getTimepointSize() * getSizeT();
         }
@@ -260,12 +278,12 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         checkBounds(null, y, z, c, t);
 
         Integer rowSize = getRowSize();
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
-        Integer planeSize = getPlaneSize();
+        Long timepointSize = getTimepointSize();
+        Long stackSize = getStackSize();
+        Long planeSize = getPlaneSize();
 
-        return (long) rowSize * y + (long) timepointSize * t
-                + (long) stackSize * c + (long) planeSize * z;
+        return (long) rowSize * y + timepointSize * t
+                + stackSize * c + planeSize * z;
     }
 
     /**
@@ -276,12 +294,12 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, z, c, t);
 
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
-        Integer planeSize = getPlaneSize();
+        Long timepointSize = getTimepointSize();
+        Long stackSize = getStackSize();
+        Long planeSize = getPlaneSize();
 
-        return (long) timepointSize * t + (long) stackSize * c
-                + (long) planeSize * z;
+        return timepointSize * t + stackSize * c
+                + planeSize * z;
     }
 
     /**
@@ -292,10 +310,10 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, null, c, t);
 
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
+        Long timepointSize = getTimepointSize();
+        Long stackSize = getStackSize();
 
-        return (long) timepointSize * t + (long) stackSize * c;
+        return timepointSize * t + stackSize * c;
     }
 
     /**
@@ -305,7 +323,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, null, null, t);
-        Integer timepointSize = getTimepointSize();
+        Long timepointSize = getTimepointSize();
         return (long) timepointSize * t;
     }
 
@@ -422,7 +440,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
     {
         PixelData d;
-        byte[] buffer = new byte[getHypercubeSize(offset,size,step)];
+        byte[] buffer = new byte[
+                safeLongToInteger(getHypercubeSize(offset,size,step))];
         getHypercubeDirect(offset,size,step,buffer);
         d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
@@ -466,7 +485,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws IOException, DimensionsOutOfBoundsException {
         log.info("Retrieving plane: " + z + "x" + c + "x" + t);
         Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
+        Integer size = safeLongToInteger(getPlaneSize());
         PixelData region = getRegion(size, offset);
 
         byte[] nullPlane = PixelsService.nullPlane;
@@ -550,7 +569,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getStack(Integer c, Integer t) throws IOException,
             DimensionsOutOfBoundsException {
         Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
+        Integer size = safeLongToInteger(getStackSize());
 
         return getRegion(size, offset);
     }
@@ -576,7 +595,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getTimepoint(Integer t) throws IOException,
             DimensionsOutOfBoundsException {
         Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
+        Integer size = safeLongToInteger(getTimepointSize());
 
         return getRegion(size, offset);
     }
@@ -644,7 +663,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws IOException, DimensionsOutOfBoundsException {
         throwIfReadOnly();
         Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
+        Integer size = safeLongToInteger(getPlaneSize());
         if (buffer.limit() != size)
         {
         	// Handle the size mismatch.
@@ -674,7 +693,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws IOException, DimensionsOutOfBoundsException {
         throwIfReadOnly();
         Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
+        Integer size = safeLongToInteger(getStackSize());
         if (buffer.limit() != size)
         {
         	// Handle the size mismatch.
@@ -704,7 +723,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             DimensionsOutOfBoundsException {
         throwIfReadOnly();
         Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
+        Integer size = safeLongToInteger(getTimepointSize());
         if (buffer.limit() != size)
         {
         	// Handle the size mismatch.
@@ -923,7 +942,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
                 "Cannot set resolution levels on a ROMIO pixel buffer.");
     }
     
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+    public Long getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // only works for 5d at present
         checkCubeBounds(offset, size, step);
@@ -932,8 +951,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
         int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
-        int tileRowSize = getByteWidth() * xStripes;
-        int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
+        long tileRowSize = getByteWidth() * (long) xStripes;
+        long cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
 
         return cubeSize;
     }
@@ -948,7 +967,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
         int pixelSize = getByteWidth();
         int tileRowSize = pixelSize * xStripes;
-        byte[] plane = new byte[getPlaneSize()];
+        byte[] plane = new byte[safeLongToInteger(getPlaneSize())];
         for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
         {
             for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))

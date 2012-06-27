@@ -12,6 +12,7 @@ import java.util.List;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
 import ome.io.bioformats.BfPixelsWrapper;
+import ome.io.nio.RomioPixelBuffer;
 import omero.ServerError;
 import omero.api.AMD_PyramidService_getResolutionLevel;
 import omero.api.AMD_PyramidService_getResolutionLevels;
@@ -99,7 +100,9 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
             Current __current) throws ServerError {
 
         try {
-            byte[] cube = new byte[reader.getHypercubeSize(offset,size,step)];
+            int hypercubeSize = RomioPixelBuffer.safeLongToInteger(
+                    reader.getHypercubeSize(offset,size,step));
+            byte[] cube = new byte[hypercubeSize];
             reader.getHypercube(offset,size,step,cube);
             reader.swapIfRequired(cube);
             __cb.ice_response(cube);
@@ -148,7 +151,9 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getPlane_async(AMD_RawPixelsStore_getPlane __cb, int z, int c,
             int t, Current __current) throws ServerError {
         try {
-            byte[] plane = new byte[reader.getPlaneSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(
+                    reader.getPlaneSize());
+            byte[] plane = new byte[size];
             reader.getPlane(z,c,t,plane);
             reader.swapIfRequired(plane);
             __cb.ice_response(plane);
@@ -214,7 +219,9 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getStack_async(AMD_RawPixelsStore_getStack __cb, int c, int t,
             Current __current) throws ServerError {
         try {
-            byte[] stack = new byte[reader.getStackSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(
+                    reader.getStackSize());
+            byte[] stack = new byte[size];
             reader.getStack(c,t,stack);
             reader.swapIfRequired(stack);
             __cb.ice_response(stack);
@@ -246,7 +253,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getTimepoint_async(AMD_RawPixelsStore_getTimepoint __cb, int t,
             Current __current) throws ServerError {
         try {
-            byte[] timepoint = new byte[reader.getTimepointSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(reader.getTimepointSize());
+            byte[] timepoint = new byte[size];
             reader.getTimepoint(t,timepoint);
             reader.swapIfRequired(timepoint);
             __cb.ice_response(timepoint);

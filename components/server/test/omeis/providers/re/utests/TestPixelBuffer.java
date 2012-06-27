@@ -97,7 +97,7 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
-	public Integer getPlaneSize() {
+	public Long getPlaneSize() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -180,7 +180,7 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
-	public Integer getStackSize() {
+	public Long getStackSize() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -203,12 +203,12 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
-	public Integer getTimepointSize() {
+	public Long getTimepointSize() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Integer getTotalSize() {
+	public Long getTotalSize() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -295,7 +295,7 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
-    public Integer getHypercubeSize(List<Integer> arg0, List<Integer> arg1,
+    public Long getHypercubeSize(List<Integer> arg0, List<Integer> arg1,
             List<Integer> arg2) throws DimensionsOutOfBoundsException
     {
 		// TODO Auto-generated method stub
