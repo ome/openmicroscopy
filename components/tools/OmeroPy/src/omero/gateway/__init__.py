@@ -1220,7 +1220,7 @@ class _BlitzGateway (object):
     context switching, security privilidges etc.  
     """
     
-    SERVICE_OPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
+    SERVICE_OPTS = None
     CONFIG = GatewayConfigDict()
     """
     Holder for class wide configuration properties:
@@ -1567,6 +1567,8 @@ class _BlitzGateway (object):
             self.c.sf.getAdminService().getEventContext()
         self.setSecure(self.secure)
         self.c.sf.detachOnDestroy()
+        self.SERVICE_OPTS = ServiceOptsDict(
+                self.c.getImplicitContext().getContext())
     
     def _closeSession (self):
         """

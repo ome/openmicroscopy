@@ -263,7 +263,7 @@ def usersData(conn, offset=0):
     PAGE_SIZE = 1000
     offset = long(offset)
     
-    ctx = ServiceOptsDict()
+    ctx = ServiceOptsDict(conn.c.getImplicitContext().getContext())
     if conn.isAdmin():
         ctx.setOmeroGroup(-1)
     else:
