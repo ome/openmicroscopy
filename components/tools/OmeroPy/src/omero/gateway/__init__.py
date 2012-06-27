@@ -27,7 +27,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
-from omero.gateway.utils import ServiceOptsDict
+from omero.gateway.utils import ServiceOptsDict, GatewayConfigDict
 import omero.scripts as scripts
 
 import Ice
@@ -165,7 +165,7 @@ class BlitzObjectWrapper (object):
         if hasattr(obj, 'id') and obj.id is not None:
             self._oid = obj.id.val
             if not self._obj.loaded:
-                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid, self._conn.CONFIG)
+                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid, self._conn.SERVICE_OPTS)
         self.__prepare__ (**kwargs)
 
     def __eq__ (self, a):
@@ -262,7 +262,7 @@ class BlitzObjectWrapper (object):
         This method can be overwritten by subclasses that want to specify how/which linked objects 
         are loaded. 
         """
-        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None, self._conn.CONFIG)[0]
+        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None, self._conn.SERVICE_OPTS)[0]
 
     def _moveLink (self, newParent):
         """ 
@@ -277,10 +277,10 @@ class BlitzObjectWrapper (object):
         p = self.getParent()
         # p._obj.__class__ == p._obj.__class__ ImageWrapper(omero.model.DatasetI())
         if p.OMERO_CLASS == newParent.OMERO_CLASS:
-            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None, self._conn.CONFIG)
+            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None, self._conn.SERVICE_OPTS)
             if len(link):
                 link[0].parent = newParent._obj
-                self._conn.getUpdateService().saveObject(link[0], self._conn.CONFIG)
+                self._conn.getUpdateService().saveObject(link[0], self._conn.SERVICE_OPTS)
                 return True
             logger.debug("## query didn't return objects: 'select l from %s as l where l.parent.id=%i and l.child.id=%i'" % (p.LINK_CLASS, p.id, self.id))
         else:
@@ -339,7 +339,7 @@ class BlitzObjectWrapper (object):
         
         @rtype:     None
         """
-        ctx = self._conn.CONFIG.copy()
+        ctx = self._conn.SERVICE_OPTS.copy()
         if self.getDetails() and self.getDetails().getGroup():
             # This is a save for an object that already exists, make sure group matches
             ctx.setOmeroGroup(self.getDetails().getGroup().getId())
@@ -525,7 +525,7 @@ class BlitzObjectWrapper (object):
         childw = self._getChildWrapper()
         klass = "%sLinks" % childw().OMERO_CLASS.lower()
         #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
-        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid], None, self._conn.CONFIG)[self._oid]
+        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid], None, self._conn.SERVICE_OPTS)[self._oid]
         return self._cached_countChildren
 
     def countChildren_cached (self):
@@ -568,7 +568,7 @@ class BlitzObjectWrapper (object):
                     params.map["val"] = omero_type(val)
                     query +=" and a.textValue=:val"
         query += " order by c.child.name"
-        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.CONFIG) ):
+        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS) ):
             yield child
 
     def listChildren (self, ns=None, val=None, params=None):
@@ -616,9 +616,9 @@ class BlitzObjectWrapper (object):
         for pwc in parentw:
             pwck = pwc()
             if withlinks:
-                parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG)])
+                parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)])
             else:
-                t =  self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG)
+                t =  self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)
                 parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in t])
         return parentnodes
 
@@ -669,7 +669,7 @@ class BlitzObjectWrapper (object):
         if isinstance(pids, list) and len(pids) > 0:
             p.map["parent"] = rlist([rlong(pa) for pa in pids])
             sql+=" and parent.id in (:parent)"
-        for pchl in query_serv.findAllByQuery(sql, p, self._conn.CONFIG):
+        for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield BlitzObjectWrapper(self, pchl) 
         
     def getChildLinks(self, chids=None):
@@ -694,7 +694,7 @@ class BlitzObjectWrapper (object):
         if isinstance(chids, list) and len(chids) > 0:
             p.map["children"] = rlist([rlong(ch) for ch in chids])
             sql+=" and child.id in (:children)"
-        for pchl in query_serv.findAllByQuery(sql, p, self._conn.CONFIG):
+        for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield BlitzObjectWrapper(self, pchl)       
 
     def _loadAnnotationLinks (self):
@@ -705,7 +705,7 @@ class BlitzObjectWrapper (object):
             query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
             "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
             "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
-            links = self._conn.getQueryService().findAllByQuery(query, None, self._conn.CONFIG)
+            links = self._conn.getQueryService().findAllByQuery(query, None, self._conn.SERVICE_OPTS)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
@@ -742,7 +742,7 @@ class BlitzObjectWrapper (object):
 
         # Using queueDelete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        handle = self._conn.getDeleteService().queueDelete(dcs, self._conn.CONFIG)
+        handle = self._conn.getDeleteService().queueDelete(dcs, self._conn.SERVICE_OPTS)
         callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
         # Maximum wait time 5 seconds, will raise a LockTimeout if the
         # delete has not finished by then.
@@ -833,7 +833,7 @@ class BlitzObjectWrapper (object):
             sql += " and an.details.owner.id=:eid"
             p.map["eid"] = rlong(eid)
  
-        for e in q.findAllByQuery(sql,p,self._conn.CONFIG):
+        for e in q.findAllByQuery(sql,p,self._conn.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self._conn, e)
 
     def _linkObject (self, obj, lnkobjtype):
@@ -845,7 +845,7 @@ class BlitzObjectWrapper (object):
         @param obj:     The object to link
         @type obj:      L{BlitzObjectWrapper}
         """
-        ctx = self._conn.CONFIG.copy()
+        ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         if not obj.getId():
             # Not yet in db, save it
@@ -1163,9 +1163,9 @@ class BlitzObjectWrapper (object):
             if self._obj.details.creationEvent._time is not None:
                 self._creationDate = self._obj.details.creationEvent._time.val
             else:
-                self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.CONFIG).time.val
+                self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
         except:
-            self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.CONFIG).time.val
+            self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(self._creationDate/1000)
         
 
@@ -1181,9 +1181,9 @@ class BlitzObjectWrapper (object):
             if self._obj.details.updateEvent.time is not None:
                 t = self._obj.details.updateEvent.time.val
             else:
-                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.CONFIG).time.val
+                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.SERVICE_OPTS).time.val
         except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.CONFIG).time.val
+            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(t/1000)
 
 
@@ -1220,7 +1220,8 @@ class _BlitzGateway (object):
     context switching, security privilidges etc.  
     """
     
-    CONFIG = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
+    SERVICE_OPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
+    CONFIG = GatewayConfigDict()
     """
     Holder for class wide configuration properties:
      - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
@@ -2227,7 +2228,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().leaderOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self.CONFIG):
+        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
             yield ExperimenterGroupWrapper(self, e)
 
     def getGroupsMemberOf(self):
@@ -2243,7 +2244,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().memberOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self.CONFIG):
+        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
             if e.name.val == "user":
                 pass
             else:
@@ -2299,7 +2300,7 @@ class _BlitzGateway (object):
         params = omero.sys.Parameters()
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
-        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self.CONFIG)
+        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self.SERVICE_OPTS)
         rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
@@ -2381,7 +2382,7 @@ class _BlitzGateway (object):
         sql = "select e from Experimenter as e where " \
                 "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p,self.CONFIG):
+        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
             if e.id.val != self.getEventContext().userId:
                 yield ExperimenterWrapper(self, e)
 
@@ -2468,7 +2469,7 @@ class _BlitzGateway (object):
         """
         oids = (oid!=None) and [oid] or None
         query, params, wrapper = self.buildQuery(obj_type, oids, params, attributes)
-        result = self.getQueryService().findByQuery(query, params, self.CONFIG)
+        result = self.getQueryService().findByQuery(query, params, self.SERVICE_OPTS)
         if result is not None:
             return wrapper(self, result)
 
@@ -2488,7 +2489,7 @@ class _BlitzGateway (object):
         @return:            Generator of L{BlitzObjectWrapper} subclasses
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
-        result = self.getQueryService().findAllByQuery(query, params, self.CONFIG)
+        result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
         for r in result:
             yield wrapper(self, r)
 
@@ -2570,7 +2571,7 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
             toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
-        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params, self.CONFIG)
+        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params, self.SERVICE_OPTS)
 
         for a in anns:
             yield(FileAnnotationWrapper(self, a))
@@ -2626,7 +2627,7 @@ class _BlitzGateway (object):
         if len(clauses) > 0:
             query += " where %s" % (" and ".join(clauses))
 
-        result = q.findAllByQuery(query, params,self.CONFIG)
+        result = q.findAllByQuery(query, params,self.SERVICE_OPTS)
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
@@ -2703,7 +2704,7 @@ class _BlitzGateway (object):
                         if image == None:   # use the first plane to create image.
                             image = createImage(plane)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
-                            rawPixelsStore.setPixelsId(pixelsId, True, self.CONFIG)
+                            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
                         uploadPlane(plane, theZ, theC, theT)
                         # init or update min and max for this channel
                         minValue = plane.min()
@@ -2873,7 +2874,7 @@ class _BlitzGateway (object):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
-        for e in q.findAllByQuery(sql,p,self.CONFIG):
+        for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield wrapper(self, e)
 
@@ -2927,7 +2928,7 @@ class _BlitzGateway (object):
         """
         
         query_serv = self.getQueryService()
-        obj =  query_serv.find(klass, long(eid), self.CONFIG)
+        obj =  query_serv.find(klass, long(eid), self.SERVICE_OPTS)
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
@@ -3033,7 +3034,7 @@ class _BlitzGateway (object):
         @type obj:      IObject"""
         
         u = self.getUpdateService() 
-        u.deleteObject(obj, self.CONFIG)
+        u.deleteObject(obj, self.SERVICE_OPTS)
 
     def getAvailableDeleteCommands(self):
         """
@@ -3110,7 +3111,7 @@ class _BlitzGateway (object):
         for oid in obj_ids:
             dcs.append(omero.api.delete.DeleteCommand(
                 graph_spec, long(oid), op))
-        handle = self.getDeleteService().queueDelete(dcs, self.CONFIG)
+        handle = self.getDeleteService().queueDelete(dcs, self.SERVICE_OPTS)
         return handle
 
 
@@ -3184,10 +3185,10 @@ class _BlitzGateway (object):
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS, self.CONFIG)
-                    search.byFullText(text, self.CONFIG)
+                    search.onlyType(t().OMERO_CLASS, self.SERVICE_OPTS)
+                    search.byFullText(text, self.SERVICE_OPTS)
                 timeit(actualSearch)()
-                if search.hasNext(self.CONFIG):
+                if search.hasNext(self.SERVICE_OPTS):
                     def searchProcessing ():
                         rv.extend(map(lambda x: t(self, x), search.results()))
                     timeit(searchProcessing)()
@@ -3601,7 +3602,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql+=" and pa.id in (:pids)" 
             
-        for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.CONFIG):
+        for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield AnnotationLinkWrapper(self._conn, al)
 
 class _AnnotationLinkWrapper (BlitzObjectWrapper):
@@ -3712,7 +3713,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
         """
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val, self._conn.CONFIG)
+        store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
         size = self._obj.size.val
         if size <= buf:
             yield store.read(0,long(size))
@@ -3828,7 +3829,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
             sql = "select tg from TagAnnotation tg "\
                 "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id and aal.parent.id=:tid) "
              
-            res = self._conn.getQueryService().findAllByQuery(sql, params, self._conn.CONFIG)
+            res = self._conn.getQueryService().findAllByQuery(sql, params, self._conn.SERVICE_OPTS)
             return res is not None and len(res) or 0
                 
     def listTagsInTagset(self):
@@ -3842,7 +3843,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
                 "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child.id=tg.id and aal.parent.id=:tid) "
             
             q = self._conn.getQueryService()
-            for ann in q.findAllByQuery(sql, params, self._conn.CONFIG):
+            for ann in q.findAllByQuery(sql, params, self._conn.SERVICE_OPTS):
                 yield TagAnnotationWrapper(self._conn, ann)
     
     def _getQueryString(self):
@@ -4356,7 +4357,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         
         super(_DatasetWrapper, self).__loadedHotSwap__()
         if not self._obj.isImageLinksLoaded():
-            links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None, self._conn.CONFIG)
+            links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None, self._conn.SERVICE_OPTS)
             self._obj._imageLinksLoaded = True
             self._obj._imageLinksSeq = links
 
@@ -4424,7 +4425,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         p.map = {}
         p.map["pid"] = self._obj.id
         sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
-        self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p, self._conn.CONFIG)
+        self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS)
         self._obj._plateAcquisitionsLoaded = True
     
     def countPlateAcquisitions(self):
@@ -4458,7 +4459,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         
         fields = None
         try:
-            res = [r for r in unwrap(q.projection(sql, p, self._conn.CONFIG))[0] if r != None]
+            res = [r for r in unwrap(q.projection(sql, p, self._conn.SERVICE_OPTS))[0] if r != None]
             if len(res) == 2:
                 fields = tuple(res)
         except:
@@ -4489,7 +4490,7 @@ _
             kwargs = {'index': self.defaultSample or 0}
             childw = self._getChildWrapper()
             self._childcache = {}
-            for well in q.findAllByQuery(query, params, self._conn.CONFIG):
+            for well in q.findAllByQuery(query, params, self._conn.SERVICE_OPTS):
                 self._childcache[(well.row.val, well.column.val)] = well
         return self._childcache.values()
 
@@ -4640,7 +4641,7 @@ class _WellWrapper (BlitzObjectWrapper):
                 "left outer join fetch ws.image as img "\
                 "where well.id = %d" % self.getId()
         
-        self._obj = self._conn.getQueryService().findByQuery(query, None, self._conn.CONFIG)
+        self._obj = self._conn.getQueryService().findByQuery(query, None, self._conn.SERVICE_OPTS)
 
     def _listChildren (self, **kwargs):
         if self._childcache is None:
@@ -4679,7 +4680,7 @@ class _WellWrapper (BlitzObjectWrapper):
         where spl.parent.id=s.id and spl.child.id=p.id and w.plate.id=p.id
         and w.id=:id"""
         return [omero.gateway.ScreenWrapper(self._conn, x) for x in \
-                self._conn.getQueryService().findAllByQuery(query, params, self._conn.CONFIG)]
+                self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)]
         
 
     def isWellSample (self):
@@ -4799,7 +4800,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         """
         rv = self._conn.getQueryService().findAllByQuery("""select w from Well w 
             left outer join fetch w.wellSamples as ws
-            where ws.id=%d""" % self.getId(), None, self._conn.CONFIG)
+            where ws.id=%d""" % self.getId(), None, self._conn.SERVICE_OPTS)
         if not len(rv):
             rv = [None]
         #rv = self._conn.getObject('Plate', self.plate.id.val)
@@ -5022,7 +5023,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__ (self):
         """ Loads the logical channel using the metadata service """
         if self._obj is not None:
-            ctx = self._conn.CONFIG.copy()
+            ctx = self._conn.SERVICE_OPTS.copy()
             if ctx.getOmeroGroup() is None:
                 ctx.setOmeroGroup(-1)
             self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],ctx)[0]
@@ -5069,7 +5070,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         Creates RawPixelsStore and sets the id etc
         """
         ps = self._conn.createRawPixelsStore()
-        ps.setPixelsId(self._obj.id.val, True, self._conn.CONFIG)
+        ps.setPixelsId(self._obj.id.val, True, self._conn.SERVICE_OPTS)
         return ps
 
     def getPixelsType (self):
@@ -5105,7 +5106,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
             query += " and info.theZ=:theZ"
         query += " order by info.deltaT"
         queryService = self._conn.getQueryService()
-        result = queryService.findAllByQuery(query, params, self._conn.CONFIG)
+        result = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
         for pi in result:
             yield BlitzObjectWrapper(self._conn, pi)
 
@@ -5241,7 +5242,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._re is None:
             return False
-        return self._re.isActive(self._idx, self._conn.CONFIG)
+        return self._re.isActive(self._idx, self._conn.SERVICE_OPTS)
 
     def getLogicalChannel (self):
         """
@@ -5318,7 +5319,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._re is None:
             return None
-        return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx, self._conn.CONFIG))
+        return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
     def getWindowStart (self):
         """
@@ -5328,7 +5329,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     int
         """
         
-        return int(self._re.getChannelWindowStart(self._idx, self._conn.CONFIG))
+        return int(self._re.getChannelWindowStart(self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowStart (self, val):
         self.setWindow(val, self.getWindowEnd())
@@ -5341,13 +5342,13 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     int
         """
         
-        return int(self._re.getChannelWindowEnd(self._idx, self._conn.CONFIG))
+        return int(self._re.getChannelWindowEnd(self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowEnd (self, val):
         self.setWindow(self.getWindowStart(), val)
 
     def setWindow (self, minval, maxval):
-        self._re.setChannelWindow(self._idx, float(minval), float(maxval), self._conn.CONFIG)
+        self._re.setChannelWindow(self._idx, float(minval), float(maxval), self._conn.SERVICE_OPTS)
 
     def getWindowMin (self):
         """
@@ -5471,7 +5472,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         q = conn.getQueryService()
-        p = q.find('Pixels', pid, self._conn.CONFIG)
+        p = q.find('Pixels', pid, self._conn.SERVICE_OPTS)
         if p is None:
             return None
         return ImageWrapper(conn, p.image)
@@ -5487,7 +5488,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re and self._re.untaint()
 
     def __loadedHotSwap__ (self):
-        ctx = self._conn.CONFIG.copy()
+        ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.getDetails().group.id.val)
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, ctx)[0]
     
@@ -5504,7 +5505,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         if not i.loaded:
             meta_serv = self._conn.getMetadataService()
-            ctx = self._conn.CONFIG.copy()
+            ctx = self._conn.SERVICE_OPTS.copy()
             if ctx.getOmeroGroup() is None:
                 ctx.setOmeroGroup(-1)
             i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, ctx)
@@ -5570,7 +5571,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
-        ctx = self._conn.CONFIG.copy()
+        ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         if self._conn.canBeAdmin():
@@ -5582,7 +5583,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not re.lookupRenderingDef(pid, ctx):
                 re.resetDefaults(ctx)
                 re.lookupRenderingDef(pid, ctx)
-            self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG))
+            self._onResetDefaults(re.getRenderingDefId(self._conn.SERVICE_OPTS))
         else:
             re.loadRenderingDef(rdid, ctx)
         re.load()
@@ -5613,16 +5614,16 @@ class _ImageWrapper (BlitzObjectWrapper):
     def resetRDefs (self):
         logger.debug('resetRDefs')
         if self.canWrite():
-            self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG)
+            self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
             rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
             logger.debug(rdefns)
             if rdefns:
                 # Use the same group as the image in the context
-                ctx = self._conn.CONFIG.copy()
-                self._conn.CONFIG.setOmeroGroup(self.getDetails().getGroup().getId())
+                ctx = self._conn.SERVICE_OPTS.copy()
+                self._conn.SERVICE_OPTS.setOmeroGroup(self.getDetails().getGroup().getId())
                 self.removeAnnotations(rdefns)
-                self._conn.CONFIG.clear()
-                self._conn.CONFIG = ServiceOptsDict(ctx)
+                self._conn.SERVICE_OPTS.clear()
+                self._conn.SERVICE_OPTS = ServiceOptsDict(ctx)
             return True
         return False
 
@@ -5687,7 +5688,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         q = self._conn.getQueryService()
-        e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val,None, self._conn.CONFIG)
+        e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val,None, self._conn.SERVICE_OPTS)
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
@@ -5707,7 +5708,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             where i.id = %i
             """ % self._obj.id.val
             query = self._conn.getQueryService()
-            ds = query.findByQuery(q,None, self._conn.CONFIG)
+            ds = query.findByQuery(q,None, self._conn.SERVICE_OPTS)
             return ds and DatasetWrapper(self._conn, ds) or None
         except: #pragma: no cover
             logger.debug('on getDataset')
@@ -5729,7 +5730,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             where i.id = %i
             """ % self._obj.id.val
             query = self._conn.getQueryService()
-            prj = query.findByQuery(q,None, self._conn.CONFIG)
+            prj = query.findByQuery(q,None, self._conn.SERVICE_OPTS)
             return prj and ProjectWrapper(self._conn, prj) or None
         except: #pragma: no cover
             logger.debug('on getProject')
@@ -5814,7 +5815,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         tb = self._conn.createThumbnailStore()
         
-        ctx = self._conn.CONFIG.copy()
+        ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         if self._conn.canBeAdmin():
             ctx.setOmeroUser(self.getDetails().getOwner().getId())
@@ -5834,9 +5835,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
-                tb.setPixelsId(pid, self._conn.CONFIG)
+                tb.setPixelsId(pid, self._conn.SERVICE_OPTS)
                 try:
-                    rdid = tb.getRenderingDefId(self._conn.CONFIG)
+                    rdid = tb.getRenderingDefId(self._conn.SERVICE_OPTS)
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
@@ -5974,7 +5975,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             args = map(lambda x: rint(x), size)
             if pos is not None:
                 args = list(pos) + args
-            args += [self._conn.CONFIG]
+            args += [self._conn.SERVICE_OPTS]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state
@@ -5996,7 +5997,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.CONFIG)
+        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
         pmax = 2 ** (8 * rp.getByteWidth())
         if rp.isSigned():
             return (-(pmax / 2), pmax / 2 - 1)
@@ -6019,13 +6020,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     List of L{ChannelWrapper}
         """
         if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels(self._conn.CONFIG).iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels(self._conn.SERVICE_OPTS).iterateChannels())]
         else:       # E.g. ConcurrencyException (no rendering engine): load channels by hand, use pixels to order channels
             pid = self.getPixelsId()
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
             query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
-            pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.CONFIG)
+            pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
 
     def setActiveChannels(self, channels, windows=None, colors=None):
@@ -6041,14 +6042,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         for c in range(len(self.getChannels())):
-            self._re.setActive(c, (c+1) in channels, self._conn.CONFIG)
+            self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
                 if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
-                    self._re.setChannelWindow(c, *(windows[c] + [self._conn.CONFIG]))
+                    self._re.setChannelWindow(c, *(windows[c] + [self._conn.SERVICE_OPTS]))
                 if colors is not None and colors[c]:
                     rgba = splitHTMLColor(colors[c])
                     if rgba:
-                        self._re.setRGBA(c, *(rgba + [self._conn.CONFIG]))
+                        self._re.setRGBA(c, *(rgba + [self._conn.SERVICE_OPTS]))
         return True
 
     def getProjections (self):
@@ -6140,7 +6141,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.CONFIG)
+        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
         for c in channels:
             bw = rp.getByteWidth()
             key = self.LINE_PLOT_DTYPES.get((bw, rp.isFloat(), rp.isSigned()), None)
@@ -6327,7 +6328,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._obj.pixelsLoaded = False
                     self._re = None
                     return self.renderJpeg(z,t,None)
-            rv = self._re.renderCompressed(self._pd, self._conn.CONFIG)
+            rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpegRegion');
@@ -6366,9 +6367,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                     return self.renderJpeg(z,t,None)
             projection = self.PROJECTIONS.get(self._pr, -1)
             if not isinstance(projection, omero.constants.projection.ProjectionType):
-                rv = self._re.renderCompressed(self._pd, self._conn.CONFIG)
+                rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             else:
-                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1, self._conn.CONFIG)
+                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpeg');
@@ -6395,7 +6396,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         e = self._conn.createExporter()
         e.addImage(self.getId())
-        size = e.generateTiff(self._conn.CONFIG)
+        size = e.generateTiff(self._conn.SERVICE_OPTS)
         if bufsize==0:
             # Read it all in one go
             return fileread(e, size, 65536)
@@ -6982,7 +6983,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             c.unloadBlue()
             c.unloadAlpha()
             c.save()
-        self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG)
+        self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
         return True
 
     def _collectRenderOptions (self):
@@ -7046,7 +7047,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        ctx = self._conn.CONFIG
+        ctx = self._conn.SERVICE_OPTS
         ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         self._re.saveCurrentSettings(ctx)
         return True
@@ -7059,7 +7060,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
             query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
-            count = self._conn.getQueryService().projection(query, params, self._conn.CONFIG)
+            count = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
             self._archivedFileCount = count[0][0]._val
         return self._archivedFileCount
 
@@ -7072,7 +7073,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         params = omero.sys.Parameters()
         params.map = {"pid": rlong(pid)}
         query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
-        links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.CONFIG)
+        links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
 
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
@@ -7450,7 +7451,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
                     "left outer join fetch l.pump as pump " \
                     "left outer join fetch pump.type as pt " \
                     "where l.id = :id"
-            self._obj.lightSource = self._conn.getQueryService().findByQuery(query, params,self._conn.CONFIG)
+            self._obj.lightSource = self._conn.getQueryService().findByQuery(query, params,self._conn.SERVICE_OPTS)
         return LightSourceWrapper(self._conn, self._obj.lightSource)
 
 LightSettingsWrapper = _LightSettingsWrapper
