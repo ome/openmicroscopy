@@ -7,7 +7,9 @@ OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
-    CURL_OPTS=${CURL_OPTS:-"--insecure"}
+    CURL="curl ${CURL_OPTS-} --insecure -O"
+else
+    CURL="curl ${CURL_OPTS-} -O"
 fi
 
 
@@ -42,7 +44,7 @@ then
     echo "Using existing pip"
 else
     rm -rf virtualenv.py
-    curl "$CURL_OPTS" -O "$VENV_URL"
+    $CURL "$VENV_URL"
     python virtualenv.py --no-site-packages .
 fi
 

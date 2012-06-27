@@ -48,7 +48,8 @@ module omero {
          * other stateful instances (RenderingEngine, ThumbnailStore, etc.) significantly
          * simplyifing usage.
          **/
-        ["ami"] interface Gateway extends StatefulServiceInterface
+        ["deprecated:The Gateway service is deprecated. use the native language gateways instead instead.", "ami"]
+        interface Gateway extends StatefulServiceInterface
             {
 
             /**
