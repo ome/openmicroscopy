@@ -74,7 +74,7 @@ class WrapperTest (lib.GTest):
         # Verify canOwnerWrite
         self.loginAsAdmin()
         admin = self.gateway.getAdminService()
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         p = self.gateway.getObject('project', pid)
         perms = str(p.getDetails().getGroup().getDetails().permissions)
         admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI('rw' + perms[2:]))

@@ -66,7 +66,7 @@ class UserTest (lib.GTest):
         g = d.getDetails().getGroup()
         admin = self.gateway.getAdminService()
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g._obj])
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         # make sure the group is groupwrite enabled
         perms = str(d.getDetails().getGroup().getDetails().permissions)
         admin.changePermissions(g._obj, omero.model.PermissionsI('rwrw--'))
@@ -78,7 +78,7 @@ class UserTest (lib.GTest):
         # User is now a member of the group to which testDataset belongs, which has groupWrite==True
         # But the default group for User is diferent
         try:
-            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             d = self.getTestDataset()
             did = d.getId()
             n = d.getName()
@@ -105,7 +105,7 @@ class UserTest (lib.GTest):
         d = p.getDetails()
         g = d.getGroup()
         self.loginAsUser()
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         self.assert_(not g.getId() in self.gateway.getEventContext().memberOfGroups)
         self.assertEqual(self.gateway.getObject('project', p.getId()), None)
 
@@ -138,7 +138,7 @@ class UserTest (lib.GTest):
             # User
             # try to read project and annotation, which fails
             self.loginAsUser()
-            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             self.assertEqual(self.gateway.getObject('project', pid), None)
             # Admin
             # Chmod project to rwrw--
@@ -148,13 +148,13 @@ class UserTest (lib.GTest):
             # Author
             # check project has proper permissions
             self.loginAsAuthor()
-            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             pa = self.gateway.getObject('project', pid)
             self.assertNotEqual(pa, None)
             # User
             # read project and annotation
             self.loginAsUser()
-            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             self.assertNotEqual(self.gateway.getObject('project', pid), None)
         finally:
             self.loginAsAuthor()

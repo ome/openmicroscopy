@@ -53,9 +53,7 @@ class ServicesTest (lib.GTest):
         self.assertEqual(ann.getValue(), self.TESTANN_NS)
         # Verify it as admin user
         self.loginAsAdmin()
-        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-        sopts['omero.group'] = '-1'
-        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         img = self.getTestImage()
         self.assertEqual(img.getId(), self.TESTIMG.getId())
         ann = img.getAnnotation(self.TESTANN_NS)
@@ -103,14 +101,12 @@ class TablesTest (lib.GTest):
         # now as Admin
         self.loginAsAdmin()
         sr = self.gateway.getSharedResources()
-        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-        sopts['omero.group'] = '-1'
-        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         pr = self.getTestProject()
         self.assertNotEqual(pr, None)
         file_annotation = pr.getAnnotation(ns='openmicroscopy.org/omero/bulk_annotations')
         self.assertNotEqual(file_annotation, None)
-        table = sr.openTable(file_annotation._obj.file, sopts)
+        table = sr.openTable(file_annotation._obj.file, self.gateway.SERVICE_OPTS)
         self.assertNotEqual(table, None)
 
 

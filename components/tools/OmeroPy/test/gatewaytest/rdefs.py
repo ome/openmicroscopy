@@ -157,13 +157,11 @@ class RDefsTest (lib.GTest):
             # Try the propagation as admin
             self.loginAsAdmin()
             rsettings = self.gateway.getRenderingSettingsService()
-            sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-            sopts['omero.group'] = str(i1.getDetails().getGroup().getId())
-            sopts['omero.user'] = str(i1.getOwner().getId())
-            rv = rsettings.applySettingsToImages(frompid, list(toids), sopts)
+            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1.getDetails().getGroup().getId()))
+            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1.getOwner().getId()))
+            rv = rsettings.applySettingsToImages(frompid, list(toids), self.gateway.SERVICE_OPTS)
             err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
             self.assertEqual(rv[True], [i2.getId()], err)
-            self.gateway.CONFIG['SERVICE_OPTS'] = sopts
             i2 = self.getTinyTestImage2()
             i2c = i2.getChannels()
             self.assertEqual(i2c[0].getWindowStart(), t)
@@ -185,8 +183,8 @@ class RDefsTest (lib.GTest):
         reset and rdef created by admin and then edited by owner of image.
         """
         self.loginAsAdmin()
-        self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+        self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         self.image = self.getTestImage()
         self.assert_(self.image.resetRDefs())
         self.assert_(self.image.saveDefaults())
@@ -195,8 +193,8 @@ class RDefsTest (lib.GTest):
         admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
         self.loginAsAuthor()
         try:
-            self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
-            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+            self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             self.image = self.getTestImage()
             self.assert_(self.image.resetRDefs())
             self.assert_(self.image.saveDefaults())

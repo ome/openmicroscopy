@@ -182,9 +182,7 @@ class ImageTest (lib.GTest):
         self.assert_(len(self.image.exportOmeTiff()) > 0)
         # Now try the same using a different user, admin first
         self.loginAsAdmin()
-        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-        sopts['omero.group'] = '-1'
-        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         image = self.getTestImage()
         self.assertEqual(image.getId(), self.image.getId())
         self.assert_(len(image.exportOmeTiff()) > 0)
@@ -197,9 +195,7 @@ class ImageTest (lib.GTest):
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
         self.loginAsUser()
         try:
-            sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-            sopts['omero.group'] = '-1'
-            self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             image = self.getTestImage()
             self.assertEqual(image.getId(), self.image.getId())
             self.assert_(len(image.exportOmeTiff()) > 0)

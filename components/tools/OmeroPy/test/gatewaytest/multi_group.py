@@ -38,10 +38,10 @@ class HistoryTest (lib.GTest):
     def searchHistory(self, start, end, dtype="Dataset"):
         
         tm = self.gateway.getTimelineService()
-        count = tm.countByPeriod([dtype], rtime(long(start)), rtime(long(end)), None, self.gateway.CONFIG['SERVICE_OPTS'])
-        data = tm.getByPeriod([dtype], rtime(long(start)), rtime(long(end)), None, True, self.gateway.CONFIG['SERVICE_OPTS'])
+        count = tm.countByPeriod([dtype], rtime(long(start)), rtime(long(end)), None, self.gateway.SERVICE_OPTS)
+        data = tm.getByPeriod([dtype], rtime(long(start)), rtime(long(end)), None, True, self.gateway.SERVICE_OPTS)
         
-        logs = tm.getEventLogsByPeriod(rtime(start), rtime(end), None, self.gateway.CONFIG['SERVICE_OPTS'])
+        logs = tm.getEventLogsByPeriod(rtime(start), rtime(end), None, self.gateway.SERVICE_OPTS)
         entityType = 'ome.model.containers.%s' % dtype
         filteredLogs = [{'id':i.entityId.val, 'action': i.action.val} for i in logs if i.entityType.val == entityType]
 
@@ -87,7 +87,7 @@ class HistoryTest (lib.GTest):
         # Shouldn't be able to access Dataset...
         self.searchHistory(start, end)
         self.assertEqual(None, self.gateway.getObject("Dataset", new_ds_Id))
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':str(default_groupId)}
+        self.gateway.SERVICE_OPTS.setOmeroGroup(str(default_groupId))
         self.assertNotEqual(None, self.gateway.getObject("Dataset", new_ds_Id))
 
         self.searchHistory(start, end)
@@ -162,17 +162,17 @@ class ScriptTest (lib.GTest):
         self.assertTrue(switched, "Failed to switch into new group")
         # Shouldn't be able to access Dataset...
         self.assertEqual(None, self.gateway.getObject("Dataset", new_ds_Id))
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':str(default_groupId)}
+        self.gateway.SERVICE_OPTS.setOmeroGroup(str(default_groupId))
         self.assertNotEqual(None, self.gateway.getObject("Dataset", new_ds_Id))
 
         # run script
         svc = self.gateway.getScriptService()
         process = svc.runScript(scriptID, wrap({"datasetId":new_ds_Id}).val,
-                None, self.gateway.CONFIG['SERVICE_OPTS'])
+                None, self.gateway.SERVICE_OPTS)
         cb = omero.scripts.ProcessCallbackI(self.gateway.c, process)
         while cb.block(500) is None:
             pass
-        results = process.getResults(0, self.gateway.CONFIG['SERVICE_OPTS'])
+        results = process.getResults(0, self.gateway.SERVICE_OPTS)
         self.assertTrue('stdout' in results, "Failed to return stdout Original File. #8614")
         self.assertEqual(results["gid"].val, default_groupId, \
                 "We want script to have eventContext of group:%s not %s" % \
