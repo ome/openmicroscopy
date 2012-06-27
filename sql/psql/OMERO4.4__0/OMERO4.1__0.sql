@@ -3242,7 +3242,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 ----- Rather than inserting a new dbpatch, we will
 ----- update the latest.
 
-UPDATE dbpatch set currentVersion = 'OMERO4.4RC1' where
+UPDATE dbpatch set currentVersion = 'OMERO4.4' where
                    currentVersion = 'OMERO4.3' and currentPatch = 0;
 
 --
@@ -3337,11 +3337,11 @@ language sql;
 --
 
 UPDATE dbpatch set message = 'Database updated.', finished = clock_timestamp()
- WHERE currentVersion  = 'OMERO4.4RC1'    and
+ WHERE currentVersion  = 'OMERO4.4'    and
           currentPatch    = 0          and
           previousVersion = 'OMERO4.3' and
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.4RC1__0'||CHR(10)||CHR(10)||CHR(10) as Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.4__0'||CHR(10)||CHR(10)||CHR(10) as Status;
 
 COMMIT;

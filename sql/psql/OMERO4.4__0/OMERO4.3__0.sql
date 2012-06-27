@@ -48,7 +48,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             values ('OMERO4.4RC1',  0,              'OMERO4.3',          0);
+             values ('OMERO4.4',  0,              'OMERO4.3',          0);
 
 --
 -- PERMISSION UPGRADE
@@ -142,11 +142,11 @@ language sql;
 --
 
 UPDATE dbpatch set message = 'Database updated.', finished = clock_timestamp()
- WHERE currentVersion  = 'OMERO4.4RC1'    and
+ WHERE currentVersion  = 'OMERO4.4'    and
           currentPatch    = 0          and
           previousVersion = 'OMERO4.3' and
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.4RC1__0'||CHR(10)||CHR(10)||CHR(10) as Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.4__0'||CHR(10)||CHR(10)||CHR(10) as Status;
 
 COMMIT;
