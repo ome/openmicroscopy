@@ -27,7 +27,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
-from omero.gateway.utils import ServiceOptsDict, GatewayConfigDict
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
 
 import Ice
@@ -1221,14 +1221,9 @@ class _BlitzGateway (object):
     """
     
     SERVICE_OPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
-    CONFIG = GatewayConfigDict()
+    CONFIG = GatewayConfig()
     """
-    Holder for class wide configuration properties:
-     - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
-                    settings object id.
-     - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
-                    that don't get saved in the rendering settings.
-    One good place to define this is on the extending class' connect() method.
+    Holder for class wide configuration properties.
     """
     ICE_CONFIG = None
     """
@@ -5531,7 +5526,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:            Rendering definition ID or None if no custom
                             logic has found a rendering definition.
         """
-        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        rdefns = self._conn.CONFIG.IMG_RDEFNS
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5551,7 +5546,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param rdid:         Current Rendering Def ID
         @type rdid:          Long
         """
-        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        rdefns = self._conn.CONFIG.IMG_RDEFNS
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5615,7 +5610,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         logger.debug('resetRDefs')
         if self.canWrite():
             self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
-            rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+            rdefns = self._conn.CONFIG.IMG_RDEFNS
             logger.debug(rdefns)
             if rdefns:
                 # Use the same group as the image in the context
@@ -7008,7 +7003,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Dict of rendering options
         @rtype:     Dict 
         """
-        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        ns = self._conn.CONFIG.IMG_ROPTSNS
         if ns:
             ann = self.getAnnotation(ns)
             if ann is not None:
@@ -7039,7 +7034,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         if not self.canAnnotate():
             return False
-        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        ns = self._conn.CONFIG.IMG_ROPTSNS
         if ns:
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
