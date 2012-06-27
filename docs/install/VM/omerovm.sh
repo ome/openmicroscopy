@@ -51,6 +51,8 @@ function installvm ()
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
 	$SCP omero-web-init.d omero@localhost:~/
+	$SCP virtualbox-network-fix-init.d omero@localhost:~/
+  $SCP virtualbox_fix.sh omero@localhost:~/
   $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
 	$SSH omero@localhost "bash /home/omero/driver.sh ${TARGET}"
