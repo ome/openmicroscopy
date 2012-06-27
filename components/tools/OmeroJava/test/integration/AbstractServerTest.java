@@ -348,7 +348,7 @@ public class AbstractServerTest
 	throws Exception
     {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
-	String uuid = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(perms);

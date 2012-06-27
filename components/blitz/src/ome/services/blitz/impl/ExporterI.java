@@ -32,6 +32,7 @@ import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.io.nio.PixelsService;
+import ome.io.nio.RomioPixelBuffer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -393,7 +394,8 @@ public class ExporterI extends AbstractAmdServant implements
                                 writer.setId(file.getAbsolutePath());
 
                                 int planeCount = reader.planes;
-                                int planeSize = raw.getPlaneSize();
+                                int planeSize = RomioPixelBuffer.safeLongToInteger(
+                                        raw.getPlaneSize());
                                 log.info(String.format(
                                             "Using big TIFF? %s mSize=%d " +
                                             "dSize=%d planeCount=%d " +

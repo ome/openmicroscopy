@@ -284,14 +284,16 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             import traceback
             print traceback.print_exc()
 
-
-    def start(self, args):
+    def collectstatic(self):
         # Ensure that static media is copied to the correct location
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd = location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
+
+    def start(self, args):
+        self.collectstatic()
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -424,7 +426,7 @@ using bin\omero web start on Windows with FastCGI.
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
 
     def iis(self, args):
-
+        self.collectstatic()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 

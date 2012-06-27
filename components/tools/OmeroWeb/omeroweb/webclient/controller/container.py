@@ -391,7 +391,7 @@ class BaseContainer(BaseController):
         Used to ensure that E.g. Group Admins / Owners don't try to link other user's Annotations
         when in a private group (even though they could retrieve those annotations)
         """
-        gid = self.conn.CONFIG.getOmeroGroup()
+        gid = self.conn.SERVICE_OPTS.getOmeroGroup()
         if gid is None:
             return False
         try:
@@ -623,7 +623,7 @@ class BaseContainer(BaseController):
                     l_ann.setChild(fa._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
-            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG)
+            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.SERVICE_OPTS)
         
         # if we only annotated a single object, return file-ann with link loaded
         if len(new_links) == 1:
@@ -678,11 +678,11 @@ class BaseContainer(BaseController):
         saved_links = []
         try:
             # will fail if any of the links already exist
-            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG)
+            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.SERVICE_OPTS)
         except omero.ValidationException, x:
             for l in new_links:
                 try:
-                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.CONFIG))
+                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.SERVICE_OPTS))
                 except:
                     failed+=1
 

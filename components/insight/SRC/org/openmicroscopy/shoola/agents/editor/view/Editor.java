@@ -274,4 +274,11 @@ public interface Editor
 	 */
 	void setUserGroup(long groupID);
 
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster();
 }

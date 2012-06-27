@@ -205,27 +205,41 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
     private EventLog makeEvent(final EventContext ec,
                                final MissingPyramidMessage mpm) {
-        Map<String, String> callContext = new HashMap<String, String>();
+
+        final Principal p = new Principal(uuid);
+        final Map<String, String> callContext = new HashMap<String, String>();
+
+        // First call is with -1 in order to find the pixels group.
+        // TODO: this could equally be done with sqlAction.
         callContext.put("omero.group", "-1");
-        return (EventLog) this.executor.execute(callContext, new Principal(uuid),
-                    new Executor.SimpleWork(this, "createEvent") {
-            @Transactional(readOnly = false)
+        final Long groupID = (Long) this.executor.execute(callContext, p,
+                new Executor.SimpleWork(this, "getGroupId") {
+            @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                log.info("Creating PIXELDATA event for pixels id:"
-                        + mpm.pixelsID);
+                final ExperimenterGroup group = sf.getQueryService().findByQuery(
+                        "select p.details.group from Pixels p where p.id = :id",
+                        new ome.parameters.Parameters().addId(mpm.pixelsID));
+                return group.getId();
+            }
+        });
+
+        // Reset to prevent "Not intended for copying" errors
+        callContext.put("omero.group", groupID.toString());
+        return (EventLog) this.executor.execute(callContext, p,
+                new Executor.SimpleWork(this, "createEvent") {
+        @Transactional(readOnly = false)
+        public Object doWork(Session session, ServiceFactory sf) {
+            log.info("Creating PIXELDATA event for pixels id:"
+                    + mpm.pixelsID);
 
                 // Load objects
                 final EventType type = sf.getTypesService().getEnumeration(
                         EventType.class, ec.getCurrentEventType());
-                final ExperimenterGroup group = sf.getQueryService().findByQuery(
-                        "select p.details.group from Pixels p where p.id = :id",
-                        new ome.parameters.Parameters().addId(mpm.pixelsID));
-
                 final EventLog el = new EventLog();
                 final Event e = new Event();
                 e.setExperimenter(
                         new Experimenter(ec.getCurrentUserId(), false));
-                e.setExperimenterGroup(group);
+                e.setExperimenterGroup(new ExperimenterGroup(groupID, false));
                 e.setSession(new ome.model.meta.Session(
                         ec.getCurrentSessionId(), false));
                 e.setTime(new Timestamp(new Date().getTime()));

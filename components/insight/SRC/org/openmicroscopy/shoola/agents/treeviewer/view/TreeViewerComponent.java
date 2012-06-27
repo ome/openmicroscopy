@@ -1404,17 +1404,10 @@ class TreeViewerComponent
 	public void clearFoundResults()
 	{
 		switch (model.getState()) {
-		//case LOADING_THUMBNAIL:
-		case DISCARDED:
-		case SAVE:  
-			/*
-			throw new IllegalStateException("This method cannot be " +
-					"invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-			"state");
-			*/
-			return;
+			case DISCARDED:
+			case SAVE:
+				return;
 		}
-		//removeEditor(); //remove the currently selected editor.
 		Browser browser = model.getSelectedBrowser();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		if (browser != null) {
@@ -2741,8 +2734,7 @@ class TreeViewerComponent
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
 		view.removeAllFromWorkingPane();
-		model.getAdvancedFinder(
-				model.getSecurityContext()).requestFocusOnField();
+		model.getAdvancedFinder().requestFocusOnField();
 		switch (newMode) {
 			case EXPLORER_MODE:
 				onSelectedDisplay();
@@ -3918,15 +3910,35 @@ class TreeViewerComponent
 	{
 		model.setRndSettings(null);
 		model.setNodesToCopy(null, -1);
+		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		
+		//reset metadata
+		MetadataViewer mv = view.resetMetadataViewer();
+		mv.addPropertyChangeListener(controller);
+		
+		//reset search
+		clearFoundResults();
+		model.getAdvancedFinder().reset(
+				TreeViewerAgent.getAvailableUserGroups());
 		ExperimenterData exp = model.getUserDetails();
 		model.setSelectedGroupId(exp.getDefaultGroup().getId());
-		model.getMetadataViewer().onGroupSwitched(true);
+		
+		
 		view.createTitle();
 		view.setPermissions();
-		view.resetLayout();
+		Browser b = view.resetLayout();
+		if (b != null) {
+			Browser old = model.getSelectedBrowser();
+			model.setSelectedBrowser(b);
+			model.getMetadataViewer().setSelectionMode(false);
+			firePropertyChange(SELECTED_BROWSER_PROPERTY, old, b);
+			int t = b.getBrowserType();
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			bus.post(new BrowserSelectionEvent(t));
+			view.updateMenuItems();
+		}
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;

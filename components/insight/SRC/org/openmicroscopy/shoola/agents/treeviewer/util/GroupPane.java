@@ -29,6 +29,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -103,22 +104,21 @@ class GroupPane
     {
         JPanel content = new JPanel();
         content.setLayout(new GridBagLayout());
-    	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GridBagConstraints c = new GridBagConstraints();
     	JComponent label = EditorUtil.getLabel("Name", true);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.fill = GridBagConstraints.NONE;
         c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-        c.weightx = 0.0;  
+        c.weightx = 0.0;
         c.gridx = 0;
         c.gridy = 0;
         content.add(label, c);
         c.gridx++;
-        add(Box.createHorizontalStrut(5), c); 
+        add(Box.createHorizontalStrut(5), c);
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(nameArea, c); 
@@ -126,17 +126,17 @@ class GroupPane
         label = UIUtilities.setTextFont("Description");
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
-		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.fill = GridBagConstraints.NONE;
         c.weightx = 0.0;  
         c.gridx = 0;
         content.add(label, c);
         c.gridx++;
         add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(descriptionArea, c);  
+        content.add(descriptionArea, c);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
 		return content;
@@ -177,9 +177,9 @@ class GroupPane
 	boolean hasRequiredFields()
 	{
 		int count = 0;
-		if (expPane.hasLoginName()) count++;
+		//if (expPane.hasLoginCredentials()) count++;
 		if (isNameValid()) count++;
-		return count == 2;
+		return count == 1;
 	}
 	
 	/**
@@ -192,7 +192,10 @@ class GroupPane
 		GroupData data = new GroupData();
 		data.setName(nameArea.getText().trim());
 		data.setDescription(descriptionArea.getText().trim());
-		Map<ExperimenterData, UserCredentials> m = expPane.getObjectToSave();
+		Map<ExperimenterData, UserCredentials> 
+		m = new HashMap<ExperimenterData, UserCredentials>();
+		if (expPane.hasLoginCredentials())
+			m = expPane.getObjectToSave();
 		AdminObject object = new AdminObject(data, m, AdminObject.CREATE_GROUP);
 		object.setPermissions(permissions.getPermissions());
 		return object;

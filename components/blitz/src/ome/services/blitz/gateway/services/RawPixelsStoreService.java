@@ -45,7 +45,7 @@ public interface RawPixelsStoreService
 	 * @throws DSOutOfServiceException
 	 * @throwsomero.ServerError
 	 */
-	int getPlaneSize(long pixelsId) throws omero.ServerError;
+	long getPlaneSize(long pixelsId) throws omero.ServerError;
 
 	/**
 	 * Get the total size of the current image.
@@ -54,7 +54,7 @@ public interface RawPixelsStoreService
 	 * @throws DSOutOfServiceException
 	 * @throwsomero.ServerError
 	 */
-	int getTotalSize(long pixelsId) throws omero.ServerError;
+	long getTotalSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the plane size of the current image.
@@ -72,7 +72,7 @@ public interface RawPixelsStoreService
 	 * @throws DSOutOfServiceException
 	 * @throwsomero.ServerError
 	 */
-	int getStackSize(long pixelsId) throws omero.ServerError;
+	long getStackSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the timepoint size of the current image.
@@ -81,7 +81,7 @@ public interface RawPixelsStoreService
 	 * @throws DSOutOfServiceException
 	 * @throwsomero.ServerError
 	 */
-	int getTimepointSize(long pixelsId) throws omero.ServerError;
+	long getTimepointSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * get bytes to the plane c, t, z

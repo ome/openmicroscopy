@@ -150,6 +150,7 @@ class AdminServiceImpl
 	{
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
+		if (uc == null) return "";
 		return uc.getHostName();
 	}
 

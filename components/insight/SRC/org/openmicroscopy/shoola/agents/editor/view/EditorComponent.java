@@ -643,12 +643,16 @@ class EditorComponent
 		view.setGroupInformation();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#isMaster()
+	 */
+	public boolean isMaster() { return model.isMaster(); }
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return view.getTitle(); }
 
-
-	
 }

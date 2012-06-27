@@ -416,7 +416,7 @@ public class ImViewerAgent
     private void handleReloadRenderingEngineEvent(ReloadRenderingEngine evt)
     {
     	if (evt == null) return;
-    	List<Long> pixels = evt.getPixels();
+    	List<Long> pixels = evt.getPixelsID();
     	if (pixels == null || pixels.size() == 0) return;
     	Iterator<Long> i = pixels.iterator();
     	Long id;

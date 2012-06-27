@@ -72,7 +72,7 @@ module omero {
                  * Retrieves the in memory size of a 2D image plane in this pixel store.
                  * @return 2D image plane size in bytes (sizeX*sizeY*ByteWidth).
                  **/
-                idempotent int getPlaneSize() throws ServerError;
+                idempotent long getPlaneSize() throws ServerError;
 
                 /**
                  * Retrieves the in memory size of a row or scanline of pixels in this
@@ -87,7 +87,7 @@ module omero {
                  * this pixel store.
                  * @return stack size in bytes (sizeX*sizeY*sizeZ*ByteWidth).
                  **/
-                idempotent int getStackSize() throws ServerError;
+                idempotent long getStackSize() throws ServerError;
 
                 /**
                  * Retrieves the in memory size of the entire number of optical sections for
@@ -95,14 +95,14 @@ module omero {
                  * pixel store.
                  * @return timepoint size in bytes (sizeX*sizeY*sizeZ*sizeC*ByteWidth).
                  **/
-                idempotent int getTimepointSize() throws ServerError;
+                idempotent long getTimepointSize() throws ServerError;
 
                 /**
                  * Retrieves the in memory size of the entire pixel store.
                  * @return total size of the pixel size in bytes
                  * (sizeX*sizeY*sizeZ*sizeC*sizeT*ByteWidth).
                  **/
-                idempotent int getTotalSize() throws ServerError;
+                idempotent long getTotalSize() throws ServerError;
 
                 /**
                  * Retrieves the offset for a particular row or scanline in this pixel

@@ -85,7 +85,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
-import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -411,10 +410,13 @@ class OMEROGateway
 	private List<ExperimenterGroup>	 systemGroups;
 	
 	/** Keep track of the file system view. */
-	private Map<Long, FSFileSystemView>				fsViews;
+	private Map<Long, FSFileSystemView> fsViews;
 	
 	/** Flag indicating if the connection is encrypted or not.*/
 	private boolean encrypted;
+	
+	/** The version of the server the user is currently logged to.*/
+	private String serverVersion;
 	
 	/** 
 	 * Checks if the session is still alive.
@@ -856,7 +858,8 @@ class OMEROGateway
 	private void handleException(Throwable t, String message)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		handleConnectionException(t);
+		boolean b = handleConnectionException(t);
+		if (!b) return;
 		if (!connected) return;
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
@@ -883,10 +886,12 @@ class OMEROGateway
 	 * the login/logout methods.
 	 *  
 	 * @param e The exception to handle.
+	 * @return <code>true</code> to continue handling the error,
+	 * <code>false</code> otherwise.
 	 */
-	void handleConnectionException(Throwable e)
+	boolean handleConnectionException(Throwable e)
 	{
-		if (!connected) return;
+		if (!connected) return false;
 		Throwable cause = e.getCause();
 		int index = -1;
 		if (cause instanceof ConnectionLostException ||
@@ -906,7 +911,9 @@ class OMEROGateway
 		if (index >= 0) {
 			connected = false;
 			dsFactory.sessionExpiredExit(index, cause);
+			return false;
 		}
+		return true;
 	}
 	
 	
@@ -924,7 +931,8 @@ class OMEROGateway
 	private void handleFSException(Throwable t, String message) 
 		throws FSAccessException
 	{
-		handleConnectionException(t);
+		boolean b = handleConnectionException(t);
+		if (!b) return;
 		if (!connected) return;
 		Throwable cause = t.getCause();
 		String s = "\nImage not ready. Please try again later.";
@@ -1722,12 +1730,14 @@ class OMEROGateway
 	 * Returns the {@link RenderingEnginePrx Rendering service}.
 	 * 
 	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private RenderingEnginePrx getRenderingService(SecurityContext ctx)
+	private RenderingEnginePrx getRenderingService(SecurityContext ctx, long 
+			pixelsID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
@@ -1735,7 +1745,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			RenderingEnginePrx prx = c.getRenderingService();
+			RenderingEnginePrx prx = c.getRenderingService(pixelsID);
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Rendering Engine.");
@@ -2298,6 +2308,7 @@ class OMEROGateway
 				connector = new Connector(ctx, secureClient, entryEncrypted,
 						encrypted);
 				connectors.add(connector);
+				serverVersion = getConfigService().getVersion();
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(ctx, exp, groupID);
@@ -2423,7 +2434,7 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			return getConfigService().getVersion();
+			return serverVersion;
 		} catch (Exception e) {
 			handleConnectionException(e);
 			String s = "Can't retrieve the server version.\n\n";
@@ -2477,24 +2488,18 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the pixels id corresponding to the Rendering engine to
-	 * reactivate.
+	 * Returns the rendering engines to re-activate.
 	 * 
 	 * @return See above.
 	 */
-	List<Long> getRenderingServices()
+	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		List<Long> l = new ArrayList<Long>();
-		//TODO: review 
-		/*
-		if (reServices == null || reServices.size() == 0) return l;
-		Entry entry;
-		Iterator i = reServices.entrySet().iterator();
+		Map<SecurityContext, Set<Long>> l = 
+			new HashMap<SecurityContext, Set<Long>>();
+		Iterator<Connector> i = connectors.iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			l.add((Long) entry.getKey());
+			l.putAll(i.next().getRenderingEngines());
 		}
-		*/
 		return l;
 	}
 	
@@ -3215,11 +3220,9 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		RenderingEnginePrx service = null;
 		try {
-			service = getRenderingService(ctx);
+			service = getRenderingService(ctx, pixelsID);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
-			//TO be reviewed. For server 
-			//reServices.put(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
@@ -3520,6 +3523,56 @@ class OMEROGateway
 			return results;
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);
+	}
+	
+	/**
+	 * Finds the links if any between the specified parent and children.
+	 * 
+	 * @param ctx The security context.
+	 * @param childID The id of the child.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	Set<DataObject> findPlateFromImage(SecurityContext ctx, long childID, 
+			long userID)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		Set<DataObject> data = new HashSet<DataObject>();
+		List<Long> ids = new ArrayList<Long>();
+		ParametersI param = new ParametersI();
+		param.addLong("imageID", childID);
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+        sb.append("where img.id = :imageID");
+        IQueryPrx service = getQueryService(ctx);
+        try {
+            List results = service.findAllByQuery(sb.toString(), param);
+    		Iterator i = results.iterator();
+    		Well well;
+    		Plate plate;
+    		long id;
+    		while (i.hasNext()) {
+    			well = (Well) i.next();
+    			plate = well.getPlate();
+    			id = plate.getId().getValue();
+    			if (!ids.contains(id)) {
+    				data.add(PojoMapper.asDataObject(plate));
+    				ids.add(id);
+    			}
+    		}
+		} catch (Throwable t) {
+			handleException(t, "Cannot find the plates containing the image.");
+		}
+		
+		return data;
 	}
 
 	/**

@@ -152,14 +152,6 @@ class ImporterComponent
 		controller.initialize(view);
 		view.initialize(model, controller);
 	}
-
-	/**
-	 * Returns <code>true</code> if the agent is the entry point
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isMaster() { return model.isMaster(); }
 	
 	/** 
 	 * Indicates that the group has been successfully switched if 
@@ -287,12 +279,16 @@ class ImporterComponent
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
-				boolean b = chooser.reloadHierarchies();//element.getData().hasNewObjects();
+				//boolean b = chooser.reloadHierarchies();//element.getData().hasNewObjects();
 				if (markToclose) {
 					view.setVisible(false);
 					fireStateChange();
 					return;
 				}
+				element = view.getElementToStartImportFor();
+				if (element != null) 
+					importData(element);
+				/*
 				if (!b) {
 					element = view.getElementToStartImportFor();
 					if (element != null) 
@@ -305,7 +301,17 @@ class ImporterComponent
 						rootType = ScreenData.class;
 					model.fireContainerLoading(rootType, true);
 				}
+				*/
 			}	
+			fireStateChange();
+		}
+		if (!hasOnGoingImport() && chooser.reloadHierarchies()) {
+			//reload the hierarchies.
+			Class rootType = ProjectData.class;
+			if (chooser != null && 
+					chooser.getType() == Importer.SCREEN_TYPE)
+				rootType = ScreenData.class;
+			model.fireContainerLoading(rootType, true);
 			fireStateChange();
 		}
 	}
@@ -719,5 +725,11 @@ class ImporterComponent
 		Registry reg = ImporterAgent.getRegistry();
 		reg.getEventBus().post(new LogOff());
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#isMaster()
+	 */
+	public boolean isMaster() { return model.isMaster(); }
 
 }

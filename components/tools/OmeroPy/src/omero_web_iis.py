@@ -24,6 +24,7 @@ CWD = os.path.dirname(__file__)
 OMERO_HOME = os.path.join(CWD, os.path.pardir, os.path.pardir)
 CONFIG = os.path.join(OMERO_HOME, "etc", "grid", "config.xml")
 LOGS = os.path.join(OMERO_HOME, "var", "log")
+STATICS = os.path.join(OMERO_HOME, "lib", "python", "omeroweb", "static")
 
 sys.path.append(str(CWD))
 sys.path.append(str(os.path.join(CWD, 'omeroweb')))
@@ -75,16 +76,21 @@ if __name__ == '__main__':
     from isapi.install import *
     params = ISAPIParameters()
     # Setup the virtual directories - this is a list of directories our
-    # extension uses - in this case only 1.
-    # Each extension has a "script map" - this is the mapping of ISAPI
-    # extensions.
+    # extension uses - in this case only 2.
+    # The OMERO.web application extension has a "script map" - this is the
+    # mapping of ISAPI extensions.
     sm = [
         ScriptMapParams(Extension="*", Flags=0)
     ]
-    vd = VirtualDirParameters(Name="/",
+    vd1 = VirtualDirParameters(Name="/omero",
                               Description = "ISAPI-WSGI OMERO.web",
                               ScriptMaps = sm,
                               ScriptMapUpdate = "replace"
                               )
-    params.VirtualDirs = [vd]
+    vd2 = VirtualDirParameters(Name="/static",
+                              Description = "OMERO.web static files",
+                              Path=STATICS,
+                              AccessRead=True,
+                              )
+    params.VirtualDirs = [vd1, vd2]
     HandleCommandLine(params)

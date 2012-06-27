@@ -27,6 +27,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
@@ -61,6 +64,8 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
 
@@ -78,7 +83,7 @@ import pojos.GroupData;
  * @since 3.0-Beta3
  */
 class EditorControl
-	implements ActionListener, ChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
 	/** Identifies the <code>Close Editor</code> Action. */
@@ -204,6 +209,13 @@ class EditorControl
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { model.close(); }
 		});
+		if (UIUtilities.isMacOS() && model.isMaster()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {}
+        }
 	}
 	
 	/**
@@ -305,6 +317,21 @@ class EditorControl
 					model.setUserGroup(((GroupData) o.getData()).getId());
 				}
 			}
+		}
+	}
+
+	/**
+	 * Handles property changes.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Action a = getAction(CLOSE_EDITOR);
+			ActionEvent event = 
+				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+			a.actionPerformed(event);
 		}
 	}
 

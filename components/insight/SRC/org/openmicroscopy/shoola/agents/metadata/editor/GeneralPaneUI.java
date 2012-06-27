@@ -26,16 +26,11 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -141,9 +136,7 @@ class GeneralPaneUI
 	private void loadParents(boolean b)
 	{
 		if (b) controller.loadParents();
-		else {
-			model.cancelParentsLoading();
-		}
+		else model.cancelParentsLoading();
 	}
 	
     /** Initializes the UI components. */
@@ -297,7 +290,7 @@ class GeneralPaneUI
 		//TableLayout layout = (TableLayout) content.getLayout();
 		
 		double h = 0;
-		String s = "";
+		String s = Browser.TITLE;
 		boolean multi = model.isMultiSelection();
 		Object refObject = model.getRefObject();
 		if (refObject instanceof TagAnnotationData) {
@@ -308,7 +301,6 @@ class GeneralPaneUI
 			} else {
 				if (!multi) {
 					h = 1;
-					s = "Contained in Tag Sets";
 				}
 			}
 		} else if (refObject instanceof FileAnnotationData) {
@@ -319,12 +311,10 @@ class GeneralPaneUI
 		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = 1;
-				s = "Contained in Projects";
 			}
 		} else if (refObject instanceof ImageData) {
 			if (!multi) {
 				h = 1;
-				s = "Contained in Datasets";
 				controller.loadChannelData();
 			}
 		} else if (refObject instanceof WellSampleData) {

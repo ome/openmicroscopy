@@ -659,8 +659,8 @@ class MetadataViewerComponent
 		if (ho != null && ho instanceof DataObject) {
 			model.loadParents(ho.getClass(), ((DataObject) ho).getId());
 			setStatus(true);
-			firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.FALSE, 
-					Boolean.TRUE);
+			firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.valueOf(false),
+					Boolean.valueOf(true));
 		}
 	}
 

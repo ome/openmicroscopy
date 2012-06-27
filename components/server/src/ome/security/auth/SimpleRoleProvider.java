@@ -129,8 +129,10 @@ public class SimpleRoleProvider implements RoleProvider {
                     + " found for " + foundUser);
         } else {
             // May throw an exception
-            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator()
-                    .next());
+            GroupExperimenterMap newDef = foundMaps.iterator().next();
+            log.info(String.format("Changing default group for user %s to %s",
+                    foundUser.getId(), group.getId()));
+            foundUser.setPrimaryGroupExperimenterMap(newDef);
         }
 
         // TODO: May want to move this outside the loop
@@ -158,6 +160,9 @@ public class SimpleRoleProvider implements RoleProvider {
                 added.add(foundGroup.getName());
             }
         }
+
+        fixDefaultGroup(foundUser, session);
+
     }
 
     public void removeGroups(Experimenter user, ExperimenterGroup... groups) {
@@ -194,6 +199,9 @@ public class SimpleRoleProvider implements RoleProvider {
                 removed.add(p.getName());
             }
         }
+
+        fixDefaultGroup(foundUser, session);
+
         session.flush();
     }
 
@@ -279,4 +287,32 @@ public class SimpleRoleProvider implements RoleProvider {
         return (ExperimenterGroup) s.load(ExperimenterGroup.class, id);
     }
 
+    private void fixDefaultGroup(Experimenter u, Session s) {
+        ExperimenterGroup g = shouldBeDefault(u, s);
+        if (g != null) {
+            setDefaultGroup(u, g);
+        }
+    }
+
+    /**
+     * If the "user" group is the first element of the list of groups that this
+     * user is a member of, then check if there's a second value which could be
+     * used as the default instead.
+     *
+     * @param userId
+     * @param s
+     * @return
+     */
+    private ExperimenterGroup shouldBeDefault(Experimenter usr, Session s) {
+        List<ExperimenterGroup> grps = usr.linkedExperimenterGroupList();
+        if (grps.size() >= 2) {
+            // If there are either no groups, or no alternatives so there's
+            // nothing we need to check.
+            final String USER = sec.getSecurityRoles().getUserGroupName();
+            if (USER.equals(grps.get(0).getName())) {
+                return grps.get(1);
+            }
+        }
+        return null;
+    }
 }

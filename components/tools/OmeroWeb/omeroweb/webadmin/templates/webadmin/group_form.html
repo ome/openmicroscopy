@@ -43,20 +43,20 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var highlightDefaultGroup = function() {
-                    var experimenterDefaultIds = [{{ experimenterDefaultGroups }}];
-                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if ($.inArray(parseInt(item.value), experimenterDefaultIds) > -1) {
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-default').find("a").first().unbind("click").remove();                            
-                        }
-                    });
-                }
                 
                 $("#id_owners").chosen({placeholder_text:'Choose one or more owners'});
-                $("#id_members").chosen({placeholder_text:'Choose one or more members'});
-                
-                highlightDefaultGroup();
-                
+                $("#id_members").chosen({placeholder_text:'Choose one or more members'}).change(function(evt, data) {
+                    if (data && data.deselected) {
+                        var selected = $.grep($('#id_owners').data('chosen').results_data, function(item){
+                            if(item.selected && item.value === data.deselected) {
+                                $('#id_owners option[value='+data.deselected+']').prop('selected', false);
+                                $("#id_owners").trigger("liszt:updated");
+                            }
+                        });
+                        
+                    }
+                });
+
                 {% if gid %}
                 {% ifnotequal permissions 0 %}
                     $('#id_permissions_0').attr('disabled', true);

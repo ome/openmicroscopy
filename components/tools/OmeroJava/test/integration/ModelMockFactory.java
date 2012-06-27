@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -279,8 +280,11 @@ public class ModelMockFactory
     {
         // prepare data
         Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-image:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        img.setName(rstring(uniqueName));
+        img.setDescription(rstring(uniqueDesc));
         img.setAcquisitionDate(rtime(time));
         return img;
     }

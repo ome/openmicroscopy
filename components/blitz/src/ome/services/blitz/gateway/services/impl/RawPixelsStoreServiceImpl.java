@@ -83,7 +83,7 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getPlaneSize(long)
 	 */
-	public synchronized int getPlaneSize(long pixelsId) throws 
+	public synchronized long getPlaneSize(long pixelsId) throws 
 			omero.ServerError
 	{
 		setPixelsId(pixelsId, false);
@@ -103,7 +103,7 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getStackSize(long)
 	 */
-	public synchronized int getStackSize(long pixelsId) throws 
+	public synchronized long getStackSize(long pixelsId) throws 
 			omero.ServerError
 	{
 		setPixelsId(pixelsId, false);
@@ -113,7 +113,7 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getTimepointSize(long)
 	 */
-	public synchronized int getTimepointSize(long pixelsId) throws 
+	public synchronized long getTimepointSize(long pixelsId) throws 
 			omero.ServerError
 	{
 		setPixelsId(pixelsId, false);
@@ -123,7 +123,7 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getTotalSize(long)
 	 */
-	public synchronized int getTotalSize(long pixelsId) throws 
+	public synchronized long getTotalSize(long pixelsId) throws 
 			omero.ServerError
 	{
 		setPixelsId(pixelsId, false);

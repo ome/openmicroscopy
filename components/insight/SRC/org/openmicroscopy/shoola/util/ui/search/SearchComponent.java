@@ -158,7 +158,7 @@ public class SearchComponent
     static final Dimension  		H_SPACER_SIZE = new Dimension(5, 10);
     
 	/** The UI with all the search fields. */
-	private SearchPanel 			uiDelegate;
+	protected SearchPanel 			uiDelegate;
 	
 	/** Button to close the dialog. */
 	private JButton					cancelButton;
@@ -188,10 +188,10 @@ public class SearchComponent
 	private JComponent				resultPane;
 	
 	/** The list of groups.*/
-	private Collection<GroupData> groups;
+	protected Collection<GroupData> groups;
 	
 	/** The groups to handle.*/
-	private List<GroupContext> groupsContext;
+	protected List<GroupContext> groupsContext;
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -472,7 +472,8 @@ public class SearchComponent
 	 */
 	List<GroupContext> getGroups()
 	{ 
-		if (groupsContext != null) return groupsContext;
+		if (groupsContext != null && groupsContext.size() > 0)
+			return groupsContext;
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		GroupContext gc;

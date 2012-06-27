@@ -29,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -390,24 +391,40 @@ public class DataServicesFactory
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
-					List<Long> l = omeroGateway.getRenderingServices();
+					Map<SecurityContext, Set<Long>> l =
+						omeroGateway.getRenderingEngines();
 					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
             				uc.getPassword());
 					connectionDialog = null;
 					if (b) {
 						//reactivate the rendering engine. Need to review that
-						Iterator<Long> i = l.iterator();
+						Iterator<Entry<SecurityContext, Set<Long>>> i =
+							l.entrySet().iterator();
 						OmeroImageService svc = registry.getImageService();
 						Long id;
-						List<Long> failure = new ArrayList<Long>();
+						Entry<SecurityContext, Set<Long>> entry;
+						Map<SecurityContext, List<Long>> 
+						failure = new HashMap<SecurityContext, List<Long>>();
+						Iterator<Long> j;
+						SecurityContext ctx;
+						List<Long> f;
 						while (i.hasNext()) {
-							id = i.next();
-							try {
-								//svc.reloadRenderingService(id);
-							} catch (Exception e) {
-								failure.add(id);
+							entry = i.next();
+							j = entry.getValue().iterator();
+							ctx = entry.getKey();
+							while (j.hasNext()) {
+								id = j.next();
+								try {
+									svc.reloadRenderingService(ctx, id);
+								} catch (Exception e) {
+									f = failure.get(ctx);
+									if (f == null) {
+										f = new ArrayList<Long>();
+										failure.put(ctx, f);
+									}
+									f.add(id);
+								}
 							}
-							failure.add(id);
 						}
 						message = "You are reconnected to the server.";
 						un.notifyInfo("Reconnection Success", message);

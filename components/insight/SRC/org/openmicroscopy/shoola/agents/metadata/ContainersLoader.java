@@ -86,7 +86,7 @@ public class ContainersLoader
 	 * 				 Mustn't be <code>null</code>.
 	 * @param ctx The security context.
 	 * @param type   The data type of the edited object.
-	 * @param id     The id of the currently edited object.	
+	 * @param id     The id of the currently edited object.
 	 */
 	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
 			Class type, long id)
@@ -97,7 +97,7 @@ public class ContainersLoader
 	}
 	
 	/** 
-	 * Loads the folders containing the object. 
+	 * Loads the folders containing the object.
 	 * @see MetadataLoader#cancel()
 	 */
 	public void load()
@@ -106,7 +106,7 @@ public class ContainersLoader
 	}
 	
 	/** 
-	 * Cancels the data loading. 
+	 * Cancels the data loading.
 	 * @see MetadataLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
@@ -120,5 +120,5 @@ public class ContainersLoader
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.setContainers(refNode, result);
     }
-    
+
 }

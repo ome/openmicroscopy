@@ -145,7 +145,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         // If this isn't available, it won't be possible for this instance
         // to be registered with
         Map<String, String> adjustedCtx = new HashMap<String, String>(current.ctx);
-        adjustedCtx.put("omero.session", current.id.category);
+        adjustedCtx.put(omero.constants.SESSIONUUID.value, current.id.category);
 
         final Ice.ObjectPrx prx = sf.getAdapter().createProxy(
                 Ice.Util.stringToIdentity("PublicRepository-" + repo));

@@ -1111,7 +1111,6 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-		
 		//wrap();
 		descriptionPane.setCaretPosition(0);
 		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -1340,14 +1339,14 @@ class PropertiesUI
 		originalDisplayedName = originalName;
 		originalDescription = model.getRefObjectDescription();
 		namePane.getDocument().removeDocumentListener(this);
-		//descriptionPane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
 		idLabel.setText("");
 		ownerLabel.setText("");
 		namePane.setText(originalName);
+		if (originalDescription == null || originalDescription.length() == 0)
+			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
-		//descriptionPane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
 		channelsArea.setText("");
 	}
@@ -1451,10 +1450,8 @@ class PropertiesUI
 			String text = descriptionPane.getText();
 			editDescription.setEnabled(true);
 			if (text == null || text.trim().length() == 0) {
-				//descriptionPane.getDocument().removeDocumentListener(this);
 				descriptionPane.removeDocumentListener(this);
 				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
-				//descriptionPane.getDocument().addDocumentListener(this);
 				descriptionPane.addDocumentListener(this);
 				firePropertyChange(EditorControl.SAVE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
