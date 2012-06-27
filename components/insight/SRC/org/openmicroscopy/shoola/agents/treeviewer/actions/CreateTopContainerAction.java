@@ -130,7 +130,7 @@ public class CreateTopContainerAction
      * <code>Experimenter</code>. 
      */
     private static final String DESCRIPTION_EXPERIMENTER = 
-    							"Create a new experimenter.";
+    							"Create a new user.";
     
     /** The type of node to create. */
     private int nodeType;
