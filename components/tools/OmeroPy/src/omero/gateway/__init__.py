@@ -1640,6 +1640,8 @@ class _BlitzGateway (object):
                         self._resetOmeroClient()
                     s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
+                    self.SERVICE_OPTS = ServiceOptsDict(
+                            self.c.getImplicitContext().getContext())
                     logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
