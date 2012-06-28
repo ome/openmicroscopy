@@ -59,6 +59,14 @@ public class ClosableTabbedPane
 	/** Bound property indicating that an element has been closed. */
 	public static final String	CLOSE_TAB_PROPERTY = "closeTab";
 	
+	/** Creates the customized UI.*/
+	private void createUI()
+	{
+		ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI(this);
+    	setUI(ui);
+    	addMouseMotionListener(ui);
+	}
+	
 	/**
      * Creates an empty <code>TabbedPane</code> with a default
      * tab placement of <code>JTabbedPane.TOP</code>.
@@ -96,10 +104,8 @@ public class ClosableTabbedPane
     public ClosableTabbedPane(int tabPlacement, int tabLayoutPolicy)
     {
     	super(tabPlacement, tabLayoutPolicy);
-    	ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI(this);
-    	setUI(ui);
+    	createUI();
     	setFocusable(false);
-    	addMouseMotionListener(ui);
     	addChangeListener(this);
     	//Since user can change the font while the application is running
     	//add a listener
@@ -164,8 +170,12 @@ public class ClosableTabbedPane
 		if (c instanceof ClosableTabbedPaneComponent) {
 			firePropertyChange(CLOSE_TAB_PROPERTY, null, c);
 		}
+		if (ui instanceof ClosableTabbedPaneUI) {
+			((ClosableTabbedPaneUI) ui).resetDefault();
+		} else {
+			createUI();
+		}
 		super.removeTabAt(index);
-		((ClosableTabbedPaneUI) ui).resetDefault();
 		int n = getTabCount();
 		if (n == 0) return;
 
@@ -195,8 +205,13 @@ public class ClosableTabbedPane
 			setSelectedComponent(component);
 			return;
 		}
+		if (ui instanceof ClosableTabbedPaneUI) {
+			((ClosableTabbedPaneUI) ui).resetDefault();
+		} else {
+			createUI();
+		}
 		super.insertTab(title, icon, component, tip, getTabCount());
-		((ClosableTabbedPaneUI) ui).resetDefault();
+		
 	}
 	
 	/**
@@ -229,10 +244,8 @@ public class ClosableTabbedPane
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (UIUtilities.HINTS_PROPERTY.equals(name)) {
-			ClosableTabbedPaneUI ui = (ClosableTabbedPaneUI) getUI();
-			ui.setTab(this);
-		}
+		if (UIUtilities.HINTS_PROPERTY.equals(name))
+			createUI();
 	}
 	
 }
