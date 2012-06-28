@@ -19,9 +19,9 @@
 #
 
 # Versions
-PREVDBVERS ?= OMERO4.2
+PREVDBVERS ?= OMERO4.3
 PREVDBPATCH ?= 0
-CURRDBVERS ?= OMERO4.3
+CURRDBVERS ?= OMERO4.4RC1
 CURRDBPATCH ?= 0
 PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
 CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
@@ -113,7 +113,7 @@ $(TARGET)/$(FRESH).db: $(TARGET)/$(FRESH).sql
 
 $(TARGET)/$(FRESH).sql:
 	mkdir -p $(TARGET)
-	$(OMERO_EXE) db script -f $(TARGET)/$(FRESH).sql "" "" ome
+	$(OMERO_EXE) db script -f $(TARGET)/$(FRESH).sql "$(CURRDBVERS)" "$(CURRDBPATCH)" ome
 
 
 ##################################################
