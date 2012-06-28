@@ -124,7 +124,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         throw new NullPointerException("In memory planar buffers have no path.");
     }
 
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size,
+    public Long getHypercubeSize(List<Integer> offset, List<Integer> size,
             List<Integer> step) throws DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException(
@@ -184,9 +184,9 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         return buffer;
     }
 
-    public Integer getPlaneSize()
+    public Long getPlaneSize()
     {
-        return pixels.getSizeX() * pixels.getSizeY() * getByteWidth();
+        return (long) pixels.getSizeX() * (long) pixels.getSizeY() * getByteWidth();
     }
 
     public PixelData getRegion(Integer size, Long offset) throws IOException
@@ -297,7 +297,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
             "Not supported with in memory planar buffers.");
     }
 
-    public Integer getStackSize()
+    public Long getStackSize()
     {
         return getPlaneSize() * pixels.getSizeZ();
     }
@@ -323,12 +323,12 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
             "Not supported with in memory planar buffers.");
     }
 
-    public Integer getTimepointSize()
+    public Long getTimepointSize()
     {
         return getStackSize() * pixels.getSizeC();
     }
 
-    public Integer getTotalSize()
+    public Long getTotalSize()
     {
         return getTimepointSize() * pixels.getSizeT();
     }

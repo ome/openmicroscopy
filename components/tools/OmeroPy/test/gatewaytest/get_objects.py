@@ -19,8 +19,6 @@ class DeleteObjectTest (lib.GTest):
         self.TESTIMG = self.getTestImage()
 
     def testDeleteAnnotation(self):
-
-        self.loginAsAuthor()
         image = self.TESTIMG
 
         # create Tag on Image and try to delete Tag
@@ -30,49 +28,44 @@ class DeleteObjectTest (lib.GTest):
         tag.setValue("Test Delete Tag")
         tag = image.linkAnnotation(tag)
         tagId = tag.getId()
-
-
         self.gateway.deleteObjects("Annotation", [tagId])
         time.sleep(5)   # time enough for delete queue
-
         self.assertEqual(None, self.gateway.getObject("Annotation", tagId))
 
     def testDeleteImage(self):
-        
-        self.loginAsAuthor()
-        
         image = self.TESTIMG
         imageId = image.getId()
         project = self.getTestProject()
         projectId = project.getId()
         ns = "omero.gateway.test.get_objects.test_delete_image_comment"
         ns_tag = "omero.gateway.test.get_objects.test_delete_image_tag"
-        
+
         # create Comment
         ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
         ann.setNs(ns)
         ann.setValue("Test Comment")
         ann = image.linkAnnotation(ann)
+
         # create Tag
         tag = omero.gateway.TagAnnotationWrapper(self.gateway)
         tag.setNs(ns_tag)
         tag.setValue("Test Tag")
         tag = image.linkAnnotation(tag)
-        
+
         # check the Comment 
         self.assertTrue(self.gateway.getObject("Annotation", ann.id) != None)
         self.assertTrue(self.gateway.getObject("Annotation", tag.id) != None)
-        
+
         # check Image, delete (wait) and check
         self.assertTrue(self.gateway.getObject("Image", imageId) != None)
         self.gateway.deleteObjects("Image", [imageId])
         time.sleep(5)   # time enough for delete queue
         self.assertTrue(self.gateway.getObject("Image", imageId) == None)
-        
+
         # Comment should be deleted but not the Tag (becomes orphan)
         self.assertTrue(self.gateway.getObject("Annotation", ann.id) == None)
         self.assertTrue(self.gateway.getObject("Annotation", tag.id) != None)
-        
+
         # Add the tag to project and delete (with Tags)
         self.assertTrue(self.gateway.getObject("Project", projectId) != None)
         project.linkAnnotation(tag)
@@ -82,10 +75,10 @@ class DeleteObjectTest (lib.GTest):
         time.sleep(5)   # time enough for delete queue
         self.assertTrue(self.gateway.getObject("Project", projectId) == None)
         self.assertTrue(self.gateway.getObject("Annotation", tag.id) == None) # Tag should be gone
+
         # check datasets gone too
         for dId in datasetIds:
             self.assertTrue(self.gateway.getObject("Dataset", dId) == None)
-
 
 class FindObjectTest (lib.GTest):
 
@@ -94,11 +87,7 @@ class FindObjectTest (lib.GTest):
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
 
-
     def testFindProject(self):
-
-        self.loginAsAuthor()
-
         project = self.getTestProject()
         pName = project.getName()
 
@@ -109,10 +98,11 @@ class FindObjectTest (lib.GTest):
 
 
     def testFindExperimenter(self):
-
+        omeName = self.TESTIMG.getOwnerOmeName()
+        group = self.TESTIMG.getDetails().getGroup()
+        groupName = group.getName()
         self.loginAsAdmin()
 
-        omeName = self.TESTIMG.getOwnerOmeName()
         # findObjects
         findAuthor = list (self.gateway.getObjects("Experimenter", None, attributes={"omeName":omeName}) )
         self.assertTrue(len(findAuthor) == 1, "Did not find Experimenter by omeName")
@@ -124,18 +114,20 @@ class FindObjectTest (lib.GTest):
         self.assertEqual(author.omeName, omeName)
 
         # find group
-        group = self.TESTIMG.getDetails().getGroup()
-        groupName = group.getName()
         grp = self.gateway.getObject("ExperimenterGroup", None, attributes={"name":groupName})
         self.assertTrue(grp != None)
         self.assertEqual(grp.getName(), groupName)
 
-
     def testFindAnnotation(self):
-
-        # create Tag
-        find_ns = "omero.gateway.test.test_find_annotations"
+        # start by deleting any tag created by this method that may have been left behind
         tag_value = "FindThisTag"
+        find_ns = "omero.gateway.test.test_find_annotations"
+        find_tag = self.gateway.getObjects("Annotation", attributes={"textValue":tag_value,
+                                                                     "ns":find_ns})
+        for t in find_tag:
+            self.gateway.deleteObjectDirect(t._obj)
+        
+        # create Tag
         tag = omero.gateway.TagAnnotationWrapper(self.gateway)
         tag.setNs(find_ns)
         tag.setValue(tag_value)
@@ -171,6 +163,16 @@ class FindObjectTest (lib.GTest):
         commAnn.save()
         commId = commAnn.getId()
         fileAnn = omero.gateway.FileAnnotationWrapper(self.gateway)
+        # An original file object needs to be linked to the annotation or it will
+        # fail to be loaded on getObject(s).
+        fileObj = omero.model.OriginalFileI(False)
+        fileObj = omero.gateway.OriginalFileWrapper(self.gateway, fileObj)
+        fileObj.setName(omero.rtypes.rstring('a'))
+        fileObj.setPath(omero.rtypes.rstring('a'))
+        fileObj.setSha1(omero.rtypes.rstring('a'))
+        fileObj.setSize(omero.rtypes.rlong(0))
+        fileObj.save()
+        fileAnn.setFile(fileObj)
         fileAnn.save()
         fileId = fileAnn.getId()
         doubleAnn = omero.gateway.DoubleAnnotationWrapper(self.gateway)
@@ -242,13 +244,8 @@ class GetObjectTest (lib.GTest):
 
 
     def testSearchObjects(self):
-        self.loginAsAuthor()
-
         # search for Projects
-        #projects = list( self.gateway.searchProjects("weblitz") )   # method removed from blitz gateway
         pros = list( self.gateway.searchObjects(["Project"], "weblitz") )
-        #self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
-        #projectIds = [p.getId() for p in projects]
         for p in pros:
             #self.assertTrue(p.getId() in projectIds)
             self.assertEqual(p.OMERO_CLASS, "Project", "Should only return Projects")
@@ -265,8 +262,6 @@ class GetObjectTest (lib.GTest):
 
 
     def testListProjects(self):
-        self.loginAsAuthor()
-        
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
@@ -279,7 +274,7 @@ class GetObjectTest (lib.GTest):
         # filter by current user should get same as above.
         params.theFilter.ownerId = omero.rtypes.rlong(self.gateway.getEventContext().userId) # owned by 'author'
         pros = list( self.gateway.getObjects("Project", None, params) )
-        projects = list( self.gateway.listProjects(only_owned=True) )
+        projects = list( self.gateway.listProjects() )
         self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
         projectIds = [p.getId() for p in projects]
         for p in pros:
@@ -287,7 +282,6 @@ class GetObjectTest (lib.GTest):
 
 
     def testListExperimentersAndGroups(self):
-        self.loginAsAdmin()
         
         # experimenters
         # experimenters = list( self.gateway.listExperimenters() ) # removed from blitz gateway
@@ -372,8 +366,6 @@ class GetObjectTest (lib.GTest):
         ns = "omero.gateway.test.get_objects.test_get_annotations_comment"
         ns_tag = "omero.gateway.test.get_objects.test_get_annotations_tag"
         
-        self.loginAsAuthor()
-        
         # create Comment
         ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
         ann.setNs(ns)
@@ -387,12 +379,8 @@ class GetObjectTest (lib.GTest):
         dataset.linkAnnotation(tag)
         
         # get the Comment 
-        # a = self.gateway.getAnnotation(ann.id)   # method removed from blitz gateway
         annotation = self.gateway.getObject("CommentAnnotation", ann.id)
-        #self.assertEqual(a.id, annotation.id)
-        #self.assertEqual(a.ns, annotation.ns)
         self.assertEqual("Test Comment", annotation.textValue)
-        #self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
         self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
         
         # test getObject throws exception if more than 1 returned
@@ -489,7 +477,6 @@ class GetObjectTest (lib.GTest):
         
         
     def testGetProject (self):
-        self.loginAsAuthor()
         testProj = self.getTestProject()
         p = self.gateway.getObject("Project", testProj.getId())
         self.assertEqual(testProj.getName(), p.getName())

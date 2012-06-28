@@ -23,6 +23,8 @@
 <script>
     $(document).ready(function(){
 
+        var list_style = $("#groupList").get(0).style;
+
         $('body').click(function(event) {
             //if (event.target.id != 'groupsUsersButton') {
                 $("#groupList").css('visibility', 'hidden');
@@ -33,23 +35,54 @@
         $("#groupsUsersButton").click(function(e){
             // show menu
             $('#groupList').css('visibility', 'visible');
+            list_style.top = '0px';
             return false;
         });
         // on hover-out, hide drop-down menus
         $("#groupList").hover(function(){}, function(){
             $(this).css('visibility', 'hidden');
         });
+        
+        var DROPDOWN_HEIGHT = $(document).height()-100;
+        var h = $("#groupList").height() + 10;
+        var excess_h = h - DROPDOWN_HEIGHT;
 
-        // make sure any long list of users do not disappear off bottom of screen
-        $(".dropdown_menu ul ul").each(function(){
-            var top = $(this).offset().top;
-            var h = $(this).height();
+        // We scroll the Groups list via mouse position if it is too long to display
+        $("#listViewPort")
+            .mousemove(function(event){
+                if ($(event.target).hasClass('switch_to_group')) {
+                    var yPos = event.pageY - this.offsetTop;
+                    var yFraction = (yPos-20) / (DROPDOWN_HEIGHT - 50)
+                    if (yFraction > 1) yFraction = 1;
+                    if (yFraction < 0) yFraction = 0;
+                    var offset_h = (yFraction * excess_h) >> 0      // fast convert to int
+                    list_style.top = '-'+ offset_h + 'px';
+                }
+            })
+            .css({
+                'height': DROPDOWN_HEIGHT+'px'
+            })
+            .addClass("dropdown");
+
+        $("#groupList").css({
+            'position':'relative',
+            'top':'0px'
+        });
+        
+        // make sure any long list of Users do not disappear outside of dropdown viewport
+        $("#groupList ul").css({
+            'max-height': (DROPDOWN_HEIGHT-20)+'px'
+        });
+        var viewPort_bottom = DROPDOWN_HEIGHT + $('#listViewPort').offset().top;
+        $("#groupList").children("li").hover(function(){
+            var $ul = $(this).children('ul');
+            var h = $ul.height();
+            var top = $ul.offset().top;
             var bottom = top+h;
-            var winH = $(window).height();
-            var bottomOff = bottom-winH;
+            var bottomOff = bottom-viewPort_bottom;
             if (bottomOff > 0) {
                 bottomOff += 10;
-                $(this).css('top', '-'+bottomOff+'px');
+                $ul.css('top', '-'+bottomOff+'px');
             }
         });
 
@@ -74,6 +107,7 @@
 			<span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
         </div>
 
+        <div id="listViewPort">
         <ul id="groupList" class="sub_menu dropdown">
             {% for grp in groups %}
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
@@ -128,6 +162,7 @@
                 </li>
             {% endfor %}
         </ul>
+        </div>
     </li>
 </ul>
 {% endif %}

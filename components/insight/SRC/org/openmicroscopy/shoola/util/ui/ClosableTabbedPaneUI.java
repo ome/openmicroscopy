@@ -180,6 +180,14 @@ class ClosableTabbedPaneUI
 		initialize();
 	}
 	
+	/**
+	 * Resets the pane when the font is modified while the application
+	 * is running.
+	 * 
+	 * @param tabPane The pane this UI is for.
+	 */
+	void setTab(JTabbedPane tabPane) { this.tabPane = tabPane; }
+	
 	/** Clears the maps. */
 	void resetDefault()
 	{

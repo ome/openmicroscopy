@@ -455,8 +455,8 @@ public class PixelsService extends AbstractFileSystemService
      * @return
      */
     public boolean requiresPixelsPyramid(Pixels pixels) {
-        final int sizeX = pixels.getSizeX();
-        final int sizeY = pixels.getSizeY();
+        final long sizeX = pixels.getSizeX();
+        final long sizeY = pixels.getSizeY();
         final boolean requirePyramid = (sizeX * sizeY) > (sizes.getMaxPlaneWidth()*sizes.getMaxPlaneHeight());
         return requirePyramid;
     }
@@ -504,7 +504,8 @@ public class PixelsService extends AbstractFileSystemService
 	private void initPixelBuffer(RomioPixelBuffer pixbuf) throws IOException {
 		String path = getPixelsPath(pixbuf.getId());
 		createSubpath(path);
-		byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
+        Integer size = RomioPixelBuffer.safeLongToInteger(pixbuf.getPlaneSize());
+		byte[] padding = new byte[size - NULL_PLANE_SIZE];
 		FileOutputStream stream = new FileOutputStream(path);
 		try {
 			for (int z = 0; z < pixbuf.getSizeZ(); z++) {

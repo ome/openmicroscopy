@@ -142,7 +142,7 @@ class ChmodBaseTest (lib.GTest):
                 link.setParent(ds)
                 link.setChild(obj)
                 update = self.gateway.getUpdateService()
-                rv = update.saveObject(link)
+                rv = update.saveObject(link, self.gateway.SERVICE_OPTS)
             elif isinstance(obj, omero.model.Project):
                 ds = omero.model.DatasetI()
                 ds.setName(omero.rtypes.rstring("assertCanEdit"))
@@ -150,7 +150,7 @@ class ChmodBaseTest (lib.GTest):
                 link.setParent(obj)
                 link.setChild(ds)
                 update = self.gateway.getUpdateService()
-                rv = update.saveObject(link)
+                rv = update.saveObject(link, self.gateway.SERVICE_OPTS)
             else:
                 raise Exception("Unknown type: %s" % blitzObject)
             objectUsed = True
@@ -310,6 +310,7 @@ class CustomUsersTest (ChmodBaseTest):
 
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_ann_admin'])
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
@@ -475,14 +476,14 @@ class DefaultSetupTest (lib.GTest):
         # Login as Admin
         root_client = self.loginAsAdmin()
         user = self.gateway.getUser()
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         i = self.gateway.getObject("Image", imageId)
         self.assertTrue(i.canEdit(), "Admin can edit Author's image")
         self.assertTrue(i.canAnnotate(), "Admin can annotate Author's image")
         
         # Login as default "User" - NB: seems this user is not in same group as Author's image.
         self.loginAsUser()
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         i = self.gateway.getObject("Image", imageId)
         self.assertEqual(None, i, "User cannot access Author's image in Read-only group")
 

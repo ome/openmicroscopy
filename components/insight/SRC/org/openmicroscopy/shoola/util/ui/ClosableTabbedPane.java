@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -49,7 +53,7 @@ import javax.swing.event.ChangeListener;
  */
 public class ClosableTabbedPane
 	extends JTabbedPane
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that an element has been closed. */
@@ -97,6 +101,10 @@ public class ClosableTabbedPane
     	setFocusable(false);
     	addMouseMotionListener(ui);
     	addChangeListener(this);
+    	//Since user can change the font while the application is running
+    	//add a listener
+    	Toolkit tk = Toolkit.getDefaultToolkit();
+    	tk.addPropertyChangeListener(UIUtilities.HINTS_PROPERTY, this);
     }
     
     /** 
@@ -211,6 +219,19 @@ public class ClosableTabbedPane
 		for (int i = 0; i < getTabCount(); i++) {
 			if (getSelectedIndex() != i)
 				setBackgroundAt(i, getBackground());
+		}
+	}
+
+	/**
+	 * Reacts to font changes while the application is running.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (UIUtilities.HINTS_PROPERTY.equals(name)) {
+			ClosableTabbedPaneUI ui = (ClosableTabbedPaneUI) getUI();
+			ui.setTab(this);
 		}
 	}
 	

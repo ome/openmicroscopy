@@ -678,7 +678,9 @@ class UserProfile
             entry = (Entry) i.next();
             key = (String) entry.getKey();
             value = (String) entry.getValue();
-            label = EditorUtil.getLabel(key, false);
+            label = EditorUtil.getLabel(key, 
+            		EditorUtil.FIRST_NAME.equals(key) ||
+            		EditorUtil.LAST_NAME.equals(key));
             area = new JTextField(value);
             area.setBackground(UIUtilities.BACKGROUND_COLOR);
             area.setEditable(editable);
@@ -951,6 +953,27 @@ class UserProfile
 		JTextField field;
 		String v;
 		if (items.size() > 0) {
+			i = details.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				key = (String) entry.getKey();
+				field = items.get(key);
+				if (field != null) {
+					v = field.getText();
+					if (v != null) {
+						v = v.trim();
+						if (EditorUtil.FIRST_NAME.equals(key) ||
+							EditorUtil.LAST_NAME.equals(key)) {
+							if (v.length() == 0) {
+								saveButton.setEnabled(false);
+								return false;
+							}
+						}
+					}
+				}
+			}
+			
+			i = details.entrySet().iterator();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				key = (String) entry.getKey();

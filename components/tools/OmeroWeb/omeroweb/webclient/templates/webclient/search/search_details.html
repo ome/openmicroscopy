@@ -43,16 +43,38 @@
             var handleClickSelection = function(event) {
 
                 var $clickedRow = $(event.target).parents('tr:first');
-                var $clickedImage = $clickedRow.find('img');
-
                 var rows = $("table#dataTable tbody tr");
-                var $images = $("table#dataTable tbody tr td img");
-
-                var primaryIndex = -1;
                 var selIndex = rows.index($clickedRow.get(0));
                 
                 if ( event.shiftKey ) {
+                    // get existing selected items
+                    var $s = $("table#dataTable tbody tr.ui-selected");
+                    if ($s.length == 0) {
+                        $clickedRow.addClass("ui-selected");
+                        search_selection_changed($clickedRow);
+                        return;
+                    }
+                    var sel_start = rows.index($s.first());
+                    var sel_end = rows.index($s.last());
                     
+                    // select all rows between new and existing selections
+                    var new_start, new_end
+                    if (selIndex < sel_start) {
+                        new_start = selIndex
+                        new_end = sel_start
+                    } else if (selIndex > sel_end) {
+                        new_start = sel_end+1
+                        new_end = selIndex+1
+                    // or just from the first existing selection to new one
+                    } else {
+                        new_start = sel_start
+                        new_end = selIndex
+                    }
+                    for (var i=new_start; i<new_end; i++) {
+                        rows.eq(i).addClass("ui-selected");
+                    }
+                    // update right-hand panel
+                    multipleAnnotation($("table#dataTable tbody tr.ui-selected"), null, '{% url batch_annotate %}');
                 }
                 else if (event.metaKey) {
                     
@@ -60,8 +82,6 @@
                 else {
                     rows.removeClass("ui-selected");
                     $clickedRow.addClass("ui-selected");
-                    //var obj = $clickedRow.attr('id').split("-");
-                    primaryIndex = selIndex;
                     search_selection_changed($clickedRow);
                 }
             }
@@ -105,7 +125,7 @@
             </thead>
             <tbody>
             {% for c in manager.containers.projects %}
-                <tr id="project-{{ c.id }}">
+                <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
@@ -114,7 +134,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
-                <tr id="screen-{{ c.id }}">
+                <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
@@ -123,7 +143,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
-                <tr id="dataset-{{ c.id }}">
+                <tr id="dataset-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
@@ -132,7 +152,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
-                <tr id="plate-{{ c.id }}">
+                <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
@@ -141,7 +161,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
-                <tr id="image-{{ c.id }}">
+                <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>

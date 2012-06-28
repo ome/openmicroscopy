@@ -164,8 +164,7 @@ class GLImageCanvas
     	Dimension s = getSize();
     	int w = s.width; 
     	int h = s.height;
-    	image = new BufferedImage(w, h, 
-    			BufferedImage.TYPE_INT_ARGB);
+    	image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     	image.setRGB(0, 0, w, h, copyFrame(gl), 0, w);
     	savedFile = false;
     }
@@ -239,13 +238,12 @@ class GLImageCanvas
 	{
 		GL gl = drawable.getGL();
 		// Clear The Screen And The Depth Buffer
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		if (data == null) return;
 		if (texture == null) {
 			texture = TextureIO.newTexture(data);
 		} else {
 			texture.updateImage(data);
-
 		}
 		if (texture != null) {
 			drawScaleBar(gl, data.getWidth(), data.getHeight());

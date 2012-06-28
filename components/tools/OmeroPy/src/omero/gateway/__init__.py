@@ -1562,6 +1562,8 @@ class _BlitzGateway (object):
             self.c.sf.getAdminService().getEventContext()
         self.setSecure(self.secure)
         self.c.sf.detachOnDestroy()
+        self.SERVICE_OPTS = ServiceOptsDict(
+                self.c.getImplicitContext().getContext())
     
     def _closeSession (self):
         """
@@ -1633,6 +1635,8 @@ class _BlitzGateway (object):
                         self._resetOmeroClient()
                     s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
+                    self.SERVICE_OPTS = ServiceOptsDict(
+                            self.c.getImplicitContext().getContext())
                     logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
@@ -3636,6 +3640,16 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """ Not implemented """
         pass
 
+    def setFile (self, originalfile):
+        """
+        """
+        self._obj.file = omero.model.OriginalFileI(originalfile.getId(), False)
+
+    def setDescription (self, val):
+        """
+        """
+        self._obj.description = omero_type(val)
+
     def isOriginalMetadata(self):
         """
         Checks if this file annotation is an 'original_metadata' file
@@ -5581,7 +5595,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._onResetDefaults(re.getRenderingDefId(self._conn.SERVICE_OPTS))
         else:
             re.loadRenderingDef(rdid, ctx)
-        re.load()
+        re.load(ctx)
         return re
 
     def _prepareRenderingEngine (self, rdid=None):
@@ -5970,7 +5984,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             args = map(lambda x: rint(x), size)
             if pos is not None:
                 args = list(pos) + args
-            args += [self._conn.SERVICE_OPTS]
+            ctx = self._conn.SERVICE_OPTS.copy()
+            ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+            args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state

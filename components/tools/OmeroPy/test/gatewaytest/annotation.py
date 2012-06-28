@@ -192,6 +192,7 @@ class AnnotationsTest (lib.GTest):
         self.assertFalse(fileAnn.getId() in faIds)
         self.assertFalse(compAnn.getId() in faIds)
 
+        image = self.getTestImage()
         ann = image.getAnnotation(ns)
         annId = ann.getId()
         self.assertEqual(ann.OMERO_TYPE, omero.model.FileAnnotationI)

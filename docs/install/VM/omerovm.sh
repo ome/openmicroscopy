@@ -46,6 +46,7 @@ function installvm ()
 	$SCP setup_postgres.sh omero@localhost:~/
 	$SCP setup_environment.sh omero@localhost:~/
 	$SCP setup_omero.sh omero@localhost:~/
+	$SCP setup_nginx.sh omero@localhost:~/
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
 	$SCP omero-web-init.d omero@localhost:~/

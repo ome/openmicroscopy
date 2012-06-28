@@ -267,8 +267,7 @@ class TreeViewerWin
             	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
-            AdvancedFinder finder = model.getAdvancedFinder(
-            		model.getSecurityContext());
+            AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
     		searchPane = new TaskPaneBrowser(new JScrollPane(finder));
     		container.add(searchPane);
@@ -938,8 +937,7 @@ class TreeViewerWin
         		displayMode = TreeViewer.SEARCH_MODE;
         	splitPane.setDividerLocation(splitPane.getDividerLocation());
         	if (finderScrollPane == null) {
-        		AdvancedFinder finder = model.getAdvancedFinder(
-        				model.getSecurityContext());
+        		AdvancedFinder finder = model.getAdvancedFinder();
         		finder.addPropertyChangeListener(controller);
         		finderScrollPane = new JScrollPane(finder);
         	}
@@ -1097,7 +1095,6 @@ class TreeViewerWin
 			rightComponent = new JScrollPane(
 					model.getMetadataViewer().getEditorUI());
     	}
-			
 		if (metadataVisible) {
 			Component[] components = rightPane.getComponents();
 			if (components != null && components.length > 0) {
@@ -1119,6 +1116,25 @@ class TreeViewerWin
 			}
 		}
 		metadataVisible = !metadataVisible;
+	}
+	
+	/**
+	 * Resets the metadata viewer.
+	 * 
+	 * @return See above.
+	 */
+	MetadataViewer resetMetadataViewer()
+	{
+		MetadataViewer v = model.resetMetadataViewer();
+		if (rightComponent != null) rightPane.remove(rightComponent);
+		rightComponent = new JScrollPane(v.getEditorUI());
+		if (metadataVisible) {
+			rightPane.add(rightComponent);
+			if (dividerRightLocation > 0) 
+				rightPane.setDividerLocation(dividerRightLocation);
+			else rightPane.setResizeWeight(WEIGHT);
+		}
+		return v;
 	}
 	
 	/**

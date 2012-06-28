@@ -151,7 +151,7 @@ var multipleAnnotation = function(selected, index, prefix){
     if (selected != null && selected.length > 0) {
         var productListQuery = new Array(); 
         selected.each( function(i){
-            productListQuery[i] = {"id":$(this).attr('id').replace("-","=")};
+            productListQuery[i] = {"id":$(this).attr('id')};
             productListQuery[i]['class'] = $(this).attr('class');
         });
         var query = prefix+"?"+productListQuery.join("&")

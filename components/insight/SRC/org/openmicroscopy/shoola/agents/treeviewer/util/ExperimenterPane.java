@@ -180,18 +180,21 @@ class ExperimenterPane
             area.setEditable(true);
             if (EditorUtil.DISPLAY_NAME.equals(key)) {
             	label = EditorUtil.getLabel(key, true);
-            	area = nameArea;//area.getDocument().addDocumentListener(this);
+            	area = nameArea;
+            } else if (EditorUtil.FIRST_NAME.equals(key) ||
+            		EditorUtil.LAST_NAME.equals(key)) {
+            	label = EditorUtil.getLabel(key, true);
             } else label = UIUtilities.setTextFont(key);
             items.put(key, area);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 0.0;  
             content.add(label, c);
 
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
@@ -291,7 +294,7 @@ class ExperimenterPane
     ExperimenterPane(boolean passwordRequired, Collection<DataObject> available,
     		Collection<DataObject> selected)
     {
-    	this.passwordRequired = passwordRequired;
+    	this.passwordRequired = true;//passwordRequired;
     	initComponents(available, selected);
     	buildGUI();
     }
@@ -384,6 +387,27 @@ class ExperimenterPane
 	}
 	
 	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasLoginCredentials()
+	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		int count = 0;
+		if (s.length() != 0) count++;
+		field = items.get(EditorUtil.FIRST_NAME);
+		s = field.getText().trim();
+		if (s.length() != 0) count++;
+		field = items.get(EditorUtil.LAST_NAME);
+		s = field.getText().trim();
+		if (s.length() != 0) count++;
+		return count == 3;
+	}
+	
+	/**
 	 * Controls if criteria are met to create a new user.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -393,7 +417,7 @@ class ExperimenterPane
 		if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(name) ||
 				SelectionWizardUI.SELECTION_CHANGE.equals(name)) {
 			int count = 0;
-			if (isNameValid()) count++;
+			if (hasLoginCredentials()) count++;
 			StringBuffer buf = new StringBuffer();
 			buf.append(passwordField.getPassword());
 			String v = buf.toString();

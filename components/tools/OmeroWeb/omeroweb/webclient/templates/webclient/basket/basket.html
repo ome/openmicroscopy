@@ -169,10 +169,61 @@
                     }
                 }
             });
+
+            $("table#dataTable tbody tr").click(function(event) {
+                var $clickedRow = $(event.target).parents('tr:first');
+                var rows = $("table#dataTable tbody tr");
+                var selIndex = rows.index($clickedRow.get(0));
+                
+                if ( event.shiftKey ) {
+                    // get existing selected items
+                    var $s = $("table#dataTable tbody tr.ui-selected");
+                    if ($s.length == 0) {
+                        $clickedRow.addClass("ui-selected");
+                        search_selection_changed($clickedRow);
+                        return;
+                    }
+                    var sel_start = rows.index($s.first());
+                    var sel_end = rows.index($s.last());
+                    
+                    // select all rows between new and existing selections
+                    var new_start, new_end
+                    if (selIndex < sel_start) {
+                        new_start = selIndex
+                        new_end = sel_start
+                    } else if (selIndex > sel_end) {
+                        new_start = sel_end+1
+                        new_end = selIndex+1
+                    // or just from the first existing selection to new one
+                    } else {
+                        new_start = sel_start
+                        new_end = selIndex
+                    }
+                    for (var i=new_start; i<new_end; i++) {
+                        rows.eq(i).addClass("ui-selected");
+                    }
+                    // update right-hand panel
+                    multipleAnnotation($("table#dataTable tbody tr.ui-selected"), null, '{% url batch_annotate %}');
+                }
+                else if (event.metaKey) {
+                    
+                }
+                else {
+                    rows.removeClass("ui-selected");
+                    $clickedRow.addClass("ui-selected");
+                }
+                var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
+                $new_selected.each(function(){
+                    console.log(this);
+                    this.checked = true;
+                });
+                basket_selection_changed($new_selected);
+            });
             
             $("table#dataTable tbody").selectable({
                 filter: 'tr',
-                stop: function(){
+                distance: 2,
+                stop: function(event){
                     var l = $('tr.ui-selected', this).length;
                     $("tr.ui-selected td input", this).each(function(){
                         this.checked = true;
