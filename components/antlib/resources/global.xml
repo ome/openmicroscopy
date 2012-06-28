@@ -476,13 +476,14 @@ with OMERO.
         <macrodef name="scons_py" description="Scons build tool installed under omero.home/target">
             <attribute name="dir" default="${basedir}"/>
             <attribute name="failonerror" default="true"/>
+            <attribute name="pythonpath" default="${scons.PYTHONPATH}"/>
             <element name="args" implicit="yes"/>
             <sequential>
                 <property name="env.ARCH" value="detect"/>
                 <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
-                    <env key="PYTHONPATH" value="${scons.PYTHONPATH}"/>
+                    <env key="PYTHONPATH" value="@{pythonpath}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
                     <arg value="${omero.home}/target/scons/scons.py"/>
                     <arg value="-Q"/>

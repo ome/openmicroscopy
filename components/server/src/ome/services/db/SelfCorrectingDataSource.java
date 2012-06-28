@@ -7,6 +7,7 @@
 
 package ome.services.db;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,16 +17,19 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import ome.conditions.DatabaseBusyException;
+import ome.util.messages.UserSignalMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 
 /**
  * {@link DataSource} delegate which wraps the
  */
-public class SelfCorrectingDataSource extends DelegatingDataSource {
+public class SelfCorrectingDataSource extends DelegatingDataSource 
+    implements ApplicationListener<UserSignalMessage> {
 
     private final static Log log = LogFactory
             .getLog(SelfCorrectingDataSource.class);
@@ -62,6 +66,27 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
     public Connection getConnection(String username, String password)
             throws SQLException {
         return callWithRetries(username, password, true);
+    }
+
+    /**
+     * Handles the USR1 posix signal by calling close on the underlying
+     * {@link #getTargetDataSource() data source} via reflection. The
+     * assumption is that the next call to any methods will re-initialize
+     * the data source. This is the case with
+     * bitronix.tm.resource.jdbc.PoolingDataSource
+     *
+     * @see ticket:4210
+     */
+    public void onApplicationEvent(UserSignalMessage usm) {
+        if (usm.signal == 1) {
+            log.info("Received USR" + usm.signal + " - calling close()");
+            try {
+                Method m = getTargetDataSource().getClass().getMethod("close");
+                m.invoke(getTargetDataSource());
+            } catch (Exception e) {
+                log.error("Failed to close " + getTargetDataSource(), e);
+            }
+        }
     }
 
     // Helpers
@@ -140,4 +165,5 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
             return backOff;
         }
     }
+
 }
