@@ -387,24 +387,15 @@ public class ScreenLogin
 		user.addMouseListener(new MouseAdapter() {
 
 			/**
-			 * Selects the user's name if it exists.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e) {
-				if (user.getText() != null) 
-					user.selectAll();
-			}
-
-			/**
 			 * Fires a property to move the window to the front.
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false), 
+									Boolean.valueOf(true));
 				user.requestFocus();
-				if (user.getText() != null) 
-					user.selectAll();
+				//if (user.getText() != null) 
+				//	user.selectAll();
 			}
 
 		});
@@ -415,8 +406,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
 				//requestFocusOnField();
 			}
 		});
