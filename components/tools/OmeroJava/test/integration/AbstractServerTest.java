@@ -1001,7 +1001,7 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected DeleteReport singleDeleteWithReport(omero.client c, Delete dc)
+    protected DeleteRsp singleDeleteWithReport(omero.client c, Delete dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
@@ -1015,7 +1015,7 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteReport[] deleteWithReports(omero.client c, 
+    private DeleteRsp[] deleteWithReports(omero.client c, 
     		Delete...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
@@ -1023,13 +1023,10 @@ public class AbstractServerTest
         CmdCallbackI cb = callback(true, c, dc);
         // If the above passes, then we know it's not an ERR
         DoAllRsp all = (DoAllRsp) cb.getResponse();
-        DeleteReport[] reports = new DeleteReport[all.responses.size()];
+        DeleteRsp[] reports = new DeleteRsp[all.responses.size()];
         for (int i = 0; i < reports.length; i++)
         {
-            // DeleteRsp del = (DeleteRsp) all.responses.get(i);
-            // NOT YET! reports[i] = del.report;
-            reports[i] = new DeleteReport();
-            reports[i].undeletedFiles = new HashMap<String, long[]>();
+            reports[i] = (DeleteRsp) all.responses.get(i);
         }
         return reports;
     }

@@ -22,9 +22,8 @@ import omero.ResourceError;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Delete;
+import omero.cmd.DeleteRsp;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
@@ -168,7 +167,7 @@ public class DeleteServiceFilesTest
      * 
      * @param report The report from the delete operation
      */
-    private void assertNoUndeletedBinaries(DeleteReport report)
+    private void assertNoUndeletedBinaries(DeleteRsp report)
     {
         assertNoUndeletedThumbnails(report);
         assertNoUndeletedFiles(report);
@@ -180,7 +179,7 @@ public class DeleteServiceFilesTest
      * 
      * @param report The report from the delete operation
      */
-    private void assertNoUndeletedThumbnails(DeleteReport report)
+    private void assertNoUndeletedThumbnails(DeleteRsp report)
     {
         long[] tbIds = report.undeletedFiles.get(REF_THUMBNAIL);
         assertTrue(Arrays.toString(tbIds), tbIds == null || tbIds.length == 0);
@@ -191,7 +190,7 @@ public class DeleteServiceFilesTest
      * 
      * @param report The report from the delete operation
      */
-    private void assertNoUndeletedFiles(DeleteReport report)
+    private void assertNoUndeletedFiles(DeleteRsp report)
     {
         long[] fileIds = report.undeletedFiles.get(REF_ORIGINAL_FILE);
         assertTrue(Arrays.toString(fileIds), fileIds == null || 
@@ -203,7 +202,7 @@ public class DeleteServiceFilesTest
      * 
      * @param report The report from the delete operation
      */
-    private void assertNoUndeletedPixels(DeleteReport report)
+    private void assertNoUndeletedPixels(DeleteRsp report)
     {
         long[] pixIds = report.undeletedFiles.get(REF_PIXELS);
         assertTrue(Arrays.toString(pixIds), pixIds == null || 
@@ -253,7 +252,7 @@ public class DeleteServiceFilesTest
 	 * @throws ServerError
 	 * @throws InterruptedException
 	 */
-	private DeleteReport deleteWithReport(Delete dc)
+	private DeleteRsp deleteWithReport(Delete dc)
 	throws ApiUsageException, ServerError,
 	InterruptedException
 	{
@@ -454,7 +453,7 @@ public class DeleteServiceFilesTest
 		//Now check that the files have been created and then deleted.
 		assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE, 
 						img.getId().getValue(), null));
 		assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
@@ -475,7 +474,7 @@ public class DeleteServiceFilesTest
 		//Now check that the files have been created and then deleted.
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
 
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE,
 						img.getId().getValue(), null));
 		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID);
@@ -497,7 +496,7 @@ public class DeleteServiceFilesTest
 		assertFileExists(pix.getId().getValue(), REF_PIXELS);
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
 
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE,
 						img.getId().getValue(), null));
 		assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
@@ -521,7 +520,7 @@ public class DeleteServiceFilesTest
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
 
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE,
 						img.getId().getValue(), null));
 		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID);
@@ -564,7 +563,7 @@ public class DeleteServiceFilesTest
 
 		//Now check that the files have been created and then deleted.
 		assertFileExists(ofId, REF_ORIGINAL_FILE);
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE, 
 						img.getId().getValue(), null));
 		assertFileDoesNotExist(ofId, REF_ORIGINAL_FILE);
@@ -599,7 +598,7 @@ public class DeleteServiceFilesTest
 		//Now check that the files have NOT been created and then deleted.
 		assertFileDoesNotExist(pixId, REF_PIXELS);
 		assertFileDoesNotExist(ofId, REF_ORIGINAL_FILE);
-		DeleteReport report = deleteWithReport(
+		DeleteRsp report = deleteWithReport(
 				new Delete(DeleteServiceTest.REF_IMAGE,
 						img.getId().getValue(), null));
         assertNoUndeletedBinaries(report);
@@ -656,7 +655,7 @@ public class DeleteServiceFilesTest
 		}
 
 		//delete the image.
-		DeleteReport report = deleteWithReport(new Delete(
+		DeleteRsp report = deleteWithReport(new Delete(
 				DeleteServiceTest.REF_IMAGE, imageID, null));
 
 		assertNoUndeletedBinaries(report);
@@ -737,7 +736,7 @@ public class DeleteServiceFilesTest
 
 		loginUser(ownerCtx);
 		//Now try to delete the image.
-		DeleteReport report = deleteWithReport(new Delete(
+		DeleteRsp report = deleteWithReport(new Delete(
 				DeleteServiceTest.REF_IMAGE, imageID, null));
 		Iterator<Long> j = thumbIds.iterator();
 		while (j.hasNext()) {
@@ -810,7 +809,7 @@ public class DeleteServiceFilesTest
         assertFileExists(pix1.getId().getValue(), REF_PIXELS);
         assertFileExists(pix2.getId().getValue(), REF_PIXELS);
 
-        DeleteReport report = deleteWithReport(
+        DeleteRsp report = deleteWithReport(
                 new Delete(DeleteServiceTest.REF_DATASET, 
                 ds.getId().getValue(),
                 null));        
@@ -864,7 +863,7 @@ public class DeleteServiceFilesTest
         assertFileExists(of1.getId().getValue(), REF_ORIGINAL_FILE);
         assertFileExists(of2.getId().getValue(), REF_ORIGINAL_FILE);
 
-        DeleteReport report = deleteWithReport(
+        DeleteRsp report = deleteWithReport(
                 new Delete(DeleteServiceTest.REF_IMAGE,
                         img.getId().getValue(), null));
 
@@ -902,7 +901,7 @@ public class DeleteServiceFilesTest
         //Now check that the file has been created.
         assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
-        DeleteReport report = deleteWithReport(
+        DeleteRsp report = deleteWithReport(
                 new Delete(DeleteServiceTest.REF_DATASET,
                 ds.getId().getValue(),
                 null));
@@ -934,7 +933,7 @@ public class DeleteServiceFilesTest
         
         // create another user and try to delete the image
         newUserInGroup();
-        DeleteReport report = deleteWithReport(
+        DeleteRsp report = deleteWithReport(
                 new Delete(DeleteServiceTest.REF_IMAGE, 
                 img.getId().getValue(),
                 null));        

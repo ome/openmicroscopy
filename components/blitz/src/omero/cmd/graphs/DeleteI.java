@@ -21,8 +21,6 @@ package omero.cmd.graphs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.exception.ConstraintViolationException;
 
 import ome.services.delete.Deletion;
@@ -31,11 +29,11 @@ import ome.services.graphs.GraphException;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
 import omero.cmd.Delete;
+import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.OK;
 import omero.cmd.Response;
 
 /**
@@ -123,11 +121,19 @@ public class DeleteI extends Delete implements IRequest {
             try {
                 // We're outside of the tx now
                 delegate.deleteFiles();
-                
-                helper.setResponseIfNull(new OK());
             } finally {
                 delegate.stop();
             }
+
+            // Report after calling stop.
+            DeleteRsp rsp = new DeleteRsp();
+            rsp.actualDeletes = delegate.getActualDeletes();
+            rsp.scheduledDeletes = delegate.getScheduledDeletes();
+            rsp.steps = delegate.getSteps();
+            rsp.undeletedFiles = delegate.getUndeletedFiles();
+            rsp.warning = delegate.getWarning();
+            helper.setResponseIfNull(rsp);
+
         }
     }
     
