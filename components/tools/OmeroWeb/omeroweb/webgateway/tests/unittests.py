@@ -7,6 +7,8 @@ from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
 
+from decorators import login_required
+
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
@@ -44,6 +46,7 @@ def fakeRequest (**kwargs):
             'wsgi.multiprocess': True,
             'wsgi.multithread':  False,
             'wsgi.run_once':     False,
+            'wsgi.input':        None,
         }
         environ.update(self.defaults)
         environ.update(request)
@@ -64,12 +67,15 @@ def fakeRequest (**kwargs):
     return c.bogus_request(**kwargs)
 
 class WGTest (GTest):
-    def doLogin (self, user):
-        r = fakeRequest()
-        q = QueryDict('', mutable=True)
-        q.update({'username': user.name, 'password': user.passwd})
-        r.REQUEST.dicts += (q,)
-        self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
+    def doLogin (self, user=None):
+        self.gateway = None
+        if user:
+            r = fakeRequest()
+            q = QueryDict('', mutable=True)
+            q.update({'username': user.name, 'password': user.passwd})
+            r.REQUEST.dicts += (q,)
+            t = login_required(isAdmin=user.admin)
+            self.gateway = t.get_connection(1, r) #, group=user.groupname)
         if self.gateway is None:
             # If the login framework was customized (using this app outside omeroweb) the above fails
             super(WGTest, self).doLogin(user)
@@ -230,13 +236,19 @@ class WebGatewayCacheTest(unittest.TestCase):
 
     def testCacheSettings (self):
         uid = 123
-        empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
-        max_size = empty_size + 4 * cache_block + 1
-        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        #empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=0 )
+        cachestr = 'abcdefgh'*127
+        self.wcache._thumb_cache.wipe()
         for i in range(6):
-            self.wcache.setThumb(self.request, 'test', uid, i, 'abcdefgh'*127*cache_block)
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
+        max_size = self.wcache._thumb_cache._du()
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        self.wcache._thumb_cache.wipe()
+        for i in range(6):
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
         for i in range(4):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), 'abcdefgh'*127*cache_block,
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), cachestr,
                              'Key %d not properly cached' % i)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 5), None, 'Size limit failed')
         for i in range(10):
@@ -356,7 +368,7 @@ class JsonTest (WGTest):
 class UserProxyTest (WGTest):
     def test (self):
         self.loginAsAuthor()
-        user = self.gateway.user
+        user = self.gateway.getUser()
         self.assertEqual(user.isAdmin(), False)
         int(user.getId())
         self.assertEqual(user.getName(), self.AUTHOR.name)

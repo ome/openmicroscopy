@@ -3645,6 +3645,16 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """ Not implemented """
         pass
 
+    def setFile (self, originalfile):
+        """
+        """
+        self._obj.file = omero.model.OriginalFileI(originalfile.getId(), False)
+
+    def setDescription (self, val):
+        """
+        """
+        self._obj.description = omero_type(val)
+
     def isOriginalMetadata(self):
         """
         Checks if this file annotation is an 'original_metadata' file

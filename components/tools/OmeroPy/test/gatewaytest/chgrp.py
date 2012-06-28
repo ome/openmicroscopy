@@ -40,7 +40,10 @@ class ChgrpTest (lib.GTest):
             return prx
         
         cb = CmdCallbackI(self.gateway.c, prx)
-        cb.loop(20, 500)
+        for i in range(10):
+            cb.loop(20, 500)
+            if prx.getResponse() != None:
+                break
 
         self.assertNotEqual(prx.getResponse(), None)
 
