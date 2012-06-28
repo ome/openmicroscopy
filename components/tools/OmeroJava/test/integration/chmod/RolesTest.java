@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 
 
 import static omero.rtypes.rstring;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
@@ -1009,7 +1009,7 @@ public class RolesTest
     	iUpdate.deleteObject(ann);
     	
     	//Try to delete the dataset i.e. canDelete
-		delete(client, new DeleteCommand(
+		delete(client, new Delete(
     			DeleteServiceTest.REF_DATASET, id, null));
 		
     	//Try to link an image  i.e. canLink

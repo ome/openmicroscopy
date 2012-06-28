@@ -8,7 +8,7 @@ package integration.delete;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -71,7 +71,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
         		ds2.getId().getValue(), null));
 
         assertDoesNotExist(ds2);
@@ -114,7 +114,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
         
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
         		ds2.getId().getValue(), null));
 
         assertDoesNotExist(ds2);
@@ -150,7 +150,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
         		ds2.getId().getValue(),  null));
 
         assertDoesNotExist(ds2);
@@ -185,7 +185,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_PROJECT, 
+        delete(client, new Delete(DeleteServiceTest.REF_PROJECT, 
         		p2.getId().getValue(), null));
 
         assertDoesNotExist(p2);
@@ -219,7 +219,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, 
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, 
         		s2.getId().getValue(),
                 null));
 
