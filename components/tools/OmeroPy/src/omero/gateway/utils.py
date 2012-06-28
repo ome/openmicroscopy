@@ -26,10 +26,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class GatewayConfigDict(dict):
+class GatewayConfig(object):
     """
-    Dict-like class holding gateway configuration key/value pairs
+    Global Gateway configuration
+    - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
+                   settings object id.
+    - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
+                   that don't get saved in the rendering settings.
     """
+    def __init__ (self):
+        self.IMG_RDEFNS = None
+        self.IMG_ROPTSNS = None
 
 class ServiceOptsDict(dict):
     
