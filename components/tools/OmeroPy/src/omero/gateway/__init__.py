@@ -4225,7 +4225,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             if middleName is not None and middleName != '':
                 name = "%s %s %s" % (firstName, middleName, lastName)
             else:
-                name = "%s %s" % (firstName, lastName)
+                if firstName == "" and lastName == "":
+                    name = self.omeName
+                else:
+                    name = "%s %s" % (firstName, lastName)
             return name
         except:
             logger.error(traceback.format_exc())
