@@ -52,7 +52,7 @@ public interface GraphSpec {
     void postProcess(ListableBeanFactory factory);
 
     /**
-     * Called as each action is started. This instance will inly be used
+     * Called as each action is started. This instance will only be used
      * serially (i.e. by one thread) and so this is safe. When the last step is
      * reached, {@link GraphState#execute(int)} can take clean up actions.
      *

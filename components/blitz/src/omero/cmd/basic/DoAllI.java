@@ -267,7 +267,13 @@ public class DoAllI extends DoAll implements IRequest {
                             ireq.init(subhelper);
                             statuses.add(substatus);
                             substeps.add(x);
-                            steps += substatus.steps;
+                            long intermediate = substatus.steps;
+                            if ((intermediate + steps) > Integer.MAX_VALUE) {
+                                throw helper.cancel(new ERR(), null, "too-many-steps",
+                                    "Steps", ""+intermediate,
+                                    "Message", "Too many steps found! Try fewer actions in one command");
+                            }
+                            steps += intermediate;
                         } finally {
                             x.logout();
                         }

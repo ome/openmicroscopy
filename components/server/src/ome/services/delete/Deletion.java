@@ -211,7 +211,12 @@ public class Deletion {
             sw.stop("omero.delete.ids." + scheduledDeletes);
         }
 
-        return steps;
+        if (scheduledDeletes > Integer.MAX_VALUE) {
+            throw new GraphException("Too many results! (" + scheduledDeletes
+                + ") Delete a subgraph first.");
+        }
+
+        return (int) scheduledDeletes;
 
     }
 
