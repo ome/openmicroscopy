@@ -43,21 +43,21 @@
     
     <script type="text/javascript">
         var isCheckedById = function(name) { 
-            var checked = $("input[name='"+name+"']:checked").length; 
-            if (checked == 0) { return false; } else { return true; } 
+            var selected = $("body").data("selected_objects.ome");
+            // TODO - filter selected by name (E.g. "image")
+            return (selected.length > 0);
         };
         
        var manyRemoveFromBasket = function() {     
             if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
-                var productArray = $("input[type='checkbox']:checked");
+                var selected = $("body").data("selected_objects.ome");
                 var productListQuery = "action=delmany";
-                productArray.each(function() {
-                    if(this.checked) {
-                        productListQuery += "&"+this.name+"="+this.id;
-                    }
-                });
+                for (var i=0; i<selected.length; i++) {
+                    var oid = selected[i]['id'];
+                    productListQuery += "&"+ oid.split("-")[0] +"="+ oid.split("-")[1];
+                }
 
                 $.ajax({
                     type: "POST",
@@ -80,16 +80,12 @@
             if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
-                var productArray = $("input[type='checkbox']:checked");
+                var selected = $("body").data("selected_objects.ome");
+                //var productArray = $("input[type='checkbox']:checked");
                 var productListQuery = "";
-                if (productArray.length > 0 ) {
-                    productArray.each(function() {
-                        if(this.checked) {
-                            productListQuery += "&"+this.name+"="+this.id;
-                        }
-                    });
-                } else {
-                    productListQuery += "&"+productArray.name+"="+productArray.id;
+                for (var i=0; i<selected.length; i++) {
+                    var oid = selected[i]['id'];
+                    productListQuery += "&"+ oid.split("-")[0] +"="+ oid.split("-")[1];
                 }
             }
 
@@ -171,53 +167,14 @@
             });
 
             $("table#dataTable tbody tr").click(function(event) {
-                var $clickedRow = $(event.target).parents('tr:first');
-                var rows = $("table#dataTable tbody tr");
-                var selIndex = rows.index($clickedRow.get(0));
-                
-                if ( event.shiftKey ) {
-                    // get existing selected items
-                    var $s = $("table#dataTable tbody tr.ui-selected");
-                    if ($s.length == 0) {
-                        $clickedRow.addClass("ui-selected");
-                        search_selection_changed($clickedRow);
-                        return;
-                    }
-                    var sel_start = rows.index($s.first());
-                    var sel_end = rows.index($s.last());
-                    
-                    // select all rows between new and existing selections
-                    var new_start, new_end
-                    if (selIndex < sel_start) {
-                        new_start = selIndex
-                        new_end = sel_start
-                    } else if (selIndex > sel_end) {
-                        new_start = sel_end+1
-                        new_end = selIndex+1
-                    // or just from the first existing selection to new one
-                    } else {
-                        new_start = sel_start
-                        new_end = selIndex
-                    }
-                    for (var i=new_start; i<new_end; i++) {
-                        rows.eq(i).addClass("ui-selected");
-                    }
-                    // update right-hand panel
-                    multipleAnnotation($("table#dataTable tbody tr.ui-selected"), null, '{% url batch_annotate %}');
-                }
-                else if (event.metaKey) {
-                    
-                }
-                else {
-                    rows.removeClass("ui-selected");
-                    $clickedRow.addClass("ui-selected");
-                }
+                handleTableClickSelection(event);
+
                 var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
-                $new_selected.each(function(){
-                    console.log(this);
-                    this.checked = true;
-                });
-                basket_selection_changed($new_selected);
+                if ($new_selected.length > 0) {
+                    $("input.toggleEnabled").attr("disabled", null);
+                } else {
+                    $("input.toggleEnabled").attr("disabled", "true");
+                }
             });
             
             $("table#dataTable tbody").selectable({
@@ -225,20 +182,12 @@
                 distance: 2,
                 stop: function(event){
                     var l = $('tr.ui-selected', this).length;
-                    $("tr.ui-selected td input", this).each(function(){
-                        this.checked = true;
-                    });
                     if (l > 0) {
                         $("input.toggleEnabled").attr("disabled", null);
                     } else {
                         $("input.toggleEnabled").attr("disabled", "true");
                     }
-                    basket_selection_changed($("tr.ui-selected td input", this));
-                },
-                start: function(){
-                    $("tr input", this).each(function(){
-                        this.checked = false;
-                    });
+                    table_selection_changed($("tr.ui-selected", this));
                 }
             });
             
@@ -317,7 +266,7 @@
 	            </thead>
 	            <tbody>
 	                {% for c in basket.imageInBasket %}
-	                    <tr id="{{ c.id }}">
+	                    <tr id="image-{{ c.id }}">
 	                        <td class="image">
 	                            <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
 	                            <!--<img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>-->

@@ -36,56 +36,8 @@
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("table#dataTable tbody tr").click(function(event) {
-                handleClickSelection(event);
+                handleTableClickSelection(event);
             });
-            
-            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
-            var handleClickSelection = function(event) {
-
-                var $clickedRow = $(event.target).parents('tr:first');
-                var rows = $("table#dataTable tbody tr");
-                var selIndex = rows.index($clickedRow.get(0));
-                
-                if ( event.shiftKey ) {
-                    // get existing selected items
-                    var $s = $("table#dataTable tbody tr.ui-selected");
-                    if ($s.length == 0) {
-                        $clickedRow.addClass("ui-selected");
-                        search_selection_changed($clickedRow);
-                        return;
-                    }
-                    var sel_start = rows.index($s.first());
-                    var sel_end = rows.index($s.last());
-                    
-                    // select all rows between new and existing selections
-                    var new_start, new_end
-                    if (selIndex < sel_start) {
-                        new_start = selIndex
-                        new_end = sel_start
-                    } else if (selIndex > sel_end) {
-                        new_start = sel_end+1
-                        new_end = selIndex+1
-                    // or just from the first existing selection to new one
-                    } else {
-                        new_start = sel_start
-                        new_end = selIndex
-                    }
-                    for (var i=new_start; i<new_end; i++) {
-                        rows.eq(i).addClass("ui-selected");
-                    }
-                    // update right-hand panel
-                    multipleAnnotation($("table#dataTable tbody tr.ui-selected"), null, '{% url batch_annotate %}');
-                }
-                else if (event.metaKey) {
-                    
-                }
-                else {
-                    rows.removeClass("ui-selected");
-                    $clickedRow.addClass("ui-selected");
-                    history_selection_changed($clickedRow);
-                    
-                }
-            }
             
             // plugin to handle drag-select of images
             $("table#dataTable tbody").selectable({
@@ -93,7 +45,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    multipleAnnotation(selected, null, '{% url batch_annotate %}');
+                    table_selection_changed(selected);
                 },
                 start: function(){
                 }
