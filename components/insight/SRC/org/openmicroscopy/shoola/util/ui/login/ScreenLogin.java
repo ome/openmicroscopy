@@ -656,8 +656,15 @@ public class ScreenLogin
 		bar.setOpaque(false);
 		bar.setBorder(null);
 		bar.setFloatable(false);
-		bar.add(encryptedButton);
-		bar.add(configButton);
+		if (UIUtilities.isWindowsOS()) {
+			bar.add(Box.createHorizontalStrut(5));
+			bar.add(encryptedButton);
+			bar.add(Box.createHorizontalStrut(5));
+			bar.add(configButton);
+		} else {
+			bar.add(encryptedButton);
+			bar.add(configButton);
+		}
 		
 		JPanel row = new JPanel();
 		row.setOpaque(false);
