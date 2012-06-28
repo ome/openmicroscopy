@@ -43,11 +43,7 @@
             var handleClickSelection = function(event) {
 
                 var $clickedRow = $(event.target).parents('tr:first');
-                var $clickedImage = $clickedRow.find('img');
-
                 var rows = $("table#dataTable tbody tr");
-                var $images = $("table#dataTable tbody tr td img");
-
                 var selIndex = rows.index($clickedRow.get(0));
                 
                 if ( event.shiftKey ) {

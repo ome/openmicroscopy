@@ -43,12 +43,7 @@
             var handleClickSelection = function(event) {
 
                 var $clickedRow = $(event.target).parents('tr:first');
-                var $clickedImage = $clickedRow.find('img');
-
                 var rows = $("table#dataTable tbody tr");
-                var $images = $("table#dataTable tbody tr td img");
-
-                var primaryIndex = -1;
                 var selIndex = rows.index($clickedRow.get(0));
                 
                 if ( event.shiftKey ) {
@@ -87,7 +82,6 @@
                 else {
                     rows.removeClass("ui-selected");
                     $clickedRow.addClass("ui-selected");
-                    primaryIndex = selIndex;
                     history_selection_changed($clickedRow);
                     
                 }
