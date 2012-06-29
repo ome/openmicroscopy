@@ -8,10 +8,12 @@ package integration;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import omero.ApiUsageException;
 import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
@@ -21,9 +23,11 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
@@ -36,6 +40,7 @@ import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
+import omero.sys.ParametersI;
 
 /** 
  * Collections of tests for the <code>Delete</code> service related to permissions.
@@ -192,6 +197,17 @@ public class DeleteServicePermissionsTest
 		newUserInGroup(ownerEc);
 		makeGroupOwner();
 
+		String sql = "select i from Image as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(img.getId().getValue());
+    	List<IObject> images = iQuery.findAllByQuery(sql, param);
+    	assertEquals(images.size(), 1);
+    	img = (Image) images.get(0);
+    	
+    	Permissions perms = img.getDetails().getPermissions();
+    	assertTrue(perms.canDelete());
+    	
 		delete(client, new Delete(
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 
@@ -200,8 +216,8 @@ public class DeleteServicePermissionsTest
     
     /**
      * Test to try to delete an object by the owner of a private group
-     * i.e. RW----
-     * @throws Exception Thrown if an error occurred.     
+     * i.e. RW----. The data should not be deleted
+     * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = true)
     public void testDeleteObjectByGroupOwnerRW()
@@ -221,7 +237,7 @@ public class DeleteServicePermissionsTest
 		delete(client, new Delete(
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 
-		assertDoesNotExist(img);
+		assertExists(img);
     }
     
     /**
@@ -353,11 +369,8 @@ public class DeleteServicePermissionsTest
         
         // tagger creates tag
         ec = newUserInGroup(ec);
-        //make the tagger the owner of the group.
-        IAdminPrx rootAdmin = root.getSession().getAdminService();
-        Experimenter exp = rootAdmin.lookupExperimenter(ec.userName);
-        ExperimenterGroup group = rootAdmin.lookupGroup(ec.groupName);
-        rootAdmin.setGroupOwner(group, exp);
+        //make the tagger the group owner.
+        makeGroupOwner();
         
         
         TagAnnotation c = new TagAnnotationI();
@@ -367,12 +380,13 @@ public class DeleteServicePermissionsTest
     	
     	init(owner);
     	
-    	//Image's owner tags the image.
+    	//Image's owner tags the image with another group's owner tag.
     	ImageAnnotationLink link = new ImageAnnotationLinkI();
     	link.setParent(img);
-    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
+    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
     	
+    	disconnect();
     	//Tag's owner now deletes the tag.
     	init(tagger);
     	delete(true, client, new Delete(
@@ -929,37 +943,23 @@ public class DeleteServicePermissionsTest
 		disconnect();
 		newUserInGroup(ownerEc);
 		makeGroupOwner();
-
+		String sql = "select i from Image as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(img.getId().getValue());
+    	List<IObject> images = iQuery.findAllByQuery(sql, param);
+    	assertEquals(images.size(), 1);
+    	img = (Image) images.get(0);
+    	
+    	Permissions perms = img.getDetails().getPermissions();
+    	assertTrue(perms.canDelete());
 		delete(client, new Delete(
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 
+		//Image should be deleted.
 		assertDoesNotExist(img);
     }
     
-    /**
-     * Test to try to delete an object by a member of a private group
-     * i.e. RW----
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(enabled = true)
-    public void testDeleteObjectByMemberRW()
-    	throws Exception
-    {
-        EventContext ownerEc = newUserAndGroup("rw----");
-
-    	//owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
-		
-    	//group owner deletes it
-		disconnect();
-		newUserInGroup(ownerEc);
-		delete(client, new Delete(
-    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
-		disconnect();
-		loginUser(ownerEc);
-		assertExists(img);
-    }
     
     /**
      * Test to try to delete an object by a member of a read-only group
@@ -1027,6 +1027,17 @@ public class DeleteServicePermissionsTest
     	//group owner deletes it
 		disconnect();
 		newUserInGroup(ownerEc);
+		String sql = "select i from Image as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(img.getId().getValue());
+    	List<IObject> images = iQuery.findAllByQuery(sql, param);
+    	assertEquals(images.size(), 1);
+    	img = (Image) images.get(0);
+    	
+    	Permissions perms = img.getDetails().getPermissions();
+    	assertTrue(perms.canDelete());
+    	
 		delete(client, new Delete(
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 
