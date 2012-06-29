@@ -762,21 +762,26 @@ class Connector
 	 * Executes the commands.
 	 * 
 	 * @param commands The commands to execute.
+	 * @param target The target context is any.
 	 * @return See above.
 	 */
-	RequestCallback submit(List<Request> commands)
+	RequestCallback submit(List<Request> commands, SecurityContext target)
 		throws Throwable
 	{
 		if (commands == null || commands.size() == 0)
 			return null;
 		DoAll all = new DoAll();
 		all.requests = commands;
+		Map<String, String> callContext = new HashMap<String, String>();
+		if (target != null) {
+			callContext.put("omero.group", ""+target.getGroupID());
+		}
 		if (entryUnencrypted != null) {
 			return new RequestCallback(getClient(), 
-					entryUnencrypted.submit(all));
+					entryUnencrypted.submit(all, callContext));
 		}
 		return new RequestCallback(getClient(), 
-				entryEncrypted.submit(all));
+				entryEncrypted.submit(all, callContext));
 	}
 
 	/**

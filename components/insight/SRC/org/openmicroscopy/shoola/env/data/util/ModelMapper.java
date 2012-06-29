@@ -205,17 +205,26 @@ public class ModelMapper
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            Project unloadedProject = new ProjectI(parent.getId().getValue(), 
-            		false);
-            Dataset unloadedDataset = new DatasetI(child.getId().getValue(), 
-            		false);
+            Project unloadedProject;
+            if (parent.getId() == null) unloadedProject = (Project) parent;
+            else 
+            	unloadedProject = new ProjectI(parent.getId().getValue(), 
+            			false);
+            Dataset unloadedDataset;
+            if (child.getId() == null) unloadedDataset = (Dataset) child;
+            else 
+            	unloadedDataset = new DatasetI(child.getId().getValue(), 
+            			false);
             ProjectDatasetLink l = new ProjectDatasetLinkI();
             l.link(unloadedProject, unloadedDataset);
             return l;
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
-            Dataset unloadedDataset = new DatasetI(parent.getId().getValue(), 
+            Dataset unloadedDataset;
+            if (parent.getId() == null) unloadedDataset = (Dataset) parent;
+            else 
+            	unloadedDataset = new DatasetI(parent.getId().getValue(), 
             		false);
             Image unloadedImage = new ImageI(child.getId().getValue(), false);
             
@@ -225,9 +234,17 @@ public class ModelMapper
         } else if (parent instanceof Screen) {
             if (!(child instanceof Plate))
                 throw new IllegalArgumentException("Child not valid.");
-            Screen unloadedScreen = new ScreenI(parent.getId().getValue(), 
-            		false);
-            Plate unloadedPlate = new PlateI(child.getId().getValue(), false);
+            
+            Screen unloadedScreen;
+            if (parent.getId() == null) unloadedScreen = (Screen) parent;
+            else 
+            	unloadedScreen = new ScreenI(parent.getId().getValue(), 
+            			false);
+            Plate unloadedPlate;
+            if (child.getId() == null) unloadedPlate = (Plate) child;
+            else 
+            	unloadedPlate = new PlateI(child.getId().getValue(), 
+            			false);
             
             ScreenPlateLink l = new ScreenPlateLinkI();
             l.link(unloadedScreen, unloadedPlate);
