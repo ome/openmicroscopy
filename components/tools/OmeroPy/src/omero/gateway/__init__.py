@@ -850,7 +850,7 @@ class BlitzObjectWrapper (object):
         @type obj:      L{BlitzObjectWrapper}
         """
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if not obj.getId():
             # Not yet in db, save it
             obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj, ctx))
@@ -5577,9 +5577,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         re = self._conn.createRenderingEngine()
         ctx = self._conn.SERVICE_OPTS.copy()
 
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.getDetails().getOwner().getId())
+            ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
@@ -5624,7 +5624,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if rdefns:
                 # Use the same group as the image in the context
                 ctx = self._conn.SERVICE_OPTS.copy()
-                self._conn.SERVICE_OPTS.setOmeroGroup(self.getDetails().getGroup().getId())
+                self._conn.SERVICE_OPTS.setOmeroGroup(self.details.group.id.val)
                 self.removeAnnotations(rdefns)
                 self._conn.SERVICE_OPTS.clear()
                 self._conn.SERVICE_OPTS = ServiceOptsDict(ctx)
@@ -5820,9 +5820,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         tb = self._conn.createThumbnailStore()
         
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.getDetails().getOwner().getId())
+            ctx.setOmeroUser(self.details.owner.id.val)
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
@@ -5980,7 +5980,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if pos is not None:
                 args = list(pos) + args
             ctx = self._conn.SERVICE_OPTS.copy()
-            ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+            ctx.setOmeroGroup(self.details.group.id.val)
             args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
@@ -7054,7 +7054,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         self._re.saveCurrentSettings(ctx)
         return True
 
