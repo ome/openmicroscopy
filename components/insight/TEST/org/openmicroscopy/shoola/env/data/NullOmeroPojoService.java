@@ -395,7 +395,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#delete(Collection)
      */
-	public DeleteCallback delete(SecurityContext ctx,
+	public RequestCallback delete(SecurityContext ctx,
 			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException
 	{
