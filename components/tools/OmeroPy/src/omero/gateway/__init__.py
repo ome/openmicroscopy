@@ -1238,7 +1238,7 @@ class _BlitzGateway (object):
         Create the connection wrapper. Does not attempt to connect at this stage
         Initialises the omero.client
         
-        @param username:    User name. If not specified, use 'omero.gateway.anon_user'
+        @param username:    User name.
         @type username:     String
         @param passwd:      Password.
         @type passwd:       String
@@ -1297,10 +1297,6 @@ class _BlitzGateway (object):
             # if we already have client initialised, we can go ahead and create our services.
             self._connected = True
             self._createProxies()
-        if not username:
-            username = self.c.ic.getProperties().getProperty('omero.gateway.anon_user')
-            passwd = self.c.ic.getProperties().getProperty('omero.gateway.anon_pass')
-        #logger.debug('super: %s %s %s' % (try_super, str(group), self.c.ic.getProperties().getProperty('omero.gateway.admin_group')))
         if try_super:
             self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         else:
