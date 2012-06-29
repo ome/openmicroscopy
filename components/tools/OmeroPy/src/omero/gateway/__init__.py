@@ -7067,7 +7067,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        ctx = self._conn.SERVICE_OPTS
+        ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         self._re.saveCurrentSettings(ctx)
         return True
