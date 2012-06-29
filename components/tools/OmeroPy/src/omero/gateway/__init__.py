@@ -310,7 +310,10 @@ class BlitzObjectWrapper (object):
         @rtype:     L{DetailsWrapper}
         """
         if self._obj.loaded:
-            return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
+            if self._details is None:
+                self._details = omero.gateway.DetailsWrapper(
+                        self._conn, self._obj.getDetails())
+            return self._details
         return None
     
     
@@ -4174,20 +4177,6 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             prefs.add_section(section)
         prefs.set(section, key, value)
         self.setRawPreferences(prefs)
-
-    def getDetails (self):
-        """
-        Make sure we have correct details for this experimenter and return them
-        
-        @return:    Experimenter Details
-        @rtype:     L{DetailsWrapper}
-        """
-        
-        if not self._obj.details.owner:
-            details = omero.model.DetailsI()
-            details.owner = self._obj
-            self._obj._details = details
-        return DetailsWrapper(self._conn, self._obj.details)
 
     def getName (self):
         """
