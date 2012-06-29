@@ -92,8 +92,8 @@ public class DeleteI extends Delete implements IRequest {
             int steps = delegate.start(helper.getSql(), helper.getSession(), type, id, options);
             helper.setSteps(steps);
         } catch (GraphException e) {
-            this.helper.cancel(new ERR(), e, "graph-state", "type", type, "id",
-                    ""+id);
+            this.helper.cancel(err(), e, "graph-state", "type", type, "id",
+                    ""+id, "Error");
         }
     }
 
@@ -105,12 +105,12 @@ public class DeleteI extends Delete implements IRequest {
             return null;
         // This hierarchy is duplicated in Deletion
         } catch (GraphException ge) {
-            throw helper.cancel(new ERR(), ge, "STEP ERR", "step", ""+i, "id", ""+id);
+            throw helper.cancel(err(), ge, "STEP ERR", "step", ""+i, "id", ""+id);
         } catch (ConstraintViolationException cve) {
-            throw helper.cancel(new ERR(), cve, "constraint-violation", "name",
+            throw helper.cancel(err(), cve, "constraint-violation", "name",
                     cve.getConstraintName());
         } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "failure");
+            throw helper.cancel(err(), t, "failure");
         }
     }
 
@@ -136,10 +136,29 @@ public class DeleteI extends Delete implements IRequest {
 
         }
     }
-    
+
     public Response getResponse() {
         return helper.getResponse();
     }
 
+    //
+    // Helpers
+    //
+
+    private ERR err() {
+        ERR err = new ERR();
+        err.parameters = new HashMap<String, String>();
+        if (delegate != null) {
+            String warnMsg = delegate.getWarning();
+            String errMsg = delegate.getError();
+            if (warnMsg != null && warnMsg.length() > 0) {
+                err.parameters.put("Warning", warnMsg);
+            }
+            if (errMsg != null && errMsg.length() > 0) {
+                err.parameters.put("Error", errMsg);
+            }
+        }
+        return err;
+    }
 
 }
