@@ -736,14 +736,14 @@ class BlitzObjectWrapper (object):
         """
         dcs = []
         for al in self._getAnnotationLinks(ns=ns):
-            dcs.append(omero.api.delete.DeleteCommand(
+            dcs.append(omero.cmd.Delete(
                 "/%s" % al.ice_id().split("::")[-1], # This could be refactored
                 al.id.val, None))
 
-        # Using queueDelete rather than deleteObjects since we need
+        # Using omero.cmd.Delete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        handle = self._conn.getDeleteService().queueDelete(dcs, self._conn.SERVICE_OPTS)
-        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
+        callback = omero.callbacks.CmdCallbackI(self._conn.c, handle)
         # Maximum wait time 5 seconds, will raise a LockTimeout if the
         # delete has not finished by then.
         callback.loop(10, 500)
@@ -764,7 +764,7 @@ class BlitzObjectWrapper (object):
             a = al.child
             ids.append(a.id.val)
         handle = self._conn.deleteObjects('/Annotation', ids)
-        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        callback = omero.callbacks.CmdCallbackI(self._conn.c, handle)
         # Maximum wait time 5 seconds, will raise a LockTimeout if the
         # delete has not finished by then.
         callback.loop(10, 500)
@@ -3122,9 +3122,11 @@ class _BlitzGateway (object):
         logger.debug('Deleting %s [%s]. Options: %s' % \
                 (graph_spec, str(obj_ids), op))
         for oid in obj_ids:
-            dcs.append(omero.api.delete.DeleteCommand(
+            dcs.append(omero.cmd.Delete(
                 graph_spec, long(oid), op))
-        handle = self.getDeleteService().queueDelete(dcs, self.SERVICE_OPTS)
+        doall = omero.cmd.DoAll()
+        doall.requests = dcs
+        handle = self.c.sf.submit(doall, self.SERVICE_OPTS)
         return handle
 
 
@@ -6585,7 +6587,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         for chunk in ofw.getFileInChunks():
             outfile.write(chunk)
         outfile.close()
-        self._conn.deleteObjects('/OriginalFile', todel)
+        self._conn.deleteObjects('/OriginalFile', todel) # No error handling?
         return os.path.splitext(f.name.val)[-1], f.mimetype.val
         
     def renderImage (self, z, t, compression=0.9):

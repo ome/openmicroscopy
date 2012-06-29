@@ -25,16 +25,24 @@ from django.utils.datastructures import SortedDict
 
 logger = logging.getLogger(__name__)
 
-def _formatReport(delete_handle):
+def _formatReport(callback):
     """
     Added as workaround to the changes made in #3006.
     """
-    delete_reports = delete_handle.report()
-    for report in delete_reports:
-        if report.error or report.warning:
-            logger.error('Format report: %r' % {'error':report.error, 'warning':report.warning})
-            if report.error:
-                return "Operation could not be completed successfully"
+    rsp = callback.getResponse()
+    if not rsp:
+        return  # Unfinished
+
+    import omero
+    if isinstance(rsp, omero.cmd.ERR):
+        err = rsp.parameters.get("Error", "")
+        warn = rsp.parameters.get("Warning", "")
+        logger.error('Format report: %r' % {'error':err, 'warning':warn})
+        return "Operation could not be completed successfully"
+    else:
+        for rsp in rsp.responses:
+            if rsp.warning:
+                logger.warning("Delete warning: %s" % rsp.warning)
     # Might want to take advantage of other feedback here
 
 def _purgeCallback(request):

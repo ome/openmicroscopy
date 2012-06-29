@@ -277,6 +277,19 @@ class ITest(unittest.TestCase):
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
+    def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
+        """
+        Wait on an omero.cmd.HandlePrx to finish processing
+        and then assert pass or fail. The callback is returned
+        for accessing the Response and Status elements.
+        """
+        callback = omero.callbacks.CmdCallbackI(client, handle)
+        callback.loop(10, 500) # throws on timeout
+        rsp = callback.getResponse()
+        is_ok = isinstance(rsp, omero.cmd.OK)
+        self.assert_(passes, is_ok)
+        return callback
+
     def new_user(self, group = None, perms = None,
             admin = False, system = False):
         """
