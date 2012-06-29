@@ -241,6 +241,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
     "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
     "omero.web.logdir": ["LOGDIR", LOGDIR, str],
+    "omero.web.login_view": ["LOGIN_VIEW", "weblogin", str],
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
