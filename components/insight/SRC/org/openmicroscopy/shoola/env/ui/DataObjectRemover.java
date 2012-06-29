@@ -200,16 +200,20 @@ public class DataObjectRemover
         }
     }
  
+    /**Does nothing since the result will return <code>null</code>.*/
+    public void handleNullResult() {}
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
-    	if (result == null) onException(MESSAGE_RESULT, null); 
-    	else if (!(result instanceof Boolean)) {
-    		activity.endActivity(result);
-    	} 
+    {
+    	if (result instanceof Boolean) {
+    		boolean b = ((Boolean) result).booleanValue();
+    		if (b) activity.endActivity(DeleteActivity.DELETE_COMPLETE);
+    		else onException(MESSAGE_RESULT, null);
+    	} else activity.endActivity(result);
     }
-    
+
 }

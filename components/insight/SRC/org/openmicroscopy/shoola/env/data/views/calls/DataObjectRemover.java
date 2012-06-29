@@ -118,7 +118,7 @@ public class DataObjectRemover
      * Returns the result.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.valueOf(true); }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.
@@ -133,7 +133,6 @@ public class DataObjectRemover
     	if (values == null)
     		throw new IllegalArgumentException("No objects to remove.");
     	this.map = values;
-    	//call = makeDeleteCall(ctx, values);
     }
 
 }

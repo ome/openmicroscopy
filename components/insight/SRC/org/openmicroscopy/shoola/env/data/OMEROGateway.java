@@ -7873,7 +7873,8 @@ class OMEROGateway
 		} catch (Throwable e) {
 		 	handleException(e, "Cannot delete the speficied objects.");
 			// Never reached
-			throw new ProcessException("Cannot delete the speficied objects.", e);
+			throw new ProcessException("Cannot delete the specified objects.",
+					e);
 		}
 	}
 
