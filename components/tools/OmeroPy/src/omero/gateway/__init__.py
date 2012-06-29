@@ -4317,10 +4317,8 @@ class DetailsWrapper (BlitzObjectWrapper):
     
     def __init__ (self, *args, **kwargs):
         super(DetailsWrapper, self).__init__ (*args, **kwargs)
-        owner = self._obj.getOwner()
-        group = self._obj.getGroup()
-        self._owner = owner and ExperimenterWrapper(self._conn, self._obj.getOwner()) or None
-        self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
+        self._owner = None
+        self._group = None
 
     def getOwner (self):
         """
@@ -4329,7 +4327,9 @@ class DetailsWrapper (BlitzObjectWrapper):
         @return:    Owner
         @rtype:     L{ExperimenterWrapper}
         """
-        
+        if self._owner is None:
+            owner = self._obj.getOwner()
+            self._owner = owner and ExperimenterWrapper(self._conn, self._obj.getOwner()) or None
         return self._owner
 
     def getGroup (self):
@@ -4339,7 +4339,9 @@ class DetailsWrapper (BlitzObjectWrapper):
         @return:    Group
         @rtype:     L{ExperimenterGroupWrapper}
         """
-        
+        if self._group is None:
+            group = self._obj.getGroup()
+            self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
         return self._group
 
 class _DatasetWrapper (BlitzObjectWrapper):
