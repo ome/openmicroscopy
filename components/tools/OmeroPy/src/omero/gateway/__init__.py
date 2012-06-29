@@ -310,10 +310,7 @@ class BlitzObjectWrapper (object):
         @rtype:     L{DetailsWrapper}
         """
         if self._obj.loaded:
-            if self._details is None:
-                self._details = omero.gateway.DetailsWrapper(
-                        self._conn, self._obj.getDetails())
-            return self._details
+            return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
         return None
     
     
