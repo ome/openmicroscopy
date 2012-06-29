@@ -24,7 +24,7 @@ import ome.api.IScale;
 
 /**
  * Provides methods for scaling buffered images using
- * <a href="http://code.google.com/p/java-image-scaling/">Java Image Scaling<a/>.
+ * <a href="http://code.google.com/p/java-image-scaling/">Java Image Scaling</a>.
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>

@@ -168,7 +168,7 @@ public class CurrentDetails implements PrincipalHolder {
 
     /**
      * Checks if the current {@link Thread} has non-null {@link Experimenter},
-     * {@link Event}, and {@linkExperimenterGroup}, required for proper
+     * {@link Event}, and {@link ExperimenterGroup}, required for proper
      * functioning of the security system.
      */
     public boolean isReady() {
