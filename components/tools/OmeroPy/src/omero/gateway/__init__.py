@@ -1224,8 +1224,6 @@ class _BlitzGateway (object):
     context switching, security privilidges etc.  
     """
     
-    SERVICE_OPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
-    CONFIG = GatewayConfig()
     """
     Holder for class wide configuration properties.
     """
@@ -1267,6 +1265,7 @@ class _BlitzGateway (object):
 
         if extra_config is None: extra_config = []
         super(_BlitzGateway, self).__init__()
+        self.CONFIG = GatewayConfig()
         self.c = client_obj
         if not type(extra_config) in (type(()), type([])):
             extra_config=[extra_config]
@@ -1285,6 +1284,8 @@ class _BlitzGateway (object):
         self._session = None
         self._lastGroupId = None
         self._anonymous = anonymous
+        self._defaultOmeroGroup = None
+        self._defaultOmeroUser = None
 
         self._connected = False
         self._user = None
@@ -1307,6 +1308,24 @@ class _BlitzGateway (object):
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
+
+    def createServiceOptsDict(self):
+        serviceOpts = ServiceOptsDict(self.c.getImplicitContext().getContext())
+        serviceOpts.setOmeroGroup(self.getDefaultOmeroGroup())
+        serviceOpts.setOmeroUser(self.getDefaultOmeroUser())
+        return serviceOpts
+
+    def setDefaultOmeroGroup(self, defaultOmeroGroup):
+        self._defaultOmeroGroup = defaultOmeroGroup
+
+    def setDefaultOmeroUser(self, defaultOmeroUser):
+        self._defaultOmeroUser = defaultOmeroUser
+
+    def getDefaultOmeroGroup(self):
+        return self._defaultOmeroGroup
+
+    def getDefaultOmeroUser(self):
+        return self._defaultOmeroUser
 
     def isAnonymous (self):
         """ 
@@ -1566,8 +1585,7 @@ class _BlitzGateway (object):
             self.c.sf.getAdminService().getEventContext()
         self.setSecure(self.secure)
         self.c.sf.detachOnDestroy()
-        self.SERVICE_OPTS = ServiceOptsDict(
-                self.c.getImplicitContext().getContext())
+        self.SERVICE_OPTS = self.createServiceOptsDict()
     
     def _closeSession (self):
         """
@@ -1639,8 +1657,7 @@ class _BlitzGateway (object):
                         self._resetOmeroClient()
                     s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
-                    self.SERVICE_OPTS = ServiceOptsDict(
-                            self.c.getImplicitContext().getContext())
+                    self.SERVICE_OPTS = self.createServiceOptsDict()
                     logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
@@ -5625,9 +5642,10 @@ class _ImageWrapper (BlitzObjectWrapper):
                 # Use the same group as the image in the context
                 ctx = self._conn.SERVICE_OPTS.copy()
                 self._conn.SERVICE_OPTS.setOmeroGroup(self.details.group.id.val)
-                self.removeAnnotations(rdefns)
-                self._conn.SERVICE_OPTS.clear()
-                self._conn.SERVICE_OPTS = ServiceOptsDict(ctx)
+                try:
+                    self.removeAnnotations(rdefns)
+                finally:
+                    self._conn.SERVICE_OPTS = ctx
             return True
         return False
 
