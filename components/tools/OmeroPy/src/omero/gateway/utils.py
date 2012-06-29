@@ -57,7 +57,7 @@ class ServiceOptsDict(dict):
                 else:
                     logger.debug("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
         else:
-            raise AttributeError("%s argument must be a dictionary" % self.__class__.__name__)
+            raise AttributeError("%s argument (%r:%s) must be a dictionary" % (self.__class__.__name__, data, type(data)))
     
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
@@ -69,7 +69,7 @@ class ServiceOptsDict(dict):
             super(ServiceOptsDict, self).__setitem__(key, str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
-            raise AttributeError("%s argument must be a string, unicode or numeric type" % self.__class__.__name__)
+            raise AttributeError("%s argument (%r:%s) must be a string, unicode or numeric type" % (self.__class__.__name__, item, type(item)))
         
     def __getitem__(self, key):
         """Return the value for key if key is in the dictionary. Raises a KeyError if key is not in the map."""
