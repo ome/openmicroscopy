@@ -305,6 +305,8 @@
                             drivespace_loaded = true;
                             $.getJSON("{% url wadrivespace %}", function(data){
                                 load_drivespace(data.free);
+                                var fspace = parseInt(data.free / (1024 * 1024));  // GB
+                                $("#drivespace_free").text(fspace + " GB");
                             });
                         }
                     }
@@ -470,7 +472,7 @@
 
         <h2>{% trans "Drive space usage" %}:</h2>
 
-        <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+        <div>{% trans "Free space" %}: <span id="drivespace_free"></span></div>
         <div id="total"></div>
 
         <div id="usage">
