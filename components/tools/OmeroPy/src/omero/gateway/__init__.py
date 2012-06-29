@@ -156,7 +156,6 @@ class BlitzObjectWrapper (object):
         self.__bstrap__()
         self._obj = obj
         self._cache = cache
-        self._the_details = None
         if self._cache is None:
             self._cache = {}
         self._conn = conn
@@ -311,10 +310,10 @@ class BlitzObjectWrapper (object):
         @rtype:     L{DetailsWrapper}
         """
         if self._obj.loaded:
-            if self._the_details is None:
-                self._the_details = omero.gateway.DetailsWrapper(
+            if self._details is None:
+                self._details = omero.gateway.DetailsWrapper(
                         self._conn, self._obj.getDetails())
-            return self._the_details
+            return self._details
         return None
     
     
