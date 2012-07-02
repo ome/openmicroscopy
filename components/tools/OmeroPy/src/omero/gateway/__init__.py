@@ -1293,6 +1293,7 @@ class _BlitzGateway (object):
             # if we already have client initialised, we can go ahead and create our services.
             self._connected = True
             self._createProxies()
+            self.SERVICE_OPTS = self.createServiceOptsDict()
         if try_super:
             self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         else:
