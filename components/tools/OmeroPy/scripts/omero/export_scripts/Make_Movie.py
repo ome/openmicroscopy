@@ -409,7 +409,7 @@ def writeMovie(commandArgs, conn):
 
     message=""
 
-    conn.CONFIG.setOmeroGroup('-1')
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
     session = conn.c.sf
     gateway = conn
     scriptService = session.getScriptService()
