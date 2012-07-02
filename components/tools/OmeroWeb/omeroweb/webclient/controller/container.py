@@ -63,81 +63,61 @@ class BaseContainer(BaseController):
         BaseController.__init__(self, conn)
         if project is not None:
             self.project = self.conn.getObject("Project", project)
-            if self.project is None:
-                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(project))
-            if self.project._obj is None:
-                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(project))
+            self.assertNotNone(self.project, project, "Project")
+            self.assertNotNone(self.project._obj, project, "Project")
         if dataset is not None:
             self.dataset = self.conn.getObject("Dataset", dataset)
-            if self.dataset is None:
-                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
-            if self.dataset._obj is None:
-                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
+            self.assertNotNone(self.dataset, dataset, "Dataset")
+            self.assertNotNone(self.dataset._obj, dataset, "Dataset")
         if screen is not None:
             self.screen = self.conn.getObject("Screen", screen)
-            if self.screen is None:
-                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(screen))
-            if self.screen._obj is None:
-                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(screen))
+            self.assertNotNone(self.screen, screen, "Screen")
+            self.assertNotNone(self.screen._obj, screen, "Screen")
         if plate is not None:
             self.plate = self.conn.getObject("Plate", plate)
-            if self.plate is None:
-                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate))
-            if self.plate._obj is None:
-                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate)) 
+            self.assertNotNone(self.plate, plate, "Plate")
+            self.assertNotNone(self.plate._obj, plate, "Plate")
         if acquisition is not None:
             self.acquisition = self.conn.getObject("PlateAcquisition", acquisition)
-            if self.acquisition is None:
-                raise AttributeError("We are sorry, but that plate acquisition (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(acquisition))
-            if self.acquisition._obj is None:
-                raise AttributeError("We are sorry, but that plate acquisition (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(acquisition))
+            self.assertNotNone(self.acquisition, acquisition, "Plate Acquisition")
+            self.assertNotNone(self.acquisition._obj, acquisition, "Plate Acquisition")
         if image is not None:
             self.image = self.conn.getObject("Image", image)
-            if self.image is None:
-                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(image))
-            if self.image._obj is None:
-                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(image))
+            self.assertNotNone(self.image, image, "Image")
+            self.assertNotNone(self.image._obj, image, "Image")
         if well is not None:
             self.well = self.conn.getObject("Well", well)
-            if self.well is None:
-                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(well))
-            if self.well._obj is None:
-                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(well))
+            self.assertNotNone(self.well, well, "Well")
+            self.assertNotNone(self.well._obj, well, "Well")
             if index is not None:
                 self.well.index = index
         if tag is not None:
             self.tag = self.conn.getObject("Annotation", tag)
-            if self.tag is None:
-                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
-            if self.tag._obj is None:
-                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+            self.assertNotNone(self.tag, tag, "Tag")
+            self.assertNotNone(self.tag._obj, tag, "Tag")
         if tagset is not None:
             self.tag = self.conn.getObject("Annotation", tagset)
-            if self.tag is None:
-                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
-            if self.tag._obj is None:
-                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+            self.assertNotNone(self.tag, tagset, "Tag")
+            self.assertNotNone(self.tag._obj, tagset, "Tag")
         if comment is not None:
             self.comment = self.conn.getObject("Annotation", comment)
-            if self.comment is None:
-                raise AttributeError("We are sorry, but that comment (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(comment))
-            if self.comment._obj is None:
-                raise AttributeError("We are sorry, but that comment (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(comment))
+            self.assertNotNone(self.comment, comment, "Comment")
+            self.assertNotNone(self.comment._obj, comment, "Comment")
         if file is not None:
             self.file = self.conn.getObject("Annotation", file)
-            if self.file is None:
-                raise AttributeError("We are sorry, but that file (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(file))
-            if self.file._obj is None:
-                raise AttributeError("We are sorry, but that file (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(file))
+            self.assertNotNone(self.file, file, "File")
+            self.assertNotNone(self.file._obj, file, "File")
         if annotation is not None:
             self.annotation = self.conn.getObject("Annotation", annotation)
-            if self.annotation is None:
-                raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
-            if self.annotation._obj is None:
-                raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
+            self.assertNotNone(self.annotation, annotation, "Annotation")
+            self.assertNotNone(self.annotation._obj, annotation, "Annotation")
         if orphaned:
             self.orphaned = True
             
+    def assertNotNone(self, obj, obj_id, obj_name):
+        if obj is None:
+            raise AttributeError("We are sorry, but that %s (id:%s) does not exist, or if it does, you have no permission to see it." % (obj_name, obj_id))
+
     def _get_object(self):
         """
         Since the container is often used to wrap a single Project, Dataset etc, several methods need access to 
