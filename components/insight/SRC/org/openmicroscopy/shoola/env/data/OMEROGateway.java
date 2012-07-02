@@ -448,6 +448,25 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns <code>true</code> if the server is running.
+	 * 
+	 * @param ctx The security context.
+	 * @return See above.
+	 */
+	boolean isServerRunning(SecurityContext ctx)
+	{
+		if (!connected) return false;
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null) return false;
+			c.getAdminService().getEventContext();
+		} catch (Throwable e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Creates the permissions corresponding to the specified level.
 	 * 
 	 * @param level The level to handle.

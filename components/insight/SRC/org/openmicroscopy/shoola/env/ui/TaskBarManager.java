@@ -631,6 +631,20 @@ public class TaskBarManager
 		}
     }
 
+	/**
+	 * Returns <code>true</code> if the application is used as an 
+	 * <code></code>ImageJ plug-in, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isRunAsIJPlugin()
+	{
+		Environment env = (Environment) 
+		container.getRegistry().lookup(LookupNames.ENV);
+    	if (env == null) return false;
+    	return env.runAsPlugin() == LookupNames.IMAGE_J;
+	}
+	
 	/** 
 	 * Exits the application.
 	 * 
@@ -645,7 +659,7 @@ public class TaskBarManager
 				AdminService svc = container.getRegistry().getAdminService();
 				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 			} catch (Exception e) {
-				IJ.log(e.getMessage());
+				if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 				Logger log = container.getRegistry().getLogger();
 				LogMessage msg = new LogMessage();
 				msg.print(e);
@@ -658,7 +672,7 @@ public class TaskBarManager
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
 		} catch (Exception e) {
-			IJ.log(e.getMessage());
+			if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 			Logger log = container.getRegistry().getLogger();
 			LogMessage msg = new LogMessage();
 			msg.print("Error while exiting");
