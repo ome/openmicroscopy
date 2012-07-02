@@ -158,29 +158,14 @@ public class QuantumFactory {
         boolean b = false;
         switch (bitResolution) {
             case DEPTH_1BIT:
-                b = true;
-                break;
             case DEPTH_2BIT:
-                b = true;
-                break;
             case DEPTH_3BIT:
-                b = true;
-                break;
             case DEPTH_4BIT:
-                b = true;
-                break;
             case DEPTH_5BIT:
-                b = true;
-                break;
             case DEPTH_6BIT:
-                b = true;
-                break;
             case DEPTH_7BIT:
-                b = true;
-                break;
             case DEPTH_8BIT:
                 b = true;
-                break;
         }
         if (!b) {
             throw new IllegalArgumentException("Unsupported bit resolution: "

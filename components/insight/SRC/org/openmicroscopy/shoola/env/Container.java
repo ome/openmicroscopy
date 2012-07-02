@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.IOUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -242,7 +244,9 @@ public final class Container
 	public String getConfigFileRelative(String file)
 	{ 
         StringBuffer relPath = new StringBuffer(CONFIG_DIR);
-        relPath.append(File.separatorChar);
+        if (IOUtil.isJavaWebStart() && UIUtilities.isWindowsOS())
+            relPath.append("/");
+        else relPath.append(File.separatorChar);
         relPath.append(file);
         return relPath.toString();
 	}

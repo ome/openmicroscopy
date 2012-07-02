@@ -416,7 +416,7 @@ class ImporterUI
  		bar.removeAll();
  		bar.add(createFileMenu());
  		for (int i = 0; i < existingMenus.length; i++) {
-			bar.add(existingMenus[i]);
+ 			if (i != TaskBar.FILE_MENU) bar.add(existingMenus[i]);
 		}
     	return bar;
     }
@@ -424,13 +424,13 @@ class ImporterUI
     /** Packs the window and resizes it if the screen is too small. */
 	private void packWindow()
 	{
-		pack();
+		//pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension size = getSize();
-		int width = (int) (screenSize.width*SCREEN_RATIO);
-		int height = (int) (screenSize.height*SCREEN_RATIO);
-		int w = size.width;
-		int h = size.height;
+		int width = (int) (screenSize.width);//*SCREEN_RATIO);
+		int height = (int) (screenSize.height);//*SCREEN_RATIO);
+		int w = size.width-10;
+		int h = size.height-10;
 		boolean reset = false;
 		if (w > width) {
 			reset = true;
@@ -499,6 +499,7 @@ class ImporterUI
 			tabs.insertClosableComponent(c);
 		}
 		selectChooser();
+		pack();
 	}
 	
 	/** Indicates to the select the import chooser. */
@@ -766,12 +767,16 @@ class ImporterUI
         Iterator i = set.iterator();
         int index = 0;
         GroupData g;
+        long gid = model.getGroupId();
+        int selected = 0;
         while (i.hasNext()) {
         	g = (GroupData) i.next();
+        	if (g.getId() == gid) selected = index;
         	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
 			index++;
 		}
         JComboBox groups = new JComboBox(objects);
+        groups.setSelectedIndex(selected);
         JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
         groups.setRenderer(rnd);
         rnd.setPreferredSize(new Dimension(200, 130));

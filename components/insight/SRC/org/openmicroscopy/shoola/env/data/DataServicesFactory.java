@@ -29,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -375,6 +376,7 @@ public class DataServicesFactory
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
+			case DESTROYED_CONNECTION:
 			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
@@ -389,22 +391,39 @@ public class DataServicesFactory
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
-					List<Long> l = omeroGateway.getRenderingServices();
+					Map<SecurityContext, Set<Long>> l =
+						omeroGateway.getRenderingEngines();
 					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
             				uc.getPassword());
 					connectionDialog = null;
 					if (b) {
-						//reactivate the rendering engine.
-						Iterator<Long> i = l.iterator();
+						//reactivate the rendering engine. Need to review that
+						Iterator<Entry<SecurityContext, Set<Long>>> i =
+							l.entrySet().iterator();
 						OmeroImageService svc = registry.getImageService();
 						Long id;
-						List<Long> failure = new ArrayList<Long>();
+						Entry<SecurityContext, Set<Long>> entry;
+						Map<SecurityContext, List<Long>> 
+						failure = new HashMap<SecurityContext, List<Long>>();
+						Iterator<Long> j;
+						SecurityContext ctx;
+						List<Long> f;
 						while (i.hasNext()) {
-							id = i.next();
-							try {
-								//svc.reloadRenderingService(id);
-							} catch (Exception e) {
-								failure.add(id);
+							entry = i.next();
+							j = entry.getValue().iterator();
+							ctx = entry.getKey();
+							while (j.hasNext()) {
+								id = j.next();
+								try {
+									svc.reloadRenderingService(ctx, id);
+								} catch (Exception e) {
+									f = failure.get(ctx);
+									if (f == null) {
+										f = new ArrayList<Long>();
+										failure.put(ctx, f);
+									}
+									f.add(id);
+								}
 							}
 						}
 						message = "You are reconnected to the server.";
@@ -480,10 +499,13 @@ public class DataServicesFactory
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
 		omeroGateway.setPort(uc.getPort());
+		String name = (String) 
+		 container.getRegistry().lookup(LookupNames.MASTER);
+		if (name == null) name = LookupNames.MASTER_INSIGHT;
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
-                                uc.getGroup(), uc.isEncrypted());
+                                uc.getGroup(), uc.isEncrypted(), name);
         compatible = true;
         //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);

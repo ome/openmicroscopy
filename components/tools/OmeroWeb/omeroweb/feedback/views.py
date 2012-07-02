@@ -160,6 +160,10 @@ def handler404(request):
                     'status_code': 404,
                     'request': request
                 })
+    if request.is_ajax():
+        msg = traceback.format_exception(*sys.exc_info())[-1]
+        return HttpResponseNotFound(msg)
+
     return page_not_found(request, "404.html")
 
 def handlerInternalError(request, error):
@@ -169,6 +173,12 @@ def handlerInternalError(request, error):
     If the call was AJAX, we return the message in a 404 response.
     Otherwise return an html page, with 404 response.
     """
+    logger.warning('Object Not Found: %s' % request.path,
+                extra={
+                    'status_code': 404,
+                    'request': request
+                })
+
     if request.is_ajax():
         return HttpResponseNotFound(error)
 

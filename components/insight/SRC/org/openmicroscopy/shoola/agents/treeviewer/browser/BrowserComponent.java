@@ -360,7 +360,7 @@ class BrowserComponent
 	 */
 	private void setSelectedDisplay(TreeImageDisplay display, boolean single)
     {
-    	switch (model.getState()) {
+		switch (model.getState()) {
 	    	//case LOADING_DATA:
 	    	//case LOADING_LEAVES:
 	    	case DISCARDED:
@@ -369,9 +369,7 @@ class BrowserComponent
 	    		"DISCARDED state.");
     	}
     	hasDataToSave(display);
-    	//if (hasDataToSave(display)) return;
     	TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
-    	//if (oldDisplay != null && oldDisplay.equals(display)) return; 
     	TreeImageDisplay exp = null;
     	Object ho;
     	if (display != null) {
@@ -1008,7 +1006,6 @@ class BrowserComponent
         	}
         	return;
         }
-        //TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
         boolean flush = false;
         if (oldNodes.length >= nodes.length) flush = true;
         int n = nodes.length;
@@ -1266,7 +1263,6 @@ class BrowserComponent
         	return;
 		}
 		TreeImageDisplay display;
-		long id;
 		RefreshVisitor v = new RefreshVisitor(this);
 		if (model.getBrowserType() == ADMIN_EXPLORER) {
 			display = view.getTreeRoot();
@@ -1421,7 +1417,6 @@ class BrowserComponent
 		    	}
 			}
 	    }
-	    
 	    if (m.size() == 0) { //for new data the first time.
 	    	TreeImageDisplay node = getLoggedExperimenterNode();
 	    	if (node != null)
@@ -1903,9 +1898,10 @@ class BrowserComponent
 	 */
 	public void reActivate()
 	{
+		model.setSelectedDisplay(null, true);
 		view.reActivate();
-		if (model.isSelected() && 
-				model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+		if (model.isSelected() &&
+			model.getBrowserType() == Browser.ADMIN_EXPLORER) {
 			model.setState(NEW);
 			activate();
 		}

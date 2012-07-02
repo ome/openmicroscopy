@@ -37,6 +37,13 @@ publication type of figures.
  
 """
 
+try:
+    from PIL import Image, ImageDraw, ImageFont # see ticket:2597
+except ImportError:
+    import Image, ImageDraw, ImageFont # see ticket:2597
+
+WHITE = (255,255,255)
+
 SECS_MILLIS = "SECS_MILLIS"
 SECS = "SECS"
 MINS = "MINS"
@@ -215,3 +222,51 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits = None, sho
     labels.append(timeUnits)
     return labels
 
+def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
+    """
+    Adds a scalebar at the bottom right of an image, No text.
+
+    @param scalebar     length of scalebar in microns
+    @param xIndent      indent from the right of the image
+    @param yIndent      indent from the bottom of the image
+    @param image        the PIL image to add scalebar to
+    @param pixels       the pixels object
+    @param colour       colour of the overlay as r,g,b tuple
+    """
+    draw = ImageDraw.Draw(image)
+    if pixels.getPhysicalSizeX() == None:
+        return False, "  Failed to add scale bar: Pixel size not defined."
+    pixelSizeX = pixels.getPhysicalSizeX().getValue()
+    if pixelSizeX <= 0:
+        return False, "  Failed to add scale bar: Pixel size not defined."
+    iWidth, iHeight = image.size
+    lineThickness = (iHeight//100) + 1
+    scaleBarY = iHeight - yIndent
+    scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
+    scaleBarX2 = iWidth - xIndent
+    if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
+        return False, "  Failed to add scale bar: Scale bar is too large."
+    for l in range(lineThickness):
+        draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
+        scaleBarY -= 1
+    return True,  "  Scalebar added to the image."
+
+def getVerticalLabels(labels, font, textGap):
+    """ Returns an image with the labels written vertically with the given font, black on white background """
+
+    maxWidth = 0
+    height = 0
+    textHeight = font.getsize("testq")[1]
+    for label in labels:
+        maxWidth = max(maxWidth, font.getsize(label)[0])
+        if height > 0: height += textGap
+        height += textHeight
+    size = (maxWidth, height)
+    textCanvas = Image.new("RGB", size, WHITE)
+    textdraw = ImageDraw.Draw(textCanvas)
+    py = 0
+    for label in labels:
+        indent = (maxWidth - font.getsize(label)[0]) / 2
+        textdraw.text((indent, py), label, font=font, fill=(0,0,0))
+        py += textHeight + textGap
+    return textCanvas.rotate(90)

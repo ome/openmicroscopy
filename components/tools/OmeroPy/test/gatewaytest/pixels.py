@@ -20,6 +20,15 @@ class PixelsTest (lib.GTest):
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
 
+    def testReuseRawPixelsStore (self):
+        img1 = self.TESTIMG
+        img2 = self.getTestImage2()
+        rps = self.gateway.createRawPixelsStore()
+        rps.setPixelsId(img1.getPrimaryPixels().getId(), True, {'omero.group': '-1'})
+        self.assert_(rps.getByteWidth() > 0)
+        rps.setPixelsId(img2.getPrimaryPixels().getId(), True, {'omero.group': '-1'})
+        self.assert_(rps.getByteWidth() > 0)
+
     def testPlaneInfo(self):
 
         image = self.TESTIMG

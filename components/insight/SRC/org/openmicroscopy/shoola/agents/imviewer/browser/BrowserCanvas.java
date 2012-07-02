@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.Map;
 
 //Third-party libraries
@@ -91,7 +93,7 @@ class BrowserCanvas
             TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
 			Color c = ImageCanvas.BACKGROUND;
     		float xStart, yStart, xEnd = 0, yEnd;
-    		drawScaleBar(gl, model.getTiledImageSizeX(), 
+    		drawScaleBar(gl, model.getTiledImageSizeX(),
     				model.getTiledImageSizeY());
         	for (int i = 0; i < rows; i++) {
     			for (int j = 0; j < columns; j++) {
@@ -107,11 +109,14 @@ class BrowserCanvas
     					(float) (r.getY()+r.getHeight())/(r.getHeight()*rows);
     				if (img != null) {
     					if (texture == null) 
-    						texture = TextureIO.newTexture((TextureData) img);
+    						texture = TextureIO.newTexture(
+    								(TextureData) img);
     					else texture.updateImage((TextureData) img);
     					texture.enable();
     					texture.bind();
+    					
     					gl.glBegin(GL.GL_QUADS);
+    					gl.glPushMatrix();
     					gl.glTexCoord2f(coords.left(), coords.bottom());
     					gl.glVertex3f(xStart, yStart, 0);
     					gl.glTexCoord2f(coords.right(), coords.bottom());
@@ -120,9 +125,10 @@ class BrowserCanvas
     					gl.glVertex3f(xEnd, yEnd, 0);
     					gl.glTexCoord2f(coords.left(), coords.top());
     					gl.glVertex3f(xStart, yEnd, 0);
+    					gl.glPopMatrix();
     					gl.glEnd();
-    					
     				} else { //draw the grid.
+    					/*
     					gl.glColor3f(c.getRed()/255f, c.getGreen()/255f,
     							c.getBlue()/255f);
     					gl.glBegin(GL.GL_LINES);
@@ -138,12 +144,14 @@ class BrowserCanvas
     					gl.glVertex3f(xEnd, yStart, 0.0f); 
     					gl.glVertex3f(xEnd, yEnd, 0.0f);
     					gl.glEnd();
+    					*/
     				}
     			}
     		}
-        	if (texture != null) texture.disable();
         	
+        	if (texture != null) texture.disable();
         	gl.glFlush();
+        	System.gc();
     	} else {//image
     		onDisplay(drawable, model.getRenderedImageAsTexture());
     	}

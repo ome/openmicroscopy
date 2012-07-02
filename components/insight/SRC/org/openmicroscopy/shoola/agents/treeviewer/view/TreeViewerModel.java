@@ -821,10 +821,9 @@ class TreeViewerModel
 	/**
 	 * Creates the advanced finder.
 	 * 
-	 * @param ctx The security context.
 	 * @return See above.
 	 */
-	AdvancedFinder getAdvancedFinder(SecurityContext ctx)
+	AdvancedFinder getAdvancedFinder()
 	{ 
 		if (advancedFinder == null)
 			advancedFinder = FinderFactory.getAdvancedFinder(
@@ -1032,10 +1031,14 @@ class TreeViewerModel
 		}
 	}
 	
-	/** Resets the metadata view. */
-	void resetMetadataViewer()
+	/** Resets the metadata view. 
+	 * 
+	 * @return The newly created metadata viewer.
+	 */
+	MetadataViewer resetMetadataViewer()
 	{
 		metadataViewer = null;
+		return getMetadataViewer();
 	}
 	
 	/**

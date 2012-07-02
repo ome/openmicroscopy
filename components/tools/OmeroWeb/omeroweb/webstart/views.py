@@ -34,7 +34,7 @@ from django.core.urlresolvers import reverse
 
 def index(request):
     template = settings.INDEX_TEMPLATE
-    if template is None:
+    if not isinstance(template, basestring):
         template = 'webstart/index.html'
     
     insight_url = None

@@ -15,6 +15,7 @@ from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
+DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
     try:
@@ -55,40 +56,8 @@ def login (alias, pw=None, groupname=None):
     else:
         return UserEntry(alias, pw).login(groupname=groupname)
 
-#def addGroupToUser (client, groupname):
-#    a = client.getAdminService()
-#    if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
-#        admin = loginAsRoot()
-#        a = admin.getAdminService()
-#    else:
-#        admin = client
-#    try:
-#        g = a.lookupGroup(groupname)
-#    except:
-#        g = omero.model.ExperimenterGroupI()
-#        g.setName(omero.gateway.omero_type(groupname))
-#        a.createGroup(g)
-#        g = a.lookupGroup(groupname)
-#    a.addGroups(a.getExperimenter(client._userid), (g,))
-
-#def setGroupForSession (client, groupname):
-#    ssuid = client._sessionUuid
-#    ss = client.getSessionService()
-#    sess = ss.getSession(ssuid)
-#    if sess.getDetails().getGroup().getName().val == groupname:
-#        # Already correct
-#        return
-#    a = client.getAdminService()
-#    if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
-#        UserEntry.addGroupToUser(client, groupname)
-#    g = a.lookupGroup(groupname)
-#    sess.getDetails().setGroup(g)
-#    ss.updateSession(sess)
-
-
 class BadGroupPermissionsException(Exception):
     pass
-
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
@@ -136,27 +105,50 @@ class UserEntry (object):
         return client
 
     @staticmethod
-    def check_group_perms(client, groupname, groupperms):
+    def check_group_perms(client, group, groupperms):
         """
         If expected permissions have been set, then this will
         enforce equality. If groupperms are None, then
         nothing will be checked.
         """
         if groupperms is not None:
-            a = client.getAdminService()
-            g = a.lookupGroup(groupname)
+            if isinstance(group, StringTypes):
+                a = client.getAdminService()
+                g = a.lookupGroup(group)
+            else:
+                g = group
             p = g.getDetails().getPermissions()
             if str(p) != groupperms:
                 raise BadGroupPermissionsException( \
                         "%s group has wrong permissions! Expected: %s Found: %s" % \
-                        (groupname, groupperms, p))
+                        (g.getName(), groupperms, p))
+
+
+    @staticmethod
+    def assert_group_perms(client, group, groupperms):
+        """
+        If expected permissions have been set, then this will
+        change group permissions to those requested if not
+        already equal. If groupperms are None, then
+        nothing will be checked.
+        """
+        a = client.getAdminService()
+        try:
+            if isinstance(group, StringTypes):
+                g = a.lookupGroup(groupname)
+            else:
+                g = group
+            UserEntry.check_group_perms(client, g, groupperms)
+        except BadGroupPermissionsException:
+            a.changePermissions(g._obj, omero.model.PermissionsI(groupperms))
+       
 
     @staticmethod
     def _getOrCreateGroup (client, groupname, groupperms=None):
 
         # Default on class is None
         if groupperms is None:
-            groupperms = "rwr---"
+            groupperms = DEFAULT_GROUP_PERMS
 
         a = client.getAdminService()
         try:
@@ -205,7 +197,10 @@ class UserEntry (object):
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
-    def addGroupToUser (client, groupname, groupperms='rw----'):
+    def addGroupToUser (client, groupname, groupperms=None):
+        if groupperms is None:
+            groupperms = DEFAULT_GROUP_PERMS
+            
         a = client.getAdminService()
         admin_gateway = None
         try:
@@ -222,19 +217,30 @@ class UserEntry (object):
                 admin_gateway.seppuku()
 
     @staticmethod
-    def setGroupForSession (client, groupname):
+    def setGroupForSession (client, groupname, groupperms=None):
+        if groupperms is None:
+            groupperms = DEFAULT_GROUP_PERMS
+            
         a = client.getAdminService()
         if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
-            UserEntry.addGroupToUser(client, groupname)
+            UserEntry.addGroupToUser(client, groupname, groupperms)
+            # Must reconnect to read new groupexperimentermap
+            t = client.clone()
+            client.c.closeSession()
+            client._proxies = omero.gateway.NoProxies()
+            client._ctx = None
+            client.c = t.c
+            client.connect()
+            a = client.getAdminService()
         g = a.lookupGroup(groupname)
         client.setGroupForSession(g.getId().val)
-
+        return client
 
 class ObjectEntry (object):
     pass
 
 class ProjectEntry (ObjectEntry):
-    def __init__ (self, name, owner, create_group=False, group_perms=False):
+    def __init__ (self, name, owner, create_group=False, group_perms=None):
         self.name = name
         self.owner = owner
         self.create_group = create_group
@@ -266,12 +272,13 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
+            g = UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
             try:
-                UserEntry.addGroupToUser (s, groupname)
+                UserEntry.addGroupToUser (s, groupname, self.group_perms)
             finally:
                 s.seppuku()
 
-            UserEntry.setGroupForSession(client, groupname)
+            UserEntry.setGroupForSession(client, groupname, self.group_perms)
         p = omero.gateway.ProjectWrapper(client, client.getUpdateService().saveAndReturnObject(p))
         return self.get(client, True)
 
@@ -466,31 +473,18 @@ def bootstrap ():
     client.seppuku()
 
 def cleanup ():
-    clients = []
-    try:
-        for k, p in PROJECTS.items():
-            sys.stderr.write('*')
-            p = p.get()
-            if p is not None:
-                client = p._conn
-                clients.append(client)
-                update = client.getUpdateService()
-                delete = client.getDeleteService()
-                for d in p.listChildren():
-                    delete.deleteImagesByDataset(d.getId(), True)
-                    update.deleteObject(d._obj)
-                nss = list(set([x.ns for x in p.listAnnotations()]))
-                for ns in nss:
-                    p.removeAnnotations(ns)
-                #print ".. -> removing project %s" % p.getName()
-                update.deleteObject(p._obj)
-        # What about users?
-        admin = client.getAdminService()
-        for k, u in USERS.items():
-            u.changePassword(client, None)
-    finally:
-        for client in clients:
-            client.seppuku()
+    for k, p in PROJECTS.items():
+        sys.stderr.write('*')
+        p = p.get()
+        if p is not None:
+            client = p._conn
+            client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+    client.seppuku()
+    client = loginAsRoot()
+    admin = client.getAdminService()
+    for k, u in USERS.items():
+        u.changePassword(client, None, ROOT.passwd)
+    client.seppuku()
 
 ROOT=UserEntry('root','ome',admin=True)
 

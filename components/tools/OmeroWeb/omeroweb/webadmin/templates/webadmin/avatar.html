@@ -115,7 +115,7 @@
     </form>
     
 {% else %}
-    <div class="float_left" style="width:150px">
+    <div style="width:150px">
         {% if photo_size %}
         <img src="{% url wamyphoto %}" width="100" height="100" class="imgzoom"/>
         {% else %}
@@ -124,10 +124,11 @@
         {% endif %}
     </div>
     
-    <div class="float_left">
+    <div >
       {% if photo_size %}<p><a href="{% url wamanageavatar ome.eventContext.userId "editphoto" %}"> Edit picture <img title="Crop" src="{% static "webadmin/image/frame_edit.png" %}" /></a></p>{% endif %}
-      <p>Upload new picture. Select an image file on your computer (max 200KB):</p>
-        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar ome.eventContext.userId "upload" %}" class="standard_form">
+        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar ome.eventContext.userId "upload" %}" class="standard_form settings_form">
+            <p>Upload new picture. Select an image file on your computer (max 200KB):</p>
+            
             {% for field in form_file %}
                 {% if field.errors %}{{ field.errors }}{% endif %}<br />
                 {{ field }}{{ field.help_text|safe }}

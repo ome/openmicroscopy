@@ -40,12 +40,17 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class LinuxApplicationDataExtractor implements ApplicationDataExtractor {
+public class LinuxApplicationDataExtractor implements ApplicationDataExtractor
+{
 
-	/** The default location on <code>Linux</code> platforms that applications reside in. */
+	/**
+	 * The default location on <code>Linux</code> platforms that applications
+	 * reside in.
+	 */
 	private static final String LOCATION_LINUX = "/usr/bin";
 	
 	/**
+	 * Returns the directory where applications are generally located.
 	 * @return the Linux specific directory where applications are generally
 	 *         located
 	 */

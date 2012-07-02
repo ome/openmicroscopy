@@ -43,21 +43,21 @@
     
     <script type="text/javascript">
         var isCheckedById = function(name) { 
-            var checked = $("input[name='"+name+"']:checked").length; 
-            if (checked == 0) { return false; } else { return true; } 
+            var selected = $("body").data("selected_objects.ome");
+            // TODO - filter selected by name (E.g. "image")
+            return (selected.length > 0);
         };
         
        var manyRemoveFromBasket = function() {     
             if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
-                var productArray = $("input[type='checkbox']:checked");
+                var selected = $("body").data("selected_objects.ome");
                 var productListQuery = "action=delmany";
-                productArray.each(function() {
-                    if(this.checked) {
-                        productListQuery += "&"+this.name+"="+this.id;
-                    }
-                });
+                for (var i=0; i<selected.length; i++) {
+                    var oid = selected[i]['id'];
+                    productListQuery += "&"+ oid.split("-")[0] +"="+ oid.split("-")[1];
+                }
 
                 $.ajax({
                     type: "POST",
@@ -80,16 +80,12 @@
             if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
-                var productArray = $("input[type='checkbox']:checked");
+                var selected = $("body").data("selected_objects.ome");
+                //var productArray = $("input[type='checkbox']:checked");
                 var productListQuery = "";
-                if (productArray.length > 0 ) {
-                    productArray.each(function() {
-                        if(this.checked) {
-                            productListQuery += "&"+this.name+"="+this.id;
-                        }
-                    });
-                } else {
-                    productListQuery += "&"+productArray.name+"="+productArray.id;
+                for (var i=0; i<selected.length; i++) {
+                    var oid = selected[i]['id'];
+                    productListQuery += "&"+ oid.split("-")[0] +"="+ oid.split("-")[1];
                 }
             }
 
@@ -169,25 +165,29 @@
                     }
                 }
             });
+
+            $("table#dataTable tbody tr").click(function(event) {
+                handleTableClickSelection(event);
+
+                var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
+                if ($new_selected.length > 0) {
+                    $("input.toggleEnabled").attr("disabled", null);
+                } else {
+                    $("input.toggleEnabled").attr("disabled", "true");
+                }
+            });
             
             $("table#dataTable tbody").selectable({
                 filter: 'tr',
-                stop: function(){
+                distance: 2,
+                stop: function(event){
                     var l = $('tr.ui-selected', this).length;
-                    $("tr.ui-selected td input", this).each(function(){
-                        this.checked = true;
-                    });
                     if (l > 0) {
                         $("input.toggleEnabled").attr("disabled", null);
                     } else {
                         $("input.toggleEnabled").attr("disabled", "true");
                     }
-                    basket_selection_changed($("tr.ui-selected td input", this));
-                },
-                start: function(){
-                    $("tr input", this).each(function(){
-                        this.checked = false;
-                    });
+                    table_selection_changed($("tr.ui-selected", this));
                 }
             });
             
@@ -266,9 +266,10 @@
 	            </thead>
 	            <tbody>
 	                {% for c in basket.imageInBasket %}
-	                    <tr id="{{ c.id }}">
+	                    <tr id="image-{{ c.id }}">
 	                        <td class="image">
-	                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+	                            <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
+	                            <!--<img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>-->
 	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 	                        </td>
 	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>

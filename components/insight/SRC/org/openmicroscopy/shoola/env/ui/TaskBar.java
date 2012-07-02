@@ -73,13 +73,6 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
  */
 public interface TaskBar 
 {
-	/** Indicates that the connection has been lost. */
-	public static final int LOST_CONNECTION = 
-		DataServicesFactory.LOST_CONNECTION;
-	
-	/** Indicates that the server is out of service. */
-	public static final int SERVER_OUT_OF_SERVICE = 
-		DataServicesFactory.SERVER_OUT_OF_SERVICE;
 	
 	//NOTE: The TaskBarView uses these constants to do direct indexing.
 	//So changing these values requires a review of TaskBarView as well.  

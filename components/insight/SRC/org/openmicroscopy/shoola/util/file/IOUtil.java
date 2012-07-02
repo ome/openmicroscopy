@@ -253,13 +253,24 @@ public class IOUtil
 	public static InputStream readConfigFile(String fileName)
 		throws IOException
 	{
-		if (System.getProperty("javawebstart.version", null) != null) {
+		if (isJavaWebStart()) {
 			// We're running under Java Web Start, read configuration file
 			// from the CLASSPATH.
 			return IOUtil.class.getClassLoader().getResourceAsStream(fileName);
 		}
 		// We're running normally, return as so.
 		return new FileInputStream(fileName);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the application is running under Java
+	 * Web Start, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isJavaWebStart()
+	{
+		return System.getProperty("javawebstart.version", null) != null;
 	}
 	
 	/**

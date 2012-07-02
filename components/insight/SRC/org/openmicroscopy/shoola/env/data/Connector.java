@@ -493,7 +493,7 @@ class Connector
 	 * @return See above.
 	 * @throws Throwable Thrown if the service cannot be initialized.
 	 */
-	RenderingEnginePrx getRenderingService()
+	RenderingEnginePrx getRenderingService(long pixelsID)
 		throws Throwable
 	{
 		RenderingEnginePrx prx;
@@ -501,6 +501,7 @@ class Connector
 			prx = entryUnencrypted.createRenderingEngine();
 		else prx = entryEncrypted.createRenderingEngine();
 		prx.setCompressionLevel(context.getCompression());
+		reServices.put(pixelsID, prx);
 		return prx;
 	}
 
@@ -746,31 +747,59 @@ class Connector
 	}
 
 	/**
-	 * Returns the secured client.
+	 * Returns the unsecured client if not <code>null</code> otherwise
+	 * returns the secured client.
 	 * 
 	 * @return See above.
 	 */
-	client getClient() { return secureClient; }
+	client getClient()
+	{
+		if (unsecureClient != null) return unsecureClient;
+		return secureClient;
+	}
 
 	/**
 	 * Executes the commands.
 	 * 
 	 * @param commands The commands to execute.
+	 * @param target The target context is any.
 	 * @return See above.
 	 */
-	RequestCallback submit(List<Request> commands)
+	RequestCallback submit(List<Request> commands, SecurityContext target)
 		throws Throwable
 	{
 		if (commands == null || commands.size() == 0)
 			return null;
 		DoAll all = new DoAll();
 		all.requests = commands;
+		Map<String, String> callContext = new HashMap<String, String>();
+		if (target != null) {
+			callContext.put("omero.group", ""+target.getGroupID());
+		}
 		if (entryUnencrypted != null) {
 			return new RequestCallback(getClient(), 
-					entryUnencrypted.submit(all));
+					entryUnencrypted.submit(all, callContext));
 		}
 		return new RequestCallback(getClient(), 
-				entryEncrypted.submit(all));
+				entryEncrypted.submit(all, callContext));
 	}
 
+	/**
+	 * Returns the rendering engines that are currently active.
+	 * 
+	 * @return See above.
+	 */
+	Map<SecurityContext, Set<Long>> getRenderingEngines()
+	{ 
+		Map<SecurityContext, Set<Long>> 
+		map = new HashMap<SecurityContext, Set<Long>>();
+		Set<Long> list = new HashSet<Long>();
+		Iterator<Long> i = reServices.keySet().iterator();
+		while (i.hasNext())
+			list.add(i.next());
+
+		map.put(context, list);
+		return map; 
+	}
+	
 }

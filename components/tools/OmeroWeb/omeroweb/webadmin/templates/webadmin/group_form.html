@@ -43,20 +43,20 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var highlightDefaultGroup = function() {
-                    var experimenterDefaultIds = [{{ experimenterDefaultGroups }}];
-                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if ($.inArray(parseInt(item.value), experimenterDefaultIds) > -1) {
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-default').find("a").first().unbind("click").remove();                            
-                        }
-                    });
-                }
                 
-                $("#id_owners").chosen();
-                $("#id_members").chosen();
-                
-                highlightDefaultGroup();
-                
+                $("#id_owners").chosen({placeholder_text:'Choose one or more owners'});
+                $("#id_members").chosen({placeholder_text:'Choose one or more members'}).change(function(evt, data) {
+                    if (data && data.deselected) {
+                        var selected = $.grep($('#id_owners').data('chosen').results_data, function(item){
+                            if(item.selected && item.value === data.deselected) {
+                                $('#id_owners option[value='+data.deselected+']').prop('selected', false);
+                                $("#id_owners").trigger("liszt:updated");
+                            }
+                        });
+                        
+                    }
+                });
+
                 {% if gid %}
                 {% ifnotequal permissions 0 %}
                     $('#id_permissions_0').attr('disabled', true);
@@ -83,40 +83,43 @@
 
 
 {% if gid %}
-<form action="{% url wamanagegroupid "save" gid %}"  class="standard_form settings_form" method="POST">
+    <form action="{% url wamanagegroupid "save" gid %}"  class="standard_form settings_form" method="POST">
 {% else %}
-
-<form class="standard_form settings_form" action="{% url wamanagegroupid "create" %}" method="POST">
+    <form action="{% url wamanagegroupid "create" %}" class="standard_form settings_form" method="POST">
 {% endif %}
 
-<p>{% trans "Fields marked in red are mandatory." %}</p>
+        <p>{% trans "Fields marked in red are mandatory." %}</p>
+        <br/>
 
-
-    {% for field in form %}
+        <div>
+            {% for field in form %}
         
-		{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
-		{{ field }}
+		    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+		    {{ field }}
 		
-		{% if field.errors %}{{ field.errors }}{% endif %}
+		    {% if field.errors %}{{ field.errors }}{% endif %}
 		
-		{{ field.help_text|safe }}
-	<br/>
+		    <div>{{ field.help_text|safe }}</div>
+	        <br/>
     
-    {% endfor %}  
+            {% endfor %}  
+            
+            
+            <input type="submit" value="{% trans 'Save' %}" />
+            <br/>
+            <br/>
+        </div>
+    </form>
+
     
-  <input type="submit" value="{% trans 'Save' %}" />
-
-</form>
-
-
-<p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
-
-<p>{% trans "<strong>Collaborative - read-only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
-
-<p>{% trans "<strong>Collaborative - read-annotate (rwra--)</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
-
-<div class="error"><p>{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</p></div>
-
 </div>
 
+{% endblock %}
+
+{% block metadata_details %}
+    <p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
+
+    <p>{% trans "<strong>Collaborative - read-only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
+
+    <p>{% trans "<strong>Collaborative - read-annotate (rwra--)</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
 {% endblock %}

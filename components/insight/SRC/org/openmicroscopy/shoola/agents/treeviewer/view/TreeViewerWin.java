@@ -267,8 +267,7 @@ class TreeViewerWin
             	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
-            AdvancedFinder finder = model.getAdvancedFinder(
-            		model.getSecurityContext());
+            AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
     		searchPane = new TaskPaneBrowser(new JScrollPane(finder));
     		container.add(searchPane);
@@ -938,8 +937,7 @@ class TreeViewerWin
         		displayMode = TreeViewer.SEARCH_MODE;
         	splitPane.setDividerLocation(splitPane.getDividerLocation());
         	if (finderScrollPane == null) {
-        		AdvancedFinder finder = model.getAdvancedFinder(
-        				model.getSecurityContext());
+        		AdvancedFinder finder = model.getAdvancedFinder();
         		finder.addPropertyChangeListener(controller);
         		finderScrollPane = new JScrollPane(finder);
         	}
@@ -1097,7 +1095,6 @@ class TreeViewerWin
 			rightComponent = new JScrollPane(
 					model.getMetadataViewer().getEditorUI());
     	}
-			
 		if (metadataVisible) {
 			Component[] components = rightPane.getComponents();
 			if (components != null && components.length > 0) {
@@ -1119,6 +1116,25 @@ class TreeViewerWin
 			}
 		}
 		metadataVisible = !metadataVisible;
+	}
+	
+	/**
+	 * Resets the metadata viewer.
+	 * 
+	 * @return See above.
+	 */
+	MetadataViewer resetMetadataViewer()
+	{
+		MetadataViewer v = model.resetMetadataViewer();
+		if (rightComponent != null) rightPane.remove(rightComponent);
+		rightComponent = new JScrollPane(v.getEditorUI());
+		if (metadataVisible) {
+			rightPane.add(rightComponent);
+			if (dividerRightLocation > 0) 
+				rightPane.setDividerLocation(dividerRightLocation);
+			else rightPane.setResizeWeight(WEIGHT);
+		}
+		return v;
 	}
 	
 	/**
@@ -1184,17 +1200,24 @@ class TreeViewerWin
 	/** Indicates the group context.*/
 	void setPermissions() { toolBar.setPermissions(); }
 	
-	/** Resets the layout.*/
-	void resetLayout()
+	/** 
+	 * Resets the layout and returns the newly selected browser or 
+	 * <code>null</code> if no new browser selected.
+	 * 
+	 * @return See above
+	 */
+	Browser resetLayout()
 	{
 		layoutBrowsers();
 		splitPane.setLeftComponent(browsersDisplay);
+		Browser result = null;
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
     		//if (firstPane != null) firstPane.setCollapsed(false);
     		Browser browser = model.getSelectedBrowser();
     		Browser b;
     		List<JXTaskPane> list = container.getTaskPanes();
     		TaskPaneBrowser tpb;
+    		container.removePropertyChangeListener(controller);
     		if (browser != null) {
     			if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
         			if (TreeViewerAgent.isAdministrator()) {
@@ -1208,7 +1231,10 @@ class TreeViewerWin
         					}
         				}
         			} else {
-        				if (firstPane != null) firstPane.setCollapsed(false);
+        				if (firstPane != null) {
+        					result = ((TaskPaneBrowser) firstPane).getBrowser();
+        					firstPane.setCollapsed(false);
+        				}
         			}
         		} else {
         			for (JXTaskPane pane: list) {
@@ -1229,10 +1255,12 @@ class TreeViewerWin
         		for (JXTaskPane pane: list) 
             		pane.setAnimated(true);
         	}
+			container.addPropertyChangeListener(controller);
     	}
     	
 		validate();
 		repaint();
+		return result;
 	}
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */

@@ -150,6 +150,7 @@ class AdminServiceImpl
 	{
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
+		if (uc == null) return "";
 		return uc.getHostName();
 	}
 
@@ -222,6 +223,7 @@ class AdminServiceImpl
 			ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (!gateway.isServerRunning(ctx)) return;
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		if (exp == null) {

@@ -36,35 +36,8 @@
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("table#dataTable tbody tr").click(function(event) {
-                handleClickSelection(event);
+                handleTableClickSelection(event);
             });
-            
-            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
-            var handleClickSelection = function(event) {
-
-                var $clickedRow = $(event.target).parents('tr:first');
-                var $clickedImage = $clickedRow.find('img');
-
-                var rows = $("table#dataTable tbody tr");
-                var $images = $("table#dataTable tbody tr td img");
-
-                var primaryIndex = -1;
-                var selIndex = rows.index($clickedRow.get(0));
-                
-                if ( event.shiftKey ) {
-                    
-                }
-                else if (event.metaKey) {
-                    
-                }
-                else {
-                    rows.removeClass("ui-selected");
-                    $clickedRow.addClass("ui-selected");
-                    //var obj = $clickedRow.attr('id').split("-");
-                    primaryIndex = selIndex;
-                    search_selection_changed($clickedRow);
-                }
-            }
             
             // plugin to handle drag-select of images
             $("table#dataTable tbody").selectable({
@@ -72,7 +45,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    multipleAnnotation(selected, null, '{% url batch_annotate %}');
+                    table_selection_changed(selected);
                 },
                 start: function(){
                 }
@@ -105,7 +78,7 @@
             </thead>
             <tbody>
             {% for c in manager.containers.projects %}
-                <tr id="project-{{ c.id }}">
+                <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
@@ -114,7 +87,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
-                <tr id="screen-{{ c.id }}">
+                <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
@@ -123,7 +96,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
-                <tr id="dataset-{{ c.id }}">
+                <tr id="dataset-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
@@ -132,7 +105,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
-                <tr id="plate-{{ c.id }}">
+                <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
@@ -141,7 +114,7 @@
                 </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
-                <tr id="image-{{ c.id }}">
+                <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>

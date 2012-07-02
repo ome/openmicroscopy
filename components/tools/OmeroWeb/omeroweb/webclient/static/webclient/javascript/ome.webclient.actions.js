@@ -89,28 +89,6 @@ var field_selection_changed = function(field) {
         .trigger("selection_change.ome", $(this).attr('id'));
 }
 
-// change in seletion of search results - only single object selection
-var search_selection_changed = function($row) {
-    var $body = $("body");
-    if (typeof $row != 'undefined') {
-        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
-    } else {
-        $body.data("selected_objects.ome", [])
-    }
-    $body.trigger("selection_change.ome");
-}
-
-// change in seletion of history results - only single object selection
-var history_selection_changed = function($row) {
-    var $body = $("body");
-    if (typeof $row != 'undefined') {
-        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
-    } else {
-        $body.data("selected_objects.ome", [])
-    }
-    $body.trigger("selection_change.ome");
-}
-
 // actually called when share is edited, to refresh right-hand panel
 var share_selection_changed = function(share_id) {
     $("body")
@@ -118,17 +96,64 @@ var share_selection_changed = function(share_id) {
         .trigger("selection_change.ome");
 }
 
-var basket_selection_changed = function($selected) {
-
+var table_selection_changed = function($selected) {
     var selected_objs = [];
-    $selected.each(function(i){
-        // we only support images in basket:
-        selected_objs.push( {"id":"image-"+$(this).attr('id'), "rel":"image"} );
-    });
-    
+    if (typeof $selected != 'undefined') {
+        $selected.each(function(i){
+            selected_objs.push( {"id":$(this).attr('id')} );
+        });
+    }
     $("body")
         .data("selected_objects.ome", selected_objs)
         .trigger("selection_change.ome");
+}
+
+// handles selection for 'clicks' on table (search, history & basket) 
+// including multi-select for shift and meta keys
+var handleTableClickSelection = function(event) {
+
+    var $clickedRow = $(event.target).parents('tr:first');
+    var rows = $("table#dataTable tbody tr");
+    var selIndex = rows.index($clickedRow.get(0));
+    
+    if ( event.shiftKey ) {
+        // get existing selected items
+        var $s = $("table#dataTable tbody tr.ui-selected");
+        if ($s.length == 0) {
+            $clickedRow.addClass("ui-selected");
+            search_selection_changed($clickedRow);
+            return;
+        }
+        var sel_start = rows.index($s.first());
+        var sel_end = rows.index($s.last());
+        
+        // select all rows between new and existing selections
+        var new_start, new_end
+        if (selIndex < sel_start) {
+            new_start = selIndex
+            new_end = sel_start
+        } else if (selIndex > sel_end) {
+            new_start = sel_end+1
+            new_end = selIndex+1
+        // or just from the first existing selection to new one
+        } else {
+            new_start = sel_start
+            new_end = selIndex
+        }
+        for (var i=new_start; i<new_end; i++) {
+            rows.eq(i).addClass("ui-selected");
+        }
+    }
+    else if (event.metaKey) {
+        if ($clickedRow.hasClass("ui-selected")) $clickedRow.removeClass("ui-selected");
+        else $clickedRow.addClass("ui-selected");
+    }
+    else {
+        rows.removeClass("ui-selected");
+        $clickedRow.addClass("ui-selected");
+    }
+    // update right hand panel etc
+    table_selection_changed($("table#dataTable tbody tr.ui-selected"));
 }
 
 // called from click events on plate. Selected wells 
@@ -146,45 +171,6 @@ var well_selection_changed = function($selected, well_index, plate_class) {
         .trigger("selection_change.ome");
 }
 
-// multiple selection in the history & search tables
-var multipleAnnotation = function(selected, index, prefix){
-    if (selected != null && selected.length > 0) {
-        var productListQuery = new Array(); 
-        selected.each( function(i){
-            productListQuery[i] = {"id":$(this).attr('id').replace("-","=")};
-            productListQuery[i]['class'] = $(this).attr('class');
-        });
-        var query = prefix+"?"+productListQuery.join("&")
-        if (index != null && index > -1) {
-            query += "&index="+index;
-        }
-        $("body")
-            .data("selected_objects.ome", productListQuery)
-            .trigger("selection_change.ome");
-        
-    } else {
-        alert ("Please select at least one element."); 
-    }
-};
-
-
-function saveMetadata (image_id, metadata_type, metadata_value) {
-    if (image_id == null) {
-        alert("No image selected.")
-    } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="../../static/webgateway/img/spinner.gif"/>');
-        $.ajax({
-            type: "POST",
-            url: "/webclient/metadata/image/"+image_id+"/", //this.href,
-            data: "matadataType="+metadata_type+"&metadataValue="+metadata_value,
-            contentType:'html',
-            cache:false,
-            success: function(responce){
-                $($('#id_'+metadata_type).parent().find('img')).remove()
-            }
-        });
-    }
-}
 
 // This is called by the Pagination controls at the bottom of icon or table pages.
 // We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh

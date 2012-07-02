@@ -28,6 +28,9 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.chosen/chosen.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/chosen.css" %}" type="text/css" media="screen"/>
+    
     <!--[if lte IE 8]>
         <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
     <![endif]-->
@@ -41,12 +44,16 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    <script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.chosen/chosen.jquery.js" %}"></script>
     
     <script type="text/javascript">
     
     $(document).ready(function () {
+        
+        $("#id_default_group").chosen({disable_search_threshold:5, placeholder_text:'Change your default group'});
+        
         $("#groupTable").tablesorter( {
             //sortList: [[1,0]]
             headers: {0: { sorter: 'digit' } }
@@ -200,7 +207,7 @@
                         if (!data.loading) {
                             usage = false;
                             $("#usage").remove();
-                            $("#placeholder").css('width',600).css('height',300);
+                            $("#placeholder").css('width',700).css('height',300);
                         }
                         
                         offsetQuery = "offset="+(data.offset);
@@ -298,6 +305,8 @@
                             drivespace_loaded = true;
                             $.getJSON("{% url wadrivespace %}", function(data){
                                 load_drivespace(data.free);
+                                var fspace = parseInt(data.free / (1024 * 1024));  // GB
+                                $("#drivespace_free").text(fspace + " GB");
                             });
                         }
                     }
@@ -463,7 +472,7 @@
 
         <h2>{% trans "Drive space usage" %}:</h2>
 
-        <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+        <div>{% trans "Free space" %}: <span id="drivespace_free"></span></div>
         <div id="total"></div>
 
         <div id="usage">

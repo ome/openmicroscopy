@@ -228,14 +228,8 @@ class BrowserModel
     TreeImageDisplay getLastSelectedDisplay()
     { 
         int n = selectedNodes.size();
-        if (n == 0) return null;
-        Iterator i = selectedNodes.iterator();
-        int index = 0;
-        while (i.hasNext()) {
-            if (index == (n-1)) return (TreeImageDisplay) i.next();
-            index++;
-        }
-        return null;
+        if (n == 0) return null; 
+        return selectedNodes.get(n-1);
     }
     
     /**

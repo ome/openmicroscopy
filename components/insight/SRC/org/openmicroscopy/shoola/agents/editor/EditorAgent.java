@@ -268,22 +268,24 @@ public class EditorAgent implements Agent, AgentEventListener {
 	/**
 	 * Creates a {@link Editor#NEW} editor with no file, or recycles an editor.
 	 * 
-	 * @param evt
-	 *            The event to handle.
+	 * @param evt The event to handle.
+	 * @param master Pass <code>true</code> if the importer is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 */
-	private void handleShowEditor(ShowEditorEvent evt) {
+	private void handleShowEditor(ShowEditorEvent evt, boolean master)
+	{
 		// need to check for auto-saved files for recovery, after showing editor
 		AutosaveRecovery autosaveRecovery = new AutosaveRecovery();
 		Editor editor = null;
 		if (evt == null) {
-			editor = EditorFactory.getEditor(null);
+			editor = EditorFactory.getEditor(null, master);
 			if (editor != null)
 				editor.activate();
 			autosaveRecovery.checkForRecoveredFiles(); // now check
 			return;
 		}
 		if (evt.getParent() == null)
-			editor = EditorFactory.getEditor(evt.getSecurityContext());
+			editor = EditorFactory.getEditor(evt.getSecurityContext(), master);
 		else {
 			int editorType = Editor.PROTOCOL;
 			if (evt.getType() == ShowEditorEvent.EXPERIMENT)
@@ -381,9 +383,8 @@ public class EditorAgent implements Agent, AgentEventListener {
 	 * @see Agent#activate(boolean)
 	 */
 	public void activate(boolean master) {
-		// if (!isServerAvailable())
 		if (master)
-			handleShowEditor(null);
+			handleShowEditor(null, true);
 	}
 
 	/**
@@ -411,7 +412,6 @@ public class EditorAgent implements Agent, AgentEventListener {
 		bus.register(this, UserGroupSwitched.class);
 		bus.register(this, ReconnectedEvent.class);
 		bus.register(this, ChangeUserGroupEvent.class);
-		// Register itself for the toolbar.
 		register();
 	}
 
@@ -420,9 +420,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 	 * 
 	 * @see Agent#canTerminate()
 	 */
-	public boolean canTerminate() {
-		return true;
-	}
+	public boolean canTerminate() { return true; }
 
 	/**
 	 * Implemented as specified by {@link Agent}.
@@ -458,7 +456,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 		if (e instanceof EditFileEvent)
 			handleFileEdition((EditFileEvent) e);
 		else if (e instanceof ShowEditorEvent)
-			handleShowEditor((ShowEditorEvent) e);
+			handleShowEditor((ShowEditorEvent) e, false);
 		else if (e instanceof CopyEvent)
 			handleCopyData((CopyEvent) e);
 		else if (e instanceof UserGroupSwitched)

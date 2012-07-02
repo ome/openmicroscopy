@@ -139,6 +139,13 @@ class ITest(unittest.TestCase):
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
 
+    def remove_experimenters(self, group, experimenters):
+        admin = self.root.sf.getAdminService()
+        if experimenters:
+            for exp in experimenters:
+                user, name = self.user_and_name(exp)
+                admin.removeGroups(user, [group])
+
     def set_context(self, client, gid):
         rv = client.getStatefulServices()
         for prx in rv:
@@ -245,6 +252,7 @@ class ITest(unittest.TestCase):
             rgba = None
             if theC in colourMap:
                 rgba = colourMap[theC]
+        for theC in range(sizeC):
             script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
 
         renderingEngine.close()

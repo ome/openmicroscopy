@@ -73,6 +73,7 @@ import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.TimeoutException;
 import omero.ResourceError;
 import ome.conditions.SessionTimeoutException;
 import ome.formats.OMEROMetadataStoreClient;
@@ -84,7 +85,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
-import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -311,10 +311,7 @@ class OMEROGateway
 	
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
-	
-	/** Identifies the client. */
-	private static final String				AGENT = "OMERO.insight";
-	
+
 	/** The collection of system groups. */
 	private static final List<String>		SYSTEM_GROUPS;
 
@@ -413,10 +410,13 @@ class OMEROGateway
 	private List<ExperimenterGroup>	 systemGroups;
 	
 	/** Keep track of the file system view. */
-	private Map<Long, FSFileSystemView>				fsViews;
+	private Map<Long, FSFileSystemView> fsViews;
 	
 	/** Flag indicating if the connection is encrypted or not.*/
 	private boolean encrypted;
+	
+	/** The version of the server the user is currently logged to.*/
+	private String serverVersion;
 	
 	/** 
 	 * Checks if the session is still alive.
@@ -425,6 +425,7 @@ class OMEROGateway
 	 */
 	synchronized void isSessionAlive(SecurityContext ctx)
 	{
+		/*
 		if (!connected) return;
 		try {
 			getAdminService(ctx).getEventContext();
@@ -443,6 +444,26 @@ class OMEROGateway
 				index = DataServicesFactory.DESTROYED_CONNECTION;
 			dsFactory.sessionExpiredExit(index, cause);
 		}
+		*/
+	}
+	
+	/**
+	 * Returns <code>true</code> if the server is running.
+	 * 
+	 * @param ctx The security context.
+	 * @return See above.
+	 */
+	boolean isServerRunning(SecurityContext ctx)
+	{
+		if (!connected) return false;
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null) return false;
+			c.getAdminService().getEventContext();
+		} catch (Throwable e) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -515,6 +536,7 @@ class OMEROGateway
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, c.getClient(), prx);
 		} catch (Exception e) {
+			handleConnectionException(e);
 			throw new ProcessException("Cannot run script with ID:"+scriptID, 
 					e);
 		}
@@ -852,13 +874,15 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException  A connection problem.
 	 * @throws DSAccessException    A server-side error.
 	 */
-	private void handleException(Throwable t, String message) 
+	private void handleException(Throwable t, String message)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		boolean b = handleConnectionException(t);
+		if (!b) return;
 		if (!connected) return;
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
-			String s = "For security reasons, cannot access data. \n"; 
+			String s = "For security reasons, cannot access data. \n";
 			throw new DSAccessException(s+message, cause);
 		} else if (cause instanceof SessionException) {
 			String s = "Session is not valid. \n"; 
@@ -867,27 +891,8 @@ class OMEROGateway
 			String s = "Cannot initialize the session. \n"; 
 			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof ResourceError) {
-			String s = "Fatal error. Please contact the administrator. \n"; 
+			String s = "Fatal error. Please contact the administrator. \n";
 			throw new DSOutOfServiceException(s+message, t);
-		} else if (cause instanceof ConnectionRefusedException || 
-				t instanceof ConnectionRefusedException ||
-				cause instanceof ConnectionTimeoutException || 
-				t instanceof ConnectionTimeoutException) {
-			/*
-			if (!connected) return;
-			connected = false;
-			dsFactory.sessionExpiredExit(
-					DataServicesFactory.SERVER_OUT_OF_SERVICE);
-					*/
-			return;
-		} else if (cause instanceof ConnectionLostException ||
-				t instanceof ConnectionLostException) {
-			/*
-			if (!connected) return;
-			connected = false;
-			dsFactory.sessionExpiredExit(DataServicesFactory.LOST_CONNECTION);
-			*/
-			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
 	}
@@ -899,13 +904,55 @@ class OMEROGateway
 	 * This method is not supposed to be used in this class' constructor or in
 	 * the login/logout methods.
 	 *  
-	 * @param t     	The exception.
-	 * @param message	The context message.
-	 * @throws FSAccessException    A server-side error.
+	 * @param e The exception to handle.
+	 * @return <code>true</code> to continue handling the error,
+	 * <code>false</code> otherwise.
+	 */
+	boolean handleConnectionException(Throwable e)
+	{
+		if (!connected) return false;
+		Throwable cause = e.getCause();
+		int index = -1;
+		if (cause instanceof ConnectionLostException ||
+			e instanceof ConnectionLostException ||
+			cause instanceof SessionTimeoutException ||
+			e instanceof SessionTimeoutException || 
+			cause instanceof TimeoutException || e instanceof TimeoutException)
+			index = DataServicesFactory.LOST_CONNECTION;
+		else if (cause instanceof CommunicatorDestroyedException ||
+				e instanceof CommunicatorDestroyedException)
+			index = DataServicesFactory.DESTROYED_CONNECTION;
+		else if (cause instanceof ConnectionRefusedException || 
+				e instanceof ConnectionRefusedException ||
+				cause instanceof ConnectionTimeoutException || 
+				e instanceof ConnectionTimeoutException) 
+			index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
+		if (index >= 0) {
+			connected = false;
+			dsFactory.sessionExpiredExit(index, cause);
+			return false;
+		}
+		return true;
+	}
+	
+	
+	/**
+	 * Helper method to handle exceptions thrown by the connection library.
+	 * Methods in this class are required to fill in a meaningful context
+	 * message.
+	 * This method is not supposed to be used in this class' constructor or in
+	 * the login/logout methods.
+	 *  
+	 * @param t The exception.
+	 * @param message The context message.
+	 * @throws FSAccessException A server-side error.
 	 */
 	private void handleFSException(Throwable t, String message) 
 		throws FSAccessException
 	{
+		boolean b = handleConnectionException(t);
+		if (!b) return;
+		if (!connected) return;
 		Throwable cause = t.getCause();
 		String s = "\nImage not ready. Please try again later.";
 		if (cause instanceof ConcurrencyException) {
@@ -1702,12 +1749,14 @@ class OMEROGateway
 	 * Returns the {@link RenderingEnginePrx Rendering service}.
 	 * 
 	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private RenderingEnginePrx getRenderingService(SecurityContext ctx)
+	private RenderingEnginePrx getRenderingService(SecurityContext ctx, long 
+			pixelsID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
@@ -1715,7 +1764,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			RenderingEnginePrx prx = c.getRenderingService();
+			RenderingEnginePrx prx = c.getRenderingService(pixelsID);
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Rendering Engine.");
@@ -2206,6 +2255,7 @@ class OMEROGateway
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
+			handleConnectionException(e);
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
 		}
@@ -2239,13 +2289,14 @@ class OMEROGateway
 	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
      * 					<code>false</code> otherwise.
+     * @param agentName The name to register with the server.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
 	ExperimenterData login(String userName, String password, String hostName,
-							float compression, long groupID, boolean encrypted)
+		float compression, long groupID, boolean encrypted, String agentName)
 		throws DSOutOfServiceException
 	{
 		try {
@@ -2254,7 +2305,7 @@ class OMEROGateway
 			client secureClient;
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
-			secureClient.setAgent(AGENT);
+			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			
 			
@@ -2276,6 +2327,7 @@ class OMEROGateway
 				connector = new Connector(ctx, secureClient, entryEncrypted,
 						encrypted);
 				connectors.add(connector);
+				serverVersion = getConfigService().getVersion();
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(ctx, exp, groupID);
@@ -2401,8 +2453,9 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			return getConfigService().getVersion();
+			return serverVersion;
 		} catch (Exception e) {
+			handleConnectionException(e);
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e);  
@@ -2426,6 +2479,7 @@ class OMEROGateway
 			IAdminPrx svc = getAdminService(ctx);
 			return svc.lookupLdapAuthExperimenter(userID);
 		} catch (Throwable e) {
+			handleConnectionException(e);
 			String s = "Can't find the LDAP information.\n\n";
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e); 
@@ -2453,24 +2507,18 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the pixels id corresponding to the Rendering engine to
-	 * reactivate.
+	 * Returns the rendering engines to re-activate.
 	 * 
 	 * @return See above.
 	 */
-	List<Long> getRenderingServices()
+	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		List<Long> l = new ArrayList<Long>();
-		//TODO: review 
-		/*
-		if (reServices == null || reServices.size() == 0) return l;
-		Entry entry;
-		Iterator i = reServices.entrySet().iterator();
+		Map<SecurityContext, Set<Long>> l = 
+			new HashMap<SecurityContext, Set<Long>>();
+		Iterator<Connector> i = connectors.iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			l.add((Long) entry.getKey());
+			l.putAll(i.next().getRenderingEngines());
 		}
-		*/
 		return l;
 	}
 	
@@ -3092,6 +3140,7 @@ class OMEROGateway
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
 			closeService(ctx, service);
+			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3125,6 +3174,7 @@ class OMEROGateway
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
 			closeService(ctx, service);
+			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3161,6 +3211,7 @@ class OMEROGateway
 					omero.rtypes.rint(maxLength), pixelsID);
 		} catch (Throwable t) {
 			closeService(ctx, service);
+			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3188,11 +3239,9 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		RenderingEnginePrx service = null;
 		try {
-			service = getRenderingService(ctx);
+			service = getRenderingService(ctx, pixelsID);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
-			//TO be reviewed. For server 
-			//reServices.put(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
@@ -3494,6 +3543,56 @@ class OMEROGateway
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);
 	}
+	
+	/**
+	 * Finds the links if any between the specified parent and children.
+	 * 
+	 * @param ctx The security context.
+	 * @param childID The id of the child.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	Set<DataObject> findPlateFromImage(SecurityContext ctx, long childID, 
+			long userID)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		Set<DataObject> data = new HashSet<DataObject>();
+		List<Long> ids = new ArrayList<Long>();
+		ParametersI param = new ParametersI();
+		param.addLong("imageID", childID);
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+        sb.append("where img.id = :imageID");
+        IQueryPrx service = getQueryService(ctx);
+        try {
+            List results = service.findAllByQuery(sb.toString(), param);
+    		Iterator i = results.iterator();
+    		Well well;
+    		Plate plate;
+    		long id;
+    		while (i.hasNext()) {
+    			well = (Well) i.next();
+    			plate = well.getPlate();
+    			id = plate.getId().getValue();
+    			if (!ids.contains(id)) {
+    				data.add(PojoMapper.asDataObject(plate));
+    				ids.add(id);
+    			}
+    		}
+		} catch (Throwable t) {
+			handleException(t, "Cannot find the plates containing the image.");
+		}
+		
+		return data;
+	}
 
 	/**
 	 * Retrieves an updated version of the specified object.
@@ -3652,6 +3751,7 @@ class OMEROGateway
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
 					"child where child.id = :id", param);
 		} catch (Exception e) {
+			handleConnectionException(e);
 			throw new DSAccessException("Cannot retrieve original file", e);
 		}
 
@@ -3694,6 +3794,7 @@ class OMEROGateway
 					if (f != null) f.delete();
 					notDownloaded.add(of.getName().getValue());
 					closeService(ctx, store);
+					handleConnectionException(e);
 				}
 			} catch (IOException e) {
 				if (f != null) f.delete();
@@ -3961,6 +4062,7 @@ class OMEROGateway
 				closeService(ctx, store);
 			} catch (Exception ex) {}
 			closeService(ctx, store);
+			handleConnectionException(e);
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		}
@@ -4056,7 +4158,7 @@ class OMEROGateway
 				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
 				List<Request> l = new ArrayList<Request>();
 				l.add(chmod);
-				return getConnector(ctx).submit(l);
+				return getConnector(ctx).submit(l, null);
 			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
@@ -4671,8 +4773,7 @@ class OMEROGateway
 			IMetadataPrx service = getMetadataService(ctx);
 			RLong value = service.countAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
-			if (value != null)
-				count = value.getValue();
+			if (value != null) count = value.getValue();
 			if (count < 0) count = 0;
 		} catch (Exception e) {
 			handleException(e, "Cannot count the type of annotation " +
@@ -5226,27 +5327,6 @@ class OMEROGateway
 		while (i.hasNext()) {
 			i.next().keepSessionAlive();
 		}
-		/*
-		Collection<ServiceInterfacePrx> 
-			all = new HashSet<ServiceInterfacePrx>();
-		
-		if (services.size() > 0) all.addAll(services);
-		if (reServices.size() > 0) all.addAll(reServices.values());
-		if (all.size() == 0) return;
-		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
-			all.toArray(new ServiceInterfacePrx[all.size()]);
-		try {
-			entryEncrypted.keepAllAlive(entries);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		try {
-			if (entryUnencrypted != null)
-				entryUnencrypted.keepAllAlive(entries);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		*/
 	}
 	
 	/**
@@ -5975,6 +6055,7 @@ class OMEROGateway
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
+			handleConnectionException(e);
 			throw new ProcessException("Cannot load the script: "+scriptID, e);
 		}
 		return script;
@@ -6268,6 +6349,7 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
+			handleConnectionException(e);
 			if (close) closeImport(ctx);
 			throw new ImportException(e);
 		} finally {
@@ -6303,7 +6385,6 @@ class OMEROGateway
 			ImportCandidates candidates = new ImportCandidates(reader, 
 					paths, status);
 			return candidates;
-			//return candidates.getPaths();
 		} catch (Throwable e) {
 			throw new ImportException(e);
 		}
@@ -6853,7 +6934,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int)(size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -6861,6 +6942,7 @@ class OMEROGateway
 					if (f != null) f.delete();
 					exception = new DSAccessException(
 							"Cannot export the image as an OME-formats ", e);
+					handleConnectionException(e);
 				}
 			} finally {
 				try {
@@ -7237,7 +7319,7 @@ class OMEROGateway
 					pojos.add((GroupData) PojoMapper.asDataObject(group));	
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			handleConnectionException(e);
 		}
 		
 		return pojos;
@@ -7397,6 +7479,7 @@ class OMEROGateway
 			try {
 				svc.deleteExperimenter(exp.asExperimenter());
 			} catch (Exception e) {
+				handleConnectionException(e);
 				r.add(exp);
 			}
 		}
@@ -7432,6 +7515,7 @@ class OMEROGateway
 			try {
 				svc.addGroups(exp.asExperimenter(), groups);
 			} catch (Exception e) {
+				handleConnectionException(e);
 				r.add(exp);
 			}
 		}
@@ -7467,6 +7551,7 @@ class OMEROGateway
 			try {
 				svc.removeGroups(exp.asExperimenter(), groups);
 			} catch (Exception e) {
+				handleConnectionException(e);
 				r.add(exp);
 			}
 		}
@@ -7498,6 +7583,7 @@ class OMEROGateway
 			try {
 				svc.deleteGroup(g.asGroup());
 			} catch (Exception e) {
+				handleConnectionException(e);
 				r.add(g);
 			}
 		}
@@ -7719,6 +7805,7 @@ class OMEROGateway
 			return store.read(0, (int) size);
 		} catch (Exception e) {
 			closeService(ctx, store);
+			handleConnectionException(e);
 			throw new DSAccessException("Cannot read the file" +fileID, e);
 		}
 	}
@@ -7782,6 +7869,7 @@ class OMEROGateway
 	         DeleteHandlePrx prx = svc.queueDelete(commands);
 	         cb = new DeleteCallback(c.getClient(), prx);
 		} catch (Exception e) {
+			handleConnectionException(e);
 			throw new ProcessException("Cannot delete the speficied objects.", 
 					e);
 		}
@@ -7924,7 +8012,7 @@ class OMEROGateway
 					commands.add(save);
 				}
 			}
-			return c.submit(commands);
+			return c.submit(commands, target);
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}

@@ -413,7 +413,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
 
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     # prepare forms
     filter_user_id = request.session.get('user_id')
@@ -547,7 +550,10 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
     
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     if o_id is not None:
         if o_type == "tag":
@@ -715,7 +721,10 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         manager.getComments(c_id)
         form_comment = CommentAnnotationForm(initial=initial)
     else:
-        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        try:
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        except AttributeError, x:
+            return handlerInternalError(request, x)
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
@@ -797,7 +806,6 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             template = "webclient/annotations/metadata_acquisition.html"
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
-        logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
 
     form_environment = None
@@ -1034,7 +1042,6 @@ def annotate_file(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
     if manager is None:
         manager = BaseContainer(conn)
@@ -1133,7 +1140,6 @@ def annotate_tags(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
@@ -1200,7 +1206,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
-            logger.error(traceback.format_exc())
             return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
         manager = BaseShare(conn, o_id)
@@ -1465,7 +1470,7 @@ def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
     # May be viewing results of a script run in a different group.
-    conn.CONFIG.setOmeroGroup(-1)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
@@ -1952,7 +1957,7 @@ def activities(request, conn=None, **kwargs):
     """
 
     # need to be able to retrieve the results from any group
-    conn.CONFIG.setOmeroGroup(-1)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     in_progress = 0
     failure = 0
@@ -2433,7 +2438,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     try:
-        handle = scriptService.runScript(sId, inputMap, None, conn.CONFIG)
+        handle = scriptService.runScript(sId, inputMap, None, conn.SERVICE_OPTS)
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
         request.session['callback'][jobId] = {

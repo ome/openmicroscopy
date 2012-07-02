@@ -44,7 +44,6 @@ import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 from omero.model import ImageI
 from omero.rtypes import *      # includes wrap()
-# import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
 from omero_sys_ParametersI import ParametersI
@@ -58,8 +57,6 @@ except ImportError:
 JPEG = "image/jpeg"
 PNG = "image/png"
 
-WHITE = (255,255,255)
-
 COLOURS = scriptUtil.COLOURS
 OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 
@@ -71,34 +68,6 @@ def log(text):
     print text
     logStrings.append(text)    
 
-
-def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
-    """ adds a scalebar at the bottom right of an image, No text. 
-    
-    @scalebar         length of scalebar in microns 
-    @xIndent        indent from the right of the image
-    @yIndent         indent from the bottom of the image
-    @image            the PIL image to add scalebar to. 
-    @pixels         the pixels object
-    @colour         colour of the overlay as r,g,b tuple
-    """
-    draw = ImageDraw.Draw(image)
-    if pixels.getPhysicalSizeX() == None:
-        return False
-    pixelSizeX = pixels.getPhysicalSizeX().getValue()
-    if pixelSizeX <= 0:
-        return False
-    iWidth, iHeight = image.size
-    lineThickness = (iHeight//100) + 1
-    scaleBarY = iHeight - yIndent
-    scaleBarX = iWidth - scalebar//pixelSizeX - xIndent
-    scaleBarX2 = iWidth - xIndent
-    if scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>iWidth:
-        return False
-    for l in range(lineThickness):
-        draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=colour)
-        scaleBarY -= 1
-    return True
 
 
 def getTimeIndexes(timePoints, maxFrames):
@@ -287,33 +256,36 @@ def getRectangle(roiService, imageId, roiLabel):
     foundLabelledRoi = False
     
     for roi in result.rois:
+        rectangles = [shape for shape in roi.copyShapes() if isinstance(shape,omero.model.RectI)]
+        if len(rectangles) == 0:
+            continue
+        
         timeShapeMap = {} # map of tIndex: (x,y,zMin,zMax) for a single roi
-        for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
-                t = shape.getTheT().getValue()
-                z = shape.getTheZ().getValue()
-                x = int(shape.getX().getValue())
-                y = int(shape.getY().getValue())
-                text = shape.getTextValue() and shape.getTextValue().getValue() or None
+        for shape in rectangles:
+            t = shape.getTheT().getValue()
+            z = shape.getTheZ().getValue()
+            x = int(shape.getX().getValue())
+            y = int(shape.getY().getValue())
+            text = shape.getTextValue() and shape.getTextValue().getValue() or None
+            
+            # build a map of tIndex: (x,y,zMin,zMax)
+            if t in timeShapeMap:
+                xx, yy, minZ, maxZ = timeShapeMap[t]
+                tzMin = min(minZ, z)
+                tzMax = max(maxZ, z)
+                timeShapeMap[t] = (x,y,tzMin,tzMax)
+            else:
+                timeShapeMap[t] = (x,y,z,z)
                 
-                # build a map of tIndex: (x,y,zMin,zMax)
-                if t in timeShapeMap:
-                    xx, yy, minZ, maxZ = timeShapeMap[t]
-                    tzMin = min(minZ, z)
-                    tzMax = max(maxZ, z)
-                    timeShapeMap[t] = (x,y,tzMin,tzMax)
-                else:
-                    timeShapeMap[t] = (x,y,z,z)
-                    
-                # get ranges for whole ROI
-                if rectCount == 0:
-                    width = shape.getWidth().getValue()
-                    height = shape.getHeight().getValue()
-                    x1 = x
-                    y1 = y
-                rectCount += 1
-                if text != None and text.lower() == roiText:
-                    foundLabelledRoi = True
+            # get ranges for whole ROI
+            if rectCount == 0:
+                width = shape.getWidth().getValue()
+                height = shape.getHeight().getValue()
+                x1 = x
+                y1 = y
+            rectCount += 1
+            if text != None and text.lower() == roiText:
+                foundLabelledRoi = True
         # will return after the first ROI that matches text
         if foundLabelledRoi:
             return (int(x1), int(y1), int(width), int(height), timeShapeMap)
@@ -325,27 +297,6 @@ def getRectangle(roiService, imageId, roiLabel):
     # if we got here without finding an ROI that matched, simply return any ROI we have (last one)
     if roiCount > 0:
         return (int(x1), int(y1), int(width), int(height), timeShapeMap)
-    
-    
-def getVerticalLabels(labels, font, textGap):
-    """ Returns an image with the labels written vertically with the given font, black on white background """
-    
-    maxWidth = 0
-    height = 0
-    textHeight = font.getsize("testq")[1]
-    for label in labels:
-        maxWidth = max(maxWidth, font.getsize(label)[0])
-        if height > 0: height += textGap
-        height += textHeight
-    size = (maxWidth, height)
-    textCanvas = Image.new("RGB", size, WHITE)
-    textdraw = ImageDraw.Draw(textCanvas)
-    py = 0
-    for label in labels:
-        indent = (maxWidth - font.getsize(label)[0]) / 2
-        textdraw.text((indent, py), label, font=font, fill=(0,0,0))
-        py += textHeight + textGap
-    return textCanvas.rotate(90)
     
     
 def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
@@ -457,8 +408,8 @@ def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
             xIndent = spacer
             yIndent = xIndent
             sbar = float(scalebar) / imageZoom            # and the scale bar will be half size
-            if not addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour):
-                log("  Failed to add scale bar: Pixel size not defined or scale bar is too large.")
+            status, logMsg = figUtil.addScalebar(sbar, xIndent, yIndent, mergedImage, pixels, overlayColour)
+            log(logMsg)
                 
         # draw ROI onto mergedImage...
         # recalculate roi if the image has been zoomed
@@ -485,7 +436,7 @@ def getSplitView(conn, imageIds, pixelIds, mergedIndexes,
     
     rowY = spacer
     for row, image in enumerate(mergedImages):
-        labelCanvas = getVerticalLabels(imageLabels[row], font, textGap)
+        labelCanvas = figUtil.getVerticalLabels(imageLabels[row], font, textGap)
         vOffset = (image.size[1] - labelCanvas.size[1]) / 2
         imgUtil.pasteImage(labelCanvas, figureCanvas, spacer/2, rowY+topSpacers[row]+ vOffset)
         imgUtil.pasteImage(image, figureCanvas, leftTextWidth, rowY+topSpacers[row])

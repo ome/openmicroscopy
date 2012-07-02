@@ -380,27 +380,15 @@ class ToolBar
 	        //rndButton.setAction(a);
 		}
 		int compression = ImViewerFactory.getCompressionLevel();
+		
 		int value = (Integer) 
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		int index = view.convertCompressionLevel();
-		/*
-		if (view.isBigImage()) {
-			compressionBox = EditorUtil.createComboBox(compressionPartial, 0, 
-	    			getBackground());
-	    	compressionBox.setBackground(getBackground());
-	    	if (compression == MEDIUM || compression == LOW)
-				index = compression-1;
-	    	if (compression == UNCOMPRESSED)
-	    		index = MEDIUM-1;
-	    	compressionBox.setSelectedIndex(index);
-		} else {
-			if (compression >= UNCOMPRESSED && compression <= LOW)
-				index = compression;
-			compressionBox.setSelectedIndex(index);
+		if (view.isBigImage() && compression == ImViewer.UNCOMPRESSED) {
+			compression = ImViewer.MEDIUM;
 		}
-		*/
+		int index = view.convertCompressionLevel();
 		if (compression >= UNCOMPRESSED && compression <= LOW)
 			index = compression;
 		compressionBox.setSelectedIndex(index);
@@ -494,5 +482,5 @@ class ToolBar
 	{ 
 		return compressionBox.getSelectedIndex();
 	}
-	
+
 }

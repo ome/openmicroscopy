@@ -304,11 +304,19 @@ public class ChannelData
     public double getGlobalMax()
     { 
     	StatsInfo stats = asChannel().getStatsInfo();
-    	if (stats == null) return 1.0;
+    	if (stats == null) return 0.0;
     	RDouble object = stats.getGlobalMax();
 		if (object != null) return object.getValue();
-		return 1.0;
+		return 0.0;
     }
+    
+    /**
+     * Returns <code>true</code> if the channel has some channel information
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasStats() { return asChannel().getStatsInfo() != null; }
     
     /**
      * Sets the pinhole size. 

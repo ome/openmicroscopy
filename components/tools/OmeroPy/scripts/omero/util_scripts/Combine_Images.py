@@ -356,6 +356,8 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
         if theC in colourMap:
             rgba = colourMap[theC]
             print "Setting the Channel colour:", rgba
+    
+    for theC in range(sizeC):
         scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
     
     # rename new channels

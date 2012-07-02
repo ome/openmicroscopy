@@ -49,16 +49,20 @@ import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetImageLink;
 import omero.model.Event;
+import omero.model.Experimenter;
+import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.sys.Parameters;
@@ -83,6 +87,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -716,6 +721,10 @@ class OmeroDataServiceImpl
 				parentClass = Plate.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(ctx, parentClass, id, userID);
+			if (ImageData.class.equals(type) && (links == null ||
+					links.size() == 0)) {
+				return gateway.findPlateFromImage(ctx, id, userID);
+			}
 			if (links == null) return new HashSet();
 			Iterator i = links.iterator();
 			Set<DataObject> nodes = new HashSet<DataObject>();
@@ -741,6 +750,10 @@ class OmeroDataServiceImpl
 						parent = ((DatasetAnnotationLink) link).getParent();
 					else if (link instanceof ImageAnnotationLink)
 						parent = ((ImageAnnotationLink) link).getParent();
+					else if (link instanceof PlateAnnotationLink)
+						parent = ((PlateAnnotationLink) link).getParent();
+					else if (link instanceof ScreenAnnotationLink)
+						parent = ((ScreenAnnotationLink) link).getParent();
 				}
 				parentId = parent.getId().getValue();
 				if (!ids.contains(parentId)) {
@@ -918,17 +931,41 @@ class OmeroDataServiceImpl
 		Iterator<DataObject> j;
 		DataObject object;
 		IObject link;
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		ExperimenterData owner;
+		Experimenter o = null;
+		IObject newObject;
+		PermissionData perms;
 		while (i.hasNext()) {
 			data = i.next();
+			owner = data.getOwner();
+			perms = data.getPermissions();
+			
+			if (owner.getId() != exp.getId() &&
+				perms.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE) {
+				o = new ExperimenterI(owner.getId(), false);
+			}
 			l = new ArrayList<IObject>();
 			if (targetNodes != null && targetNodes.size() > 0) {
 				j = targetNodes.iterator();
 				while (j.hasNext()) {
 					object = j.next();
 					if (object != null) {
-						link = ModelMapper.linkParentToChild(data.asIObject(),
-								object.asIObject());
-						if (link != null) l.add(link);
+						newObject = null;
+						if (object.getId() < 0) {
+							newObject = object.asIObject();
+						}
+						link = ModelMapper.linkParentToChild(
+								data.asIObject(), object.asIObject());
+						
+						if (newObject != null && o != null) {
+							newObject.getDetails().setOwner(o);
+						}
+						if (link != null) {
+							if (o != null) link.getDetails().setOwner(o);
+							l.add(link);
+						}
 					}
 				}
 			}

@@ -121,25 +121,20 @@ class ExperimenterForm(NonASCIIForm):
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
     
-    def clean_default_group(self):
-        if self.cleaned_data.get('default_group') is None or len(self.cleaned_data.get('default_group')) <= 0:
-            raise forms.ValidationError('Choose default group by clicking on the one of chosen groups.')
-        else:
-            return self.cleaned_data.get('default_group')
-    
     def clean_other_groups(self):
         if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
             raise forms.ValidationError('User must to be a member of at least one group.')
         else:
             return self.cleaned_data.get('other_groups')
 
+
+PERMISSION_CHOICES = (
+    ('0', 'Private'),
+    ('1', 'Collaborative read-only'),
+    ('2', 'Collaborative read-annotate'),
+)
+
 class GroupForm(NonASCIIForm):
-    
-    PERMISSION_CHOICES = (
-        ('0', 'Private'),
-        ('1', 'Collaborative read-only'),
-        ('2', 'Collaborative read-annotate'),
-    )
     
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
@@ -157,7 +152,7 @@ class GroupForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
         
-        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
+        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
         
         self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
@@ -170,14 +165,25 @@ class GroupForm(NonASCIIForm):
         return self.cleaned_data.get('name')
 
 class GroupOwnerForm(forms.Form):
-    
-    PERMISSION_CHOICES = (
-        ('0', 'Private (rw----)'),
-        ('1', 'Collaborative read-only (rwr---)'),
-        ('2', 'Collaborative read-annotate (rwra--)'),
-    )
 
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
+    def __init__(self, *args, **kwargs):
+        super(GroupOwnerForm, self).__init__(*args, **kwargs)
+        
+        try:
+            if kwargs['initial']['owners']: pass
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
+        except:
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            
+        self.fields.keyOrder = ['owners', 'members', 'permissions']
+            
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group.</p>")
     
 class MyAccountForm(NonASCIIForm):
         

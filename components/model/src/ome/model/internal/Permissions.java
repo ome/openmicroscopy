@@ -153,7 +153,8 @@ public class Permissions implements Serializable {
                     "Permissions argument cannot be null.");
         }
         if (p == DUMMY) {
-            throw new IllegalArgumentException("Not intended for copying!");
+            throw new IllegalArgumentException("No valid permissions available! DUMMY permissions are not intended for copying. " +
+                    "Make sure that you have not passed omero.group=-1 for a save without context");
         }
         this.revokeAll(p);
     }

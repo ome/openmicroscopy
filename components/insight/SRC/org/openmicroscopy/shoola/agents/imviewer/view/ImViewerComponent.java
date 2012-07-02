@@ -1088,7 +1088,7 @@ class ImViewerComponent
 						"This method can't be invoked in the NEW state.");
 			case LOADING_IMAGE:
 			case DISCARDED:
-			case LOADING_BIRD_EYE_VIEW:
+			//case LOADING_BIRD_EYE_VIEW:
 			case LOADING_RND:
 				return;
 		} 

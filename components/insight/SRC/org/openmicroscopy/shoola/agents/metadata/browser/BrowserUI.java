@@ -382,7 +382,9 @@ class BrowserUI
     {
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
         node.removeAllChildren();
-        tm.insertNodeInto(new TreeBrowserNode(message), node,
+        node.removeAllChildrenDisplay();
+        if (message != null)
+        	tm.insertNodeInto(new TreeBrowserNode(message), node,
                 			node.getChildCount());
         tm.reload(node);
     }

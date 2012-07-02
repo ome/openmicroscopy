@@ -741,6 +741,38 @@ class TestPermissions(lib.ITest):
         finally:
             rps.close()
 
+    # raw file bean
+    # ==================================================
+
+    def assertValidScript(self, f):
+        user = self.new_client()
+        srv = user.sf.getScriptService()
+        script = srv.getScripts()[0]
+        store = user.sf.createRawFileStore()
+        params = f(script)
+        # ticket:9192. For some actions to be possible
+        # server-side, it's necessary to use a copy of
+        # the implicit context in order to have the
+        # client uuid present.
+        ctx = user.getImplicitContext().getContext().copy()
+        ctx.update(params)
+        store.setFileId(script.id.val, ctx)
+
+        data = store.read(0, long(script.size.val))
+        self.assertEquals(script.size.val, len(data))
+
+    def testUseOfRawFileBeanScriptReadGroupMinusOne(self):
+        self.assertValidScript(lambda v: {'omero.group': '-1'})
+
+    def testUseOfRawFileBeanScriptReadCorrectGroup(self):
+        self.assertValidScript(lambda v: {'omero.group':
+                str(v.details.group.id.val)})
+
+    def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
+        self.assertValidScript(lambda v: {
+            'omero.group': str(v.details.group.id.val),
+            'omero.user': str(v.details.owner.id.val)
+        })
 
 if __name__ == '__main__':
     unittest.main()

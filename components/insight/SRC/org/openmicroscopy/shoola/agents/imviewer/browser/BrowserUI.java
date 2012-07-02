@@ -104,6 +104,7 @@ class BrowserUI
     /** The bird eye view.*/
     private BirdEyeViewComponent	birdEyeView;
     
+    /** The component hosting the bird eye view.*/
     private JPanel glass;
     
     /** Sets the location of the bird eye view.*/
@@ -117,8 +118,7 @@ class BrowserUI
 		switch (birdEyeView.getLocationIndex()) {
 			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
-				p = new Point(p.x+r.width-d.width, 
-						p.y+r.height-d.height);
+				p = new Point(p.x+r.width-d.width, p.y+r.height-d.height);
 				birdEyeView.setLocation(p);
 				break;
 			case ImageCanvas.TOP_LEFT:
@@ -160,8 +160,8 @@ class BrowserUI
     	if (d.width == 0 || d.height == 0) return;
     	Rectangle r = getViewport().getViewRect();
     	Rectangle rl = canvas.getBounds();
-    	int sizeX = rl.width;// model.getMaxX();
-    	int sizeY = rl.height;//model.getMaxY();
+    	int sizeX = rl.width;
+    	int sizeY = rl.height;
     	int rx = sizeX/d.width;
     	int ry = sizeY/d.height;
     	if (rx == 0) rx = 1;

@@ -777,11 +777,7 @@
 
 
 .legend {
-	background-color: #B8CFE6;
-	
-	-webkit-border-radius: 3px; /* Saf3+, Chrome */
-	   -moz-border-radius: 3px; /* FF1+ */
-	        border-radius: 3px; /* Opera 10.5, IE 9 */ 
+
 }
 
 
