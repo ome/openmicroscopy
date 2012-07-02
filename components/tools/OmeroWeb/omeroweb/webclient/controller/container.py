@@ -31,6 +31,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from webclient.controller import BaseController
+from webclient.webclient_gateway import OmeroObjectNotFoundError
 
 class BaseContainer(BaseController):
     
@@ -116,7 +117,8 @@ class BaseContainer(BaseController):
             
     def assertNotNone(self, obj, obj_id, obj_name):
         if obj is None:
-            raise AttributeError("We are sorry, but that %s (id:%s) does not exist, or if it does, you have no permission to see it." % (obj_name, obj_id))
+            # raise a subclass of AttributeError - can be handled specifically
+            raise OmeroObjectNotFoundError("We are sorry, but that %s (id:%s) does not exist, or if it does, you have no permission to see it." % (obj_name, obj_id))
 
     def _get_object(self):
         """

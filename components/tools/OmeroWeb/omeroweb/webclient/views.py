@@ -67,7 +67,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
-from webclient.webclient_gateway import OmeroWebGateway
+from webclient.webclient_gateway import OmeroWebGateway, OmeroObjectNotFoundError
 from omeroweb.webclient.webclient_utils import string_to_dict
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
@@ -413,7 +413,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
 
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except OmeroObjectNotFoundError, e:
+        raise Http404(e.message)
     
     # prepare forms
     filter_user_id = request.session.get('user_id')
@@ -715,7 +718,10 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         manager.getComments(c_id)
         form_comment = CommentAnnotationForm(initial=initial)
     else:
-        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        try:
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        except OmeroObjectNotFoundError, e:
+            raise Http404(e.message)
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()

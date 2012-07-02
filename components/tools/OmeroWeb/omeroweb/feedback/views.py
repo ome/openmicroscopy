@@ -160,6 +160,10 @@ def handler404(request):
                     'status_code': 404,
                     'request': request
                 })
+    if request.is_ajax():
+        msg = traceback.format_exception(*sys.exc_info())[-1]
+        return HttpResponseNotFound(msg)
+
     return page_not_found(request, "404.html")
 
 def handlerInternalError(request, error):
