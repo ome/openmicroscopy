@@ -1844,6 +1844,7 @@
 	}
 	.chzn-results {
 	    max-height:160px !important;
+	    display: block;
 	}
 	
 	#personal_details select {
