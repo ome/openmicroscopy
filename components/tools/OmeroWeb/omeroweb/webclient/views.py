@@ -67,7 +67,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
-from webclient.webclient_gateway import OmeroWebGateway, OmeroObjectNotFoundError
+from webclient.webclient_gateway import OmeroWebGateway
 from omeroweb.webclient.webclient_utils import string_to_dict
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
@@ -415,8 +415,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
     try:
         manager= BaseContainer(conn, **kw)
-    except OmeroObjectNotFoundError, e:
-        raise Http404(e.message)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     # prepare forms
     filter_user_id = request.session.get('user_id')
@@ -550,7 +550,10 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
     
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     if o_id is not None:
         if o_type == "tag":
@@ -720,8 +723,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         try:
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-        except OmeroObjectNotFoundError, e:
-            raise Http404(e.message)
+        except AttributeError, x:
+            return handlerInternalError(request, x)
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()

@@ -2284,9 +2284,4 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         
         return omero.gateway.ExperimenterWrapper(self._conn, self.owner)
 
-
-class OmeroObjectNotFoundError (AttributeError):
-    pass
-
-
 omero.gateway.refreshWrappers()
