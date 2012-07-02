@@ -806,7 +806,6 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             template = "webclient/annotations/metadata_acquisition.html"
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
-        logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
 
     form_environment = None
@@ -1043,7 +1042,6 @@ def annotate_file(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
     if manager is None:
         manager = BaseContainer(conn)
@@ -1142,7 +1140,6 @@ def annotate_tags(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
@@ -1209,7 +1206,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
-            logger.error(traceback.format_exc())
             return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
         manager = BaseShare(conn, o_id)
