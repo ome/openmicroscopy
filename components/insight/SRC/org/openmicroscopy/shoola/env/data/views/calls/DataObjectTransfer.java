@@ -101,13 +101,7 @@ public class DataObjectTransfer extends BatchCallTree
 			final List<DataObject> l = (List<DataObject>) entry.getValue();
 			final SecurityContext ctx = (SecurityContext) entry.getKey();
 			
-			//add(makeTransferCall(ctx, l));
-			//TODO: remove when 'doAll' is implemented.
-			Iterator<DataObject> j = l.iterator();
-			while (j.hasNext()) {
-				final List<DataObject> ll = Arrays.asList(j.next());
-				add(makeTransferCall(ctx, ll));
-			}
+			add(makeTransferCall(ctx, l));
 		}
     }
 

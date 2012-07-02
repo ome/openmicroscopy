@@ -937,31 +937,55 @@ class OmeroDataServiceImpl
 		Experimenter o = null;
 		IObject newObject;
 		PermissionData perms;
+		List<IObject> targets = new ArrayList<IObject>();
+		
 		while (i.hasNext()) {
 			data = i.next();
 			owner = data.getOwner();
 			perms = data.getPermissions();
-			
 			if (owner.getId() != exp.getId() &&
 				perms.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE) {
 				o = new ExperimenterI(owner.getId(), false);
+				break;
 			}
-			l = new ArrayList<IObject>();
-			if (targetNodes != null && targetNodes.size() > 0) {
-				j = targetNodes.iterator();
-				while (j.hasNext()) {
-					object = j.next();
-					if (object != null) {
-						newObject = null;
-						if (object.getId() < 0) {
-							newObject = object.asIObject();
-						}
-						link = ModelMapper.linkParentToChild(
-								data.asIObject(), object.asIObject());
-						
+		}
+		
+		if (targetNodes != null && targetNodes.size() > 0) {
+			List<IObject> toCreate = new ArrayList<IObject>();
+			j = targetNodes.iterator();
+			while (j.hasNext()) {
+				object = j.next();
+				if (object != null) {
+					if (object.getId() < 0) {
+						newObject = object.asIObject();
 						if (newObject != null && o != null) {
 							newObject.getDetails().setOwner(o);
 						}
+						toCreate.add(newObject);
+					} else targets.add(object.asIObject());
+				}
+			}
+			if (toCreate.size() > 0) {
+				toCreate = gateway.saveAndReturnObject(target, toCreate,
+						new HashMap());
+				targets.addAll(toCreate);
+			}
+			
+		}
+		i = objects.iterator();
+		Iterator<IObject> k;
+		while (i.hasNext()) {
+			data = i.next();
+			owner = data.getOwner();
+			perms = data.getPermissions();
+			l = new ArrayList<IObject>();
+			if (targets != null && targets.size() > 0) {
+				k = targets.iterator();
+				while (k.hasNext()) {
+					newObject = k.next();
+					if (newObject != null) {
+						link = ModelMapper.linkParentToChild(
+								data.asIObject(), newObject);
 						if (link != null) {
 							if (o != null) link.getDetails().setOwner(o);
 							l.add(link);
