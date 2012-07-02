@@ -912,4 +912,11 @@ omero.version=${omero.version}
 
     </target>
 
+    <target name="print-mem">
+        <echo>
+            javac.maxmem=${javac.maxmem}
+            javadoc.maxmem=${javadoc.maxmem}
+        </echo>
+    </target>
+
 </project>
