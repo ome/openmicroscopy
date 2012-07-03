@@ -149,6 +149,84 @@ class WebControl(BaseControl):
                     fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                         self.ctx.dir
                 stanza  = """###
+# apache config for omero
+# this file should be loaded *after* ssl.conf
+#
+# -D options to control configurations
+#  OmeroWebClientRedirect - redirect / to /omero/webclient
+#  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
+#  OmeroForceSSL - redirect all http requests to https
+
+
+# Eliminate overlap warnings with the default ssl vhost
+# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) support
+# most later versions of mod_ssl and OSes will support it
+# if you see "You should not use name-based virtual hosts in conjunction with SSL!!"
+# or similar start apache with -D DISABLE_SNI and modify ssl.conf
+<IfDefine !DISABLE_SNI>
+  NameVirtualHost *:443
+</IfDefine>
+
+# force https/ssl
+<IfDefine OmeroForceSSL>
+  RewriteEngine on
+  RewriteCond %{HTTPS} !on
+  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
+</IfDefine>
+
+<VirtualHost _default_:443>
+
+  ErrorLog logs/ssl_error_log
+  TransferLog logs/ssl_access_log
+  LogLevel warn
+
+  SSLEngine on
+  SSLProtocol all -SSLv2
+  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+  SSLCertificateFile /etc/pki/tls/certs/server.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/server.key
+
+  # SSL Protocol Adjustments:
+  SetEnvIf User-Agent ".*MSIE.*" \
+    nokeepalive ssl-unclean-shutdown \
+    downgrade-1.0 force-response-1.0
+
+  # Per-Server Logging:
+  CustomLog logs/ssl_request_log \
+    "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+  # Rewrite / must be in ssl vhost as well
+  <IfDefine OmeroWebClientRedirect>
+    <IfDefine !OmeroWebAdminRedirect>
+      RewriteEngine on
+      RewriteRule ^/?$ /omero/webclient/ [R]
+    </IfDefine>
+  </IfDefine>
+
+  <IfDefine OmeroWebAdminRedirect>
+    <IfDefine !OmeroWebClientRedirect>
+      RewriteEngine on
+      RewriteRule ^/?$ /omero/webadmin/ [R]
+    </IfDefine>
+  </IfDefine>
+
+</VirtualHost>
+
+# Rewrite /
+<IfDefine OmeroWebClientRedirect>
+  <IfDefine !OmeroWebAdminRedirect>
+    RewriteEngine on
+    RewriteRule ^/?$ /omero/webclient/ [R]
+  </IfDefine>
+</IfDefine>
+
+<IfDefine OmeroWebAdminRedirect>
+  <IfDefine !OmeroWebClientRedirect>
+    RewriteEngine on
+    RewriteRule ^/?$ /omero/webadmin/ [R]
+  </IfDefine>
+</IfDefine>
+
 ### Stanza for OMERO.web created %(NOW)s
 ###
 FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
@@ -165,8 +243,38 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Allow from all
 </Directory>
 
+<IfDefine OmeroWebCache>
+  CacheRoot %(CACHEROOT)s
+  CacheIgnoreHeaders Set-Cookie Referer Cookie
+  CacheEnable disk /static
+  CacheEnable disk /omero/webclient/render_birds_eye_view/
+  CacheEnable disk /omero/webclient/render_image_region/
+  CacheEnable disk /omero/webclient/render_thumbnail/
+
+  <Location /omero/webclient/render_birds_eye_view/>
+    ExpiresActive On
+    ExpiresDefault "now plus 1 year"
+    Header unset Vary
+    Header set Vary "Host"
+  </Location>
+
+  <Location /omero/webclient/render_image_region/>
+    ExpiresActive On
+    ExpiresDefault "now plus 1 year"
+    Header unset Vary
+    Header set Vary "Host"
+  </Location>
+
+  <Location /omero/webclient/render_thumbnail/>
+  ExpiresActive On
+  ExpiresDefault "now plus 1 year"
+  Header unset Vary
+  Header set Vary "Host"
+  </Location>
+</IfDefine>
+
 Alias /static %(STATIC)s
-Alias / "%(ROOT)s/var/omero.fcgi/"
+Alias /omero "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
                     "ROOT":self.ctx.dir,
