@@ -896,7 +896,7 @@ public class TaskBarManager
 				svc.notifyLoginTimeout();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 				break;
 			case LoginService.NOT_CONNECTED:
@@ -904,7 +904,7 @@ public class TaskBarManager
 				svc.notifyLoginFailure();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 		}
     }
