@@ -116,6 +116,9 @@ if __name__ == "__main__":
     args = list(sys.argv)
     args.pop(0)
 
+    # Unset CLASSPATH, since this breaks the build
+    del os.environ['CLASSPATH']
+
     try:
         if len(args) > 0 and args[0] == "-perf":
             args.pop(0)
