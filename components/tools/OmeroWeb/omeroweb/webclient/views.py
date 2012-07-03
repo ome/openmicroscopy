@@ -2053,7 +2053,7 @@ def activities(request, conn=None, **kwargs):
                 if cb.block(0): # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
+                        results = proc.getResults(0, conn.SERVICE_OPTS)     # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                         new_results.append(cbString)
                     except Exception, x:
