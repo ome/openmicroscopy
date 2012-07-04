@@ -121,7 +121,7 @@ var handleTableClickSelection = function(event) {
         var $s = $("table#dataTable tbody tr.ui-selected");
         if ($s.length == 0) {
             $clickedRow.addClass("ui-selected");
-            search_selection_changed($clickedRow);
+            table_selection_changed($clickedRow);
             return;
         }
         var sel_start = rows.index($s.first());
