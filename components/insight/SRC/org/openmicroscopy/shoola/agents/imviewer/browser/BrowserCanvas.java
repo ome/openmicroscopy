@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.util.Map;
 
 //Third-party libraries
