@@ -97,7 +97,7 @@
         }
         
         function makeDiscussion() {
-            src = '/webclient/basket/todiscuss/';
+            var src = '{% url basket_action action="todiscuss" %}';
             $("#create_discussion_form").dialog("open");
             $("#create_discussion_form").load(src);
             return false;
