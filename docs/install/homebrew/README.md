@@ -1,8 +1,10 @@
-INSTALL
-=======
+The instructions and scripts provided here depend on Homebrew 0.9 or later, including support for the `brew tap` command.
 
-The instructions and scripts provided here depend on Homebrew 0.9
-or later, including support for the `brew tap` command.
+# Installation
+
+## Prerequisites
+
+### OS X
 
 This procedure has been tested on the following Mac OS X versions and hardware:
 
@@ -15,6 +17,8 @@ This procedure has been tested on the following Mac OS X versions and hardware:
 	MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)    | 10.6.8
 	MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)    | 10.7.3
 
+### Xcode
+
 Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
 	Xcode version                        | Mac OS X version
@@ -25,8 +29,23 @@ Install OS X Developer Tools. This procedure has been tested with the the follow
 
 NB: for Xcode 4.3.2, make sure that the Command line tools are installed (Preferences > Downloads > Components)
 
-Homebrew installation
----------------------
+### Python (>=2.4)
+
+Check you have Python installed (and its version):
+
+    $ python --version
+    Python 2.7.3
+
+### Java  (>=1.5)
+
+You also need Java which comes as standard on OS X.
+
+    $ java -version
+    java version "1.6.0_33"
+    Java(TM) SE Runtime Environment (build 1.6.0_33-b03-424-11M3720)
+    Java HotSpot(TM) 64-Bit Server VM (build 20.8-b03-424, mixed mode)
+
+## Homebrew installation
 
 Follow the instructions for installing Homebrew available [[here](https://github.com/mxcl/homebrew/wiki/installation)].
 All requirements for OMERO will be installed in this location (e.g. /usr/local). For example:
@@ -36,23 +55,29 @@ All requirements for OMERO will be installed in this location (e.g. /usr/local).
 
 If you are having issues with curl, see the the "curl" section under "Common issues".
 
-Grab the omero_homebrew.sh installation script:
+## OMERO requirements installation
+
+### Installation script
+
+Download the omero_homebrew.sh installation script:
 
     $ curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > omero_homebrew.sh
 
-Run OMERO.homebrew script to install OMERO requirements:
+Run the script to install OMERO requirements:
 
     $ chmod +x omero_homebrew.sh
     $ ./omero_homebrew.sh
 
 NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
 
+### PostgreSQL
+
 Install PostgreSQL if you do not have another PostgreSQL installation that you can use.
 
     $ brew install postgresql
 
-Common issues
-------------
+## Common issues
+
 If you run into problems with Homebrew, you can always run
 
     $ brew doctor
@@ -67,6 +92,7 @@ Below is a non-exhaustive list of errors/warnings. Some if not all of them could
 Use ```export GIT_SSL_NO_VERIFY=1``` before running failing brew commands.
 
 ### Xcode
+
     Warning: Xcode is not installed! Builds may fail!
 
 Install Xcode using Mac App store.
@@ -107,37 +133,45 @@ Manually remove the archived version [[here](/Users/moore/Library/Caches/Homebre
 
 ### numexpr (and other Python packages)
 	
-	If you encounter an issue related to numexpr complaining about NumPy having a too low version number, verify that you have not before installed any Python packages using pip. In the case where pip has been installed before homebrew, uninstall it:
-	
+If you encounter an issue related to numexpr complaining about NumPy having a too low version number, verify that you have not before installed any Python packages using pip. In the case where pip has been installed before homebrew, uninstall it:
+
 	$ sudo pip uninstall pip
-	
-	After that try running omero_homebrew.sh again. That should install pip via homebrew and put the Python packages in correct folders.
 
-OMERO server
------------
+After that try running omero_homebrew.sh again. That should install pip via homebrew and put the Python packages in correct folders.
 
-At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
+## OMERO installation
 
-    $ brew install omero
+At this point you have a choice:
 
-However if you wish to pull OMERO.server from the git repo for development purposes then it is worth setting up OMERO.server manually rather than using homebrew. Prepare a place for your OMERO code to live, e.g.
+* If you just want a deployment of the current release of OMERO.server (4.4.0) then a simple homebrew install is sufficient, e.g.
 
-    $ mkdir -p ~/code/projects/OMERO
-    $ cd ~/code/projects/OMERO
+        $ brew install omero
 
-Now clone the OMERO git repo:
+* If you want to install the 4.3.4 version of OMERO.server, you can use the omero43 formula
 
-    $ git clone git://github.com/openmicroscopy/openmicroscopy
+        $ brew install omero43
 
-NB. If you have a github account & you plan to develop code for OMERO then you should make a fork into your own account then clone to your local development machine, e.g.
+* However if you wish to pull OMERO.server from the git repo for development purposes then it is worth setting up OMERO.server manually rather than using homebrew. Prepare a place for your OMERO code to live, e.g.
 
-    $ git clone git://github.com/YOURNAMEHERE/openmicroscopy
+        $ mkdir -p ~/code/projects/OMERO
+        $ cd ~/code/projects/OMERO
+   
+    Now clone the OMERO github repository:
+        
+        $ git clone git://github.com/openmicroscopy/openmicroscopy
+        
+    NB. If you have a github account & you plan to develop code for OMERO then you should make a fork into your own account then clone to your local development machine, e.g.
 
+        $ git clone git://github.com/YOURNAMEHERE/openmicroscopy
+    
+    Then build
 
-ENV
-===
+# Configuration
 
-Edit your .profile as appropriate. NB. The following are indicators of required entries:
+## Environment variables
+
+Edit your .profile as appropriate. 
+NB. The following are indicators of required entries and correspond to a Homebrew installation of OMERO 4.4.0:
 
     export BREW_DIR=$(brew --prefix)
     export ICE_CONFIG=$(brew --prefix omero)/etc/ice.config
@@ -147,7 +181,7 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
     export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$(brew --prefix omero)/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
 
-NB: On Mac OS.X Lion, a version of postgres is already installed. If you get an error like the following:
+NB: On Mac OS X Lion, a version of postgres is already installed. If you get an error like the following:
     
     psql: could not connect to server: Permission denied
     Is the server running locally and accepting
@@ -155,8 +189,8 @@ NB: On Mac OS.X Lion, a version of postgres is already installed. If you get an 
    
 make sure `$BREW_DIR/bin` is at the beginning of your PATH (see also [[here](http://nextmarvel.net/blog/2011/09/brew-install-postgresql-on-os-x-lion/)]).
 
-CONFIG
-======
+
+## Database creation
 
 Start the PostgresQL server
 
@@ -164,14 +198,17 @@ Start the PostgresQL server
     $ brew services start postgresql
     $ pg_ctl -D /usr/local/var/postgres/ -l /usr/local/var/postgres/server.log start
 
+Create a user, a database and add the PL/pgSQL language to your database
 
     $ createuser -P -D -R -S omero
     $ createdb -O omero omero
     $ createlang plpgsql omero
 
+Check to make sure the database has been created
+
     $ psql -h localhost -U omero -l
 
-Should give similar output to the following:
+This command should give similar output to the following:
                                 
                             List of databases
        
@@ -194,6 +231,8 @@ Now tell OMERO.server about our database
 
     $ omero db script
 
+Then enter the name of the .sql (see last line above) in the next command, to create the database:
+
     $ psql -h localhost -U omero omero < OMERO4.3__0.sql
 
 Now create a location to store OMERO data, e.g.
@@ -207,8 +246,9 @@ and tell OMERO.server this location:
 We can inspect the OMERO.server configuration settings using:
 
     $ omero config get
+    
 
-Now Start OMERO.server
+Now start the OMERO.server
 
     $ omero admin {start|stop}
 
@@ -216,4 +256,20 @@ Now connect to your OMERO.server using insight with the following credentials:
     
     U: root
     P: omero
+    
+## OMERO.web
 
+You can setup the internal web server
+
+    $ omero config set omero.web.application_server development
+
+Then start/stop the webserver with
+
+    $ omero web start/stop
+    Starting django development webserver... 
+    Validating models...
+    0 errors found
+
+    Django version 1.1.1, using settings 'omeroweb.settings'
+    Development server is running at http://0.0.0.0:4080/
+    Quit the server with CONTROL-C.
