@@ -117,8 +117,7 @@ class ProjectionUI
 	{
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
-		if (hBar.isVisible()) return true;
-		if (vBar.isVisible()) return true;
+		if (hBar.isVisible() || vBar.isVisible()) return true;
 		return false;
 	}
 	

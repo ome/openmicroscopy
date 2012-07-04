@@ -88,8 +88,8 @@ class BrowserBICanvas
     				region = tile.getRegion();
     				img = tile.getImage();
     				if (img != null)
-    					 g2D.drawImage((BufferedImage) img, null, 
-    							 region.getX(), region.getY()); 
+    					 g2D.drawImage((BufferedImage) img,
+    							 region.getX(), region.getY(), null);
     				else {
     					g2D.drawRect(region.getX(), region.getY(), 
     							region.getWidth(), region.getHeight());
@@ -101,7 +101,7 @@ class BrowserBICanvas
         } else {
         	 BufferedImage img = model.getDisplayedImage();
              if (img == null) return;
-             g2D.drawImage(img, null, 0, 0); 
+             g2D.drawImage(img, 0, 0, null); 
              paintScaleBar(g2D, img.getWidth(), img.getHeight(),
             		 view.getViewport());
         }
