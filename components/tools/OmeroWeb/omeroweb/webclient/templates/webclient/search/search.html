@@ -44,11 +44,17 @@
             {
                 $("#filtersearch label").inFieldLabels();
 
-                $('#dateperiodinput').datepicker({
+                $('#startdateinput, #enddateinput').datepicker({
                     changeMonth: true, 
                     changeYear: true,
                     firstDay: 1, 
                     dateFormat: 'yy-mm-dd', 
+                    beforeShow: function(input, inst) {
+                        // z-index is set to 1 on 'show' - need to reset if AFTER show
+                        setTimeout(function(){
+                            $("#ui-datepicker-div").css('z-index','50');
+                        }, 10);
+                    }
                 });
                 
                 $(".searching_info, #daterange").tooltip({ 
@@ -75,13 +81,13 @@
                         url = query.serialize();
                     }
                     
-                    var dateperiodinput = $("input[name='dateperiodinput']");
-                    if(dateperiodinput.val()!=null && dateperiodinput.val()!="") {
-                        if(url!=null) {
-                            url = url + "&dateperiodinput="+dateperiodinput.val();
-                        } else {
-                            url = "dateperiodinput="+dateperiodinput.val();
-                        }
+                    var startdateinput = $("input[name='startdateinput']");
+                    if(startdateinput.val()!=null && startdateinput.val()!="") {
+                        url = url + "&startdateinput="+startdateinput.val();
+                    }
+                    var enddateinput = $("input[name='enddateinput']");
+                    if(enddateinput.val()!=null && enddateinput.val()!="") {
+                        url = url + "&enddateinput="+enddateinput.val();
                     }
                     $("input[name='datatype']:checked").each(function(){
                         if(url != null ) {
@@ -174,10 +180,10 @@
 	                       	 <img src="{% static "webgateway/img/help16.png" %}" />
 	                    </span>
 	            
-	               	 	<label for="dateperiodinput">{% trans "Date" %}:</label>
-	                    <input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/>
-	                    <span id="daterange" title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'.
-	                            If you want to change the date click on the field again and pick the date.</small>">
+	               	 	<label for="startdateinput">{% trans "Date" %}:</label>
+	                    <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/> -
+	                    <input type="text" id="enddateinput" name="enddateinput" value="" size="12"/>
+	                    <span id="daterange" title="Date - <small>Specify a particular Creation / Import date or range of dates</small>">
 	                    		<img src="{% static "webgateway/img/help16.png" %}" />
 	                    </span>
 	                

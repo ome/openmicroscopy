@@ -492,10 +492,16 @@ def load_searching(request, form=None, conn=None, **kwargs):
             onlyTypes.append('plates')
         if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
             onlyTypes.append('screens')
-        
-        date = request.REQUEST.get('dateperiodinput', None)
-        if date is not None:
-            date = smart_str(date)
+
+        startdate = request.REQUEST.get('startdateinput', None)
+        startdate = startdate is not None and smart_str(startdate) or None
+        enddate = request.REQUEST.get('enddateinput', None)
+        enddate = enddate is not None and smart_str(enddate) or None
+        date = None
+        if startdate is not None:
+            if enddate is None:
+                enddate = startdate
+            date = "%s_%s" % (startdate, enddate)
 
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
