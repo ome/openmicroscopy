@@ -24,7 +24,7 @@
 {% if share.imgSize %}
 {% for d in share.imageInShare %}
     {% if d.loaded %}
-    <li id='image-{{ d.id }}' rel="image{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
+    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}">
         <a href="#">{{ d.name|truncatebefor:"30" }}</a>
     </li>
     {% else %}

@@ -93,11 +93,10 @@
 
         <div>
             {% for field in form %}
+            {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
         
 		    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
 		    {{ field }}
-		
-		    {% if field.errors %}{{ field.errors }}{% endif %}
 		
 		    <div>{{ field.help_text|safe }}</div>
 	        <br/>

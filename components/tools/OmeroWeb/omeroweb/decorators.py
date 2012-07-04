@@ -74,7 +74,7 @@ class login_required(object):
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
-        return reverse('weblogin')
+        return reverse(settings.LOGIN_VIEW)
     login_url = property(get_login_url)
 
     def get_share_connection (self, request, conn, share_id):

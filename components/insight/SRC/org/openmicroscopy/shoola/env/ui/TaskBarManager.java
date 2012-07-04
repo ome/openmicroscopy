@@ -527,19 +527,27 @@ public class TaskBarManager
 					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
-						if (success) reconnectDialog = null;
+						/*
+						if (success) {
+							reconnectDialog = null;
+						}
+						*/
 					}
 				}
 			}
 		});
-		//dialog.setModal(true);
+		reconnectDialog.setModal(true);
 		UIUtilities.centerAndShow(reconnectDialog);
-		reconnectDialog.requestFocusOnField();
-		reconnectDialog.setAlwaysOnTop(true);
-		if (success) {
-			//container.getRegistry().getEventBus().post(new ReconnectedEvent());
-			//success = false;
+		/*
+		if (reconnectDialog != null) {
+			reconnectDialog.requestFocusOnField();
+			reconnectDialog.setAlwaysOnTop(true);
 		}
+		if (success) {
+			container.getRegistry().getEventBus().post(new ReconnectedEvent());
+			success = false;
+		}
+		*/
 	}
 	
 	/** Disconnects from the current server.*/
@@ -631,6 +639,20 @@ public class TaskBarManager
 		}
     }
 
+	/**
+	 * Returns <code>true</code> if the application is used as an 
+	 * <code></code>ImageJ plug-in, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isRunAsIJPlugin()
+	{
+		Environment env = (Environment) 
+		container.getRegistry().lookup(LookupNames.ENV);
+    	if (env == null) return false;
+    	return env.runAsPlugin() == LookupNames.IMAGE_J;
+	}
+	
 	/** 
 	 * Exits the application.
 	 * 
@@ -645,7 +667,7 @@ public class TaskBarManager
 				AdminService svc = container.getRegistry().getAdminService();
 				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 			} catch (Exception e) {
-				IJ.log(e.getMessage());
+				if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 				Logger log = container.getRegistry().getLogger();
 				LogMessage msg = new LogMessage();
 				msg.print(e);
@@ -658,7 +680,7 @@ public class TaskBarManager
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
 		} catch (Exception e) {
-			IJ.log(e.getMessage());
+			if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 			Logger log = container.getRegistry().getLogger();
 			LogMessage msg = new LogMessage();
 			msg.print("Error while exiting");
@@ -874,7 +896,7 @@ public class TaskBarManager
 				svc.notifyLoginTimeout();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 				break;
 			case LoginService.NOT_CONNECTED:
@@ -882,7 +904,7 @@ public class TaskBarManager
 				svc.notifyLoginFailure();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 		}
     }

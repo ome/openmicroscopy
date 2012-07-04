@@ -27,7 +27,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
-from omero.gateway.utils import ServiceOptsDict, GatewayConfigDict
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
 
 import Ice
@@ -846,7 +846,7 @@ class BlitzObjectWrapper (object):
         @type obj:      L{BlitzObjectWrapper}
         """
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if not obj.getId():
             # Not yet in db, save it
             obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj, ctx))
@@ -1220,15 +1220,8 @@ class _BlitzGateway (object):
     context switching, security privilidges etc.  
     """
     
-    SERVICE_OPTS = ServiceOptsDict() #replacing {'SERVICE_OPTS': None}
-    CONFIG = GatewayConfigDict()
     """
-    Holder for class wide configuration properties:
-     - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
-                    settings object id.
-     - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
-                    that don't get saved in the rendering settings.
-    One good place to define this is on the extending class' connect() method.
+    Holder for class wide configuration properties.
     """
     ICE_CONFIG = None
     """
@@ -1241,7 +1234,7 @@ class _BlitzGateway (object):
         Create the connection wrapper. Does not attempt to connect at this stage
         Initialises the omero.client
         
-        @param username:    User name. If not specified, use 'omero.gateway.anon_user'
+        @param username:    User name.
         @type username:     String
         @param passwd:      Password.
         @type passwd:       String
@@ -1268,6 +1261,7 @@ class _BlitzGateway (object):
 
         if extra_config is None: extra_config = []
         super(_BlitzGateway, self).__init__()
+        self.CONFIG = GatewayConfig()
         self.c = client_obj
         if not type(extra_config) in (type(()), type([])):
             extra_config=[extra_config]
@@ -1286,6 +1280,8 @@ class _BlitzGateway (object):
         self._session = None
         self._lastGroupId = None
         self._anonymous = anonymous
+        self._defaultOmeroGroup = None
+        self._defaultOmeroUser = None
 
         self._connected = False
         self._user = None
@@ -1297,10 +1293,7 @@ class _BlitzGateway (object):
             # if we already have client initialised, we can go ahead and create our services.
             self._connected = True
             self._createProxies()
-        if not username:
-            username = self.c.ic.getProperties().getProperty('omero.gateway.anon_user')
-            passwd = self.c.ic.getProperties().getProperty('omero.gateway.anon_pass')
-        #logger.debug('super: %s %s %s' % (try_super, str(group), self.c.ic.getProperties().getProperty('omero.gateway.admin_group')))
+            self.SERVICE_OPTS = self.createServiceOptsDict()
         if try_super:
             self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         else:
@@ -1308,6 +1301,24 @@ class _BlitzGateway (object):
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
+
+    def createServiceOptsDict(self):
+        serviceOpts = ServiceOptsDict(self.c.getImplicitContext().getContext())
+        serviceOpts.setOmeroGroup(self.getDefaultOmeroGroup())
+        serviceOpts.setOmeroUser(self.getDefaultOmeroUser())
+        return serviceOpts
+
+    def setDefaultOmeroGroup(self, defaultOmeroGroup):
+        self._defaultOmeroGroup = defaultOmeroGroup
+
+    def setDefaultOmeroUser(self, defaultOmeroUser):
+        self._defaultOmeroUser = defaultOmeroUser
+
+    def getDefaultOmeroGroup(self):
+        return self._defaultOmeroGroup
+
+    def getDefaultOmeroUser(self):
+        return self._defaultOmeroUser
 
     def isAnonymous (self):
         """ 
@@ -1567,6 +1578,7 @@ class _BlitzGateway (object):
             self.c.sf.getAdminService().getEventContext()
         self.setSecure(self.secure)
         self.c.sf.detachOnDestroy()
+        self.SERVICE_OPTS = self.createServiceOptsDict()
     
     def _closeSession (self):
         """
@@ -1638,6 +1650,7 @@ class _BlitzGateway (object):
                         self._resetOmeroClient()
                     s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
+                    self.SERVICE_OPTS = self.createServiceOptsDict()
                     logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
@@ -3641,6 +3654,16 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """ Not implemented """
         pass
 
+    def setFile (self, originalfile):
+        """
+        """
+        self._obj.file = omero.model.OriginalFileI(originalfile.getId(), False)
+
+    def setDescription (self, val):
+        """
+        """
+        self._obj.description = omero_type(val)
+
     def isOriginalMetadata(self):
         """
         Checks if this file annotation is an 'original_metadata' file
@@ -4166,20 +4189,6 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         prefs.set(section, key, value)
         self.setRawPreferences(prefs)
 
-    def getDetails (self):
-        """
-        Make sure we have correct details for this experimenter and return them
-        
-        @return:    Experimenter Details
-        @rtype:     L{DetailsWrapper}
-        """
-        
-        if not self._obj.details.owner:
-            details = omero.model.DetailsI()
-            details.owner = self._obj
-            self._obj._details = details
-        return DetailsWrapper(self._conn, self._obj.details)
-
     def getName (self):
         """
         Returns Experimenter's omeName 
@@ -4216,7 +4225,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             if middleName is not None and middleName != '':
                 name = "%s %s %s" % (firstName, middleName, lastName)
             else:
-                name = "%s %s" % (firstName, lastName)
+                if firstName == "" and lastName == "":
+                    name = self.omeName
+                else:
+                    name = "%s %s" % (firstName, lastName)
             return name
         except:
             logger.error(traceback.format_exc())
@@ -4316,10 +4328,8 @@ class DetailsWrapper (BlitzObjectWrapper):
     
     def __init__ (self, *args, **kwargs):
         super(DetailsWrapper, self).__init__ (*args, **kwargs)
-        owner = self._obj.getOwner()
-        group = self._obj.getGroup()
-        self._owner = owner and ExperimenterWrapper(self._conn, self._obj.getOwner()) or None
-        self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
+        self._owner = None
+        self._group = None
 
     def getOwner (self):
         """
@@ -4328,7 +4338,9 @@ class DetailsWrapper (BlitzObjectWrapper):
         @return:    Owner
         @rtype:     L{ExperimenterWrapper}
         """
-        
+        if self._owner is None:
+            owner = self._obj.getOwner()
+            self._owner = owner and ExperimenterWrapper(self._conn, self._obj.getOwner()) or None
         return self._owner
 
     def getGroup (self):
@@ -4338,7 +4350,9 @@ class DetailsWrapper (BlitzObjectWrapper):
         @return:    Group
         @rtype:     L{ExperimenterGroupWrapper}
         """
-        
+        if self._group is None:
+            group = self._obj.getGroup()
+            self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
         return self._group
 
 class _DatasetWrapper (BlitzObjectWrapper):
@@ -5531,7 +5545,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:            Rendering definition ID or None if no custom
                             logic has found a rendering definition.
         """
-        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        rdefns = self._conn.CONFIG.IMG_RDEFNS
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5551,7 +5565,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param rdid:         Current Rendering Def ID
         @type rdid:          Long
         """
-        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        rdefns = self._conn.CONFIG.IMG_RDEFNS
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
@@ -5573,9 +5587,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         re = self._conn.createRenderingEngine()
         ctx = self._conn.SERVICE_OPTS.copy()
 
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.getDetails().getOwner().getId())
+            ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
@@ -5615,15 +5629,16 @@ class _ImageWrapper (BlitzObjectWrapper):
         logger.debug('resetRDefs')
         if self.canWrite():
             self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
-            rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+            rdefns = self._conn.CONFIG.IMG_RDEFNS
             logger.debug(rdefns)
             if rdefns:
                 # Use the same group as the image in the context
                 ctx = self._conn.SERVICE_OPTS.copy()
-                self._conn.SERVICE_OPTS.setOmeroGroup(self.getDetails().getGroup().getId())
-                self.removeAnnotations(rdefns)
-                self._conn.SERVICE_OPTS.clear()
-                self._conn.SERVICE_OPTS = ServiceOptsDict(ctx)
+                self._conn.SERVICE_OPTS.setOmeroGroup(self.details.group.id.val)
+                try:
+                    self.removeAnnotations(rdefns)
+                finally:
+                    self._conn.SERVICE_OPTS = ctx
             return True
         return False
 
@@ -5816,9 +5831,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         tb = self._conn.createThumbnailStore()
         
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.getDetails().getOwner().getId())
+            ctx.setOmeroUser(self.details.owner.id.val)
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
@@ -5976,7 +5991,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if pos is not None:
                 args = list(pos) + args
             ctx = self._conn.SERVICE_OPTS.copy()
-            ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+            ctx.setOmeroGroup(self.details.group.id.val)
             args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
@@ -7010,7 +7025,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Dict of rendering options
         @rtype:     Dict 
         """
-        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        ns = self._conn.CONFIG.IMG_ROPTSNS
         if ns:
             ann = self.getAnnotation(ns)
             if ann is not None:
@@ -7041,7 +7056,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         if not self.canAnnotate():
             return False
-        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        ns = self._conn.CONFIG.IMG_ROPTSNS
         if ns:
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
@@ -7049,8 +7064,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        ctx = self._conn.SERVICE_OPTS
-        ctx.setOmeroGroup(self.getDetails().getGroup().getId())
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
         self._re.saveCurrentSettings(ctx)
         return True
 

@@ -121,10 +121,8 @@ class RDefsTest (lib.GTest):
         tiny = self.getTinyTestImage().getChannels()
         self.assertEqual(tiny[0].getEmissionWave(), 500)
 
-    # Disabled. See #6038
-    def XtestBatchCopy (self):
+    def testBatchCopy (self):
         """ tests that we can copy rendering settings from one image to a set of targets """
-        #self.loginAsAdmin()
         self.loginAsAuthor()
         i1 = self.getTinyTestImage()
         i1c = i1.getChannels()
@@ -140,18 +138,36 @@ class RDefsTest (lib.GTest):
             i1c = i1.getChannels()
             self.assertEqual(i1c[0].getWindowStart(), t+1)
 
-            r = fakeRequest()
-            q = QueryDict('', mutable=True)
-            q.update({'fromid': i1.getId()})
-            q.update({'toids': i2.getId()})
-            r.REQUEST.dicts += (q,)
-            rv = simplejson.loads(views.copy_image_rdef_json(r, CLIENT_BASE, _conn=self.gateway)._get_content())
+            frompid = i1.getPixelsId()
+            toids = [i2.getId()]
+            rsettings = self.gateway.getRenderingSettingsService()
+            rv = rsettings.applySettingsToImages(frompid, list(toids))
             err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
-            self.assertEqual(rv["True"], [i2.getId()], err)
+            self.assertEqual(rv[True], [i2.getId()], err)
             i2 = self.getTinyTestImage2()
             i2c = i2.getChannels()
             self.assertEqual(i2c[0].getWindowStart(), t+1)
+            # Change source image back
+            i1c[0].setWindowStart(t)
+            self.assertNotEqual(i1c[0].getWindowStart(), i2c[0].getWindowStart())
+            i1.saveDefaults()
+            i1 = self.getTinyTestImage()
+            i1c = i1.getChannels()
+            self.assertEqual(i1c[0].getWindowStart(), t)
+            # Try the propagation as admin
+            self.loginAsAdmin()
+            rsettings = self.gateway.getRenderingSettingsService()
+            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1.getDetails().getGroup().getId()))
+            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1.getOwner().getId()))
+            rv = rsettings.applySettingsToImages(frompid, list(toids), self.gateway.SERVICE_OPTS)
+            err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
+            self.assertEqual(rv[True], [i2.getId()], err)
+            i2 = self.getTinyTestImage2()
+            i2c = i2.getChannels()
+            self.assertEqual(i2c[0].getWindowStart(), t)
+
         finally:
+            self.loginAsAuthor()
             i1 = self.getTinyTestImage()
             i1c = i1.getChannels()
             i2 = self.getTinyTestImage2()
@@ -160,6 +176,34 @@ class RDefsTest (lib.GTest):
             i1.saveDefaults()
             i2c[0].setWindowStart(t)
             i2.saveDefaults()
+
+    def testGroupBasedPermissions (self):
+        """
+        Test that images belonging to experimenters on collaborative rw group can be
+        reset and rdef created by admin and then edited by owner of image.
+        """
+        self.loginAsAdmin()
+        self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        self.image = self.getTestImage()
+        self.assert_(self.image.resetRDefs())
+        self.assert_(self.image.saveDefaults())
+        admin = self.gateway.getAdminService()
+        self.loginAsAuthor()
+        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
+        self.loginAsAuthor()
+        try:
+            self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            self.image = self.getTestImage()
+            self.assert_(self.image.resetRDefs())
+            self.assert_(self.image.saveDefaults())
+        finally:
+            admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
+                                  self.gateway._user._obj)
+
+        
+        
 
 if __name__ == '__main__':
     unittest.main()

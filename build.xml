@@ -124,7 +124,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="build-scons" description="Installs the scons build tool" unless="scons.py">
-        <unzip src="${lib.dir}/repository/scons-local-1.2.0.d20090223.zip" dest="target/scons"/>
+        <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
     </target>
 
     <target name="check-ice" description="Checks for slice/include files and unpacks">
@@ -361,6 +361,29 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="test-dist" description="Copy test files into dist for further testing" depends="test-compile">
         <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
+    <target name="examples-cpp" description="Build and run OmeroCpp examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="builddir=${dist.dir}"/>
+            <arg value="run_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-java" description="Build and run OmeroJava examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="run_java=1"/>
+            <arg value="no_cpp=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-py" description="Build and run OmeroPy examples">
+        <scons_py dir="${basedir}/examples" pythonpath="${env.PYTHONPATH}"><!-- omit OmeroPy/src -->
+            <arg value="run_py=1"/>
+            <arg value="no_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
     </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
@@ -887,6 +910,13 @@ omero.version=${omero.version}
             </catch>
         </trycatch>
 
+    </target>
+
+    <target name="print-mem">
+        <echo>
+            javac.maxmem=${javac.maxmem}
+            javadoc.maxmem=${javadoc.maxmem}
+        </echo>
     </target>
 
 </project>

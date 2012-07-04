@@ -413,7 +413,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
 
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     # prepare forms
     filter_user_id = request.session.get('user_id')
@@ -547,7 +550,10 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
     
-    manager= BaseContainer(conn, **kw)
+    try:
+        manager= BaseContainer(conn, **kw)
+    except AttributeError, x:
+        return handlerInternalError(request, x)
     
     if o_id is not None:
         if o_type == "tag":
@@ -715,7 +721,10 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         manager.getComments(c_id)
         form_comment = CommentAnnotationForm(initial=initial)
     else:
-        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        try:
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        except AttributeError, x:
+            return handlerInternalError(request, x)
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
@@ -797,7 +806,6 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             template = "webclient/annotations/metadata_acquisition.html"
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
-        logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
 
     form_environment = None
@@ -1034,7 +1042,6 @@ def annotate_file(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
     if manager is None:
         manager = BaseContainer(conn)
@@ -1133,7 +1140,6 @@ def annotate_tags(request, conn=None, **kwargs):
             try:
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
-                logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
@@ -1200,7 +1206,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
-            logger.error(traceback.format_exc())
             return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
         manager = BaseShare(conn, o_id)
@@ -2048,7 +2053,7 @@ def activities(request, conn=None, **kwargs):
                 if cb.block(0): # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
+                        results = proc.getResults(0, conn.SERVICE_OPTS)     # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                         new_results.append(cbString)
                     except Exception, x:

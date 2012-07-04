@@ -333,6 +333,10 @@
 			z-index:999;
 			background:url(../img/contextbox_arrowup.png) center bottom no-repeat;	
 		}
+		
+		#listViewPort {
+		    position:fixed; overflow:hidden; width:350px; top:70px; z-index:50;
+		}
 	
 
 		/* Title of Info Panel Context Box */

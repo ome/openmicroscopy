@@ -88,6 +88,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -553,7 +554,13 @@ public class ImportDialog
 			checkFile(files[i], l);
 		}
 		chooser.setSelectedFile(new File("."));
-		table.addFiles(l, isParentFolderAsDataset(), group);
+		GroupData g = group;
+		if (groupSelection != null) {
+			JComboBoxImageObject o = (JComboBoxImageObject) 
+			groupSelection.getSelectedItem();
+			g = (GroupData) o.getData();
+		}
+		table.addFiles(l, isParentFolderAsDataset(), g);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 

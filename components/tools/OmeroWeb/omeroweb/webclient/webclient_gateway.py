@@ -1844,7 +1844,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             f.groupId = rlong(self.getEventContext().groupId)
         f.ownerId = rlong(eid or self.getEventContext().userId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, omero.gateway.utils.ServiceOptsDict({'omero.group': -1}))
+        service_opts = self.createServiceOptsDict()
+        service_opts.setOmeroGroup(-1)
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, service_opts)
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway

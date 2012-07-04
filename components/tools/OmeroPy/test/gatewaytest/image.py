@@ -48,6 +48,15 @@ class ImageTest (lib.GTest):
         self.assertEqual(thumb.size, (128,96))
         badimage = self.getBadTestImage() # no pixels
         self.assertEqual(badimage.getThumbnail(), None)
+        # Big image (4k x 4k and up) thumb
+        bigimage = self.getBigTestImage()
+        thumb = bigimage.getThumbnail()
+        tfile = StringIO(thumb)
+        thumb = Image.open(tfile) # Raises if invalid
+        thumb.verify() # Raises if invalid
+        self.assertEqual(thumb.format, 'JPEG')
+        self.assertEqual(thumb.size, (64,64))
+        
 
     def testRenderingModels (self):
         # default is color model
@@ -167,6 +176,36 @@ class ImageTest (lib.GTest):
         self.assertEqual(m['author'], self.AUTHOR.fullname())
         self.assert_('date' in m)
         self.assertEqual(m['parents'], parents)
+
+    def testExport (self):
+        """ Test exporting the image to ometiff """
+        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # Now try the same using a different user, admin first
+        self.loginAsAdmin()
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        image = self.getTestImage()
+        self.assertEqual(image.getId(), self.image.getId())
+        self.assert_(len(image.exportOmeTiff()) > 0)
+        # what about a regular user?
+        g = image.getDetails().getGroup()._obj
+        self.loginAsUser()
+        uid = self.gateway._userid
+        self.loginAsAdmin()
+        admin = self.gateway.getAdminService()
+        admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
+        self.loginAsUser()
+        try:
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            image = self.getTestImage()
+            self.assertEqual(image.getId(), self.image.getId())
+            self.assert_(len(image.exportOmeTiff()) > 0)
+        finally:
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            admin.removeGroups(omero.model.ExperimenterI(uid, False), [g])
+            
+        
+        
 
 if __name__ == '__main__':
     unittest.main()

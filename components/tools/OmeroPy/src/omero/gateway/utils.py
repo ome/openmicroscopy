@@ -26,10 +26,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class GatewayConfigDict(dict):
+class GatewayConfig(object):
     """
-    Dict-like class holding gateway configuration key/value pairs
+    Global Gateway configuration
+    - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
+                   settings object id.
+    - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
+                   that don't get saved in the rendering settings.
     """
+    def __init__ (self):
+        self.IMG_RDEFNS = None
+        self.IMG_ROPTSNS = None
 
 class ServiceOptsDict(dict):
     
@@ -50,7 +57,7 @@ class ServiceOptsDict(dict):
                 else:
                     logger.debug("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
         else:
-            raise AttributeError("%s argument must be a dictionary" % self.__class__.__name__)
+            raise AttributeError("%s argument (%r:%s) must be a dictionary" % (self.__class__.__name__, data, type(data)))
     
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
@@ -62,7 +69,7 @@ class ServiceOptsDict(dict):
             super(ServiceOptsDict, self).__setitem__(key, str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
-            raise AttributeError("%s argument must be a string, unicode or numeric type" % self.__class__.__name__)
+            raise AttributeError("%s argument (%r:%s) must be a string, unicode or numeric type" % (self.__class__.__name__, item, type(item)))
         
     def __getitem__(self, key):
         """Return the value for key if key is in the dictionary. Raises a KeyError if key is not in the map."""

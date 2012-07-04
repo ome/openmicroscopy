@@ -18,7 +18,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IShare.html">IShare.html<a/>
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IShare.html">IShare.html</a>
          **/
         ["ami", "amd"] interface IShare extends ServiceInterface
             {

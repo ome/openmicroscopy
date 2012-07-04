@@ -448,6 +448,25 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns <code>true</code> if the server is running.
+	 * 
+	 * @param ctx The security context.
+	 * @return See above.
+	 */
+	boolean isServerRunning(SecurityContext ctx)
+	{
+		if (!connected) return false;
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null) return false;
+			c.getAdminService().getEventContext();
+		} catch (Throwable e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Creates the permissions corresponding to the specified level.
 	 * 
 	 * @param level The level to handle.
@@ -4139,7 +4158,7 @@ class OMEROGateway
 				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
 				List<Request> l = new ArrayList<Request>();
 				l.add(chmod);
-				return getConnector(ctx).submit(l);
+				return getConnector(ctx).submit(l, null);
 			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
@@ -7993,7 +8012,7 @@ class OMEROGateway
 					commands.add(save);
 				}
 			}
-			return c.submit(commands);
+			return c.submit(commands, target);
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}

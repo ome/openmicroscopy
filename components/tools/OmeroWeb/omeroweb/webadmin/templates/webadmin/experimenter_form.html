@@ -221,25 +221,29 @@
     {% endif %}
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
-    
         {% for field in form %}
+            {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
 
             {% ifequal field.label_tag form.default_group.label_tag %}
-            {{ field }}
-            {% if field.errors %}{{ field.errors }}{% endif %}
-            
-            {% else %}{% ifequal field.label_tag form.other_groups.label_tag %}
-            
-            <span class="required">{{ field.label_tag }}</span>
-            {{ field }}
-            {% if field.errors %}{{ field.errors }}{% endif %}
+                <!-- default group -->
+                {{ field }}
             
             {% else %}
-            
-            {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
-            {{ field }}
-    		{% endifequal %}{% endifequal %}
-            
+                {% ifequal field.label_tag form.other_groups.label_tag %}
+                    <!-- other groups -->
+                    <span class="required">{{ field.label_tag }}</span>
+                    {{ field }}
+                    
+                {% else %}
+                    <!-- all other fields -->
+                    {% if field.field.required %}
+                        <span class="required">{{ field.label_tag }}</span>
+                    {% else %}
+                        {{ field.label_tag }}
+                    {% endif %}
+                    {{ field }}
+                {% endifequal %}
+            {% endifequal %}
             <br />
             
         {% endfor %}

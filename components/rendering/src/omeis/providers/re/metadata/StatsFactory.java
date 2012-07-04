@@ -90,14 +90,13 @@ public class StatsFactory {
      * inputWindow and the noiseReduction flag.
      * 
      * @param p2D 	 The selected plane2d.
-     * @param stats  The statistics for the selected channel.
+     * @param gMin The global minimum.
      * @param sizeX2 The size along one axis.
      * @param sizeX1 The size along the other axis.
      */
-    private void computeBins(Plane2D p2D, StatsInfo stats, int sizeX2,
+    private void computeBins(Plane2D p2D, double gMin, int sizeX2,
             int sizeX1) {
-    	double gMin = stats.getGlobalMin().doubleValue();
-        int[] totals = new int[NB_BIN];
+    	int[] totals = new int[NB_BIN];
         /*
          * Segment[] segments = new Segment[NB_BIN]; for (int i = 0; i < NB_BIN;
          * i++) { segments[i] = new Segment( gMin + i * sizeBin, 0, gMin + (i +
@@ -327,6 +326,7 @@ public class StatsFactory {
         //value will be reset when calculating data.
         inputStart = gMax;
         inputEnd = gMin;
+        final double globalMin = gMin;
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
                     int tileHeight, int tileCount)
@@ -344,7 +344,7 @@ public class StatsFactory {
                 pd.setRegion(regionDef);
                 Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
                         pixelsData);
-                computeBins(plane2D, stats, tileHeight, tileWidth);
+                computeBins(plane2D, globalMin, tileHeight, tileWidth);
             }
         }, pixelsData, (int) tileSize.getWidth(), (int) tileSize.getHeight());
     }

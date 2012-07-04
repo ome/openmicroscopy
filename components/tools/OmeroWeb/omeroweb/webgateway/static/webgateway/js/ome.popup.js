@@ -198,8 +198,8 @@ var feedback_dialog = function(error) {
 $(document).ready(function(){
     $("body").ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
-            var msg = req.responseText;
-            confirm_dialog(msg, null, "404 Error", ["OK"], 360, 180);
+            var msg = "Url: " + settings.url + "<br/>" + req.responseText;
+            confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
         } else if (req.status == 403) {
             // Denied (E.g. session timeout) Refresh - will redirect to login page
             window.location.reload();

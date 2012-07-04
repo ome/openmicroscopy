@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ome.system.OmeroContext;
+import ome.util.messages.UserSignalMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,6 +111,24 @@ public class Entry {
         registerSignal(handler, "INT");
         registerSignal(handler, "TERM");
         registerSignal(handler, "BREAK");
+
+        // ticket:#4210
+        class UserSignalHandler implements SignalHandler {
+            int signal;
+            UserSignalHandler(int signal) {
+                this.signal = signal;
+            }
+            public void handle(Signal arg0) {
+                try {
+                    UserSignalMessage msg = new UserSignalMessage(this, signal);
+                    instance.ctx.publishMessage(msg);
+                } catch (Throwable e) {
+                    log.error("Error on user signal " + signal, e);
+                }
+            }
+        };
+        registerSignal(new UserSignalHandler(1), "USR1");
+        registerSignal(new UserSignalHandler(2), "USR2");
 
         instance.start();
     }

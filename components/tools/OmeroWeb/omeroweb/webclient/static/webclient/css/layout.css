@@ -1835,6 +1835,16 @@
 
 	#personal_details {
 		overflow:hidden;
+		height: 400px;
+	}
+
+    /* improve display of E.g. "group-name (rw----)" */
+	.chzn-results li {
+	    white-space:nowrap;
+	}
+	.chzn-results {
+	    max-height:160px !important;
+	    display: block;
 	}
 	
 	#personal_details select {

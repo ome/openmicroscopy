@@ -249,6 +249,9 @@ public class ScreenLogin
 	/** Provides feedback on the state of the initialization process. */
 	private JProgressBar progressBar;
 	
+	/** Indicates when attempting to log in.*/
+	private boolean loginAttempt;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -299,6 +302,8 @@ public class ScreenLogin
 		setUserName(usr);
 		setEncrypted();
 		setControlsEnabled(false);
+		loginAttempt = true;
+		login.setEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
 
@@ -387,24 +392,15 @@ public class ScreenLogin
 		user.addMouseListener(new MouseAdapter() {
 
 			/**
-			 * Selects the user's name if it exists.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e) {
-				if (user.getText() != null) 
-					user.selectAll();
-			}
-
-			/**
 			 * Fires a property to move the window to the front.
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false), 
+									Boolean.valueOf(true));
 				user.requestFocus();
-				if (user.getText() != null) 
-					user.selectAll();
+				//if (user.getText() != null) 
+				//	user.selectAll();
 			}
 
 		});
@@ -415,8 +411,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
 				//requestFocusOnField();
 			}
 		});
@@ -656,8 +652,15 @@ public class ScreenLogin
 		bar.setOpaque(false);
 		bar.setBorder(null);
 		bar.setFloatable(false);
-		bar.add(encryptedButton);
-		bar.add(configButton);
+		if (UIUtilities.isWindowsOS()) {
+			bar.add(Box.createHorizontalStrut(5));
+			bar.add(encryptedButton);
+			bar.add(Box.createHorizontalStrut(5));
+			bar.add(configButton);
+		} else {
+			bar.add(encryptedButton);
+			bar.add(configButton);
+		}
 		
 		JPanel row = new JPanel();
 		row.setOpaque(false);
@@ -832,6 +835,7 @@ public class ScreenLogin
 				}
 			}
 		}
+		login.setEnabled(enabled);
 		if (enabled) {
 			ActionListener[] listeners = login.getActionListeners();
 			if (listeners != null) {
@@ -1123,11 +1127,13 @@ public class ScreenLogin
 	{
 		user.setEnabled(b);
 		pass.setEnabled(b);
+		login.setEnabled(b);
 		enableControls();
-		login.requestFocus();
+		//login.requestFocus();
 		configButton.setEnabled(b);
 		encryptedButton.setEnabled(b);
 		if (groupsBox != null) groupsBox.setEnabled(b);
+		
 		if (b) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			setButtonDefault(login);
@@ -1135,9 +1141,17 @@ public class ScreenLogin
 		} else {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			login.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			login.setEnabled(false);
 		}
 	}
 
+	/** Fails to log in. */
+	public void onLoginFailure()
+	{
+		loginAttempt = false;
+		setControlsEnabled(true);
+	}
+	
 	/** Sets the text of all textFields to <code>null</code>. */
 	public void cleanFields()
 	{
@@ -1181,12 +1195,15 @@ public class ScreenLogin
 	 */
 	public void requestFocusOnField()
 	{
+		if (loginAttempt) return;
 		setControlsEnabled(true);
 		String txt = user.getText();
 		if (txt == null || txt.trim().length() == 0) user.requestFocus();
 		else pass.requestFocus();
 	}
 
+	public boolean hasAttemptedToLogin() { return loginAttempt; }
+	
 	/**
 	 * Sets the text of the {@link #cancel}.
 	 * 
