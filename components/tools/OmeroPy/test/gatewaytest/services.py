@@ -41,6 +41,7 @@ class ServicesTest (lib.GTest):
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
 
     def testDeleteServiceAdmin (self):
+
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
         # Create new as author, link and check
@@ -62,10 +63,43 @@ class ServicesTest (lib.GTest):
         # Delete, verify it is gone
         img.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(img.getAnnotation(self.TESTANN_NS), None)
-
-
-
-
+        # Create as Admin linked to Author's image
+        ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        ann.setNs(self.TESTANN_NS)
+        ann.setValue(self.TESTANN_NS)
+        img.linkAnnotation(ann, sameOwner=False)
+        ann = img.getAnnotation(self.TESTANN_NS)
+        self.assertEqual(ann.getNs(), self.TESTANN_NS)
+        self.assertEqual(ann.getValue(), self.TESTANN_NS)
+        try:
+            # Make the group writable so Author can delete the annotation
+            g = img.details.group
+            admin = self.gateway.getAdminService()
+            perms = str(img.details.permissions)
+            admin.changePermissions(g, omero.model.PermissionsI('rwrw--'))
+            img = self.getTestImage()
+            g = img.details.group
+            self.assert_(g.details.permissions.isGroupWrite())
+            # Verify it as author user
+            self.loginAsAuthor()
+            img = self.getTestImage()
+            self.assertEqual(img.getId(), self.TESTIMG.getId())
+            ann = img.getAnnotation(self.TESTANN_NS)
+            self.assertEqual(ann.getNs(), self.TESTANN_NS)
+            self.assertEqual(ann.getValue(), self.TESTANN_NS)
+            # Delete, verify it is gone
+            img.removeAnnotations(self.TESTANN_NS)
+            self.assertEqual(img.getAnnotation(self.TESTANN_NS), None)
+        finally:
+            self.loginAsAdmin()
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            # it might be that the test failed and we're stuck with an annotation
+            # that author can't delete, so kill is as admin
+            img = self.getTestImage()
+            img.removeAnnotations(self.TESTANN_NS)
+            # Revert group permissions and remove user from group
+            admin = self.gateway.getAdminService()
+            admin.changePermissions(g, omero.model.PermissionsI(perms))
 
 class TablesTest (lib.GTest):
 
