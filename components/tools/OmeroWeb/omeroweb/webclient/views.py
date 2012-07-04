@@ -422,6 +422,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     filter_user_id = request.session.get('user_id')
     form_well_index = None
         
+    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
+
     # load data & template
     template = None
     if kw.has_key('orphaned'):
@@ -447,6 +449,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
                     index = fields[0]
+            context['baseurl'] = reverse('webgateway').rstrip('/')
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
@@ -459,7 +462,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
