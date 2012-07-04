@@ -140,12 +140,11 @@ ENV
 Edit your .profile as appropriate. NB. The following are indicators of required entries:
 
     export BREW_DIR=$(brew --prefix)
-    export OMERO_HOME=$(brew --prefix omero)
-    export ICE_CONFIG=$OMERO_HOME/etc/ice.config
+    export ICE_CONFIG=$(brew --prefix omero)/etc/ice.config
     export ICE_HOME=$(brew --prefix zeroc-ice33)
-    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/python
+    export PYTHONPATH=$(brew --prefix omero)/lib/python:$ICE_HOME/python
 
-    export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
+    export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$(brew --prefix omero)/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
 
 NB: On Mac OS.X Lion, a version of postgres is already installed. If you get an error like the following:
