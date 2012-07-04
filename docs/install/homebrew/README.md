@@ -233,7 +233,7 @@ Now tell OMERO.server about our database
 
 Then enter the name of the .sql (see last line above) in the next command, to create the database:
 
-    $ psql -h localhost -U omero omero < OMERO4.3__0.sql
+    $ psql -h localhost -U omero omero < OMERO4.4__0.sql
 
 Now create a location to store OMERO data, e.g.
 
@@ -262,10 +262,11 @@ Now connect to your OMERO.server using insight with the following credentials:
 You can setup the internal web server
 
     $ omero config set omero.web.application_server development
+    $ omero config set omero.web.debug True
 
-Then start/stop the webserver with
+Then start the webserver with
 
-    $ omero web start/stop
+    $ omero web start
     Starting django development webserver... 
     Validating models...
     0 errors found
