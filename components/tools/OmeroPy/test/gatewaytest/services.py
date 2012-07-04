@@ -19,6 +19,7 @@ from omero.grid import StringColumn
 class ServicesTest (lib.GTest):
 
     TESTANN_NS = 'omero.gateway.test_services'
+
     def setUp (self):
         super(ServicesTest, self).setUp()
         self.loginAsAuthor()
@@ -26,6 +27,10 @@ class ServicesTest (lib.GTest):
         self.assertNotEqual(self.TESTIMG, None, 'No test image found on database')
 
     def testDeleteServiceAuthor (self):
+
+        ctx = self.gateway.getEventContext()
+        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rwrw--")
+
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
         # Create new, link and check
@@ -41,6 +46,9 @@ class ServicesTest (lib.GTest):
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
 
     def testDeleteServiceAdmin (self):
+
+        ctx = self.gateway.getEventContext()
+        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rwrw--")
 
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
