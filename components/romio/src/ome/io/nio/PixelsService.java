@@ -395,6 +395,16 @@ public class PixelsService extends AbstractFileSystemService
         if ((pixelsFile.exists() || originalFilePath != null) && requirePyramid)
         {
             while (!pixelsPyramidFile.exists()) {
+                // If we are in OMERO.fs mode and the source original file
+                // is already a pyramid don't try and create one.
+                if (originalFilePath != null) {
+                    int series = getSeries(pixels);
+                    PixelBuffer bfPixelBuffer = createBfPixelBuffer(
+                            originalFilePath, series);
+                    if (bfPixelBuffer.getResolutionLevels() > 1) {
+                        return bfPixelBuffer;
+                    }
+                }
                 // throws if loop should exit!
                 handleMissingPyramid(pixels, pixelsPyramidFilePath);
             }
