@@ -50,17 +50,17 @@ public class ChownStep extends GraphStep {
 
     final private long userGroup;
 
-    final private long grp;
+    final private long usr;
 
     final private ShareBean share;
 
     public ChownStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
-            GraphSpec spec, GraphEntry entry, long[] ids, long grp) {
+            GraphSpec spec, GraphEntry entry, long[] ids, long usr) {
         super(idx, stack, spec, entry, ids);
         this.ctx = ctx;
         this.em = em;
-        this.grp = grp;
+        this.usr = usr;
         this.userGroup = roles.getUserGroupId();
         this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
     }
@@ -82,7 +82,7 @@ public class ChownStep extends GraphStep {
 
         final QueryBuilder qb = queryBuilder(opts);
         qb.param("id", id);
-        qb.param("grp", grp);
+        qb.param("usr", usr);
         Query q = qb.query(session);
         int count = q.executeUpdate();
 
@@ -135,7 +135,7 @@ public class ChownStep extends GraphStep {
     private QueryBuilder queryBuilder(GraphOpts opts) {
         final QueryBuilder qb = new QueryBuilder();
         qb.update(table);
-        qb.append("set group_id = :grp ");
+        qb.append("set owner_id = :usr   ");
         qb.where();
         qb.and("id = :id");
         if (!opts.isForce()) {
@@ -153,13 +153,13 @@ public class ChownStep extends GraphStep {
 
         Query q = session.createQuery(str);
         q.setLong(0, id);
-        q.setLong(1, grp);
+        q.setLong(1, usr);
         q.setLong(2, userGroup);
         Long rv = (Long) q.list().get(0);
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
-                    rv, str, id, grp, userGroup));
+            log.debug(String.format("%s<==%s, id=%s, usr=%s, userGroup=%s",
+                    rv, str, id, usr, userGroup));
         }
 
         sw.stop("omero.chown.step." + lock[0] + "." + lock[1]);
