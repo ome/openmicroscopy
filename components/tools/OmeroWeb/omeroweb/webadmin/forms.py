@@ -68,7 +68,7 @@ class ForgottonPasswordForm(NonASCIIForm):
 
 class ExperimenterForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, email_check=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False, experimenter_is_me=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check 
@@ -92,6 +92,11 @@ class ExperimenterForm(NonASCIIForm):
             self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+        if experimenter_is_me:
+            self.fields['administrator'].widget.attrs['disabled'] = True
+            self.fields['administrator'].widget.attrs['title'] = "Removal of your own admin rights would be un-doable"
+            self.fields['active'].widget.attrs['disabled'] = True
+            self.fields['active'].widget.attrs['title'] = "You cannot disable yourself"
 
     omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
