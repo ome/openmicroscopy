@@ -574,6 +574,7 @@ public class PixelsService extends AbstractFileSystemService
             IFormatReader reader = new ImageReader();
             reader = new ChannelFiller(reader);
             reader = new ChannelSeparator(reader);
+            reader.setFlattenedResolutions(false);
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
@@ -604,6 +605,7 @@ public class PixelsService extends AbstractFileSystemService
             IFormatReader reader = new ImageReader();
             reader = new ChannelFiller(reader);
             reader = new ChannelSeparator(reader);
+            reader.setFlattenedResolutions(false);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
