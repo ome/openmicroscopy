@@ -773,6 +773,12 @@ public class ImportLibrary implements IObservable
         int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
         if (((long) reader.getSizeX()
              * (long) reader.getSizeY()) > maxPlaneSize) {
+            int bpp = FormatTools.getBytesPerPixel(reader.getPixelType());
+            bpp *= 8;
+            for (int c = 0; c < reader.getSizeC(); c++) {
+                store.setChannelGlobalMinMax(
+                        c, 0, Math.pow(2, bpp) - 1, series);
+            }
             return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
