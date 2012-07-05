@@ -770,6 +770,11 @@ public class ImportLibrary implements IObservable
         throws FormatException, IOException, ServerError
     {
         reader.setSeries(series);
+        int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
+        if (((long) reader.getSizeX()
+             * (long) reader.getSizeY()) > maxPlaneSize) {
+            return null;
+        }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
 
         MessageDigest md;
