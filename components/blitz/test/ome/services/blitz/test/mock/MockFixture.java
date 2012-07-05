@@ -361,7 +361,7 @@ public class MockFixture {
         }
 
         public String getCategoryForClient(Current arg0) {
-            throw new UnsupportedOperationException();
+            return sessionByConnection.get(arg0.con).ice_id();
         }
 
         public long getSessionTimeout(Current arg0) {
@@ -383,7 +383,7 @@ public class MockFixture {
         }
 
         public ObjectPrx getServerProxy(Current arg0) {
-            throw new UnsupportedOperationException();
+            return sessionByConnection.get(arg0.con);
         }
 
         public void refreshSession(Ice.Current current) throws Glacier2.SessionNotExistException {
