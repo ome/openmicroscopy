@@ -52,7 +52,10 @@ var handle_tree_selection = function(data) {
             }
         }
         selected.each(function(){
-            var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
+            var oid = $(this).attr('id');
+            // after copy & paste, node will have id E.g. copy_dataset-123
+            if (oid.substring(0,5) == "copy_") oid = oid.substring(5, oid.length);
+            var selected_obj = {"id":oid, "rel":$(this).attr('rel')}
             selected_obj["class"] = $(this).attr('class');
             if (share_id) selected_obj["share"] = share_id;
             selected_objs.push(selected_obj);
