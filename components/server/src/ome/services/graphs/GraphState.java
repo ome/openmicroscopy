@@ -199,6 +199,9 @@ public class GraphState implements GraphStep.Callback {
                 // For the spec containers, we create a single step
                 // per column-set.
 
+                // TODO: This extra graph step is for the superspec is causing
+                // the counts in scheduled vs. actual steps to differ!
+
                 if (subSpec != null) {
                     GraphStep step = factory.create(steps.size(), stack, spec,
                             entry, null);
