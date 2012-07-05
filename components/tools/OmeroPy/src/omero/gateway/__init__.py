@@ -3129,6 +3129,14 @@ class _BlitzGateway (object):
         handle = self.c.sf.submit(doall, self.SERVICE_OPTS)
         return handle
 
+    def _waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
+        callback = omero.callbacks.CmdCallbackI(self.c, handle)
+        callback.loop(loops, ms) # Throw LockTimeout
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            if failonerror:
+                raise Exception(rsp) # ???
+        return callback
 
     def chmodGroup(self, group_Id, permissions):
         """
@@ -5630,7 +5638,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def resetRDefs (self):
         logger.debug('resetRDefs')
         if self.canWrite():
-            self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
+            self._deleteSettings()
             rdefns = self._conn.CONFIG.IMG_RDEFNS
             logger.debug(rdefns)
             if rdefns:
@@ -7002,8 +7010,12 @@ class _ImageWrapper (BlitzObjectWrapper):
             c.unloadBlue()
             c.unloadAlpha()
             c.save()
-        self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.SERVICE_OPTS)
+        self._deleteSettings()
         return True
+
+    def _deleteSettings(self):
+        handle = self._conn.deleteObjects("/Image/Pixels/RenderingDef", [self.getId()])
+        self._conn._waitOnCmd(handle)
 
     def _collectRenderOptions (self):
         """
