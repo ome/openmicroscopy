@@ -28,17 +28,10 @@ class TestDelete(lib.ITest):
 
         img = self.client.sf.getUpdateService().saveAndReturnObject( img )
 
-        command = omero.api.delete.DeleteCommand("/Image", img.id.val, None)
-        handle = self.client.sf.getDeleteService().queueDelete([command])
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        errors = None
-        count = 10
-        while errors is None:
-            errors = callback.block(500)
-            count -= 1
-            self.assert_( count != 0 )
-        self.assertEquals(0, errors)
-    
+        command = omero.cmd.Delete("/Image", img.id.val, None)
+        handle = self.client.sf.submit(command)
+        self.waitOnCmd(self.client, handle)
+
     def testDeleteMany(self):
         images = list()
         for i in range(0,5):
@@ -49,27 +42,21 @@ class TestDelete(lib.ITest):
             img.linkAnnotation( tag )
 
             images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ))
-        
+
         commands = list()
         for img in images:
-            commands.append(omero.api.delete.DeleteCommand("/Image", img.id.val, None))
-        
-        handle = self.client.sf.getDeleteService().queueDelete(commands)
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        errors = None
-        count = 10
-        while errors is None:
-            errors = callback.block(500)
-            count -= 1
-            self.assert_( count != 0 )
-        self.assertEquals(0, errors)
+            commands.append(omero.cmd.Delete("/Image", img.id.val, None))
+        doall = omero.cmd.DoAll()
+        doall.requests = commands
+
+        handle = self.client.sf.submit(doall)
+        self.waitOnCmd(self.client, handle)
 
     def testDeleteProjectWithoutContent(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
-        delete = self.client.sf.getDeleteService()
-        
+
         images = list()
         for i in range(0,5):
             img = omero.model.ImageI()
@@ -105,16 +92,14 @@ class TestDelete(lib.ITest):
         op["/FileAnnotation"] = "KEEP"
         op["/Dataset"] = "KEEP"
         op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Project', long(project.id.val), op)
-        handle = delete.queueDelete([dc])
-        
-        cb = omero.callbacks.DeleteCallbackI(self.client, handle)
-        while cb.block(500) is None:
-            pass
-        
-        self.assertEquals(None, query.find('Project', project.id.val))        
+
+        dc = omero.cmd.Delete('/Project', long(project.id.val), op)
+        handle = self.client.sf.submit(dc)
+        cb = self.waitOnCmd(self.client, handle)
+
+        self.assertEquals(None, query.find('Project', project.id.val))
         self.assertEquals(dataset.id.val, query.find('Dataset', dataset.id.val).id.val)
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = dataset.id
@@ -145,18 +130,13 @@ class TestDelete(lib.ITest):
         
         iid = update.saveAndReturnObject( img ).id.val
         
-        cmd = omero.api.delete.DeleteCommand("/Image", iid, None)
-        
-        handle = delete.queueDelete([cmd])
+        cmd = omero.cmd.Delete("/Image", iid, None)
+        handle = self.client.sf.submit(cmd)
+        callback = self.waitOnCmd(self.client, handle)
         cbString = str(handle)
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        while callback.block(500) is not None: # ms.
-            pass
 
-        err = handle.errors()
-        callback.close()
+        callback.close(True) # Don't close handle
 
-        self.assertEquals(0, err)
         self.assertEquals(None, query.find("Image", iid))
 
         # create new session and double check
@@ -169,7 +149,7 @@ class TestDelete(lib.ITest):
         sf1 = cl1.createSession(userName,userName)
 
         try:
-            handle1 = omero.api.delete.DeleteHandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
+            handle1 = omero.cmd.HandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
             self.fail("exception Ice.ObjectNotExistException was not thrown")
         except Ice.ObjectNotExistException:
             pass
@@ -179,7 +159,7 @@ class TestDelete(lib.ITest):
         sf2 = cl2.joinSession(uuid)
 
         try:
-            handle2 = omero.api.delete.DeleteHandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
+            handle2 = omero.cmd.HandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
             self.fail("exception Ice.ObjectNotExistException was not thrown")
         except Ice.ObjectNotExistException:
             pass
@@ -214,21 +194,15 @@ class TestDelete(lib.ITest):
 
         commands = list()
         for img in images:
-            commands.append(omero.api.delete.DeleteCommand("/Image", img.id.val, None))
+            commands.append(omero.cmd.Delete("/Image", img.id.val, None))
+        doall = omero.cmd.DoAll()
+        doall.requests = commands
 
-        handle = delete.queueDelete(commands)
+        handle = self.client.sf.submit(doall)
+        callback = self.waitOnCmd(self.client, handle, ms=1000, loops=50)
         cbString = str(handle)
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
 
-        count = 0
-        while True:
-            count += 1
-            rv = callback.block(500)
-            if rv is not None:
-                break
-            elif count > 50:
-                self.fail("Too many loops")
-        callback.close()
+        callback.close(True)
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -245,21 +219,18 @@ class TestDelete(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
         store = self.client.sf.createRawFileStore()
-        
-        
+
         def _formatReport(delete_handle):
             """
             Added as workaround to the changes made in #3006.
             """
-            delete_reports = delete_handle.report()
-            rv = []
-            for report in delete_reports:
-                if report.error:
-                    rv.append(report.error)
-                elif report.warning:
-                    rv.append(report.warning)
-            return "; ".join(rv)
-            
+            delete_report = delete_handle.getResponse()
+            if isinstance(delete_report, omero.cmd.ERR):
+                return str(delete_report)
+            elif delete_report.warning:
+                return delete_report.warning
+            return ""
+
         images = list()
         for i in range(0,10):
             img = self.createTestImage(session = self.client.sf)
@@ -293,28 +264,13 @@ class TestDelete(lib.ITest):
             
         commands = list()
         for iid in images:
-            commands.append(omero.api.delete.DeleteCommand("/Image", iid, None))
-        
-        handle = self.client.sf.getDeleteService().queueDelete(commands)
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        
-        while callback.block(500) is None: # ms.
-            err = handle.errors()
-            if err > 0:
-                print 'Failed', err
-                print _formatReport(handle)
-            else:
-                print 'In progress'
-                print _formatReport(handle)
+            commands.append(omero.cmd.Delete("/Image", iid, None))
+        doall = omero.cmd.DoAll()
+        doall.requests = commands
 
-        err = handle.errors()
-        if err > 0:
-            print 'Failed', err
-            print _formatReport(handle)
-        else:
-            print 'finished', err
-            print _formatReport(handle)
-            callback.close()
+        handle = self.client.sf.submit(doall)
+        callback = self.waitOnCmd(self.client, handle)
+        callback.close(True)
 
     def test3639(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -353,63 +309,55 @@ class TestDelete(lib.ITest):
         handlers = list()        
         op = dict()
         op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Dataset', long(dataset.id.val), op)
-        handlers.append(str(delete_o.queueDelete([dc])))
-        
+        dc = omero.cmd.Delete('/Dataset', long(dataset.id.val), op)
+        handlers.append(str(client_o.sf.submit(dc)))
+
         imageToDelete = images[2]
         images.remove(imageToDelete)
-        dc2 = omero.api.delete.DeleteCommand('/Image', long(imageToDelete), {})
-        handlers.append(str(delete_o.queueDelete([dc2])))
-        
+        dc2 = omero.cmd.Delete('/Image', long(imageToDelete), {})
+        handlers.append(str(client_o.sf.submit(dc2)))
+
         def _formatReport(delete_handle):
             """
             Added as workaround to the changes made in #3006.
             """
-            delete_reports = delete_handle.report()
+            delete_report = delete_handle.getResponse()
             rv = []
-            for report in delete_reports:
-                if report.error:
-                    rv.append(report.error)
-                elif report.warning:
-                    rv.append(report.warning)
+            if isinstance(delete_report, omero.cmd.ERR):
+                rv.append(str(delete_report))
+            else:
+                if delete_report.warning:
+                    rv.append(delete_report.warning)
             if len(rv) > 0:
                 return "; ".join(rv)
             return None
 
         failure = list();
         in_progress = 0
+        r = None
 
         while(len(handlers)>0):
             for cbString in handlers:
                 try:
-                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.DeleteCallbackI(client_o, handle)
-                    if cb.block(500) is None: # ms.
-                        err = handle.errors()
-                        if err > 0:
-                            r = _formatReport(handle)
-                            if r is not None:
-                                failure.append(r)
-                            else:
-                                failure.append("No report!!!")
-                        else:
-                            print "in progress", _formatReport(handle)
-                            in_progress+=1
-
+                    handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.CmdCallbackI(client_o, handle)
+                    if not cb.block(500): # ms.
+                        # No errors possible if in progress (since no response)
+                        print "in progress", _formatReport(handle)
+                        in_progress+=1
                     else:
-                        err = handle.errors()
-                        if err > 0:
+                        rsp = cb.getResponse()
+                        if isinstance(rsp, omero.cmd.ERR):
                             r = _formatReport(handle)
                             if r is not None:
                                 failure.append(r)
                             else:
                                 failure.append("No report!!!")
-
                         else:
                             r = _formatReport(handle)
                             if r is not None:
                                 failure.append(r)
-                            cb.close()
+                            cb.close(True) # Close handle
                         handlers.remove(cbString)
                 except Ice.ObjectNotExistException:
                     pass
@@ -444,22 +392,10 @@ class TestDelete(lib.ITest):
 
         tag = tagset.linkedAnnotationList()[0]
 
-        command = omero.api.delete.DeleteCommand("/Annotation", tagset.id.val, None)
-        handle = self.client.sf.getDeleteService().queueDelete([command])
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        errors = None
-        count = 10
+        command = omero.cmd.Delete("/Annotation", tagset.id.val, None)
+        handle = self.client.sf.submit(command)
+        callback = self.waitOnCmd(self.client, handle)
 
-        errs = []
-        while callback.block(500) is None: # ms.
-            delete_reports = handle.report()
-            for report in delete_reports:
-                if report.error:
-                    errs.append(report.error)
-                if report.warning:
-                    print report.warning
-
-        self.assertEquals([], errs)
         self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
         self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
 
@@ -472,17 +408,9 @@ class TestDelete(lib.ITest):
         fa.file = o
         fa = self.update.saveAndReturnObject(fa)
 
-        command = omero.api.delete.DeleteCommand("/OriginalFile", o.id.val, None)
-        handle = self.client.sf.getDeleteService().queueDelete([command])
-        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        errors = None
-        count = 10
-        while errors is None:
-            errors = callback.block(500)
-            count -= 1
-            self.assert_( count != 0 )
-        reports = "\n\t".join([r.error for r in handle.report()])
-        self.assertEquals(0, errors, "Found errors:\n\t" + reports)
+        command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
+        handle = self.client.sf.submit(command)
+        self.waitOnCmd(self.client, handle)
 
 
 if __name__ == '__main__':

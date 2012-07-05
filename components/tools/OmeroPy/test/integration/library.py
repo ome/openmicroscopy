@@ -284,7 +284,7 @@ class ITest(unittest.TestCase):
         for accessing the Response and Status elements.
         """
         callback = omero.callbacks.CmdCallbackI(client, handle)
-        callback.loop(10, 500) # throws on timeout
+        callback.loop(loops, ms) # throws on timeout
         rsp = callback.getResponse()
         is_ok = isinstance(rsp, omero.cmd.OK)
         self.assert_(passes, is_ok)
