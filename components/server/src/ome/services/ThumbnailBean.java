@@ -549,6 +549,33 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
+     * Gets an adequate resolution level for the active pixels set and
+     * thumbnail requested.
+     * @param pixelBuffer Current pixel buffer in use.
+     * @return An adequate resolution level for the pixels set or the lowest
+     * if none can be found.
+     */
+    private int getAdequateResolutionLevel(PixelBuffer pixelBuffer)
+    {
+        int pixelBufferSizeX = pixelBuffer.getSizeX();
+        int pixelBufferSizeY = pixelBuffer.getSizeY();
+        int resolutionLevel = pixelBuffer.getResolutionLevels();
+        while (resolutionLevel > 0)
+        {
+            resolutionLevel--;
+            renderer.setResolutionLevel(resolutionLevel);
+            pixelBufferSizeX = pixelBuffer.getSizeX();
+            pixelBufferSizeY = pixelBuffer.getSizeY();
+            if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
+                || pixelBufferSizeY <= thumbnailMetadata.getSizeY())
+            {
+                return resolutionLevel;
+            }
+        }
+        return pixelBuffer.getResolutionLevels() - 1;
+    }
+
+    /**
      * Creates a scaled buffered image from the active pixels set.
      * 
      * @param def
@@ -584,19 +611,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         int pixelBufferSizeY = pixelBuffer.getSizeY();
         if (pixelBuffer.getResolutionLevels() > 1)
         {
-            int resolutionLevel = pixelBuffer.getResolutionLevels();
-            while (resolutionLevel > 0)
-            {
-                resolutionLevel--;
-                renderer.setResolutionLevel(resolutionLevel);
-                pixelBufferSizeX = pixelBuffer.getSizeX();
-                pixelBufferSizeY = pixelBuffer.getSizeY();
-                if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
-                    || pixelBufferSizeY <= thumbnailMetadata.getSizeY())
-                {
-                    break;
-                }
-            }
+            int resolutionLevel = getAdequateResolutionLevel(pixelBuffer);
             log.debug(String.format("Using resolution level %d -- %dx%d",
                     resolutionLevel, pixelBufferSizeX, pixelBufferSizeY));
             renderer.setResolutionLevel(resolutionLevel);
