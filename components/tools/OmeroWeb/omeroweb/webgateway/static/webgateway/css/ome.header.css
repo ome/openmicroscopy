@@ -746,7 +746,7 @@
 				font-weight:bold;
 				font-size:1em;
 				font-family:Arial;
-				display:block;
+				display:none;
 				-webkit-border-radius:100%;
 				
 				-webkit-border-radius:100%; /* Saf3+, Chrome */
