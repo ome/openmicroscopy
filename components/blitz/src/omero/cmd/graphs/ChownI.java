@@ -96,7 +96,7 @@ public class ChownI extends Chown implements IRequest {
             this.spec.initialize(id, "", options);
 
             StopWatch sw = new CommonsLogStopWatch();
-            state = new GraphState(factory, helper.getSql(),
+            state = new GraphState(ec, factory, helper.getSql(),
                 helper.getSession(), spec);
             // Throws if steps == 0
             helper.setSteps(state.getTotalFoundCount());

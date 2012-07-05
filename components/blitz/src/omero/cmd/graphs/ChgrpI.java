@@ -94,7 +94,7 @@ public class ChgrpI extends Chgrp implements IRequest {
             this.spec.initialize(id, "", options);
 
             StopWatch sw = new CommonsLogStopWatch();
-            state = new GraphState(factory, helper.getSql(),
+            state = new GraphState(ec, factory, helper.getSql(),
                 helper.getSession(), spec);
 
             // Throws on no steps

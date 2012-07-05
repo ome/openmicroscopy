@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import ome.model.IObject;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -195,8 +198,6 @@ public interface GraphSpec {
      */
     Class<IObject> getHibernateClass(String table);
 
-    CurrentDetails getCurrentDetails();
-
     /**
      * Loads the object that this spec points to. Performs similar logic to
      * the {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
@@ -205,4 +206,10 @@ public interface GraphSpec {
      * @return possibly null.
      */
     IObject load(Session session) throws GraphException;
+
+    /**
+     * Like {@link #load(Session)} uses the current table and id information
+     * to look up information on the given target.
+     */
+    ExperimenterGroup groupInfo(SqlAction sql);
 }

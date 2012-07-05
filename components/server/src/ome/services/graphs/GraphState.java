@@ -19,8 +19,11 @@ import java.util.Set;
 
 import ome.conditions.OverUsageException;
 import ome.model.IObject;
+import ome.model.meta.ExperimenterGroup;
 import ome.services.messages.EventLogMessage;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
@@ -84,6 +87,12 @@ public class GraphState implements GraphStep.Callback {
     private final SqlAction sql;
 
     /**
+     *
+     * @param Base {@link EventContext} instance which will be used to create a
+     *           special {@link EventContext} based on the current graph. This second
+     *           instance will be passed to each created step via
+     *           {@link GraphSpec#setEventContext(EventContext)}.
+     *
      * @param ctx
      *            Stored the {@link OmeroContext} instance for raising event
      *            during {@link #release(String)}
@@ -91,8 +100,9 @@ public class GraphState implements GraphStep.Callback {
      *            non-null, active Hibernate session that will be used to process
      *            all necessary items as well as lookup items for processing.
      */
-    public GraphState(GraphStepFactory factory, SqlAction sql, Session session, GraphSpec spec)
-            throws GraphException {
+    public GraphState(EventContext ec, GraphStepFactory factory, SqlAction sql,
+        Session session, GraphSpec spec) throws GraphException {
+
         this.sql = sql;
         this.session = session;
 
@@ -105,9 +115,25 @@ public class GraphState implements GraphStep.Callback {
         final LinkedList<GraphStep> stack = new LinkedList<GraphStep>();
         parse(factory, steps, spec, tables, stack, null);
 
+        // Find the group for the object in question and create an
+        // EventContext that will be assigned to each step.
+        final ExperimenterGroup g = spec.groupInfo(sql);
+        final EventContext gec = new SimpleEventContext(ec) {
+            @Override
+            protected void copy(EventContext ec) {
+                super.copy(ec);
+                this.cgId = g.getId();
+                this.cgName = g.getName();
+                setGroupPermissions(g.getDetails().getPermissions());
+            }
+        };
+
         // Post-process and lock.
         this.steps = Collections.unmodifiableList(
                 factory.postProcess(steps));
+        for (GraphStep step : this.steps) {
+            step.setEventContext(gec);
+        }
     }
 
     //
@@ -116,7 +142,8 @@ public class GraphState implements GraphStep.Callback {
 
     /**
      * Walk throw the sub-spec graph actually loading the ids which must be
-     * scheduled for processing.
+     * scheduled for processing. Also responsible for adding the
+     * {@link EventContext} to each {@link GraphSpec}.
      *
      * @param spec
      * @param paths
@@ -137,6 +164,7 @@ public class GraphState implements GraphStep.Callback {
             }
 
             final GraphSpec subSpec = entry.getSubSpec();
+
             final long[][] results = spec.queryBackupIds(session, i, entry, null);
             tables.add(entry, results);
             if (subSpec != null) {

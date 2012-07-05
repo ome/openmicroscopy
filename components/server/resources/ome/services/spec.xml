@@ -31,7 +31,7 @@
         Delete specification which takes a single id as the identifier for where
         the graph of objects to be deleted starts.
         </description>
-        <property name="currentDetails"   ref="currentDetails"/>
+        <!-- EventContext will need to be set by callers. -->
         <property name="extendedMetadata" ref="extendedMetadata"/>
     </bean>
 

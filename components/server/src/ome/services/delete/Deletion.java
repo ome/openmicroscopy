@@ -43,6 +43,7 @@ import ome.io.nio.PixelsService;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.util.SqlAction;
 
@@ -166,7 +167,8 @@ public class Deletion {
     /**
      * Returns the number of steps that are available.
      */
-    public int start(SqlAction sql, Session session, String type, long id,
+    public int start(EventContext ec, SqlAction sql, Session session,
+            String type, long id,
             Map<String, String> options)  throws GraphException {
 
         this.sw = new CommonsLogStopWatch();
@@ -202,7 +204,8 @@ public class Deletion {
             // STATE PARSING
             // Initialize. Any exceptions should cancel the process
             StopWatch sw = new CommonsLogStopWatch();
-            state = new GraphState(factory, sql, session, this.spec);
+
+            state = new GraphState(ec, factory, sql, session, this.spec);
             scheduledDeletes = state.getTotalFoundCount();
             if (scheduledDeletes == 0L) {
                 throw new GraphException("Object missing");

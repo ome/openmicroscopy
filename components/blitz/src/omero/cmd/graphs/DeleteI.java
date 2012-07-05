@@ -25,6 +25,7 @@ import org.hibernate.exception.ConstraintViolationException;
 
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
+import ome.system.EventContext;
 
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
@@ -89,7 +90,8 @@ public class DeleteI extends Delete implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         try {
-            int steps = delegate.start(helper.getSql(), helper.getSession(), type, id, options);
+            EventContext ec = helper.getEventContext();
+            int steps = delegate.start(ec, helper.getSql(), helper.getSession(), type, id, options);
             helper.setSteps(steps);
         } catch (GraphException e) {
             this.helper.cancel(err(), e, "graph-state", "type", type, "id",
