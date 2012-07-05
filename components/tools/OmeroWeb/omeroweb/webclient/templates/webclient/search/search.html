@@ -87,7 +87,18 @@
                     }
                     var enddateinput = $("input[name='enddateinput']");
                     if(enddateinput.val()!=null && enddateinput.val()!="") {
-                        url = url + "&enddateinput="+enddateinput.val();
+                        // check if start date is before, otherwise we have problem
+                        var start = startdateinput.val();
+                        var end = enddateinput.val();
+                        if (start==null || start=="") {
+                            alert("Choose start date for range");
+                            return false;
+                        }
+                        if (start > end) {
+                            alert("Start date is after End date");
+                            return false;
+                        }
+                        url = url + "&enddateinput="+end;
                     }
                     $("input[name='datatype']:checked").each(function(){
                         if(url != null ) {
