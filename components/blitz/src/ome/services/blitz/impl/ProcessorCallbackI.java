@@ -8,6 +8,7 @@ package ome.services.blitz.impl;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
@@ -48,6 +49,8 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
     private final ResultHolder<String> holder;
 
+    private final AtomicInteger responses = new AtomicInteger(0);
+
     /**
      * Simplified constructor used to see if any usermode processor is active
      * for either the current group or the current user. Currently uses a
@@ -75,6 +78,14 @@ public class ProcessorCallbackI extends AbstractAmdServant
         this.sf = sf;
         this.job = job;
         this.holder = holder;
+    }
+
+    /**
+     * Return the number of times this instance has been called in a thread
+     * safe manner.
+     */
+    public int getResponses() {
+        return responses.get();
     }
 
     /**
@@ -134,6 +145,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
     public void isAccepted(boolean accepted, String sessionUuid,
             String procConn, Current __current) {
 
+        responses.incrementAndGet();
         String reason = "because false returned";
 
         if (accepted) {
