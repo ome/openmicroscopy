@@ -19,7 +19,7 @@ import java.util.Map;
 
 import omero.RLong;
 import omero.RString;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.FileAnnotation;
@@ -89,7 +89,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
                 .saveAndReturnObject(new TagAnnotationI());
         IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
         link = iUpdate.saveAndReturnObject(link);
-        delete(client, new DeleteCommand(command, id.getValue(), null));
+        delete(client, new Delete(command, id.getValue(), null));
         assertDoesNotExist(obj);
         assertDoesNotExist(link);
         if (annIsDeleted) {
@@ -116,7 +116,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserInGroup(owner);
         Map<String, String> options = new HashMap<String, String>();
         options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE); 
-        delete(false, iDelete, client, new DeleteCommand(
+        delete(false, client, new Delete(
                 DeleteServiceTest.REF_ANN, fa.getId().getValue(), options));
 
         assertExists(fa);
@@ -141,7 +141,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         Map<String, String> options = new HashMap<String, String>();
      // Would delete other users' data
         options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE); 
-        delete(true, iDelete, client, new DeleteCommand(
+        delete(true, client, new Delete(
                 DeleteServiceTest.REF_ANN, fa.getId().getValue(), options));
 
         assertDoesNotExist(fa);
@@ -170,7 +170,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
 	        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 	        file = fa.getFile();
 
-	        delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, 
+	        delete(client, new Delete(DeleteServiceTest.REF_ANN, 
 	        		fa.getId().getValue(), null));
 
 	        assertDoesNotExist(fa);
@@ -201,7 +201,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, i1
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1
                 .getId().getValue(), null));
 
         assertDoesNotExist(i1);

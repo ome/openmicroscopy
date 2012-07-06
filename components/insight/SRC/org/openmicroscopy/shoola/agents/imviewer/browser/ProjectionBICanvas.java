@@ -147,7 +147,7 @@ class ProjectionBICanvas
         	}
         	return;
         }
-        g2D.drawImage(img, null, 0, 0); 
+        g2D.drawImage(img, 0, 0, null);
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), ui.getViewport());
         g2D.dispose();
     }

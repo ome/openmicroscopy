@@ -34,6 +34,10 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.Delete;
+import omero.cmd.DeleteRsp;
+import omero.cmd.DoAll;
+import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
@@ -936,24 +940,6 @@ public class AbstractServerTest
 		return pixels;
 	} 
 
-	
-	/**
-	 * Deletes the objects.
-	 * 
-	 * @param c
-	 * @param dc
-	 * @return
-	 * @throws ApiUsageException
-	 * @throws ServerError
-	 * @throws InterruptedException
-	 */
-    protected String delete(omero.client c, DeleteCommand...dc)
-    throws ApiUsageException, ServerError,
-    InterruptedException
-    {
-        return delete(true, c.getSession().getDeleteService(), c, dc);
-    }
-
     /**
      * Basic asynchronous delete command. Used in order to reduce the number
      * of places that we do the same thing in case the API changes.
@@ -963,11 +949,11 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    protected String delete(omero.client c, Delete...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
-        return delete(true, proxy, c, dc);
+        return delete(true, c, dc);
     }
 
     /**
@@ -982,38 +968,16 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(boolean passes, IDeletePrx proxy, omero.client c, 
-            DeleteCommand...dc)
-    throws ApiUsageException, ServerError,
-    InterruptedException
+    protected String delete(boolean passes, omero.client c, 
+            Delete...dc)
+                throws ApiUsageException, ServerError,
+                InterruptedException
     {
 
-        DeleteHandlePrx handle = proxy.queueDelete(dc);
-        DeleteCallbackI cb = new DeleteCallbackI(c, handle);
-        int count = 10 * dc.length;
-        while (null == cb.block(500)) {
-            count--;
-            if (count == 0) {
-                throw new RuntimeException("Waiting on delete timed out");
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (DeleteReport report : handle.report()) {
-            if (report.error != null && report.error.length() > 0) {
-                sb.append(report.error);
-            } else {
-                sb.append(report.warning);
-            }
-        }
-        String report = sb.toString();
-        if (passes) {
-            assertEquals(report, 0, handle.errors());
-        } else {
-            assertTrue(report, 0 < handle.errors());
-        }
-        return report;
+        CmdCallbackI cb = callback(passes, c, dc);
+        return "ok";
     }
-
+    
     /**
      * Creates the command to change permissions.
      * 
@@ -1037,11 +1001,11 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected DeleteReport singleDeleteWithReport(IDeletePrx proxy, omero.client c, DeleteCommand dc)
+    protected DeleteRsp singleDeleteWithReport(omero.client c, Delete dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
-        return deleteWithReports(proxy, c, dc)[0];
+        return deleteWithReports(c, dc)[0];
     }
     /**
      * Asynchronous command for delete, report array is returned. 
@@ -1051,36 +1015,20 @@ public class AbstractServerTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, 
-    		DeleteCommand...dc)
+    private DeleteRsp[] deleteWithReports(omero.client c, 
+    		Delete...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
-        DeleteHandlePrx handle = proxy.queueDelete(dc);
-        DeleteCallbackI cb = new DeleteCallbackI(c, handle);
-        int count = 10 * dc.length;
-        while (null == cb.block(500)) {
-            count--;
-            if (count == 0) {
-                throw new RuntimeException("Waiting on delete timed out");
-            }
+        CmdCallbackI cb = callback(true, c, dc);
+        // If the above passes, then we know it's not an ERR
+        DoAllRsp all = (DoAllRsp) cb.getResponse();
+        DeleteRsp[] reports = new DeleteRsp[all.responses.size()];
+        for (int i = 0; i < reports.length; i++)
+        {
+            reports[i] = (DeleteRsp) all.responses.get(i);
         }
-        if (handle.errors() > 0) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Errors during delete!\n");
-            DeleteReport[] reports = handle.report();
-            for (DeleteReport report : reports) {
-                if (report.error.length() > 0) {
-                    sb.append(report.error);
-                    sb.append("\n");
-                } else if (report.warning.length() > 0) {
-                    sb.append(report.warning);
-                    sb.append("\n");
-                }
-            }
-            fail(sb.toString());
-        }
-        return handle.report();
+        return reports;
     }
    
     /**
@@ -1584,11 +1532,32 @@ public class AbstractServerTest
 		}
 		final HandlePrx prx = f.submit(change, callContext);
 		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-		new CmdCallbackI(c, prx).loop(20, 500);
-		assertNotNull(prx.getResponse());
+		CmdCallbackI cb = new CmdCallbackI(c, prx);
+		cb.loop(20, 500);
+		return assertCmd(cb, pass);
+	}
 
-		Status status = prx.getStatus();
-		Response rsp = prx.getResponse();
+        protected CmdCallbackI callback(boolean passes, omero.client c, omero.cmd.Request...reqs)
+            throws ApiUsageException, ServerError,
+                   InterruptedException
+        {
+            DoAll all = new DoAll();
+            all.requests = new ArrayList<omero.cmd.Request>();
+            for (omero.cmd.Request req : reqs) {
+                all.requests.add(req);
+            }
+            HandlePrx handle = c.getSession().submit(all);
+            CmdCallbackI cb = new CmdCallbackI(c, handle);
+            cb.loop(10 * reqs.length, 500); // throws on timeout
+            assertCmd(cb, passes);
+            return cb;
+        }
+
+        protected Response assertCmd(CmdCallbackI cb, boolean pass) {
+		assertNotNull(cb.getResponse());
+
+		Status status = cb.getStatus();
+		Response rsp = cb.getResponse();
 		assertNotNull(rsp);
 		if (pass) {
 		    if (rsp instanceof ERR) {

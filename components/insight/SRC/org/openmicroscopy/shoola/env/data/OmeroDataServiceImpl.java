@@ -41,7 +41,8 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.delete.DeleteCommand;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -806,7 +807,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#delete(SecurityContext, Collection)
 	 */
-	public DeleteCallback delete(SecurityContext ctx,
+	public RequestCallback delete(SecurityContext ctx,
 			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
@@ -822,8 +823,8 @@ class OmeroDataServiceImpl
 		}
 		if (l.size() == 0) return null;
 		i = l.iterator();
-		List<DeleteCommand> commands = new ArrayList<DeleteCommand>();
-		DeleteCommand cmd;
+		List<Delete> commands = new ArrayList<Delete>();
+		Delete cmd;
 		Map<String, String> options;
 		DataObject data;
 		List<Class> annotations;
@@ -881,7 +882,7 @@ class OmeroDataServiceImpl
 					}
 				}
 			}
-			cmd = new DeleteCommand(gateway.createDeleteCommand(
+			cmd = new Delete(gateway.createDeleteCommand(
 					data.getClass().getName()), data.getId(), options);
 			commands.add(cmd);
 			if (contents != null && contents.size() > 0) {
@@ -889,14 +890,14 @@ class OmeroDataServiceImpl
 				DataObject d;
 				while (k.hasNext()) {
 					d = k.next();
-					cmd = new DeleteCommand(gateway.createDeleteCommand(
+					cmd = new Delete(gateway.createDeleteCommand(
 							d.getClass().getName()), d.getId(), options);
 					commands.add(cmd);
 				}
 			}
 		}
 		return gateway.deleteObject(ctx,
-				commands.toArray(new DeleteCommand[] {}));
+				commands.toArray(new Delete[] {}));
 	}
 
 	/**
@@ -937,31 +938,55 @@ class OmeroDataServiceImpl
 		Experimenter o = null;
 		IObject newObject;
 		PermissionData perms;
+		List<IObject> targets = new ArrayList<IObject>();
+		
 		while (i.hasNext()) {
 			data = i.next();
 			owner = data.getOwner();
 			perms = data.getPermissions();
-			
 			if (owner.getId() != exp.getId() &&
 				perms.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE) {
 				o = new ExperimenterI(owner.getId(), false);
+				break;
 			}
-			l = new ArrayList<IObject>();
-			if (targetNodes != null && targetNodes.size() > 0) {
-				j = targetNodes.iterator();
-				while (j.hasNext()) {
-					object = j.next();
-					if (object != null) {
-						newObject = null;
-						if (object.getId() < 0) {
-							newObject = object.asIObject();
-						}
-						link = ModelMapper.linkParentToChild(
-								data.asIObject(), object.asIObject());
-						
+		}
+		
+		if (targetNodes != null && targetNodes.size() > 0) {
+			List<IObject> toCreate = new ArrayList<IObject>();
+			j = targetNodes.iterator();
+			while (j.hasNext()) {
+				object = j.next();
+				if (object != null) {
+					if (object.getId() < 0) {
+						newObject = object.asIObject();
 						if (newObject != null && o != null) {
 							newObject.getDetails().setOwner(o);
 						}
+						toCreate.add(newObject);
+					} else targets.add(object.asIObject());
+				}
+			}
+			if (toCreate.size() > 0) {
+				toCreate = gateway.saveAndReturnObject(target, toCreate,
+						new HashMap());
+				targets.addAll(toCreate);
+			}
+			
+		}
+		i = objects.iterator();
+		Iterator<IObject> k;
+		while (i.hasNext()) {
+			data = i.next();
+			owner = data.getOwner();
+			perms = data.getPermissions();
+			l = new ArrayList<IObject>();
+			if (targets != null && targets.size() > 0) {
+				k = targets.iterator();
+				while (k.hasNext()) {
+					newObject = k.next();
+					if (newObject != null) {
+						link = ModelMapper.linkParentToChild(
+								data.asIObject(), newObject);
 						if (link != null) {
 							if (o != null) link.getDetails().setOwner(o);
 							l.add(link);

@@ -10,6 +10,7 @@
 #define OMERO_CMD_GRAPHS_ICE
 
 #include <omero/cmd/API.ice>
+#include <omero/Collections.ice>
 
 module omero {
 
@@ -73,10 +74,54 @@ module omero {
         class ChownRsp extends Response {
         };
 
+        /**
+         * Delete requests will return a [omero::cmd::DeleteRsp]
+         * unless an error has occurred in which case a standard
+         * [omero::cmd::ERR] may be returned.
+         **/
         class Delete extends GraphModify {
         };
 
-        class DeleteRsp extends Response {
+        /**
+         * Mirrors and replaces DeleteReport. There is no "error" field
+         * because if there was an error than an ERR object will be
+         * returned.
+         **/
+        class DeleteRsp extends OK {
+
+            /**
+             * Extra feedback mechanism. Typically will only be non-empty
+             * if the error is empty. This implies that some situation was
+             * encountered that the user may need to be informed of (e.g.
+             * some annotation wasn't deleted), but which was non-critical.
+             **/
+            string warning;
+
+            /**
+             * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
+             * a list of ids for any binary files which did not get dieleted.
+             *
+             * Some action may be desired by the user to guarantee that this
+             * server-space is eventually
+             **/
+            omero::api::IdListMap undeletedFiles;
+
+            /**
+             * Number of steps that this [DeleteCommand] requires.
+             **/
+            int steps;
+
+            /**
+             * Number of objects that this [DeleteCommand] will attempt
+             * to delete.
+             **/
+            long scheduledDeletes;
+
+            /**
+             * Number of actual deletes which took place.
+             **/
+            long actualDeletes;
+
         };
 
     };

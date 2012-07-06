@@ -422,6 +422,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     filter_user_id = request.session.get('user_id')
     form_well_index = None
         
+    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
+
     # load data & template
     template = None
     if kw.has_key('orphaned'):
@@ -447,6 +449,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
                     index = fields[0]
+            context['baseurl'] = reverse('webgateway').rstrip('/')
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
@@ -459,7 +462,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -490,10 +492,16 @@ def load_searching(request, form=None, conn=None, **kwargs):
             onlyTypes.append('plates')
         if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
             onlyTypes.append('screens')
-        
-        date = request.REQUEST.get('dateperiodinput', None)
-        if date is not None:
-            date = smart_str(date)
+
+        startdate = request.REQUEST.get('startdateinput', None)
+        startdate = startdate is not None and smart_str(startdate) or None
+        enddate = request.REQUEST.get('enddateinput', None)
+        enddate = enddate is not None and smart_str(enddate) or None
+        date = None
+        if startdate is not None:
+            if enddate is None:
+                enddate = startdate
+            date = "%s_%s" % (startdate, enddate)
 
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
@@ -1426,7 +1434,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
-                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
+                'derror':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
@@ -1445,7 +1453,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
+                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':0,
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
@@ -2001,35 +2009,31 @@ def activities(request, conn=None, **kwargs):
         elif job_type == 'delete':
             if status not in ("failed", "finished"):
                 try:
-                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                    if cb.block(0) is None: # ms #500
-                        err = handle.errors()
-                        request.session['callback'][cbString]['derror'] = err
-                        if err > 0:
-                            logger.error("Status job '%s'error:" % cbString)
-                            logger.error(err)
-                            request.session['callback'][cbString]['status'] = "failed"
-                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            failure+=1
-                            new_results.append(cbString)
-                        else:
+                    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.CmdCallbackI(conn.c, handle)
+                    close_handle = False
+                    try:
+                        if not cb.block(0): # Response not available
+                            request.session['callback'][cbString]['derror'] = 0
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             in_progress+=1
-                    else:
-                        err = handle.errors()
-                        request.session['callback'][cbString]['derror'] = err
-                        new_results.append(cbString)
-                        if err > 0:
-                            request.session['callback'][cbString]['status'] = "failed"
-                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            failure+=1
-                        else:
-                            request.session['callback'][cbString]['status'] = "finished"
-                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            cb.close()
-                except Ice.ObjectNotExistException:
+                        else: # Response available
+                            close_handle = True
+                            err = isinstance(cb.getResponse(), omero.cmd.ERR)
+                            new_results.append(cbString)
+                            if err:
+                                request.session['callback'][cbString]['derror'] = 1
+                                request.session['callback'][cbString]['status'] = "failed"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                                failure+=1
+                            else:
+                                request.session['callback'][cbString]['derror'] = 0
+                                request.session['callback'][cbString]['status'] = "finished"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                    finally:
+                        cb.close(close_handle)
+                except Ice.ObjectNotExistException, e:
                     request.session['callback'][cbString]['derror'] = 0
                     request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
@@ -2053,7 +2057,7 @@ def activities(request, conn=None, **kwargs):
                 if cb.block(0): # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
+                        results = proc.getResults(0, conn.SERVICE_OPTS)     # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                         new_results.append(cbString)
                     except Exception, x:
@@ -2449,7 +2453,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
         request.session.modified = True
     except Exception, x:
         jobId = str(time())      # E.g. 1312803670.6076391
-        if x.message == "No processor available.": # omero.ResourceError
+        if x.message and x.message.startswith("No processor available"): # omero.ResourceError
             logger.info(traceback.format_exc())
             error = None
             status = 'no processor available'

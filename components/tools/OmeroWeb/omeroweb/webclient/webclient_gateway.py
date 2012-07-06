@@ -670,7 +670,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             # but if there is more then one all of them should be deleted.
             for l in links:
                 self.deleteObjectDirect(l)
-            self.deleteObjects("/Annotation", [ann.id.val])
+            self.deleteObjects("/Annotation", [ann.id.val]) # No error handling?
     
     def cropExperimenterPhoto(self, box, oid=None):
         """

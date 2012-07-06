@@ -413,7 +413,7 @@ class Context:
 
 #####################################################
 #
-class BaseControl:
+class BaseControl(object):
     """Controls get registered with a CLI instance on loadplugins().
 
     To create a new control, subclass BaseControl, implement _configure,
@@ -1189,3 +1189,256 @@ def argv(args=sys.argv):
     finally:
         if old_ice_config:
             os.putenv("ICE_CONFIG", old_ice_config)
+
+#####################################################
+#
+# Specific argument types
+
+class ExperimenterGroupArg(object):
+
+    def __init__(self, arg):
+        self.orig = arg
+        self.grp = None
+        try:
+            self.grp = long(arg)
+        except ValueError, ve:
+            if ":" in arg:
+                parts = arg.split(":", 1)
+                if parts[0] == "Group" or "ExperimenterGroup":
+                    try:
+                        self.grp = long(parts[1])
+                    except ValueError, ve:
+                        pass
+
+    def lookup(self, client):
+        if self.grp is None:
+            import omero
+            a = client.sf.getAdminService()
+            try:
+                self.grp = a.lookupGroup(self.orig).id.val
+            except omero.ApiUsageException, aue:
+                pass
+        return self.grp
+
+class GraphArg(object):
+
+    def __init__(self, cmd_type):
+        self.cmd_type = cmd_type
+
+    def __call__(self, arg):
+        try:
+            parts = arg.split(":", 1)
+            assert len(parts) == 2
+            type = parts[0]
+            id = long(parts[1])
+
+            import omero
+            import omero.cmd
+            return self.cmd_type(\
+                    type=type,\
+                    id=id,\
+                    options={})
+        except:
+            raise ValueError("Bad object: %s", arg)
+
+    def __repr__(self):
+        return "argument"
+
+#####################################################
+#
+# Specific superclasses for various controls
+
+class CmdControl(BaseControl):
+
+    def cmd_type(self):
+        raise Exception("Must be overriden by subclasses")
+
+    def _configure(self, parser):
+        parser.set_defaults(func=self.main_method)
+        parser.add_argument("--wait", type=long, help="Number of seconds to"+\
+                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
+
+    def main_method(self, args):
+        import omero
+        client = self.ctx.conn(args)
+        req = self.cmd_type()
+        self._process_request(req, args, client)
+
+    def _process_request(self, req, args, client):
+        """
+        Allow specific filling of parameters in the request.
+        """
+        cb = None
+        try:
+            rsp, status, cb = self.response(client, req, wait = args.wait)
+            self.print_report(req, rsp, status, args.report)
+        finally:
+            if cb is not None:
+                cb.close(True) # Close handle
+
+    def print_report(self, req, rsp, status, detailed):
+        import omero
+        type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+        self.ctx.out(("%s %s %s... " % (type, req.type, req.id)), newline = False)
+        if isinstance(rsp, omero.cmd.ERR):
+            self.ctx.out("failed: '%s'" % rsp.name)
+            if rsp.parameters:
+                for k in sorted(rsp.parameters):
+                    v = rsp.parameters.get(k, "")
+                    self.ctx.out("\t%s=%s" % (k, v))
+        else:
+            self.ctx.out("ok")
+
+        if detailed:
+            self.ctx.out("Steps: %s" % status.steps)
+            if status.stopTime > 0 and status.startTime > 0:
+                elapse = status.stopTime - status.startTime
+                self.ctx.out("Elapsed time: %s secs." % (elapse/1000.0))
+            else:
+                self.ctx.out("Unfinished.")
+            self.ctx.out("Flags: %s" % status.flags)
+            self.print_detailed_report(req, rsp, status)
+
+    def print_detailed_report(self, req, rsp, status):
+        """
+        Extension point for subclasses.
+        """
+        pass
+
+    def line_to_opts(self, line, opts):
+        if not line or line.startswith("#"):
+            return
+        parts = line.split("=", 1)
+        if len(parts) == 1:
+            parts.append("")
+        opts[parts[0].strip()] = parts[1].strip()
+
+    def response(self, client, req, loops = 8, ms = 500, wait = None):
+        import omero.callbacks
+        handle = client.sf.submit(req)
+        cb = omero.callbacks.CmdCallbackI(client, handle)
+
+        if wait is None:
+            cb.loop(loops, ms)
+        elif wait == 0:
+            self.ctx.out("Exiting immediately")
+        elif wait > 0:
+            ms = wait * 1000
+            ms = ms / loops
+            self.ctx.out("Waiting %s loops of %s ms" % (ms, loops))
+            rsp = cb.loop(loops, ms)
+        else:
+            try:
+                # Wait for finish
+                while True:
+                    found = cb.block(ms)
+                    if found:
+                        break
+
+            # If user uses Ctrl-C, then cancel
+            except KeyboardInterrupt:
+                self.ctx.out("Attempting cancel...")
+                if handle.cancel():
+                    self.ctx.out("Cancelled")
+                else:
+                    self.ctx.out("Failed to cancel")
+
+        return cb.getResponse(), cb.getStatus(), cb
+
+class GraphControl(CmdControl):
+
+    def cmd_type(self):
+        raise Exception("Must be overriden by subclasses")
+
+    def _configure(self, parser):
+        parser.set_defaults(func=self.main_method)
+        parser.add_argument("--wait", type=long, help="Number of seconds to"+\
+                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
+        parser.add_argument("--edit", action="store_true", help="""Configure options in a text editor""")
+        parser.add_argument("--opt", action="append", help="""Modifies the given option (e.g. /Image:KEEP). Applied *after* 'edit' """)
+        parser.add_argument("--list", action="store_true", help="""Print a list of all available graph specs""")
+        parser.add_argument("--list-details", action="store_true",
+                help="""Print a list of all available graph specs along with detailed info""")
+        parser.add_argument("--report", action="store_true", help="""Print more detailed report of each action""")
+        self._pre_objects(parser)
+        parser.add_argument("obj", nargs="*", type=GraphArg(self.cmd_type()), \
+                help="""Objects to be processedd in the form "<Class>:<Id>""")
+
+    def _pre_objects(self, parser):
+        """
+        Allows configuring before the "obj" n-argument is added.
+        """
+        pass
+
+    def main_method(self, args):
+
+        import omero
+        client = self.ctx.conn(args)
+        cb = None
+        try:
+            try:
+                speclist, status, cb = self.response(client, omero.cmd.GraphSpecList())
+            except omero.LockTimeout, lt:
+                self.ctx.die(446, "LockTimeout: %s" % lt.message)
+        finally:
+            if cb is not None:
+                cb.close(True) # Close handle
+
+        specs = speclist.list
+        specmap = dict()
+        for s in specs:
+            specmap[s.type] = s
+        keys = sorted(specmap)
+
+        if args.list_details:
+            for key in keys:
+                spec = specmap[key]
+                self.ctx.out("=== %s ===" % key)
+                for k, v in spec.options.items():
+                    self.ctx.out("%s" % (k,))
+            return # Early exit.
+        elif args.list:
+            self.ctx.out("\n".join(keys))
+            return # Early exit.
+
+        for req in args.obj:
+            if args.edit:
+                req.options = self.edit_options(req, specmap)
+            if args.opt:
+                for opt in args.opt:
+                    self.line_to_opts(opt, req.options)
+
+            self._process_request(req, args, client)
+
+    def edit_options(self, req, specmap):
+
+        from omero.util import edit_path
+        from omero.util.temp_files import create_path, remove_path
+
+        start_text = """# Edit options for your operation below.\n"""
+        start_text += ("# === %s ===\n" % req.type)
+        if req.type not in specmap:
+            self.ctx.die(162, "Unknown type: %s" % req.type)
+        start_text += self.append_options(req.type, dict(specmap))
+
+        temp_file = create_path()
+        try:
+            edit_path(temp_file, start_text)
+            txt = temp_file.text()
+            print txt
+            rv = dict()
+            for line in txt.split("\n"):
+                self.line_to_opts(line, rv)
+            return rv
+        except RuntimeError, re:
+            self.ctx.die(954, "%s: Failed to edit %s" % (getattr(re, "pid", "Unknown"), temp_file))
+
+    def append_options(self, key, specmap, indent = 0):
+        spec = specmap.pop(key)
+        start_text = ""
+        for optkey in sorted(spec.options):
+            optval = spec.options[optkey]
+            start_text += ("%s%s=%s\n" % ("  " * indent, optkey, optval))
+            if optkey in specmap:
+                start_text += self.append_options(optkey, specmap, indent+1)
+        return start_text

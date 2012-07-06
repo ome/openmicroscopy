@@ -30,7 +30,7 @@ import ome.xml.model.primitives.Color;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
@@ -110,8 +110,8 @@ public class ImporterTest
      * Delete an Image (via a Pixels) assuming a successful outcome.
      */
     private void delete(Pixels p) throws Exception{
-        delete(true, iDelete, client,
-            new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+        delete(true, client,
+            new Delete(DeleteServiceTest.REF_IMAGE,
                     p.getImage().getId().getValue(), null));
     }
 
@@ -121,8 +121,8 @@ public class ImporterTest
     private void delete(List<Pixels> pix) throws Exception{
         if (pix != null) {
             for (Pixels p : pix) {
-                delete(true, iDelete, client,
-                        new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+                delete(true, client,
+                        new Delete(DeleteServiceTest.REF_IMAGE,
                                 p.getImage().getId().getValue(), null));
             }
         }
@@ -132,8 +132,8 @@ public class ImporterTest
      * Delete a Dataset assuming a successful outcome.
      */
     private void delete(Dataset d) throws Exception{
-        delete(true, iDelete, client,
-            new DeleteCommand(DeleteServiceTest.REF_DATASET,
+        delete(true, client,
+            new Delete(DeleteServiceTest.REF_DATASET,
                    d.getId().getValue(), null));
     }
 
@@ -141,8 +141,8 @@ public class ImporterTest
      * Delete a plate assuming a successful outcome.
      */
     private void delete(Plate plate) throws Exception{
-        delete(true, iDelete, client,
-            new DeleteCommand(DeleteServiceTest.REF_PLATE,
+        delete(true, client,
+            new Delete(DeleteServiceTest.REF_PLATE,
                     plate.getId().getValue(), null));
     }
 
@@ -150,8 +150,8 @@ public class ImporterTest
      * Delete a screen assuming a successful outcome.
      */
     private void delete(Screen screen) throws Exception{
-        delete(true, iDelete, client,
-            new DeleteCommand(DeleteServiceTest.REF_SCREEN,
+        delete(true, client,
+            new Delete(DeleteServiceTest.REF_SCREEN,
                     screen.getId().getValue(), null));
     }
 

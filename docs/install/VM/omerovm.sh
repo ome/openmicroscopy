@@ -10,6 +10,7 @@ export OMERO_PORT=${OMERO_PORT:-"4063"}
 export OMERO_PF=${OMERO_PF:-"4063"}
 export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
+export RELEASE_VERSION="4.3.4"
 
 set -e
 set -u
@@ -50,6 +51,8 @@ function installvm ()
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
 	$SCP omero-web-init.d omero@localhost:~/
+	$SCP virtualbox-network-fix-init.d omero@localhost:~/
+  $SCP virtualbox_fix.sh omero@localhost:~/
   $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
 	$SSH omero@localhost "bash /home/omero/driver.sh ${TARGET}"
@@ -181,4 +184,9 @@ fi
 echo "Network up after $ATTEMPTS tries"
 installvm
 
-bash export_ova.sh
+if [ "$TARGET" == "QA" ]; then
+  EXPORTVMNAME="${VMNAME}-latest-build"
+else
+  EXPORTVMNAME="${VMNAME}-${RELEASE_VERSION}"
+fi
+bash export_ova.sh ${VMNAME} ${EXPORTVMNAME}

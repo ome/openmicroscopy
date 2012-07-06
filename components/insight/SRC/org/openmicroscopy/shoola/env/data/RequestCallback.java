@@ -72,11 +72,11 @@ public class RequestCallback
 	 */
 	private Object handleResponse()
 	{
-		if (response instanceof OK) {
-			return Boolean.valueOf(true);
-		} else if (response instanceof ERR)
+		if (response == null) return Boolean.valueOf(false);
+		if (response instanceof OK) return Boolean.valueOf(true);
+		else if (response instanceof ERR)
 			return new ProcessReport((ERR) response);
-		return Boolean.valueOf(true);
+		return null;
 	}
 	
 	/**
@@ -102,13 +102,12 @@ public class RequestCallback
 	public void setAdapter(DSCallAdapter adapter)
 	{
 		this.adapter = adapter;
-		if (finished && adapter != null) {
-			if (!submitted) {
-				adapter.handleResult(handleResponse());
-				try {
-					close(false); // TODO: try to close handle here?
-				} catch (Exception e) {}
-			}
+		if (finished && adapter != null && !submitted) {
+			Object ho = handleResponse();
+			if (ho != null) adapter.handleResult(ho);
+			try {
+				close(false); 
+			} catch (Exception e) {}
 		}
 	}
 	
@@ -121,30 +120,15 @@ public class RequestCallback
 		super.onFinished(rsp, status, c);
 		finished = true;
 		response = rsp;
-		if (isFailure()) {
-			if (adapter != null) {
-				submitted = true;
-				if (rsp == null)
-					adapter.handleResult(Boolean.valueOf(false));
-				else adapter.handleResult(handleResponse());
-				return;
-			}
+		if (adapter != null) {
+			submitted = true;
+			Object ho = handleResponse();
+			if (ho != null) adapter.handleResult(ho);
 		}
-		try {
-			if (adapter != null) {
-				submitted = true;
-				adapter.handleResult(handleResponse());
-			}
-		} catch (Exception e) {
-			finished = false;
-		}
-		
-		if (finished && submitted) {
+		if (submitted) {
 			try {
 				close(true);
-			} catch (Exception e) {
-				//ignore the exception.
-			}
+			} catch (Exception e) {}
 		}
 	}
 

@@ -3,7 +3,7 @@
 set -e
 set -u
 
-OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
+OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then

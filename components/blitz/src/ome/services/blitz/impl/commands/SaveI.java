@@ -60,6 +60,8 @@ public class SaveI extends Save implements IRequest {
             return update.saveAndReturnObject(iobj);
         }
         catch (Throwable t) {
+            // TODO: Should probably not catch throwable, but more specific
+            // conditions.
             throw helper.cancel(new ERR(), t, "failed", "obj",
                     String.format("%s", this.obj));
         }

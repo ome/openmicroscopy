@@ -321,8 +321,8 @@ class SplashScreenManager
     /** Fails to log in. */
     void onLoginFailure()
     {
-    	 view.setControlsEnabled(true);
-         updateView();
+    	view.onLoginFailure();
+    	updateView();
     }
     
 	/**

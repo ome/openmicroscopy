@@ -125,6 +125,9 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.Delete;
+import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -7855,25 +7858,24 @@ class OMEROGateway
 	 * @param commands The object to delete.
 	 * @return See above.
 	 * @throws ProcessException If an error occurred while running the script.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
 	 */
-	DeleteCallback deleteObject(SecurityContext ctx, DeleteCommand[] commands)
-		throws ProcessException
+	RequestCallback deleteObject(SecurityContext ctx, Delete[] commands)
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		DeleteCallback cb = null;
+		CmdCallbackI cb = null;
 		shutDownServices(false);
 		try {
-	         IDeletePrx svc = getDeleteService(ctx);
-	         //scriptID, parameters, timeout (5s if null)
 	         Connector c = getConnector(ctx);
-	         DeleteHandlePrx prx = svc.queueDelete(commands);
-	         cb = new DeleteCallback(c.getClient(), prx);
-		} catch (Exception e) {
-			handleConnectionException(e);
-			throw new ProcessException("Cannot delete the speficied objects.", 
+	         return c.submit(Arrays.<Request>asList(commands), ctx);
+		} catch (Throwable e) {
+		 	handleException(e, "Cannot delete the speficied objects.");
+			// Never reached
+			throw new ProcessException("Cannot delete the specified objects.",
 					e);
 		}
-		return cb;
 	}
 
 	/**

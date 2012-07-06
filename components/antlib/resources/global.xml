@@ -227,6 +227,18 @@ with OMERO.
             </then>
         </if>
 
+        <!-- Now, if the memory settings have not been changed
+        check the defaults passed in on the command line -->
+        <if><and><not><isset property="javac.maxmem"/></not>
+            <isset property="javac.maxmem.default"/></and>
+            <then><property name="javac.maxmem" value="${javac.maxmem.default}"/></then>
+        </if>
+        <if><and><not><isset property="javadoc.maxmem"/></not>
+            <isset property="javadoc.maxmem.default"/></and>
+            <then><property name="javadoc.maxmem" value="${javadoc.maxmem.default}"/></then>
+        </if>
+
+
         <!-- Define properties :
                 The user's environment (env) overrides all other
                 variables, then comes the user defined

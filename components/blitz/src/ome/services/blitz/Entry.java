@@ -54,6 +54,23 @@ public class Entry {
      */
     volatile Ice.Communicator ic = null;
 
+    private static void waitOnStartup() {
+        int ms = 10000; // 10 seconds by default
+        try {
+            String prop = System.getenv("OMERO_STARTUP_WAIT");
+            ms = Integer.valueOf(prop);
+        } catch (Exception e) {
+            log.debug(e);
+        }
+
+        try {
+            log.info(String.format("Waiting %s ms on startup", ms));
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            log.debug(e);
+        }
+    }
+
     /**
      * Entry point to the server. The first argument on the command line will be
      * used as the name for the {@link OmeroContext} via
@@ -84,6 +101,7 @@ public class Entry {
                     System.setProperty("ICE_CONFIG", string.substring(13));
                 } else {
                     name = string;
+                    waitOnStartup();
                 }
             }
         }

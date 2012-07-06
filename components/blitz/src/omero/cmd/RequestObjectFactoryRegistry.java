@@ -14,9 +14,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import ome.io.nio.AbstractFileSystemService;
 import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
+import ome.services.delete.DeleteStepFactory;
+import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -27,6 +30,7 @@ import omero.cmd.basic.TimingI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
+import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.GraphSpecListI;
 
 /**
@@ -121,6 +125,19 @@ public class RequestObjectFactoryRegistry extends
                         return new ChownI(factory, specs);
                     }
 
+                });
+        factories.put(DeleteI.ice_staticId(),
+                new ObjectFactory(DeleteI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                            new String[]{"classpath:ome/services/spec.xml"}, ctx);
+                        DeleteStepFactory dsf = new DeleteStepFactory(ctx);
+                        AbstractFileSystemService afs =
+                            ctx.getBean("/OMERO/Files", AbstractFileSystemService.class);
+                        Deletion d = new Deletion(specs, dsf, afs);
+                        return new DeleteI(d);
+                    }
                 });
         return factories;
     }

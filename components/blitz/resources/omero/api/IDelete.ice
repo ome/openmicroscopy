@@ -58,6 +58,7 @@ module omero {
              * can be passed to the [IDelete::queueDelete] method at once. All will occur
              * in the same transation.
              **/
+            ["deprecated: use omero::cmd::Delete instead"]
             struct DeleteCommand {
 
                 /**
@@ -91,6 +92,7 @@ module omero {
              * Status object which is returned for each [DeleteCommand] passed to
              * [IDelete::queueCommand].
              **/
+            ["deprecated: use omero::cmd::DeleteRsp instead"]
             class DeleteReport {
 
                 /**
@@ -174,6 +176,7 @@ module omero {
             /**
              * Returned by [IDelete] to allow managing of queued delete operations.
              **/
+            ["deprecated: use omero::cmd::Handle instead"]
             interface DeleteHandle {
 
                 /**
@@ -222,7 +225,8 @@ module omero {
         /**
          * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IDelete.html">IDelete.html</a>
          **/
-        ["ami", "amd"] interface IDelete extends omero::api::ServiceInterface
+        ["deprecated: use omero::cmd::Delete instead", "ami", "amd"]
+        interface IDelete extends omero::api::ServiceInterface
             {
                 omero::api::IObjectList checkImageDelete(long id, bool force) throws ServerError;
                 omero::api::IObjectList previewImageDelete(long id, bool force) throws ServerError;

@@ -406,8 +406,11 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Nothing left to try
         if (server == null) {
-            updateJob(job.getId().getValue(), "Error", "No processor available", current);
-            throw new omero.ResourceError(null, null, "No processor available.");
+            final int count = callback.getResponses();
+            final String msg = String.format(
+                    "No processor available! [%d response(s)]", count);
+            updateJob(job.getId().getValue(), "Error", msg, current);
+            throw new omero.NoProcessorAvailable(null, null, msg, count);
         }
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;

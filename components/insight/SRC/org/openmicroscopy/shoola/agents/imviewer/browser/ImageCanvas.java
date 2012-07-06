@@ -116,12 +116,12 @@ class ImageCanvas
 	 * @param height 	The image's height.
 	 * @param viewPort 	The viewport hosting the canvas.
 	 */
-	void paintScaleBar(Graphics2D g2D, int width, int height, 
+	void paintScaleBar(Graphics2D g2D, int width, int height,
 					JViewport viewPort)
 	{
 		if (!model.isUnitBar()) return;
 
-		String value = model.getUnitBarValue(); 
+		String value = model.getUnitBarValue();
 		if (value == null) return;
 
 		int size = (int) (model.getUnitBarSize());

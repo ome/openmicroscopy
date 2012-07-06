@@ -1515,6 +1515,9 @@
             width:65%;
         }
         
+        #startdateinput, #enddateinput {
+            width:30% !important;
+        }
     
         #criteria {
             float:left;

@@ -18,6 +18,7 @@ import ome.services.graphs.BaseGraphSpec;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import omero.RLong;
 import omero.RType;
@@ -676,7 +677,8 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    GraphState ids = new GraphState(new DeleteStepFactory(ctx), null, session, spec);
+                                    EventContext ec = user.getCurrentEventContext();
+                                    GraphState ids = new GraphState(ec, new DeleteStepFactory(ctx), null, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*
