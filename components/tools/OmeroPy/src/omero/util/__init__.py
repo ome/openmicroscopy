@@ -387,6 +387,20 @@ class Server(Ice.Application):
         self.stop_event = omero.util.concurrency.get_event(name="Server")
         self.dependencies = dependencies
 
+    def waitOnStartup(self):
+        ms = 10000 # 10 seconds by default
+        try:
+            i = os.environ.get("OMERO_STARTUP_WAIT", "10000")
+            ms = int(i)
+        except:
+            self.logger.debug(exc_info=1)
+
+        try:
+            self.logger.info("Waiting %s ms on startup" % ms)
+            self.stop_event.wait(ms/1000)
+        except:
+            self.logger.debug(exc_info=1)
+
     def run(self,args):
 
         from omero.rtypes import ObjectFactories as rFactories
@@ -397,6 +411,7 @@ class Server(Ice.Application):
 
         self.logger = logging.getLogger("omero.util.Server")
         self.logger.info("*"*80)
+        self.waitOnStartup()
         self.logger.info("Starting")
 
         failures = 0
