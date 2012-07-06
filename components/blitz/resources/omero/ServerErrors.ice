@@ -40,6 +40,7 @@
  *   |_ InternalException (server bug)
  *   |
  *   |_ ResourceError (non-recoverable)
+ *   |  \_ NoProcessorAvailable
  *   |
  *   |_ ConcurrencyException (recoverable)
  *   |  |_ ConcurrentModification (data was changed)
@@ -221,6 +222,21 @@ module omero
    */
   exception ResourceError extends ServerError
     {
+    };
+
+  /**
+   * A script cannot be executed because no matching processor
+   * was found.
+   */
+  exception NoProcessorAvailable extends ResourceError
+    {
+        /**
+         * Number of processors that responded to the inquiry.
+         * If 1 or more, then the given script was not acceptable
+         * (e.g. non-official) and a specialized processor may need
+         * to be started.
+         **/
+        int processorCount;
     };
 
   // CONCURRENCY
