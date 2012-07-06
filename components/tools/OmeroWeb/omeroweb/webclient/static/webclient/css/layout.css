@@ -1157,8 +1157,9 @@
     }
     
     
-    
-    
+    .ui-state-disabled a {
+        opacity:0.3 !important;
+    }
     
     
     
