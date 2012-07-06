@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.xml.model.OME;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Experiment;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -68,7 +68,7 @@ public class SpwDeleteTest extends AbstractServerTest {
             }
         }
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, screen
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, screen
                 .getId().getValue(), null));
 
         //assertDoesNotExist(exp);
@@ -99,7 +99,7 @@ public class SpwDeleteTest extends AbstractServerTest {
         Map<String, String> op = new HashMap<String, String>();
         op.put("/Plate", "KEEP");
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
 
         assertDoesNotExist(screen);
         assertExists(plate);
@@ -126,7 +126,7 @@ public class SpwDeleteTest extends AbstractServerTest {
         Map<String, String> op = new HashMap<String, String>();
         op.put("/Plate+Only", "KEEP");
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
 
         assertDoesNotExist(screen);
         assertExists(plate);

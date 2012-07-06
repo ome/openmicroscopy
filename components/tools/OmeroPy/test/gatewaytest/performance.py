@@ -81,7 +81,8 @@ class PerformanceTest (lib.GTest):
         self.assertTrue(t3 < t1, "Blitz getting unloaded 'FileAnnotation' should be faster than listFileAnnotations()")
 
         # now delete what we have created
-        self.gateway.deleteObjects("Annotation", fileAnnIds)
+        handle = self.gateway.deleteObjects("Annotation", fileAnnIds)
+        self.waitOnCmd(self.gateway.c, handle)
 
 
 if __name__ == '__main__':

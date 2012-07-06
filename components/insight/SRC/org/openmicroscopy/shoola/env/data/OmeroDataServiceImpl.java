@@ -41,7 +41,8 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.delete.DeleteCommand;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -806,7 +807,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#delete(SecurityContext, Collection)
 	 */
-	public DeleteCallback delete(SecurityContext ctx,
+	public RequestCallback delete(SecurityContext ctx,
 			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
@@ -822,8 +823,8 @@ class OmeroDataServiceImpl
 		}
 		if (l.size() == 0) return null;
 		i = l.iterator();
-		List<DeleteCommand> commands = new ArrayList<DeleteCommand>();
-		DeleteCommand cmd;
+		List<Delete> commands = new ArrayList<Delete>();
+		Delete cmd;
 		Map<String, String> options;
 		DataObject data;
 		List<Class> annotations;
@@ -881,7 +882,7 @@ class OmeroDataServiceImpl
 					}
 				}
 			}
-			cmd = new DeleteCommand(gateway.createDeleteCommand(
+			cmd = new Delete(gateway.createDeleteCommand(
 					data.getClass().getName()), data.getId(), options);
 			commands.add(cmd);
 			if (contents != null && contents.size() > 0) {
@@ -889,14 +890,14 @@ class OmeroDataServiceImpl
 				DataObject d;
 				while (k.hasNext()) {
 					d = k.next();
-					cmd = new DeleteCommand(gateway.createDeleteCommand(
+					cmd = new Delete(gateway.createDeleteCommand(
 							d.getClass().getName()), d.getId(), options);
 					commands.add(cmd);
 				}
 			}
 		}
 		return gateway.deleteObject(ctx,
-				commands.toArray(new DeleteCommand[] {}));
+				commands.toArray(new Delete[] {}));
 	}
 
 	/**

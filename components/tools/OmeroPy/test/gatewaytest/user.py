@@ -158,7 +158,8 @@ class UserTest (lib.GTest):
             self.assertNotEqual(self.gateway.getObject('project', pid), None)
         finally:
             self.loginAsAuthor()
-            self.gateway.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            handle = self.gateway.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            self.waitOnCmd(self.gateway.c, handle)
 
         
 if __name__ == '__main__':
