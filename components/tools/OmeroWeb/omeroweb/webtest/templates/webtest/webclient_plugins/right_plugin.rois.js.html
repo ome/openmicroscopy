@@ -27,20 +27,19 @@ $(document).ready(function() {
 
     var update_rois_tab = function() {
         
-        // this may have been called before datatree was initialised...
-        var datatree = $.jstree._focused();
-        if (!datatree) return;
-        
         // get the selected id etc
-        var selected = datatree.data.ui.selected;
-        var oid = selected.attr('id');
-        var orel = selected.attr('rel').replace("-locked", "");
+        var selected = $("body").data("selected_objects.ome");
+        if (selected.length == 0) {
+            return;
+        }
+        var obj_id = selected[0]['id'];     // E.g. image-123
+        var orel = obj_id.split("-")[0];    // E.g. 'image'
         if (orel!="image") return;
         
         // if the tab is visible and not loaded yet...
         $image_roi_tab = $("#image_roi_tab");
         if ($image_roi_tab.is(":visible") && $image_roi_tab.is(":empty")) {
-            var roi_url = '{% url webtest_index %}image_rois/'+oid.split("-")[1]+'/';
+            var roi_url = '{% url webtest_index %}image_rois/'+obj_id.split("-")[1]+'/';
             $image_roi_tab.load(roi_url);
         };
     };
@@ -49,13 +48,19 @@ $(document).ready(function() {
     $("#annotation_tabs").bind( "tabsshow", update_rois_tab);
 
     // on change of selection in tree, update which tabs are enabled
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
+    $("body").bind("selection_change.ome", function(event) {
 
-        // clear contents of all panels
+        // clear contents of panel
         $("#image_roi_tab").empty();
 
-        var selected = data.inst.get_selected();
-        var orel = selected.attr('rel').replace("-locked", "");
+        // get selected objects
+        var selected = $("body").data("selected_objects.ome");
+        if (selected.length == 0) {
+            $("#annotation_tabs").tabs("disable", rois_tab_index);
+            return;
+        }
+        var obj_id = selected[0]['id'];     // E.g. image-123
+        var orel = obj_id.split("-")[0];    // E.g. 'image'
 
         // we only care about changing selection if this tab is selected...
         var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
@@ -76,9 +81,6 @@ $(document).ready(function() {
         // update tab content
         update_rois_tab();
     });
-    
-    // update after we've loaded the document
-    //update_rois_tab();
 });
 
 </script>
