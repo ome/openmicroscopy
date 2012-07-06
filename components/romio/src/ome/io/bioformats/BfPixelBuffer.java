@@ -484,7 +484,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         // Ensure the reader has been initialized
         reader();
-        return bfReader.getResolution();
+        // The highest resolution level (100%) is actually the first series
+        return Math.abs(
+                bfReader.getResolution() - (getResolutionLevels() - 1));
     }
 
     /* (non-Javadoc)
@@ -515,7 +517,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         // Ensure the reader has been initialized
         reader();
-        bfReader.setResolution(resolutionLevel);
+        // The highest resolution level (100%) is actually the first series
+        bfReader.setResolution(Math.abs(
+                resolutionLevel - (getResolutionLevels() - 1)));
     }
 
 }
