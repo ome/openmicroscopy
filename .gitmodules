@@ -6,4 +6,4 @@
 	url = git://github.com/openmicroscopy/ome-documentation.git
 [submodule "components/tools/OmeroPy/scripts"]
 	path = components/tools/OmeroPy/scripts
-	url = git@github.com:ome/scripts.git
+	url = git://github.com/ome/scripts.git
