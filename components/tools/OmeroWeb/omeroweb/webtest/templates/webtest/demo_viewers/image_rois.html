@@ -7,8 +7,12 @@
 
 {% block body %}
 
-{% for rId in roiIds %}
-    <img src="/webgateway/render_roi_thumbnail/{{ rId }}" style="max-width:120px; padding:2px" />
-{% endfor %}
+{% if roiIds %}
+    {% for rId in roiIds %}
+        <img src="/webgateway/render_roi_thumbnail/{{ rId }}" style="max-width:120px; padding:2px" />
+    {% endfor %}
+{% else %}
+    <h1>No ROIs</h1>
+{% endif %}
 
 {% endblock %}

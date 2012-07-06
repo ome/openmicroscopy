@@ -570,7 +570,9 @@
         position: relative;
     }
     
-    
+    .ui-state-disabled a {
+        filter:alpha(opacity=30) !important;
+    }
     
     
             

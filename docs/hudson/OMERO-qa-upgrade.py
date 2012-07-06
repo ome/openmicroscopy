@@ -16,10 +16,14 @@ if WINDOWS:
     DEFINE("NAME", "win-2k8")
     DEFINE("ADDRESS", "bp.openmicroscopy.org.uk")
     DEFINE("MEM", "Xmx1024M")
+    DEFINE("UNZIP", "C:\\Program Files (x86)\\7-Zip\\7z.exe")
+    DEFINE("UNZIPARGS", "x")
 else:
     DEFINE("NAME", "gretzky")
     DEFINE("ADDRESS", "gretzky.openmicroscopy.org.uk")
     DEFINE("MEM", "Xmx1024M")
+    DEFINE("UNZIP", "unzip")
+    DEFINE("UNZIPARGS", "")
 
 # new_server.py
 DEFINE("SYM", "OMERO-CURRENT")
@@ -28,13 +32,17 @@ DEFINE("WEB", """'[["localhost", 4064, "%s"], ["gretzky.openmicroscopy.org.uk", 
 
 # send_email.py
 DEFINE("SUBJECT", "OMERO - %s was upgraded" % NAME)
-DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/OMERO-merge-green/lastSuccessfulBuild/")
+DEFINE("BRANCH", "OMERO-trunk")
+DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/%s/lastSuccessfulBuild/" % BRANCH)
 DEFINE("SENDER", "Chris Allan <callan@lifesci.dundee.ac.uk>")
 DEFINE("RECIPIENTS", ["ome-nitpick@lists.openmicroscopy.org.uk"])
 DEFINE("SERVER", "%s (%s)" % (NAME, ADDRESS))
 DEFINE("SMTP_SERVER", "smtp.dundee.ac.uk")
 DEFINE("WEBURL", "http://%s/omero/webclient/" % ADDRESS)
+
 DEFINE("SKIPWEB", "false")
+DEFINE("SKIPEMAIL", "false")
+DEFINE("SKIPUNZIP", "false")
 ###########################################################################
 
 import fileinput
@@ -110,21 +118,34 @@ class Artifacts(object):
                     self.linux.append(base_url + artifact.find("relativePath").text)
 
     def download_server(self):
+
         if self.server == None:
             raise Exception("No server found")
+
         filename = os.path.basename(self.server)
-        if os.path.exists(filename):
-            unzipped = filename.replace(".zip", "")
-            if os.path.exists(unzipped):
-                return unzipped
-            else:
-                print "Unzip and run again"
-                sys.exit(1)
-        else:
+        unzipped = filename.replace(".zip", "")
+
+        if os.path.exists(unzipped):
+            return unzipped
+
+        if not os.path.exists(filename):
             print "Downloading %s..." % self.server
             urllib.urlretrieve(self.server, filename)
-            print "Unzip and run again"
-            sys.exit(0)
+
+        if "false" == SKIPUNZIP.lower():
+            if UNZIPARGS:
+                command = [UNZIP, UNZIPARGS, filename]
+            else:
+                command = [UNZIP, filename]
+            p = subprocess.Popen(command)
+            rc = p.wait()
+            if rc != 0:
+                print "Couldn't unzip!"
+            else:
+                return unzipped
+
+        print "Unzip and run again"
+        sys.exit(0)
 
 
 class Email(object):
@@ -270,6 +291,12 @@ class UnixUpgrade(Upgrade):
     def startweb(self, _):
         _("web start")
 
+    def confgure(self, _):
+        super(UnixUpgrade, self).configure(_)
+        var = self.dir / "var"
+        var.mkdir()
+        var.chmod(755) # For Apache/Nginx
+
     def directories(self, _):
         try:
             os.unlink(self.sym)
@@ -322,9 +349,23 @@ class WindowsUpgrade(Upgrade):
         """
         self.call(["iisreset"])
 
+def check_host_name():
+    p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
+    hostname = p.communicate()[0].strip()
+    if NAME == "gretzky": # If we haven't been modified
+        if hostname == "howe":
+            print "Detected hostname == 'howe'"
+            DEFINE("NAME", "howe")
+            DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
+        else:
+            print "Setting hostname to '%s'" % hostname
+            DEFINE("NAME", hostname)
+            DEFINE("ADDRESS", "localhost")
+
 
 if __name__ == "__main__":
 
+    check_host_name()
     artifacts = Artifacts()
 
     if len(sys.argv) != 2:
@@ -338,4 +379,7 @@ if __name__ == "__main__":
     else:
         u = WindowsUpgrade(dir)
 
-    e = Email(artifacts)
+    if "false" == SKIPEMAIL.lower():
+        e = Email(artifacts)
+    else:
+        print "Skipping email..."
