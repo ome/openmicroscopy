@@ -25,6 +25,7 @@ OMERO_HOME = os.path.join(CWD, os.path.pardir, os.path.pardir)
 CONFIG = os.path.join(OMERO_HOME, "etc", "grid", "config.xml")
 LOGS = os.path.join(OMERO_HOME, "var", "log")
 STATICS = os.path.join(OMERO_HOME, "lib", "python", "omeroweb", "static")
+STATICS = os.path.realpath(STATICS)
 
 sys.path.append(str(CWD))
 sys.path.append(str(os.path.join(CWD, 'omeroweb')))

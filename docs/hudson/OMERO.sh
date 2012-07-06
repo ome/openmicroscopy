@@ -13,7 +13,7 @@ source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
 ./build.py clean
-./build.py build-default test-compile release-zip release-src release-clients release-webstart
+./build.py build-default test-compile release-src release-clients release-webstart release-zip
 ./build.py release-docs
 
 # Log information
