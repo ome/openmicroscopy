@@ -422,6 +422,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     filter_user_id = request.session.get('user_id')
     form_well_index = None
         
+    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
+
     # load data & template
     template = None
     if kw.has_key('orphaned'):
@@ -447,6 +449,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
                     index = fields[0]
+            context['baseurl'] = reverse('webgateway').rstrip('/')
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
@@ -459,7 +462,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -490,10 +492,16 @@ def load_searching(request, form=None, conn=None, **kwargs):
             onlyTypes.append('plates')
         if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
             onlyTypes.append('screens')
-        
-        date = request.REQUEST.get('dateperiodinput', None)
-        if date is not None:
-            date = smart_str(date)
+
+        startdate = request.REQUEST.get('startdateinput', None)
+        startdate = startdate is not None and smart_str(startdate) or None
+        enddate = request.REQUEST.get('enddateinput', None)
+        enddate = enddate is not None and smart_str(enddate) or None
+        date = None
+        if startdate is not None:
+            if enddate is None:
+                enddate = startdate
+            date = "%s_%s" % (startdate, enddate)
 
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
@@ -2053,7 +2061,7 @@ def activities(request, conn=None, **kwargs):
                 if cb.block(0): # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
+                        results = proc.getResults(0, conn.SERVICE_OPTS)     # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                         new_results.append(cbString)
                     except Exception, x:

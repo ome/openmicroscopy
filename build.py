@@ -70,7 +70,7 @@ def find_java():
     return "java"
 
 def calculate_memory_args():
-    return "-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m".split(" ")
+    return "-Xmx600M -Djavac.maxmem.default=750M -Djavadoc.maxmem.default=750M -XX:MaxPermSize=256m".split(" ")
 
 def choose_omero_version():
     """
@@ -115,6 +115,10 @@ if __name__ == "__main__":
     #
     args = list(sys.argv)
     args.pop(0)
+
+    # Unset CLASSPATH, since this breaks the build
+    if os.environ.get('CLASSPATH'):
+        del os.environ['CLASSPATH']
 
     try:
         if len(args) > 0 and args[0] == "-perf":

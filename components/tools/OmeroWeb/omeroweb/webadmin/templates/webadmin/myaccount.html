@@ -156,7 +156,7 @@
                     $( "#password_change_dialog" ).dialog( "close" );
                 },
                 success: function(html) {
-                    $("#password_change_message").html(html).show().delay(3000).fadeOut(2000);
+                    $("#password_change_message").html(html).show();
                 }
             });
 
@@ -364,9 +364,9 @@
            <div id="personal_details">
 
                {% for field in form %}
+                   {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
                    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                    {{ field }}
-                   {% if field.errors %}{{ field.errors }}{% endif %}
                    {{ field.help_text|safe }}
                {% endfor %}
 
@@ -381,9 +381,9 @@
                        <a class="btn btn_text silver" id="change_password">
                            <span>Change  Password</span>
                        </a>
+                       <span id="password_change_message"></span>
                    </div>
 
-                   <span id="password_change_message" class="error">Message here</span>
                </div>
                {% endif %}
 

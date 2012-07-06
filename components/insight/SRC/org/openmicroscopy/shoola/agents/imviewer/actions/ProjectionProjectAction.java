@@ -58,20 +58,19 @@ public class ProjectionProjectAction
     private static final String DESCRIPTION = 
     	"Project the selected interval for the whole image.";
     
-    /**
-     * Disposes and closes the movie player when the {@link ImViewer} is
-     * discarded.
-     * @see ViewerAction#onStateChange(ChangeEvent)
-     */
-    protected void onStateChange(ChangeEvent e)
+    protected void onTabSelection()
     {
     	if (model.getState() == ImViewer.READY && !model.isBigImage()) {
     		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
-    		else 
-    			setEnabled(model.canAnnotate());
-    	}
+    		else setEnabled(model.canAnnotate());
+    	} else setEnabled(false);
     }
+    /**
+     * Reacts to state changes.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e) { onTabSelection(); }
     
     /**
      * Creates a new instance.

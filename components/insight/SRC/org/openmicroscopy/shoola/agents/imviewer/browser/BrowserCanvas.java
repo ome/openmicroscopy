@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.util.Map;
 
 //Third-party libraries
@@ -75,7 +73,7 @@ class BrowserCanvas
      * Paints the image.
      * @see GLImageCanvas#display(GLAutoDrawable)
      */
-    public void display(GLAutoDrawable drawable) 
+    public void display(GLAutoDrawable drawable)
 	{
     	if (model.isBigImage()) {
     		GL gl = drawable.getGL();
@@ -105,7 +103,7 @@ class BrowserCanvas
     				xEnd = 
     					(float) (r.getX()+r.getWidth())/(r.getWidth()*columns);
     				yStart = (float) r.getY()/(r.getHeight()*rows);
-    				yEnd = 
+    				yEnd =
     					(float) (r.getY()+r.getHeight())/(r.getHeight()*rows);
     				if (img != null) {
     					if (texture == null) 

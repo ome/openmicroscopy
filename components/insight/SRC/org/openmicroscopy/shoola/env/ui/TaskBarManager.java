@@ -527,19 +527,27 @@ public class TaskBarManager
 					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
-						if (success) reconnectDialog = null;
+						/*
+						if (success) {
+							reconnectDialog = null;
+						}
+						*/
 					}
 				}
 			}
 		});
-		//dialog.setModal(true);
+		reconnectDialog.setModal(true);
 		UIUtilities.centerAndShow(reconnectDialog);
-		reconnectDialog.requestFocusOnField();
-		reconnectDialog.setAlwaysOnTop(true);
-		if (success) {
-			//container.getRegistry().getEventBus().post(new ReconnectedEvent());
-			//success = false;
+		/*
+		if (reconnectDialog != null) {
+			reconnectDialog.requestFocusOnField();
+			reconnectDialog.setAlwaysOnTop(true);
 		}
+		if (success) {
+			container.getRegistry().getEventBus().post(new ReconnectedEvent());
+			success = false;
+		}
+		*/
 	}
 	
 	/** Disconnects from the current server.*/
@@ -888,7 +896,7 @@ public class TaskBarManager
 				svc.notifyLoginTimeout();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 				break;
 			case LoginService.NOT_CONNECTED:
@@ -896,7 +904,7 @@ public class TaskBarManager
 				svc.notifyLoginFailure();
 				if (dialog != null) {
 					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
-					dialog.requestFocusOnField();
+					dialog.onLoginFailure();
 				}
 		}
     }
