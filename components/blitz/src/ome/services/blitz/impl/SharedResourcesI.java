@@ -403,11 +403,13 @@ public class SharedResourcesI extends AbstractAmdServant implements
         ResultHolder<String> holder = new ResultHolder<String>(seconds*1000);
         ProcessorCallbackI callback = new ProcessorCallbackI(sf, holder, job);
         ProcessorPrx server = callback.activateAndWait(current);
+        String msg = String.format("No processor available! [%d response(s)]",
+            callback.getResponses());
 
         // Nothing left to try
         if (server == null) {
-            updateJob(job.getId().getValue(), "Error", "No processor available", current);
-            throw new omero.ResourceError(null, null, "No processor available.");
+            updateJob(job.getId().getValue(), "Error", msg, current);
+            throw new omero.ResourceError(null, null, msg);
         }
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;

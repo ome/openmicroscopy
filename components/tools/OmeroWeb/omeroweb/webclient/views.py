@@ -2449,7 +2449,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
         request.session.modified = True
     except Exception, x:
         jobId = str(time())      # E.g. 1312803670.6076391
-        if x.message == "No processor available.": # omero.ResourceError
+        if x.message and x.message.startswith("No processor available"): # omero.ResourceError
             logger.info(traceback.format_exc())
             error = None
             status = 'no processor available'
