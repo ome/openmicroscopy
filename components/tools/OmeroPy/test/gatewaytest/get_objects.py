@@ -28,8 +28,8 @@ class DeleteObjectTest (lib.GTest):
         tag.setValue("Test Delete Tag")
         tag = image.linkAnnotation(tag)
         tagId = tag.getId()
-        self.gateway.deleteObjects("Annotation", [tagId])
-        time.sleep(5)   # time enough for delete queue
+        handle = self.gateway.deleteObjects("Annotation", [tagId])
+        self.waitOnCmd(self.gateway.c, handle)
         self.assertEqual(None, self.gateway.getObject("Annotation", tagId))
 
     def testDeleteImage(self):
@@ -58,8 +58,8 @@ class DeleteObjectTest (lib.GTest):
 
         # check Image, delete (wait) and check
         self.assertTrue(self.gateway.getObject("Image", imageId) != None)
-        self.gateway.deleteObjects("Image", [imageId])
-        time.sleep(5)   # time enough for delete queue
+        handle = self.gateway.deleteObjects("Image", [imageId])
+        self.waitOnCmd(self.gateway.c, handle)
         self.assertTrue(self.gateway.getObject("Image", imageId) == None)
 
         # Comment should be deleted but not the Tag (becomes orphan)
@@ -71,8 +71,8 @@ class DeleteObjectTest (lib.GTest):
         project.linkAnnotation(tag)
         datasetIds = [d.getId() for d in project.listChildren()]
         self.assertTrue(len(datasetIds) > 0)
-        self.gateway.deleteObjects("Project", [projectId], deleteAnns=True, deleteChildren=True)
-        time.sleep(5)   # time enough for delete queue
+        handle = self.gateway.deleteObjects("Project", [projectId], deleteAnns=True, deleteChildren=True)
+        self.waitOnCmd(self.gateway.c, handle)
         self.assertTrue(self.gateway.getObject("Project", projectId) == None)
         self.assertTrue(self.gateway.getObject("Annotation", tag.id) == None) # Tag should be gone
 

@@ -437,6 +437,10 @@ public class HandleI implements _HandleOperations, IHandle,
                         throw helper.cancel(new ERR(), null, "not-ready");
                     }
                     rv.add(req.step(j));
+                } catch (Cancel c) {
+                    throw c;
+                } catch (Throwable t) {
+                    throw helper.cancel(new ERR(), t, "bad-step", "step", ""+j);
                 } finally {
                     sw.stop("omero.request.step." + j);
                     // If cancel was thrown, then this value will be overwritten

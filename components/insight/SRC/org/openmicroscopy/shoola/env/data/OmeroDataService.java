@@ -421,7 +421,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 * @throws ProcessException If an error occurred while starting the process.
 	 */
-	public DeleteCallback delete(SecurityContext ctx,
+	public RequestCallback delete(SecurityContext ctx,
 			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
 	

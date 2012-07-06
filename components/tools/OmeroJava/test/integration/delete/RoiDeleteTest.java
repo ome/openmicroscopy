@@ -17,7 +17,7 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -72,7 +72,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, i1
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1
                 .getId().getValue(), null));
 
         assertDoesNotExist(i1);
@@ -145,7 +145,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		iUpdate.saveAndReturnArray(links);
 		
 		//Now delete the rois.
-		 delete(client, new DeleteCommand(DeleteServiceTest.REF_ROI, roiID, 
+		 delete(client, new Delete(DeleteServiceTest.REF_ROI, roiID, 
 				 null));
 		 assertDoesNotExist(roi);
 		 l = svc.getRoiMeasurements(image.getId().getValue(), options);
@@ -218,7 +218,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		iUpdate.saveAndReturnArray(links);
 		
 		//Now delete the rois.
-		 delete(client, new DeleteCommand(DeleteServiceTest.REF_PLATE, 
+		 delete(client, new Delete(DeleteServiceTest.REF_PLATE, 
 				 p.getId().getValue(), 
 				 null));
 		 assertDoesNotExist(p);

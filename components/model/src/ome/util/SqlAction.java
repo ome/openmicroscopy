@@ -21,8 +21,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
+import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.stats.StatsInfo;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -31,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -113,6 +117,12 @@ public interface SqlAction {
      * Returns the permissions for the given group id.
      */
     long getGroupPermissions(long id);
+
+    /**
+     * Return a mostly unloaded {@link ExperimenterGroup} object containing
+     * only the id, name, and permissions.
+     */
+    ExperimenterGroup groupInfoFor(String table, long id);
 
     String fileRepo(long fileId);
 
@@ -442,7 +452,28 @@ public interface SqlAction {
                     _lookup("get_group_permissions"), Long.class, //$NON-NLS-1$
                     groupId);
         }
-        
+
+        public ExperimenterGroup groupInfoFor(String table, long id) {
+            try {
+                return _jdbc().queryForObject(String.format(
+                   _lookup("get_group_info"), table), //$NON-NLS-1$
+                    new RowMapper<ExperimenterGroup>() {
+                        @Override
+                        public ExperimenterGroup mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                            ExperimenterGroup group = new ExperimenterGroup();
+                            group.setId(arg0.getLong(1));
+                            group.setName(arg0.getString(2));
+                            Permissions p = Utils.toPermissions(arg0.getLong(3));
+                            group.getDetails().setPermissions(p);
+                            return group;
+                        }
+                    }, id);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
+
         public String fileRepo(long fileId) {
             return _jdbc().queryForObject(
                     _lookup("file_repo"), String.class, //$NON-NLS-1$

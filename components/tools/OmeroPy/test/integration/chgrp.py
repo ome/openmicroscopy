@@ -156,22 +156,10 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
         self.doSubmit(chgrp, owner)
 
-        # Delete
-        # TODO: delete = omero.cmd.Delete(type="/Image", id=image.id.val)
-        # TODO: self.doSubmit(delete, owner)
-
         # Shouldn't be necessary to change group, but we're gonna
-        owner_g.CONFIG['SERVICE_OPTS'] = {"omero.group":"-1"}
+        owner_g.SERVICE_OPTS.setOmeroGroup("-1")
         handle = owner_g.deleteObjects("/Image", [image.id.val])
-        callback = omero.callbacks.DeleteCallbackI(owner, handle)
-        errors = None
-        count = 10
-        while errors is None:
-            errors = callback.block(500)
-            count -= 1
-            self.assert_( count != 0 )
-        self.assertEquals(0, errors)
-
+        self.waitOnCmd(owner_g.c, handle)
 
 
 if __name__ == '__main__':

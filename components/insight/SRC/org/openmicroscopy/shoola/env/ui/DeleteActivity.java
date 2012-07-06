@@ -34,6 +34,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 
@@ -54,6 +55,9 @@ public class DeleteActivity
 	extends ActivityComponent
 {
 
+	/** Indicates that the delete has been completed.*/
+	public static final String DELETE_COMPLETE = "Delete completed";
+	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_START = "Deleting ";
 	
@@ -61,7 +65,7 @@ public class DeleteActivity
 	private static final String		DEFAULT_TYPE = "Object";
 	
 	/** The description of the activity when finished. */
-	private static final String		DELETED = " deleted";
+	private static final String		DESCRIPTION_END = " deleted";
 	
 	/** The description of the activity when error occurred. */
 	private static final String		DESCRIPTION_ERROR = "Unable to delete";
@@ -165,14 +169,14 @@ public class DeleteActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		Collection l = (Collection) result;
-		if (l.size() > 0) {
+		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
 			notifyActivityError();
 		} else {
-			type.setText(getDeleteType()+DELETED);
+			type.setText(DESCRIPTION_END);
+			Icon icon = parameters.getIcon();
+			if (icon != null) iconLabel.setIcon(icon);
 		}
-		//post an event to remove nodes
 	}
 	
 	/**

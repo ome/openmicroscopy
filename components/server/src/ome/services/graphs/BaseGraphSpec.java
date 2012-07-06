@@ -16,9 +16,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ome.model.IObject;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -52,12 +55,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     protected final List<GraphEntry> entries;
 
     private/* final */ExtendedMetadata em;
-
-    /**
-     * Current user information for determining if the current caller
-     * is an admin or the owner of an object.
-     */
-    private /*final*/ CurrentDetails details;
 
     private/* final */String beanName = null;
 
@@ -103,14 +100,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
-    }
-
-    public void setCurrentDetails(CurrentDetails details) {
-        this.details = details;
-    }
-
-    public CurrentDetails getCurrentDetails() {
-        return this.details;
     }
 
     //
@@ -230,6 +219,13 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
         return (IObject) qb.query(session).uniqueResult();
 
+    }
+
+    public ExperimenterGroup groupInfo(SqlAction sql) {
+        final GraphEntry subpath = new GraphEntry(this, this.beanName);
+        final String[] path = subpath.path(superspec);
+
+        return sql.groupInfoFor(path[0], id);
     }
 
     /*

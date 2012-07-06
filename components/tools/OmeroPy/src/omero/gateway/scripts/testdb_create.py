@@ -144,5 +144,11 @@ class GTest(unittest.TestCase):
     def prepTestDB (self):
         dbhelpers.bootstrap()
 
+    def waitOnCmd(self, client, handle):
+        callback = omero.callbacks.CmdCallbackI(client, handle)
+        callback.loop(10, 500) # throws on timeout
+        rsp = callback.getResponse()
+        self.assert_(isinstance(rsp, omero.cmd.OK))
+        return callback
         
         

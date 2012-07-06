@@ -13,8 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
@@ -125,9 +128,13 @@ public abstract class GraphStep {
     public final String pathMsg;
 
     /**
-     * Information as to the current login.
+     * An event context which has been initialized for a particular group, i.e.
+     * even we are currently in an omero.group=-1 context, the group of the
+     * object in question will be returned by {@link EventContext#getCurrentGroupId()}.
+     *
+     * See 8723
      */
-    public final EventContext ec;
+    public/* final */EventContext ec;
 
     /**
      * Not final. Set during {@link GraphState#execute(int)}. If anything goes
@@ -140,6 +147,7 @@ public abstract class GraphStep {
 
     public GraphStep(int idx, List<GraphStep> stack, GraphSpec spec, GraphEntry entry,
             long[] ids) {
+
         this.idx = idx;
         this.stack = new LinkedList<GraphStep>(stack);
         if (this.stack.size() > 0) {
@@ -151,7 +159,6 @@ public abstract class GraphStep {
         this.entry = entry;
         this.ids = ids;
         this.id = ids == null ? -1L : ids[ids.length - 1];
-        this.ec = spec.getCurrentDetails().getCurrentEventContext();
 
         if (entry != null) {
             final String[] path = entry.path(entry.getSuperSpec());
@@ -165,6 +172,9 @@ public abstract class GraphStep {
         }
     }
 
+    public void setEventContext(EventContext ec) {
+        this.ec = ec;
+    }
 
     public long[] getIds() {
         if (this.ids == null) {
@@ -196,20 +206,28 @@ public abstract class GraphStep {
      * belong to the current user.
      */
     public static void permissionsClause(EventContext ec, QueryBuilder qb) {
-        if (!ec.isCurrentUserAdmin()) {
-            final Permissions p = ec.getCurrentGroupPermissions();
-            // If this is less than a rwrw group, then we want we require
-            // either ownership of the object or leadership of the group.
-            if (!p.isGranted(Permissions.Role.GROUP, Permissions.Right.WRITE)) {
-                if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                    qb.and("details.group.id = :gid");
-                    qb.param("gid", ec.getCurrentGroupId());
-                } else {
-                    // This is only a regular user, then the object must belong to
-                    // him/her
-                    qb.and("details.owner.id = :oid");
-                    qb.param("oid", ec.getCurrentUserId());
-                }
+
+        if (ec.isCurrentUserAdmin()) {
+            return; // EARLY EXIT
+        }
+
+        final Permissions p = ec.getCurrentGroupPermissions();
+        if (p == Permissions.DUMMY) {
+            throw new InternalException("EventContext has DUMMY permissions");
+        }
+
+        // If this is less than a rwrw group and the user is not an admin,
+        // then we want we require either ownership of the object or
+        // leadership of the group.
+        if (!p.isGranted(Role.GROUP, Right.WRITE)) {
+            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                qb.and("details.group.id = :gid");
+                qb.param("gid", ec.getCurrentGroupId());
+            } else {
+                // This is only a regular user, then the object must belong to
+                // him/her
+                qb.and("details.owner.id = :oid");
+                qb.param("oid", ec.getCurrentUserId());
             }
         }
     }
@@ -376,7 +394,6 @@ public abstract class GraphStep {
                 qb.and("child.id in (:ids)");
                 qb.paramList("ids", ids);
                 // ticket:2962
-                EventContext ec = spec.getCurrentDetails().getCurrentEventContext();
                 GraphStep.permissionsClause(ec, qb);
 
                 Query q = qb.query(session);

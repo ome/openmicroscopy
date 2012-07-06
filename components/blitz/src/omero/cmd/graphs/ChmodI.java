@@ -25,6 +25,8 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
+import ome.services.graphs.GraphException;
+
 import omero.cmd.Chmod;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
@@ -83,27 +85,17 @@ public class ChmodI extends Chmod implements IRequest {
     public Object step(int step) throws Cancel {
         helper.assertStep(step);
 
-        try {
-            if (step == 0) {
-                strategy.chmod(target, permissions);
+        if (step == 0) {
+            strategy.chmod(target, permissions);
+        }
+        else {
+            try {
+                strategy.check(target, checks[step - 1]);
+            } catch (SecurityViolation sv) {
+                throw helper.cancel(new ERR(), sv, "check failed");
             }
-            else {
-                try {
-                    strategy.check(target, checks[step - 1]);
-                } catch (SecurityViolation sv) {
-                    throw helper.cancel(new ERR(), sv, "check failed");
-                }
-            }
-            return null; // Nothing to return
         }
-        catch (Cancel c) {
-            throw c;
-        }
-        catch (Throwable t) {
-            Map<String, String> rv = params(); // default params
-            rv.put("" + id, "" + step);
-            throw helper.cancel(new ERR(), t, "STEP ERR", "");
-        }
+        return null; // Nothing to return
     }
 
     public void buildResponse(int step, Object object) {

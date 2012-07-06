@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DeleteCallback;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -78,7 +78,7 @@ public class DataObjectRemover
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroDataService os = context.getDataService();
-    			DeleteCallback cb = os.delete(ctx, values);
+    			RequestCallback cb = os.delete(ctx, values);
     			if (cb == null) {
     				callBack = Boolean.valueOf(false);
                 	return null;
@@ -118,7 +118,7 @@ public class DataObjectRemover
      * Returns the result.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.valueOf(true); }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.
@@ -133,7 +133,6 @@ public class DataObjectRemover
     	if (values == null)
     		throw new IllegalArgumentException("No objects to remove.");
     	this.map = values;
-    	//call = makeDeleteCall(ctx, values);
     }
 
 }

@@ -28,7 +28,7 @@ import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -176,9 +176,9 @@ public class DeleteServiceTest
 	
    /** 
     * Identifies annotation paths. 
-    * This should be used in the {@link DeleteCommand#type}
+    * This should be used in the {@link Delete#type}
     * string, while the other paths can be used in for 
-    * {@link DeleteCommand#options} keys.
+    * {@link Delete#options} keys.
     */
     public static final String REF_ANN = "/Annotation";
 
@@ -257,11 +257,11 @@ public class DeleteServiceTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private String delete(DeleteCommand...dc)
+    private String delete(Delete...dc)
     	throws ApiUsageException, ServerError,
         InterruptedException
     {
-    	return delete(iDelete, client, dc);
+    	return delete(client, dc);
     }
 
     /**
@@ -512,7 +512,7 @@ public class DeleteServiceTest
 				}
 			}
 	        //Now delete the plate
-	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), null));
+	        delete(new Delete(REF_PLATE, p.getId().getValue(), null));
 	        
 	        //check the plate
 	        assertDoesNotExist(p);
@@ -587,7 +587,7 @@ public class DeleteServiceTest
     	ids.add(image2.getId().getValue());
 
 
-        delete(new DeleteCommand(REF_DATASET, d.getId().getValue(), null));
+        delete(new Delete(REF_DATASET, d.getId().getValue(), null));
 
     	
     	//Check if objects have been deleted
@@ -642,7 +642,7 @@ public class DeleteServiceTest
     	ids.add(image2.getId().getValue());
 
 
-        delete(new DeleteCommand(REF_PROJECT, p.getId().getValue(), null));
+        delete(new Delete(REF_PROJECT, p.getId().getValue(), null));
 
     	
     	//Check if objects have been deleted
@@ -693,7 +693,7 @@ public class DeleteServiceTest
     	iUpdate.saveAndReturnArray(links);
 
     	
-        delete(new DeleteCommand(REF_SCREEN, screen.getId().getValue(), null));
+        delete(new Delete(REF_SCREEN, screen.getId().getValue(), null));
 
     	
     	List<Long> ids = new ArrayList<Long>();
@@ -835,7 +835,7 @@ public class DeleteServiceTest
 			infos.add(info.getId().getValue());
 		}
     	
-    	delete(new DeleteCommand(REF_IMAGE, id, null));
+    	delete(new Delete(REF_IMAGE, id, null));
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -943,7 +943,7 @@ public class DeleteServiceTest
     	List<IObject> settings = iQuery.findAllByQuery(sql, param);
     	//now delete the image
     	assertTrue(settings.size() > 0);
-    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img.getId().getValue(), null));
     	//check if the settings have been deleted.
     	Iterator<IObject> i = settings.iterator();
     	IObject o;
@@ -1174,7 +1174,7 @@ public class DeleteServiceTest
     		shapeIds.add(shape.getId().getValue());
     	}
 
-    	delete(new DeleteCommand(REF_ROI, serverROI.getId().getValue(), null));
+    	delete(new Delete(REF_ROI, serverROI.getId().getValue(), null));
 
 
     	//make sure we still have the image
@@ -1220,7 +1220,7 @@ public class DeleteServiceTest
     		id = obj.getId().getValue();
     		annotationIds = createNonSharableAnnotation(obj, null);	
 
-    		delete(new DeleteCommand(type, id, null));
+    		delete(new Delete(type, id, null));
 
     		assertDoesNotExist(obj);
 
@@ -1260,8 +1260,8 @@ public class DeleteServiceTest
 		    	id = obj.getId().getValue();
 		    	annotationIds = createSharableAnnotation(obj, null);	
 		    	if (values[j])
-		    		delete(new DeleteCommand(type, id, SHARABLE_TO_KEEP));
-		    	else delete(new DeleteCommand(type, id, null));
+		    		delete(new Delete(type, id, SHARABLE_TO_KEEP));
+		    	else delete(new Delete(type, id, null));
 
 		    	param = new ParametersI();
 		    	param.addId(id);
@@ -1333,7 +1333,7 @@ public class DeleteServiceTest
 			}
 		}
 		//Now delete the plate
-		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), null));
+		delete(new Delete(REF_PLATE, p.getId().getValue(), null));
 
 		param = new ParametersI();
 		param.addId(p.getId().getValue());
@@ -1435,7 +1435,7 @@ public class DeleteServiceTest
 		
 		Map<String, String> options = new HashMap<String, String>();
 		options.put(REF_FILE, KEEP);
-		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), options));
+		delete(new Delete(REF_PLATE, p.getId().getValue(), options));
 		//Shouldn't have measurements
 		ParametersI param = new ParametersI();
         param.addId(id);
@@ -1506,10 +1506,10 @@ public class DeleteServiceTest
     				if (r.size() > 0) annotationIds.addAll(r);
     	        }
     	        if (annotations[k]) 
-    	        	delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+    	        	delete(new Delete(REF_PLATE, p.getId().getValue(), 
         	        		SHARABLE_TO_KEEP));
     	        else
-	    	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+	    	        delete(new Delete(REF_PLATE, p.getId().getValue(), 
 	    	        		null));
     	        
     	        param = new ParametersI();
@@ -1592,7 +1592,7 @@ public class DeleteServiceTest
     	l.link(new DatasetI(d.getId().getValue(), false), img2);
     	iUpdate.saveAndReturnObject(l);
 
-    	delete(new DeleteCommand(REF_DATASET, d.getId().getValue(), null));
+    	delete(new Delete(REF_DATASET, d.getId().getValue(), null));
 
 
     	ParametersI param = new ParametersI();
@@ -1645,7 +1645,7 @@ public class DeleteServiceTest
     	iUpdate.saveAndReturnObject(pl);
 
 
-    	delete(new DeleteCommand(REF_PROJECT, p.getId().getValue(), null));
+    	delete(new Delete(REF_PROJECT, p.getId().getValue(), null));
 
     	ParametersI param = new ParametersI();
     	param.addId(p.getId().getValue());
@@ -1699,7 +1699,7 @@ public class DeleteServiceTest
 			iUpdate.saveAndReturnObject(link);
 
 
-			delete(new DeleteCommand(REF_SCREEN, 
+			delete(new Delete(REF_SCREEN, 
 					screen.getId().getValue(), null));
 
 
@@ -1747,7 +1747,7 @@ public class DeleteServiceTest
     	long id = fa.getId().getValue();
     	Map<String, String> map = new HashMap<String, String>();
     	map.put(REF_FILE, KEEP);
-    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), map));
+    	delete(new Delete(REF_IMAGE, img.getId().getValue(), map));
     	
     	//File annotation should be deleted even if 
     	//required to keep file annotation
@@ -1777,7 +1777,7 @@ public class DeleteServiceTest
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertEquals(n, ids.size());
     	//now delete the image 1.
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    	delete(new Delete(REF_IMAGE, img1.getId().getValue(), 
     			SHARABLE_TO_KEEP));
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
@@ -1792,7 +1792,7 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	ids = createSharableAnnotation(d1, d2);
     	//now delete the dataset 1.
-    	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), 
+    	delete(new Delete(REF_DATASET, d1.getId().getValue(), 
     			SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
@@ -1806,7 +1806,7 @@ public class DeleteServiceTest
     			mmFactory.simpleProjectData().asIObject());
     	ids = createSharableAnnotation(p1, p2);
     	//now delete the project 1.
-    	delete(new DeleteCommand(REF_PROJECT, p1.getId().getValue(), 
+    	delete(new Delete(REF_PROJECT, p1.getId().getValue(), 
     			SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
@@ -1820,7 +1820,7 @@ public class DeleteServiceTest
     			mmFactory.simpleScreenData().asIObject());
     	ids = createSharableAnnotation(s1, s2);
     	//now delete the screen 1.
-    	delete(new DeleteCommand(REF_SCREEN, s1.getId().getValue(), 
+    	delete(new Delete(REF_SCREEN, s1.getId().getValue(), 
     			SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
@@ -1834,7 +1834,7 @@ public class DeleteServiceTest
     			mmFactory.simplePlateData().asIObject());
     	ids = createSharableAnnotation(plate1, plate2);
     	//now delete the plate 1.
-    	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), 
+    	delete(new Delete(REF_PLATE, plate1.getId().getValue(), 
     			SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
@@ -1890,7 +1890,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_ANN, tagId, null));
+		delete(new Delete(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";
@@ -1971,7 +1971,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_ANN, tagId, null));
+		delete(new Delete(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";
@@ -2054,7 +2054,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_ANN, tagId, null));
+		delete(new Delete(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";
@@ -2122,7 +2122,7 @@ public class DeleteServiceTest
     	p = link.getChild();
     	long plateID = p.getId().getValue();
     	
-    	delete(new DeleteCommand(REF_SCREEN, screenId, null));
+    	delete(new Delete(REF_SCREEN, screenId, null));
     	
     	sql = "select r from Screen as r "; 
     	sql += "where r.id = :id";
@@ -2178,7 +2178,7 @@ public class DeleteServiceTest
     	p = link.getChild();
     	long plateID = p.getId().getValue();
     	
-    	delete(new DeleteCommand(REF_PLATE, plateID, null));
+    	delete(new Delete(REF_PLATE, plateID, null));
     	
     	sql = "select r from Screen as r "; 
     	sql += "where r.id = :id";
@@ -2223,7 +2223,7 @@ public class DeleteServiceTest
         pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
         annotationIds.addAll(createSharableAnnotation(pa, null));
         
-        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+        delete(new Delete(REF_PLATE, p.getId().getValue(), 
         		null));
         //Check if annotations have been deleted.
         param = new ParametersI();
@@ -2265,7 +2265,7 @@ public class DeleteServiceTest
 
             options = new HashMap<String, String>();
             options.put(REF_ANN, KEEP+SEPARATOR+INCLUDE+NAMESPACE);
-            delete(new DeleteCommand(type, id, options));
+            delete(new Delete(type, id, options));
 
             param = new ParametersI();
             param.addId(obj.getId().getValue());
@@ -2320,7 +2320,7 @@ public class DeleteServiceTest
             options = new HashMap<String, String>();
             options.put(REF_ANN, KEEP+SEPARATOR+INCLUDE+NAMESPACE+NS_SEPARATOR
             		+NAMESPACE_2);
-            delete(new DeleteCommand(type, id, options));
+            delete(new Delete(type, id, options));
 
             param = new ParametersI();
             param.addId(obj.getId().getValue());
@@ -2374,7 +2374,7 @@ public class DeleteServiceTest
 
             options = new HashMap<String, String>();
             options.put(REF_ANN, KEEP+SEPARATOR+EXCLUDE+NAMESPACE);
-            delete(new DeleteCommand(type, id, options));
+            delete(new Delete(type, id, options));
 
             assertDoesNotExist(obj);
             
@@ -2428,7 +2428,7 @@ public class DeleteServiceTest
             options = new HashMap<String, String>();
             options.put(REF_ANN, 
             		KEEP+SEPARATOR+EXCLUDE+NAMESPACE+NS_SEPARATOR+NAMESPACE_2);
-            delete(new DeleteCommand(type, id, options));
+            delete(new Delete(type, id, options));
 
             assertDoesNotExist(obj);
             
@@ -2527,7 +2527,7 @@ public class DeleteServiceTest
 		}
     	
     	//Now we try to delete the image.
-    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img.getId().getValue(), null));
     	
     	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
@@ -2682,7 +2682,7 @@ public class DeleteServiceTest
 		}
     	
     	//Now we try to delete the image.
-    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img.getId().getValue(), null));
     	
     	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
@@ -2771,7 +2771,7 @@ public class DeleteServiceTest
 		List<IObject> wellSamples = iQuery.findAllByQuery(sql, param);
 		assertEquals(wellSamples.size(), fields);
 		
-    	delete(new DeleteCommand(REF_PLATE_ACQUISITION, id, null));
+    	delete(new Delete(REF_PLATE_ACQUISITION, id, null));
     	sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
@@ -2811,7 +2811,7 @@ public class DeleteServiceTest
 		assertTrue(imageIds.size() == fields);
 		assertTrue(annotationIds.size() > 0);
 		//now delete the plate acquisition
-		delete(new DeleteCommand(REF_PLATE_ACQUISITION, id, null));
+		delete(new Delete(REF_PLATE_ACQUISITION, id, null));
 		
 		//Annotation should be gone
 		sql = "select a from Annotation as a ";
@@ -2855,7 +2855,7 @@ public class DeleteServiceTest
     	options.put(REF_DATASET, KEEP);
     	options.put(REF_IMAGE, KEEP);
     	long id = p.getId().getValue();
-    	delete(new DeleteCommand(REF_PROJECT, id, options));
+    	delete(new Delete(REF_PROJECT, id, options));
     	
     	assertDoesNotExist(p);
     	assertExists(d);
@@ -2890,7 +2890,7 @@ public class DeleteServiceTest
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_PLATE, KEEP);
     	long id = s.getId().getValue();
-    	delete(new DeleteCommand(REF_SCREEN, id, options));
+    	delete(new Delete(REF_SCREEN, id, options));
 		
 		assertDoesNotExist(s);
 		assertExists(p);
@@ -2920,7 +2920,7 @@ public class DeleteServiceTest
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_IMAGE, KEEP);
     	long id = d.getId().getValue();
-    	delete(new DeleteCommand(REF_DATASET, id, options));
+    	delete(new Delete(REF_DATASET, id, options));
 
 		assertDoesNotExist(d);
 		assertExists(img);
@@ -3007,8 +3007,8 @@ public class DeleteServiceTest
 	    	lcs.add(lc);
 		}
     	iUpdate.saveAndReturnArray(lcs);
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
-    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img2.getId().getValue(), null));
     	//Now delete the image.
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(img1.getId().getValue());
@@ -3164,8 +3164,8 @@ public class DeleteServiceTest
 	    	lcs.add(lc);
 		}
     	iUpdate.saveAndReturnArray(lcs);
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
-    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img2.getId().getValue(), null));
     	//Now delete the image.
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(img1.getId().getValue());
@@ -3284,8 +3284,8 @@ public class DeleteServiceTest
 			l.add(channel);
 		}
     	iUpdate.saveAndReturnArray(l);
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
-    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img2.getId().getValue(), null));
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(img1.getId().getValue());
     	ids.add(img2.getId().getValue());
@@ -3327,7 +3327,7 @@ public class DeleteServiceTest
             }
         }
         assertTrue(images.size() > 0);
-        DeleteCommand dc = new DeleteCommand("/Image", 
+        Delete dc = new Delete("/Image", 
         		images.get(0).getId().getValue(), null);
         try {
             delete(dc);
@@ -3352,10 +3352,10 @@ public class DeleteServiceTest
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
     	Image img2 = mmFactory.createImage();
     	img2 = (Image) iUpdate.saveAndReturnObject(img2);
-    	DeleteCommand[] commands = new DeleteCommand[2];
-    	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    	Delete[] commands = new Delete[2];
+    	commands[0] = new Delete(REF_IMAGE, img1.getId().getValue(), 
     			null);
-    	commands[1] = new DeleteCommand(REF_IMAGE, img2.getId().getValue(), 
+    	commands[1] = new Delete(REF_IMAGE, img2.getId().getValue(), 
     			null);
     	delete(commands);
     	List<Long> ids = new ArrayList<Long>();
@@ -3382,10 +3382,10 @@ public class DeleteServiceTest
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	DeleteCommand[] commands = new DeleteCommand[2];
-    	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    	Delete[] commands = new Delete[2];
+    	commands[0] = new Delete(REF_IMAGE, img1.getId().getValue(), 
     			null);
-    	commands[1] = new DeleteCommand(REF_DATASET, d.getId().getValue(), 
+    	commands[1] = new Delete(REF_DATASET, d.getId().getValue(), 
     			null);
     	delete(commands);
     	ParametersI param = new ParametersI();
@@ -3417,7 +3417,7 @@ public class DeleteServiceTest
     			mmFactory.simpleImage(0));
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertTrue(ids.size() > 0);
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));
     	
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
@@ -3446,7 +3446,7 @@ public class DeleteServiceTest
         fa.setFile(of);
         Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
         long id = data.getId().getValue();
-        delete(new DeleteCommand(REF_ANN, id, null));
+        delete(new Delete(REF_ANN, id, null));
 
         assertDoesNotExist(data);
         assertDoesNotExist(of);
@@ -3502,7 +3502,7 @@ public class DeleteServiceTest
         link1 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link1);
 
 
-        delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), null));
+        delete(new Delete(REF_IMAGE, image0.getId().getValue(), null));
         //
         // Check results
         //
@@ -3557,7 +3557,7 @@ public class DeleteServiceTest
     	
     	
     	long imageID = image.getId().getValue();
-    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	delete(new Delete(REF_IMAGE, imageID, null));
     	sql = "select i from Pixels i where i.id = :id";
     	param = new ParametersI();
     	param.addId(pixels.getId().getValue());
@@ -3583,7 +3583,7 @@ public class DeleteServiceTest
     	assertNotNull(thumbnail);
     	long imageID = image.getId().getValue();
     	long thumbnailID = thumbnail.getId().getValue();
-    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	delete(new Delete(REF_IMAGE, imageID, null));
     	String sql = "select i from Thumbnail i where i.id = :id";
     	ParametersI param = new ParametersI();
     	param.addId(thumbnailID);
@@ -3615,7 +3615,7 @@ public class DeleteServiceTest
         assertEquals(sl, image1.getStageLabel());
 
         try {
-            delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), 
+            delete(new Delete(REF_IMAGE, image0.getId().getValue(), 
             		null));
             fail("Should throw on constraint violation");
         } catch (AssertionFailedError e) {
@@ -3642,7 +3642,7 @@ public class DeleteServiceTest
     {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
-        delete(new DeleteCommand(REF_ORIGINAL_FILE, 
+        delete(new Delete(REF_ORIGINAL_FILE, 
         		of.getId().getValue(), null));
         assertDoesNotExist(of);
     }
@@ -3658,7 +3658,7 @@ public class DeleteServiceTest
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
         createSharableAnnotation(of, null);
-        delete(new DeleteCommand(REF_ORIGINAL_FILE, 
+        delete(new Delete(REF_ORIGINAL_FILE, 
         		of.getId().getValue(), null));
         assertDoesNotExist(of);
     }
@@ -3674,8 +3674,8 @@ public class DeleteServiceTest
     	 Image img = (Image) iUpdate.saveAndReturnObject(
                  mmFactory.createImage());
     	 long id = img.getId().getValue();
-    	 delete(new DeleteCommand(REF_IMAGE, id, null));
-    	 delete(new DeleteCommand(REF_IMAGE, id, null)); 
+    	 delete(new Delete(REF_IMAGE, id, null));
+    	 delete(false, client, new Delete(REF_IMAGE, id, null)); 
     }
     
     /**
@@ -3716,7 +3716,7 @@ public class DeleteServiceTest
         planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
         //now Delete the image.
         assertExists(planeInfo);
-        delete(new DeleteCommand(REF_IMAGE, image.getId().getValue(), null));
+        delete(new Delete(REF_IMAGE, image.getId().getValue(), null));
         assertDoesNotExist(image);
         assertDoesNotExist(pixels);
         assertDoesNotExist(planeInfo);
@@ -3813,7 +3813,7 @@ public class DeleteServiceTest
     	List<OTF> otfs = instrument.copyOtf();
 
     	//Delete the image.
-    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	delete(new Delete(REF_IMAGE, imageID, null));
     	assertDoesNotExist(image);
     	assertDoesNotExist(pixels);
     	
@@ -3899,11 +3899,11 @@ public class DeleteServiceTest
         assertExists(img1);
         assertExists(img2);
         assertExists(file);
-        delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+        delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));
         assertDoesNotExist(img1);
         assertExists(img2);
         assertExists(file);
-        delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+        delete(new Delete(REF_IMAGE, img2.getId().getValue(), null));
         assertDoesNotExist(img1);
         assertDoesNotExist(img2);
         assertDoesNotExist(file);

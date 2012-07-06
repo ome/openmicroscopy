@@ -25,8 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
+import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 import omero.cmd.HandleI.Cancel;
 
@@ -342,6 +345,16 @@ public class Helper {
      */
     public boolean isLast(int step) {
         return step == (status.steps - 1);
+    }
+
+    /**
+     * Provides an {@link EventContext} instance without reloading the session,
+     * via {@link LocalAdmin#getEventContextQuiet()}.
+     */
+    public EventContext getEventContext() {
+        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+        final EventContext ec = admin.getEventContextQuiet();
+        return ec;
     }
 
 }

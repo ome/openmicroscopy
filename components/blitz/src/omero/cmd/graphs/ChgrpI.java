@@ -10,8 +10,6 @@ package omero.cmd.graphs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
@@ -21,12 +19,12 @@ import org.springframework.context.ApplicationContext;
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
 import ome.services.chgrp.ChgrpStepFactory;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
-import ome.util.SqlAction;
 
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
@@ -35,7 +33,6 @@ import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.cmd.Unknown;
 
 /**
@@ -97,7 +94,7 @@ public class ChgrpI extends Chgrp implements IRequest {
             this.spec.initialize(id, "", options);
 
             StopWatch sw = new CommonsLogStopWatch();
-            state = new GraphState(factory, helper.getSql(),
+            state = new GraphState(ec, factory, helper.getSql(),
                 helper.getSession(), spec);
 
             // Throws on no steps
@@ -153,8 +150,8 @@ public class ChgrpI extends Chgrp implements IRequest {
             } else {
                 return state.execute(i);
             }
-        } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "STEP ERR", "step", ""+i, "id", ""+id);
+        } catch (GraphException ge) {
+            throw helper.cancel(new ERR(), ge, "STEP ERR", "step", ""+i, "id", ""+id);
         }
     }
 

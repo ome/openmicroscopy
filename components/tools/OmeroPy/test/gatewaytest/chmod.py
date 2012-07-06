@@ -348,16 +348,6 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
 
-    def waitOnDelete(self, client, handle):
-        callback = omero.callbacks.DeleteCallbackI(client, handle)
-        errors = None
-        count = 10
-        while errors is None:
-            errors = callback.block(500)
-            count -= 1
-            self.assert_( count != 0 )
-        self.assertEquals(0, errors)
-
     def testDelete8723(self):
         """ Tests whether regular members can delete each other's data in rwrw-- group """
         # Login as owner...
@@ -371,7 +361,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertNotEqual(None, p, "Member can access Project")
         self.assertEqual(p.canDelete(), True, "Member can delete another user's Project")
         handle = self.gateway.deleteObjects("Project", [pr.id.val])
-        self.waitOnDelete(self.gateway.c, handle)
+        cb = self.waitOnCmd(self.gateway.c, handle)
 
         # Must reload project
         p = self.gateway.getObject("Project", pr.id.val)

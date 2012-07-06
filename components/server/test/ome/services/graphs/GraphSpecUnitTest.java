@@ -115,7 +115,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
         prepareGetRelationship();
 
         GraphSpec roi = specXml.getBean("/Roi", BaseGraphSpec.class);
-        GraphState ids = new GraphState(null, null, session, roi);
+        GraphState ids = new GraphState(null, null, null, session, roi);
         roi.initialize(1, null, null);
         // roi.graph(session, 0, ids); // Requires mock setup
     }
@@ -310,7 +310,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
         spec.setExtendedMetadata(specXml.getBean(ExtendedMetadata.class));
         spec.postProcess(specXml);
 
-        final GraphState ids = new GraphState(null, null, session, spec);
+        final GraphState ids = new GraphState(null, null, null, session, spec);
         assertEquals(0, ids.getTotalFoundCount());
 
         // Now we try to ignore all the method calls on the session since
