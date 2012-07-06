@@ -1195,11 +1195,25 @@ def imageMarshal (image, key=None):
         logger.warn('Security violation while retrieving Dataset when ' \
                     'marshaling image metadata: %s' % e.message)
 
+    rv = {
+            'id': image.id,
+            'meta': {'imageName': image.name or '',
+                     'imageDescription': image.description or '',
+                     'imageAuthor': image.getAuthor(),
+                     'projectName': pr and pr.name or 'Multiple',
+                     'projectId': pr and pr.id or None,
+                     'projectDescription':pr and pr.description or '',
+                     'datasetName': ds and ds.name or 'Multiple',
+                     'datasetId': ds and ds.id or '',
+                     'datasetDescription': ds and ds.description or '',
+                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
+                     'imageId': image.id,},
+            }
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
             logger.debug("Failed to prepare Rendering Engine for imageMarshal")
-            return None
+            return rv
     except omero.ConcurrencyException, ce:
         backOff = ce.backOff
         rv = {
@@ -1216,13 +1230,12 @@ def imageMarshal (image, key=None):
     init_zoom = image._re.getResolutionLevel()
 
     try:
-        rv = {
+        rv.update({
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
             'init_zoom': init_zoom,
             'levels': levels,
-            'id': image.id,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
@@ -1231,18 +1244,7 @@ def imageMarshal (image, key=None):
             'pixel_size': {'x': image.getPixelSizeX(),
                            'y': image.getPixelSizeY(),
                            'z': image.getPixelSizeZ(),},
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
-            }
+            })
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
@@ -1647,7 +1649,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
+def copy_image_rdef_json (request, conn=None, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1660,6 +1662,7 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
     @return:            json dict of Boolean:[Image-IDs]
     """
     
+    server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
     try:
@@ -1671,19 +1674,19 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
         fromid = None
     if fromid is not None and len(toids) > 0:
         
-        fromimg = blitzcon.getObject("Image", fromid)
+        fromimg = conn.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
         if fromimg.canWrite():
-            ctx = blitzcon.SERVICE_OPTS.copy()
+            ctx = conn.SERVICE_OPTS.copy()
             ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
             ctx.setOmeroUser(userid)
-            rsettings = blitzcon.getRenderingSettingsService()
+            rsettings = conn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = blitzcon.getObject("Image", iid)
+                img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
 #

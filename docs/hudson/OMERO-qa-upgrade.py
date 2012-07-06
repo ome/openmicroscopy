@@ -14,7 +14,7 @@ def DEFINE(key, value):
 # Most likely to be changed
 if WINDOWS:
     DEFINE("NAME", "win-2k8")
-    DEFINE("ADDRESS", "10.2.1.191")
+    DEFINE("ADDRESS", "bp.openmicroscopy.org.uk")
     DEFINE("MEM", "Xmx1024M")
 else:
     DEFINE("NAME", "gretzky")
@@ -24,16 +24,16 @@ else:
 # new_server.py
 DEFINE("SYM", "OMERO-CURRENT")
 DEFINE("CFG", os.path.join(os.path.expanduser("~"), "config.xml"))
-DEFINE("WEB", """'[["localhost", 4064, "%s"], ["nightshade.openmicroscopy.org.uk", 4064, "nightshade"]]'""" % NAME)
+DEFINE("WEB", """'[["localhost", 4064, "%s"], ["gretzky.openmicroscopy.org.uk", 4064, "gretzky"], ["howe.openmicroscopy.org.uk", 4064, "howe"]]'""" % NAME)
 
 # send_email.py
 DEFINE("SUBJECT", "OMERO - %s was upgraded" % NAME)
-DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/")
-DEFINE("SENDER", "Aleksandra Tarkowska <aleksandrat@lifesci.dundee.ac.uk>")
+DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/OMERO-merge-green/lastSuccessfulBuild/")
+DEFINE("SENDER", "Chris Allan <callan@lifesci.dundee.ac.uk>")
 DEFINE("RECIPIENTS", ["ome-nitpick@lists.openmicroscopy.org.uk"])
 DEFINE("SERVER", "%s (%s)" % (NAME, ADDRESS))
-DEFINE("SMTP_SERVER", "mail.glencoesoftware.com")
-DEFINE("WEBURL", "http://%s/webclient/" % ADDRESS)
+DEFINE("SMTP_SERVER", "smtp.dundee.ac.uk")
+DEFINE("WEBURL", "http://%s/omero/webclient/" % ADDRESS)
 DEFINE("SKIPWEB", "false")
 ###########################################################################
 
@@ -136,7 +136,10 @@ class Email(object):
 
         TO = ",".join(recipients)
         FROM = sender
-        text = "The OMERO.server on %s has been upgraded. " \
+        text = "The OMERO.server on %s has been upgraded. \n" \
+                    "=========================\n" \
+                    "THIS SERVER REQUIRES VPN!\n" \
+                    "=========================\n" \
                     "Please download suitable clients from: \n " \
                     "\n - Windows: \n %s\n " \
                     "\n - MAC: \n %s\n " \
@@ -161,7 +164,7 @@ class Upgrade(object):
 
     def __init__(self, dir, cfg = CFG, mem = MEM, sym = SYM, skipweb = SKIPWEB):
 
-        print "%s: Upgrading %s..." % (self.__class__.__name__, dir)
+        print "%s: Upgrading %s (%s)..." % (self.__class__.__name__, dir, sym)
 
         self.mem = mem
         self.sym = sym
@@ -210,19 +213,20 @@ class Upgrade(object):
             _(["config", "set", "omero.web.server_list", WEB]) # TODO: Unneeded if copy old?
 
         for line in fileinput.input([self.dir / "etc" / "grid" / "templates.xml"], inplace=True):
-            print line.replace("Xmx512M", self.mem),
+            print line.replace("Xmx512M", self.mem).replace("Xmx256M", self.mem),
 
     def start(self, _):
         _("admin start")
         if self.web():
             print "Starting web ..."
-            _("web syncmedia")
             self.startweb(_)
 
     def set_cli(self, dir):
 
         dir = os.path.abspath(dir)
         lib = os.path.join(dir, "lib", "python")
+        if not os.path.exists(lib):
+            raise Exception("%s does not exist!" % lib)
         sys.path.insert(0, lib)
 
         import omero

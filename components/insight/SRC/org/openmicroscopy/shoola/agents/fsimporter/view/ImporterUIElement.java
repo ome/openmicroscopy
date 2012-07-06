@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -66,6 +67,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
+import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -189,7 +191,10 @@ class ImporterUIElement
 	private List<DataObject> existingContainers;
 
 	/** The busy label. */
-	private JXBusyLabel		busyLabel;
+	private JXBusyLabel busyLabel;
+	
+	/**The icon used to indicate an on-going import.*/
+	private RotationIcon rotationIcon;
 	
 	/**
 	 * Returns the object found by identifier.
@@ -736,6 +741,8 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
+			if (isDone() && rotationIcon != null)
+				rotationIcon.stopRotation();
 			if (f.isFile()) {
 				if (c.hasImportFailed()) countFailure++;
 				else if (!c.isCancelled()) countFilesImported++;
@@ -822,13 +829,18 @@ class ImporterUIElement
 	 */
 	boolean isLastImport() { return countImported == (totalToImport-1); }
 	
-	/** Indicates that the import has started. */
-	void startImport()
+	/** 
+	 * Indicates that the import has started. 
+	 * 
+	 * @param component The component of reference of the rotation icon.
+	 */
+	Icon startImport(JComponent component)
 	{ 
 		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
+		return new RotationIcon(busyLabel.getIcon(), component, true);
 	}
 	
 	/**

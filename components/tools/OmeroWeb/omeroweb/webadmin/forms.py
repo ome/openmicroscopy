@@ -68,7 +68,7 @@ class ForgottonPasswordForm(NonASCIIForm):
 
 class ExperimenterForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, email_check=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False, experimenter_is_me=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check 
@@ -92,6 +92,11 @@ class ExperimenterForm(NonASCIIForm):
             self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+        if experimenter_is_me:
+            self.fields['administrator'].widget.attrs['disabled'] = True
+            self.fields['administrator'].widget.attrs['title'] = "Removal of your own admin rights would be un-doable"
+            self.fields['active'].widget.attrs['disabled'] = True
+            self.fields['active'].widget.attrs['title'] = "You cannot disable yourself"
 
     omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -105,7 +110,7 @@ class ExperimenterForm(NonASCIIForm):
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 letters long')
+                raise forms.ValidationError('Password must be at least 3 characters long.')
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
@@ -113,7 +118,7 @@ class ExperimenterForm(NonASCIIForm):
     
     def clean_omename(self):
         if self.name_check:
-            raise forms.ValidationError('This username already exist.')
+            raise forms.ValidationError('This username already exists.')
         return self.cleaned_data.get('omename')
 
     def clean_email(self):
@@ -123,7 +128,7 @@ class ExperimenterForm(NonASCIIForm):
     
     def clean_other_groups(self):
         if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
-            raise forms.ValidationError('User must to be a member of at least one group.')
+            raise forms.ValidationError('User must be a member of at least one group.')
         else:
             return self.cleaned_data.get('other_groups')
 
@@ -246,7 +251,7 @@ class ChangePassword(NonASCIIForm):
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 letters long')
+                raise forms.ValidationError('Password must be at least 3 characters long.')
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:

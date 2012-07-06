@@ -433,8 +433,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
                                 'default_group': defaultGroupId, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
-        
-        form = ExperimenterForm(initial=initial)
+        experimenter_is_me = (conn.getEventContext().userId == long(eid))
+        form = ExperimenterForm(experimenter_is_me=experimenter_is_me, initial=initial)
         password_form = ChangePassword()
         context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
     elif action == 'save':

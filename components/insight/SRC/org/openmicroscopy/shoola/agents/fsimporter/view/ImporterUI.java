@@ -606,14 +606,17 @@ class ImporterUI
 		if (n == 0 || element == null) return;
 		if (tabs.getSelectedComponent() == element) return;
 		Component[] components = tabs.getComponents();
+		int index = -1;
 		for (int i = 0; i < components.length; i++) {
 			if (components[i] == element) {
+				index = i;
 				tabs.setSelectedComponent(element);
 			}
 		}
 		if (startImport) {
 			//tabs.setIconAt(index, busyIcon);
-			element.startImport();
+			Icon icon = element.startImport(tabs);
+			if (index >=0) tabs.setIconAt(index, icon);
 		}
 	}
 	
