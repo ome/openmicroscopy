@@ -73,8 +73,6 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-logger.info("INIT '%s'" % os.getpid())
-
 ################################################################################
 # decorators
 
