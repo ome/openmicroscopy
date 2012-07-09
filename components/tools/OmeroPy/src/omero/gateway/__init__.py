@@ -1711,7 +1711,8 @@ class _BlitzGateway (object):
                 except Ice.SyscallException: #pragma: no cover
                     raise
                 except:
-                    logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
+                    logger.info("Failed to create session.")
+                    logger.debug("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                     #time.sleep(10)
                     self._createSession()
 
