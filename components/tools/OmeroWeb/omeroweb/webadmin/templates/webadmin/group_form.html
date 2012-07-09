@@ -110,15 +110,11 @@
         </div>
     </form>
 
-    
-</div>
-
-{% endblock %}
-
-{% block metadata_details %}
     <p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
 
-    <p>{% trans "<strong>Collaborative - read-only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
+    <p>{% trans "<strong>Read-Only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
 
-    <p>{% trans "<strong>Collaborative - read-annotate (rwra--)</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
+    <p>{% trans "<strong>Read-Annotate (rwra--)</strong>: Users in a Read-Annotate group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
+
+</div>
 {% endblock %}
