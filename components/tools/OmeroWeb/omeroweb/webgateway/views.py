@@ -55,8 +55,6 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-logger.debug("INIT")
-
 try:
     import Image
     import ImageDraw

@@ -110,8 +110,6 @@ logger = logging.getLogger(__name__)
 
 connectors = {}
 
-logger.info("INIT '%s'" % os.getpid())
-
 ################################################################################
 # views controll
 
