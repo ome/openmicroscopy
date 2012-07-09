@@ -1911,11 +1911,12 @@ class OmeroWebObjectWrapper (object):
             return 'unknown'
         else:
             p = self.details.getPermissions()
-        
-        if p.isWorldRead():
-            flag = 'Public'
+        if p.isGroupWrite():
+            flag = 'Read-Write'
+        elif p.isGroupAnnotate():
+            flag = 'Read-Annotate'
         elif p.isGroupRead():
-            flag = 'Collaborative'
+            flag = 'Read-Only'
         elif p.isUserRead():
             flag = 'Private'
         else:
