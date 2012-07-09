@@ -71,7 +71,7 @@ def upgradeCheck():
         if check.isUpgradeNeeded():
             logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
         else:
-            logger.error("Up to date.\n")
+            logger.debug("Up to date.\n")
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
     
