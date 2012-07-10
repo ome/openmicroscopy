@@ -174,8 +174,8 @@ class WebControl(BaseControl):
 # force https/ssl
 <IfDefine OmeroForceSSL>
   RewriteEngine on
-  RewriteCond %{HTTPS} !on
-  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
+  RewriteCond %%{HTTPS} !on
+  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
 </IfDefine>
 
 <VirtualHost _default_:443>
@@ -197,7 +197,7 @@ class WebControl(BaseControl):
 
   # Per-Server Logging:
   CustomLog logs/ssl_request_log \
-    "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
 
   # Rewrite / must be in ssl vhost as well
   <IfDefine OmeroWebClientRedirect>
@@ -246,36 +246,6 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Order allow,deny
     Allow from all
 </Directory>
-
-<IfDefine OmeroWebCache>
-  CacheRoot %(CACHEROOT)s
-  CacheIgnoreHeaders Set-Cookie Referer Cookie
-  CacheEnable disk /static
-  CacheEnable disk /omero/webclient/render_birds_eye_view/
-  CacheEnable disk /omero/webclient/render_image_region/
-  CacheEnable disk /omero/webclient/render_thumbnail/
-
-  <Location /omero/webclient/render_birds_eye_view/>
-    ExpiresActive On
-    ExpiresDefault "now plus 1 year"
-    Header unset Vary
-    Header set Vary "Host"
-  </Location>
-
-  <Location /omero/webclient/render_image_region/>
-    ExpiresActive On
-    ExpiresDefault "now plus 1 year"
-    Header unset Vary
-    Header set Vary "Host"
-  </Location>
-
-  <Location /omero/webclient/render_thumbnail/>
-  ExpiresActive On
-  ExpiresDefault "now plus 1 year"
-  Header unset Vary
-  Header set Vary "Host"
-  </Location>
-</IfDefine>
 
 Alias /static %(STATIC)s
 Alias /omero "%(ROOT)s/var/omero.fcgi/"
