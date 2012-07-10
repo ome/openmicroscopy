@@ -9,7 +9,7 @@ does not cause child processes to receive the same
 random number as the parent process.
 
 See http://bugs.python.org/issue8621
-See http://trac.openmicroscopy.org.uk/omero/ticket/3774
+See http://trac.openmicroscopy.org.uk/ome/ticket/3774
 
 Josh Moore, josh at glencoesoftware.com
 Copyright (c) 2010, Glencoe Software, Inc.

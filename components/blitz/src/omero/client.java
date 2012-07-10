@@ -67,8 +67,8 @@ import Ice.Current;
  *</code>
  *
  * More more information, see <a
- * href="https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign">
- * https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign </a>
+ * href="https://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign">
+ * https://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign </a>
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

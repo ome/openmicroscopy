@@ -44,7 +44,7 @@ import static ome.model.internal.Permissions.Flag.*;
  * </p>
  * 
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/omero/ticket/180">ticket:180</a>
+ *      href="https://trac.openmicroscopy.org.uk/ome/ticket/180">ticket:180</a>
  */
 public class Permissions implements Serializable {
 
@@ -503,7 +503,7 @@ public class Permissions implements Serializable {
      * the same bit representation.
      * 
      * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/omero/ticket/291">ticket:291</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/291">ticket:291</a>
      */
     // @Override
     public boolean identical(Permissions p) {
@@ -827,7 +827,7 @@ public class Permissions implements Serializable {
      * an immutable {@link Permissions} instance with permissions only for the
      * object owner.. Identical to {@link #USER_PRIVATE}.
      *
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434</a>
      */
     public final static Permissions PRIVATE = USER_PRIVATE;
 
@@ -836,8 +836,8 @@ public class Permissions implements Serializable {
      * members to read other members' data. Identical to
      * {@link #GROUP_READABLE}.
      *
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1992">ticket:1992</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1992">ticket:1992</a>
      */
     public final static Permissions COLLAB_READONLY = GROUP_READABLE;
 
@@ -845,8 +845,8 @@ public class Permissions implements Serializable {
      * an immutable {@link Permissions} instance with read and write permissions
      * for group members. Identical to {@link #GROUP_PRIVATE}.
      *
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1992">ticket:1992</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1992">ticket:1992</a>
      */
     public final static Permissions COLLAB_READLINK = GROUP_PRIVATE;
 

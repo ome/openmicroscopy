@@ -961,7 +961,7 @@ public class OmeroInterceptor implements Interceptor {
             }
             // otherwise throw an exception, because as seen in ticket:346,
             // it can lead to confusion otherwise. See:
-            // https://trac.openmicroscopy.org.uk/omero/ticket/346
+            // https://trac.openmicroscopy.org.uk/ome/ticket/346
             else {
 
                 // no one change them.
@@ -995,7 +995,7 @@ public class OmeroInterceptor implements Interceptor {
             }
             // otherwise throw an exception, because as seen in ticket:346,
             // it can lead to confusion otherwise. See:
-            // https://trac.openmicroscopy.org.uk/omero/ticket/346
+            // https://trac.openmicroscopy.org.uk/ome/ticket/346
             else {
 
                 // no one change them, but this is less likely intentional

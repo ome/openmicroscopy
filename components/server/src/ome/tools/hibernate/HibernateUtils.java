@@ -48,7 +48,7 @@ import ome.tools.lsid.LsidUtils;
  * @version $Revision$, $Date$
  * @since 3.0-M3
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/omero/wiki/ObjectModel">wiki:ObjectModel</a>
+ *      href="http://trac.openmicroscopy.org.uk/ome/wiki/ObjectModel">wiki:ObjectModel</a>
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")

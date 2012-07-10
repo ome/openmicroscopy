@@ -352,7 +352,7 @@ public interface IAdmin extends ServiceInterface {
      * @param newGroup
      *            a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
-     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434"</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
      */
     long createGroup(ExperimenterGroup group);
 
@@ -566,8 +566,8 @@ public interface IAdmin extends ServiceInterface {
      *            Possibly null to allow logging in with no password.
      * @throws ome.conditions.SecurityViolation
      *             if the user is not authenticated with a password.
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/911">ticket:911</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/3201">ticket:3201</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/911">ticket:911</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/3201">ticket:3201</a>
      */
     void changePassword(@Hidden
     String newPassword);

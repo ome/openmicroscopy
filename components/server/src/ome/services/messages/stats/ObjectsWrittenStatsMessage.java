@@ -11,7 +11,7 @@ package ome.services.messages.stats;
 /**
  * 
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroThrottling">OmeroThrottling</a>
+ *      href="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroThrottling">OmeroThrottling</a>
  */
 public class ObjectsWrittenStatsMessage extends
         AbstractStatsMessage {

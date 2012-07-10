@@ -21,7 +21,7 @@ module omero {
         /**
          * Exploratory Delete API for background processing of deletes.
          *
-         * For more information, see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/2665">ticket #2665</a>.
+         * For more information, see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/2665">ticket #2665</a>.
          **/
         module delete {
 

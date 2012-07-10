@@ -58,7 +58,7 @@ namespace omero {
      *
      * For more information, see:
      *
-     *    https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign
+     *    https://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign
      *
      */
     class OMERO_API client : public IceUtil::Shared {

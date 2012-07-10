@@ -25,7 +25,7 @@ class TestExt(unittest.TestCase):
 
         On non Mac systems, this test does more or less nothing.
 
-        See http://trac.openmicroscopy.org.uk/omero/ticket/3774
+        See http://trac.openmicroscopy.org.uk/ome/ticket/3774
         """
         import sys
         if sys.platform == 'darwin':

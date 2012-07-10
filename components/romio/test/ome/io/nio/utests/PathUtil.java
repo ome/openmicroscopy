@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * Any other attempt to acquire the omero.data.dir directly may cause issues in
  * non-standard environments.
  * 
- * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">ticket:800</a>
+ * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/800">ticket:800</a>
  */
 class PathUtil {
 

@@ -89,7 +89,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
      * serializable themselves, or be set to null before serialization. Here
      * we've marked the jdbc field as transient out of habit.
      * 
-     * @see https://trac.openmicroscopy.org.uk/omero/ticket/173
+     * @see https://trac.openmicroscopy.org.uk/ome/ticket/173
      */
     private transient SqlAction sql;
 

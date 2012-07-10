@@ -39,7 +39,7 @@ class BaseClient(object):
 
     For more information, see:
 
-        - U{https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign}
+        - U{https://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign}
 
     """
 

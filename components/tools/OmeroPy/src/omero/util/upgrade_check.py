@@ -16,7 +16,7 @@ import socket
 class UpgradeCheck(object):
     """
     Port of Java UpgradeCheck:
-    https://trac.openmicroscopy.org.uk/omero/browser/trunk/components/common/src/ome/system/UpgradeCheck.java
+    https://trac.openmicroscopy.org.uk/ome/browser/trunk/components/common/src/ome/system/UpgradeCheck.java
 
     >>> from omero.util.upgrade_check import UpgradeCheck
     >>> uc = UpgradeCheck("doctest")

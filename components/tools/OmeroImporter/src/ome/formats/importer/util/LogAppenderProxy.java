@@ -50,7 +50,7 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     /**
      * Appenders require a null constructor. This workaround allows the GUI
      * logging to function, but is not ideal.
-     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1479">ticket:1479</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1479">ticket:1479</a>
      */
     public static void configure(File logFile) throws FileNotFoundException
     {

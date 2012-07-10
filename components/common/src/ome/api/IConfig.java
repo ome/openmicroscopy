@@ -60,7 +60,7 @@ public interface IConfig extends ServiceInterface {
      * security policy file which disallows "new Date()"). Therefore we don't
      * add a throws clause here. Anything that is thrown will be wrapped in an
      * InternalException see
-     * http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+     * http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling
      */
     /**
      * checks the current server for it's time. This value may be variant
