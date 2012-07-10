@@ -11,8 +11,10 @@ WINDOWS = platform.system() == "Windows"
 def DEFINE(key, value):
     m = globals()
     m[key] = os.environ.get(key, value)
+    print key, "=>", m[key]
 
 # Most likely to be changed
+DEFINE("SKIPEMAIL", "false")
 if WINDOWS:
     DEFINE("NAME", "win-2k8")
     DEFINE("ADDRESS", "bp.openmicroscopy.org.uk")
@@ -43,6 +45,8 @@ if NAME == "gretzky" and NAME != hostname:
         print "Setting hostname to '%s'" % hostname
         DEFINE("NAME", hostname)
         DEFINE("ADDRESS", "localhost")
+        # Don't send emails if we're not on a known host.
+        DEFINE("SKIPEMAIL", "true")
 
 # new_server.py
 DEFINE("SYM", "OMERO-CURRENT")
@@ -60,7 +64,6 @@ DEFINE("SMTP_SERVER", "smtp.dundee.ac.uk")
 DEFINE("WEBURL", "http://%s/omero/webclient/" % ADDRESS)
 
 DEFINE("SKIPWEB", "false")
-DEFINE("SKIPEMAIL", "false")
 DEFINE("SKIPUNZIP", "false")
 ###########################################################################
 
