@@ -352,7 +352,7 @@ public interface IAdmin extends ServiceInterface {
      * @param newGroup
      *            a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
-     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
      */
     long createGroup(ExperimenterGroup group);
 

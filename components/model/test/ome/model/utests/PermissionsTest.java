@@ -197,7 +197,7 @@ public class PermissionsTest extends TestCase {
 
     // ~ Equals && HashCode
     // =========================================================================
-    // see https://trac.openmicroscopy.org.uk/ome/ticket/291
+    // see http://trac.openmicroscopy.org.uk/ome/ticket/291
 
     @Test(groups = "ticket:291")
     public void testEquals() throws Exception {

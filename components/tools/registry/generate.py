@@ -75,7 +75,7 @@ def yahoo(locations = {}):
     </div>
 
     <div id="text">
-        <p>On each startup up, all OMERO software products check back with the url <a href="http://upgrade.openmicroscopy.org.uk/">http://upgrade.openmicroscopy.org.uk/</a> which logs the access with the <a href="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroRegistry">OMERO.registry</a> which generates this page.</p>
+        <p>On each startup up, all OMERO software products check back with the url <a href="http://upgrade.openmicroscopy.org.uk/">http://upgrade.openmicroscopy.org.uk/</a> which logs the access with the <a href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroRegistry">OMERO.registry</a> which generates this page.</p>
         <p>Each dot represents several application starts at a particular IP address. More information is available on the <a href="./statistics.html">statistics page</a>.</p>
 
       <ilayer id="d1" width="120" height="120" visibility="hide">

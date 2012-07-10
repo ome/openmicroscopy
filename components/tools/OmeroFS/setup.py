@@ -27,8 +27,8 @@ OMERO.fs server for watching directories"
 """,
       author="Colin Blackburn",
       author_email="",
-      url="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
-      download_url="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
+      url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
+      download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
       packages=[''],
       test_suite='test.suite'
 )

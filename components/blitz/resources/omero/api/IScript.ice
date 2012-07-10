@@ -48,7 +48,7 @@ module omero {
          *     proc.close(False)
          *
          * </pre>
-	 * See <a href="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroScripts">OmeroScripts</a> for more information.
+	 * See <a href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroScripts">OmeroScripts</a> for more information.
 	 **/
 	["ami","amd"] interface IScript extends ServiceInterface
 	    {

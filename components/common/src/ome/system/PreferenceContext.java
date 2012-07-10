@@ -37,7 +37,7 @@ import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
  */
 public class PreferenceContext extends PropertyPlaceholderConfigurer {
 

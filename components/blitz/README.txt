@@ -8,4 +8,4 @@ Contained in this directory are server implementation, code
 generation for the client implementation, and configuration
 for an IceGrid application.
 
-See also https://trac.openmicroscopy.org.uk/ome/wiki/OmeroGrid
+See also http://trac.openmicroscopy.org.uk/ome/wiki/OmeroGrid

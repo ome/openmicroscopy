@@ -124,7 +124,7 @@ class TempFileManager(object):
          * non-existence
          * inability to lock
 
-        See: https://trac.openmicroscopy.org.uk/ome/ticket/1653
+        See: http://trac.openmicroscopy.org.uk/ome/ticket/1653
         """
         locktest = None
 

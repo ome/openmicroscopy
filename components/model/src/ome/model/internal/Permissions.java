@@ -44,7 +44,7 @@ import static ome.model.internal.Permissions.Flag.*;
  * </p>
  * 
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/ome/ticket/180">ticket:180</a>
+ *      href="http://trac.openmicroscopy.org.uk/ome/ticket/180">ticket:180</a>
  */
 public class Permissions implements Serializable {
 
@@ -503,7 +503,7 @@ public class Permissions implements Serializable {
      * the same bit representation.
      * 
      * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/291">ticket:291</a>
+     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/291">ticket:291</a>
      */
     // @Override
     public boolean identical(Permissions p) {

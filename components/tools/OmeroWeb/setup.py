@@ -18,8 +18,8 @@ OmeroWeb is the container of the web clients for OMERO."
 """,
       author="Aleksandra Tarkowska",
       author_email="",
-      url="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
-      download_url="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
+      url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
+      download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
       packages=[''],
       test_suite='test.suite'
 )

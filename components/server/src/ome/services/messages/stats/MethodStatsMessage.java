@@ -12,7 +12,7 @@ package ome.services.messages.stats;
  * reached.
  *
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/ome/wiki/OmeroThrottling">OmeroThrottling</a>
+ *      href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroThrottling">OmeroThrottling</a>
  */
 public class MethodStatsMessage extends AbstractStatsMessage {
 

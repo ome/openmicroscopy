@@ -170,8 +170,8 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // The instances must be unloaded to prevent spurious deletes!
         // Need versions. See:
-        // https://trac.openmicroscopy.org.uk/ome/ticket/118
-        // https://trac.openmicroscopy.org.uk/ome/ticket/346
+        // http://trac.openmicroscopy.org.uk/ome/ticket/118
+        // http://trac.openmicroscopy.org.uk/ome/ticket/346
         e = iUpdate.saveAndReturnObject(e);
         g_1 = iUpdate.saveAndReturnObject(g_1);
         g_2 = iUpdate.saveAndReturnObject(g_2);
@@ -210,8 +210,8 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // The instances must be unloaded to prevent spurious deletes!
         // Need versions. See:
-        // https://trac.openmicroscopy.org.uk/ome/ticket/118
-        // https://trac.openmicroscopy.org.uk/ome/ticket/346
+        // http://trac.openmicroscopy.org.uk/ome/ticket/118
+        // http://trac.openmicroscopy.org.uk/ome/ticket/346
 
         img.setName("j.b." + System.currentTimeMillis());
         img.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
