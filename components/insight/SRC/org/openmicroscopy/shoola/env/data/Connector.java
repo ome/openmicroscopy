@@ -127,6 +127,12 @@ class Connector
 	/** The service to import files. */
 	private OMEROMetadataStoreClient importStore;
 	
+	/** The search service.*/
+	private SearchPrx searchService;
+	
+	/** The exporter service.*/
+	private ExporterPrx exportService;
+	
 	/** 
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO Server using a secure connection. 
@@ -165,18 +171,6 @@ class Connector
 	
 	/** The security context for that connector.*/
 	private SecurityContext context;
-	
-	/**
-	 * Closes the specified service.
-	 * 
-	 * @param svc The service to handle.
-	 */
-	private void closeService(StatefulServiceInterfacePrx svc)
-	{
-		try {
-			svc.close();
-		} catch (Exception e) {} //ignore
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -421,7 +415,7 @@ class Connector
 	{ 
 		if (deleteService == null) {
 			if (entryUnencrypted != null)
-				deleteService = entryUnencrypted.getDeleteService(); 
+				deleteService = entryUnencrypted.getDeleteService();
 			else 
 				deleteService = entryEncrypted.getDeleteService();
 			if (deleteService != null)
@@ -468,9 +462,12 @@ class Connector
 	ExporterPrx getExporterService()
 		throws Throwable
 	{ 
+		if (exportService != null) return exportService;
 		if (entryUnencrypted != null)
-			return entryUnencrypted.createExporter();
-		return entryEncrypted.createExporter();
+			exportService = entryUnencrypted.createExporter();
+		else exportService = entryEncrypted.createExporter();
+		services.add(exportService);
+		return exportService;
 	}
 	
 	/**
@@ -550,9 +547,12 @@ class Connector
 	SearchPrx getSearchService()
 		throws Throwable
 	{
+		if (searchService != null) return searchService;
 		if (entryUnencrypted != null)
-			return entryUnencrypted.createSearchService();
-		return entryEncrypted.createSearchService();
+			searchService = entryUnencrypted.createSearchService();
+		else searchService = entryEncrypted.createSearchService();
+		services.add(searchService);
+		return searchService;
 	}
 	
 	/**
@@ -659,27 +659,23 @@ class Connector
 	 */
 	void shutDownServices(boolean rendering)
 	{
-		if (thumbnailService != null)
-			closeService(thumbnailService);
-		if (pixelsStore != null)
-			closeService(pixelsStore);
-		if (fileStore != null)
-			closeService(fileStore);
+		if (thumbnailService != null) close(thumbnailService);
+		if (pixelsStore != null) close(pixelsStore);
+		if (fileStore != null) close(fileStore);
+		if (searchService != null) close(searchService);
 		if (importStore != null) {
 			importStore.closeServices();
 			importStore = null;
 		}
+		
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
 		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
 			while (i.hasNext()) {
-				closeService(i.next());
+				close(i.next());
 			}
 			reServices.clear();
 		}
-		thumbnailService = null;
-		pixelsStore = null;
-		fileStore = null;
 	}
 	
 	/** Keeps the services alive. */
@@ -710,11 +706,28 @@ class Connector
 	void close(StatefulServiceInterfacePrx proxy)
 	{
 		try {
-			if (proxy instanceof ThumbnailStorePrx) {
-				thumbnailService.close();
-				thumbnailService = null;
-			} else proxy.close();
+			proxy.close();
 		} catch (Exception e) {} //ignore.
+		if (proxy == thumbnailService) {
+			services.remove(thumbnailService);
+			thumbnailService = null;
+		}
+		if (proxy == pixelsStore) {
+			services.remove(pixelsStore);
+			pixelsStore = null;
+		}
+		if (proxy == fileStore) {
+			services.remove(fileStore);
+			fileStore = null;
+		}
+		if (proxy == searchService) {
+			services.remove(searchService);
+			searchService = null;
+		}
+		if (proxy == exportService) {
+			services.remove(exportService);
+			exportService = null;
+		}
 	}
 	
 	/**
