@@ -46,7 +46,8 @@
   <property name="app.dir" location="${build.dir}/app"/>
   <property name="app.compiled.dir" location="${app.dir}/compiled"/> 
   <property name="app.config.dir" location="${app.dir}/config"/> 
-  <property name="app.lib.dir" location="${app.dir}/libs"/> 
+  <property name="app.lib.dir" location="${app.dir}/libs"/>
+  <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>  
   <patternset id="app.sources">
     <include name="**/*.java"/>
@@ -163,7 +164,7 @@
    * Run the app in its own JVM. 
    * The location of the home directory is passed to the app via the command
    * line. The JVM minimum memory size is set to 256M and the maximum to
-   * 512M. Note that JVM memory size is specified via -X options, which make
+   * 1024M. Note that JVM memory size is specified via -X options, which make
    * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="run"
@@ -173,7 +174,7 @@
           classpathref="app.run.classpath" 
           fork="yes"
           failonerror="yes">
-      <jvmarg line="-Xms256M -Xmx512M"/> 
+      <jvmarg line="${app.vmparameters}"/> 
       <jvmarg value="-Dinsight.switch_user=true"/>
       <arg line="container.xml"/>
       <arg value="${app.dir}"/> 
@@ -183,7 +184,7 @@
 	   * Run the app in its own JVM. 
 	   * The location of the home directory is passed to the app via the command
 	   * line. The JVM minimum memory size is set to 256M and the maximum to
-	   * 512M. Note that JVM memory size is specified via -X options, which make
+	   * 1024M. Note that JVM memory size is specified via -X options, which make
 	   * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
 	  <target name="run-editor"
@@ -194,7 +195,7 @@
 	          classpathref="app.run.classpath" 
 	          fork="yes"
 	          failonerror="yes">
-	      <jvmarg line="-Xms256M -Xmx512M"/> 
+	      <jvmarg line="${app.vmparameters}"/> 
 	      <arg line="containerEditor.xml"/>
 	      <arg value="${app.dir}"/> 
 	    </java>  
