@@ -2,6 +2,7 @@
 
 import os
 import platform
+import subprocess
 WINDOWS = platform.system() == "Windows"
 ###########################################################################
 # CONFIGURATION
@@ -25,6 +26,24 @@ else:
     DEFINE("UNZIP", "unzip")
     DEFINE("UNZIPARGS", "")
 
+# Also run detection here, since these values are
+# re-used during DEFINITION
+p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
+hostname = p.communicate()[0].strip()
+
+# If this is the default linux situation, then we want
+# to also handle howe. Other servers will need to be
+# handled better later.
+if NAME == "gretzky":
+    if hostname == "howe":
+        print "Detected hostname == 'howe'"
+        DEFINE("NAME", "howe")
+        DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
+    else:
+        print "Setting hostname to '%s'" % hostname
+        DEFINE("NAME", hostname)
+        DEFINE("ADDRESS", "localhost")
+
 # new_server.py
 DEFINE("SYM", "OMERO-CURRENT")
 DEFINE("CFG", os.path.join(os.path.expanduser("~"), "config.xml"))
@@ -46,7 +65,6 @@ DEFINE("SKIPUNZIP", "false")
 ###########################################################################
 
 import fileinput
-import subprocess
 import smtplib
 import sys
 import urllib
@@ -349,23 +367,9 @@ class WindowsUpgrade(Upgrade):
         """
         self.call(["iisreset"])
 
-def check_host_name():
-    p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
-    hostname = p.communicate()[0].strip()
-    if NAME == "gretzky": # If we haven't been modified
-        if hostname == "howe":
-            print "Detected hostname == 'howe'"
-            DEFINE("NAME", "howe")
-            DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
-        else:
-            print "Setting hostname to '%s'" % hostname
-            DEFINE("NAME", hostname)
-            DEFINE("ADDRESS", "localhost")
-
 
 if __name__ == "__main__":
 
-    check_host_name()
     artifacts = Artifacts()
 
     if len(sys.argv) != 2:
