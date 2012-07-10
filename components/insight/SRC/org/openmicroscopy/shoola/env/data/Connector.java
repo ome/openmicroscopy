@@ -130,6 +130,9 @@ class Connector
 	/** The search service.*/
 	private SearchPrx searchService;
 	
+	/** The exporter service.*/
+	private ExporterPrx exportService;
+	
 	/** 
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO Server using a secure connection. 
@@ -459,9 +462,12 @@ class Connector
 	ExporterPrx getExporterService()
 		throws Throwable
 	{ 
+		if (exportService != null) return exportService;
 		if (entryUnencrypted != null)
-			return entryUnencrypted.createExporter();
-		return entryEncrypted.createExporter();
+			exportService = entryUnencrypted.createExporter();
+		else exportService = entryEncrypted.createExporter();
+		services.add(exportService);
+		return exportService;
 	}
 	
 	/**
@@ -717,6 +723,10 @@ class Connector
 		if (proxy == searchService) {
 			services.remove(searchService);
 			searchService = null;
+		}
+		if (proxy == exportService) {
+			services.remove(exportService);
+			exportService = null;
 		}
 	}
 	

@@ -6950,7 +6950,7 @@ class OMEROGateway
 				}
 			} finally {
 				try {
-					if (store != null) store.close();
+					if (store != null) closeService(ctx, store);
 				} catch (Exception e) {}
 				if (exception != null) throw exception;
 				return f;
