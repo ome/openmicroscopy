@@ -78,7 +78,8 @@ public final class ContainerConfigInit
 	void execute() 
 		throws StartupException
 	{
-		String file = container.getConfigFileRelative();
+		String file = container.getHomeDir() + File.separator +
+				container.getConfigFileRelative();
 		Registry reg = container.getRegistry();
 		try {
 			RegistryFactory.fillFromFile(file, reg);
@@ -109,4 +110,3 @@ public final class ContainerConfigInit
 	void rollback() {}
 	
 }
-		

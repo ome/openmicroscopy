@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -123,8 +124,9 @@ public final class AgentsInit
 	private Registry createAgentRegistry(String configFile)
 		throws Exception
 	{
-		String relPathName = container.getConfigFileRelative(configFile);
-		Registry agentReg = RegistryFactory.makeNew(relPathName),
+		String absPathName = container.getHomeDir() + File.separator +
+					container.getConfigFileRelative(configFile);
+		Registry agentReg = RegistryFactory.makeNew(absPathName),
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
