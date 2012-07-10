@@ -593,9 +593,21 @@ class MetadataViewerComponent
 	public void setRelatedNodes(List nodes)
 	{
 		if (nodes == null || nodes.size() == 0) return;
-		//model.setSelectionMode(false);
-		//setRootObject(model.getRefObject(), model.getUserID());
-		model.setRelatedNodes(nodes);
+		List<Long> ids = new ArrayList<Long>();
+		Iterator i = nodes.iterator();
+		List results = new ArrayList();
+		DataObject data;
+		while (i.hasNext()) {
+			Object object = i.next();
+			if (object instanceof DataObject) {
+				data = (DataObject) object;
+				if (!ids.contains(data.getId())) {
+					results.add(data);
+					ids.add(data.getId());
+				}
+			}
+		}
+		model.setRelatedNodes(results);
 		firePropertyChange(RELATED_NODES_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
