@@ -35,7 +35,7 @@
     beanRefContext.xml files. For this to work, OmeroContext checks all contexts
     for readiness and if not ready, calls "refresh()".
 
-    @see https://trac.openmicroscopy.org.uk/omero/ticket/313
+    @see http://trac.openmicroscopy.org.uk/ome/ticket/313
     </description>
     <constructor-arg>
     	<list>

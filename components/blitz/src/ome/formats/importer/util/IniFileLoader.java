@@ -151,7 +151,7 @@ public class IniFileLoader {
      */
     public String getHomeUrl()
     {
-        return staticPref("General", "url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
+        return staticPref("General", "url", "http://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
 
     /**
@@ -159,7 +159,7 @@ public class IniFileLoader {
      */
     public String getForumUrl()
     {
-        return staticPref("General", "forumUrl", "https://www.openmicroscopy.org/community/");
+        return staticPref("General", "forumUrl", "http://www.openmicroscopy.org/community/");
     }
 
     /**

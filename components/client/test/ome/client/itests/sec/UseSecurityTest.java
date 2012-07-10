@@ -500,7 +500,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         // exists, and so the image will not be automatically locked.
         // verifyLockStatus(img, will_lock);
         verifyLockStatus(pix, will_lock); // both locked. see
-        // https://trac.openmicroscopy.org.uk/omero/ticket/357
+        // http://trac.openmicroscopy.org.uk/ome/ticket/357
 
         for (Object object : details_changed) {
             verifyLocked(sf, img, d(img, object), can_change_img);
@@ -553,7 +553,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     // ~ Copy of server-side locking test. See:
-    // https://trac.openmicroscopy.org.uk/omero/ticket/366
+    // http://trac.openmicroscopy.org.uk/ome/ticket/366
     // =========================================================================
     /** tests both transient and managed entities */
     public void test_ProjectIsLockedOnAddedDataset() throws Exception {
@@ -592,8 +592,8 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         assertNoChange(r);
 
         // this succeeds because of loosened semantics. see:
-        // https://trac.openmicroscopy.org.uk/omero/changeset/944
-        // https://trac.openmicroscopy.org.uk/omero/ticket/337
+        // http://trac.openmicroscopy.org.uk/ome/changeset/944
+        // http://trac.openmicroscopy.org.uk/ome/ticket/337
         reacquire(r);
         prj.getDetails().setOwner(other);
         assertSucceeds(r);

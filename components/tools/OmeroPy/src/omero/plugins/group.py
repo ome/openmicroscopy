@@ -33,7 +33,7 @@ annotation is permitted by group members.
 
 More information is available at:
 
-    https://www.openmicroscopy.org/site/support/omero4/server/permissions
+    http://www.openmicroscopy.org/site/support/omero4/server/permissions
         """
         sub = parser.sub()
         add = parser.add(sub, self.add, "Add a new group with given permissions. " + PERM_TXT)

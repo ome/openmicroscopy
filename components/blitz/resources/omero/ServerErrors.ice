@@ -16,8 +16,8 @@
  * are available defined in each language binding separately, but will usually
  * subclass from "ClientError" For more information, see:
  *
- *   <a href="http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling">
- *      http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *   <a href="http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling">
+ *      http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling
  *   </a>
  *
  * including examples of what a appropriate try/catch block would look like.

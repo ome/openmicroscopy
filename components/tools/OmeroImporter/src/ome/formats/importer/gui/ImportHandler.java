@@ -239,7 +239,7 @@ public class ImportHandler implements IObservable
                                 + "] Lossless JPEG not supported.");
                         /*
                          * See " +
-                         * "http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for "
+                         * "http://trac.openmicroscopy.org.uk/ome/wiki/LosslessJPEG for "
                          * + "details on this error.");
                          */
                         JOptionPane.showMessageDialog(viewer,
@@ -252,7 +252,7 @@ public class ImportHandler implements IObservable
                          * +
                          * "\nthat will support this format. For details on this error, check:"
                          * +
-                         * "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG"
+                         * "\nhttp://trac.openmicroscopy.org.uk/ome/wiki/LosslessJPEG"
                          * );
                          */
                     } 

@@ -129,7 +129,7 @@ class TestScripts(lib.ITest):
         
     def testRunScript(self):
         # Trying to run script as described:
-        #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
+        #http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         client = self.root

@@ -153,7 +153,7 @@ module omero {
     };
 
     /**
-     * General namespaces for <a href="http://trac.openmicroscopy.org.uk/omero/wiki/StructuredAnnotations">StructuredAnnotations</a>
+     * General namespaces for <a href="http://trac.openmicroscopy.org.uk/ome/wiki/StructuredAnnotations">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
