@@ -78,8 +78,7 @@ public final class ContainerConfigInit
 	void execute() 
 		throws StartupException
 	{
-		String file = container.getHomeDir() + File.separator +
-				container.getConfigFileRelative();
+		String file = container.getConfigFileRelative();
 		Registry reg = container.getRegistry();
 		try {
 			RegistryFactory.fillFromFile(file, reg);
