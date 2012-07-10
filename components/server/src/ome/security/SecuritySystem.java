@@ -210,9 +210,9 @@ public interface SecuritySystem {
      * corruption could occur.
      *
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1434>1434</a>
+     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1434>1434</a>
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>1769</a>
+     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
      */
     boolean isGraphCritical();
 

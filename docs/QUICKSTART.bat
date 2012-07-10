@@ -5,7 +5,7 @@ REM up and running quickly. You will need to have
 REM passwordless login for the "omero" DB user configured
 REM in postgres.
 REM
-REM For more information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroContributing
+REM For more information, see http://trac.openmicroscopy.org.uk/ome/wiki/OmeroContributing
 
 echo.
 echo -----------------------------------------------------

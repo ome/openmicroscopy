@@ -40,7 +40,7 @@ import omero.model.PermissionsI;
  *
  * @see ticket:2874
  * @see 4.4.0
- * @see https://www.openmicroscopy.org/site/community/minutes/minigroup/2012.03.12-groupperms
+ * @see http://www.openmicroscopy.org/site/community/minutes/minigroup/2012.03.12-groupperms
  */
 @Test(groups = { "integration", "chmod" })
 public class ChmodITest extends AbstractGraphTest {

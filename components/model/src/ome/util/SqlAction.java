@@ -48,8 +48,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.2.1
- * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/73">#73</a>
- * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/2684">#2684</a>
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/73">#73</a>
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/2684">#2684</a>
  */
 public interface SqlAction {
 
