@@ -2,30 +2,53 @@
 
 import os
 import platform
-WINDOWS = platform.system() == "Windows"
-###########################################################################
-# CONFIGURATION
-###########################################################################
+import subprocess
+
 
 def DEFINE(key, value):
     m = globals()
     m[key] = os.environ.get(key, value)
+    print key, "=>", m[key]
+
+
+###########################################################################
+# DETECTION
+###########################################################################
+WINDOWS = platform.system() == "Windows"
+p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
+h = p.communicate()[0].strip()
+DEFINE("HOSTNAME", h)
+
+
+###########################################################################
+# CONFIGURATION
+###########################################################################
 
 # Most likely to be changed
-if WINDOWS:
+DEFINE("NAME", HOSTNAME)
+if HOSTNAME == "gretzky":
+    DEFINE("ADDRESS", "gretzky.openmicroscopy.org.uk")
+elif HOSTNAME == "howe":
+    DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
+elif HOSTNAME == "ome-dev-svr":
     DEFINE("NAME", "win-2k8")
     DEFINE("ADDRESS", "bp.openmicroscopy.org.uk")
-    DEFINE("MEM", "Xmx1024M")
+else:
+    DEFINE("ADDRESS", HOSTNAME)
+    # Don't send emails if we're not on a known host.
+    DEFINE("SKIPEMAIL", "true")
+if "SKIPEMAIL" not in globals():
+    DEFINE("SKIPEMAIL", "false")
+
+if WINDOWS:
     DEFINE("UNZIP", "C:\\Program Files (x86)\\7-Zip\\7z.exe")
     DEFINE("UNZIPARGS", "x")
 else:
-    DEFINE("NAME", "gretzky")
-    DEFINE("ADDRESS", "gretzky.openmicroscopy.org.uk")
-    DEFINE("MEM", "Xmx1024M")
     DEFINE("UNZIP", "unzip")
     DEFINE("UNZIPARGS", "")
 
 # new_server.py
+DEFINE("MEM", "Xmx1024M")
 DEFINE("SYM", "OMERO-CURRENT")
 DEFINE("CFG", os.path.join(os.path.expanduser("~"), "config.xml"))
 DEFINE("WEB", """'[["localhost", 4064, "%s"], ["gretzky.openmicroscopy.org.uk", 4064, "gretzky"], ["howe.openmicroscopy.org.uk", 4064, "howe"]]'""" % NAME)
@@ -41,12 +64,10 @@ DEFINE("SMTP_SERVER", "smtp.dundee.ac.uk")
 DEFINE("WEBURL", "http://%s/omero/webclient/" % ADDRESS)
 
 DEFINE("SKIPWEB", "false")
-DEFINE("SKIPEMAIL", "false")
 DEFINE("SKIPUNZIP", "false")
 ###########################################################################
 
 import fileinput
-import subprocess
 import smtplib
 import sys
 import urllib
@@ -349,23 +370,9 @@ class WindowsUpgrade(Upgrade):
         """
         self.call(["iisreset"])
 
-def check_host_name():
-    p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
-    hostname = p.communicate()[0].strip()
-    if NAME == "gretzky": # If we haven't been modified
-        if hostname == "howe":
-            print "Detected hostname == 'howe'"
-            DEFINE("NAME", "howe")
-            DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
-        else:
-            print "Setting hostname to '%s'" % hostname
-            DEFINE("NAME", hostname)
-            DEFINE("ADDRESS", "localhost")
-
 
 if __name__ == "__main__":
 
-    check_host_name()
     artifacts = Artifacts()
 
     if len(sys.argv) != 2:
