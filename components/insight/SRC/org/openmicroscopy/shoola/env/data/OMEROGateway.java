@@ -5056,7 +5056,7 @@ class OMEROGateway
 				//}
 				//}
 			}
-			service.close();
+			closeService(ctx, service);
 			return results;
 		} catch (Throwable e) {
 			try {
@@ -5110,6 +5110,7 @@ class OMEROGateway
 			Object size = handleSearchResult(
 					convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) rType = new ArrayList();
+			closeService(ctx, service);
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
