@@ -1054,50 +1054,57 @@ class OmeroMetadataServiceImpl
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
+		Iterator<DataObject> j = data.iterator();
+		DataObject object;
 		OmeroDataService service = context.getDataService();
 		
-		DataObject object;
+		
 		List<AnnotationData> annotations = prepareAnnotationToAdd(ctx, toAdd);
 		Iterator i;
-		Iterator<DataObject> j = data.iterator();
+		
+		j = data.iterator();
 		//First create the new annotations 
 		AnnotationData ann;
 		List<DataObject> updated = new ArrayList<DataObject>();
+		List<Long> ids = new ArrayList<Long>();
 		while (j.hasNext()) {
 			object = j.next();
-			if (object instanceof AnnotationData) {
-				updateAnnotationData(ctx, object);
-			} else {
-				if (object.isLoaded() && object.isDirty())
-					updated.add(service.updateDataObject(ctx, object));
-				else updated.add(object);
-			}
-			if (annotations.size() > 0) {
-				i = annotations.iterator();
-				while (i.hasNext()) {
-					ann = (AnnotationData) i.next();
-					if (ann != null)
-						linkAnnotation(ctx, object, ann);
+			if (!ids.contains(object.getId())) {
+				ids.add(object.getId());
+				if (object instanceof AnnotationData) {
+					updateAnnotationData(ctx, object);
+				} else {
+					if (object.isLoaded() && object.isDirty())
+						updated.add(service.updateDataObject(ctx, object));
+					else updated.add(object);
 				}
-			}
-			if (toRemove != null) {
-				Iterator<Object> k = toRemove.iterator();
-				List<IObject> toDelete = new ArrayList<IObject>();
-				Object o;
-				while (k.hasNext()) {
-					o = k.next();
-					if (o != null) {
-						removeAnnotation(ctx, o, object);
-						if (o instanceof TextualAnnotationData) {
-							ann = (AnnotationData) o;
-							if (!isAnnotationShared(ctx, ann, object)) {
-								toDelete.add(ann.asIObject());
+				if (annotations.size() > 0) {
+					i = annotations.iterator();
+					while (i.hasNext()) {
+						ann = (AnnotationData) i.next();
+						if (ann != null)
+							linkAnnotation(ctx, object, ann);
+					}
+				}
+				if (toRemove != null) {
+					Iterator<Object> k = toRemove.iterator();
+					List<IObject> toDelete = new ArrayList<IObject>();
+					Object o;
+					while (k.hasNext()) {
+						o = k.next();
+						if (o != null) {
+							removeAnnotation(ctx, o, object);
+							if (o instanceof TextualAnnotationData) {
+								ann = (AnnotationData) o;
+								if (!isAnnotationShared(ctx, ann, object)) {
+									toDelete.add(ann.asIObject());
+								}
 							}
 						}
 					}
-				}
-				if (toDelete.size() > 0) {
-					gateway.deleteObjects(ctx, toDelete);
+					if (toDelete.size() > 0) {
+						gateway.deleteObjects(ctx, toDelete);
+					}
 				}
 			}
 		}
