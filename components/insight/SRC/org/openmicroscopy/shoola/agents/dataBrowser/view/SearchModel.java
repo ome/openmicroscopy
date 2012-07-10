@@ -94,6 +94,7 @@ class SearchModel
 		while (i.hasNext()) {
 			e = i.next();
 			ctx = e.getKey();
+			this.ctx = ctx;
 			objects = e.getValue();
 			numberOfImages += objects.size();
 			if (singleGroup) {
@@ -189,7 +190,7 @@ class SearchModel
 	protected int getType() { return DataBrowserModel.SEARCH; }
 	
 	/**
-	 * No-op implementation in our case.
+	 * No-operation implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
 	protected List<ImageDisplay> getNodes() { return null; }
