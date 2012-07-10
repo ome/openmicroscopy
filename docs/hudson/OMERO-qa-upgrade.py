@@ -34,7 +34,7 @@ hostname = p.communicate()[0].strip()
 # If this is the default linux situation, then we want
 # to also handle howe. Other servers will need to be
 # handled better later.
-if NAME == "gretzky":
+if NAME == "gretzky" and NAME != hostname:
     if hostname == "howe":
         print "Detected hostname == 'howe'"
         DEFINE("NAME", "howe")
