@@ -4932,6 +4932,8 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		SearchPrx service = getSearchService(ctx);
 		try {
+			if (service == null) service = getSearchService(ctx);
+			service.clearQueries();
 			service.setAllowLeadingWildcard(true);
 			service.setCaseSentivice(context.isCaseSensitive());
 			Timestamp start = context.getStart();
@@ -5056,14 +5058,9 @@ class OMEROGateway
 				//}
 				//}
 			}
-			service.close();
+			closeService(ctx, service);
 			return results;
 		} catch (Throwable e) {
-			try {
-				service.close();
-			} catch (Exception ex) {
-				//digest the exception
-			}
 			handleException(e, "Cannot perform the search.");
 		}
 		return null;
@@ -5110,6 +5107,7 @@ class OMEROGateway
 			Object size = handleSearchResult(
 					convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) rType = new ArrayList();
+			closeService(ctx, service);
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
@@ -6924,6 +6922,7 @@ class OMEROGateway
 			
 			try {
 				store = getExporterService(ctx);
+				if (store == null) store = getExporterService(ctx);
 				store.addImage(imageID);
 				try {
 					long size = 0;
@@ -6949,7 +6948,7 @@ class OMEROGateway
 				}
 			} finally {
 				try {
-					if (store != null) store.close();
+					if (store != null) closeService(ctx, store);
 				} catch (Exception e) {}
 				if (exception != null) throw exception;
 				return f;

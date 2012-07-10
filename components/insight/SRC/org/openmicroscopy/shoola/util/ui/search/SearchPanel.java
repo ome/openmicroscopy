@@ -67,8 +67,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
-
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -330,9 +328,9 @@ public class SearchPanel
 	private JComboBox createBox()
 	{
 		List<GroupContext> groups = model.getGroups();
-		Object[] values = new Object[groups.size()+1];
-		values[0] = new GroupContext("All your groups", -1);
-		int j = 1;
+		Object[] values = new Object[groups.size()];
+		//values[0] = new GroupContext("All your groups", -1);
+		int j = 0;
 		Iterator<GroupContext> i = groups.iterator();
 		while (i.hasNext()) {
 			values[j] = i.next();
