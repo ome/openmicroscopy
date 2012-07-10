@@ -23,7 +23,7 @@
   <information>
     <title>OMERO.insight</title>
     <vendor>The Open Microscopy Environment</vendor>
-    <homepage href="http://openmicroscopy.org"/>
+    <homepage href="http://www.openmicroscopy.org"/>
     <icon href="{% static 'webstart/img/icon-omero-insight.png' %}"/>
     <shortcut online="false">
       <desktop/>
