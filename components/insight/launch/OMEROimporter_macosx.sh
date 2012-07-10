@@ -25,4 +25,4 @@
 # -Xms or "max" -Xmx memory size. More information about these command line
 # switches may be found by running "java -X"
 
-java -Xms256000000 -Xmx512000000 -jar omero.insight.jar containerImporter.xml
+java -Xms256000000 -Xmx1024000000 -jar omero.insight.jar containerImporter.xml

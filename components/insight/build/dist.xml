@@ -78,7 +78,7 @@
             location="${base.launch.dir}/INSTALL.txt"/> 
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/>
-  <property name="dist.vmparameters" value="-Xms256M -Xmx512M"/>
+  <property name="dist.vmparameters" value="${app.vmparameters}"/>
   <property name="dist.osx.icon" 
             location="${base.launch.dir}/osx/omeroinsight.icns"/>
   <property name="dist.osx.stub" 
@@ -211,7 +211,7 @@
         pathsep=" " 
 	                 dirsep="/" 
 	                 refid="app.libs">
-	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
+	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
 	    </pathconvert>   
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
