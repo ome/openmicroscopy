@@ -20,19 +20,34 @@ class GroupControl(BaseControl):
 
         self.exc = ExceptionHandler()
 
+        PERM_TXT = """Group permissions come in several styles:
+
+    * private (rw----)   [DEFAULT]
+    * read-only (rwr---)
+    * read-annotate (rwra--)   [Previously known as 'collaborative']
+
+In private groups, only group and system administrators will be able
+to view someone else's data. In read-only groups, other group members
+can see data but not annotate or modify it. In read-annotate groups,
+annotation is permitted by group members.
+
+More information is available at:
+
+    https://www.openmicroscopy.org/site/support/omero4/server/permissions
+        """
         sub = parser.sub()
-        add = parser.add(sub, self.add, "Add a new group with given permissions")
+        add = parser.add(sub, self.add, "Add a new group with given permissions. " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("name", help="ExperimenterGroup.name value")
 
-        perms = parser.add(sub, self.perms, "Modify a group's permissions")
+        perms = parser.add(sub, self.perms, "Modify a group's permissions. " + PERM_TXT)
         perms.add_argument("id_or_name", help="ExperimenterGroup's id or name")
 
         for x in (add, perms):
             group = x.add_mutually_exclusive_group()
             group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-            group.add_argument("--type", help="Group permission set symbollically",
-                choices=("private", "read-only", "collaborative"))
+            group.add_argument("--type", help="Group permission set symbollically", default="private",
+                choices=("private", "read-only", "read-annotate", "collaborative"))
 
         list = parser.add(sub, self.list, "List current groups")
         list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
@@ -56,7 +71,9 @@ class GroupControl(BaseControl):
                 perms = "rw----"
             elif args.type == "read-only":
                 perms = "rwr---"
-            elif args.type == "collaborative":
+            elif args.type in ("read-annotate", "collaborative"):
+                perms = "rwra--"
+            elif args.type == "read-write":
                 perms = "rwrw--"
         if not perms:
             perms = "rw----"
