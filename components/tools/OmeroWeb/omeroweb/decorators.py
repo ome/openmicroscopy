@@ -170,23 +170,22 @@ class login_required(object):
             return self.allowPublic
         return False
 
-    def get_public_user_session_key(self):
+    def get_public_user_connector(self):
         """
-        Returns the current cached OMERO.webpublic OMERO session key or None
-        if nothing has been cached.
+        Returns the current cached OMERO.webpublic connector or None if
+        nothing has been cached.
         """
         if not settings.PUBLIC_CACHE_ENABLED:
             return
         return cache.get(settings.PUBLIC_CACHE_KEY)
 
-    def set_public_user_session_key(self, connector):
-        """Sets the current cached OMERO.webpublic OMERO session key."""
-        public_user_session_key = connector.omero_session_key
-        if not settings.PUBLIC_CACHE_ENABLED or public_user_session_key is None:
+    def set_public_user_connector(self, connector):
+        """Sets the current cached OMERO.webpublic connector."""
+        if not settings.PUBLIC_CACHE_ENABLED \
+                or connector.omero_session_key is None:
             return
-        logger.debug('Setting OMERO.webpublic session key: %r' % \
-                public_user_session_key)
-        cache.set(settings.PUBLIC_CACHE_KEY, public_user_session_key)
+        logger.debug('Setting OMERO.webpublic connector: %r' % connector)
+        cache.set(settings.PUBLIC_CACHE_KEY, connector)
 
     def get_connection(self, server_id, request):
         """
@@ -209,16 +208,14 @@ class login_required(object):
             is_secure = request.REQUEST.get('ssl', False)
             logger.debug('Is SSL? %s' % is_secure)
             # Try and use a cached OMERO.webpublic user session key.
-            public_user_session_key = self.get_public_user_session_key()
-            if public_user_session_key is not None:
+            public_user_connector = self.get_public_user_connector()
+            if public_user_connector is not None:
                 logger.debug('Attempting to use cached OMERO.webpublic ' \
-                             'session key: %r' % public_user_session_key)
-                connector = Connector(server_id, is_secure)
-                connector.omero_session_key = public_user_session_key
-                connector.is_public = True
-                connection = connector.join_connection(self.useragent)
+                             'connector: %r' % public_user_connector)
+                connection = public_user_connector.join_connection(
+                        self.useragent)
                 if connection is not None:
-                    request.session['connector'] = connector
+                    request.session['connector'] = public_user_connector
                     logger.debug('Attempt to use cached OMERO.web public ' \
                                  'session key successful!')
                     return connection
@@ -231,7 +228,7 @@ class login_required(object):
             connection = connector.create_connection(
                     self.useragent, username, password, is_public=True)
             request.session['connector'] = connector
-            self.set_public_user_session_key(connector)
+            self.set_public_user_connector(connector)
         elif connection is not None:
             is_anonymous = connection.isAnonymous()
             logger.debug('Is anonymous? %s' % is_anonymous)
