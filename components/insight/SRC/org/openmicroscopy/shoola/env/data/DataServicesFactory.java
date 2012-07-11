@@ -279,15 +279,13 @@ public class DataServicesFactory
     private boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
+    	if (client.startsWith("@")) return true;
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
     		client = client.split("-")[0];
-    	if (client.startsWith("Beta"))
-    		client = client.substring(4);
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
-    	//Integer.parseInt(values[0]);
     	if (values.length < 2 || valuesClient.length < 2) return false;
     	int s1 = Integer.parseInt(values[0]);
     	int s2 = Integer.parseInt(values[1]);
@@ -515,14 +513,12 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        /* TODO: review version handling.
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
         	return;
         }
-        */
         
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();

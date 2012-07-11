@@ -2351,6 +2351,7 @@ class OMEROGateway
 			connector = new Connector(ctx, secureClient, entryEncrypted,
 					encrypted);
 			connectors.add(connector);
+			serverVersion = getConfigService().getVersion();
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
