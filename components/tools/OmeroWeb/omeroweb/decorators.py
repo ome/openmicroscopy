@@ -48,7 +48,7 @@ class ConnCleaningHttpResponse(HttpResponse):
         try:
             logger.debug('Closing OMERO connection in %r' % self)
             if self.conn is not None and self.conn.c is not None:
-                for v in self.conn.c._proxies.values():
+                for v in self.conn._proxies.values():
                     v.close()
                 self.conn.c.closeSession()
         except:
@@ -381,7 +381,7 @@ class login_required(object):
                         doConnectionCleanup)
                 if doConnectionCleanup:
                     if conn is not None and conn.c is not None:
-                        for v in conn.c._proxies.values():
+                        for v in conn._proxies.values():
                             v.close()
                         conn.c.closeSession()
             except:
