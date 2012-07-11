@@ -1897,8 +1897,7 @@ public class ImportDialog
 	 */
 	private boolean isFileImportable(File f)
 	{
-		if (f == null || f.isHidden()) return false;
-		return true;
+		return !(f == null || f.isHidden());
 	}
 
 	/**
