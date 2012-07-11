@@ -173,10 +173,14 @@ class login_required(object):
         Returns the current cached OMERO.webpublic OMERO session key or None
         if nothing has been cached.
         """
+        if not settings.PUBLIC_CACHE_ENABLED:
+            return
         return cache.get(settings.PUBLIC_CACHE_KEY)
 
     def set_public_user_session_key(self, connector):
         """Sets the current cached OMERO.webpublic OMERO session key."""
+        if not settings.PUBLIC_CACHE_ENABLED:
+            return
         public_user_session_key = connector.omero_session_key
         logger.debug('Setting OMERO.webpublic session key: %r' % \
                 public_user_session_key)
