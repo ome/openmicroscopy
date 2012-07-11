@@ -63,6 +63,9 @@ public class DataLoader
 	/** Flag indicating to refresh the on-going import.*/
 	private boolean refreshImport;
 	
+	/** Flag indicating that the group has been modified.*/
+	private boolean changeGroup;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -71,9 +74,11 @@ public class DataLoader
      * @param ctx The security context.
 	 * @param rootType Either Project or Screen.
 	 * @param refreshImport Flag indicating to refresh the on-going import.
+	 * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
 	 */
 	public DataLoader(Importer viewer, SecurityContext ctx, Class rootType,
-			boolean refreshImport)
+			boolean refreshImport, boolean changeGroup)
 	{
 		super(viewer, ctx);
 		if (!(ProjectData.class.equals(rootType) || 
@@ -81,6 +86,7 @@ public class DataLoader
 			throw new IllegalArgumentException("Type not supported.");
 		this.rootType = rootType;
 		this.refreshImport = refreshImport;
+		this.changeGroup = changeGroup;
 	}
 	
 	/** 
@@ -110,7 +116,8 @@ public class DataLoader
     	int type = Importer.PROJECT_TYPE;
     	if (ScreenData.class.equals(rootType))
     		type = Importer.SCREEN_TYPE;
-    	viewer.setContainers((Collection) result, refreshImport, type);
+    	viewer.setContainers((Collection) result, refreshImport, changeGroup,
+    			type);
     }
     
 }
