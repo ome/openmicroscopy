@@ -2298,21 +2298,50 @@ class OMEROGateway
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
-	ExperimenterData login(String userName, String password, String hostName,
-		float compression, long groupID, boolean encrypted, String agentName)
-		throws DSOutOfServiceException
+	client createSession(String userName, String password, String hostName,
+		boolean encrypted, String agentName)
+	throws DSOutOfServiceException
 	{
+		this.encrypted = encrypted;
+		client secureClient = null;
 		try {
-			//login in the default group
-			this.encrypted = encrypted;
-			client secureClient;
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
 			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			serverVersion = getConfigService().getVersion();
-			
-			//now we register the new security context
+		} catch (Throwable e) {
+			connected = false;
+			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
+			s += printErrorText(e);
+			throw new DSOutOfServiceException(s, e);
+		}
+		return secureClient;
+	}
+	
+	/**
+	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
+	 * credentials. The <code>createSession</code> method must be invoked before.
+	 * 
+	 * @param userName The user name to be used for login.
+	 * @param secureClient Reference to the client
+	 * @param hostName The name of the server.
+	 * @param compression The compression level used for images and 
+	 * 					  thumbnails depending on the connection speed.
+	 * @param groupID The id of the group or <code>-1</code>.
+	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
+     * 					<code>false</code> otherwise.
+     * @param agentName The name to register with the server.
+	 * @return The user's details.
+	 * @throws DSOutOfServiceException If the connection can't be established
+	 *                                  or the credentials are invalid.
+	 * @see #createSession(String, String, String, long, boolean, String)
+	 */
+	ExperimenterData login(client secureClient, String userName, String hostName,
+		float compression, long groupID)
+		throws DSOutOfServiceException
+	{
+		try {
 			connected = true;
 			IAdminPrx prx = entryEncrypted.getAdminService();
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
@@ -2354,7 +2383,7 @@ class OMEROGateway
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
-			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
+			String s = "Cannot log in. User credentials not valid.\n\n";
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e);  
 		} 
