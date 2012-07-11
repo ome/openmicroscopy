@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -766,8 +767,10 @@ class ImporterUI
     {
     	Collection set = ImporterAgent.getAvailableUserGroups();
         if (set == null || set.size() <= 1) return null;
-        JComboBoxImageObject[] objects = new JComboBoxImageObject[set.size()];
-        Iterator i = set.iterator();
+        ViewerSorter sorter = new ViewerSorter();
+        List sorted = sorter.sort(set);
+        JComboBoxImageObject[] objects = new JComboBoxImageObject[sorted.size()];
+        Iterator i = sorted.iterator();
         int index = 0;
         GroupData g;
         long gid = model.getGroupId();

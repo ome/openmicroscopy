@@ -7864,7 +7864,6 @@ class OMEROGateway
 		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		CmdCallbackI cb = null;
 		//shutDownServices(false);
 		try {
 	         Connector c = getConnector(ctx);
