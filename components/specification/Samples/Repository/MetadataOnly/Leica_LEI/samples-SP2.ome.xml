@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2011-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2011-06 http://www.openmicroscopy.org/Schemas/OME/2011-06/ome.xsd">
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 https://raw.github.com/openmicroscopy/openmicroscopy/schema-2012-06/components/specification/InProgress/ome.xsd">
     <Instrument ID="Instrument:0">
         <Detector ID="Detector:0:0" Offset="-34.599999999999994" Type="PMT" Voltage="742.0867526377491"/>
         <Detector ID="Detector:0:1" Offset="0.0" Type="PMT" Voltage="391.2661195779601"/>
@@ -46,7 +46,7 @@
         </Filter>
     </Instrument>
     <Image ID="Image:0" Name="XYZ-Ch">
-        <AcquiredDate>2007-10-26T11:18:12</AcquiredDate>
+        <AcquisitionDate>2007-10-26T11:18:12</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:0"/>
         <ObjectiveSettings ID="Objective:0:0"/>
@@ -166,7 +166,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:1" Name="XY-Ch-trans">
-        <AcquiredDate>2009-04-03T10:31:18</AcquiredDate>
+        <AcquisitionDate>2009-04-03T10:31:18</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:1"/>
         <ObjectiveSettings ID="Objective:1:0"/>
@@ -195,7 +195,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:2" Name="XZY-Ch-trans">
-        <AcquiredDate>2009-02-05T12:15:30</AcquiredDate>
+        <AcquisitionDate>2009-02-05T12:15:30</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:2"/>
         <ObjectiveSettings ID="Objective:2:0"/>
@@ -224,7 +224,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:3" Name="XY-lambda">
-        <AcquiredDate>2008-04-17T11:52:51</AcquiredDate>
+        <AcquisitionDate>2008-04-17T11:52:51</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:3"/>
         <ObjectiveSettings ID="Objective:3:0"/>

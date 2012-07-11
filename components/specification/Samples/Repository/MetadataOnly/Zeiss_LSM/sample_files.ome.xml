@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2011-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2011-06 http://www.openmicroscopy.org/Schemas/OME/2011-06/ome.xsd">
-    <Experimenter DisplayName="christian" ID="Experimenter:0" UserName="christian"/>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 https://raw.github.com/openmicroscopy/openmicroscopy/schema-2012-06/components/specification/InProgress/ome.xsd">
+    <Experimenter ID="Experimenter:0" UserName="christian"/>
     <Instrument ID="Instrument:0">
         <LightSource ID="LightSource:0:0" Model="Argon/2">
             <Laser LaserMedium="Ar" Type="Gas" Wavelength="488"/>
@@ -204,7 +204,7 @@
         <Dichroic ID="Dichroic:7:3" Model="Plate"/>
     </Instrument>
     <Image ID="Image:0" Name="XY-ch-02">
-        <AcquiredDate>2009-03-02T18:29:38</AcquiredDate>
+        <AcquisitionDate>2009-03-02T18:29:38</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:0"/>
         <ObjectiveSettings ID="Objective:0:0"/>
@@ -225,7 +225,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:1" Name="XY-ch-03">
-        <AcquiredDate>2009-05-13T22:54:14</AcquiredDate>
+        <AcquisitionDate>2009-05-13T22:54:14</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:1"/>
         <ObjectiveSettings ID="Objective:1:0"/>
@@ -260,7 +260,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:2" Name="XY-ch">
-        <AcquiredDate>2009-05-16T02:03:49</AcquiredDate>
+        <AcquisitionDate>2009-05-16T02:03:49</AcquisitionDate>
         <Description>G449 1/200 (batch 9.07.08), Cytokeratin 1/200,  AlexaFluor 594 1/500, AlexaFluor 488 1/800</Description>
         <InstrumentRef ID="Instrument:2"/>
         <ObjectiveSettings ID="Objective:2:0"/>
@@ -295,7 +295,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:3" Name="XYT">
-        <AcquiredDate>2008-03-06T22:40:10</AcquiredDate>
+        <AcquisitionDate>2008-03-06T22:40:10</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:3"/>
         <ObjectiveSettings ID="Objective:3:0"/>
@@ -519,7 +519,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:4" Name="XYZ-ch-20x">
-        <AcquiredDate>2009-02-18T17:03:29</AcquiredDate>
+        <AcquisitionDate>2009-02-18T17:03:29</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:4"/>
         <ObjectiveSettings ID="Objective:4:0"/>
@@ -549,7 +549,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:5" Name="XYZ-ch-zoom">
-        <AcquiredDate>2009-02-18T17:27:04</AcquiredDate>
+        <AcquisitionDate>2009-02-18T17:27:04</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:5"/>
         <ObjectiveSettings ID="Objective:5:0"/>
@@ -634,7 +634,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:6" Name="XYZ-ch">
-        <AcquiredDate>2009-05-16T02:15:58</AcquiredDate>
+        <AcquisitionDate>2009-05-16T02:15:58</AcquisitionDate>
         <Description>G449 1/200 (batch 9.07.08), Cytokeratin 1/200,  AlexaFluor 594 1/500, AlexaFluor 488 1/800</Description>
         <InstrumentRef ID="Instrument:6"/>
         <ObjectiveSettings ID="Objective:6:0"/>
@@ -777,7 +777,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:7" Name="XYZ-ch0">
-        <AcquiredDate>2008-03-27T21:07:04</AcquiredDate>
+        <AcquisitionDate>2008-03-27T21:07:04</AcquisitionDate>
         <Description/>
         <InstrumentRef ID="Instrument:7"/>
         <ObjectiveSettings ID="Objective:7:0"/>
