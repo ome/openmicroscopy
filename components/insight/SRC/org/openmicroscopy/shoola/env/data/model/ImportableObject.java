@@ -41,6 +41,7 @@ import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -571,13 +572,14 @@ public class ImportableObject
 	}
 	
 	/**
-	 * Returns the object if it has already been created, 
-	 * <code>null</code> otherwise.
+	 * Returns the object if it has already been created in the specified
+	 * context, <code>null</code> otherwise.
 	 * 
 	 * @param object The object to check.
 	 * @return See above.
 	 */
-	public DataObject hasObjectBeenCreated(DataObject object)
+	public DataObject hasObjectBeenCreated(DataObject object, 
+			SecurityContext ctx)
 	{
 		if (object == null) return null;
 		Iterator<DataObject> i = newObjects.iterator();
@@ -588,6 +590,7 @@ public class ImportableObject
 			data = i.next();
 			n = getObjectName(data);
 			if (data.getClass().equals(object.getClass()) && n.equals(name)) {
+				if (data.getGroupId() == ctx.getGroupID())
 				return data;
 			}
 		}
