@@ -2310,7 +2310,7 @@ class OMEROGateway
 			else secureClient = new client(hostName);
 			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
-			
+			serverVersion = getConfigService().getVersion();
 			
 			//now we register the new security context
 			connected = true;
@@ -2330,7 +2330,7 @@ class OMEROGateway
 				connector = new Connector(ctx, secureClient, entryEncrypted,
 						encrypted);
 				connectors.add(connector);
-				serverVersion = getConfigService().getVersion();
+				
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(ctx, exp, groupID);
@@ -2351,7 +2351,6 @@ class OMEROGateway
 			connector = new Connector(ctx, secureClient, entryEncrypted,
 					encrypted);
 			connectors.add(connector);
-			serverVersion = getConfigService().getVersion();
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
