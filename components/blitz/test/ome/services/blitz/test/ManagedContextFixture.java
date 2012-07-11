@@ -157,7 +157,8 @@ public class ManagedContextFixture {
         current.adapter = adapter;
         current.ctx = new HashMap<String, String>();
         current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
-        ServiceFactoryI factory = new ServiceFactoryI(current, null, ctx, mgr, ex,
+        ServiceFactoryI factory = new ServiceFactoryI(current,
+                new omero.util.ServantHolder(getPrincipal().getName()), null, ctx, mgr, ex,
                 getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);
         return factory;
     }
