@@ -109,10 +109,11 @@ class WebControl(BaseControl):
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
         selenium.add_argument("browser", help = "E.g. firefox")
 
-        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'coverage -x manage.py test'")
+        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'python -x manage.py test'")
         unittest.add_argument("--config", action="store", help = "ice.config location")
         unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
+        unittest.add_argument("--texec", action="store", help = "Alternative executable.")
 
 
     def config(self, args):
@@ -313,7 +314,10 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         if testpath is not None and len(testpath) > 1:
             cargs = [testpath]
         else:
-            cargs = [sys.executable]
+            if args.texec:
+                cargs = args.texec.split(' ')
+            else:
+                cargs = [sys.executable]
         
         cargs.extend([ "manage.py", "test"])
         if test:
