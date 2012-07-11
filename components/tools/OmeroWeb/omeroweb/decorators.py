@@ -185,8 +185,8 @@ class login_required(object):
                 or connector.omero_session_key is None:
             return
         logger.debug('Setting OMERO.webpublic connector: %r' % connector)
-        timeout = 60 * 60 * 24  # One day in seconds
-        cache.set(settings.PUBLIC_CACHE_KEY, connector, timeout)
+        cache.set(settings.PUBLIC_CACHE_KEY, connector,
+                  settings.PUBLIC_CACHE_TIMEOUT)
 
     def get_connection(self, server_id, request):
         """

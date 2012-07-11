@@ -213,6 +213,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
     "omero.web.public.cache.enabled": ["PUBLIC_CACHE_ENABLED", "false", parse_boolean],
     "omero.web.public.cache.key": ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str],
+    "omero.web.public.cache.timeout": ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int],
     "omero.web.databases": ["DATABASES", '{}', json.loads],
     "omero.web.admins": ["ADMINS", '[]', json.loads],
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
