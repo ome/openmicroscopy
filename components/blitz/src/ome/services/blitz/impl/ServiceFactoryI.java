@@ -121,6 +121,7 @@ import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
 import omero.model.IObject;
 import omero.util.IceMapper;
+import omero.util.ServantHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -163,22 +164,25 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     // =========================================================================
 
     public ServiceFactoryI(Ice.Current current,
+            ServantHolder holder,
             Glacier2.SessionControlPrx control, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors,
             TopicManager topicManager, Registry registry)
             throws ApiUsageException {
-        this(false, current, control, context, manager, executor, p,
+        this(false, current, holder, control, context, manager, executor, p,
                 interceptors, topicManager, registry);
     }
 
-    public ServiceFactoryI(boolean reusedSession, Ice.Current current,
+    public ServiceFactoryI(boolean reusedSession,
+            Ice.Current current,
+            ServantHolder holder,
             Glacier2.SessionControlPrx control, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors,
             TopicManager topicManager, Registry registry)
             throws ApiUsageException {
-        super(reusedSession, current, control, context, manager, executor, p);
+        super(reusedSession, current, holder, control, context, manager, executor, p);
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
                 this.context), this.principal, this.reusedSession);
@@ -444,7 +448,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
 
         // First try to get the blankname as is in case a value from
         // activeServices is being passed back in.
-        Ice.Identity immediateId = getIdentity(blankname);
+        Ice.Identity immediateId = holder.getIdentity(blankname);
         if (holder.get(immediateId) != null) {
             return ServiceInterfacePrxHelper.uncheckedCast(adapter
                     .createDirectProxy(immediateId));
@@ -454,7 +458,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         // for each stateless service, we need to attach modify the id.
         // idName is just the value id.name not Ice.Util.identityToString(id)
         String idName = clientId + blankname;
-        Ice.Identity id = getIdentity(idName);
+        Ice.Identity id = holder.getIdentity(idName);
 
         holder.acquireLock(idName);
         try {
@@ -478,7 +482,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     public StatefulServiceInterfacePrx createByName(String name, Current current)
             throws ServerError {
 
-        Ice.Identity id = getIdentity(Ice.Util.generateUUID() + name);
+        Ice.Identity id = holder.getIdentity(Ice.Util.generateUUID() + name);
         if (null != adapter.find(id)) {
             omero.InternalException ie = new omero.InternalException();
             ie.message = name + " already registered for this adapter.";
@@ -544,22 +548,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
      * pushed down.
      */
     public String getStatefulServiceCount() {
-        String list = "";
-        final List<String> servants = holder.getServantList();
-        for (final String idName : servants) {
-            final Ice.Identity id = getIdentity(idName);
-            final Object servant = holder.getUntied(id);
-            if (servant != null) {
-                try {
-                    if (servant instanceof _StatefulServiceInterfaceOperations) {
-                        list += "\n" + idName;
-                    }
-                } catch (Exception e) {
-                    // oh well
-                }
-            }
-        }
-        return list;
+        return holder.getStatefulServiceCount();
     }
 
     public List<String> activeServices(Current __current) {
