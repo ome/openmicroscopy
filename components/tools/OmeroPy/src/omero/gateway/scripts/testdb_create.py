@@ -138,6 +138,9 @@ class GTest(unittest.TestCase):
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
 
+    def getTinyTestImage3 (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'tinyimg3', dataset)
+
     def getBigTestImage (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
 
