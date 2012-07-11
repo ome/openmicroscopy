@@ -59,7 +59,7 @@ public class LookupNames
 	 * Field indicating the value associated to the
 	 * <code>Tree Viewer</code> as an entry point.
 	 */
-	public static final int TREE_VIEWER_ENTRY = 0;
+	public static final int INSIGHT_ENTRY = 0;
 	
 	/** 
 	 * Field indicating the value associated to the
