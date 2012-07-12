@@ -424,7 +424,7 @@ class OmeroImageServiceImpl
 					if (container.getId() <= 0) { 
 						//project needs to be created to.
 						createdData = object.hasObjectBeenCreated(
-								container);
+								container, ctx);
 						if (createdData == null) {
 							project = gateway.saveAndReturnObject(ctx,
 									container.asIObject(), parameters);
@@ -492,7 +492,7 @@ class OmeroImageServiceImpl
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
-					createdData = object.hasObjectBeenCreated(dataset);
+					createdData = object.hasObjectBeenCreated(dataset, ctx);
 					if (createdData == null) {
 						ioContainer = gateway.saveAndReturnObject(ctx,
 								dataset.asIObject(), parameters);
@@ -507,7 +507,7 @@ class OmeroImageServiceImpl
 				if (container.getId() <= 0) { 
 					//container needs to be created to.
 					createdData = object.hasObjectBeenCreated(
-							container);
+							container, ctx);
 					if (createdData == null) {
 						ioContainer = gateway.saveAndReturnObject(ctx,
 								container.asIObject(), parameters);
@@ -1028,7 +1028,7 @@ class OmeroImageServiceImpl
 	 * ImportableFile, long, long, boolean)
 	 */
 	public Object importFile(ImportableObject object,
-		ImportableFile importable, long userID, long groupID, boolean close) 
+		ImportableFile importable, long userID, boolean close) 
 		throws ImportException
 	{
 		if (importable == null || importable.getFile() == null)
@@ -1173,7 +1173,7 @@ class OmeroImageServiceImpl
 					if (container.getId() <= 0) {
 						//project needs to be created to.
 						createdData = object.hasObjectBeenCreated(
-								container);
+								container, ctx);
 						if (createdData == null) {
 							try {
 								ioContainer = gateway.saveAndReturnObject(ctx,
@@ -1303,7 +1303,7 @@ class OmeroImageServiceImpl
 				if (container.getId() <= 0) {
 					//project needs to be created to.
 					createdData = object.hasObjectBeenCreated(
-							container);
+							container, ctx);
 					if (createdData == null) {
 						try {
 							ioContainer = gateway.saveAndReturnObject(ctx,
@@ -1338,7 +1338,7 @@ class OmeroImageServiceImpl
 								if (container.getId() <= 0) { 
 									//project needs to be created to.
 									createdData = object.hasObjectBeenCreated(
-											container);
+											container, ctx);
 									if (createdData == null) {
 										project = gateway.saveAndReturnObject(
 												ctx, container.asIObject(),
