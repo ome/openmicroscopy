@@ -32,8 +32,8 @@ TEST(SessionsTest, RootCanCreateSessionForUser )
   p->eventType = "Test";
   omero::model::SessionPtr session = sess->createSessionWithTimeout(p, 10000L);
 
-  omero::client user(root->getPropertyMap());
-  user.joinSession(session->getUuid()->getValue());
+  omero::client_ptr user = new omero::client(root->getPropertyMap());
+  user->joinSession(session->getUuid()->getValue());
   omero::api::ServiceFactoryPrx sf2 = root->getSession();
   sf2->closeOnDestroy();
   sf2->getQueryService()->get("Experimenter",0L);
