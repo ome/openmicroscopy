@@ -50,9 +50,9 @@ namespace omero {
      * OmeroJavas and OmeroPy's omero.client classes.
      *
      * Typical usage:
-     *   omero::client client               // Uses ICE_CONFIG
-     *   omero::client client(host);        // Defines "omero.host"
-     *   omero::client client(host, port);  // Defines "omero.host" and "omero.port"
+     *   omero::client_ptr client = new omero::client();               // Uses ICE_CONFIG
+     *   omero::client_ptr client = new omero::client(host);        // Defines "omero.host"
+     *   omero::client_ptr client = new omero::client(host, port);  // Defines "omero.host" and "omero.port"
      *
      *   omero::client::~client() called on scope exit.
      *

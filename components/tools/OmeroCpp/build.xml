@@ -63,7 +63,9 @@
                 </gtest_run>
             </then>
             <else>
-                <gtest_run file="unit.exe"/>
+                <gtest_run file="unit.exe">
+                    <arg value="--gtest_color=auto"/>
+                </gtest_run>
             </else>
         </if>
     </target>
@@ -77,7 +79,9 @@
                 </gtest_run>
             </then>
             <else>
-                <gtest_run file="integration.exe"/>
+                <gtest_run file="integration.exe">
+                    <arg value="--gtest_color=auto"/>
+                </gtest_run>
             </else>
         </if>
     </target>
