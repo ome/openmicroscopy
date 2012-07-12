@@ -7893,8 +7893,7 @@ class OMEROGateway
 		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		CmdCallbackI cb = null;
-		shutDownServices(false);
+		//shutDownServices(false);
 		try {
 	         Connector c = getConnector(ctx);
 	         return c.submit(Arrays.<Request>asList(commands), ctx);
