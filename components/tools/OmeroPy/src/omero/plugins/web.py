@@ -202,21 +202,6 @@ class WebControl(BaseControl):
 #  CustomLog logs/ssl_request_log \
 #    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
 #
-#  # Rewrite / must be in ssl vhost as well
-#  <IfDefine OmeroWebClientRedirect>
-#    <IfDefine !OmeroWebAdminRedirect>
-#      RewriteEngine on
-#      RewriteRule ^/?$ /omero/webclient/ [R]
-#    </IfDefine>
-#  </IfDefine>
-#
-#  <IfDefine OmeroWebAdminRedirect>
-#    <IfDefine !OmeroWebClientRedirect>
-#      RewriteEngine on
-#      RewriteRule ^/?$ /omero/webadmin/ [R]
-#    </IfDefine>
-#  </IfDefine>
-#
 #</VirtualHost>
 
 RewriteEngine on
