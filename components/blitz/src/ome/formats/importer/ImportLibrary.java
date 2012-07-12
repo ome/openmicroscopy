@@ -417,8 +417,8 @@ public class ImportLibrary implements IObservable
                 boolean doBigImage = false;
                 for (Pixels pixels : pixelsList)
                 {
-                    if ((pixels.getSizeX().getValue()
-                         * pixels.getSizeY().getValue()) > maxPlaneSize)
+                    if (((long) pixels.getSizeX().getValue()
+                         * (long) pixels.getSizeY().getValue()) > maxPlaneSize)
                     {
                         doBigImage = true;
                         log.debug("Image meets big image size criteria.");
