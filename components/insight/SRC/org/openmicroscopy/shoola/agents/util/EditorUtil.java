@@ -124,7 +124,7 @@ public class EditorUtil
 	public static final String DATE_NOT_AVAILABLE = "Not available";
 	
     /** Identifies the <code>Default group</code>. */
-	public static final String	DEFAULT_GROUP = "Current Group";
+	public static final String	DEFAULT_GROUP = "Default Group";
 	
 	/** Symbols indicating the mandatory values. */
 	public static final String	MANDATORY_SYMBOL = " *";

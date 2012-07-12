@@ -77,7 +77,7 @@ public class PermissionsPane
 			" be undone.";
 	
 	/** Indicate that the group has <code>RWRA--</code>. */
-    private JRadioButton		collaborativeGroupBox;
+    //private JRadioButton		collaborativeGroupBox;
     
     /** Indicate that the group has <code>RW----</code>. */
     private JRadioButton		readOnlyGroupBox;
@@ -121,30 +121,30 @@ public class PermissionsPane
     			GroupData.PERMISSIONS_GROUP_READ_SHORT_TEXT);
     	readOnlyGroupBox.setToolTipText(
     			GroupData.PERMISSIONS_GROUP_READ_TEXT);
-    	readOnlyGroupBox.setEnabled(false);
+    	//readOnlyGroupBox.setEnabled(false);
     	readAnnotateGroupBox = new JRadioButton(
     			GroupData.PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT);
-    	readAnnotateGroupBox.setEnabled(false);
+    	//readAnnotateGroupBox.setEnabled(false);
     	readAnnotateGroupBox.setToolTipText(
     			GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT);
     	readWriteGroupBox = new JRadioButton(
     			GroupData.PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT);
     	readWriteGroupBox.setToolTipText(
     			GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT);
-    	readWriteGroupBox.setEnabled(false);
+    	//readWriteGroupBox.setEnabled(false);
     	
     	readOnlyGroupBox.setSelected(true);//default
     	readOnlyPublicBox = new JCheckBox("Read-Only");
-    	readOnlyPublicBox.setEnabled(false);
-    	collaborativeGroupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
+    	//readOnlyPublicBox.setEnabled(false);
+    	//collaborativeGroupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
         privateBox = new JRadioButton(EditorUtil.PRIVATE);
         publicBox = new JRadioButton(EditorUtil.PUBLIC);
         ButtonGroup group = new ButtonGroup();
         group.add(privateBox);
-        group.add(collaborativeGroupBox);
+        //group.add(collaborativeGroupBox);
         group.add(publicBox);
         
-        group = new ButtonGroup();
+        //group = new ButtonGroup();
         group.add(readOnlyGroupBox);
         group.add(readAnnotateGroupBox);
         group.add(readWriteGroupBox);
@@ -154,43 +154,43 @@ public class PermissionsPane
 				privateBox.setSelected(true);
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ:
-				privateBox.setEnabled(false);
-				collaborativeGroupBox.setSelected(true);
+				//privateBox.setEnabled(false);
+				//collaborativeGroupBox.setSelected(true);
 				
 				readOnlyGroupBox.setSelected(true);
-				readOnlyGroupBox.setEnabled(true);
-				readAnnotateGroupBox.setEnabled(true);
-				readWriteGroupBox.setEnabled(true);
+				//readOnlyGroupBox.setEnabled(true);
+				//readAnnotateGroupBox.setEnabled(true);
+				//readWriteGroupBox.setEnabled(true);
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				privateBox.setEnabled(false);
-				collaborativeGroupBox.setSelected(true);
+				//privateBox.setEnabled(false);
+				//collaborativeGroupBox.setSelected(true);
 				
 				readAnnotateGroupBox.setSelected(true);
-				readOnlyGroupBox.setEnabled(true);
-				readAnnotateGroupBox.setEnabled(true);
-				readWriteGroupBox.setEnabled(true);
+				//readOnlyGroupBox.setEnabled(true);
+				//readAnnotateGroupBox.setEnabled(true);
+				//readWriteGroupBox.setEnabled(true);
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				privateBox.setEnabled(false);
-				collaborativeGroupBox.setSelected(true);
+				//privateBox.setEnabled(false);
+				//collaborativeGroupBox.setSelected(true);
 				
 				readWriteGroupBox.setSelected(true);
-				readOnlyGroupBox.setEnabled(true);
-				readAnnotateGroupBox.setEnabled(true);
-				readWriteGroupBox.setEnabled(true);
+				//readOnlyGroupBox.setEnabled(true);
+				//readAnnotateGroupBox.setEnabled(true);
+				//readWriteGroupBox.setEnabled(true);
 				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ:
-				privateBox.setEnabled(false);
-				readAnnotateGroupBox.setEnabled(false);
+				//privateBox.setEnabled(false);
+				//readAnnotateGroupBox.setEnabled(false);
 				readOnlyPublicBox.setSelected(true);
 				publicBox.setSelected(true);
-				readOnlyPublicBox.setEnabled(true);
+				//readOnlyPublicBox.setEnabled(true);
 				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				privateBox.setEnabled(false);
-				readAnnotateGroupBox.setEnabled(false);
-				readOnlyPublicBox.setSelected(false);
+				//privateBox.setEnabled(false);
+				//readAnnotateGroupBox.setEnabled(false);
+				//readOnlyPublicBox.setSelected(false);
 				publicBox.setSelected(true);
 				readOnlyPublicBox.setEnabled(true);
 		}
@@ -200,12 +200,12 @@ public class PermissionsPane
         privateBox.setBackground(getBackground());
         readAnnotateGroupBox.setBackground(getBackground());
         readWriteGroupBox.setBackground(getBackground());
-        collaborativeGroupBox.setBackground(getBackground());
+        //collaborativeGroupBox.setBackground(getBackground());
         
         publicBox.setBackground(getBackground());
         label.setBackground(getBackground());
        
-        collaborativeGroupBox.addChangeListener(this);
+        //collaborativeGroupBox.addChangeListener(this);
         publicBox.addChangeListener(this);
         privateBox.addChangeListener(this);
         readOnlyGroupBox.addChangeListener(this);
@@ -222,7 +222,6 @@ public class PermissionsPane
     {
     	JPanel p = new JPanel();
     	p.setBackground(getBackground());
-    	p.add(Box.createHorizontalStrut(5));
     	p.add(readOnlyGroupBox);
     	p.add(readAnnotateGroupBox);
     	//p.add(readWriteGroupBox);
@@ -243,15 +242,18 @@ public class PermissionsPane
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE;//next-to-last
 		c.fill = GridBagConstraints.NONE;//reset to default
-		c.weightx = 0.0;  
-		p.add(privateBox, c);
+		c.weightx = 0.0;
+		JPanel row = new JPanel();
+		row.setBackground(getBackground());
+		row.add(privateBox);
+		p.add(row, c);
     	c.gridx = 0;
-		c.gridy++;
-		p.add(collaborativeGroupBox, c);
+		//c.gridy++;
+		//p.add(collaborativeGroupBox, c);
 		c.gridy++;
     	c.gridwidth = GridBagConstraints.REMAINDER;//end row
     	c.fill = GridBagConstraints.HORIZONTAL;
-    	c.weightx = 0.75;
+    	//c.weightx = 0.75;
     	p.add(buildCollaborative(), c);
     	/*
     	 * TODO: Turn back on when implemented server side.
@@ -353,13 +355,13 @@ public class PermissionsPane
 	public int getPermissions()
 	{
 		if (privateBox.isSelected()) return GroupData.PERMISSIONS_PRIVATE;
-		if (collaborativeGroupBox.isSelected()) {
+		//if (collaborativeGroupBox.isSelected()) {
 			if (readAnnotateGroupBox.isSelected()) 
 				return GroupData.PERMISSIONS_GROUP_READ_LINK;
 			if (readOnlyGroupBox.isSelected())
 				return GroupData.PERMISSIONS_GROUP_READ;
-			return GroupData.PERMISSIONS_GROUP_READ_WRITE;
-		}
+			//return GroupData.PERMISSIONS_GROUP_READ_WRITE;
+		//}
 		if (readOnlyPublicBox.isSelected())
 			return GroupData.PERMISSIONS_PUBLIC_READ;
 		return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
@@ -376,7 +378,7 @@ public class PermissionsPane
 	public void disablePermissions()
 	{
 		publicBox.removeChangeListener(this);
-		collaborativeGroupBox.removeChangeListener(this);
+		//collaborativeGroupBox.removeChangeListener(this);
 		privateBox.removeChangeListener(this);
 		
 		readOnlyGroupBox.setEnabled(false);
@@ -386,7 +388,7 @@ public class PermissionsPane
         privateBox.setEnabled(false);
         publicBox.setEnabled(false);
         
-        collaborativeGroupBox.addChangeListener(this);
+        //collaborativeGroupBox.addChangeListener(this);
         publicBox.addChangeListener(this);
         privateBox.addChangeListener(this);
         
@@ -419,12 +421,15 @@ public class PermissionsPane
 	public void setEnabled(boolean enabled)
 	{
 		publicBox.removeChangeListener(this);
-		collaborativeGroupBox.removeChangeListener(this);
+		//collaborativeGroupBox.removeChangeListener(this);
 		privateBox.removeChangeListener(this);
+		readOnlyGroupBox.removeChangeListener(this);
+		readAnnotateGroupBox.removeChangeListener(this);
+		readWriteGroupBox.removeChangeListener(this);
 		if (privateBox != null) privateBox.setEnabled(enabled);
 		if (publicBox != null) publicBox.setEnabled(enabled);
-		if (collaborativeGroupBox != null)
-			collaborativeGroupBox.setEnabled(enabled);
+		//if (collaborativeGroupBox != null)
+		//	collaborativeGroupBox.setEnabled(enabled);
 		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
 		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
 		if (readWriteGroupBox != null)
@@ -432,14 +437,15 @@ public class PermissionsPane
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
 		if (enabled) {
+			/*
 			if (permissionsLevel >= GroupData.PERMISSIONS_GROUP_READ) {
 				privateBox.setEnabled(false);
 			} else if (permissionsLevel >= 
 				GroupData.PERMISSIONS_PUBLIC_READ) {
 				privateBox.setEnabled(false);
-				collaborativeGroupBox.setEnabled(false);
-			}
-			if (!collaborativeGroupBox.isSelected()) {
+				//collaborativeGroupBox.setEnabled(false);
+			} else {
+			//if (!collaborativeGroupBox.isSelected()) {
 				readOnlyGroupBox.setEnabled(false);
 				readAnnotateGroupBox.setEnabled(false);
 				readWriteGroupBox.setEnabled(false);
@@ -447,10 +453,14 @@ public class PermissionsPane
 			if (!publicBox.isSelected()) {
 				readOnlyPublicBox.setEnabled(false);
 			}
+			*/
 		}
 		publicBox.addChangeListener(this);
-		collaborativeGroupBox.addChangeListener(this);
+		//collaborativeGroupBox.addChangeListener(this);
 		privateBox.addChangeListener(this);
+		readOnlyGroupBox.addChangeListener(this);
+		readAnnotateGroupBox.addChangeListener(this);
+		readWriteGroupBox.addChangeListener(this);
 	}
 	
 	/**
@@ -462,7 +472,8 @@ public class PermissionsPane
 	{
 		Object src = e.getSource();
 		//turn controls on/off
-		if (readOnlyGroupBox == src || readAnnotateGroupBox == src) {
+		if (readOnlyGroupBox == src || readAnnotateGroupBox == src ||
+				privateBox == src) {
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
 					getPermissions());
 			return;
@@ -470,11 +481,12 @@ public class PermissionsPane
 		readWriteGroupBox.setEnabled(false);
 		readOnlyGroupBox.setEnabled(false);
 		readAnnotateGroupBox.setEnabled(false);
+		/*
 		if (src == collaborativeGroupBox) {
 			readWriteGroupBox.setEnabled(true);
 			readOnlyGroupBox.setEnabled(true);
 			readAnnotateGroupBox.setEnabled(true);
-		}
+		}*/
 		firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1, getPermissions());
 	}
 	
