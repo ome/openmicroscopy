@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,6 +32,7 @@ import omero.ServerError;
 import omero.ShutdownInProgress;
 import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
+import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.CLIENTUUID;
 import omero.util.CloseableServant;
 import omero.util.IceMapper;
@@ -101,8 +103,8 @@ public class SessionI implements _SessionOperations {
 
     public final Ice.ObjectAdapter adapter;
 
-    public SessionI(boolean reusedSession,
-            Ice.Current current, Glacier2.SessionControlPrx control,
+    public SessionI(boolean reusedSession, Ice.Current current,
+            ServantHolder holder, Glacier2.SessionControlPrx control,
             OmeroContext context, SessionManager sessionManager,
             Executor executor, Principal principal) throws ApiUsageException {
 
@@ -118,15 +120,14 @@ public class SessionI implements _SessionOperations {
 
         // Setting up in memory store.
         Ehcache cache = sessionManager.inMemoryCache(principal.getName());
-        ServantHolder local;
         String key = "servantHolder";
+        this.holder = holder;
         if (!cache.isKeyInCache(key)) {
-            local = new ServantHolder();
-            cache.put(new Element(key, local));
+            cache.put(new Element(key, holder));
         } else {
-            local = (ServantHolder) cache.get(key).getObjectValue();
+            // Check that SessionManagerI has given us the same instance.
+            assert cache.get(key).getObjectValue() == holder;
         }
-        holder = local; // Set the final value
     }
 
     public Ice.ObjectAdapter getAdapter() {
@@ -190,8 +191,7 @@ public class SessionI implements _SessionOperations {
             }
 
             // ID
-            Ice.Identity id = getIdentity("IHandle"
-                    + UUID.randomUUID().toString());
+            Ice.Identity id = holder.getIdentity("IHandle" + UUID.randomUUID().toString());
 
             // Tie
             _HandleOperations ops = (_HandleOperations) servant;
@@ -246,6 +246,8 @@ public class SessionI implements _SessionOperations {
         // and it's important to continue cleaning up resources!
         try {
             adapter.remove(sessionId); // OK ADAPTER USAGE
+            // If not in adapter, then SessionManagerI won't be able to find it.
+            holder.removeClientId(clientId);
         } catch (Ice.NotRegisteredException nre) {
             // It's possible that another thread tried to remove
             // this session first. Logging the fact, but we will
@@ -304,6 +306,8 @@ public class SessionI implements _SessionOperations {
                 // since the time for shutdown is not overly critical.
             }
 
+        } else {
+            cleanupSelf();
         }
 
     }
@@ -332,6 +336,17 @@ public class SessionI implements _SessionOperations {
     }
 
     /**
+     * Called if this isn't a kill-everything event.
+     * @see ticket 9330
+     */
+    public void cleanupSelf() {
+        if (log.isInfoEnabled()) {
+            log.info(String.format("cleanupSelf(%s).", this));
+        }
+        cleanServants(false);
+    }
+
+    /**
      * Performs the actual cleanup operation on all the resources shared between
      * this and other {@link ServiceFactoryI} instances in the same
      * {@link Session}. Since {@link #destroy()} is called regardless by the
@@ -340,12 +355,22 @@ public class SessionI implements _SessionOperations {
      *
      * This method must take precautions to not throw a {@link SessionException}
      * . See {@link #destroy(Current)} for more information.
+     *
+     * When {@link #destroy(Current)} is called but it isn't time to close down
+     * the entire instance, then we should still close down the stateless
+     * services for this instance as well as remove ourselves from the adapter.
+     *
+     * @see ticket 9330
      */
     public void doDestroy() {
 
         if (log.isInfoEnabled()) {
             log.info(String.format("doDestroy(%s)", this));
         }
+        cleanServants(true);
+    }
+
+    private void cleanServants(boolean all) {
 
         // Cleaning up resources
         // =================================================
@@ -353,7 +378,7 @@ public class SessionI implements _SessionOperations {
         try {
             List<String> servants = holder.getServantList();
             for (final String idName : servants) {
-                final Ice.Identity id = getIdentity(idName);
+                final Ice.Identity id = holder.getIdentity(idName);
                 final Object servant = holder.getUntied(id);
 
                 if (servant == null) {
@@ -361,6 +386,20 @@ public class SessionI implements _SessionOperations {
                     // But calling unregister just in case
                     unregisterServant(id);
                     continue; // LOOP.
+                }
+
+                if (!all) {
+                    if (!idName.contains(clientId)) {
+                        // If this doesn't belong to the current client, then
+                        // do nothing.
+                        continue; // LOOP
+                    } else if (servant instanceof _StatefulServiceInterfaceOperations) {
+                        // Allowing stateful sessions to persist even after this
+                        // particular client is shutdown. This allows another client
+                        // to re-attach.
+                        log.info("Leaving StatefulService alive:" + idName);
+                        continue; // LOOP
+                    }
                 }
 
                 // All errors are ignored within the loop.
@@ -577,17 +616,8 @@ public class SessionI implements _SessionOperations {
     // Used for naming service factory instances and creating Ice.Identities
     // from Ice.Currents, etc.
 
-    /**
-     * Constructs an {@link Ice.Identity} from the name of this
-     * {@link ServiceFactoryI} and from the given {@link String} which for
-     * stateless services are defined by the instance fields {@link #adminKey},
-     * {@link #configKey}, etc. and for stateful services are UUIDs.
-     */
-    public Ice.Identity getIdentity(String idName) {
-        Ice.Identity id = new Ice.Identity();
-        id.category = this.principal.getName();
-        id.name = idName;
-        return id;
+    public Ice.Identity getIdentity(String name) {
+        return holder.getIdentity(name);
     }
 
     /**
@@ -598,7 +628,6 @@ public class SessionI implements _SessionOperations {
         id.category = "session-" + clientId;
         id.name = uuid;
         return id;
-
     }
 
     /**
