@@ -5,8 +5,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:             omero-web
-# Required-Start:       $local_fs $remote_fs $network $time omero
-# Required-Stop:        $local_fs $remote_fs $network $time
+# Required-Start:       $local_fs $remote_fs $network $time omero postgresql
+# Required-Stop:        $local_fs $remote_fs $network $time omero postgresql
 # Default-Start:        2 3 4 5
 # Default-Stop:         0 1 6
 # Short-Description:    OMERO.web
@@ -25,7 +25,7 @@ OMERO_USER=${OMERO_USER:-"omero"}
 
 start() {	
 	echo -n $"Starting $prog:"
-	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web start
+	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web start &> /dev/null && echo -n ' OMERO.web'
   sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh start
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
@@ -33,7 +33,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog:"
-	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web stop
+	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web stop &> /dev/null && echo -n ' OMERO.web'
   sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh stop
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
