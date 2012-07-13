@@ -36,7 +36,7 @@ BisqueISLevel.prototype.tiles = function() {
 // BisqueISPyramid
 // -----------------------------------------------------
 
-function BisqueISPyramid( width, height, xtilesize, ytilesize ) {
+function BisqueISPyramid( width, height, xtilesize, ytilesize, levels ) {
     this.width = width;
     this.height = height;
     this.xtilesize = xtilesize;
@@ -48,7 +48,7 @@ function BisqueISPyramid( width, height, xtilesize, ytilesize ) {
     var level_height = height;   
     var min_size = (Math.min(ytilesize,xtilesize) / 2) + 1;
     // pyramid can only have mazimum 6 levels
-    while ((level_id==0 || level_width > min_size || level_height > min_size) && level_id<6) {
+    while (level_id < levels) {
         var level = new BisqueISLevel( level_width, level_height, xtilesize, ytilesize, level_id );
         this._pyramid.push( level );
         level_width  = Math.floor( level_width / 2 );

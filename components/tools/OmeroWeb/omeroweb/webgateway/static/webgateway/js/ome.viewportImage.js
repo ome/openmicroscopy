@@ -397,7 +397,8 @@ $.fn.viewportImage = function(options) {
                 this.dom_info.innerHTML = 'Scale: '+ e.scale*100 +'%';
         }
         
-        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
+        var myPyramid = new BisqueISPyramid(
+                imagewidth, imageheight, xtilesize, ytilesize, levels);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
             return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
