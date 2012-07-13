@@ -1210,7 +1210,7 @@ def imageMarshal (image, key=None):
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
     levels = image._re.getResolutionLevels()-1
-    init_zoom = image._re.getResolutionLevel()
+    init_zoom = 0
 
     try:
         rv.update({
