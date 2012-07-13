@@ -42,6 +42,7 @@
             </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="ome/formats/**/*.class"/>
+                <include name="pojos/*.class"/>
                 <include name="omero/**/*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
                 <exclude name="omero/_*Del*.class"/>
@@ -77,7 +78,7 @@
     <target name="compile" depends="pre-compile,lifecycle.compile"/>
 
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
-	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
+	<jar update="true" destfile="${target.dir}/${ivy.module}-UNSIGNED.jar">
             <manifest>
                 <attribute name="Class-Path" value=""/>
                 <attribute name="Main-Class" value=""/>

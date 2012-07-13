@@ -85,13 +85,17 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
 
         Principal p = new Principal("user1", "group", "event");
 
-        sf1 = new ServiceFactoryI(current, null, ctx, manager, executor, p,
+        sf1 = new ServiceFactoryI(current,
+                new omero.util.ServantHolder("session1"),
+                null, ctx, manager, executor, p,
                 new ArrayList<HardWiredInterceptor>(), null, null);
         curr1.id = id1;
         curr1.adapter = adapter;
 
         Principal p2 = new Principal("user2", "group", "event");
-        sf2 = new ServiceFactoryI(current, null, ctx, manager, executor, p2,
+        sf2 = new ServiceFactoryI(current,
+                new omero.util.ServantHolder("session2"),
+                null, ctx, manager, executor, p2,
                 new ArrayList<HardWiredInterceptor>(), null, null);
         curr2.id = id2;
         curr2.adapter = adapter;
@@ -113,7 +117,7 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
         IAdminPrx prx2 = sf2.getAdminService(curr2);
 
         // First we make sure that only one service is seen by this session
-        assertEquals(1, sf1.activeServices().size());
+        assertEquals(1, sf1.activeServices(null).size());
 
         // which implies that closing will not close another session's services
         mockAdapter.expects(once()).method("find").will(returnValue(null));

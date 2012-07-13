@@ -14,13 +14,13 @@ import java.util.List;
 //Third-party libraries
 
 // Application-internal dependencies
-import ome.conditions.ResourceError;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
+import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 
@@ -97,18 +97,20 @@ class QuantumManager {
         double gMin, gMax;
         int w = 0;
         Channel channel;
+        StatsFactory sf = new StatsFactory();
+        double[] minmax;
         for (Iterator<Channel> i = metadata.iterateChannels(); i.hasNext();) {
             channel = i.next();
             stg = factory.getStrategy(qd, type);
             StatsInfo statsInfo = channel.getStatsInfo();
             if (statsInfo == null) {
-                throw new ResourceError("Pixels set is missing statistics" +
-                    " for channel '"+ w +"'. This suggests an image " +
-                    "import error, import in progress or failed image import.");
+                minmax = sf.initPixelsRange(type);
+                gMin = minmax[0];
+                gMax = minmax[1];
+            } else {
+            	gMin = statsInfo.getGlobalMin().doubleValue();
+                gMax = statsInfo.getGlobalMax().doubleValue();
             }
-            gMin = statsInfo.getGlobalMin().doubleValue();
-            gMax = statsInfo.getGlobalMax().doubleValue();
-
             stg.setExtent(gMin, gMax);
             stg.setMapping(waves[w].getFamily(), waves[w].getCoefficient()
                             .doubleValue(), waves[w].getNoiseReduction()

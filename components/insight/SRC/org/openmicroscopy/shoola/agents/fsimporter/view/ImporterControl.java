@@ -23,15 +23,22 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
@@ -46,21 +53,30 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.ExitAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.LogOffAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The {@link Importer}'s controller. 
@@ -76,7 +92,7 @@ import pojos.ExperimenterData;
  * @since 3.0-Beta4
  */
 class ImporterControl
-	implements PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Action ID indicating to send the files that could not imported. */
@@ -90,6 +106,15 @@ class ImporterControl
 	
 	/** Action ID indicating to retry failed import. */
 	static final Integer RETRY_BUTTON = 3;
+	
+	/** Action ID indicating to switch between groups. */
+	static final Integer GROUP_BUTTON = 4;
+	
+	/** Action ID indicating to exit the application. */
+	static final Integer EXIT = 5;
+	
+	/** Action ID indicating to log off the current server. */
+	static final Integer LOG_OFF = 6;
 	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
@@ -114,6 +139,9 @@ class ImporterControl
 		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
 		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
 		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
+		actionsMap.put(GROUP_BUTTON, new PersonalManagementAction(model));
+		actionsMap.put(EXIT, new ExitAction(model));
+		actionsMap.put(LOG_OFF, new LogOffAction(model));
 	}
 	
 	/** 
@@ -144,6 +172,13 @@ class ImporterControl
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
+		if (UIUtilities.isMacOS() && model.isMaster()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {}
+        }
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { model.close(); }
@@ -264,10 +299,43 @@ class ImporterControl
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		String email = exp.getEmail();
 		if (email == null) email = "";
+		//Get log File
+		File f = new File(ImporterAgent.getRegistry().getLogger().getLogFile());
+		object = new ImportErrorObject(f, null);
+		toSubmit.add(object);
 		un.notifyError("Import Failures", "Files that failed to import", email, 
 				toSubmit, this);
 	}
 	
+	/**
+	 * Returns the list of group the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupSelectionAction> getUserGroupAction()
+	{
+		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
+		Collection m = ImporterAgent.getAvailableUserGroups();
+		if (m == null || m.size() == 0) return l;
+		ViewerSorter sorter = new ViewerSorter();
+		Iterator i = sorter.sort(m).iterator();
+		GroupData group;
+		GroupSelectionAction action;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			l.add(new GroupSelectionAction(model, group));
+		}
+		return l;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return view.isMaster(); }
+
 	/**
 	 * Reacts to property changes.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -294,7 +362,9 @@ class ImporterControl
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
-			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
+			//getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
+			getAction(SEND_BUTTON).setEnabled(view.hasSelectedFailuresToSend());
+			getAction(RETRY_BUTTON).setEnabled(view.hasFailuresToReimport());
 		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
 			ErrorDialog d = new ErrorDialog(view, 
 					(Throwable) evt.getNewValue());
@@ -315,6 +385,32 @@ class ImporterControl
 					break;
 				case 2:
 					model.createDataObject(l.get(0), l.get(1));
+			}
+		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+			view.appendDebugText((String) evt.getNewValue());
+		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Action a = getAction(EXIT);
+			ActionEvent event = 
+				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+			a.actionPerformed(event);
+		}
+	}
+
+	/**
+	 * Handles group selection.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		if (index == GROUP_BUTTON) {
+			JComboBox box = (JComboBox) e.getSource();
+			Object ho = box.getSelectedItem();
+			if (ho instanceof JComboBoxImageObject) {
+				JComboBoxImageObject o = (JComboBoxImageObject) ho;
+				if (o.getData() instanceof GroupData) {
+					model.setUserGroup((GroupData) o.getData());
+				}
 			}
 		}
 	}

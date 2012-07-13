@@ -16,6 +16,7 @@ import unittest
 from path import path
 
 import omero
+
 from omero.grid import *
 from omero.scripts import *
 from omero.util.temp_files import create_path
@@ -65,6 +66,38 @@ class TestParse(unittest.TestCase):
         self.assertEquals(1, unwrap(longParam.min), str(longParam.min))
         self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
         self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
+
+    def testObjectType(self):
+        SCRIPT = """if True:
+            import omero
+            import omero.all
+            import omero.scripts as scripts
+            from omero.rtypes import robject
+
+            client = scripts.client('RObjectExample.py', 'Example script passing an robject',
+            scripts.Object('objParam', True, description='theDesc'))"""
+        params = parse_text(SCRIPT)
+        objParam = params.inputs["objParam"]
+        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
+        self.assertTrue(objParam.prototype.val is None)
+
+        rv = parse_inputs(["objParam=OriginalFile:1"], params)
+        self.assertEquals(rv["objParam"].val.__class__, omero.model.OriginalFileI)
+        self.assertEquals(rv["objParam"].val.id.val, 1)
+
+    def testObjectTypeWithDefault(self):
+        SCRIPT = """if True:
+            import omero
+            import omero.all
+            import omero.scripts as scripts
+            from omero.rtypes import robject
+
+            client = scripts.client('RObjectExampleWithDefault.py', 'Example script passing an robject',
+            scripts.Object('objParam', True, description='theDesc', default=omero.model.ImageI()))"""
+        params = parse_text(SCRIPT)
+        objParam = params.inputs["objParam"]
+        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
+        self.assertTrue(isinstance(objParam.prototype.val, omero.model.ImageI))
 
     def testListOfType(self):
         SCRIPT = """if True:
@@ -262,6 +295,49 @@ class TestParse(unittest.TestCase):
         rv = parse_inputs(["a=1"], params)
         self.assertTrue(isinstance(rv["a"], omero.RList))
         self.assertEquals("1", rv["a"].val[0].val)
+
+    def testParseBool(self):
+        """ see ticket:7003 """
+        params = JobParams()
+        params.inputs = {"a": Bool("a", default=True)}
+
+        rv = parse_inputs(["a=False"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=false"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=0"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a="], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=True"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=true"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=1"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=xxxanytextxxx"], params)
+        self.assertEquals(True, rv["a"].val)
+
+    def testParseIntList(self):
+        """
+        see ticket:7003
+        """
+        params = JobParams()
+        a = List("Channels").ofType(rint(0))
+        params.inputs = {"a": a}
+
+        rv = parse_inputs(["a=1,2"], params)["a"].val
+        for x in rv:
+            self.assertTrue(isinstance(x, omero.RInt))
+        self.assertEquals(1, rv[0].val)
+        self.assertEquals(2, rv[1].val)
 
 if __name__ == '__main__':
     logging.basicConfig()

@@ -113,7 +113,7 @@ public class BrowserDeleteAction
         	count = 0;
         	b = false;
     		for (int i = 0; i < selected.length; i++) {
-				b = model.canDeleteObject(selected[i].getUserObject());
+				b = model.canEdit(selected[i].getUserObject());
 				if (b) count++;
 			}
     		setEnabled(count == selected.length);
@@ -152,7 +152,7 @@ public class BrowserDeleteAction
         	b = false;
         	selected = model.getSelectedDisplays();
     		for (int i = 0; i < selected.length; i++) {
-				b = model.canDeleteObject(selected[i].getUserObject());
+				b = model.canEdit(selected[i].getUserObject());
 				if (b) count++;
 			}
     		setEnabled(count == selected.length);
@@ -183,5 +183,5 @@ public class BrowserDeleteAction
         DeleteCmd cmd = new DeleteCmd(model);
         cmd.execute();
     }
-    
+
 }

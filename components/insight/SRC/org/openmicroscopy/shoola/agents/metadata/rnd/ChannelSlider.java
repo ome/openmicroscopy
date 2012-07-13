@@ -105,6 +105,10 @@ class ChannelSlider
 
         int absMin = (int) (model.getLowestValue(index)*f);
         int absMax = (int) (model.getHighestValue(index)*f);
+        if (!channel.hasStats()) {
+        	min = absMin;
+        	max = absMax;
+        }
         double range = (max-min)*GraphicsPane.RATIO;
         int lowestBound = (int) (min-range);
         //if (lowestBound < absMin) lowestBound = absMin;

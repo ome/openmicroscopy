@@ -10,6 +10,7 @@
 #define OMERO_CLIENT_H
 
 #include <omero/API.h>
+#include <omero/clientF.h>
 #include <omero/ClientErrors.h>
 #include <omero/Collections.h>
 #include <omero/Constants.h>
@@ -45,35 +46,19 @@ namespace omero {
     };
 
     /*
-     * Forward definitions and handles
-     */
-    class client;
-    class CallbackI;
-    typedef IceUtil::Handle<CallbackI> CallbackIPtr;
-
-    /*
-     * Typedef for using Ice's smart pointer reference counting
-     * infrastructure.
-     *
-     *  omero::client_ptr client1 = new omero::client("localhost");
-     *  omero::client_ptr client2 = new omero::client("localhost", port);
-     */
-    typedef IceUtil::Handle<client> client_ptr;
-
-    /*
      * Central client-side blitz entry point and should be in sync with
      * OmeroJavas and OmeroPy's omero.client classes.
      *
      * Typical usage:
-     *   omero::client client               // Uses ICE_CONFIG
-     *   omero::client client(host);        // Defines "omero.host"
-     *   omero::client client(host, port);  // Defines "omero.host" and "omero.port"
+     *   omero::client_ptr client = new omero::client();               // Uses ICE_CONFIG
+     *   omero::client_ptr client = new omero::client(host);        // Defines "omero.host"
+     *   omero::client_ptr client = new omero::client(host, port);  // Defines "omero.host" and "omero.port"
      *
      *   omero::client::~client() called on scope exit.
      *
      * For more information, see:
      *
-     *    https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign
+     *    http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign
      *
      */
     class OMERO_API client : public IceUtil::Shared {
@@ -192,6 +177,9 @@ namespace omero {
         * configuration property is retrieved from the server and used as the value
         * of "Ice.Default.Router" for the new client. Any exception thrown during
         * creation is passed on to the caller.
+        *
+        * Note: detachOnDestroy has NOT been called on the session in the returned client.
+        * Clients are responsible for doing this immediately if such desired.
         */
         client_ptr createClient(bool secure);
 
@@ -233,6 +221,12 @@ namespace omero {
          * no session is active.
          */
          std::string getSessionId() const;
+
+        /**
+         * Returns the category which should be used for all callbacks
+         * passed to the server.
+         */
+        std::string getCategory() const;
 
 	/*
 	 * Returns the Ice::ImplicitContext which defiens what properties

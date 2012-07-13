@@ -124,6 +124,7 @@
   </fileset>
   <path id="test.compile.classpath">
     <path refid="app.run.classpath" /> 
+    <fileset dir="${base.lib.dir}" includes="*.jar" /> 
     <fileset dir="${test.lib.dir}" includes="*.jar" /> 
   </path> 
   <path id="test.classpath">
@@ -213,7 +214,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="test" 
           depends="test-compile"
-          description="Run all tests.">
+          description="Run all tests."
+          unless="dont.run.tests">
     <junit printsummary="yes" 
            errorproperty="test.didnt.pass" 
            failureproperty="test.didnt.pass"

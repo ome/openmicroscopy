@@ -1271,7 +1271,7 @@ END;$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 CREATE OR REPLACE FUNCTION hex_to_argb(color VARCHAR, opacity FLOAT8) RETURNS INT8 AS '
 DECLARE
 
-    OFFSET INT8 := 4294967296;
+    OFFST INT8 := 4294967296;
     MAXINT INT8 := 2147483647;
     MININT INT8 := -2147483648;
 
@@ -1298,11 +1298,11 @@ BEGIN
     argb := argb + (gval << 8);
     argb := argb + bval;
 
-    IF argb < 0 or argb > OFFSET THEN
+    IF argb < 0 or argb > OFFST THEN
         RAISE EXCEPTION ''Overflow: % (color=%, opacity=%, argb=(%,%,%,%))'',
             argb, color, opacity, aval, rval, gval, bval;
     ELSIF argb > MAXINT THEN
-        argb := argb - OFFSET;
+        argb := argb - OFFST;
     END IF;
 
     IF argb < MININT or argb > MAXINT THEN
@@ -1655,76 +1655,76 @@ DROP VIEW count_session_annotationlinks_by_owner;
 --
 
 ALTER TABLE annotationannotationlink
-        DROP CONSTRAINT annotationannotationlink_parent_key;
+        DROP CONSTRAINT annotationannotationlink_parent_child_key;
 
 ALTER TABLE channelannotationlink
-        DROP CONSTRAINT channelannotationlink_parent_key;
+        DROP CONSTRAINT channelannotationlink_parent_child_key;
 
 ALTER TABLE datasetannotationlink
-        DROP CONSTRAINT datasetannotationlink_parent_key;
+        DROP CONSTRAINT datasetannotationlink_parent_child_key;
 
 ALTER TABLE datasetimagelink
-        DROP CONSTRAINT datasetimagelink_parent_key;
+        DROP CONSTRAINT datasetimagelink_parent_child_key;
 
 ALTER TABLE projectdatasetlink
-        DROP CONSTRAINT projectdatasetlink_parent_key;
+        DROP CONSTRAINT projectdatasetlink_parent_child_key;
 
 ALTER TABLE imageannotationlink
-        DROP CONSTRAINT imageannotationlink_parent_key;
+        DROP CONSTRAINT imageannotationlink_parent_child_key;
 
 ALTER TABLE joboriginalfilelink
-        DROP CONSTRAINT joboriginalfilelink_parent_key;
+        DROP CONSTRAINT joboriginalfilelink_parent_child_key;
 
 ALTER TABLE originalfileannotationlink
-        DROP CONSTRAINT originalfileannotationlink_parent_key;
+        DROP CONSTRAINT originalfileannotationlink_parent_child_key;
 
 ALTER TABLE pixelsoriginalfilemap
-        DROP CONSTRAINT pixelsoriginalfilemap_parent_key;
+        DROP CONSTRAINT pixelsoriginalfilemap_parent_child_key;
 
 ALTER TABLE pixelsannotationlink
-        DROP CONSTRAINT pixelsannotationlink_parent_key;
+        DROP CONSTRAINT pixelsannotationlink_parent_child_key;
 
 ALTER TABLE planeinfoannotationlink
-        DROP CONSTRAINT planeinfoannotationlink_parent_key;
+        DROP CONSTRAINT planeinfoannotationlink_parent_child_key;
 
 ALTER TABLE plateannotationlink
-        DROP CONSTRAINT plateannotationlink_parent_key;
+        DROP CONSTRAINT plateannotationlink_parent_child_key;
 
 ALTER TABLE screenplatelink
-        DROP CONSTRAINT screenplatelink_parent_key;
+        DROP CONSTRAINT screenplatelink_parent_child_key;
 
 ALTER TABLE projectannotationlink
-        DROP CONSTRAINT projectannotationlink_parent_key;
+        DROP CONSTRAINT projectannotationlink_parent_child_key;
 
 ALTER TABLE reagentannotationlink
-        DROP CONSTRAINT reagentannotationlink_parent_key;
+        DROP CONSTRAINT reagentannotationlink_parent_child_key;
 
 ALTER TABLE wellreagentlink
-        DROP CONSTRAINT wellreagentlink_parent_key;
+        DROP CONSTRAINT wellreagentlink_parent_child_key;
 
 ALTER TABLE roiannotationlink
-        DROP CONSTRAINT roiannotationlink_parent_key;
+        DROP CONSTRAINT roiannotationlink_parent_child_key;
 
 ALTER TABLE screenannotationlink
-        DROP CONSTRAINT screenannotationlink_parent_key;
+        DROP CONSTRAINT screenannotationlink_parent_child_key;
 
 ALTER TABLE wellannotationlink
-        DROP CONSTRAINT wellannotationlink_parent_key;
+        DROP CONSTRAINT wellannotationlink_parent_child_key;
 
 ALTER TABLE wellsampleannotationlink
-        DROP CONSTRAINT wellsampleannotationlink_parent_key;
+        DROP CONSTRAINT wellsampleannotationlink_parent_child_key;
 
 ALTER TABLE experimenterannotationlink
-        DROP CONSTRAINT experimenterannotationlink_parent_key;
+        DROP CONSTRAINT experimenterannotationlink_parent_child_key;
 
 ALTER TABLE experimentergroupannotationlink
-        DROP CONSTRAINT experimentergroupannotationlink_parent_key;
+        DROP CONSTRAINT experimentergroupannotationlink_parent_child_key;
 
 ALTER TABLE nodeannotationlink
-        DROP CONSTRAINT nodeannotationlink_parent_key;
+        DROP CONSTRAINT nodeannotationlink_parent_child_key;
 
 ALTER TABLE sessionannotationlink
-        DROP CONSTRAINT sessionannotationlink_parent_key;
+        DROP CONSTRAINT sessionannotationlink_parent_child_key;
 
 ALTER TABLE annotationannotationlink
         ADD CONSTRAINT annotationannotationlink_parent_key UNIQUE (parent, child, owner_id);

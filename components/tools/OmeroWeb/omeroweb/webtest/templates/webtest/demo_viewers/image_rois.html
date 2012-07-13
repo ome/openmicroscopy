@@ -1,0 +1,18 @@
+{% extends "webgateway/core_html.html" %}
+
+{% block title %}ROIs{% endblock %}
+
+{% block link %}
+{% endblock %}
+
+{% block body %}
+
+{% if roiIds %}
+    {% for rId in roiIds %}
+        <img src="/webgateway/render_roi_thumbnail/{{ rId }}" style="max-width:120px; padding:2px" />
+    {% endfor %}
+{% else %}
+    <h1>No ROIs</h1>
+{% endif %}
+
+{% endblock %}

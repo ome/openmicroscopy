@@ -40,7 +40,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     ServiceFactoryI sf;
     ServiceInterfacePrx prx;
     SessionManager manager;
-    Ice.Identity id = Ice.Util.stringToIdentity("test");
+    Ice.Identity id = Ice.Util.stringToIdentity("test/session");
     Map<String, Ice.Object> map = new HashMap<String, Ice.Object>();
     Ice.Current current = new Ice.Current();
     {
@@ -63,7 +63,9 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
                 .will(returnValue(true));
         cacheMock.expects(once()).method("get").will(
                 returnValue(new Element("activeServants", map)));
-        sf = new ServiceFactoryI(current, null, null, manager, executor,
+        sf = new ServiceFactoryI(current,
+                new omero.util.ServantHolder("session"),
+                null, null, manager, executor,
                 new Principal("a", "b", "c"), null, null, null);
     }
 
@@ -71,7 +73,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     void testKeepAliveReturnsAllOnesOnNull() throws Exception {
         managerMock.expects(atLeastOnce()).method("getEventContext");
         assertTrue(-1 == sf.keepAllAlive(null, null));
-        assertTrue(-1 == sf.keepAllAlive(new ServiceInterfacePrx[] {}));
+        assertTrue(-1 == sf.keepAllAlive(new ServiceInterfacePrx[] {}, null));
     }
 
     @Test
@@ -81,7 +83,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
         cacheMock.expects(once()).method("get").will(returnValue(null));
         proxyMock.expects(once()).method("ice_getIdentity").will(
                 returnValue(id));
-        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx });
+        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx }, null);
         assertTrue((rv & 1 << 0) == 1 << 0);
     }
 
@@ -92,7 +94,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
         cacheMock.expects(once()).method("get").will(returnValue(null));
         proxyMock.expects(once()).method("ice_getIdentity").will(
                 returnValue(id));
-        assertFalse(sf.keepAlive(prx));
+        assertFalse(sf.keepAlive(prx, null));
     }
 
     @Test
@@ -101,7 +103,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
         managerMock.expects(atLeastOnce()).method("getEventContext");
         proxyMock.expects(once()).method("ice_getIdentity").will(
                 returnValue(id));
-        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx });
+        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx }, null);
         assertEquals(0, rv);
     }
 
@@ -112,7 +114,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
         cacheMock.expects(once()).method("get").will(returnValue(elt));
         proxyMock.expects(once()).method("ice_getIdentity").will(
                 returnValue(id));
-        assertTrue(sf.keepAlive(prx));
+        assertTrue(sf.keepAlive(prx, null));
     }
 
 }

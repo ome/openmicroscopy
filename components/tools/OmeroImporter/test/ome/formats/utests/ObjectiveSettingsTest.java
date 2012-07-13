@@ -37,7 +37,7 @@ public class ObjectiveSettingsTest extends TestCase
 	@BeforeMethod
 	protected void setUp() throws Exception
 	{
-		ServiceFactoryPrx sf = new TestServiceFactory();
+		ServiceFactoryPrx sf = new TestServiceFactory().proxy();
         wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
@@ -62,9 +62,9 @@ public class ObjectiveSettingsTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 1);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 1);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX + 1);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
 	}
 
 	@Test

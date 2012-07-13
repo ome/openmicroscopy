@@ -53,7 +53,7 @@ public interface Browser
 {
 
 	/** The title related to this component. */
-	public static final String 		TITLE = "Contained in";
+	public static final String 		TITLE = "Located in";
 	
 	/** Bound property indicating that nodes are selected. */
 	public static final String		SELECTED_NODES_PROPERTY = "selectedNodes";

@@ -9,19 +9,21 @@ package ome.services.pixeldata;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 
 import ome.conditions.InternalException;
 import ome.io.messages.MissingPyramidMessage;
-import ome.model.containers.Project;
 import ome.model.core.Pixels;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
@@ -48,8 +50,13 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "Task");
 
+    private final static int DEFAULT_THREADS = 1;
+
     /** Server session UUID */
     private final String uuid;
+
+    /** Number of threads that should be used for processing **/
+    private final int numThreads;
 
     /**
      * Whether this thread should perform actual processing or simply add a
@@ -65,26 +72,54 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     public PixelDataThread(SessionManager manager, Executor executor,
             PixelDataHandler handler, String uuid) {
-        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid);
+        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, DEFAULT_THREADS);
+    }
+
+    /**
+     * Uses default {@link Principal} for processing
+     */
+    public PixelDataThread(SessionManager manager, Executor executor,
+            PixelDataHandler handler, String uuid, int numThreads) {
+        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, numThreads);
+    }
+
+    /**
+     * Calculates {@link #performProcessing} based on the existence of the
+     * "pixelDataTrigger" and passes all parameters to
+     * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
+     */
+    public PixelDataThread(SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+            manager, executor, handler, principal, uuid, numThreads);
     }
 
     /**
      * Main constructor. No arguments can be null.
      */
-    public PixelDataThread(SessionManager manager, Executor executor,
-            PixelDataHandler handler, Principal principal, String uuid) {
+    public PixelDataThread(boolean performProcessing,
+            SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads) {
         super(manager, executor, handler, principal);
-        this.performProcessing = executor.getContext()
-            .containsBean("pixelDataTrigger");
+        this.performProcessing = performProcessing;
         this.uuid = uuid;
+        this.numThreads = numThreads;
     }
 
     /**
      * Called by Spring on creation. Currently a no-op.
      */
     public void start() {
-        log.info("Initializing PixelDataThread" +
-                (performProcessing ? "" : " (create events only)"));
+        StringBuilder sb = new StringBuilder();
+        sb.append("Initializing PixelDataThread");
+        if (performProcessing) {
+            sb.append(String.format(" (threads=%s)", numThreads));
+        } else {
+            sb.append(" (create events only)");
+        }
+        log.info(sb.toString());
     }
 
     /**
@@ -92,8 +127,50 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     @Override
     public void doRun() {
         if (performProcessing) {
-            this.executor.execute(getPrincipal(), work);
+
+            // Single-threaded simplification
+            if (numThreads == 1) {
+                executor.execute(getPrincipal(), work);
+                return;
+            }
+
+            final ExecutorCompletionService<Object> ecs =
+                new ExecutorCompletionService<Object>(executor.getService());
+
+            for (int i = 0; i < numThreads; i++) {
+                ecs.submit(new Callable<Object>(){
+                    /* Java5 does not support - @Override */
+                    public Object call()
+                        throws Exception
+                    {
+                        return executor.execute(getPrincipal(), work);
+                    }
+                });
+            }
+
+            try {
+                for (int i = 0; i < numThreads; i++) {
+                    Future<Object> future = ecs.take();
+                    try {
+                        future.get();
+                    } catch (ExecutionException ee) {
+                        onExecutionException(ee);
+                    }
+                }
+            } catch (InterruptedException ie) {
+                log.fatal("Interrupted exception during multiple thread handling." +
+				"Other threads may not have been successfully completed.",
+                    ie);
+            }
         }
+    }
+
+    /**
+     * Basic handling just logs at ERROR level. Subclasses (especially for
+     * testing) can do more.
+     */
+    protected void onExecutionException(ExecutionException ee) {
+        log.error("ExceptionException!", ee.getCause());
     }
 
     /**
@@ -118,7 +195,8 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
             throw new InternalException("No user! Must be wrapped by call to Executor?");
         }
 
-        Future<EventLog> future = this.executor.submit(new Callable<EventLog>(){
+        Future<EventLog> future = this.executor.submit(cd.getContext(),
+                new Callable<EventLog>(){
             public EventLog call() throws Exception {
                 return makeEvent(ec, mpm);
             }});
@@ -127,23 +205,45 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
     private EventLog makeEvent(final EventContext ec,
                                final MissingPyramidMessage mpm) {
-        return (EventLog) this.executor.execute(new Principal(uuid),
-                    new Executor.SimpleWork(this, "createEvent") {
-            @Transactional(readOnly = false)
+
+        final Principal p = new Principal(uuid);
+        final Map<String, String> callContext = new HashMap<String, String>();
+
+        // First call is with -1 in order to find the pixels group.
+        // TODO: this could equally be done with sqlAction.
+        callContext.put("omero.group", "-1");
+        final Long groupID = (Long) this.executor.execute(callContext, p,
+                new Executor.SimpleWork(this, "getGroupId") {
+            @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                log.info("Creating PIXELDATA event for pixels id:"
-                        + mpm.pixelsID);
+                final ExperimenterGroup group = sf.getQueryService().findByQuery(
+                        "select p.details.group from Pixels p where p.id = :id",
+                        new ome.parameters.Parameters().addId(mpm.pixelsID));
+                return group.getId();
+            }
+        });
+
+        // Reset to prevent "Not intended for copying" errors
+        callContext.put("omero.group", groupID.toString());
+        return (EventLog) this.executor.execute(callContext, p,
+                new Executor.SimpleWork(this, "createEvent") {
+        @Transactional(readOnly = false)
+        public Object doWork(Session session, ServiceFactory sf) {
+            log.info("Creating PIXELDATA event for pixels id:"
+                    + mpm.pixelsID);
+
+                // Load objects
+                final EventType type = sf.getTypesService().getEnumeration(
+                        EventType.class, ec.getCurrentEventType());
                 final EventLog el = new EventLog();
                 final Event e = new Event();
                 e.setExperimenter(
                         new Experimenter(ec.getCurrentUserId(), false));
-                e.setExperimenterGroup(
-                        new ExperimenterGroup(ec.getCurrentGroupId(), false));
+                e.setExperimenterGroup(new ExperimenterGroup(groupID, false));
                 e.setSession(new ome.model.meta.Session(
                         ec.getCurrentSessionId(), false));
                 e.setTime(new Timestamp(new Date().getTime()));
-                e.setType(sf.getTypesService().getEnumeration(
-                        EventType.class, ec.getCurrentEventType()));
+                e.setType(type);
                 el.setAction("PIXELDATA");
                 el.setEntityId(mpm.pixelsID);
                 el.setEntityType(Pixels.class.getName());

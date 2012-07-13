@@ -55,7 +55,6 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.SelectionWizardUI;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -181,19 +180,21 @@ class ExperimenterPane
             area.setEditable(true);
             if (EditorUtil.DISPLAY_NAME.equals(key)) {
             	label = EditorUtil.getLabel(key, true);
-            	area = nameArea;//area.getDocument().addDocumentListener(this);
+            	area = nameArea;
+            } else if (EditorUtil.FIRST_NAME.equals(key) ||
+            		EditorUtil.LAST_NAME.equals(key)) {
+            	label = EditorUtil.getLabel(key, true);
             } else label = UIUtilities.setTextFont(key);
             items.put(key, area);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 0.0;  
             content.add(label, c);
-            
-     
+
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
@@ -272,7 +273,7 @@ class ExperimenterPane
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     		p.add(UIUtilities.buildComponentPanel(
     				UIUtilities.setTextFont("Select the group(s) to add the " +
-    				"Experimenter to")));
+    				"User to")));
     		p.add(selectionComponent);
     		c.gridy++;
     		add(new JSeparator(), c);
@@ -293,7 +294,7 @@ class ExperimenterPane
     ExperimenterPane(boolean passwordRequired, Collection<DataObject> available,
     		Collection<DataObject> selected)
     {
-    	this.passwordRequired = passwordRequired;
+    	this.passwordRequired = true;//passwordRequired;
     	initComponents(available, selected);
     	buildGUI();
     }
@@ -311,11 +312,11 @@ class ExperimenterPane
 		ExperimenterData data = new ExperimenterData();
 		field = items.get(EditorUtil.FIRST_NAME);
 		String value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setFirstName(value);
 		field = items.get(EditorUtil.LAST_NAME);
 		value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
 		value = field.getText();
@@ -373,6 +374,40 @@ class ExperimenterPane
 	}
 
 	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasLoginName()
+	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		return (s.length() != 0);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasLoginCredentials()
+	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		int count = 0;
+		if (s.length() != 0) count++;
+		field = items.get(EditorUtil.FIRST_NAME);
+		s = field.getText().trim();
+		if (s.length() != 0) count++;
+		field = items.get(EditorUtil.LAST_NAME);
+		s = field.getText().trim();
+		if (s.length() != 0) count++;
+		return count == 3;
+	}
+	
+	/**
 	 * Controls if criteria are met to create a new user.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -382,7 +417,7 @@ class ExperimenterPane
 		if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(name) ||
 				SelectionWizardUI.SELECTION_CHANGE.equals(name)) {
 			int count = 0;
-			if (isNameValid()) count++;
+			if (hasLoginCredentials()) count++;
 			StringBuffer buf = new StringBuffer();
 			buf.append(passwordField.getPassword());
 			String v = buf.toString();

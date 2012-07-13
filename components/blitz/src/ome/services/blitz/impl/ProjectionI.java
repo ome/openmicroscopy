@@ -43,7 +43,7 @@ public class ProjectionI
         throws ServerError
     {
         callInvokerOnRawArgs(__cb, __current, pixelsId, pixelsType, 
-                             algorithm.value(), tStart, tEnd, channelList, 
+                             algorithm.ordinal(), tStart, tEnd, channelList, 
                              stepping, zStart, zEnd, name);
     }
 
@@ -53,7 +53,7 @@ public class ProjectionI
             Current __current) throws ServerError
     {
         callInvokerOnRawArgs(__cb, __current, pixelsId, pixelsType, 
-                             algorithm.value(), timepoint, channelIndex, 
+                             algorithm.ordinal(), timepoint, channelIndex, 
                              stepping, start, end);
     }
 }

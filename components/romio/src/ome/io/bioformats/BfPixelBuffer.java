@@ -25,6 +25,7 @@ import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelBufferException;
+import ome.io.nio.RomioPixelBuffer;
 import ome.util.PixelData;
 
 import org.apache.commons.logging.Log;
@@ -169,7 +170,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             throws IOException, DimensionsOutOfBoundsException {
         final BfPixelsWrapper reader = reader();
         PixelData d;
-        byte[] buffer = new byte[reader.getPlaneSize()];
+        int size = RomioPixelBuffer.safeLongToInteger(reader.getPlaneSize());
+        byte[] buffer = new byte[size];
         reader.getPlane(z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
@@ -199,7 +201,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
                 "Not yet supported, raise ticket to implement if required");
     }
 
-    public Integer getPlaneSize() {
+    public Long getPlaneSize() {
         return reader().getPlaneSize();
     }
 
@@ -292,7 +294,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         return reader().getStackOffset(c,t);
     }
 
-    public Integer getStackSize() {
+    public Long getStackSize() {
         return reader().getStackSize();
     }
 
@@ -300,7 +302,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             DimensionsOutOfBoundsException {
         final BfPixelsWrapper reader = reader();
         PixelData d;
-        byte[] buffer = new byte[reader.getTimepointSize()];
+        int size = RomioPixelBuffer.safeLongToInteger(
+                reader.getTimepointSize());
+        byte[] buffer = new byte[size];
         reader.getTimepoint(t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
@@ -323,11 +327,11 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         return reader().getTimepointOffset(t);
     }
 
-    public Integer getTimepointSize() {
+    public Long getTimepointSize() {
         return reader().getTimepointSize();
     }
 
-    public Integer getTotalSize() {
+    public Long getTotalSize() {
         return reader().getTotalSize();
     }
 
@@ -391,7 +395,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     }
 
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size,
+    public Long getHypercubeSize(List<Integer> offset, List<Integer> size,
             List<Integer> step) throws DimensionsOutOfBoundsException
     {
         final BfPixelsWrapper reader = reader();
@@ -403,7 +407,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         final BfPixelsWrapper reader = reader();
         PixelData d;
-        byte[] buffer = new byte[getHypercubeSize(offset,size,step)];
+        int hypercubeSize = RomioPixelBuffer.safeLongToInteger(
+                getHypercubeSize(offset,size,step));
+        byte[] buffer = new byte[hypercubeSize];
         reader.getHypercube(offset,size,step,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;

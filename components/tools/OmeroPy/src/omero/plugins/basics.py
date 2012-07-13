@@ -76,9 +76,14 @@ class ShellControl(BaseControl):
             client = self.ctx.conn(args)
             ns = {"client": client, "omero":omero}
 
-        from IPython.Shell import IPShellEmbed
-        ipshell = IPShellEmbed(args.arg)
-        ipshell(local_ns=ns)
+        try:
+            # IPython 0.11 (see #7112)
+            from IPython import embed
+            embed(user_ns=ns)
+        except ImportError, ie:
+            from IPython.Shell import IPShellEmbed
+            ipshell = IPShellEmbed(args.arg)
+            ipshell(local_ns=ns)
 
 
 class HelpControl(BaseControl):
@@ -133,7 +138,7 @@ Available commands:
 Other help topics:
 %(topics)s
 
-For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
+For additional information, see http://trac.openmicroscopy.org.uk/ome/wiki/OmeroCli
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """ % {"program_name":sys.argv[0],"version":VERSION, "commands":commands, "topics":topics}
 

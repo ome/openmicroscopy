@@ -159,10 +159,9 @@ class BrowserUI
         	Object uo = node.getUserObject();
         	
         	if (uo instanceof ProjectData || uo instanceof DatasetData) {
-        		Class type = uo.getClass();
         		long id = ((DataObject) uo).getId();
         		DataObjectSelectionEvent event = 
-        			new DataObjectSelectionEvent(type, id);
+        			new DataObjectSelectionEvent(uo.getClass(), id);
         		event.setSelectTab(true);
         		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
         		bus.post(event);
@@ -383,7 +382,9 @@ class BrowserUI
     {
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
         node.removeAllChildren();
-        tm.insertNodeInto(new TreeBrowserNode(message), node,
+        node.removeAllChildrenDisplay();
+        if (message != null)
+        	tm.insertNodeInto(new TreeBrowserNode(message), node,
                 			node.getChildCount());
         tm.reload(node);
     }

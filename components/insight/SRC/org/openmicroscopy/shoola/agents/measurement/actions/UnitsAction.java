@@ -32,9 +32,10 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 /** 
- * Sets the unit either in microns or in pixels.
+ * Sets the unit either in the reference units or in pixels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,7 +59,7 @@ public class UnitsAction
 	
 	/** The description of the action for microns. */
 	private static final String DESCRIPTION_MICRONS = "Show the measurement " +
-											"units in Microns.";
+											"units ";
 
 	/** The description of the action for pixels. */
 	private static final String DESCRIPTION_PIXELS = "Show the measurement " +
@@ -78,20 +79,44 @@ public class UnitsAction
 	{
 		super(model);
 		this.inMicrons = inMicrons;
-		if (inMicrons)
-		{
+		if (inMicrons) {
 			name = NAME_MICRONS;
 			putValue(Action.NAME, NAME_MICRONS);
 			putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION_MICRONS));
-		}
-		else
-		{
+            UIUtilities.formatToolTipText(DESCRIPTION_MICRONS+NAME_MICRONS));
+		} else {
 			name = NAME_PIXELS;
 			putValue(Action.NAME, NAME_PIXELS);
 			putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION_PIXELS));
 		}
+	}
+	
+	/**
+	 * Sets the reference units.
+	 * 
+	 * @param units The units of reference.
+	 */
+	public void setRefUnits(String units)
+	{
+		String value = NAME_MICRONS;
+		if (UnitsObject.CENTIMETER.equals(units)) {
+			value = "in Centimeters";
+		} else if (UnitsObject.MILLIMETER.equals(units)) {
+			value = "in Millimeters";
+		} else if (UnitsObject.METER.equals(units)) {
+			value = "in Meters";
+		} else if (UnitsObject.NANOMETER.equals(units)) {
+			value = "in Nanometers";
+		} else if (UnitsObject.PICOMETER.equals(units)) {
+			value = "in Picometers";
+		} else if (UnitsObject.ANGSTROM.equals(units)) {
+			value = "in Angstroms";
+		}
+		name = value;
+		putValue(Action.NAME, value);
+		putValue(Action.SHORT_DESCRIPTION, 
+        UIUtilities.formatToolTipText(DESCRIPTION_MICRONS+value));
 	}
 	
 	/** 
@@ -102,5 +127,5 @@ public class UnitsAction
     { 
     	model.showMeasurementsInMicrons(inMicrons); 
     }
-    
+
 }

@@ -46,9 +46,9 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  * @since 3.0-Beta3
  * @DEV.TODO insert/update OR delete regular type OR annotated type OR
  *           originalfile
- * @see <a href="http://trac.openmicroscopy.org.uk/omero/FileParsers">Parsers</a
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/FileParsers">Parsers</a
  *      href>
- * @see <a href="http://trac.openmicroscopy.org.uk/omero/SearchBridges">Bridges</a
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
  *      href>
  */
 public class FullTextBridge extends BridgeHelper {
@@ -89,7 +89,7 @@ public class FullTextBridge extends BridgeHelper {
      *            set of {@link FieldBridge bridge classes} which will be
      *            instantiated via a no-arg constructor.
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/omero/SearchBridges">Bridges</a
+     *      href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
      *      href>
      */
     @SuppressWarnings("unchecked")

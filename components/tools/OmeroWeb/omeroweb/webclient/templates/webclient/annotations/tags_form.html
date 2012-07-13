@@ -1,0 +1,58 @@
+{% load i18n %}
+{% load common_filters %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+  This is the content of a form for adding new Tags or choosing existing ones.
+  Loaded by AJAX into a form dialog.
+-->
+{% endcomment %}
+
+<div class="standard_form">
+
+    <h1>{% trans "Available Tags" %}:</h1>
+    
+    {{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}
+
+    <h1>{% trans "Add a new tag" %}</h1>
+    
+		
+		<label>Tag Name:</label>
+		{{ form_tags.tag }}
+       
+	  
+       	<label>Description:</label>
+        {{ form_tags.description }}
+       
+
+        <!-- hidden fields used to specify the objects we're tagging -->
+        <div class="hiddenField">{{ form_tags.image }}</div>
+        <div class="hiddenField">{{ form_tags.dataset }}</div>
+        <div class="hiddenField">{{ form_tags.project }}</div>
+        <div class="hiddenField">{{ form_tags.screen }}</div>
+        <div class="hiddenField">{{ form_tags.plate }}</div>
+        <div class="hiddenField">{{ form_tags.acquisition }}</div>
+        <div class="hiddenField">{{ form_tags.well }}</div>
+
+
+</div>

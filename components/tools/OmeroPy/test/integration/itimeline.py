@@ -13,15 +13,13 @@ import datetime
 import unittest
 import integration.library as lib
 import omero
-import omero_Constants_ice
 from omero.rtypes import *
 
 class TestITimeline(lib.ITest):
 
     def testGeneral(self):
-        user = self.new_user().omeName.val
-        client = omero.client()
-        sf = client.createSession(user, "")
+        client, user = self.new_client_and_user()
+        sf = client.sf
 
         uuid = sf.getAdminService().getEventContext().sessionUuid
         admin = sf.getAdminService()

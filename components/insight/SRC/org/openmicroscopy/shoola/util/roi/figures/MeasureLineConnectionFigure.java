@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
 
@@ -68,6 +69,15 @@ public class MeasureLineConnectionFigure
 	extends LineConnectionTextFigure
 	implements ROIFigure
 {
+	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
 	
 	/** Is this figure read only. */
 	private boolean readOnly;
@@ -107,13 +117,16 @@ public class MeasureLineConnectionFigure
 	 */
 	private int 					status;
 	
-	/**
-	 * Create instance of line connection figure. 
-	 *
-	 */
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
+	/** The units of reference.*/
+	private String refUnits;
+	
+	/** Creates instance of line connection figure.*/
 	public MeasureLineConnectionFigure()
 	{
-		this(DEFAULT_TEXT, false);
+		this(DEFAULT_TEXT, false, true, true, true);
 	}
 	
 	/**
@@ -121,8 +134,12 @@ public class MeasureLineConnectionFigure
 	 * 
 	 * @param text text to assign to the figure. 
 	 * @param readOnly The figure is read only.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasureLineConnectionFigure(String text, boolean readOnly)
+	public MeasureLineConnectionFigure(String text, boolean readOnly,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -136,6 +153,11 @@ public class MeasureLineConnectionFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
+   		interactable = true;
+   		refUnits = UnitsObject.MICRONS;
 	}
 
 	 /**
@@ -230,7 +252,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 			super.transform(tx);
 	}
 		
@@ -240,7 +262,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && interactable)
 			super.setBounds(anchor, lead);
 	}
 	
@@ -287,7 +309,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UIUtilities.DEGREES_SYMBOL;
+		return str + UnitsObject.DEGREES;
 	}
 	
 	/**
@@ -300,7 +322,7 @@ public class MeasureLineConnectionFigure
 		if (shape == null) 
 			return str;
 		
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		if (units.isInMicrons()) return str+refUnits;
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
@@ -376,8 +398,11 @@ public class MeasureLineConnectionFigure
 			if (units.isInMicrons())
 			{
 				Point2D.Double pt = getPoint(i);
-				return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
-					pt.getY()*units.getMicronsPixelY());
+				double tx = UIUtilities.transformSize(
+						pt.getX()*units.getMicronsPixelX()).getValue();
+				double ty = UIUtilities.transformSize(
+						pt.getY()*units.getMicronsPixelY()).getValue();
+				return new Point2D.Double(tx, ty);
 			}
 			return getPoint(i);
 		}
@@ -532,6 +557,8 @@ public class MeasureLineConnectionFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
+		refUnits = UIUtilities.transformSize(
+				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -653,6 +680,7 @@ public class MeasureLineConnectionFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setInteractable(true);
 		return that;
 	}
 	
@@ -669,4 +697,38 @@ public class MeasureLineConnectionFigure
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+	
 }

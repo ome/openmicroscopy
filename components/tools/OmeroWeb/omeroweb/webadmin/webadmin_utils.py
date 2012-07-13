@@ -6,7 +6,7 @@ from omero_version import omero_version
 from webclient.webclient_gateway import OmeroWebGateway
 from omeroweb.webgateway.views import _createConnection
 
-logger = logging.getLogger('admin-utils')
+logger = logging.getLogger(__name__)
 
 def getGuestConnection(host, port):
     conn = None
@@ -62,16 +62,16 @@ def upgradeCheck():
     #   if False:
     #
     # For more information, see
-    # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+    # http://trac.openmicroscopy.org.uk/ome/wiki/UpgradeCheck
     #
     try:
         from omero.util.upgrade_check import UpgradeCheck
         check = UpgradeCheck("web")
         check.run()
         if check.isUpgradeNeeded():
-            logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+            logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/ome/wiki/MilestoneDownloads.\n")
         else:
-            logger.error("Up to date.\n")
+            logger.debug("Up to date.\n")
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
     

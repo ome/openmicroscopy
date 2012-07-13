@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -68,16 +69,12 @@ class ProjectionUI
 	/** The UI component hosting the {@link ProjectionCanvas}. */
     private JLayeredPane			layeredPane;
     
-    /** 
-     * Flag indicating if the projection has already been done for the 
-     * first time. 
-     */
-    private boolean					init;
+    /** Flag indicating if the experimenter uses the scrollbars. */
+    private boolean adjusting;
     
 	/** Initializes the components composing the display. */
     private void initComponents()
     {
-    	init = false;
         layeredPane = new JLayeredPane();
         if (ImViewerAgent.hasOpenGLSupport())
         	canvas = new ProjectionCanvas(model, view);
@@ -95,6 +92,34 @@ class ProjectionUI
         getViewport().add(layeredPane);
     }
     
+
+	/** Centers the image.*/
+	private void center()
+	{
+		Rectangle r = getViewport().getViewRect();
+		Dimension d = layeredPane.getPreferredSize();
+		int xLoc = ((r.width-d.width)/2);
+		int yLoc = ((r.height-d.height)/2);
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (hBar.isVisible()) xLoc = layeredPane.getX();
+		if (vBar.isVisible()) yLoc = layeredPane.getY();
+		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the scrollbars are visible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean scrollbarsVisible()
+	{
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		return (hBar.isVisible() || vBar.isVisible());
+	}
+	
     /** Creates a new instance. */
     ProjectionUI() {}
     
@@ -109,7 +134,6 @@ class ProjectionUI
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
 		this.view = view;
-		init = false;
 		initComponents();
 		buildGUI();
 	}
@@ -142,8 +166,12 @@ class ProjectionUI
      */
     Dimension getViewportSize() { return getViewport().getSize(); }
 
-    /** Displays the zoomed image. */
-    void zoomImage()
+    /** Displays the zoomed image. 
+     * 
+     * @param resetLocation Pass <code>true</code> to reset the viewport location,
+     * 						<code>false</code> otherwise.
+     */
+    void zoomImage(boolean resetLocation)
     {
     	int w, h;
     	if (canvas instanceof ProjectionCanvas) {
@@ -172,7 +200,8 @@ class ProjectionUI
     		}
     		setComponentsSize(w, h);
     	}
-    	getViewport().setViewPosition(new Point(-1, -1));
+    	if (resetLocation)
+    		getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();
     	setBounds(getBounds());
     }
@@ -214,7 +243,7 @@ class ProjectionUI
     {
         layeredPane.remove(c);
     }
-    
+
 	/** 
 	 * Overridden to center the image.
 	 * @see JComponent#setBounds(Rectangle)
@@ -233,9 +262,14 @@ class ProjectionUI
 		super.setBounds(x, y, width, height);
 		Rectangle r = getViewport().getViewRect();
 		Dimension d = layeredPane.getPreferredSize();
-		int xLoc = ((r.width-d.width)/2);
-		int yLoc = ((r.height-d.height)/2);
-		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		if (model.isBigImage()) {
+			if (!(d.width < r.width && d.height < r.height))
+				return;
+		}
+		if (!scrollbarsVisible() && adjusting) adjusting = false;
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (!(hBar.isVisible() && vBar.isVisible())) center();
 	}
 
 }

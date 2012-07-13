@@ -63,18 +63,43 @@ public class ImporterFactory
 	
 	/** The sole instance. */
 	private static final ImporterFactory  singleton = new ImporterFactory();
-	
+
 	/**
-	 * Returns a {@link Importer}.
-	 *  
+	 * Returns <code>true</code> if the importer already exists,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @return See above.
 	 */
-	public static Importer getImporter()
+	public static boolean doesImporterExist()
 	{
-		ImporterModel model = new ImporterModel();
+		return singleton.importer != null;
+	}
+
+	/**
+	 * Returns a {@link Importer}.
+	 * 
+	 * @param groupId The identifier of the current group.
+	 * @return See above.
+	 */
+	public static Importer getImporter(long groupId, boolean master)
+	{
+		ImporterModel model = new ImporterModel(groupId, master);
 		return singleton.getImporter(model);
 	}
 	
+	/**
+	 * Returns a {@link Importer}.
+	 * 
+	 * @param groupId The identifier of the current group.
+	 * @param master Pass <code>true</code> if the importer is used a 
+	 * stand-alone application, <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	public static Importer getImporter(long groupId)
+	{
+		return getImporter(groupId, false);
+	}
+
 	/**
 	 * Notifies the model that the user's group has successfully be modified
 	 * if the passed value is <code>true</code>, unsuccessfully 
@@ -86,8 +111,23 @@ public class ImporterFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
+		if (singleton.importer != null && 
+				((ImporterComponent) singleton.importer).isMaster()) {
+			((ImporterComponent) singleton.importer).onGroupSwitched(success);
+			return;
+		}
 		singleton.clear();
 	}
+	
+	/** Invokes when a new user has reconnected.*/
+	public static void onReconnected()
+	{
+		if (singleton.importer != null) {
+			singleton.importer.discard();
+			singleton.importer = null;
+		}
+	}
+	
 	
 	/** 
 	 * Returns the <code>window</code> menu. 

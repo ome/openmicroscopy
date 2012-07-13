@@ -29,9 +29,17 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
 * Views the selected image or browses the selected container.
@@ -101,7 +109,34 @@ public class ViewCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		browser.browse(browser.getLastSelectedDisplay(), null, withThumbnails);
+		TreeImageDisplay d = browser.getLastSelectedDisplay();
+		Object uo = d.getUserObject();
+		if (uo instanceof ImageData) {
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			ViewImageObject vo = new ViewImageObject((ImageData) uo);
+			TreeImageDisplay p = d.getParentDisplay();
+			TreeImageDisplay gp = null;
+			DataObject po = null;
+			DataObject gpo = null;
+			if (p != null) {
+				uo = p.getUserObject();
+				gp = p.getParentDisplay();
+				if (uo instanceof DataObject) 
+					po = (DataObject) uo;
+				if (gp != null) {
+					uo = gp.getUserObject();
+					if (uo instanceof DataObject)
+						gpo = (DataObject) uo;
+				}
+			}
+			vo.setContext(po, gpo);
+			SecurityContext ctx = browser.getSecurityContext(d);
+			ViewImage evt = new ViewImage(ctx, vo, model.getUI().getBounds());
+			evt.setSeparateWindow(true);
+			bus.post(evt);
+		} else 
+			browser.browse(browser.getLastSelectedDisplay(), null,
+					withThumbnails);
 	}
-  
+
 }

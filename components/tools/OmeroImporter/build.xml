@@ -121,6 +121,7 @@
     <target name="release-win" depends="package,install,exe4j-init" if="exe4j.exists"
             description="Create a Windows executable bundle">
             <exe4j projectfile="OmeroImporter.exe4j"/>
+            <exe4j projectfile="OmeroImporter_64.exe4j"/>
     </target>
 
     <target name="release-win-zip" depends="release-win"
@@ -139,11 +140,15 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target">
         <ivy:resolve file="${basedir}/ivy.xml" type="jar" conf="client" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
+        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[artifact]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
     </target>
 
     <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile">
-        <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
+        <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}">
+            <patternset>
+                <exclude name="META-INF/**"/><!-- breaks jarsigner -->
+            </patternset>
+        </unjar>
     </target>
 
     <target name="tools-clean" depends="clean"/>

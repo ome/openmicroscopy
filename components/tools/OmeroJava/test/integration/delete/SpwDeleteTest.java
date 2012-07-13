@@ -6,10 +6,8 @@
  */
 package integration.delete;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import integration.XMLMockObjects;
-import integration.XMLWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.xml.model.OME;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Experiment;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -28,13 +26,16 @@ import omero.model.WellSample;
 
 import org.testng.annotations.Test;
 
+import spec.XMLMockObjects;
+import spec.XMLWriter;
+
 /**
  * Tests for deleting screen/plate/wells
  *
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class SpwDeleteTest extends AbstractTest {
+public class SpwDeleteTest extends AbstractServerTest {
 
     @Test(groups = { "ticket:3102" })
     public void testScreen() throws Exception {
@@ -67,7 +68,7 @@ public class SpwDeleteTest extends AbstractTest {
             }
         }
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, screen
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, screen
                 .getId().getValue(), null));
 
         //assertDoesNotExist(exp);
@@ -98,7 +99,7 @@ public class SpwDeleteTest extends AbstractTest {
         Map<String, String> op = new HashMap<String, String>();
         op.put("/Plate", "KEEP");
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
 
         assertDoesNotExist(screen);
         assertExists(plate);
@@ -125,7 +126,7 @@ public class SpwDeleteTest extends AbstractTest {
         Map<String, String> op = new HashMap<String, String>();
         op.put("/Plate+Only", "KEEP");
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
 
         assertDoesNotExist(screen);
         assertExists(plate);

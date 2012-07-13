@@ -1,0 +1,378 @@
+/**
+ * base.css - Basic style for the weblitz viewer
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+
+body { 
+  font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+div.center {
+  text-align: center;
+}
+
+.content { 
+  margin: 1em;
+}
+
+
+h1 { 
+  text-align: center;
+  background: #C4CfD5;
+  color: #555;
+  font-size: 1.5em;
+}
+
+h2 { 
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 0px 1em;
+  text-decoration: underline;
+  color: #555;
+}
+
+dt { 
+  font-weight: bold;
+}
+
+li { 
+  list-style-type: none;
+}
+
+.screenshot { 
+  text-align: center;
+  font-size: 0.8em;
+}
+
+
+td.menu { 
+  vertical-align: top;
+  background-color: #FFF;
+  padding-right: 10px;
+}
+
+td.body { 
+  vertical-align: top;
+}
+
+div.menu {
+  width: 300px;
+  font-size: 0.9em;
+  white-space: nowrap;
+  margin-bottom: 1em;
+  background-color: #EEE;
+  padding-bottom: 1px;
+  position: relative;
+}
+
+div.menu .compound * { 
+  vertical-align: middle;
+}
+
+.menu input { 
+  margin: 5px;
+}
+
+.body { 
+  width: 100%;
+}
+
+.menu h1 { 
+  font-size: 0.8em;
+  font-weight: bold;
+  background-color: blue;
+  padding: 5px;
+  margin: 0px;
+  color: white;
+  text-transform: uppercase;
+}
+
+.menu h1 a { 
+  font-size: 0.8em;
+  text-transform: lowercase;
+}
+
+.menu ul { 
+  margin: 0px;
+  margin-top: 5px;
+  padding: 0px;
+  padding-left: 2em;
+}
+
+.menu li {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+.menu li.tree {
+  list-style-image: url('../img/blue_arrow_right.gif');
+}
+
+.menu li.open { 
+  list-style-image: url('../img/blue_arrow_down.gif');
+}
+
+.menu li.notree {
+  list-style-image: none;
+}
+
+a, .a-like { 
+  color: #1b7bc7;
+  text-decoration: none;
+}
+
+#selection.filled { 
+  border: 2px solid #184A89;
+}
+
+#selection {
+    
+}
+
+#context h1 { 
+  margin: 0px;
+  color: white;
+  background-color: #184A89;
+  border-bottom: 2px solid #184A89;
+  text-align: center;
+  position: relative;
+}
+
+#context h2 { 
+  margin: 5px;
+  margin-top: 1em;
+  padding-left: 1em;
+  border-bottom: 1px double;
+}
+
+
+#context .pdescription { 
+  padding: 0.5em;
+  border: 1px solid;
+  background: #FFEEAA;
+}
+
+#context .ddescription { 
+  margin: 1em 0px;
+  padding: 0.5em;
+  border: 1px solid;
+}
+
+.table-vp td { 
+  vertical-align: top;
+}
+
+
+.image-viewport-wrapper {
+  text-align: center;
+  background: #F7FAFF;
+  border-style: dashed;
+  border-width: 1px 0;
+  margin-bottom: 1em;
+}
+
+.image-viewport {
+  display: none;
+  width: 405px;
+  margin: 15px auto;
+}
+
+.image-viewer {
+/*
+  width: 400px;
+*/
+  height: 300px;
+}
+
+.image-viewer img { 
+}
+
+.image-thumbs { 
+  margin: 0.5em;
+  padding: 0px;
+}
+
+.fd-toggle {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  height: 16px;
+  width: 16px;
+  background: url('../img/blue_arrow_down.gif') no-repeat center;
+}
+
+.expanded .fd-toggle {
+  background: url('../img/blue_arrow_up.gif') no-repeat center;
+}
+
+.image-thumb {
+  margin: 2px;
+  cursor: pointer;
+}
+
+tr.image-thumb { 
+  background: #EFEFEF;
+  position: relative;
+}
+
+tr.image-thumb.odd { 
+  background: #DDD;
+}
+
+tr.image-thumb.collapsed { 
+  background: none;
+}
+
+tr.image-thumb td { 
+  vertical-align: middle;
+}
+
+tr.image-thumb td.image-thumb { 
+  vertical-align: top;
+}
+
+tr.image-thumb td p { 
+  margin: 0px;
+}
+
+.image-thumb.selected {
+  margin: 2px;
+  border: 2px solid;
+  border-color: red;
+  cursor: default;
+}
+
+.full-description {
+  display: none;
+}
+
+.expanded .full-description {
+  display: block;
+}
+
+.expanded .trimmed-description {
+  display: none;
+}
+
+.toolbox { 
+  font-size: 0.8em;
+  text-align: right;
+  line-height: 16px;
+}
+
+.toolbox * {
+  border: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.toolbox a:hover { 
+  background-color: transparent;
+}
+
+.toolbox a img {
+  position: relative;
+  /* top: 2px; */
+  right: 2px;
+}
+
+.viewport-thumb-name { 
+  font-size: 0.8em;
+  text-align: center;
+}
+
+#image-legend {
+  white-space: normal;
+  background-color: #BBB;
+}
+
+#image-legend h1 {
+  background-color: #6589FC;
+}
+
+.menu-content {
+  overflow: auto;
+  padding: 0.5em;
+  text-align: justify;
+}
+
+#details-popup {
+  display: none;
+  position: absolute;
+  border: none;
+  background-color: #EEEEEE;
+}
+
+#details-popup h1 {
+  background-color: #0000FF;
+  color: white;
+  border-bottom: 1px solid black;
+  white-space: nowrap;
+}
+
+.vslider {
+  _left: -4px;
+}
+
+.figure-box-part {
+  text-align: center;
+  margin-top: 1em;
+  border-top: 1px dashed;
+}
+
+.ajax-error {
+  color: red;
+  font-weight: bold;
+}
+
+.blockUI h1 {
+  color: #FE5916;
+  background: #B2AEA8 url(../img/ajax-loader-ovl.gif) no-repeat bottom;
+  margin: 0px;
+  height: 2em;
+}
+
+#footer {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  clear: both;
+  display: block;
+  bottom: 0px;    
+  left: 0px;
+  width: 100%;
+  height: 15px;
+  overflow: hidden;
+  background-color: #ddd;
+  border-top:1px solid #aaa;
+  font-size: x-small;
+  color: #555;
+}
+
+.ui-autocomplete-loading {
+  background: white url('../img/ui-anim_basic_16x16.gif') right center no-repeat;
+}
+
+.ui-autocomplete {
+  font-size: 0.7em;
+  max-height: 200px;
+  max-width: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px;
+  text-align: left;
+}

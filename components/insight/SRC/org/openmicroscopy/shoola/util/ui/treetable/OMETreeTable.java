@@ -96,7 +96,9 @@ public class OMETreeTable
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
 		DEFAULT_EDITORS = new HashMap<Class<?>, DefaultCellEditor>();
 		DEFAULT_EDITORS.put(Boolean.class, 
-				new BooleanCellEditor(new JCheckBox()));
+			//	new BooleanCellEditor(new JCheckBox()));
+				new BooleanCellEditor((JCheckBox)
+						DEFAULT_RENDERERS.get(Boolean.class)));
 		DEFAULT_EDITORS.put(Integer.class, 
 							new NumberCellEditor(new JTextField()));
 		DEFAULT_EDITORS.put(String.class, 

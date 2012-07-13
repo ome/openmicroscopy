@@ -23,24 +23,29 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -50,6 +55,7 @@ import org.jhotdraw.draw.DrawingEditor;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
 import org.openmicroscopy.shoola.agents.measurement.util.workflow.CreateWorkflowDialog;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -180,6 +186,9 @@ class ToolBar
     /** The button to bring up the assistant. */
     private JButton						assistantButton;
     
+    /** The component to show/hide the text. */
+    private JCheckBox					showTextButton;
+    
     /** The workflow panel controls what workflow elements will be added to the 
      * created figure. 
      */
@@ -188,6 +197,9 @@ class ToolBar
     /** Dialog used to create the workflow. */
     private CreateWorkflowDialog 		createWorkflowDialog;
    
+    /** Menu offering the delete option for Admin/group owner.*/
+    private PermissionMenu deleteMenu;
+    
     /**
      * Sets the property of the toggle button.
      * 
@@ -202,25 +214,27 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
+		showTextButton = new JCheckBox("Show Text");
+		
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
-				false, true));
+				false, true, true, true, true));
 		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
-				false, true));
+				false, true, true, true, true));
 		textTool = new DrawingObjectCreationTool(
 				new MeasureTextFigure(false, true));
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true));
+				new MeasureLineFigure(false, true, true, true, true));
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), 
 						lineConnectionProperties.getProperties());
 		pointTool = new DrawingPointCreationTool(
-				new MeasurePointFigure(false, true));
+				new MeasurePointFigure(false, true, true, true, true));
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true));
+	    		new MeasureBezierFigure(true, false, true, true, true, true));
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true));
+	    		new MeasureBezierFigure(false, false, true, true, true, true));
 	    
 	    Component component;
 	    
@@ -327,6 +341,20 @@ class ToolBar
     	bar.add(assistantButton);
     	button = new JButton(controller.getAction(
     			MeasurementViewerControl.DELETE));
+    	if (!model.isMember()) {
+    		button.addMouseListener(new MouseAdapter() {
+				
+				public void mousePressed(MouseEvent e) {
+					if (deleteMenu == null) {
+						deleteMenu = new PermissionMenu(PermissionMenu.DELETE, 
+								"ROIs");
+						deleteMenu.addPropertyChangeListener(controller);
+					}
+					deleteMenu.show((JComponent) e.getSource(), e.getX(),
+							e.getY());
+				}
+			});
+    	}
     	UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
     	bar.add(new JSeparator());
@@ -342,6 +370,8 @@ class ToolBar
 		p.add(buildControlsBar());
 		p.add(Box.createHorizontalStrut(5));
 		p.add(toolBar);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(showTextButton);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
 	    j.add(p);
@@ -413,6 +443,36 @@ class ToolBar
 	    	polylineTool.setResetToSelect(option); 
 	}
 	
+	/** Sets the value in the tool bar.*/
+    void refreshToolBar()
+    {
+    	Collection<ROIFigure> figures = model.getAllFigures();
+		if (figures.size() > 0) {
+			Iterator<ROIFigure> i = figures.iterator();
+			ROIFigure figure;
+			boolean b = false;
+			Boolean value;
+			while (i.hasNext()) {
+				figure = i.next();
+				//if (!figure.isReadOnly()) {
+					value = MeasurementAttributes.SHOWTEXT.get(figure);
+					if (value != null && value.booleanValue()) {
+						b = value.booleanValue();
+						break;
+					}
+				//}
+			}
+			showTextButton.setSelected(b);
+		}
+		showTextButton.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				view.showText(showTextButton.isSelected());
+				
+			}
+		});
+    }
+    
 	/** Invokes when figures are selected. */
 	void onFigureSelected()
 	{
@@ -454,6 +514,17 @@ class ToolBar
 
 	/** Adds the workflows. */
 	void addedWorkflow() { workflowPanel.addedWorkflow(); }
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		assistantButton.setEnabled(!analyse);
+	}
 	
 	/**
 	 * Sets the selected flag of the source of the event to 

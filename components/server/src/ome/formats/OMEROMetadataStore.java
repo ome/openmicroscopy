@@ -441,6 +441,12 @@ public class OMEROMetadataStore
                                 (WellSample) referenceObject);
                         continue;
                     }
+										if (referenceObject instanceof Annotation)
+										{
+												handleReference((PlateAcquisition) targetObject,
+														(Annotation) referenceObject);
+												continue;
+										}
                 }
     			else if (targetObject instanceof Pixels)
     			{
@@ -450,6 +456,12 @@ public class OMEROMetadataStore
     							(OriginalFile) referenceObject);
     					continue;
     				}
+						if (referenceObject instanceof Annotation)
+						{
+								handleReference(
+										(Pixels) targetObject, (Annotation) referenceObject);
+								continue;
+						}
     			}
     			else if (targetObject instanceof FilterSet)
     			{
@@ -500,6 +512,11 @@ public class OMEROMetadataStore
                                         (Plate) referenceObject);
                         continue;
                     }
+										if (referenceObject instanceof Annotation) {
+												handleReference((Screen) targetObject,
+														(Annotation) referenceObject);
+												continue;
+										}
                 }
     			else if (targetObject instanceof Well)
     			{
@@ -1242,6 +1259,17 @@ public class OMEROMetadataStore
         target.addWellSample(reference);
     }
 
+		/**
+		 * Handles linking a specific reference object to a target object in our
+		 * object graph.
+		 * @param target Target model object.
+		 * @param reference Reference model object.
+		 */
+		private void handleReference(PlateAcquisition target, Annotation reference)
+		{
+				target.linkAnnotation(reference);
+		}
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1252,6 +1280,17 @@ public class OMEROMetadataStore
     {
         target.linkOriginalFile(reference);
     }
+
+		/**
+		 * Handles linking a specific reference object to a target object in our
+		 * object graph.
+		 * @param target Target model object.
+		 * @param reference Reference model object.
+		 */
+		private void handleReference(Pixels target, Annotation reference)
+		{
+				target.linkAnnotation(reference);
+		}
 
     /**
      * Handles linking a specific reference object to a target object in our
@@ -1334,6 +1373,17 @@ public class OMEROMetadataStore
         {
             target.linkPlate(reference);
         }
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model objct.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Screen target, Annotation reference)
+    {
+				target.linkAnnotation(reference);
     }
 
     /**

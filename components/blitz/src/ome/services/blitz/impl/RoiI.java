@@ -107,34 +107,44 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-            	boolean ns=false;
-            	if(opts!=null)
-            		if(opts.namespace!=null)
-            			ns=true;
-            	if (ns)
-            	{
-		    List<Map<String, Object>> mapList = sql.roiByImageAndNs(imageId,
+                boolean ns = false;
+                if (opts != null) {
+                    if(opts.namespace != null) {
+                        ns = true;
+                    }
+                }
+
+                if (ns)
+                {
+		    final List<Map<String, Object>> mapList = sql.roiByImageAndNs(imageId,
 		            opts.namespace.getValue());
-                	List<Long> idList = new ArrayList<Long>();
-                	for(Map<String, Object> idMap : mapList)
-                		 idList.add((Long)idMap.get("id"));
-                	if (idList.size() == 0) return new ArrayList();
-                	String hqlQuery = "select distinct r from Roi r join " +
-                			"r.image i join fetch r.shapes where r.id in (:ids)";
-                	hqlQuery = hqlQuery + " order by r.id";
-        		    Query q = session.createQuery(hqlQuery);
-        		    q.setParameterList("ids", idList);
-        		    return q.list();
-            	}
-            	else
-            	{
-        		    String queryString = "select distinct r from Roi r join r.image i "
-                        + "join fetch r.shapes where i.id = :id";
-        		    queryString = queryString + " order by r.id";
-        		    Query q = session.createQuery(queryString);
-        		    q.setParameter("id", imageId);
-        		    return q.list();
-            	}   	
+                    final List<Long> idList = new ArrayList<Long>();
+
+                    for(Map<String, Object> idMap : mapList) {
+                        idList.add((Long)idMap.get("id"));
+                    }
+
+                    if (idList.size() == 0) return new ArrayList();
+
+                    final RoiQueryBuilder qb = new RoiQueryBuilder(idList, opts);
+                    return qb.query(session).list();
+                }
+
+                else
+                {
+                    final Filter f = filter(opts);
+                    final QueryBuilder qb = new QueryBuilder();
+                    qb.select("distinct r").from("Roi", "r");
+                    qb.join("r.image", "i", false, false);
+                    qb.join("r.shapes", "shapes", false, true); // fetch
+                    qb.where();
+                    qb.and("i.id = :id");
+                    qb.filter("r", f);
+                    qb.filterNow();
+                    qb.order("r.id", true); // ascending
+                    qb.param("id", imageId);
+                    return qb.queryWithoutFilter(session).list();
+                }
             }
         }));
 
@@ -151,14 +161,14 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                RoiQueryBuilder qb = new RoiQueryBuilder(Arrays.asList(roiId));
+                RoiQueryBuilder qb = new RoiQueryBuilder(Arrays.asList(roiId), opts);
                 return qb.query(session).list();
             }
         }));
     }
 
     public void findByPlane_async(AMD_IRoi_findByPlane __cb,
-            final long imageId, final int z, final int t, RoiOptions opts,
+            final long imageId, final int z, final int t, final RoiOptions opts,
             Current __current) throws ServerError {
 
         final IceMapper mapper = new RoiResultMapper(opts);
@@ -170,15 +180,22 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                Query q = session.createQuery("select distinct r from Roi r "
-                        + "join fetch r.shapes s where r.id = :id "
-                        + "and ( s.theZ is null or s.theZ = :z ) "
-                        + "and ( s.theT is null or s.theT = :t ) "
-                        + "order by r.id");
-                q.setParameter("id", imageId);
-                q.setParameter("z", z);
-                q.setParameter("t", t);
-                return q.list();
+                final Filter f = filter(opts);
+                final QueryBuilder qb = new QueryBuilder();
+                qb.select("distinct r").from("Roi", "r");
+                qb.join("r.shapes", "s", false, true); // fetch
+                qb.join("r.image", "i", false, false);
+                qb.where();
+                qb.and("i.id = :id");
+                qb.and(" ( s.theZ is null or s.theZ = :z ) ");
+                qb.and(" ( s.theT is null or s.theT = :t ) ");
+                qb.filter("r", f);
+                qb.filterNow();
+                qb.order("r.id", true); // ascending
+                qb.param("id", imageId);
+                qb.param("z", z);
+                qb.param("t", t);
+                return qb.queryWithoutFilter(session).list();
 
             }
         }));
@@ -566,7 +583,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     // Helpers
     // =========================================================================
 
-    private Filter filter(RoiOptions opts) {
+    private static Filter filter(RoiOptions opts) {
         Filter f = new Filter();
         if (opts != null) {
             if (opts.userId != null) {
@@ -592,7 +609,9 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     private static class RoiQueryBuilder extends QueryBuilder {
 
-        RoiQueryBuilder(List<Long> roiIds) {
+        final RoiOptions opts;
+        RoiQueryBuilder(List<Long> roiIds, RoiOptions opts) {
+            this.opts = opts;
             this.paramList("ids", roiIds);
             this.select("distinct r");
             this.from("Roi", "r");
@@ -603,8 +622,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         @Override
         public Query query(Session session) {
             this.and("r.id in (:ids)");
+            Filter f = RoiI.filter(opts);
+            this.filter("r", f);
+            this.filterNow();
             this.append("order by r.id");
-            return super.query(session);
+            return super.queryWithoutFilter(session);
         }
 
     }

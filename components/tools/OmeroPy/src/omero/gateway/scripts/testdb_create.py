@@ -36,6 +36,7 @@ dbhelpers.IMAGES = {
     'badimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny2', 'imgs/tinyTest.d3d.dv', 'testds2'),
     'tinyimg3' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny3', 'imgs/tinyTest.d3d.dv', 'testds3'),
+    'bigimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_big', 'imgs/big.tiff', 'testds3'),
 }
 
 
@@ -47,9 +48,15 @@ class GTest(unittest.TestCase):
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
-        if self.gateway.getProperty('omero.rootpass'):
-            dbhelpers.ROOT.passwd = self.gateway.getProperty('omero.rootpass')
         self.ADMIN = dbhelpers.ROOT
+        gateway = omero.client_wrapper()
+        try:
+            rp = gateway.getProperty('omero.rootpass')
+            if rp:
+                dbhelpers.ROOT.passwd = rp
+        finally:
+            gateway.seppuku()
+
         if not skipTestDB:
             self.prepTestDB()
             self.doDisconnect()
@@ -62,17 +69,20 @@ class GTest(unittest.TestCase):
         self.failUnless(self.gateway.keepAlive(), 'Could not send keepAlive to connection')
     
     def doDisconnect(self):
-        if self._has_connected:
+        if self._has_connected and self.gateway:
             self.doConnect()
             self.gateway.seppuku()
             self.assert_(not self.gateway.isConnected(), 'Can not disconnect')
-        self.gateway = omero.client_wrapper(group='system', try_super=True)
-        self.assert_(self.gateway, 'Can not get gateway from connection')
+        self.gateway = None
         self._has_connected = False
 
-    def doLogin (self, user):
+    def doLogin (self, user=None, groupname=None):
         self.doDisconnect()
-        self.gateway = dbhelpers.login(user)
+        if user:
+            self.gateway = dbhelpers.login(user, groupname)
+        else:
+            self.gateway = dbhelpers.loginAsPublic()
+        self.doConnect()
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -83,15 +93,21 @@ class GTest(unittest.TestCase):
     def loginAsUser (self):
         self.doLogin(self.USER)
 
+    def loginAsPublic (self):
+        self.doLogin()
+
     def tearDown(self):
-        if self._has_connected:
-            self.gateway.seppuku()
-        failure = False
-        for tmpfile in self.tmpfiles:
-            try:
-                tmpfile.close()
-            except:
-                print "Error closing:"+tmpfile
+
+        try:
+            if self.gateway is not None:
+                self.gateway.seppuku()
+        finally:
+            failure = False
+            for tmpfile in self.tmpfiles:
+                try:
+                    tmpfile.close()
+                except:
+                    print "Error closing:"+tmpfile
         if failure:
            raise exceptions.Exception("Exception on client.closeSession")
 
@@ -122,8 +138,17 @@ class GTest(unittest.TestCase):
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
 
+    def getBigTestImage (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
+
     def prepTestDB (self):
         dbhelpers.bootstrap()
 
+    def waitOnCmd(self, client, handle):
+        callback = omero.callbacks.CmdCallbackI(client, handle)
+        callback.loop(10, 500) # throws on timeout
+        rsp = callback.getResponse()
+        self.assert_(isinstance(rsp, omero.cmd.OK))
+        return callback
         
         

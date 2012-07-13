@@ -30,6 +30,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -55,11 +56,13 @@ public class ParentLoader
      * 
      * @param viewer	The Editor this data loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param values The groups or experimenters to delete.
      */
-    public ParentLoader(TreeViewer viewer, FileAnnotationData data)
+    public ParentLoader(TreeViewer viewer, SecurityContext ctx,
+    		FileAnnotationData data)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (data == null)
             throw new IllegalArgumentException("No object to handle");
         this.data = data;
@@ -71,7 +74,7 @@ public class ParentLoader
      */
     public void load()
     {
-    	 handle = dmView.loadParentsOfAnnotation(data.getId(), this);
+    	 handle = dmView.loadParentsOfAnnotation(ctx, data.getId(), this);
     }
 
     /**

@@ -30,6 +30,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.TagAnnotationData;
 
@@ -55,15 +56,26 @@ public class TagsLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
+    /**
+     * Flag indicating to load all annotations available or 
+     * to only load the user's annotation.
+     */
+    private boolean loadAll;
+    
     /**	
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param loadAll Pass <code>true</code> indicating to load all
+     * 						annotations available if the user can annotate,
+     *                    <code>false</code> to only load the user's annotation.
      */
-    public TagsLoader(Editor viewer)
+    public TagsLoader(Editor viewer, SecurityContext ctx, boolean loadAll)
     {
-    	 super(viewer);
+    	super(viewer, ctx);
+    	this.loadAll = loadAll;
     }
     
 	/** 
@@ -72,9 +84,10 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		setIds();
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
-				userID, groupID, this);
+		long userID = getCurrentUser();
+		if (loadAll) userID = -1;
+		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+				userID, this);
 	}
 	
 	/** 

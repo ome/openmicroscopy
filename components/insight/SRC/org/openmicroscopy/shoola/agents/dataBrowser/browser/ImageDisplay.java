@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
@@ -120,6 +121,9 @@ public abstract class ImageDisplay
      */
     protected Object       	 	hierarchyObject;
     
+    /** The annotation count.*/
+    private int count;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link ImageDisplayVisitor}.
@@ -165,6 +169,7 @@ public abstract class ImageDisplay
         super(title, note);
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
+        count = 0;
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet<ImageDisplay>();
         setToolTipText(getNodeName());
@@ -214,7 +219,7 @@ public abstract class ImageDisplay
             child.parentDisplay.removeChildDisplay(child);
         child.parentDisplay = this;
         childrenDisplay.add(child);
-        getInternalDesktop().add(child);
+        ((JLayeredPane) getInternalDesktop()).add(child, Integer.valueOf(0));
     }
     
     /**
@@ -301,10 +306,24 @@ public abstract class ImageDisplay
 			} catch (Exception e) {}
     	}
     	*/
-    	if (EditorUtil.isAnnotated(hierarchyObject)) 
+    	if (EditorUtil.isAnnotated(hierarchyObject, count)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
     	
     	if (nodes.size() > 0) setDecoration(nodes);
+    }
+    
+    /** 
+     * Sets the annotation count.
+     * 
+     * @param count The value to set.
+     */
+    public void setAnnotationCount(int count)
+    { 
+    	this.count = count;
+    	noDecoration();
+    	setNodeDecoration();
+    	validate();
+    	repaint();
     }
     
     /**
@@ -438,5 +457,13 @@ public abstract class ImageDisplay
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
+    
+    /** 
+     * Adds the specified listener to the passed components.
+     * 
+     * @param listener The listener to add.
+     * @param listener
+     */
+    public abstract void addListenerToComponents(Object listener);
     
 }

@@ -57,19 +57,20 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -130,7 +131,7 @@ abstract class DataBrowserModel
 	static final int	FS_FOLDER = 9;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
-    private int					state;
+    protected int state;
     
     /** Maps an image id to the list of thumbnail providers for that image. */
     private ThumbnailsManager   thumbsManager;
@@ -183,12 +184,83 @@ abstract class DataBrowserModel
     /** The grandparent of the node. Used as back pointer. */
     protected Object 			grandParent;
     
-    /** Creates a new instance. */
-    DataBrowserModel()
+    /** The security context.*/
+    protected SecurityContext ctx;
+    
+	/**
+	 * Indicates to load all annotations available if the user can annotate
+	 * and is an administrator/group owner or to only load the user's
+	 * annotation.
+	 * 
+	 * @param ho The object to handle.
+	 * @return See above
+	 */
+	private boolean canRetrieveAll(Object ho)
+	{
+		if (!canAnnotate(ho)) return false;
+		//check the group level
+		long groupID = -1;
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			groupID = data.getGroupId();
+		}
+		GroupData group = getGroup(groupID);
+		if (group == null) return false;
+		if (GroupData.PERMISSIONS_GROUP_READ ==
+			group.getPermissions().getPermissionsLevel()) {
+			if (MetadataViewerAgent.isAdministrator()) return true;
+			Set leaders = group.getLeaders();
+			Iterator i = leaders.iterator();
+			long userID = getCurrentUser().getId();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (exp.getId() == userID)
+					return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getCurrentUser()
+	{
+		return DataBrowserAgent.getUserDetails();
+	}
+	
+    /** 
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     */
+    DataBrowserModel(SecurityContext ctx)
     {
     	sorter = new ViewerSorter();
-    	state = DataBrowser.NEW; 
+    	state = DataBrowser.NEW;
+    	this.ctx = ctx;
     }
+    
+	/**
+	 * Returns <code>true</code> if the specified object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+    boolean canAnnotate(Object ho)
+	{
+		long id = DataBrowserAgent.getUserDetails().getId();
+		boolean b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user it the owner.
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canAnnotate();
+	}
     
     /**
      * Returns the parent of the nodes if any.
@@ -431,7 +503,7 @@ abstract class DataBrowserModel
 	void fireFilteringByRate(int rate, Set nodes)
 	{
 		state = DataBrowser.FILTERING;
-		RateFilter loader = new RateFilter(component, rate, nodes);
+		RateFilter loader = new RateFilter(component, ctx, rate, nodes);
 		loader.load();
 	}
 	
@@ -444,7 +516,7 @@ abstract class DataBrowserModel
 	void fireFilteringByTags(List<String> tags, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		TagsFilter loader = new TagsFilter(component, tags, nodes);
+		TagsFilter loader = new TagsFilter(component, ctx, tags, nodes);
 		loader.load();
 	}
 	
@@ -457,7 +529,8 @@ abstract class DataBrowserModel
 	void fireFilteringByComments(List<String> comments, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		CommentsFilter loader = new CommentsFilter(component, comments, nodes);
+		CommentsFilter loader = new CommentsFilter(component, ctx, comments,
+				nodes);
 		loader.load();
 	}
 
@@ -470,7 +543,7 @@ abstract class DataBrowserModel
 	void fireFilteringByContext(FilterContext context, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		DataFilter loader = new DataFilter(component, context, nodes);
+		DataFilter loader = new DataFilter(component, ctx, context, nodes);
 		loader.load();
 	}
 	
@@ -488,8 +561,8 @@ abstract class DataBrowserModel
 			                   Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		AnnotatedFilter loader = new AnnotatedFilter(component, annotationType,
-				                                   annotated, nodes);
+		AnnotatedFilter loader = new AnnotatedFilter(component, ctx,
+				annotationType, annotated, nodes);
 		loader.load();
 	}
 	
@@ -497,14 +570,15 @@ abstract class DataBrowserModel
 	void fireTagsLoading()
 	{
 		state = DataBrowser.LOADING;
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component, ctx,
+				canRetrieveAll(parent));
 		loader.load();
 	}
 	
 	/** Starts an asynchronous call to load the existing datasets. */
 	void fireExisitingDatasetsLoading()
 	{
-		DatasetsLoader loader = new DatasetsLoader(component);
+		DatasetsLoader loader = new DatasetsLoader(component, ctx);
 		loader.load();
 	}
 	
@@ -529,9 +603,8 @@ abstract class DataBrowserModel
 		if (nodes.size() > 0) {
 			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
 					                                    toKeep.size());
-			ThumbnailLoader loader = new ThumbnailLoader(component, nodes, 
-														false, 
-														ThumbnailLoader.IMAGE);
+			ThumbnailLoader loader = new ThumbnailLoader(component, ctx,
+					nodes, false, ThumbnailLoader.IMAGE);
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}
@@ -561,8 +634,8 @@ abstract class DataBrowserModel
 					p = null;
 			}
 		}
-		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
-														images);
+		DataObjectCreator loader = new DataObjectCreator(component, ctx,
+				p, data, images);
 		loader.load();
 	}
 	
@@ -574,7 +647,7 @@ abstract class DataBrowserModel
 	 */
 	void fireDataSaving(Collection datasets, Collection images)
 	{
-		DataObjectSaver loader = new DataObjectSaver(component, datasets, 
+		DataObjectSaver loader = new DataObjectSaver(component, ctx, datasets, 
 														images);
 		loader.load();
 	}
@@ -589,7 +662,7 @@ abstract class DataBrowserModel
 	void fireReportLoading(Collection images, List<Class> types,
 			String name)
 	{
-		ReportLoader loader = new ReportLoader(component, types, 
+		ReportLoader loader = new ReportLoader(component, ctx, types, 
 				sorter.sort(images), name);
 		loader.load();
 	}
@@ -671,8 +744,9 @@ abstract class DataBrowserModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isParentWritable()
+	boolean canLinkParent()
 	{
+		if (DataBrowserAgent.isAdministrator()) return true;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		if (parent == null) {
 			if (experimenter == null) return false;
@@ -682,16 +756,7 @@ abstract class DataBrowserModel
 			if (experimenter == null) return false;
 			return experimenter.getId() == userID;
 		}
-		boolean b = EditorUtil.isUserOwner(parent, userID);
-		if (b) return b;
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return false;
+		return EditorUtil.isUserOwner(parent, userID);
 	}
 	
 	/**
@@ -743,22 +808,22 @@ abstract class DataBrowserModel
 		if (data == null) {
 			if (this instanceof WellsModel) {
 				if (grandParent instanceof ScreenData) {
-					loader = new TabularDataLoader(component,
-							(DataObject) grandParent);
+					loader = new TabularDataLoader(component, ctx,
+							(DataObject) grandParent,
+							canRetrieveAll(grandParent));
 				} else if (parent instanceof PlateData) {
-					loader = new TabularDataLoader(component,
-							(DataObject) parent);
+					loader = new TabularDataLoader(component, ctx,
+							(DataObject) parent, canRetrieveAll(parent));
 				}
 			}
 		} else if (data.size() > 0) {
 			List<Long> ids = new ArrayList<Long>();
-			FileAnnotationData fa;
 			Iterator<FileAnnotationData> i = data.iterator();
 			while (i.hasNext()) {
-				fa = i.next();
-				ids.add(fa.getFileID());
+				ids.add(i.next().getFileID());
 			}
-			loader = new TabularDataLoader(component, ids);
+			loader = new TabularDataLoader(component, ctx, ids,
+					canRetrieveAll(parent));
 		}
 		if (loader != null) loader.load();
 	}
@@ -789,6 +854,43 @@ abstract class DataBrowserModel
 		return layout.getIndex();
 	}
 	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
+	
+	/**
+	 * Returns <code>true</code> if the user belongs to only one group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleGroup()
+	{
+		Collection l = DataBrowserAgent.getAvailableUserGroups();
+		return l.size() <= 1;
+	}
+	
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	GroupData getGroup(long groupId)
+	{
+		Collection groups = DataBrowserAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.

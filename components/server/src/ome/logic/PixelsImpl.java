@@ -27,9 +27,11 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
+import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
+import ome.system.EventContext;
 import ome.util.PixelData;
 
 /**
@@ -85,20 +87,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	}
 
 	/**
-	 * Returns the Id of the currently logged in user.
-	 * Returns owner of the share while in share
-	 * @return See above.
-	 */
-	private Long getCurrentUserId() {
-		Long shareId = getSecuritySystem().getEventContext().getCurrentShareId();
-		if (shareId != null) {
-			Session s = iQuery.get(Session.class, shareId);
-			return s.getOwner().getId();
-		} 
-		return getSecuritySystem().getEventContext().getCurrentUserId();
-	}
-
-	/**
 	 * Implemented as specified by the {@link IPixels} I/F.
 	 * @see IPixels#retrieveRndSettingsFor(long, long)
 	 */
@@ -137,8 +125,33 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	 */
 	@RolesAllowed("user")
 	public RenderingDef retrieveRndSettings(long pixId) {
-        Long userId = getCurrentUserId();
-		return retrieveRndSettingsFor(pixId, userId);
+        Long userId = sec.getEffectiveUID();
+        RenderingDef rd = retrieveRndSettingsFor(pixId, userId);
+
+        if (rd == null)
+        {
+            final EventContext ec = this.sec.getEventContext(false);
+            final Pixels pixelsObj = this.iQuery.get(Pixels.class, pixId);
+            final boolean isGraphCritical = this.sec.isGraphCritical();
+            long pixOwner = pixelsObj.getDetails().getOwner().getId();
+            long currentUser = ec.getCurrentUserId();
+            if (currentUser != pixOwner) {
+                // ticket:1434 and shoola:ticket:1157. If this is graph critical
+                // and we couldn't find a rendering def for the current user,
+                // then we try to find one for the pixels owner. As in the
+                // thumbnail bean we also have to check if we're in a read-only
+                // group and not the owner of the Pixels object as well.
+
+                Permissions currentGroupPermissions =
+                    ec.getCurrentGroupPermissions();
+                Permissions readOnly = Permissions.parseString("rwr---");
+                if (isGraphCritical
+                    || currentGroupPermissions.identical(readOnly)) {
+                    rd = retrieveRndSettingsFor(pixId, pixOwner);
+                }
+            }
+        }
+        return rd;
 	}
 
 	/**
@@ -277,11 +290,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		}
 
 		// Create basic metadata
-		// FIXME: Hack, when the model changes we'll want to remove this, it's
-		// unreasonable.
-		pixels.setPhysicalSizeX(1.0);
-		pixels.setPhysicalSizeY(1.0);
-		pixels.setPhysicalSizeZ(1.0);
 		pixels.setPixelsType(pixelsType);
 		pixels.setSizeX(sizeX);
 		pixels.setSizeY(sizeY);
@@ -307,10 +315,15 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			double min, double max)
 	{
 		Pixels pixels = retrievePixDescription(pixelsId);
-		StatsInfo stats = pixels.getChannel(channelIndex).getStatsInfo();
+		Channel channel = pixels.getChannel(channelIndex);
+		StatsInfo stats = channel.getStatsInfo();
+                if (stats == null) {
+                    stats = new StatsInfo();
+                    channel.setStatsInfo(stats);
+                }
 		stats.setGlobalMax(max);
 		stats.setGlobalMin(min);
-		iUpdate.saveAndReturnObject(stats);
+		iUpdate.saveAndReturnObject(channel);
 	}
 
 	@RolesAllowed("user")
@@ -406,11 +419,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			Channel channel = new Channel();
 			LogicalChannel lc = new LogicalChannel();
 			channel.setLogicalChannel(lc);
-			StatsInfo info = new StatsInfo();
-			info.setGlobalMin(0.0);
-			info.setGlobalMax(1.0);
-			channel.setStatsInfo(info);
-			lc.setEmissionWave(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;

@@ -41,6 +41,7 @@ import omero.api.AMD_IMetadata_loadTagContent;
 import omero.api.AMD_IMetadata_loadTagSets;
 import omero.api._IMetadataOperations;
 import omero.sys.Parameters;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /** 
@@ -84,6 +85,12 @@ public class MetadataI
 			 String rootType, List<Long> rootIds, List<String> annotationTypes, 
 			 List<Long> annotatorIds, Parameters options, Current __current) 
 	 throws ServerError {
+		 try {
+			 map(annotationTypes);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
 		 callInvokerOnRawArgs(__cb, __current, rootType, rootIds, 
 				 annotationTypes, annotatorIds, options);
 	 }
@@ -92,6 +99,13 @@ public class MetadataI
 			 String annotationType, List<String> include, List<String> exclude,
 			Parameters options, Current __current) 
 	 throws ServerError {
+		 try
+		 {
+			 annotationType = map(annotationType);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
 		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 options);
 	 }
@@ -100,6 +114,13 @@ public class MetadataI
 			 String annotationType, List<String> include, List<String> exclude,
 			Parameters options, Current __current) 
 	 throws ServerError {
+		 try
+		 {
+			 annotationType = map(annotationType);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
 		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 options);
 	 }
@@ -142,6 +163,13 @@ public class MetadataI
 	 public void countAnnotationsUsedNotOwned_async(AMD_IMetadata_countAnnotationsUsedNotOwned __cb,
 			 String annotationType, long userID, Current __current) 
 	 throws ServerError {
+		 try
+		 {
+			 annotationType = map(annotationType);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
 		 callInvokerOnRawArgs(__cb, __current, annotationType, userID);
 	 }
 	 
@@ -149,6 +177,35 @@ public class MetadataI
 			 String annotationType, long userID, Current __current) 
 	 throws ServerError 
 	 {
+		 try
+		 {
+			 annotationType = map(annotationType);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
 		 callInvokerOnRawArgs(__cb, __current, annotationType, userID);
 	 }
+
+
+	protected void map(List<String> annotationTypes) throws ServerError
+	{
+		if (annotationTypes == null)
+		{
+			return; // No result is fine
+		}
+
+		for (int i = 0; i < annotationTypes.size(); i++)
+		{
+			String in = annotationTypes.get(i);
+			Class<?> out = IceMapper.omeroClass(in, true);
+			annotationTypes.set(i, out.getName());
+		}
+	}
+
+	protected String map(String annotationType) throws ServerError
+	{
+		Class<?> out = IceMapper.omeroClass(annotationType, true);
+		return out.getName();
+	}
 }

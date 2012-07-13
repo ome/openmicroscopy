@@ -16,9 +16,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ome.model.IObject;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,7 +34,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * {@link GraphSpec} which takes the id of some id as the root of deletion.
+ * {@link GraphSpec} which takes the id of some id as the root of action.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
@@ -46,19 +49,12 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     //
 
     /**
-     * The paths which make up this delete specification. These count as the
-     * steps which will be performed by multiple calls to
-     * {@link #delete(Session, int)}
+     * The paths which make up this graph specification. These count as the
+     * steps which will be performed by multiple calls to {@link GraphState#execute(int)}
      */
     protected final List<GraphEntry> entries;
 
     private/* final */ExtendedMetadata em;
-
-    /**
-     * Current user information for determining if the current caller
-     * is an admin or the owner of an object.
-     */
-    private /*final*/ CurrentDetails details;
 
     private/* final */String beanName = null;
 
@@ -67,10 +63,10 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     //
 
     /**
-     * The id of the root type which will be deleted. Note: if this delete comes
+     * The id of the root type which will be processed. Note: if this action comes
      * from a subspec, then the id points to the type of the supertype not the
      * type for this entry itself. For example, if this is "/Dataset" but it is
-     * being deleted as a part of "/Project" then the id refers to the project
+     * being processed as a part of "/Project" then the id refers to the project
      * and not the dataset.
      */
     protected long id = -1;
@@ -82,7 +78,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     /**
      * Options passed to the {@link #initialize(long, Map)} method, which may be
-     * used during {@link #delete(Session, int)} to alter behavior.
+     * used during {@link GraphState#execute(int)} to alter behavior.
      */
     protected Map<String, String> options;
 
@@ -104,14 +100,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
-    }
-
-    public void setCurrentDetails(CurrentDetails details) {
-        this.details = details;
-    }
-
-    public CurrentDetails getCurrentDetails() {
-        return this.details;
     }
 
     //
@@ -160,12 +148,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     public List<GraphEntry> entries() {
         return new ArrayList<GraphEntry>(entries);
-    }
-
-    public void close() {
-        this.superspec = null;
-        this.options = null;
-        this.id = -1;
     }
 
     //
@@ -217,6 +199,35 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         return true;
     }
 
+
+    /*
+     * See interface documentation.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public IObject load(Session session) throws GraphException {
+
+        final GraphEntry subpath = new GraphEntry(this, this.beanName);
+        final String[] sub = subpath.path(superspec);
+        final QueryBuilder qb = new QueryBuilder();
+
+        qb.select("ROOT"+(sub.length-1));
+        walk(qb, subpath);
+        qb.where();
+        // From queryBackupIds
+        qb.and("ROOT0.id = :id");
+        qb.param("id", id);
+
+        return (IObject) qb.query(session).uniqueResult();
+
+    }
+
+    public ExperimenterGroup groupInfo(SqlAction sql) {
+        final GraphEntry subpath = new GraphEntry(this, this.beanName);
+        final String[] path = subpath.path(superspec);
+
+        return sql.groupInfoFor(path[0], id);
+    }
+
     /*
      * See interface documentation.
      */
@@ -245,7 +256,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         Query q = qb.query(session);
         StopWatch sw = new CommonsLogStopWatch();
         List<List<Long>> results = q.list();
-        sw.stop("omero.delete.query." + StringUtils.join(sub, "."));
+        sw.stop("omero.graph.query." + StringUtils.join(sub, "."));
 
         if (results == null) {
             log.warn(logmsg(subpath, results));
@@ -281,10 +292,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         }
         return rv;
 
-    }
-
-    public void runTopLevel(Session session, List<Long> ids) {
-        // no-op
     }
 
     private String logmsg(GraphEntry subpath, List<List<Long>> results) {
@@ -330,32 +337,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
                     "Null relationship: %s->%s", from, to));
         }
         qb.join(fromAlias + "." + rel, toAlias, false, false);
-    }
-
-    /**
-     * Assuming an entry of the form "/A/B/C" is passed, this method generates
-     * the query:
-     *
-     * <pre>
-     * delete ROOT2 where id in (select ROOT2.id from C join C.b ROOT1 join b.a ROOT0 where ROOT0.id = :id)
-     * </pre>
-     */
-    private QueryBuilder buildQuery(GraphEntry entry) throws GraphException {
-        final QueryBuilder sub = new QueryBuilder();
-
-        String[] path = entry.path(superspec);
-        String target = "ROOT" + (path.length - 1);
-        sub.select(target + ".id");
-        walk(sub, entry);
-        sub.where();
-        sub.and("ROOT0.id = :id");
-
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(path[path.length - 1]);
-        qb.where();
-        qb.and("id in ");
-        qb.subselect(sub);
-        return qb;
     }
 
     @Override

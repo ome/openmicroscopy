@@ -1,0 +1,311 @@
+{% load i18n %}
+{% load common_filters %}
+
+<html>
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+<body>
+
+
+<div id='activities_content'>
+    <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
+    <div id="inprogress" style="display:none">{{ inprogress }}</div>
+    <div id="new_results" style="display:none">{{ new_results }}</div>
+    <div id="failure" style="display:none">{{ failure }}</div>
+
+    <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
+
+        <tbody>
+            {% ifequal sizeOfJobs 0 %}
+                <tr><td><span>No Activities</span></td></tr>
+            {% endifequal %}
+
+
+
+
+
+
+            {% for j in jobs %}
+                <!-- Chgrp jobs -->
+                {% ifequal j.job_type "chgrp" %}
+                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
+                        <td width="25px">
+                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %} <img class="icon" src="{% static "webgateway/img/success.png" %}" />
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description">
+                            <span class="activity_title">
+                                Move {{ j.dtype }} to Group
+                            </span>
+                            <span class="message">
+                                {% ifequal j.status "in progress" %}
+                                    Moving {{ j.dtype }} to Group '{{ j.group }}'...
+                                {% else %}
+                                    {% ifequal j.status "finished" %}
+                                        {{ j.dtype }} moved to Group '{{ j.group }}'{% ifequal j.dtype "Image" %}.
+                                            Will be 'ophaned' in new group
+                                        {% endifequal %}
+                                    {% endifequal %}
+                                    {% if j.error %}
+                                        <div class="chgrp_error">
+                                            {{ j.error|truncateafter:"30" }}
+                                            <a href="#" title="Click to Open in new Window"> More...</a>
+                                            <div style="display:none">{{ j.error|linebreaksbr }}</div>
+                                        </div>
+                                    {% endif %}
+                                {% endifequal %}
+                            </span>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endifequal %}
+
+
+                <!-- Delete jobs -->
+                {% ifequal j.job_type "delete" %}
+                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+                                <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <div class='script_error' title="{{ j.error }}">
+                                        <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+                                    </div>
+                                {% else %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description">
+                            {% if j.delmany %}
+                                <span class="activity_title">
+                                    Delete {{ j.delmany }} {{ j.dtype }}s
+                                </span>
+                                <span class="message">
+                                {% for iid in j.did %}
+                                    {% ifequal j.status "failed" %}
+                                        {{ j.dtype }} {{ iid }},
+                                    {% else %}
+                                        {{ j.dtype }} {{ iid }},
+                                    {% endifequal %}
+                                {% endfor %}
+                                </span>
+                            {% else %}
+                                <span class="activity_title">
+                                    Delete {{ j.dtype }}
+                                </span>
+                                <span class="message">
+                                {% ifequal j.status "failed" %}
+                                    {{ j.dtype }} {{ j.did }}
+                                {% else %}
+                                    {{ j.dtype }} {{ j.did }}
+                                {% endifequal %}
+                                </span>
+                            {% endif %}
+
+                        </td>
+                        <td class="results">
+                                {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                        </td>
+                    </tr>
+                {% endifequal %}
+
+
+
+
+                <!-- Status -->
+                {% ifequal j.job_type "script" %}
+                    <tr class="script{% if j.new %} new_result{% endif %}" id="{{ j.id }}">
+						
+						<!-- State -->
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+								<img alt="Running Script" src="{% static "webgateway/img/spinner.gif" %}" />
+                            
+							{% else %} 
+								{% if j.error %} 
+                                <div class='script_error' title="{{ j.error }}">
+                                    <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+								
+									
+                                    {% comment %}
+                                    <!-- Don't allow submitting now. TODO: launch submit page -->
+                                    <img src="{% static "webclient/image/info16.png" %}"/>
+                                    <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
+                                    {% if j.error_sent %}
+                                        value='Thank you' disabled='true'
+                                    {% else %}
+                                        value='Submit Feedback'
+                                    {% endif %} />
+                                    {% endcomment %}
+									
+                                </div>
+								{% else %}
+								<img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+	                            {% endif %}
+								
+                            {% endifequal %}
+                        </td>
+						
+						
+						
+						<!-- General Script Info -->
+                        <td class="script_description">
+                            <span class="activity_title">{{ j.job_name }}</span>
+                            <span class="message">{{ j.Message }}</span>
+                        </td>
+						
+						
+						<!-- I need to put this back in -->
+						<!--{{ j.start_time|date:"H:i" }}-->
+						
+						<!-- Out until there is a better way of displaying -->
+						<!--<span class="status">{{ j.status }}</span>-->
+						
+						
+						
+						
+						<!-- Result of script -->
+                        <td class="results">
+                            
+
+							<!-- Drop Down -->
+                            {% for k,v in j.results.iteritems %}
+                                <div>
+                                    {% if v.type and v.id %}
+									    
+										{% comment %}
+											{% if v.name %} 
+												{{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }}
+											{% endif %}
+                                        {% endcomment %}
+										
+										    <ul class="menu_btns silver">
+												
+												<!-- Browser to file in tree -->
+                                                {% if v.browse_url %}
+                                                    <li class="btn_folder">
+														<a href='{% url change_active_group %}?active_group={{ v.group_id }}&url={{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
+                                                        	Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
+														</a>
+													</li>
+                                                {% endif %}
+												
+													
+                                                {% ifequal v.type "FileAnnotation" %}
+												
+													<!-- Download -->
+                                                    <li class="btn_download">
+														<a href="#" onClick="window.location.href='{% url download_annotation 'download' v.id %}'" title="Download File">Download</a>
+													</li>
+                                                    
+													{% if v.fileId %}
+														<!-- View File Type -->
+                                                        <li class="btn_filetype">
+															<a href="#" onClick="return openPopup('{% url get_original_file v.fileId %}');">View {{ v.fileType }}</a>
+														</li>
+                                                    {% endif %}
+												{% else %}
+												
+                                                    {% ifequal v.type "Image" %}
+														<!-- View Image -->
+                                                        <li class="btn_view">
+															<a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">View Image</a>
+														</li>
+                                                    {% endifequal %}
+													
+                                                {% endifequal %}
+
+
+                                                <!-- add stderr and stdout to first result only -->
+                                                {% if forloop.first %}
+                                                    {% if j.stderr %}
+                                                        
+														<!-- View error -->
+														<li class="btn_view_error">
+															<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');"
+                                                            title="Show error produced by the script">Error</a>
+														</li>
+                                                    {% endif %}
+													
+                                                    {% if j.stdout %}
+                                                        
+														<!-- More Information -->
+														<li class="btn_info">
+															<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');" 
+                                                            title="Show additional info generated by the script">Info</a>
+														</li>
+                                                    {% endif %}
+                                                {% endif %}
+												
+												<!-- No need to clear from the list
+												<li class="btn_trash">
+													<a href="#" title="Remove from List" id="{{ j.key }}" class="remove" title="Show additional info generated by the script">
+                                                    	Delete
+                                                	</a>
+												</li>
+												-->
+												
+                                            </ul>
+                                        </span>
+                                    {% else %}
+                                        <!-- Handle rtypes (already unwrapped) -->
+                                        <span title="Script Result: '{{ k }}'">
+                                        {{ v }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+
+                            <!-- if there were no results items, we have to display info and error here -->
+                            {% if not j.results %}
+							<ul class="menu_btns silver">
+                                <li class="btn_view_error" style='float:left'>
+                                    {% if j.stderr %}<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');">Error</a>{% endif %}
+                                </li>
+								
+                                <li class="btn_info">
+                                    {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
+                                </li>
+							</ul>
+							{% endif %}
+							
+                        </td>
+						
+						
+						
+						
+						<!-- Time -->
+                    </tr>
+                {% endifequal %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

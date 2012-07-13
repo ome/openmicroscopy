@@ -9,10 +9,12 @@
 #ifndef OMERO_API_ICE
 #define OMERO_API_ICE
 
+#include <omero/cmd/API.ice>
 #include <omero/ServerErrors.ice>
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
+#include <omero/Collections.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
@@ -90,7 +92,7 @@ module omero {
          * of service proxies to the server. Most services implement [ServiceInterface]
          * or its subinterface [StatefulServiceInterface]. </p>
 	 **/
-	interface ServiceFactory extends Glacier2::Session
+	interface ServiceFactory extends omero::cmd::Session
 	{
 
             // Security context
@@ -180,8 +182,8 @@ module omero {
              * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
              * service provides look ups for various facilities offered by OMERO:
              * <ul>
-             *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroScripts">OMERO.scripts</a>
-             *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables">OMERO.tables</a>
+             *   <li><a href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroScripts">OMERO.scripts</a>
+             *   <li><a href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroTables">OMERO.tables</a>
              * </ul>
              * These facilities may or may not be available on first request.
              *
@@ -273,7 +275,7 @@ module omero {
 	     *
 	     * Specifically, the bit representing the 0-based index will be 1:
 	     *
-	     *        if (retval & 1<<idx == 1<<idx) { // not alive }
+	     *        if (retval & 1&lt;&lt;idx == 1&lt;&lt;idx) { // not alive }
 	     *
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.

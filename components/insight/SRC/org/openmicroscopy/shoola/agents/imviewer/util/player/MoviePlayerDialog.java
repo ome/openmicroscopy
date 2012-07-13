@@ -218,6 +218,23 @@ public class MoviePlayerDialog
     	}
     }
     
+    /** 
+     * Sets the start and end Z-section.
+     * 
+     * @param start The starting point.
+     * @param end	The end point.
+     */
+    public void setZRange(int start, int end)
+    {
+    	if (start < player.getMinZ() || start >= end || end > player.getMaxZ())
+    		return;
+    	player.setEndZ(end);
+    	player.setStartZ(start);
+    	if (uiDelegate != null) {
+    		uiDelegate.setEndZ(end);
+    		uiDelegate.setStartZ(start);
+    	}
+	}
     /**
      * Performs a click on the button corresponding to the passed index.
      * 
@@ -235,5 +252,5 @@ public class MoviePlayerDialog
 		}
     	if (uiDelegate != null) uiDelegate.doClick(index);
     }
-    
+
 }

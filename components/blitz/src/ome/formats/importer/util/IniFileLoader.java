@@ -104,7 +104,7 @@ public class IniFileLoader {
             userPrefs = new IniFile(userConfigFile, Mode.RW);
         } catch (BackingStoreException e) {
             log.error(e);
-            throw new RuntimeException("Error accessing ini file", e);
+            //throw new RuntimeException("Error accessing ini file", e);
         }
     }
 
@@ -126,6 +126,7 @@ public class IniFileLoader {
      * Any value lower than null will not call configureDebug.
      */
     public int getDebugLevel() {
+    	if (userPrefs == null) return -1;
         return userPrefs.node("General").getInt("debug", -1);
     }
 
@@ -133,6 +134,7 @@ public class IniFileLoader {
      * @return if quaqua should be used on mac
      */
     public boolean getUseQuaqua() {
+    	if (userPrefs == null) return true;
         return userPrefs.node("General").getBoolean("useQuaqua", true);
     }
 
@@ -149,7 +151,7 @@ public class IniFileLoader {
      */
     public String getHomeUrl()
     {
-        return staticPref("General", "url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
+        return staticPref("General", "url", "http://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
 
     /**
@@ -157,7 +159,7 @@ public class IniFileLoader {
      */
     public String getForumUrl()
     {
-        return staticPref("General", "forumUrl", "https://www.openmicroscopy.org/community/");
+        return staticPref("General", "forumUrl", "http://www.openmicroscopy.org/community/");
     }
 
     /**
@@ -214,6 +216,7 @@ public class IniFileLoader {
      */
     public void setUserDisableHistory(boolean b)
     {
+    	if (userPrefs == null) return;
         userPrefs.node("UI").putBoolean("disableHistory", b);
         this.flushPreferences();
     }    
@@ -223,6 +226,7 @@ public class IniFileLoader {
      */
     public Boolean getUserDisableHistory()
     {
+    	if (userPrefs == null) return true;
     	return userPrefs.node("UI").getBoolean("disableHistory", true);
     }
     
@@ -233,6 +237,7 @@ public class IniFileLoader {
      */
     public void setDebugLevel(int level)
     {
+    	if (userPrefs == null) return;
         userPrefs.node("General").putInt("debug", level);
         this.flushPreferences();
     }
@@ -242,6 +247,7 @@ public class IniFileLoader {
      */
     public void setUseQuaqua(boolean b)
     {
+    	if (userPrefs == null) return;
         userPrefs.node("General").putBoolean("useQuaqua", b);
         this.flushPreferences();
     }
@@ -292,6 +298,7 @@ public class IniFileLoader {
      */
     public void updateFlexReaderServerMaps()
     {
+    	if (userPrefs == null) return;
         Preferences maps = userPrefs.node("FlexReaderServerMaps");
         Map<String, List<String>> values = parseFlexMaps(maps);
         for (Map.Entry<String, List<String>> entry : values.entrySet()) {
@@ -338,7 +345,7 @@ public class IniFileLoader {
     }
 
     /**
-     * Append kep to server map
+     * Append keep to server map
      *
      * @param key
      * @param mapValue
@@ -374,7 +381,7 @@ public class IniFileLoader {
     public Rectangle getUIBounds()
     {
         Rectangle rect = new Rectangle();
-
+        if (userPrefs == null) return rect;
         rect.width = userPrefs.node("UI").getInt("width", 980);
         rect.height = userPrefs.node("UI").getInt("height", 580);
         rect.x = userPrefs.node("UI").getInt("xOffset", 10);
@@ -400,6 +407,7 @@ public class IniFileLoader {
         if (bounds.height < 100)
             bounds.height = 100;
 
+        if (userPrefs == null) return;
         userPrefs.node("UI").putInt("width", bounds.width);
         userPrefs.node("UI").putInt("height", bounds.height);
         userPrefs.node("UI").putInt("xOffset", bounds.x);
@@ -408,32 +416,38 @@ public class IniFileLoader {
 
     public boolean getUserFullPath()
     {
-	return userPrefs.node("UI").getBoolean("userFullPath", true);
+    	if (userPrefs == null) return true;
+	    return userPrefs.node("UI").getBoolean("userFullPath", true);
     }
 
     public void setUserFullPath(boolean b)
     {
-	userPrefs.node("UI").putBoolean("userFullPath", b);
+    	if (userPrefs != null)
+	        userPrefs.node("UI").putBoolean("userFullPath", b);
     }
 
     public boolean getCustomImageNaming()
     {
-	return userPrefs.node("UI").getBoolean("customImageNaming", true);
+    	if (userPrefs == null) return true;
+	    return userPrefs.node("UI").getBoolean("customImageNaming", true);
     }
 
     public void setCustomImageNaming(boolean b)
     {
-	userPrefs.node("UI").putBoolean("customImageNaming", b);
+    	if (userPrefs != null)
+		    userPrefs.node("UI").putBoolean("customImageNaming", b);
     }
 
     public int getNumOfDirectories()
     {
-	return userPrefs.node("UI").getInt("numOfDirectories", 0);
+    	if (userPrefs == null) return 0;
+	    return userPrefs.node("UI").getInt("numOfDirectories", 0);
     }
 
     public void setNumOfDirectories(int i)
     {
-	userPrefs.node("UI").putInt("numOfDirectories", i);
+    	if (userPrefs == null) return;
+	    userPrefs.node("UI").putInt("numOfDirectories", i);
     }
 
     /**

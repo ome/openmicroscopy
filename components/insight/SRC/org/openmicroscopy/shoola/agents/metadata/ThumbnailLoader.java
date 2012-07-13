@@ -36,6 +36,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
@@ -75,15 +76,16 @@ public class ThumbnailLoader
     /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param image		The image.
      * @param userIDs	The node of reference. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(MetadataViewer viewer, ImageData image, 
-    						Set<Long> userIDs)
+    public ThumbnailLoader(MetadataViewer viewer, SecurityContext ctx,
+    	ImageData image, Set<Long> userIDs)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
          this.image = image;
          this.userIDs = userIDs;
          thumbnails = new HashMap<Long, BufferedImage>();
@@ -95,8 +97,8 @@ public class ThumbnailLoader
      */
     public void load()
     {
-    	handle = mhView.loadThumbnails(image, userIDs, 
-    			Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT, 
+    	handle = mhView.loadThumbnails(ctx, image, userIDs,
+    			Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT,
     			this);	
     }
     

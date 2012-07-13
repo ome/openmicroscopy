@@ -20,30 +20,49 @@ class GroupControl(BaseControl):
 
         self.exc = ExceptionHandler()
 
+        PERM_TXT = """Group permissions come in several styles:
+
+    * private (rw----)   [DEFAULT]
+    * read-only (rwr---)
+    * read-annotate (rwra--)   [Previously known as 'collaborative']
+
+In private groups, only group and system administrators will be able
+to view someone else's data. In read-only groups, other group members
+can see data but not annotate or modify it. In read-annotate groups,
+annotation is permitted by group members.
+
+More information is available at:
+
+    http://www.openmicroscopy.org/site/support/omero4/server/permissions
+        """
         sub = parser.sub()
-        add = parser.add(sub, self.add, "Add a new group with given permissions")
+        add = parser.add(sub, self.add, "Add a new group with given permissions. " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("name", help="ExperimenterGroup.name value")
 
-        perms = parser.add(sub, self.perms, "Modify a group's permissions")
+        perms = parser.add(sub, self.perms, "Modify a group's permissions. " + PERM_TXT)
         perms.add_argument("id_or_name", help="ExperimenterGroup's id or name")
 
         for x in (add, perms):
             group = x.add_mutually_exclusive_group()
             group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-            group.add_argument("--type", help="Group permission set symbollically",
-                choices=("private", "read-only", "collaborative"))
+            group.add_argument("--type", help="Group permission set symbollically", default="private",
+                choices=("private", "read-only", "read-annotate", "collaborative"))
 
         list = parser.add(sub, self.list, "List current groups")
         list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
 
         copy = parser.add(sub, self.copy, "Copy the members of one group to another group")
-        copy.add_argument("from_group", type=long, help = "Source group ID whose members will be copied")
-        copy.add_argument("to_group", type=long, help = "Target group ID which will have new members added")
+        copy.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
+        copy.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
 
         insert = parser.add(sub, self.insert, "Insert one or more users into a group")
-        insert.add_argument("GROUP", metavar="group", type=long, help = "ID of the group which is to have users added")
-        insert.add_argument("user", type=long, nargs="+", help = "ID of user to be inserted")
+        insert.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users added")
+        insert.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be inserted")
+
+        remove = parser.add(sub, self.remove, "remove one or more users from a group")
+        remove.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users removed")
+        remove.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be removed")
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
@@ -52,7 +71,9 @@ class GroupControl(BaseControl):
                 perms = "rw----"
             elif args.type == "read-only":
                 perms = "rwr---"
-            elif args.type == "collaborative":
+            elif args.type in ("read-annotate", "collaborative"):
+                perms = "rwra--"
+            elif args.type == "read-write":
                 perms = "rwrw--"
         if not perms:
             perms = "rw----"
@@ -97,6 +118,31 @@ class GroupControl(BaseControl):
         except omero.ServerError, se:
             self.ctx.die(4, "%s: %s" % (type(se), se.message))
 
+    def find_group(self, admin, id_or_name):
+        import omero
+        try:
+            try:
+                gid = long(id_or_name)
+                g = admin.getGroup(gid)
+            except ValueError:
+                g = admin.lookupGroup(id_or_name)
+                gid = g.id.val
+            return gid, g
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown group: %s" % gid)
+
+    def find_user(self, admin, id_or_name):
+        import omero
+        try:
+            try:
+                uid = long(id_or_name)
+                u = admin.getExperimenter(uid)
+            except ValueError:
+                u = admin.lookupExperimenter(id_or_name)
+                uid = u.id.val
+            return uid, u
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown experimenter: %s" % uid)
 
     def perms(self, args):
 
@@ -108,16 +154,7 @@ class GroupControl(BaseControl):
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
 
-        try:
-            try:
-                gid = long(args.id_or_name)
-                g = a.getGroup(gid)
-            except ValueError:
-                g = a.lookupGroup(args.id_or_name)
-                gid = g.id.val
-        except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % gid)
-
+        gid, g = self.find_group(a, args.id_or_name)
 
         old_perms = str(g.details.permissions)
         if old_perms == perms:
@@ -155,8 +192,8 @@ class GroupControl(BaseControl):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        f_grp = a.getGroup(args.from_group)
-        t_grp = a.getGroup(args.to_group)
+        f_gid, f_grp = self.find_group(a, args.from_group)
+        t_gid, t_grp = self.find_group(a, args.to_group)
 
         to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap()]
         already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
@@ -165,22 +202,37 @@ class GroupControl(BaseControl):
                 self.ctx.out("%s already in group %s" % (add[1], args.to_group))
                 to_add.remove(add)
         self.addusersbyid(c, t_grp, [x[0] for x in to_add])
-        self.ctx.out("%s coped to %s" % (args.from_group, args.to_group))
+        self.ctx.out("%s copied to %s" % (args.from_group, args.to_group))
 
     def insert(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        grp = a.getGroup(args.GROUP)
-        self.addusersbyid(c, grp, args.user)
-        self.ctx.out("Added %s users to %s" % (len(args.user), args.GROUP))
+        gid, grp = self.find_group(a, args.GROUP)
+        uids = [self.find_user(a, x)[0] for x in args.USER]
+        self.addusersbyid(c, grp, uids)
+
+    def remove(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        gid, grp = self.find_group(a, args.GROUP)
+        uids = [self.find_user(a, x)[0] for x in args.USER]
+        self.removeusersbyid(c, grp, uids)
 
     def addusersbyid(self, c, group, users):
         import omero
         a = c.sf.getAdminService()
         for add in list(users):
             a.addGroups(omero.model.ExperimenterI(add, False), [group])
-            self.ctx.out("Added %s" % add)
+            self.ctx.out("Added %s to group %s" % (add, group.id.val))
+
+    def removeusersbyid(self, c, group, users):
+        import omero
+        a = c.sf.getAdminService()
+        for add in list(users):
+            a.removeGroups(omero.model.ExperimenterI(add, False), [group])
+            self.ctx.out("Removed %s from group %s" % (add, group.id.val))
 
 try:
     register("group", GroupControl, HELP)

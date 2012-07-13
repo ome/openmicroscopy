@@ -65,6 +65,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -84,14 +85,17 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.filter.file.HCSFilter;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -99,6 +103,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -140,13 +145,13 @@ public class ImportDialog
 	public static final String	REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
 	/** The default text. */
-	private static final String	PROJECT_TXT = "Project";
+	private static final String	PROJECT_TXT = "Project: ";
 	
 	/** The default text. */
-	private static final String	SCREEN_TXT = "Screen";
+	private static final String	SCREEN_TXT = "Screen: ";
 	
 	/** The default text. */
-	private static final String	DATASET_TXT = "Dataset";
+	private static final String	DATASET_TXT = "Dataset: ";
 	
 	/** Action id indicating to import the selected files. */
 	private static final int	IMPORT = 0;
@@ -188,6 +193,9 @@ public class ImportDialog
 	private static final String MESSAGE_LOCATION = "Select where to import " +
 			"the data";
 
+	/** The message to display in the header. */
+	private static final String MESSAGE_GROUP = "Group";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -201,10 +209,10 @@ public class ImportDialog
 	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_PROJECT = "Location: Project/Dataset";
+	private static final String LOCATION_PROJECT = "Project/Dataset";
 	
 	/** Indicates the context of the import */
-	private static final String LOCATION_SCREEN = "Location: Screen";
+	private static final String LOCATION_SCREEN = "Screen";
 	
 	static {
 		WARNING = new ArrayList<String>();
@@ -353,8 +361,11 @@ public class ImportDialog
 	/** The collection of general filters. */
 	private List<FileFilter> 			generalFilters;
 	
-	/** The combine filter. */
+	/** The combined filter. */
 	private FileFilter					combinedFilter;
+
+	/** The combined filter for HCS. */
+	private FileFilter					combinedHCSFilter;
 	
 	/** The component displaying the available and used disk space. */
 	private JPanel						diskSpacePane;
@@ -394,6 +405,21 @@ public class ImportDialog
 	/** Indicates to reload the hierarchies when the import is completed.*/
 	private boolean reload;
 	
+	/** The component displaying the component.*/
+	private JComponent toolBar;
+	
+	/** The number of items before adding new elements to the tool bar.*/
+	private int			tbItems;
+	
+	/** The selected group.*/
+	private GroupData group;
+	
+	/** The component used to select the group.*/
+	private JComboBox groupSelection;
+	
+	/** The pane hosting the location information.*/
+	private JXTaskPane pane;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -420,34 +446,6 @@ public class ImportDialog
 			datasetsBox.addItem((DataNode) i.next());
 		}
 		datasetsBox.setSelectedItem(nn);
-		/*
-		if (dataset == null || dataset.getName().trim().length() == 0) return;
-		if (newNodesPD == null) 
-			newNodesPD = new HashMap<DataNode, List<DataNode>>();
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
-			n = (DataNode) datasetsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-		}
-		DataNode node = (DataNode) parentsBox.getSelectedItem();
-		n = new DataNode(dataset, node);
-		nodes.add(n);
-		List<DataNode> l = newNodesPD.get(node);
-		if (l == null) l = new ArrayList<DataNode>();
-		l.add(n);
-		node.addNewNode(n);
-		newNodesPD.put(node, l);
-		datasetsBox.removeAllItems();
-		l = sorter.sort(nodes);
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			datasetsBox.addItem((DataNode) i.next());
-		}
-		datasetsBox.setSelectedItem(n);
-		repaint();
-		*/
 	}
 
 	/**
@@ -556,7 +554,13 @@ public class ImportDialog
 			checkFile(files[i], l);
 		}
 		chooser.setSelectedFile(new File("."));
-		table.addFiles(l, isParentFolderAsDataset());//fadBox.isSelected());
+		GroupData g = group;
+		if (groupSelection != null) {
+			JComboBoxImageObject o = (JComboBoxImageObject) 
+			groupSelection.getSelectedItem();
+			g = (GroupData) o.getData();
+		}
+		table.addFiles(l, isParentFolderAsDataset(), g);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -775,11 +779,7 @@ public class ImportDialog
 		formatSwitchButton(t);
 		if (nodes == null || nodes.size() == 0) //load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
-		else {
-			//Iterator<TreeImageDisplay> i = nodes.iterator();
-			//if (i.hasNext()) display = i.next();
-			reset(display, nodes, t);
-		}
+		else reset(display, nodes, t, false, false);
 	}
 	
 	/** 
@@ -789,30 +789,13 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
-		/*
-		List<String> tips = new ArrayList<String>();
-		tips.add("If selected, when adding images to queue, ");
-    	tips.add("the folder containing the images will be ");
-    	tips.add("marked to be turned into dataset.");
-    	folderAsDatasetBox = new JCheckBox();
-    	folderAsDatasetBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	folderAsDatasetBox.setText("New Dataset from folder's name");
-    	folderAsDatasetBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				boolean b = !folderAsDatasetBox.isSelected();
-				datasetsBox.setEnabled(b);
-				addButton.setEnabled(b);
-			}
-		});
-    	*/
+		pane = new JXTaskPane();
+		pane.setTitle("Import Location");
+		pane.setCollapsed(true);
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
-		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
 		diskSpacePane = new JPanel();
 		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
 		diskSpacePane.add(UIUtilities.setTextFont("Free Space "));
 		diskSpacePane.add(canvas);
 		
@@ -828,30 +811,6 @@ public class ImportDialog
     	}
     	b = (Boolean) ImporterAgent.getRegistry().lookup(
     			FOLDER_AS_DATASET);
-    	
-    	/*
-    	fadBox = new JCheckBox("Folder As Dataset");
-    	tips = new ArrayList<String>();
-    	tips.add("If selected, folders added to the import queue ");
-    	tips.add("will be marked to be turned into dataset.");
-    	fadBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
-    	fadBox.setBackground(UIUtilities.BACKGROUND);
-    	fadBox.setSelected(true);
-    	fadBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				//
-				int n = handleFilesSelection(chooser.getSelectedFiles());
-				if (n == 0) {
-					datasetsBox.setEnabled(true);
-					folderAsDatasetBox.setEnabled(true);
-				} 
-			}
-		});
-		if (b != null) fadBox.setSelected(b.booleanValue());
-		*/
-    	
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -864,20 +823,9 @@ public class ImportDialog
 		};
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox = new JComboBox();
-		/*
-		datasetsBoxListener = new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				folderAsDatasetBox.setSelected(node != null && 
-						node.isDefaultNode());
-			}
-		};
-		*/
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
-		//addProjectButton.setBackground(UIUtilities.BACKGROUND);
 		addProjectButton.setToolTipText("Create a new Project.");
 		if (type == Importer.SCREEN_TYPE) {
 			addProjectButton.setToolTipText("Create a new Screen.");
@@ -887,7 +835,6 @@ public class ImportDialog
 		addProjectButton.addActionListener(this);
 		
 		addButton = new JButton("New...");
-		//addButton.setBackground(UIUtilities.BACKGROUND);
 		addButton.setToolTipText("Create a new Dataset.");
 		addButton.setActionCommand(""+CREATE_DATASET);
 		addButton.addActionListener(this);
@@ -903,7 +850,6 @@ public class ImportDialog
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 		
 		locationButton = new JButton();
-		//locationButton.setBackground(UIUtilities.BACKGROUND);
 		locationButton.setToolTipText("Select the location of the data.");
 		locationButton.addActionListener(this);
 		locationButton.setActionCommand(""+LOCATION);
@@ -926,14 +872,12 @@ public class ImportDialog
 		};
 		locationPane = new JPanel();
 		locationPane.setLayout(new BoxLayout(locationPane, BoxLayout.Y_AXIS));
-		//locationPane.setBackground(UIUtilities.BACKGROUND);
 		
 		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
 		numberOfFolders.setMinimum(0);
 		numberOfFolders.setText("0");
 		numberOfFolders.setColumns(3);
-		//numberOfFolders.setEnabled(false);
 		numberOfFolders.addPropertyChangeListener(this);
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
 
@@ -1013,22 +957,18 @@ public class ImportDialog
 						}
 					}
 					break;
-				} else {
-					/*
-					if (ImportableObject.isHCSFormat(filter.toString())) {
-						hcsFilters.add(filter);
-					} else {
-						generalFilters.add(filter);
-					}
-					*/
 				}
 			}
+			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
+			combinedHCSFilter = new HCSFilter((String[]) set.toArray(
+					new String[set.size()]));
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				j = hcsFilters.iterator();
 				while (j.hasNext())
 					chooser.addChoosableFileFilter(j.next());
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();
@@ -1038,7 +978,6 @@ public class ImportDialog
 			}
 			while (j.hasNext())
 				chooser.addChoosableFileFilter(j.next());
-			//chooser.setFileFilter(filters[0]);
 		} else chooser.setAcceptAllFileFilterUsed(true);
 		
 		
@@ -1048,12 +987,7 @@ public class ImportDialog
 		cancelButton.setToolTipText("Close the dialog and do not import.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
-		
-		cancelButton = new JButton("Close");
-		cancelButton.setToolTipText("Close the dialog and do not import.");
-		cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.addActionListener(this);
-		
+
 		cancelImportButton = new JButton("Cancel All");
 		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
 		cancelImportButton.setActionCommand(""+CANCEL_ALL_IMPORT);
@@ -1068,6 +1002,7 @@ public class ImportDialog
 		refreshButton = new JButton("Refresh");
 		refreshButton.setToolTipText("Reloads the files view.");
 		refreshButton.setActionCommand(""+REFRESH);
+		refreshButton.setBorderPainted(false);
 		refreshButton.addActionListener(this);
 		resetButton = new JButton("Reset");
 		resetButton.setToolTipText("Reset the name of all files to either " +
@@ -1081,8 +1016,6 @@ public class ImportDialog
 		applyToAllButton.addActionListener(this);
 		applyToAllButton.setEnabled(false);
 
-		//getRootPane().setDefaultButton(cancelButton);
-		
 		pixelsSize = new ArrayList<NumericalTextField>();
 		NumericalTextField field;
 		for (int i = 0; i < 3; i++) {
@@ -1142,8 +1075,6 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		//bar.add(resetButton);
-		//bar.add(Box.createHorizontalStrut(20));
 		bar.add(cancelImportButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(cancelButton);
@@ -1162,8 +1093,6 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
-		//bar.add(refreshButton);
-		//bar.add(Box.createHorizontalStrut(5));
 		bar.add(showThumbnails);
 		return bar;
 	}
@@ -1552,7 +1481,7 @@ public class ImportDialog
 				Iterator<DataNode> i = l.iterator();
 				while (i.hasNext()) {
 					n = i.next();
-					if (!n.isDefaultDataset()) {
+					if (n.isDefaultDataset()) {
 						datasetsBox.setSelectedItem(n);
 						break;
 					}
@@ -1560,10 +1489,6 @@ public class ImportDialog
 			}
 			
 		}
-		//now check what is the selected node
-		//n = (DataNode) datasetsBox.getSelectedItem();
-		//folderAsDatasetBox.setSelected(n.isDefaultNode());
-		//datasetsBox.addActionListener(datasetsBoxListener);
 	}
 	
 	/**
@@ -1573,15 +1498,19 @@ public class ImportDialog
 	 */
 	private JComponent buildLocationBar()
 	{
-		JPanel bar = new JPanel();
+		toolBar = new JPanel();
 		//bar.setBackground(UIUtilities.BACKGROUND);
-		bar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		bar.add(reloadContainerButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(locationButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(locationLabel);
-		return bar;
+		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		toolBar.add(reloadContainerButton);
+		/*
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(locationButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(locationLabel);
+		*/
+		toolBar.add(Box.createHorizontalStrut(5));
+		tbItems = toolBar.getComponentCount();
+		return toolBar;
 	}
 	
 	/**
@@ -1592,29 +1521,40 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		//locationPane.add(buildLocationBar());
-		//locationPane.add(new JSeparator());
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
-		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		row.add(locationButton);
+		row.add(Box.createHorizontalStrut(5));
+		row.add(locationLabel);
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		locationPane.add(new JSeparator());
+		if (groupSelection != null) {
+			row = createRow(null);
+			row.add(UIUtilities.setTextFont(MESSAGE_GROUP));
+			row.add(groupSelection);
+			locationPane.add(row);
+			locationPane.add(Box.createVerticalStrut(2));
+		}
 		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
-		row.add(parentsBox);
 		row.add(addProjectButton);
+		row.add(parentsBox);
+		
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			locationPane.add(Box.createVerticalStrut(8));
 			row = createRow(null);
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			row.add(datasetsBox);
 			row.add(addButton);
+			row.add(datasetsBox);
+			
 			locationPane.add(row);
 			locationPane.add(new JSeparator());
 		}
+		locationPane.validate();
+		locationPane.repaint();
 	}
 
 	/** 
@@ -1655,8 +1595,11 @@ public class ImportDialog
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		if (!popUpLocation)
-			container.add(locationPane, "3, 0");
+		if (!popUpLocation) {
+			pane.add(new JScrollPane(locationPane));
+			container.add(pane, "3, 0");
+		}
+			
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				container);
@@ -1954,8 +1897,7 @@ public class ImportDialog
 	 */
 	private boolean isFileImportable(File f)
 	{
-		if (f == null || f.isHidden()) return false;
-		return true;
+		return !(f == null || f.isHidden());
 	}
 
 	/**
@@ -2008,8 +1950,6 @@ public class ImportDialog
     	initComponents(filters);
     	installListeners();
     	buildGUI();
-    	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	//setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
 
     /** 
@@ -2018,6 +1958,18 @@ public class ImportDialog
      * @return See above.
      */
     public int getType() { return type; }
+    
+    /**
+     * Returns <code>true</code> if only one group for the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSingleGroup()
+    { 
+    	Collection l = ImporterAgent.getAvailableUserGroups();
+    	return (l.size() <= 1);
+    }
     
     /** Display the size of files to add. */
     void onSelectionChanged()
@@ -2110,11 +2062,13 @@ public class ImportDialog
 	/**
      * Resets the text and remove all the files to import.
      * 
-     * @param objects	The possible objects.
-     * @param type		One of the constants used to identify the type of 
-     * 					import.
+     * @param objects The possible objects.
+     * @param type One of the constants used to identify the type of import.
+     * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
      */
-	public void reset(Collection<TreeImageDisplay> objects, int type)
+	public void reset(Collection<TreeImageDisplay> objects, int type, 
+			boolean changeGroup)
 	{
 		TreeImageDisplay selected = null;
 		if (this.selectedContainer != null) {
@@ -2154,7 +2108,7 @@ public class ImportDialog
 				}
 			}
 		}
-		reset(selected, objects, type);
+		reset(selected, objects, type, false, changeGroup);
 	}
 	
     /**
@@ -2164,9 +2118,13 @@ public class ImportDialog
      * @param objects    The possible objects.
      * @param type       One of the constants used to identify the type of 
      * 					 import.
+     * @param remove Pass <code>true</code> o
+     * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
      */
 	public void reset(TreeImageDisplay selectedContainer, 
-			Collection<TreeImageDisplay> objects, int type)
+			Collection<TreeImageDisplay> objects, int type, boolean remove,
+			boolean changeGroup)
 	{
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
@@ -2191,10 +2149,11 @@ public class ImportDialog
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
 				j = hcsFilters.iterator();
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				while (j.hasNext()) {
 					chooser.addChoosableFileFilter(j.next());
 				}
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();
@@ -2216,10 +2175,25 @@ public class ImportDialog
 		initializeLocationBoxes();
 		buildLocationPane();
 		boolean b = popUpLocation;
-		popUpLocation = this.selectedContainer == null;
-		if (b != popUpLocation) {
-			if (b) container.add(locationPane, "3, 0");
-			else container.remove(locationPane);
+		if (!changeGroup) popUpLocation = this.selectedContainer == null;
+		if (b != popUpLocation && !changeGroup) {
+			if (b) {
+				Component[] comps = container.getComponents();
+				boolean in = false;
+				for (int i = 0; i < comps.length; i++) {
+					if (comps[i] == pane) {
+						in = true;
+						break;
+					}
+				}
+				if (!in) {
+					pane.removeAll();
+					pane.add(new JScrollPane(locationPane));
+					container.add(pane, "3, 0");
+				}
+			} else {
+				if (remove) container.remove(pane);
+			}
 			container.repaint();
 		}
 		locationPane.repaint();
@@ -2294,6 +2268,44 @@ public class ImportDialog
 		canvas.setVisible(true);
 	}
 	
+	/**
+	 * Adds the component.
+	 * 
+	 * @param bar The component to add.
+	 */
+	public void addToolBar(JComboBox bar)
+	{
+		if (bar == null) return;
+		groupSelection = bar;
+		buildLocationPane();
+		//toolBar.add(bar);
+		//invoke when master
+		cancelButton.setVisible(false);
+	}
+	
+	/**
+	 * Refreshes the display when the user reconnect to server.
+	 * 
+	 * @param bar The component to add.
+	 */
+	public void onReconnected(JComboBox bar)
+	{
+		int n = toolBar.getComponentCount();
+		int diff = n-tbItems;
+		if (diff > 0) {
+			for (int i = 0; i < diff; i++) {
+				toolBar.remove(tbItems+i);
+			}
+			toolBar.add(bar);
+			toolBar.validate();
+			toolBar.repaint();
+		}
+		table.removeAllFiles();
+		locationPane.repaint();
+		tagsPane.removeAll();
+		tagsMap.clear();
+	}
+	
 	/** 
 	 * Notifies that the new object has been created.
 	 * 
@@ -2304,8 +2316,6 @@ public class ImportDialog
 	{
 		if (d instanceof ProjectData || d instanceof ScreenData) {
 			createContainer(d);
-		//} else if (d instanceof ScreenData) {
-		//	createScreen((ScreenData) d);
 		} else if (d instanceof DatasetData) {
 			createDataset((DatasetData) d);
 		}
@@ -2318,7 +2328,14 @@ public class ImportDialog
 	 * @return See above.
 	 */
 	public boolean reloadHierarchies() { return reload; }
-
+	
+	/**
+	 * Sets the selected group.
+	 * 
+	 * @param group The group to set.
+	 */
+	public void setSelectedGroup(GroupData group) { this.group = group; }
+	
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

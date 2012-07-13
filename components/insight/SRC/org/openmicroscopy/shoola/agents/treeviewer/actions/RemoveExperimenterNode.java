@@ -34,6 +34,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -66,8 +67,8 @@ public class RemoveExperimenterNode
 	
 	/**
      * Sets the action enabled depending on the browser's type and 
-     * the currenlty selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currenlty selected node.
+     * the currently selected node. Sets the name of the action depending on 
+     * the <code>DataObject</code> hosted by the currently selected node.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
@@ -85,8 +86,10 @@ public class RemoveExperimenterNode
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(false);
                 } else {
+                	ExperimenterData loggedIn = 
+                		TreeViewerAgent.getUserDetails();
                 	ExperimenterData exp = (ExperimenterData) ho;
-                	setEnabled(exp.getId() != browser.getRootID());
+                	setEnabled(exp.getId() != loggedIn.getId());
                 }
             } else setEnabled(false);
         }
@@ -116,5 +119,5 @@ public class RemoveExperimenterNode
     {
         model.removeExperimenterData();
     }
-    
+
 }

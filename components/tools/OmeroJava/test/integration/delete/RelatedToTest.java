@@ -6,9 +6,9 @@
  */
 package integration.delete;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import omero.api.delete.DeleteCommand;
+import omero.cmd.Delete;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class RelatedToTest extends AbstractTest {
+public class RelatedToTest extends AbstractServerTest {
 
     @Test(groups = { "ticket:1228", "ticket:2776" })
     public void testDeleteWithProjectionRemovesRelatedTo() throws Exception {
@@ -37,7 +37,7 @@ public class RelatedToTest extends AbstractTest {
         p2 = (Pixels) iUpdate.saveAndReturnObject(p2);
         assertEquals(p1.getId(), p2.getRelatedTo().getId());
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, i1
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1
                 .getId().getValue(), null));
 
         assertDoesNotExist(i1);
@@ -67,7 +67,7 @@ public class RelatedToTest extends AbstractTest {
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
         assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, img2
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img2
                 .getId().getValue(), null));
 
         String sql = "select i from Image i where i.id = :id";

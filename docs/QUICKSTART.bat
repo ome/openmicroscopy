@@ -5,7 +5,7 @@ REM up and running quickly. You will need to have
 REM passwordless login for the "omero" DB user configured
 REM in postgres.
 REM
-REM For more information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroContributing
+REM For more information, see http://trac.openmicroscopy.org.uk/ome/wiki/OmeroContributing
 
 echo.
 echo -----------------------------------------------------
@@ -29,8 +29,14 @@ if "x%OMERO_DIST_DIR%" == "x" (SET OMERO_DIST_DIR="%cd%\dist")
 
 if exist %OMERO_DIST_DIR% goto AlreadyBuilt
   echo Building...
-  python build.py -Ddist.dir=%OMERO_DIST_DIR%
+  REM As of 5c6fc7313f129 it's no longer possible to pass
+  REM dist.dir to build.py
+  python -c "import sys, os; print 'dist.dir=%%s' %% os.environ['OMERO_DIST_DIR'].replace('\\','\\\\')" > etc\local.properties
   if errorlevel 1 goto ERROR
+
+  python build.py
+  if errorlevel 1 goto ERROR
+
   goto Ready
 :AlreadyBuilt
   echo Server already built. To rebuild, use "build clean"

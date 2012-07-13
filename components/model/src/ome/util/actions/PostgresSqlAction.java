@@ -57,6 +57,18 @@ public class PostgresSqlAction extends SqlAction.Impl {
     // Interface methods
     //
 
+    /**
+     * The temp_ids infrastructure was never properly put
+     * in place for the "psql" profile. This method simply
+     * bypasses all query rewriting until that's functional.
+     *
+     * @see ticket 3961
+     * @see ticket 9077
+     */
+    public String rewriteHql(String query, String key, Object value) {
+        return query;
+    }
+
     public void prepareSession(final long eventId, final long userId, final long groupId) {
         JdbcTemplate jt = (JdbcTemplate) _jdbc().getJdbcOperations(); // FIXME
         SimpleJdbcCall call = new SimpleJdbcCall(jt).withFunctionName("_prepare_session");
@@ -472,7 +484,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -498,7 +511,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -564,7 +578,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -590,7 +605,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -616,11 +632,28 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
     //
     // End PgArrayHelper
     //
+
+    //
+    // Helpers
+    //
+
+    /**
+     * If postgresql is installed with an older jdbc jar that is on the
+     * bootstrap classpath, then it's possible that the use of pgarrays will
+     * fail (I think). See #7432
+     */
+    protected void handlePotentialPgArrayJarError(UncategorizedSQLException e) {
+        log.error(e);
+        throw new InternalException(
+                "Potential jdbc jar error during pgarray access (See #7432)\n"
+                + printThrowable(e));
+    }
 }

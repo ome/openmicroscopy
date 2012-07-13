@@ -40,13 +40,16 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.TimeoutException;
 
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import ome.conditions.SessionTimeoutException;
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
 import omero.model.Pixels;
@@ -58,6 +61,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -153,6 +158,9 @@ class RenderingControlProxy
     /** Flag indicating that the image is a big image or not.*/
     private Boolean bigImage;
     
+    /** The security context associated to that control.*/
+    private SecurityContext ctx;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -201,37 +209,42 @@ class RenderingControlProxy
      * Methods in this class are required to fill in a meaningful context
      * message.
      * 
-     * @param t			The exception.
-     * @param message	The context message.  
-     * @param message
+     * @param e The exception.
+     * @param message The context message.
      * @throws RenderingServiceException A rendering problem
      * @throws DSOutOfServiceException A connection problem.
      */
-    private void handleException(Throwable t, String message)
+    private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	Throwable cause = t.getCause();
-    	if (cause instanceof ConnectionRefusedException || 
-				t instanceof ConnectionRefusedException ||
+    	Throwable cause = e.getCause();
+		int index = -1;
+		if (cause instanceof ConnectionLostException ||
+			e instanceof ConnectionLostException ||
+			cause instanceof SessionTimeoutException ||
+			e instanceof SessionTimeoutException || 
+			cause instanceof TimeoutException || e instanceof TimeoutException)
+			index = DataServicesFactory.LOST_CONNECTION;
+		else if (cause instanceof CommunicatorDestroyedException ||
+				e instanceof CommunicatorDestroyedException)
+			index = DataServicesFactory.DESTROYED_CONNECTION;
+		else if (cause instanceof ConnectionRefusedException || 
+				e instanceof ConnectionRefusedException ||
 				cause instanceof ConnectionTimeoutException || 
-				t instanceof ConnectionTimeoutException) {
-			//context.getTaskBar().sessionExpired(
-			//		TaskBar.SERVER_OUT_OF_SERVICE);
-			return;
-		} else if (cause instanceof ConnectionLostException ||
-				t instanceof ConnectionLostException) {
-			//context.getTaskBar().sessionExpired(
-			//		TaskBar.LOST_CONNECTION);
-			return;
+				e instanceof ConnectionTimeoutException) 
+			index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
+		if (index >= 0) {
+			context.getTaskBar().sessionExpired(index);
+		} else {
+			throw new RenderingServiceException(message+"\n\n"+ 
+					printErrorText(e), e);
 		}
-    	throw new RenderingServiceException(message+"\n\n"+
-				printErrorText(t), t);
     }
     
     /** Checks if the session is still alive.*/
     private void isSessionAlive()
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	DataServicesFactory.isSessionAlive(context, ctx);
     }
     
     /**
@@ -299,7 +312,8 @@ class RenderingControlProxy
     {
     	if (isBigImage()) return;
     	invalidateCache();
-    	context.getCacheService().removeCache(cacheID);
+    	if (cacheID >=0)
+    		context.getCacheService().removeCache(cacheID);
     }
     
     /**
@@ -329,8 +343,17 @@ class RenderingControlProxy
     	}
     	*/
     	if (pDef.slice == omero.romio.XY.value) {
-    		cacheID = context.getCacheService().createCache(
-					CacheService.IN_MEMORY, cacheSize/imageSize);
+    		try {
+    			cacheID = context.getCacheService().createCache(
+    					CacheService.IN_MEMORY, cacheSize/imageSize);
+			} catch (Exception e) {
+				//log the error for example if the cache manager could not
+				//be initialized.
+				LogMessage msg = new LogMessage();
+				msg.print("Initialize cache");
+				msg.print(e);
+				context.getLogger().error(this, msg);
+			}
     	}
     }
   
@@ -465,7 +488,10 @@ class RenderingControlProxy
 			}
             tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
-			// TODO: handle exception
+			LogMessage msg = new LogMessage();
+			msg.print("Initialize proxy");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
     }
     
@@ -749,21 +775,21 @@ class RenderingControlProxy
     /**
      * Creates a new instance.
      * 
-     * @param context		Helper reference to the registry.
-     * @param re   			The service to render a pixels set.
-     *                  	Mustn't be <code>null</code>.
-     * @param pixels   		The pixels set.
-     *                  	Mustn't be <code>null</code>.
-     * @param m         	The channel metadata. 
-     * @param compression  	Pass <code>0</code> if no compression otherwise 
-	 * 						pass the compression used.
-	 * @param rndDefs		Local copy of the rendering settings used to 
-	 * 						speed-up the client.
-	 * @param cacheSize		The desired size of the cache.
+     * @param ctx The security context.
+     * @param context Helper reference to the registry.
+     * @param re The service to render a pixels set.
+     * Mustn't be <code>null</code>.
+     * @param pixels The pixels set. Mustn't be <code>null</code>.
+     * @param m The channel metadata. 
+     * @param compression Pass <code>0</code> if no compression otherwise 
+	 * 					  pass the compression used.
+	 * @param rndDefs Local copy of the rendering settings used to 
+	 * speed-up the client.
+	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(Registry context, RenderingEnginePrx re, 
-    		Pixels pixels, List m, int compression, List<RndProxyDef> rndDefs, 
-    		int cacheSize)
+    RenderingControlProxy(SecurityContext ctx, Registry context,
+    	RenderingEnginePrx re, Pixels pixels, List m, int compression,
+    	List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -771,6 +797,9 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        if (ctx == null)
+            throw new NullPointerException("No security context.");
+        this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
@@ -1518,6 +1547,8 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
+		long id = pixs.getDetails().getGroup().getId().getValue();
+		if (id != pixels.getGroupId()) return false;
 		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
@@ -1750,7 +1781,7 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
-		if (def.getCompression() != rndDef.getCompression()) return false;
+		//if (def.getCompression() != rndDef.getCompression()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;

@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
 import javax.swing.JFrame;
@@ -31,12 +33,14 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
+import pojos.GroupData;
 
 /** 
  * Defines the interface provided by the importer component. 
@@ -62,11 +66,18 @@ public interface Importer
 	extends ObservableComponent
 {
 
+	/** Bound property indicating to the group has been modified. */
+	public static final String	CHANGED_GROUP_PROPERTY = "changedGroup";
+	
+	/** Identifies the <code>Personal</code> menu. */
+	public static final int     PERSONAL_MENU = 100;
+	
 	/** Indicates that the type is for project. */
-	public static final int		PROJECT_TYPE = 0;
+	public static final int		PROJECT_TYPE = 
+		BrowserSelectionEvent.PROJECT_TYPE;
 	
 	/** Indicates that the type is for Screening data. */
-	public static final int		SCREEN_TYPE = 1;
+	public static final int		SCREEN_TYPE = BrowserSelectionEvent.SCREEN_TYPE;
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -177,6 +188,14 @@ public interface Importer
 	 */
 	public boolean hasFailuresToSend();
 	
+	/**
+	 * Returns <code>true</code> if files to re-import, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport();
+	
 	/** 
 	 * Sets the used and available disk space.
 	 * 
@@ -214,11 +233,13 @@ public interface Importer
 	 * @param result The result to display
 	 * @param refreshImport Pass <code>true</code> to refresh the on-going
 	 * 						import, <code>false</code> otherwise.
+	 * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
 	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
 	 * 				or {@link #SCREEN_TYPE}.
 	 */
 	public void setContainers(Collection result, boolean refreshImport, 
-			int type);
+			boolean changeGroup, int type);
 
 	/** 
 	 * Reloads the containers where to load the data.
@@ -254,4 +275,43 @@ public interface Importer
 	 * @return See above.
 	 */
 	public boolean hasOnGoingImport();
+
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID    The id of the menu. One out of the following constants:
+	 *                  {@link #PERSONAL_MENU}.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	public void showMenu(int personalMenu, Component source, Point point);
+
+	/**
+	 * Returns the currently selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
+	/**
+	 * Sets the default group for the currently selected user and updates the 
+	 * view.
+	 * 
+	 * @param group The group to set.
+	 */
+	void setUserGroup(GroupData group);
+
+	/** Logs off from the current server.*/
+	void logOff();
+
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster();
+
 }

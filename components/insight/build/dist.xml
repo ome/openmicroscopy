@@ -20,7 +20,7 @@
   <checkdef prop="app.lib.dir"/>
   <checkdef prop="app.mainclass"/>
   <checkdef ref="app.config"/>
-  <checkdef ref="app.libs"/>
+  <!-- <checkdef ref="app.libs"/> -->
   <checkdef prop="docs.dir"/> 
   <checkdef prop="docs.userdocs.dir"/>
 <checkdef prop="app.compiled.util.dir"/>
@@ -51,11 +51,25 @@
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <if>
+      <isset property="dist.dir"/>
+      <then>
+          <fail>ERROR: dist.dir is currently set!
+
+        This most likely occurred because dist.dir was set on the top-level
+        build:  ./build.py -Ddist.dir=/tmp/example
+
+        This no longer works with the insight build. Instead, set dist.dir
+        in the etc/local.properties file.</fail>
+      </then>
+  </if>
   <property environment="dist.environment"/>
-  <property name="dist.name" value="OMERO.insight"/>
+  <property name="distInsight.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
+   <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
+  <property name="dist.bundle.ij.name" value="OMERO.ij"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -64,7 +78,7 @@
             location="${base.launch.dir}/INSTALL.txt"/> 
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/>
-  <property name="dist.vmparameters" value="-Xms256M -Xmx512M"/>
+  <property name="dist.vmparameters" value="${app.vmparameters}"/>
   <property name="dist.osx.icon" 
             location="${base.launch.dir}/osx/omeroinsight.icns"/>
   <property name="dist.osx.stub" 
@@ -73,28 +87,40 @@
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
   <property name="dist.exe4j.home" value="/opt/exe4j"/>
-  <property name="dist.win.exename" value="OMERO.insight"/>
-  <property name="dist.win.icon"
+  <property name="distInsight.win.exename" value="OMERO.insight"/>
+  <property name="distInsight.win64.exename" value="${distInsight.win.exename}_64"/>
+  <property name="distInsight.win.icon"
             location="${base.launch.dir}/win/omeroinsight.ico"/>
   <property name="dist.util.name" value="omero-clients-util"/>
   <property name="dist.util.dir" location="${dist.dir}/util"/>
+  <!-- editor -->
   <property name="distEditor.name" value="OMERO.editor"/>
   <property name="distEditor.osx.icon" 
 	            location="${base.launch.dir}/osx/editorIcon.icns"/>
-  <property name="distEditor.jar.file" value="omero.editor.jar"/>
   <property name="distEditor.bundle.name" value="OMERO.editor"/>
   <property name="distEditor.win.exename" value="OMERO.editor"/>
+  <property name="distEditor.win64.exename" value="${distEditor.win.exename}_64"/>
   <property name="distEditor.win.icon"
             location="${base.launch.dir}/win/omeroeditor.ico"/>
+  <!-- importer -->
+  <property name="distImporter.name" value="OMERO.importer"/>
+  <property name="distImporter.osx.icon" 
+		            location="${base.launch.dir}/osx/omeroImporterLogo.icns"/>
+  <property name="distImporter.bundle.name" value="OMERO.importer"/>
+  <property name="distImporter.win.exename" value="OMERO.importer"/>
+  <property name="distImporter.win64.exename" value="${distImporter.win.exename}_64"/>
+  <property name="distImporter.win.icon"
+	            location="${base.launch.dir}/win/omeroImporterLogo.ico"/>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     * Verify the app is good for distribution and create ${dist.dir}.
     * First the whole app and test dirs are removed and then new ones are
     * re-generated with all app and test code.  Tests are run and if a failure
     * occurs, the build is halted.  This way, the app can't be released unless 
-    * all tests pass.  
+    * all tests pass.  ,test
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <target name="dist-init" depends="app.clean,test.clean,test">
+  <target name="dist-init" depends="app.clean,test.clean, test">
     <mkdir dir="${dist.dir}"/>
+    <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -104,6 +130,22 @@
     <condition property="dist.exe4j.exists">
       <available file="${dist.exe4j.home}/bin/ant.jar"/>
     </condition>
+    <!-- Touch the zip files for ivy -->
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win64-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${distEditor.bundle.name}-${dist.bundle.version}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${distImporter.bundle.name}-${dist.bundle.version}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
   </target>
 
   <target name="exe4j-echo-on-missing" unless="dist.exe4j.exists">
@@ -134,27 +176,46 @@
                  pathsep=" " 
                  dirsep="/" 
                  refid="app.libs">
-      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
-    </pathconvert>      
+      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
+    </pathconvert>
+    <basename property="dist.jar.app.config.base" file="${app.config.dir}"/>
+    <dirname property="dist.jar.app.config.dir" file="${app.config.dir}"/>
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
+      <fileset dir="${dist.jar.app.config.dir}" includes="${dist.jar.app.config.base}/**"/>
       <manifest>
         <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
       </manifest> 
     </jar>
-  </target> 
+  </target>
+  <target name="jar-ij" depends="dist-init">
+    <pathconvert property="dist.jar.manifest.cp" 
+                 pathsep=" " 
+                 dirsep="/" 
+                 refid="app.libs">
+      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>
+    </pathconvert>
+    <jar destfile="${dist.dir}/${dist.jar.ij.file}">
+      <fileset dir="${app.compiled.dir}"/>
+      <manifest>
+        <attribute name="Created-By" value="OMERO Development Team"/>
+        <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
+        <attribute name="Main-Class" value="${app.mainclass.ij}"/>
+      </manifest> 
+    </jar>
+  </target>
   <target name="jar-util" depends="dist-init">
      <pathconvert property="dist.jar.manifest.cp" 
         pathsep=" " 
 	                 dirsep="/" 
 	                 refid="app.libs">
-	    <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
 	    </pathconvert>   
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
-	    	<fileset dir="${base.lib.dir}" includes="${ivy.module}.jar"/>
+	    	<fileset dir="${base.runtimelib.dir}" includes="${ivy.module}.jar"/>
 	    	<manifest>
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
 	    	      </manifest> 
@@ -175,10 +236,12 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL"
+          depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
+  	dist-win-openGL,dist-win64-openGL,distEditor-osx, dist-ij, 
+  	distImporter-osx, distImporter-win"
           description="Build and package the app for distribution."> 
-    <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
+
+    <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
@@ -188,55 +251,87 @@
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
   </target>
- <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-   * Creates a distribution for HCS preview
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the default distribution bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}.zip 
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + A lib dir, containing all the app.libs files.  The dir name is set
+   *     to the name of the ${app.lib.dir}.
+   *   + The app jar file, ${dist.jar.file}.
+   *   + The launch scripts, dist.launch.scripts.
+   *   + The install instructions, ${dist.installfile}.
+   *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <macrodef name="hcs-preview-copy">
-      <attribute name="zip"/>
-      <sequential>
-          <copy file="${dist.dir}/@{zip}.zip"
-              tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
-          <zip destfile="${dist.dir}/@{zip}-HCS_PREVIEW.zip" update="true">
-              <zipfileset dir="${dist.dir}/hcs-preview" prefix="@{zip}" includes="config/**"/>
-          </zip>
-      </sequential>
+  <target name="dist-ij"
+          depends="jar-ij"
+          description="Build and package the app for distribution."> 
+  	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
+    <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${main-dist-ij-prefix}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs.no-bioformats" prefix="${main-dist-ij-prefix}/${dist.app.lib.dir.name}">
+      </zipfileset>
+      <zipfileset dir="${dist.dir}" prefix="${main-dist-ij-prefix}" includes="${dist.jar.ij.file}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-ij-prefix}/LICENSE"/>
+    </zip>
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Creates Windows executables via exe4j.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <macrodef name="make-windows-executables">
+    <attribute name="type"/>
+    <attribute name="do-64-bit" default="true"/>
+    <attribute name="do-32-bit" default="true"/>
+    <sequential>
+      <if>
+        <equals arg1="@{do-32-bit}" arg2="true"/>
+        <then>
+          <copy tofile="${build.dir}/@{type}.exe4j"
+            file="build/@{type}_template.exe4j"
+                overwrite="true">
+            <filterset>
+              <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+              <filter token="IS_64_BIT" value="false"/>
+              <!-- exe4j exe names have to be relative paths for some reason. Please
+                   leave the "app" directory prefix and do not replace with
+                   ${app.dir} or you will get strange errors. -->
+              <filter token="EXE_NAME" value="app/${dist@{type}.win.exename}"/>
+              <filter token="APP_NAME" value="${dist@{type}.name}"/>
+              <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
+              <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+            </filterset>
+          </copy>
+          <exe4j projectfile="${build.dir}/@{type}.exe4j"/>
+        </then>
+      </if>
+
+      <if>
+        <equals arg1="@{do-64-bit}" arg2="true"/>
+        <then>
+          <copy tofile="${build.dir}/@{type}_64.exe4j"
+            file="build/@{type}_template.exe4j"
+                overwrite="true">
+            <filterset>
+              <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+              <filter token="IS_64_BIT" value="true"/>
+              <!-- exe4j exe names have to be relative paths for some reason. Please
+                   leave the "app" directory prefix and do not replace with
+                   ${app.dir} or you will get strange errors. -->
+              <filter token="EXE_NAME" value="app/${dist@{type}.win64.exename}"/>
+              <filter token="APP_NAME" value="${dist@{type}.name}"/>
+              <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
+              <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+            </filterset>
+          </copy>
+          <exe4j projectfile="${build.dir}/@{type}_64.exe4j"/>
+        </then>
+      </if>
+    </sequential>
   </macrodef>
-  <target name="hcs-preview" 
-  	description="Temporary 4.3 target for creating the HCS_PREVIEW files">
-    <delete dir="${dist.dir}/hcs-preview"/>
-    <mkdir dir="${dist.dir}/hcs-preview"/>
-    <property name="hcs-container" value="hcs-preview/config/container.xml"/>
-    <copy file="${app.config.dir}/container.xml" 
-    	tofile="${dist.dir}/${hcs-container}"/>
-    <replace file="${dist.dir}/${hcs-container}"
-        token='entry name="/roi/location/server" type="boolean"&gt;false&lt;/entry'
-        value='entry name="/roi/location/server" type="boolean"&gt;true&lt;/entry'>
-    </replace>
-    <available property="hcs-preview-main-available"  
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
-    <available property="hcs-preview-mac-available"
-        file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-mac-openGL.zip"/>
-    <available property="hcs-preview-win-available"   
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip"/>
-    <available property="hcs-preview-win64-available" 
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip"/>
-    <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-mac"   inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-win64" inheritAll="true" inheritRefs="true"/>
-  </target>
-  <target name="hcs-preview-main" if="hcs-preview-main-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}"/>
-  </target>
-  <target name="hcs-preview-mac" if="hcs-preview-mac-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-mac-openGL"/>
-  </target>
-  <target name="hcs-preview-win" if="hcs-preview-win-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
-  </target>
-  <target name="hcs-preview-win64" if="hcs-preview-win64-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
-  </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the Windows distribution bundle under ${dist.dir}.
@@ -252,22 +347,7 @@
   <target name="dist-win" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows distribution.">
-	    <echo message="Setting exe as: ${exe_location}."/>
-	    <copy tofile="${build.dir}/Insight.exe4j"
-	          file="build/Insight_template.exe4j"
-	          overwrite="true">
-	      <filterset>
-	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-	        <!-- exe4j exe names have to be relative paths for some reason. Please
-	             leave the "app" directory prefix and do not replace with
-	             ${app.dir} or you will get strange errors. -->
-			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-	        <filter token="APP_NAME" value="${dist.name}"/>
-	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-	      </filterset>
-	    </copy>
-	    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
+      <make-windows-executables type="Insight"/>
 	    <property name="dist.zip.prefix.win"
 	              value="${dist.bundle.name}-${dist.bundle.version}-win"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win}.zip">
@@ -276,7 +356,9 @@
 	      <zipfileset prefix="${dist.zip.prefix.win}/libs" dir="${app.lib.dir}"
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win}"
-	                  file="${app.dir}/${dist.win.exename}.exe"/>
+	                  file="${app.dir}/${distInsight.win.exename}.exe"/>
+	      <zipfileset prefix="${dist.zip.prefix.win}"
+	                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
 	      <zipfileset file="${base.licensefile}"
 	                  fullpath="${dist.zip.prefix.win}/LICENSE"/> 
 	      <zipfileset prefix="${dist.zip.prefix.win}" dir="${dist.dir}"
@@ -287,28 +369,13 @@
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build and package the app for Windows distribution with OpenGL support.">
-    <echo message="Setting exe as: ${exe_location}."/>
-    <copy tofile="${build.dir}/Insight.exe4j"
-          file="build/Insight_template.exe4j"
-          overwrite="true">
-      <filterset>
-        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-        <!-- exe4j exe names have to be relative paths for some reason. Please
-             leave the "app" directory prefix and do not replace with
-             ${app.dir} or you will get strange errors. -->
-		<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-        <filter token="APP_NAME" value="${dist.name}"/>
-        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-      </filterset>
-    </copy>
+    <make-windows-executables type="Insight" do-64-bit="false"/>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
     <replace file="${dist.dir}/opengl-imviewer.xml"
         token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
         value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
     </replace>
-    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
     <property name="dist.zip.prefix.win.openGL"
               value="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
     <zip destfile=
@@ -320,13 +387,15 @@
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs" dir="${app.lib.dir}"
                   includes="*"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
-                  file="${app.dir}/${dist.win.exename}.exe"/>
+                  file="${app.dir}/${distInsight.win.exename}.exe"/>
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}"
+                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
       <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
                   file="${base.licensefile}"/> 
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
                   includes="${dist.jar.file}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
-                  dir="${base.lib.dir}/win-native" includes="*"/>
+                  dir="${native.lib.dir}/win-native" includes="*"/>
       <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                   fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
     </zip> 
@@ -346,28 +415,13 @@
    <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows 64 distribution with OpenGL support.">
-	    <echo message="Setting exe as: ${exe_location}."/>
-	    <copy tofile="${build.dir}/Insight64.exe4j"
-	          file="build/Insight_template.exe4j"
-	          overwrite="true">
-	      <filterset>
-	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-	        <!-- exe4j exe names have to be relative paths for some reason. Please
-	             leave the "app" directory prefix and do not replace with
-	             ${app.dir} or you will get strange errors. -->
-			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-	        <filter token="APP_NAME" value="${dist.name}"/>
-	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-	      </filterset>
-	    </copy>
+      <make-windows-executables type="Insight" do-32-bit="false"/>
       <copy file="${app.config.dir}/imviewer.xml"
         tofile="${dist.dir}/opengl-imviewer.xml"/>
       <replace file="${dist.dir}/opengl-imviewer.xml"
           token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
           value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
       </replace>
-	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
 	    <property name="dist.zip.prefix.win64.openGL"
                 value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
@@ -378,13 +432,13 @@
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs" dir="${app.lib.dir}"
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
-	                  file="${app.dir}/${dist.win.exename}.exe"/>
+	                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
 	      <zipfileset file="${base.licensefile}"
 	                  fullpath="${dist.zip.prefix.win64.openGL}/LICENSE"/> 
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
 	                  includes="${dist.jar.file}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
-	                  dir="${base.lib.dir}/win64-native"
+	                  dir="${native.lib.dir}/win64-native"
 	                  includes="*"/>
         <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                     fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
@@ -407,11 +461,11 @@
           description="Build and package the app for OS X distribution.">
     <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${dist.name}"
+                name="${distInsight.name}"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
-                infostring="${dist.name} Java Client, ${dist.bundle.version}"
-                aboutmenuname="${dist.name}"
+                infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
+                aboutmenuname="${distInsight.name}"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
@@ -442,11 +496,11 @@
           description="Build and package the app for OS X distribution with OpenGL support.">
     <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${dist.name}"
+                name="${distInsight.name}"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
-                infostring="${dist.name} Java Client, ${dist.bundle.version}"
-                aboutmenuname="${dist.name}"
+                infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
+                aboutmenuname="${distInsight.name}"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
@@ -455,7 +509,7 @@
       <jarfileset refid="app.libs"/>
       <javaproperty name="java.library.path" value="$JAVAROOT"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-      <jarfileset dir="${base.lib.dir}/osx-native" includes="*"/>
+      <jarfileset dir="${native.lib.dir}/osx-native" includes="*"/>
     </jarbundler>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
@@ -499,22 +553,7 @@
     <target name="distEditor-win" depends="jar,exe4j-init"
               if="dist.exe4j.exists"
               description="Build and package the app for Windows distribution.">
-        <echo message="Setting exe as: ${exe_location}."/>
-        <copy tofile="${build.dir}/Editor.exe4j"
-              file="build/Editor_template.exe4j"
-              overwrite="true">
-          <filterset>
-            <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-            <!-- exe4j exe names have to be relative paths for some reason. Please
-                 leave the "app" directory prefix and do not replace with
-                 ${app.dir} or you will get strange errors. -->
-    		<filter token="EXE_NAME" value="app/${distEditor.win.exename}"/>
-            <filter token="APP_NAME" value="${distEditor.name}"/>
-            <filter token="ICON_FILE" value="${distEditor.win.icon}"/>
-            <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-          </filterset>
-        </copy>
-        <exe4j projectfile="${build.dir}/Editor.exe4j"/>
+        <make-windows-executables type="Editor"/>
         <property name="dist.zip.prefix.editor.win"
                   value="${distEditor.bundle.name}-${dist.bundle.version}-win"/>
         <zip destfile="${dist.dir}/${dist.zip.prefix.editor.win}.zip">
@@ -524,6 +563,8 @@
                       includes="*"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}"
                       file="${app.dir}/${distEditor.win.exename}.exe"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}"
+                      file="${app.dir}/${distEditor.win64.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
                       fullpath="${dist.zip.prefix.editor.win}/LICENSE"/> 
           <zipfileset prefix="${dist.zip.prefix.editor.win}" dir="${dist.dir}"
@@ -556,7 +597,7 @@
 	        icon="${distEditor.osx.icon}"
 	        stubfile="${dist.osx.stub}" 
 	        jvmversion="1.5+"
-	        vmoptions="-Xms256M -Xmx512M"
+  	        vmoptions="${dist.vmparameters}"
   			arguments="containerEditor.xml">
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
@@ -578,7 +619,88 @@
 	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/> 
 	  </zip> 
   </target> 
-	
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  * Creates the Windows distribution bundle under ${dist.dir}.
+  * This is a zip file whose name is set to 
+  * ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+  * and whose contents are:
+  *   + A config dir, containing all the app.config files.  The dir name is
+  *     set to the name of the ${app.config.dir}.
+  *   + The OMERO.insight application.  That is, the .app dir embedding the app
+  *     jar file, all the the app.libs files, and Windows exe.
+  *   + The license file, ${base.licensefile}. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+    <target name="distImporter-win" depends="jar,exe4j-init"
+              if="dist.exe4j.exists"
+              description="Build and package the app for Windows distribution.">
+        <make-windows-executables type="Importer"/>
+        <property name="dist.zip.prefix.importer.win"
+                  value="${distImporter.bundle.name}-${dist.bundle.version}-win"/>
+        <zip destfile="${dist.dir}/${dist.zip.prefix.importer.win}.zip">
+          <zipfileset prefix="${dist.zip.prefix.importer.win}/${dist.app.config.dir.name}"
+                      dir="${app.config.dir}"/>
+          <zipfileset prefix="${dist.zip.prefix.importer.win}/libs" dir="${app.lib.dir}"
+                      includes="*"/>
+          <zipfileset prefix="${dist.zip.prefix.importer.win}"
+                      file="${app.dir}/${distImporter.win.exename}.exe"/>
+          <zipfileset prefix="${dist.zip.prefix.importer.win}"
+                      file="${app.dir}/${distImporter.win64.exename}.exe"/>
+          <zipfileset file="${base.licensefile}"
+                      fullpath="${dist.zip.prefix.importer.win}/LICENSE"/> 
+          <zipfileset prefix="${dist.zip.prefix.importer.win}" dir="${dist.dir}"
+                      includes="${dist.jar.file}"/>
+        </zip> 
+      </target>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  * Creates the Mac OS X distribution bundle under ${dist.dir}.
+  * This is a zip file whose name is set to 
+  * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
+  * and whose contents are:
+  *   + A config dir, containing all the app.config files.  The dir name is
+  *     set to the name of the ${app.config.dir}.
+  *   + The OMERO.importer application.  That is, the .app dir embedding the app
+  *     jar file, all the the app.libs files, and Mac OS X specific config.
+  *   + The install instructions, ${dist.osx.installfile}.
+  *   + The license file, ${base.licensefile}. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+  <target name="distImporter-osx"
+        depends="jar"
+        description="Build and package the app for OS X distribution.">
+  <jarbundler dir="${dist.dir}"
+        name="${distImporter.name}"
+        mainclass="${app.mainclass}"
+        version="${dist.bundle.version}"
+        infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
+        aboutmenuname="${distImporter.name}"
+        screenmenu="true" 
+        icon="${distImporter.osx.icon}"
+        stubfile="${dist.osx.stub}" 
+        jvmversion="1.5+"
+  	    vmoptions="${dist.vmparameters}"
+  arguments="containerImporter.xml">
+  <jarfileset refid="app.libs"/>
+  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+  </jarbundler>  
+  <property name="dist.zip.prefix.importer.osx"
+            value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
+  <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
+     <zipfileset prefix="${dist.zip.prefix.importer.osx}/${dist.app.config.dir.name}"
+                 dir="${app.config.dir}"/>
+     <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
+               includes="OMERO.importer.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
+     <zipfileset file="${dist.osx.stub}" 
+                 fullpath="${dist.zip.prefix.importer.osx}/OMERO.importer.app/Contents/MacOS/${dist.osx.stub.name}"
+                 filemode="775"/> 
+     <zipfileset prefix="${dist.zip.prefix.importer.osx}"
+                 file="${dist.osx.installfile}"/>
+     <zipfileset file="${base.licensefile}"
+                 fullpath="${dist.zip.prefix.importer.osx}/LICENSE"/> 
+  </zip> 
+	  </target>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the documentation bundle under ${dist.dir}.
    * This is a zip file whose name is set to 

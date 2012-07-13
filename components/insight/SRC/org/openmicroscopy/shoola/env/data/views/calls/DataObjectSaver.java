@@ -34,6 +34,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -60,10 +61,13 @@ public class DataObjectSaver
     public static final int UPDATE = 1;
 
     /** The save call. */
-    private BatchCall       saveCall;
+    private BatchCall saveCall;
     
     /** The result of the call. */
-    private Object          result;
+    private Object result;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to create the specified {@link DataObject}s.
@@ -73,9 +77,8 @@ public class DataObjectSaver
      * @param children	The children to add to the newly created node.
      * @return The {@link BatchCall}.
      */
-    private BatchCall create(final List<DataObject> objects, 
-    		final DataObject parent, 
-    						final Collection children)
+    private BatchCall create(final List<DataObject> objects,
+    		final DataObject parent, final Collection children)
     {
         return new BatchCall("Create Data object.") {
             public void doCall() throws Exception
@@ -84,7 +87,7 @@ public class DataObjectSaver
                 List<DataObject> l = new ArrayList<DataObject>();
                 Iterator<DataObject> i = objects.iterator();
                 while (i.hasNext()) {
-                	l.add(os.createDataObject(i.next(), parent, children));
+                	l.add(os.createDataObject(ctx, i.next(), parent, children));
 				}
                 result = l;
             }
@@ -106,7 +109,7 @@ public class DataObjectSaver
                 List<DataObject> l = new ArrayList<DataObject>();
                 Iterator<DataObject> i = objects.iterator();
                 while (i.hasNext()) {
-                	l.add(os.updateDataObject(i.next()));
+                	l.add(os.updateDataObject(ctx, i.next()));
 				}
                 result = l;
             }
@@ -130,6 +133,7 @@ public class DataObjectSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param userObject    The {@link DataObject} to create or update.
      *                      Mustn't be <code>null</code>.
      * @param parent     	The parent of the <code>DataObject</code>. 
@@ -137,12 +141,14 @@ public class DataObjectSaver
      * 						is no parent.
      * @param index         One of the constants defined by this class.
      */
-    public DataObjectSaver(DataObject userObject, DataObject parent, int index)
+    public DataObjectSaver(SecurityContext ctx, DataObject userObject,
+    		DataObject parent, int index)
     {
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
         List<DataObject> objects = new ArrayList<DataObject>();
         objects.add(userObject);
+        this.ctx = ctx;
         switch (index) {
             case CREATE:
                 saveCall = create(objects, parent, null);
@@ -160,6 +166,7 @@ public class DataObjectSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param objects	The {@link DataObject}s to create or update.
      *                  Mustn't be <code>null</code>.
      * @param parent    The parent of the <code>DataObject</code>. 
@@ -167,11 +174,12 @@ public class DataObjectSaver
      * 					is no parent.
      * @param index     One of the constants defined by this class.
      */
-    public DataObjectSaver(List<DataObject> objects, DataObject parent, 
-    		int index)
+    public DataObjectSaver(SecurityContext ctx,
+    	List<DataObject> objects, DataObject parent, int index)
     {
         if (objects == null)
             throw new IllegalArgumentException("No DataObject.");
+        this.ctx = ctx;
         switch (index) {
             case CREATE:
                 saveCall = create(objects, parent, null);
@@ -189,19 +197,21 @@ public class DataObjectSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 	
+     * @param ctx The security context.
      * @param parent	The parent of the <code>DataObject</code> to create
 	 * 					or <code>null</code> if no parent specified.
 	 * @param data		The <code>DataObject</code> to create.
 	 * @param children	The nodes to add to the newly created 
 	 * 					<code>DataObject</code>.
      */
-    public DataObjectSaver(DataObject parent, DataObject data, 
-    						Collection children)
+    public DataObjectSaver(SecurityContext ctx,
+    		DataObject parent, DataObject data, Collection children)
     {
     	if (data == null) 
     		throw new IllegalArgumentException("No object to create.");
-    	 List<DataObject> objects = new ArrayList<DataObject>();
-         objects.add(data);
+    	this.ctx = ctx;
+    	List<DataObject> objects = new ArrayList<DataObject>();
+    	objects.add(data);
     	saveCall = create(objects, parent, children);
     }
 

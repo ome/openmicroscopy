@@ -80,7 +80,8 @@ class UnloadedCollector implements CBlock {
         }
 
         if (!id_class_id.containsKey(object.getId())) {
-            id_class_id.put(object.getId(), admin.getLockingIds(object));
+            id_class_id.put(object.getId(), admin.getLockingIds(
+                    (Class<IObject>) object.getClass(), object.getId(), null));
         }
 
     }

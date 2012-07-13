@@ -65,7 +65,7 @@ public class PasswordResetAction
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Resets the password " +
-    		"of the selected experimenters.";
+    		"of the selected users.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.

@@ -8,11 +8,15 @@ package ome.services.blitz.impl;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
+
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
@@ -20,18 +24,22 @@ import omero.grid.ProcessorCallbackPrx;
 import omero.grid.ProcessorCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
-import omero.grid._ProcessorCallbackDisp;
+import omero.grid._ProcessorCallbackOperations;
+import omero.grid._ProcessorCallbackTie;
 import omero.model.Job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
 /**
  * Callback used to lookup active processors via IceStorm.
  */
-public class ProcessorCallbackI extends _ProcessorCallbackDisp {
+public class ProcessorCallbackI extends AbstractAmdServant
+    implements _ProcessorCallbackOperations {
 
     private final static Log log = LogFactory.getLog(ProcessorCallbackI.class);
 
@@ -41,7 +49,7 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
 
     private final ResultHolder<String> holder;
 
-    private final EventContext ec;
+    private final AtomicInteger responses = new AtomicInteger(0);
 
     /**
      * Simplified constructor used to see if any usermode processor is active
@@ -66,10 +74,18 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
      */
     public ProcessorCallbackI(ServiceFactoryI sf, ResultHolder<String> holder,
             Job job) {
+        super(null, null);
         this.sf = sf;
         this.job = job;
         this.holder = holder;
-        this.ec = sf.sessionManager.getEventContext(sf.principal);
+    }
+
+    /**
+     * Return the number of times this instance has been called in a thread
+     * safe manner.
+     */
+    public int getResponses() {
+        return responses.get();
     }
 
     /**
@@ -96,19 +112,23 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
      */
     public ProcessorPrx activateAndWait(Ice.Current current,
             Ice.Identity acceptId) throws ServerError {
-        Ice.ObjectPrx prx = sf.registerServant(acceptId, this);
+        Ice.ObjectPrx prx = sf.registerServant(acceptId,
+                new _ProcessorCallbackTie(this));
 
         try {
             prx = sf.adapter.createDirectProxy(acceptId);
             ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper
                     .uncheckedCast(prx);
 
+            EventContext ec = sf.getEventContext(current);
+
             TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                     PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
                     "willAccept", new omero.model.ExperimenterI(ec
                             .getCurrentUserId(), false),
-                    new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(),
-                            false), this.job, cbPrx);
+                    new omero.model.ExperimenterGroupI(ec
+                            .getCurrentGroupId(), false),
+                            this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
             String server = holder.get();
             Ice.ObjectPrx p = sf.adapter.getCommunicator()
@@ -125,6 +145,7 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
     public void isAccepted(boolean accepted, String sessionUuid,
             String procConn, Current __current) {
 
+        responses.incrementAndGet();
         String reason = "because false returned";
 
         if (accepted) {
@@ -134,6 +155,7 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
             try {
                 EventContext procEc = sf.sessionManager
                         .getEventContext(new Principal(sessionUuid));
+                EventContext ec = sf.getEventContext(__current);
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {

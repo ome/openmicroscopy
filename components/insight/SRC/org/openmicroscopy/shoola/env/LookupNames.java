@@ -46,7 +46,57 @@ package org.openmicroscopy.shoola.env;
  */
 public class LookupNames
 {
-    
+
+	/** 
+	 * Field associated to the <code>ImageJ</code> plugin.
+	 */
+	public static final int IMAGE_J = 100;
+	
+	/** Field to access the plugin.*/
+	public static final String PLUGIN = "Plugin";
+	
+	/** 
+	 * Field indicating the value associated to the
+	 * <code>Tree Viewer</code> as an entry point.
+	 */
+	public static final int INSIGHT_ENTRY = 0;
+	
+	/** 
+	 * Field indicating the value associated to the
+	 * <code>Editor</code> as an entry point.
+	 */
+	public static final int EDITOR_ENTRY = 1;
+	
+	/** 
+	 * Field indicating the value associated to the
+	 * <code>Importer</code> as an entry point.
+	 */
+	public static final int IMPORTER_ENTRY = 2;
+	
+	/** Field indicating the P/D is the default hierarchy.*/
+	public static final int PD_ENTRY = 0;
+	
+	/** Field indicating the SPW is the default hierarchy.*/
+	public static final int HCS_ENTRY = 1;
+	
+	/** Field indicating the Tag is the default hierarchy.*/
+	public static final int TAG_ENTRY = 2;
+	
+	/** Field indicating the Attachment is the default hierarchy.*/
+	public static final int ATTACHMENT_ENTRY = 3;
+	
+    /** Field to access the <code>master</code> agent. */
+	public static final String MASTER = "master";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_INSIGHT = "OMERO.insight";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_IMPORTER = "OMERO.importer";
+	
+	/** Field to access the <code>master</code> agent. */
+	public static final String MASTER_EDITOR = "OMERO.editor";
+	
     /** Field to access the <code>Version</code> information. */
 	public static final String VERSION = "Version";	
 	
@@ -93,7 +143,7 @@ public class LookupNames
     
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
-    
+	
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";
     
@@ -206,10 +256,10 @@ public class LookupNames
      */
     public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
     
-    /** Field to access the URL of the server where obtain an token. */
+    /** Field to access the URL where to obtain a token. */
     public static final String TOKEN_URL = "/services/DEBUGGER/hostnameToken";
     
-    /** Field to access the URL of the server where to submit the files. */
+    /** Field to access the URL where to submit the files. */
     public static final String PROCESSING_URL = 
     	"/services/DEBUGGER/hostnameProcessing";
     
@@ -231,7 +281,7 @@ public class LookupNames
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
     /** Field to access the <code>Server Available</code> information. */
-	public static final String SERVER_AVAILABLE = "/services/SERVER/available";
+	//public static final String SERVER_AVAILABLE = "/services/SERVER/available";
 	
     //For blitz
     /** The value to replace in the FS configuration file. */
@@ -247,4 +297,11 @@ public class LookupNames
     /** Field to access <code>RAPID</code> information. */
     public static final String	RAPID = "/services/SERVER/RAPID";
     
+    /** Field to access the <code>Entry Point</code> information. */
+	public static final String ENTRY_POINT = "/application/entryPoint";
+
+	/** Field to access the <code>Entry Point</code> information. */
+	public static final String ENTRY_POINT_HIERARCHY = 
+		"/application/entryPointHierarchy";
+
 }

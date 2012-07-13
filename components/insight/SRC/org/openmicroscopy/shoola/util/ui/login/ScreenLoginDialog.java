@@ -59,8 +59,7 @@ public class ScreenLoginDialog
 	private void setProperties()
 	{
 		setTitle(view.getTitle());
-		setModal(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
 		toFront();
@@ -126,7 +125,21 @@ public class ScreenLoginDialog
 		getRootPane().setDefaultButton(view.getRootPane().getDefaultButton());
 		setCursor(view.getCursor());
 	}
-
+	
+	/** 
+     * Shows or hides the progress bar and the tasks label. 
+     * 
+     * @param b Pass <code>true</code> to show, <code>false</code> to hide.
+     */
+    public void setStatusVisible(boolean b) { view.setStatusVisible(b); }
+    
+	/** 
+	 * Modifies the text and the tool tip of the <code>Quit</code> button.
+	 * 
+	 * @param text The text to display.
+	 */
+	public void setQuitButtonText(String text) { view.setQuitButtonText(text); }
+	
 	/** Closes the dialog. */
 	public void close()
 	{
@@ -145,7 +158,7 @@ public class ScreenLoginDialog
 	 */
 	public void cleanField(int fieldID)
 	{ 
-		view.cleanField(fieldID); 
+		view.cleanField(fieldID);
 		setCursor(view.getCursor());
 	}
 
@@ -154,12 +167,13 @@ public class ScreenLoginDialog
 	 * 
 	 * @see ScreenLogin#requestFocusOnField()
 	 */
-	public void requestFocusOnField()
-	{ 
-		view.requestFocusOnField(); 
+	public void onLoginFailure() 
+	{
+		view.onLoginFailure();
+		view.requestFocusOnField();
 		setCursor(view.getCursor());
 	}
-
+	
 	/**
 	 * Forwards the call to the <code>ScreenLogin</code>.
 	 * 
@@ -178,8 +192,10 @@ public class ScreenLoginDialog
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (ScreenLogin.LOGIN_PROPERTY.equals(name))
+		if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			setCursor(view.getCursor());
+			repaint();
+		}
 		firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 	}
 

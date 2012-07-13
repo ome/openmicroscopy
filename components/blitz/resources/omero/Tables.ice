@@ -11,6 +11,7 @@
 
 #include <omero/ModelF.ice>
 #include <omero/RTypes.ice>
+#include <omero/System.ice>
 #include <omero/Collections.ice>
 #include <omero/Repositories.ice>
 #include <omero/ServerErrors.ice>
@@ -20,7 +21,7 @@
  * The Tables API is intended to provide a storage mechanism
  * for tabular data.
  *
- * See https://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables
+ * See http://trac.openmicroscopy.org.uk/ome/wiki/OmeroTables
  */
 module omero {
 

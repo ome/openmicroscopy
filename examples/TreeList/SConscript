@@ -31,8 +31,10 @@ args = """ '--omero.host=%(omero.host)s' '--omero.port=%(omero.port)s' '%(omero.
 #
 # Java
 #
-javac = env.Java(".",".")
-targets.append(javac)
+if not env["no_java"]:
+    javac = env.Java(".",".")
+    targets.append(javac)
+
 if env["run"] or env["run_java"]:
     # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
     clone = env.Clone()

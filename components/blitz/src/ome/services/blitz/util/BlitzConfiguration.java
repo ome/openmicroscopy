@@ -19,7 +19,7 @@ import ome.services.roi.RoiTypes;
 import ome.services.util.Executor;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
-import omero.util.ObjectFactoryRegistrar;
+import omero.util.ModelObjectFactoryRegistry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,36 +95,7 @@ public class BlitzConfiguration {
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
-        this(id, ring, sessionManager, securitySystem, executor, null);
-    }
 
-    /**
-     * Like
-     * {@link #BlitzConfiguration(ome.services.sessions.SessionManager, SecuritySystem, Executor)}
-     * but allows {@link Ice.ObjectFactory} instances to be specified via a
-     * {@link Map}.
-     * 
-     * @param id
-     * @param sessionManager
-     * @param securitySystem
-     * @param executor
-     * @throws RuntimeException
-     */
-    public BlitzConfiguration(Ring ring,
-            ome.services.sessions.SessionManager sessionManager,
-            SecuritySystem securitySystem, Executor executor,
-            Map<String, Ice.ObjectFactory> factories) throws RuntimeException {
-        this(createId(), ring, sessionManager, securitySystem, executor, factories);
-    }
-    
-    /**
-     * Full constructor
-     */
-    public BlitzConfiguration(Ice.InitializationData id, Ring ring,
-            ome.services.sessions.SessionManager sessionManager,
-            SecuritySystem securitySystem, Executor executor,
-            Map<String, Ice.ObjectFactory> factories) throws RuntimeException {
-        
         logger.info("Initializing Ice.Communicator");
 
         this.id = id;
@@ -140,8 +111,6 @@ public class BlitzConfiguration {
             // This component is inert, and so can be created early.
             registry = new Registry.Impl(this.communicator);
             topicManager = new TopicManager.Impl(this.communicator);
-
-            registerObjectFactory(factories);
             blitzAdapter = createAdapter();
             blitzManager = createAndRegisterManager(sessionManager,
                     securitySystem, executor);
@@ -254,48 +223,6 @@ public class BlitzConfiguration {
                     + configFile, e);
         }
         return configFile;
-    }
-
-    /**
-     * Registers both the code generated {@link Ice.ObjectFactory} for all the
-     * omero.model.* classes as well as all the classes which the server would
-     * like to receive from clients.
-     */
-    protected void registerObjectFactory(
-            Map<String, Ice.ObjectFactory> factories) {
-        //
-        // First register the manually configured factories
-        //
-        if (factories != null) {
-            for (String key : factories.keySet()) {
-                communicator.addObjectFactory(factories.get(key), key);
-            }
-        }
-        //
-        // Then the rtypes support
-        //
-        for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories
-                .values()) {
-            of.register(communicator);
-        }
-        //
-        // And RoiTypes support
-        //
-        for (RoiTypes.ObjectFactory of : RoiTypes.ObjectFactories.values()) {
-            of.register(communicator);
-        }
-        //
-        // Then the code generated factories
-        //
-        ObjectFactoryRegistrar.registerObjectFactory(communicator,
-                ObjectFactoryRegistrar.INSTANCE);
-        //
-        // And finally our manually maintained model classes
-        //
-        communicator
-                .addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-        communicator.addObjectFactory(PermissionsI.Factory, PermissionsI
-                .ice_staticId());
     }
 
     /**

@@ -30,8 +30,12 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -61,7 +65,7 @@ public class DataSaver
 	private List<AnnotationData> 	toAdd;
 	
 	/** The annotation to unlink from the data object. */
-	private List<AnnotationData> 	toRemove;
+	private List<Object> 	toRemove;
 	
 	/** The acquisition metadata. */
 	private List<Object> 			acquisitionMetadata;
@@ -72,19 +76,20 @@ public class DataSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                 		Mustn't be <code>null</code>.
-     * @param data			The objects the data are related to.
-	 * 						Mustn't be <code>null</code>.
-	 * @param toAdd			The collection of annotations to add.
-	 * @param toRemove		The collection of annotations to remove.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param data The objects the data are related to.
+	 *             Mustn't be <code>null</code>.
+	 * @param toAdd The collection of annotations to add.
+	 * @param toRemove The collection of annotations to remove.
 	 * @param acquisitionMetadata 
 	 */
-	public DataSaver(MetadataViewer viewer, Collection<DataObject> data,
-					 List<AnnotationData> toAdd, List<AnnotationData> toRemove,
-					 List<Object> acquisitionMetadata)
+	public DataSaver(MetadataViewer viewer, SecurityContext ctx,
+		Collection<DataObject> data, List<AnnotationData> toAdd,
+		List<Object> toRemove, List<Object> acquisitionMetadata)
 	{
-		super(viewer, null);
+		super(viewer, ctx, null);
 		if (data == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.data = data;
@@ -100,7 +105,7 @@ public class DataSaver
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveData(data, toAdd, toRemove,
+		handle = mhView.saveData(ctx, data, toAdd, toRemove,
 				acquisitionMetadata, userID, this);
 	}
 	
@@ -118,6 +123,16 @@ public class DataSaver
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.onDataSave((List) data);
+    	boolean post = (toAdd != null && toAdd.size() != 0) || 
+				(toRemove != null && toRemove.size() != 0);
+    	int count = 0;
+    	if (toAdd != null) count += toAdd.size();
+    	if (toRemove != null) count -= toRemove.size();
+    	if (post) {
+			EventBus bus = 
+				MetadataViewerAgent.getRegistry().getEventBus();
+			bus.post(new AnnotatedEvent((List) data, count));
+		}
     }
     
 }

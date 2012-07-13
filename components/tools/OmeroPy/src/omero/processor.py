@@ -22,6 +22,8 @@ import omero.scripts
 import omero.util
 import omero.util.concurrency
 
+import omero_ext.uuid as uuid # see ticket:3774
+
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
@@ -43,7 +45,7 @@ class WithGroup(object):
     """
     Wraps a ServiceInterfacePrx instance and applies
     a "omero.group" to the passed context on every
-    invotation.
+    invocation.
 
     For example, using a job handle as root requires logging
     manually into the group. (ticket:2044)
@@ -127,7 +129,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
     def make_env(self):
         self.env = omero.util.Environment("PATH", "PYTHONPATH",\
-            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME")
+            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME",\
+            "DISPLAY")
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
@@ -632,10 +635,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session = True,
                  use_session = None, accepts_list = None, cfg = None,
-                 omero_home = path.getcwd()):
+                 omero_home = path.getcwd(), category = None):
 
         if accepts_list is None: accepts_list = []
 
+        self.category = category              #: Category to be used w/ ProcessI
         self.omero_home = omero_home
 
         # Extensions for user-mode processors (ticket:1672)
@@ -879,7 +883,12 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 process.activate()
                 handle.setStatus("Running")
 
-            prx = self.ctx.add_servant(current, process)
+            id = None
+            if self.category:
+                id = Ice.Identity()
+                id.name = "Process-%s" % uuid.uuid4()
+                id.category = self.category
+            prx = self.ctx.add_servant(current, process, ice_identity=id)
             return omero.grid.ProcessPrx.uncheckedCast(prx), process
 
         finally:
@@ -889,7 +898,7 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
                        cfg = None, accepts_list = None, stop_event = None,\
                        omero_home = path.getcwd()):
     """
-    Creates an activates a usermode processor for the given client.
+    Creates and activates a usermode processor for the given client.
     It is the responsibility of the client to call "cleanup()" on
     the ProcessorI implementation which is returned.
 
@@ -916,9 +925,13 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
     if stop_event is None:
         stop_event = omero.util.concurrency.get_event(name="UsermodeProcessor")
 
+    id = Ice.Identity()
+    id.name = "%s-%s" % (serverid, uuid.uuid4())
+    id.category = client.getCategory()
+
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(ctx,
         use_session=client.sf, accepts_list=accepts_list, cfg=cfg,
-        omero_home = omero_home)
-    ctx.add_servant(client.adapter, impl)
+        omero_home = omero_home, category=id.category)
+    ctx.add_servant(client.adapter, impl, ice_identity=id)
     return impl

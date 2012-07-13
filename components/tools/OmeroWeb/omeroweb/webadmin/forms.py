@@ -28,6 +28,8 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
+from omeroweb.webadmin.custom_models import Server
+
 from omeroweb.custom_forms import NonASCIIForm
 
 from custom_forms import ServerModelChoiceField, \
@@ -44,50 +46,57 @@ class LoginForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        g = settings.SERVER_LIST.all()
         try:
-            if len(g) > 1:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            if reduce( (lambda x, y : x + 1), Server, 0) > 1:
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
             else:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=None)
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
         except:
-            self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, help_text='<img src="/appmedia/omeroweb/images/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"')
+    ssl = forms.BooleanField(required=False, help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"' % settings.STATIC_URL)
 
 class ForgottonPasswordForm(NonASCIIForm):
     
-    server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
+    server = ServerModelChoiceField(Server, empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 
 class ExperimenterForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, email_check=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False, experimenter_is_me=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check 
         
         try:
-            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=DefaultGroupRadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False)
         except:
-            self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=list(), required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False)
         
-        self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        try:
+            if kwargs['initial']['default_group']: pass
+            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=u"---------", required=False)
+        except:
+            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=u"---------", required=False)
+        self.fields['default_group'].widget.attrs['class'] = 'hidden'
         
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
+            self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+        if experimenter_is_me:
+            self.fields['administrator'].widget.attrs['disabled'] = True
+            self.fields['administrator'].widget.attrs['title'] = "Removal of your own admin rights would be un-doable"
+            self.fields['active'].widget.attrs['disabled'] = True
+            self.fields['active'].widget.attrs['title'] = "You cannot disable yourself"
 
     omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -101,44 +110,59 @@ class ExperimenterForm(NonASCIIForm):
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 letters long')
+                raise forms.ValidationError('Password must be at least 3 characters long.')
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
-                
+    
     def clean_omename(self):
         if self.name_check:
-            raise forms.ValidationError('This username already exist.')
+            raise forms.ValidationError('This username already exists.')
         return self.cleaned_data.get('omename')
 
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
+    
+    def clean_other_groups(self):
+        if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
+            raise forms.ValidationError('User must be a member of at least one group.')
+        else:
+            return self.cleaned_data.get('other_groups')
+
+
+PERMISSION_CHOICES = (
+    ('0', 'Private'),
+    ('1', 'Read-Only'),
+    ('2', 'Read-Annotate'),
+)
 
 class GroupForm(NonASCIIForm):
-    
-    PERMISSION_CHOICES = (
-        ('0', 'Private'),
-        ('1', 'Collaborative '),
-        #('2', 'Public ')
-    )
     
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         try:
             if kwargs['initial']['owners']: pass
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'], required=False)
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-        self.fields.keyOrder = ['name', 'description', 'owners', 'permissions', 'readonly']
+        
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        
+        
+        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong> from <strong>Read-Annotate</strong> or <strong>Read-Only</strong> permissions. However, it is possible to <strong>promote</strong> a Private group to be Read-Annotate or Read-Only group.</p>")
+        
+        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
-    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
-    readonly = forms.BooleanField(required=False, label="(read-only)")  
+    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False) 
     
     def clean_name(self):
         if self.name_check:
@@ -146,16 +170,26 @@ class GroupForm(NonASCIIForm):
         return self.cleaned_data.get('name')
 
 class GroupOwnerForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(GroupOwnerForm, self).__init__(*args, **kwargs)
+        
+        try:
+            if kwargs['initial']['owners']: pass
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
+        except:
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            
+        self.fields.keyOrder = ['owners', 'members', 'permissions']
+            
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong> from <strong>Read-Annotate</strong> or <strong>Read-Only</strong> permissions. However, it is possible to <strong>promote</strong> a Private group to be Read-Annotate or Read-Only group.</p>")
     
-    PERMISSION_CHOICES = (
-        ('0', 'Private'),
-        ('1', 'Collaborative '),
-        #('2', 'Public ')
-    )
-
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
-    readonly = forms.BooleanField(required=False, label="(read-only)")  
-
 class MyAccountForm(NonASCIIForm):
         
     def __init__(self, email_check=False, *args, **kwargs):
@@ -185,9 +219,14 @@ class ContainedExperimentersForm(NonASCIIForm):
 
     def __init__(self, *args, **kwargs):
         super(ContainedExperimentersForm, self).__init__(*args, **kwargs)
-        self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['members'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
-        self.fields['available'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
-        self.fields.keyOrder = ['members', 'available']
+        
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+
+        self.fields.keyOrder = ['members']
 
 
 class UploadPhotoForm(forms.Form):
@@ -205,14 +244,14 @@ class UploadPhotoForm(forms.Form):
 
 class ChangePassword(NonASCIIForm):
 
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Current password")
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="New password")
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Confirm new password")
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Your current password")
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Confirm password")
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 letters long')
+                raise forms.ValidationError('Password must be at least 3 characters long.')
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:

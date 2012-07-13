@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.ui;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -75,13 +76,14 @@ public class ScriptRunner
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param script  	The script to run.
      * @param activity  The activity associated to this loader.
      */
 	public ScriptRunner(UserNotifier viewer,  Registry registry,
-			ScriptObject script, ActivityComponent activity)
+		SecurityContext ctx, ScriptObject script, ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (script == null)
 			throw new IllegalArgumentException("No script to run.");
 		this.script = script;
@@ -93,7 +95,7 @@ public class ScriptRunner
      */
     public void load()
     {
-    	handle = ivView.runScript(script, this);
+    	handle = ivView.runScript(ctx, script, this);
     }
     
     /**

@@ -30,6 +30,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -58,13 +59,15 @@ public class RenderingSettingsLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer   The viewer this data loader is for.
-     *                 Mustn't be <code>null</code>.
+	 * @param viewer The viewer this data loader is for.
+	 *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
 	 * @param pixelsID The identifier of the pixels set.
 	 */
-	public RenderingSettingsLoader(MetadataViewer viewer, long pixelsID)
+	public RenderingSettingsLoader(MetadataViewer viewer, SecurityContext ctx,
+			long pixelsID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.pixelsID = pixelsID;
 	}
 	
@@ -74,7 +77,7 @@ public class RenderingSettingsLoader
 	 */
 	public void load()
 	{
-		handle = ivView.getRenderingSettings(pixelsID, this);
+		handle = ivView.getRenderingSettings(ctx, pixelsID, this);
 	}
 	
 	/** 

@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+ 
+ 
+ 
+ 
+ 
+ /* Commented out by Dom for several reasons:
+ 
+ a) Big, Medium, Small tags shouldn't exist. They should just be tags, and that's it
+ b) All generic styles (like tags) will be applied globally, so tags are consistent in the interface.
+ 
+ */
+ 
+ 
+ 
+ 
+ 
+ /*
+ a.smalltag, a.middletag, a.bigtag {
+    font-size: 1.1em;
+	font-family: 'HelveticaNeue-Medium';
+	-webkit-border-radius:;
+	text-shadow: 0 1px 0 rgba(255,255,255,.8);
+	border:solid 1px red;
+	display:inline-block;
+	margin:2px 0;
+	padding:0 .7em;
+	line-height:1.5em;
+    font-weight: normal;
+    -webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	border:solid 1px hsl(205,40%,60%);
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(205, 65%, 85%)), to(hsl(205, 60%, 90%)));
+	color:hsl(205,30%,35%);
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+	background-image: -moz-linear-gradient(90deg, hsl(0, 100%, 57%) 0%, hsl(0, 100%, 27%) 100%);
+	
+}
+a.smalltag:hover, a.middletag:hover, a.bigtag:hover {
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(205, 70%, 75%)), to(hsl(205, 65%, 80%)));
+	text-decoration:none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	color:hsl(205,30%,30%);
+    //font-weight: normal;
+    //font-style: italic;
+}
+
+a.middletag {
+    //font-size: 20px;
+    //font-weight: normal;
+}
+a.middletag:hover,a.middletag:link,a.middletag:visited {
+    //font-size: 20px;
+    //font-weight: normal;
+}
+
+a.bigtag {
+    //font-size: 24px;
+    //font-weight: normal;
+    //font-weight: bold;
+}
+a.bigtag:hover,a.bigtag:link,a.bigtag:visited {
+    //font-size: 24px;
+    //font-weight: normal;
+    //font-weight: bold;
+}
+
+*/

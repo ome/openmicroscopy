@@ -24,23 +24,39 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * This agent interacts is used to import images.
@@ -60,7 +76,16 @@ public class ImporterAgent
 {
 
     /** Reference to the registry. */
-    private static Registry         registry; 
+    private static Registry registry; 
+    
+    /** The selected browser type.*/
+    private int browserType;
+    
+    /** The objects displayed.*/
+    private Map<Long, Map<Long, List<TreeImageDisplay>>> objects;
+    
+    /** The group id if set.*/
+    private long groupId;
     
     /**
      * Helper method. 
@@ -93,6 +118,33 @@ public class ImporterAgent
 	}
 	
 	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Collection getAvailableUserGroups()
+	{
+		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+    
+	/**
+	 * Returns the default value from the configuration file.
+	 * 
+	 * @return See above.
+	 */
+	private int getDefaultBrowser()
+	{
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return BrowserSelectionEvent.PROJECT_TYPE;
+    	switch (env.getDefaultHierarchy()) {
+    		case LookupNames.HCS_ENTRY:
+    			return BrowserSelectionEvent.SCREEN_TYPE;
+    		default:
+    			return 	BrowserSelectionEvent.PROJECT_TYPE;
+    	}
+	}
+	
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
@@ -100,23 +152,32 @@ public class ImporterAgent
     private void handleLoadImporter(LoadImporter evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter();
+    	long groupId = evt.getGroup();
+    	Importer importer = ImporterFactory.getImporter(groupId);
     	if (importer != null) {
-    		int type = evt.getType();
+    		int t;
     		switch (evt.getType()) {
-				case LoadImporter.PROJECT_TYPE:
-					type = Importer.PROJECT_TYPE;
+				case BrowserSelectionEvent.PROJECT_TYPE:
+				case BrowserSelectionEvent.SCREEN_TYPE:
+					t = evt.getType();
 					break;
-				case LoadImporter.SCREEN_TYPE:
-					type = Importer.SCREEN_TYPE;
+					default:
+					if (browserType == BrowserSelectionEvent.PROJECT_TYPE ||
+							browserType == BrowserSelectionEvent.SCREEN_TYPE)
+						t = browserType;
+					else t = getDefaultBrowser();
 			}
-    		importer.activate(type, evt.getSelectedContainer(), 
-    				evt.getObjects());
+    		//
+    		//objects = evt.getObjects();
+    		Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+        	List<TreeImageDisplay> l = null;
+        	if (data != null) l = data.get(getUserDetails().getId());
+    		importer.activate(t, evt.getSelectedContainer(), l);
     	}
     }
 
     /**
-     * Removes all the references to the existing viewers.
+     * Removes all the references to the existing imports.
      * 
      * @param evt The event to handle.
      */
@@ -126,20 +187,149 @@ public class ImporterAgent
     	ImporterFactory.onGroupSwitched(evt.isSuccessful());
     }
     
+    /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	if (evt == null) return;
+    	//check if the importer is the master.
+    	ImporterFactory.onReconnected();
+    }
+    
+    /**
+     * Returns the containers if available for the specified group.
+     * 
+     * @param groupId The id of the group.
+     */
+    private List<Object> handleContainers(long groupId)
+    {
+    	if (objects == null) return null;
+    	Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+    	if (data == null) return null;
+    	List<TreeImageDisplay> l = data.get(getUserDetails().getId());
+    	if (l == null) return null;
+    	Iterator<TreeImageDisplay> i = l.iterator();
+		List<Object> values = new ArrayList<Object>();
+		while (i.hasNext()) {
+			values.add(i.next().getUserObject());
+		}
+		return values;
+    }
+    
+    /**
+     * Handles the fact that data were loaded.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleExperimenterLoadedDataEvent(
+    		ExperimenterLoadedDataEvent evt)
+    {
+    	if (evt == null) return;
+    	
+    	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
+    	objects = map;
+    	if (!ImporterFactory.doesImporterExist()) return;
+    	Importer importer = ImporterFactory.getImporter(-1);
+    	if (importer == null || map == null || map.size() == 0) return;
+    	GroupData group = importer.getSelectedGroup();
+    	if (group == null) return;
+    	List<Object> l = handleContainers(group.getId());
+    	if (l == null || l.size() == 0) return;
+    	importer.setContainers(l, true, false, browserType);
+    }
+    
+    /** Registers the agent with the tool bar.*/
+	private void register()
+	{
+		String description = "Open the Importer.";
+		TaskBar tb = registry.getTaskBar();
+		IconManager icons = IconManager.getInstance();
+		JButton b = new JButton(icons.getIcon(IconManager.IMPORT));
+		b.setToolTipText(description);
+		ActionListener l = new ActionListener() {
+			
+			/** Posts an event to start the agent.*/
+			public void actionPerformed(ActionEvent e) {
+				EventBus bus = registry.getEventBus();
+				ExperimenterData exp = (ExperimenterData) registry.lookup(
+		    			LookupNames.CURRENT_USER_DETAILS);
+		    	if (exp == null) return;
+		    	GroupData gp = null;
+		    	try {
+		    		gp = exp.getDefaultGroup();
+		    	} catch (Exception ex) {
+		    		//No default group
+		    	}
+		    	long id = -1;
+		    	if (gp != null) id = gp.getId();
+		    	if (groupId == -1) groupId = id;
+				LoadImporter event = new LoadImporter(null, browserType);
+				event.setGroup(groupId);
+				event.setObjects(objects);
+				bus.post(event);
+			}
+		};
+		b.addActionListener(l);
+		tb.addToToolBar(TaskBar.AGENTS, b);
+		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.IMPORT));
+		item.setText("Import...");
+		item.setToolTipText(description);
+		item.addActionListener(l);
+		tb.addToMenu(TaskBar.FILE_MENU, item);
+	}
+	
 	/** Creates a new instance. */
 	public ImporterAgent() {}
 	
 	 /**
      * Implemented as specified by {@link Agent}.
-     * @see Agent#activate()
+     * @see Agent#activate(boolean)
      */
-    public void activate() {}
+    public void activate(boolean master)
+    {
+    	if (!master) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	GroupData gp = null;
+    	try {
+    		gp = exp.getDefaultGroup();
+    	} catch (Exception e) {
+    		//No default group
+    	}
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+    	Importer importer = ImporterFactory.getImporter(id, true);
+    	if (importer != null) {
+    		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    		int type = Importer.PROJECT_TYPE;
+        	if (env != null) {
+        		switch (env.getDefaultHierarchy()) {
+        			case LookupNames.PD_ENTRY:
+        			default:
+        				type = Importer.PROJECT_TYPE;
+        				break;
+        			case LookupNames.HCS_ENTRY:
+        				type = Importer.SCREEN_TYPE;
+        		}
+        	}
+    		importer.activate(type, null, null);
+    	}
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		ImporterFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -151,6 +341,13 @@ public class ImporterAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, LoadImporter.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ReconnectedEvent.class);
+        bus.register(this, BrowserSelectionEvent.class);
+        bus.register(this, ExperimenterLoadedDataEvent.class);
+        bus.register(this, ChangeUserGroupEvent.class);
+        browserType = getDefaultBrowser();
+        groupId = -1;
+        register();
     }
 
     /**
@@ -159,7 +356,8 @@ public class ImporterAgent
      */
     public boolean canTerminate()
     { 
-    	Importer importer = ImporterFactory.getImporter();
+    	if (!ImporterFactory.doesImporterExist()) return true;
+    	Importer importer = ImporterFactory.getImporter(-1);
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
     }
@@ -187,6 +385,17 @@ public class ImporterAgent
 			handleLoadImporter((LoadImporter) e);
     	else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+    	else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
+    	else if (e instanceof BrowserSelectionEvent) {
+    		BrowserSelectionEvent evt = (BrowserSelectionEvent) e;
+    		browserType = evt.getType();
+    	} else if (e instanceof ExperimenterLoadedDataEvent) {
+    		handleExperimenterLoadedDataEvent((ExperimenterLoadedDataEvent) e);
+    	} else if (e instanceof ChangeUserGroupEvent) {
+    		ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
+    		groupId = evt.getGroupID();
+    	}
     }
 
 }

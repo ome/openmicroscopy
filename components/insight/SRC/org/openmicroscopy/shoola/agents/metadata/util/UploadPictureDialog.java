@@ -243,6 +243,8 @@ public class UploadPictureDialog
 		l.add(f);
 		l.add(format);
 		firePropertyChange(UPLOAD_PHOTO_PROPERTY, null, l);
+		setVisible(false);
+		dispose();
 	}
 	
     /**

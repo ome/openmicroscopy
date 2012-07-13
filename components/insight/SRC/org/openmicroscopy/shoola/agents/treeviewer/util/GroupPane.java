@@ -27,10 +27,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -63,13 +66,13 @@ class GroupPane
 {
 
 	/** Component used when creating the owner of the group.*/
-	private ExperimenterPane 	expPane;
+	private ExperimenterPane expPane;
 	
     /** The mandatory name. */
-    private JTextField			descriptionArea;
+    private JTextField descriptionArea;
     
     /** The component displaying the permissions options. */
-    private PermissionsPane		permissions;
+    private PermissionsPane permissions;
 
     /** Initializes the components. */
     private void initComponents()
@@ -81,6 +84,15 @@ class GroupPane
     	expPane = new ExperimenterPane(false, null, null);
     	expPane.setBorder(
 				BorderFactory.createTitledBorder("Owner"));
+    	expPane.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(
+						evt.getPropertyName()))
+				firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY,
+						evt.getOldValue(), evt.getNewValue());
+			}
+		});
     }
     
     /**
@@ -92,23 +104,21 @@ class GroupPane
     {
         JPanel content = new JPanel();
         content.setLayout(new GridBagLayout());
-    	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GridBagConstraints c = new GridBagConstraints();
-    	JLabel label = UIUtilities.setTextFont("Name"+
-        		EditorUtil.MANDATORY_SYMBOL);
+    	JComponent label = EditorUtil.getLabel("Name", true);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.fill = GridBagConstraints.NONE;
         c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-        c.weightx = 0.0;  
+        c.weightx = 0.0;
         c.gridx = 0;
         c.gridy = 0;
         content.add(label, c);
         c.gridx++;
-        add(Box.createHorizontalStrut(5), c); 
+        add(Box.createHorizontalStrut(5), c);
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(nameArea, c); 
@@ -116,17 +126,17 @@ class GroupPane
         label = UIUtilities.setTextFont("Description");
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
-		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.fill = GridBagConstraints.NONE;
         c.weightx = 0.0;  
         c.gridx = 0;
         content.add(label, c);
         c.gridx++;
         add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(descriptionArea, c);  
+        content.add(descriptionArea, c);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
 		return content;
@@ -158,6 +168,19 @@ class GroupPane
 		initComponents();
 		buildGUI();
 	}
+	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRequiredFields()
+	{
+		int count = 0;
+		//if (expPane.hasLoginCredentials()) count++;
+		if (isNameValid()) count++;
+		return count == 1;
+	}
 	
 	/**
 	 * Returns the object to save.
@@ -169,10 +192,13 @@ class GroupPane
 		GroupData data = new GroupData();
 		data.setName(nameArea.getText().trim());
 		data.setDescription(descriptionArea.getText().trim());
-		Map<ExperimenterData, UserCredentials> m = expPane.getObjectToSave();
+		Map<ExperimenterData, UserCredentials> 
+		m = new HashMap<ExperimenterData, UserCredentials>();
+		if (expPane.hasLoginCredentials())
+			m = expPane.getObjectToSave();
 		AdminObject object = new AdminObject(data, m, AdminObject.CREATE_GROUP);
 		object.setPermissions(permissions.getPermissions());
 		return object;
 	}
-	
+
 }

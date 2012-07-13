@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -74,57 +75,60 @@ public class ThumbnailSetLoader
 	 * Indicates that the thumbnails are associated to an 
 	 * <code>ImageData</code>.
 	 */
-	public static final int 		IMAGE = 0;
+	public static final int IMAGE = 0;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an 
 	 * <code>ExperimenterData</code>.
 	 */
-	public static final int 		EXPERIMENTER = 1;
+	public static final int EXPERIMENTER = 1;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
 	 */
-	public static final int 		FS_FILE = 2;
+	public static final int FS_FILE = 2;
 
 	/** Maximum number of thumbnails retrieved asynchronously. */
-	private static final int		FETCH_SIZE = 10;
+	private static final int FETCH_SIZE = 10;
 	
 	/** 
 	 * Factor by which the maximum number of thumbnails to fetch
 	 * is multiplied with when the connection's speed is <code>Low</code>.
 	 */
-	private static final double		FETCH_LOW_SPEED = 0.25;
+	private static final double FETCH_LOW_SPEED = 0.25;
 	
 	/** 
 	 * Factor by which the maximum number of thumbnails to fetch
 	 * is multiplied with when the connection's speed is <code>Medium</code>.
 	 */
-	private static final double		FETCH_MEDIUM_SPEED = 0.5;
+	private static final double FETCH_MEDIUM_SPEED = 0.5;
 	
     /** Helper reference to the image service. */
-    private OmeroImageService		service;
+    private OmeroImageService service;
     
     /** The maximum acceptable length of the thumbnails. */
-    private int						maxLength;
+    private int maxLength;
     
     /** Collection of list of pixels set to handle. */
-    private List<List> 				toHandle;
+    private List<List> toHandle;
     
     /** Key, value pairs, Key is the pixels set id. */
-    private Map<Long, DataObject> 	input;
+    private Map<Long, DataObject> input;
     
     /** Collection of {@link ThumbnailData}s for not valid pixels set. */
-    private List 					notValid;
+    private List notValid;
     
     /** Collection of current {@link ThumbnailData}s. */
-    private Object				 	currentThumbs;
+    private Object currentThumbs;
     
     /** The maximum number of the tumbnails fetched. */
-    private int						fetchSize;
+    private int fetchSize;
     
     /** The type of nodes to handle. */
-    private Class					type;
+    private Class type;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a default thumbnail for the passed image.
@@ -202,8 +206,8 @@ public class ThumbnailSetLoader
     		ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			long id = exp.getId();
-    		Map<DataObject, BufferedImage> m = service.getFSThumbnailSet(files, 
-        			maxLength, id);
+    		Map<DataObject, BufferedImage> m = service.getFSThumbnailSet(ctx,
+    				files, maxLength, id);
     		Entry entry;
         	Iterator i = m.entrySet().iterator();
         	BufferedImage thumb;
@@ -242,7 +246,7 @@ public class ThumbnailSetLoader
     		ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
     		Map<DataObject, BufferedImage> m = 
-    			service.getExperimenterThumbnailSet(experimenters,  
+    			service.getExperimenterThumbnailSet(ctx, experimenters,
         			maxLength);
     		Entry entry;
     		List result = new ArrayList();
@@ -278,7 +282,7 @@ public class ThumbnailSetLoader
     private void loadThumbails(List ids) 
     {
     	try {
-        	Map m = service.getThumbnailSet(ids, maxLength);
+        	Map m = service.getThumbnailSet(ctx, ids, maxLength);
         	List result = new ArrayList();
         	Iterator i = m.keySet().iterator();
         	long pixelsID;
@@ -357,18 +361,20 @@ public class ThumbnailSetLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param images    The collection of images to load thumbnails for.
      * @param maxLength The maximum length of a thumbnail.
      * @param nodeType	One of the constants defined by this class.
      */
-    public ThumbnailSetLoader(Collection<DataObject> images, int maxLength,
-    		int nodeType)
+    public ThumbnailSetLoader(SecurityContext ctx,
+    	Collection<DataObject> images, int maxLength, int nodeType)
     {
     	if (images == null) throw new NullPointerException("No images.");
     	if (maxLength <= 0)
     		throw new IllegalArgumentException(
     				"Non-positive height: "+maxLength+".");
     	computeFetchSize();
+    	this.ctx = ctx;
     	this.maxLength = maxLength;
     	service = context.getImageService();
     	toHandle = new ArrayList<List>();

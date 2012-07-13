@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -61,11 +62,13 @@ public class ExperimenterEditor
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param exp	 The experimenter to update. Mustn't be <code>null</code>.
      */
-    public ExperimenterEditor(MetadataViewer viewer, ExperimenterData exp)
+    public ExperimenterEditor(MetadataViewer viewer, SecurityContext ctx,
+    		ExperimenterData exp)
     {
-    	super(viewer, null);
+    	super(viewer, ctx, null);
     	if (exp == null)
     		throw new IllegalArgumentException("No experimenter to edit.");
     	this.exp = exp;
@@ -77,7 +80,7 @@ public class ExperimenterEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateExperimenter(exp, this);
+		handle = adminView.updateExperimenter(ctx, exp, this);
 	}
 	
 	/** 
@@ -95,5 +98,5 @@ public class ExperimenterEditor
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.onAdminUpdated((ExperimenterData) result);
     }
-    
+
 }

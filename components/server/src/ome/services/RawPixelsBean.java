@@ -35,6 +35,7 @@ import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
@@ -112,16 +113,16 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         this.omeroDataDir = omeroDataDir;
     }
 
-    public Class<? extends ServiceInterface> getServiceInterface() {
+    public synchronized Class<? extends ServiceInterface> getServiceInterface() {
         return RawPixelsStore.class;
     }
 
-    public final void setPixelsMetadata(IPixels metaService) {
+    public synchronized final void setPixelsMetadata(IPixels metaService) {
         getBeanHelper().throwIfAlreadySet(this.metadataService, metaService);
         metadataService = metaService;
     }
 
-    public final void setPixelsData(PixelsService dataService) {
+    public synchronized final void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
     }
@@ -132,7 +133,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @param iRepositoryInfo
      *            an <code>IRepositoryInfo</code>
      */
-    public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
+    public synchronized final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
         getBeanHelper()
                 .throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
@@ -142,7 +143,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * SQL action Bean injector
      * @param sql a <code>SqlAction</code>
      */
-    public final void setSqlAction(SqlAction sql) {
+    public synchronized final void setSqlAction(SqlAction sql) {
         getBeanHelper().throwIfAlreadySet(this.sql, sql);
         this.sql = sql;
     }
@@ -153,14 +154,14 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
     @Transactional(readOnly = true)    
-    public void passivate() {
+    public synchronized void passivate() {
 	// Nothing necessary
     }
 
     // See documentation on JobBean#activate
     @RolesAllowed("user")
     @Transactional(readOnly = true)    
-    public void activate() {
+    public synchronized void activate() {
         if (id != null) {
             reset = id;
             id = null;
@@ -203,7 +204,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void close() {
+    public synchronized void close() {
         try {
             save();
         } catch (RootException root) {
@@ -218,7 +219,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         }
     }
 
-    public void clean() {
+    public synchronized void clean() {
         dataService = null;
         pixelsInstance = null;
         try {
@@ -234,7 +235,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * Close the active pixel buffer, cleaning up any potential messes left by
      * the pixel buffer itself.
      */
-    private void closePixelBuffer() {
+    private synchronized void closePixelBuffer() {
         try {
             if (buffer != null) {
                 buffer.close();
@@ -249,7 +250,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setPixelsId(long pixelsId, boolean bypassOriginalFile) {
+    public synchronized void setPixelsId(long pixelsId, boolean bypassOriginalFile) {
         if (id == null || id.longValue() != pixelsId) {
             id = new Long(pixelsId);
             pixelsInstance = null;
@@ -288,14 +289,14 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public long getPixelsId() {
+    public synchronized long getPixelsId() {
         errorIfNotLoaded();
 
         return id.longValue();
     }
     
     @RolesAllowed("user")
-    public void prepare(Set<Long> pixelsIds)
+    public synchronized void prepare(Set<Long> pixelsIds)
     {
 	pixelsCache = new ConcurrentHashMap<Long, Pixels>(pixelsIds.size());
     	List<Pixels> pixelsList = iQuery.findAllByQuery(
@@ -325,7 +326,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // =========================================================================
 
     @RolesAllowed("user")
-    public byte[] calculateMessageDigest() {
+    public synchronized byte[] calculateMessageDigest() {
         errorIfNotLoaded();
 
         try {
@@ -337,10 +338,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
+    public synchronized byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
         errorIfNotLoaded();
 
-        int cubeSize = buffer.getHypercubeSize(offset, size, step);
+        int cubeSize = RomioPixelBuffer.safeLongToInteger(
+                buffer.getHypercubeSize(offset, size, step));
         if (readBuffer == null || readBuffer.length != cubeSize) {
             readBuffer = new byte[cubeSize];
         }
@@ -354,10 +356,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public byte[] getPlaneRegion(int z, int c, int t, int count, int offset) {
+    public synchronized byte[] getPlaneRegion(int z, int c, int t, int count, int offset) {
         errorIfNotLoaded();
 
-        int size = buffer.getByteWidth() * count;
+        int size = RomioPixelBuffer.safeLongToInteger(
+                buffer.getByteWidth() * (long) count);
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -371,10 +374,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public byte[] getPlane(int arg0, int arg1, int arg2) {
+    public synchronized byte[] getPlane(int arg0, int arg1, int arg2) {
         errorIfNotLoaded();
 
-        int size = buffer.getPlaneSize();
+        int size = RomioPixelBuffer.safeLongToInteger(buffer.getPlaneSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -387,7 +390,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public long getPlaneOffset(int arg0, int arg1, int arg2) {
+    public synchronized long getPlaneOffset(int arg0, int arg1, int arg2) {
         errorIfNotLoaded();
 
         try {
@@ -399,14 +402,14 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public int getPlaneSize() {
+    public synchronized long getPlaneSize() {
         errorIfNotLoaded();
 
         return buffer.getPlaneSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getRegion(int arg0, long arg1) {
+    public synchronized byte[] getRegion(int arg0, long arg1) {
         errorIfNotLoaded();
 
         ByteBuffer region = null;
@@ -419,7 +422,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public byte[] getRow(int arg0, int arg1, int arg2, int arg3) {
+    public synchronized byte[] getRow(int arg0, int arg1, int arg2, int arg3) {
         errorIfNotLoaded();
 
         int size = buffer.getRowSize();
@@ -436,7 +439,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
     
     @RolesAllowed("user")
-    public byte[] getCol(int arg0, int arg1, int arg2, int arg3) {
+    public synchronized byte[] getCol(int arg0, int arg1, int arg2, int arg3) {
         errorIfNotLoaded();
 
         int size = buffer.getColSize();
@@ -453,7 +456,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public long getRowOffset(int arg0, int arg1, int arg2, int arg3) {
+    public synchronized long getRowOffset(int arg0, int arg1, int arg2, int arg3) {
         errorIfNotLoaded();
 
         try {
@@ -465,17 +468,17 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public int getRowSize() {
+    public synchronized int getRowSize() {
         errorIfNotLoaded();
 
         return buffer.getRowSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getStack(int arg0, int arg1) {
+    public synchronized byte[] getStack(int arg0, int arg1) {
         errorIfNotLoaded();
 
-        int size = buffer.getStackSize();
+        int size = RomioPixelBuffer.safeLongToInteger(buffer.getStackSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -488,7 +491,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public long getStackOffset(int arg0, int arg1) {
+    public synchronized long getStackOffset(int arg0, int arg1) {
         errorIfNotLoaded();
 
         try {
@@ -500,17 +503,18 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public int getStackSize() {
+    public synchronized long getStackSize() {
         errorIfNotLoaded();
 
         return buffer.getStackSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getTimepoint(int arg0) {
+    public synchronized byte[] getTimepoint(int arg0) {
         errorIfNotLoaded();
 
-        int size = buffer.getTimepointSize();
+        int size = RomioPixelBuffer.safeLongToInteger(
+                buffer.getTimepointSize());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -523,7 +527,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public long getTimepointOffset(int arg0) {
+    public synchronized long getTimepointOffset(int arg0) {
         errorIfNotLoaded();
 
         try {
@@ -535,42 +539,42 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public int getTimepointSize() {
+    public synchronized long getTimepointSize() {
         errorIfNotLoaded();
 
         return buffer.getTimepointSize();
     }
 
     @RolesAllowed("user")
-    public int getTotalSize() {
+    public synchronized long getTotalSize() {
         errorIfNotLoaded();
 
         return buffer.getTotalSize();
     }
 
     @RolesAllowed("user")
-    public int getByteWidth() {
+    public synchronized int getByteWidth() {
         errorIfNotLoaded();
 
         return buffer.getByteWidth();
     }
 
     @RolesAllowed("user")
-    public boolean isSigned() {
+    public synchronized boolean isSigned() {
         errorIfNotLoaded();
 
         return buffer.isSigned();
     }
 
     @RolesAllowed("user")
-    public boolean isFloat() {
+    public synchronized boolean isFloat() {
         errorIfNotLoaded();
 
         return buffer.isFloat();
     }
 
     @RolesAllowed("user")
-    public void setPlane(byte[] arg0, int arg1, int arg2, int arg3) {
+    public synchronized void setPlane(byte[] arg0, int arg1, int arg2, int arg3) {
         errorIfNotLoaded();
 
         if (diskSpaceChecking) {
@@ -586,7 +590,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setRegion(int arg0, long arg1, byte[] arg2) {
+    public synchronized void setRegion(int arg0, long arg1, byte[] arg2) {
         errorIfNotLoaded();
 
         if (diskSpaceChecking) {
@@ -602,7 +606,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setRow(byte[] arg0, int arg1, int arg2, int arg3, int arg4) {
+    public synchronized void setRow(byte[] arg0, int arg1, int arg2, int arg3, int arg4) {
         errorIfNotLoaded();
 
         if (diskSpaceChecking) {
@@ -619,7 +623,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setStack(byte[] arg0, int arg1, int arg2, int arg3) {
+    public synchronized void setStack(byte[] arg0, int arg1, int arg2, int arg3) {
         errorIfNotLoaded();
 
         if (diskSpaceChecking) {
@@ -635,7 +639,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setTimepoint(byte[] arg0, int arg1) {
+    public synchronized void setTimepoint(byte[] arg0, int arg1) {
         errorIfNotLoaded();
 
         if (diskSpaceChecking) {
@@ -653,13 +657,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // ~ Helpers
     // =========================================================================
 
-    private byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
+    private synchronized byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
         byte[] b = new byte[buffer.capacity()];
         buffer.get(b, 0, buffer.capacity());
         return b;
     }
 
-    private void handleException(Exception e) {
+    private synchronized void handleException(Exception e) {
 
         if (e instanceof RootException) {
             throw (RootException) e; // Allow our own exceptions.
@@ -689,11 +693,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         throw new RuntimeException(e);
     }
 
-    public boolean isDiskSpaceChecking() {
+    public synchronized boolean isDiskSpaceChecking() {
         return diskSpaceChecking;
     }
 
-    public void setDiskSpaceChecking(boolean diskSpaceChecking) {
+    public synchronized void setDiskSpaceChecking(boolean diskSpaceChecking) {
         this.diskSpaceChecking = diskSpaceChecking;
     }
 
@@ -701,8 +705,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#getResolutionLevels()
      */
     @RolesAllowed("user")
-    public int getResolutionLevels()
+    public synchronized int getResolutionLevels()
     {
+        errorIfNotLoaded();
         return buffer.getResolutionLevels();
     }
 
@@ -710,7 +715,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#getTileSize()
      */
     @RolesAllowed("user")
-    public int[] getTileSize()
+    public synchronized int[] getTileSize()
     {
         errorIfNotLoaded();
         Dimension tileSize = buffer.getTileSize();
@@ -722,7 +727,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#requiresPixelsPyramid()
      */
     @RolesAllowed("user")
-    public boolean requiresPixelsPyramid()
+    public synchronized boolean requiresPixelsPyramid()
     {
         errorIfNotLoaded();
         return dataService.requiresPixelsPyramid(pixelsInstance);
@@ -732,7 +737,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#getResolutionLevel()
      */
     @RolesAllowed("user")
-    public int getResolutionLevel()
+    public synchronized int getResolutionLevel()
     {
         errorIfNotLoaded();
         return buffer.getResolutionLevel();
@@ -742,7 +747,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#setResolutionLevel(int)
      */
     @RolesAllowed("user")
-    public void setResolutionLevel(int resolutionLevel)
+    public synchronized void setResolutionLevel(int resolutionLevel)
     {
         errorIfNotLoaded();
         buffer.setResolutionLevel(resolutionLevel);
@@ -752,11 +757,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#getTile(int, int, int, int, int, int, int)
      */
     @RolesAllowed("user")
-    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
+    public synchronized byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
     {
         errorIfNotLoaded();
 
-        int size = w * h * buffer.getByteWidth();
+        int size = RomioPixelBuffer.safeLongToInteger(
+                (long) w * (long) h * buffer.getByteWidth());
         if (readBuffer == null || readBuffer.length != size) {
             readBuffer = new byte[size];
         }
@@ -772,7 +778,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * @see ome.api.RawPixelsStore#setTile(byte[], int, int, int, int, int, int, int)
      */
     @RolesAllowed("user")
-    public void setTile(byte[] data, int z, int c, int t, int x, int y,
+    public synchronized void setTile(byte[] data, int z, int c, int t, int x, int y,
             int w, int h)
     {
         errorIfNotLoaded();

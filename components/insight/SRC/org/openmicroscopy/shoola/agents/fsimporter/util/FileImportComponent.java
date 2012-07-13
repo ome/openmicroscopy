@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -81,6 +82,7 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -164,6 +166,24 @@ public class FileImportComponent
 	/** Text to indicate to view the image. */
 	private static final String PYRAMID_TEXT = "Building pyramid, please wait";
 	
+	/** Text to indicate that the thumbnail cannot be created */
+	private static final String IMAGE_CREATION_ERROR_TEXT = 
+		"Cannot create thumbnail";
+	
+	/** Text to indicate that the compression level is not supported. */
+	private static final String COMPRESSION_ERROR_TEXT = 
+		"Compression not supported";
+	
+	/** Text to indicate that library is missing. */
+	private static final String MISSING_LIB_ERROR_TEXT = 
+		"Missing Library";
+	
+	/** Text to indicate that the file is not accessible. */
+	private static final String NO_SPACE_ERROR_TEXT = "No more space on Disk";
+	
+	/** Text to indicate that the file is not accessible. */
+	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
+	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
 
@@ -208,7 +228,7 @@ public class FileImportComponent
 
 	/** The component displaying the result. */
 	private JLabel			resultLabel;
-
+	
 	/** The component displaying the imported image. */
 	private ThumbnailLabel	imageLabel;
 	
@@ -249,7 +269,7 @@ public class FileImportComponent
 	private JLabel	browseButton;
 	
 	/** Button to cancel the import for that file. */
-	private JButton	cancelButton;
+	private JLabel cancelButton;
 	
 	/** The node where to import the folder. */
 	private DataObject data;
@@ -286,6 +306,30 @@ public class FileImportComponent
 	
 	/** Flag indicating that no container specified.*/
 	private boolean noContainer;
+	
+	/** 
+	 * Flag indicating that the container hosting the imported image
+	 * can be browsed or not depending on how the import is launched.
+	 */
+	private boolean browsable;
+	
+	/** Set to <code>true</code> if attempt to re-import.*/
+	private boolean reimported;
+	
+	/** Indicates that the file has been re-imported.*/
+	private JLabel reimportedLabel;
+	
+	/** Flag indicating that the file should be reimported.*/
+	private boolean toReImport;
+	
+	/** The group in which to import the file.*/
+	private GroupData group;
+	
+	/** The component displaying the group where the file is imported. */
+	private JLabel groupLabel;
+	
+	/** Flag indicating the the user is member of one group only.*/
+	private boolean singleGroup;
 	
 	/** Displays the error box at the specified location.
 	 * 
@@ -361,7 +405,8 @@ public class FileImportComponent
 				icons.getIcon(IconManager.APPLY_22), l);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		//TODO: review
+		//un.notifyActivity(p);
 		//the row enabled
 		deleteButton.setEnabled(false);
 		errorBox.setEnabled(false);
@@ -373,6 +418,8 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		reimportedLabel = new JLabel("Reimported");
+		reimportedLabel.setVisible(false);
 		showContainerLabel = true;
 		adapter = new MouseAdapter() {
 			
@@ -388,7 +435,9 @@ public class FileImportComponent
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data.getImage() != null) {
-							bus.post(new ViewImage(new ViewImageObject(
+							bus.post(new ViewImage(
+									new SecurityContext(group.getId()),
+									new ViewImageObject(
 									data.getImage()), null));
 						}
 					} else if (image instanceof ImageData) {
@@ -396,7 +445,9 @@ public class FileImportComponent
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data != null) {
-							bus.post(new ViewImage(new ViewImageObject(
+							bus.post(new ViewImage(
+									new SecurityContext(group.getId()),
+									new ViewImageObject(
 									data), null));
 						}
 					} else if (image instanceof PlateData) {
@@ -411,15 +462,9 @@ public class FileImportComponent
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
 		
-		cancelButton = UIUtilities.createHyperLinkButton("Cancel");
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_ID);
-		cancelButton.setVisible(true);
-		
-		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
-		browseButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
-		browseButton.addMouseListener(new MouseAdapter() {
+		cancelButton = new JLabel("Cancel");
+		cancelButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+		cancelButton.addMouseListener(new MouseAdapter() {
 			
 			/**
 			 * Browses the object the image.
@@ -429,14 +474,38 @@ public class FileImportComponent
 			{
 				Object src = e.getSource();
 				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse();
+					cancel(true);
 				}
 			}
 		});
+		cancelButton.setVisible(true);
+		
+		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
+		if (browsable) {
+			browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
+			browseButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+			browseButton.addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Browses the object the image.
+				 * @see MouseListener#mousePressed(MouseEvent)
+				 */
+				public void mousePressed(MouseEvent e)
+				{
+					Object src = e.getSource();
+					if (e.getClickCount() == 1 && src instanceof JLabel) {
+						browse();
+					}
+				}
+			});
+		}
+		
 		browseButton.setVisible(false);
 		
 		containerLabel = new JLabel();
 		containerLabel.setVisible(false);
+		groupLabel = new JLabel("Group: "+group.getName());
+		groupLabel.setVisible(false);
 		
 		namePane = new JPanel();
 		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -510,6 +579,8 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
+		add(groupLabel);
+		add(reimportedLabel);
 	}
 	
 	/**
@@ -575,7 +646,8 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer);
+			c = new FileImportComponent(f, folderAsContainer, browsable, group,
+					singleGroup);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -616,18 +688,34 @@ public class FileImportComponent
 	 * @param folderAsContainer Pass <code>true</code> if the passed file
 	 * 							has to be used as a container, 
 	 * 							<code>false</code> otherwise.
+	 * @param browsable Flag indicating that the container can be browsed or not.
+	 * @param group The group in which to import the file.
+	 * @param singleGroup Passes <code>true</code> if the user is member of 
+	 * only one group, <code>false</code> otherwise.
 	 */
-	public FileImportComponent(File file, boolean folderAsContainer)
+	public FileImportComponent(File file, boolean folderAsContainer, boolean
+			browsable, GroupData group, boolean singleGroup)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
+		if (group == null)
+			throw new IllegalArgumentException("No group specified.");
 		this.file = file;
+		this.group = group;
+		this.singleGroup = singleGroup;
 		importCount = 0;
-		//if (file.isFile()) folderAsContainer = false;
+		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
 		initComponents();
 		buildGUI();
 	}
+	
+	/**
+	 * Returns the file hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public File getFile() { return file; }
 	
 	/**
 	 * Sets the location where to import the files.
@@ -746,6 +834,7 @@ public class FileImportComponent
 				img.getDefaultPixels();
 			} catch (Exception e) {
 				error = e;
+				toReImport = true;
 			}
 			if (error != null) {
 				exception = error;
@@ -777,9 +866,11 @@ public class FileImportComponent
 					browseButton.setVisible(showContainerLabel);
 					containerLabel.setVisible(showContainerLabel);
 				}
+				groupLabel.setVisible(!singleGroup);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
+			groupLabel.setVisible(!singleGroup);
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				
@@ -806,8 +897,17 @@ public class FileImportComponent
 					containerLabel.setVisible(showContainerLabel);
 				}
 			} else {
+				statusLabel.setVisible(false);
 				fileNameLabel.setForeground(ERROR_COLOR);
-				resultLabel.setVisible(false);
+				resultLabel.setText(IMAGE_CREATION_ERROR_TEXT);
+				resultLabel.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(
+						thumbnail.getError()));
+				resultLabel.setVisible(true);
+				errorButton.setVisible(false);
+				errorBox.setVisible(false);
+				groupLabel.setVisible(!singleGroup);
+				/*
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
 								thumbnail.getError()));
@@ -817,19 +917,22 @@ public class FileImportComponent
 				errorBox.addChangeListener(this);
 				deleteButton.setVisible(true);
 				deleteButton.addActionListener(this);
+				*/
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
-			resultLabel.setText(BROWSE_TEXT);
-			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
-			//resultLabel.setEnabled(false);
-			resultLabel.setVisible(true);
+			groupLabel.setVisible(!singleGroup);
+			if (browsable) {
+				resultLabel.setText(BROWSE_TEXT);
+				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+				resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
+				resultLabel.setVisible(true);
+			}
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
-			if (noContainer) {
+			if (noContainer || !browsable) {
 				browseButton.setVisible(false);
 				containerLabel.setVisible(false);
 			} else {
@@ -838,6 +941,7 @@ public class FileImportComponent
 			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
+			groupLabel.setVisible(!singleGroup);
 			List list = (List) image;
 			int m = list.size();
 			imageLabel.setData(list.get(0));
@@ -903,18 +1007,37 @@ public class FileImportComponent
 					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
+					toReImport = true;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
-					errorButton.setVisible(true);
-					if (ie.getStatus() == ImportException.COMPRESSION) {
+					errorButton.setVisible(false);
+					int s = ie.getStatus();
+					if (s == ImportException.COMPRESSION) {
 						resultLabel.setVisible(true);
-						resultLabel.setText("Compression not supported");
+						resultLabel.setText(COMPRESSION_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.MISSING_LIBRARY) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(MISSING_LIB_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.FILE_ON_TAPE) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.NO_SPACE) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(NO_SPACE_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
 					} else {
+						errorButton.setVisible(true);
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
 					}
-					
 					cancelButton.setVisible(false);
 				}
 			}
@@ -1025,6 +1148,30 @@ public class FileImportComponent
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport()
+	{
+		if (file.isFile()) {
+			//if (errorButton.isVisible() && !reimported)
+			//	return true;
+			return (toReImport && !reimported);
+		}
+		if (components == null) {
+			return false;
+		}
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReimport()) 
 				return true;
 		}
 		return false;
@@ -1198,6 +1345,62 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the file has already been marked for
+	 * re-import, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileImportComponent> getReImport()
+	{
+		List<FileImportComponent> l = null;
+		if (file.isFile()) {
+			/*
+			if (errorButton != null && errorButton.isVisible()) {
+				if (image instanceof Exception) {
+					l = new ArrayList<FileImportComponent>();
+					if (!reimported) l.add(this);
+					return l;
+				}
+			}
+			*/
+			if (toReImport && !reimported) {
+				l = new ArrayList<FileImportComponent>();
+				l.add(this);
+				return l;
+			}
+		} else {
+			if (components != null) {
+				Entry entry;
+				Iterator<FileImportComponent> i = components.values().iterator();
+				FileImportComponent fc;
+				l = new ArrayList<FileImportComponent>();
+				List<FileImportComponent> list;
+				while (i.hasNext()) {
+					fc = i.next();
+					list = fc.getReImport();
+					if (list != null && list.size() > 0)
+						l.addAll(list);
+				}
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Sets to <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 */
+	public void setReimported(boolean reimported)
+	{ 
+		this.reimported = reimported;
+		reimportedLabel.setVisible(true);
+		repaint();
+	}
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)
@@ -1279,6 +1482,8 @@ public class FileImportComponent
 		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
 			containerLabel.setText("");
 			noContainer = true;
+		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		}
 	}
 

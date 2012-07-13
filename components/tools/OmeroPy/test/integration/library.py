@@ -13,6 +13,7 @@ import Ice
 import sys
 import time
 import weakref
+import logging
 import unittest
 import tempfile
 import traceback
@@ -22,8 +23,11 @@ import subprocess
 import omero
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime, rint
+from omero.rtypes import rstring, rtime, rint, unwrap
 from path import path
+
+from omero.cmd import State, ERR, OK
+from omero.callbacks import CmdCallbackI
 
 
 class Clients(object):
@@ -46,6 +50,8 @@ class Clients(object):
 
 class ITest(unittest.TestCase):
 
+    log = logging.getLogger("ITest")
+
     def setUp(self):
 
         self.OmeroPy = self.omeropydir()
@@ -58,7 +64,7 @@ class ITest(unittest.TestCase):
         name = None
         pasw = None
         if rootpass:
-            self.root = omero.client()
+            self.root = omero.client() # ok because adds self
             self.__clients.add(self.root)
             self.root.setAgent("OMERO.py.root_test")
             self.root.createSession("root", rootpass)
@@ -68,7 +74,7 @@ class ITest(unittest.TestCase):
         else:
             self.root = None
 
-        self.client = omero.client()
+        self.client = omero.client() # ok because adds self
         self.__clients.add(self.client)
         self.client.setAgent("OMERO.py.test")
         self.sf = self.client.createSession(name, pasw)
@@ -123,11 +129,28 @@ class ITest(unittest.TestCase):
             group.details.permissions = omero.model.PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
+        self.add_experimenters(group, experimenters)
+        return group
+
+    def add_experimenters(self, group, experimenters):
+        admin = self.root.sf.getAdminService()
         if experimenters:
             for exp in experimenters:
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
-        return group
+
+    def remove_experimenters(self, group, experimenters):
+        admin = self.root.sf.getAdminService()
+        if experimenters:
+            for exp in experimenters:
+                user, name = self.user_and_name(exp)
+                admin.removeGroups(user, [group])
+
+    def set_context(self, client, gid):
+        rv = client.getStatefulServices()
+        for prx in rv:
+            prx.close()
+        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
 
     def new_image(self, name = ""):
         img = omero.model.ImageI()
@@ -135,19 +158,26 @@ class ITest(unittest.TestCase):
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename = None):
+    def import_image(self, filename = None, client = None, extra_args=None):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
+        if client is None:
+            client = self.client
 
-        server = self.client.getProperty("omero.host")
-        port = self.client.getProperty("omero.port")
-        key = self.client.getSessionId()
+        server = client.getProperty("omero.host")
+        port = client.getProperty("omero.port")
+        key = client.getSessionId()
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
+
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
+        args.extend(["-s", server, "-k", key, "-p", port, "import", "--"])
+        if extra_args:
+            args.extend(extra_args)
+        args.append(filename)
+
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = popen.communicate()
         rc = popen.wait()
@@ -161,8 +191,7 @@ class ITest(unittest.TestCase):
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids
-    
-    
+
     def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
@@ -223,10 +252,21 @@ class ITest(unittest.TestCase):
             rgba = None
             if theC in colourMap:
                 rgba = colourMap[theC]
+        for theC in range(sizeC):
             script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
 
         renderingEngine.close()
         rawPixelStore.close()
+
+        # See #9070. Forcing a thumbnail creation
+        tb = session.createThumbnailStore()
+        try:
+            s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
+            self.assertNotEqual(s[pixelsId],'')
+
+        finally:
+            tb.close()
+
 
         # Reloading image to prevent error on old pixels updateEvent
         image = containerService.getImages("Image", [imageId], None)[0]
@@ -237,12 +277,30 @@ class ITest(unittest.TestCase):
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
-    def new_user(self, group = None, perms = None, admin = False):
+    def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
+        """
+        Wait on an omero.cmd.HandlePrx to finish processing
+        and then assert pass or fail. The callback is returned
+        for accessing the Response and Status elements.
+        """
+        callback = omero.callbacks.CmdCallbackI(client, handle)
+        callback.loop(loops, ms) # throws on timeout
+        rsp = callback.getResponse()
+        is_ok = isinstance(rsp, omero.cmd.OK)
+        self.assert_(passes, is_ok)
+        return callback
+
+    def new_user(self, group = None, perms = None,
+            admin = False, system = False):
+        """
+        admin: If user is to be an admin of the created group
+        system: If user is to be a system admin
+        """
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
 
-        admin = self.root.getSession().getAdminService()
+        adminService = self.root.getSession().getAdminService()
         name = self.uuid()
 
         # Create group if necessary
@@ -257,30 +315,53 @@ class ITest(unittest.TestCase):
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
-        uid = admin.createUser(e, group)
-        e = admin.lookupExperimenter(name)
+        uid = adminService.createUser(e, group)
+        e = adminService.lookupExperimenter(name)
         if admin:
-            admin.setGroupOwner(g, e)
-        return admin.getExperimenter(uid)
+            adminService.setGroupOwner(g, e)
+        if system:
+            adminService.addGroups(e, \
+                    [omero.model.ExperimenterGroupI(0, False)])
 
-    def new_client(self, group = None, user = None, perms = None, admin = False):
+        return adminService.getExperimenter(uid)
+
+    def new_client(self, group=None, user=None, perms=None,
+            admin=False, system=False, session=None, password=None):
         """
         Like new_user() but returns an active client.
+
+        Passing user= or session= will prevent self.new_user
+        from being called, and instead the given user (by name
+        or ExperimenterI) or session will be logged in.
         """
-        if user is None:
-            user = self.new_user(group, perms, admin)
         props = self.root.getPropertyMap()
-        props["omero.user"] = user.omeName.val
-        props["omero.pass"] = user.omeName.val
+        if session is not None:
+            if user is not None:
+                self.log.warning("user= argument will be ignored: %s", user)
+            session = unwrap(session)
+            props["omero.user"] = session
+            props["omero.pass"] = session
+        else:
+            if user is not None:
+                user, name = self.user_and_name(user)
+            else:
+                user = self.new_user(group, perms, admin, system=system)
+            props["omero.user"] = user.omeName.val
+            if password is not None:
+                props["omero.pass"] = password
+            else:
+                props["omero.pass"] = user.omeName.val
+
         client = omero.client(props)
         self.__clients.add(client)
         client.setAgent("OMERO.py.new_client_test")
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None, perms = None, admin = False):
-        user = self.new_user(group)
-        client = self.new_client(group, user, perms, admin)
+    def new_client_and_user(self, group = None, perms = None,
+            admin = False, system = False):
+        user = self.new_user(group, admin=admin, system=system, perms=perms)
+        client = self.new_client(group, user, perms=perms, admin=admin, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -291,6 +372,7 @@ class ITest(unittest.TestCase):
         return elapsed, rv
 
     def group_and_name(self, group):
+        group = unwrap(group)
         admin = self.root.sf.getAdminService()
         if isinstance(group, omero.model.ExperimenterGroup):
             if group.isLoaded():
@@ -302,14 +384,23 @@ class ITest(unittest.TestCase):
         elif isinstance(group, (str, unicode)):
             name = group
             group = admin.lookupGroup(name)
+        elif isinstance(group, omero.model.Experimenter):
+            self.fail(\
+                "group is a user! Try adding group= to your method invocation")
         else:
             self.fail("Unknown type: %s=%s" % (type(group), group))
 
         return group, name
 
     def user_and_name(self, user):
+        user = unwrap(user)
         admin = self.root.sf.getAdminService()
-        if isinstance(user, omero.model.Experimenter):
+        if isinstance(user, omero.clients.BaseClient):
+            admin = user.sf.getAdminService()
+            ec = admin.getEventContext()
+            name = ec.userName
+            user = admin.lookupExperimenter(name)
+        elif isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
                 name = user.omeName.val
                 user = admin.lookupExperimenter(name)
@@ -319,6 +410,9 @@ class ITest(unittest.TestCase):
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)
+        elif isinstance(user, omero.model.ExperimenterGroup):
+            self.fail(\
+                "user is a group! Try adding user= to your method invocation")
         else:
             self.fail("Unknown type: %s=%s" % (type(user), user))
 
@@ -328,7 +422,7 @@ class ITest(unittest.TestCase):
     # Data methods
     #
 
-    def missing_pyramid(self):
+    def missing_pyramid(self, client=None):
         """
         Creates and returns a pixels whose shape changes from
         1,1,4000,4000,1 to 4000,4000,1,1,1 making it a pyramid
@@ -336,8 +430,12 @@ class ITest(unittest.TestCase):
         initial import in 4.3+. This simulates a big image that
         was imported in 4.2.
         """
-        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
-        rps = self.client.sf.createRawPixelsStore()
+
+        if client is None:
+            client = self.client
+
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1, client=client)
+        rps = client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
             for t in range(4000):
@@ -350,9 +448,11 @@ class ITest(unittest.TestCase):
         pix.sizeY = rint(4000)
         pix.sizeZ = rint(1)
         pix.sizeT = rint(1)
-        return self.update.saveAndReturnObject(pix)
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50):
+        update = client.sf.getUpdateService()
+        return update.saveAndReturnObject(pix)
+
+    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -370,7 +470,11 @@ class ITest(unittest.TestCase):
         pixels.dimensionOrder = omero.model.DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
-        image = self.update.saveAndReturnObject(image)
+
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
+        image = update.saveAndReturnObject(image)
         pixels = image.getPrimaryPixels()
         return pixels
 
@@ -422,6 +526,68 @@ class ITest(unittest.TestCase):
         tfile = StringIO(buf)
         jpeg = Image.open(tfile) # Raises if invalid
         return jpeg
+
+    def loginAttempt(self, name, t, pw="BAD", less=False):
+        """
+        Checks that login happens in less than or greater than
+        the given time. By default, the password "BAD" is used,
+        and the expectation is that login will take greather
+        than the specified time since the password won't match.
+        To check that logins happen more quickly, pass the
+        correct password and less=True:
+
+            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+
+        See integration.tickets4000 and 5000
+        """
+        c = omero.client() # ok because followed by __del__
+        try:
+            t1 = time.time()
+            try:
+                c.createSession(name, pw)
+                if pw == "BAD":
+                    self.fail("Should not reach this point")
+            except Glacier2.PermissionDeniedException:
+                if pw != "BAD":
+                    raise
+            t2 = time.time()
+            T = (t2-t1)
+            if less:
+                self.assertTrue(T < t, "%s > %s" % (T, t))
+            else:
+                self.assertTrue(T > t, "%s < %s" % (T, t))
+        finally:
+            c.__del__()
+
+    def doSubmit(self, request, client, test_should_pass=True):
+        """
+        Performs the request waits on completion and checks that the
+        result is not an error.
+        """
+        sf = client.sf
+        prx = sf.submit(request)
+
+        self.assertFalse(State.FAILURE in prx.getStatus().flags)
+
+        cb = CmdCallbackI(client, prx)
+        cb.loop(20, 500)
+
+        self.assertNotEqual(prx.getResponse(), None)
+
+        status = prx.getStatus()
+        rsp = prx.getResponse()
+
+        if test_should_pass:
+            if isinstance(rsp, ERR):
+                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
+            self.assertFalse(State.FAILURE in prx.getStatus().flags)
+        else:
+            if isinstance(rsp, OK):
+                self.fail("Found OK when test_should_pass==false: %s", rsp)
+            self.assertTrue(State.FAILURE in prx.getStatus().flags)
+
+        return rsp
+
 
     def tearDown(self):
         failure = False

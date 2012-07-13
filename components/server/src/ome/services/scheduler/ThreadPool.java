@@ -7,7 +7,7 @@
 
 package ome.services.scheduler;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,7 +32,7 @@ public class ThreadPool {
 
     private final ThreadFactory factory;
 
-    private final Executor executor;
+    private final ExecutorService executor;
 
     public ThreadPool(int minThreads, int maxThreads, long msTimeout) {
         queue = new LinkedBlockingQueue<Runnable>();
@@ -41,7 +41,7 @@ public class ThreadPool {
                 TimeUnit.MILLISECONDS, queue); // factory
     }
 
-    public Executor getExecutor() {
+    public ExecutorService getExecutor() {
         return executor;
     }
 

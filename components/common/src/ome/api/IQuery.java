@@ -257,9 +257,8 @@ public interface IQuery extends ServiceInterface {
      * <li>file:xml AND name:*hoechst*</li>
      * </ul>
      * 
-     * For more information, see <a
-     * href="http://lucene.apache.org/java/docs/queryparsersyntax.html">Query
-     * Parser Synax</a>
+     * For more information, see
+     * <a href="http://lucene.apache.org/java/docs/queryparsersyntax.html">Query Parser Synax</a>
      * 
      * The return values are first filtered by the security system.
      * 

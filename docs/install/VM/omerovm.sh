@@ -2,6 +2,7 @@
 
 export VMNAME=${VMNAME:-"$1"}
 export VMNAME=${VMNAME:-"omerovm"}
+export TARGET=${2:-"QA"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
@@ -9,6 +10,7 @@ export OMERO_PORT=${OMERO_PORT:-"4063"}
 export OMERO_PF=${OMERO_PF:-"4063"}
 export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
+export RELEASE_VERSION="4.3.4"
 
 set -e
 set -u
@@ -45,10 +47,15 @@ function installvm ()
 	$SCP setup_postgres.sh omero@localhost:~/
 	$SCP setup_environment.sh omero@localhost:~/
 	$SCP setup_omero.sh omero@localhost:~/
+	$SCP setup_nginx.sh omero@localhost:~/
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
+	$SCP omero-web-init.d omero@localhost:~/
+	$SCP virtualbox-network-fix-init.d omero@localhost:~/
+  $SCP virtualbox_fix.sh omero@localhost:~/
+  $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
-	$SSH omero@localhost 'bash /home/omero/driver.sh'
+	$SSH omero@localhost "bash /home/omero/driver.sh ${TARGET}"
 	sleep 10
 	
 	echo "ALL DONE!"
@@ -137,7 +144,7 @@ function createvm ()
 		VBoxManage modifyvm "$VMNAME" --natpf1 "ssh,tcp,127.0.0.1,2222,10.0.2.15,22"
 		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-unsec,tcp,127.0.0.1,4063,10.0.2.15,4063"
 		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-ssl,tcp,127.0.0.1,4064,10.0.2.15,4064"
-		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,4080,10.0.2.15,4080"
+		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,8080,10.0.2.15,8080"
 	}
 }
 
@@ -177,4 +184,9 @@ fi
 echo "Network up after $ATTEMPTS tries"
 installvm
 
-bash export_ova.sh
+if [ "$TARGET" == "QA" ]; then
+  EXPORTVMNAME="${VMNAME}-latest-build"
+else
+  EXPORTVMNAME="${VMNAME}-${RELEASE_VERSION}"
+fi
+bash export_ova.sh ${VMNAME} ${EXPORTVMNAME}

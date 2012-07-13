@@ -149,8 +149,8 @@ public class MetadataViewerFactory
 	 */
 	public static void onGroupSwitched(boolean success)
 	{
-		if (!success)  return;
-		//singleton.clear();
+		if (!success) return;
+		singleton.clear();
 	}
 	
 	/** All the tracked components. */
@@ -160,6 +160,19 @@ public class MetadataViewerFactory
 	private MetadataViewerFactory()
 	{
 		viewers = new ArrayList<MetadataViewer>();
+	}
+	
+	/** Discards and clears.*/
+	private void clear()
+	{
+		Iterator<MetadataViewer> i = singleton.viewers.iterator();
+		MetadataViewer v;
+		while (i.hasNext()) {
+			v = i.next();
+			v.removeChangeListener(this);
+			v.discard();
+		}
+		singleton.viewers.clear();
 	}
 	
 	/**

@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,9 +56,9 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -149,6 +150,9 @@ class ToolBar
 	/** Component used to download the archived file.*/
 	private JMenuItem exportAsOmeTiffItem;
 	
+	/** View the image.*/
+	private JButton viewButton;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -171,7 +175,7 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		downloadItem.setEnabled(false);
+    		//downloadItem.setEnabled(false);
     		saveAsMenu.add(downloadItem);
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
@@ -194,6 +198,29 @@ class ToolBar
     	return saveAsMenu;
     }
     
+    /** 
+     * Creates or recycles the view menu.
+     * 
+     * @param source The source of the mouse event.
+     * @param p The location of the mouse pressed.
+     */
+    private void showViewMenu(Component source, Point p)
+    {
+    	JPopupMenu menu = new JPopupMenu();
+    	IconManager icons = IconManager.getInstance();
+    	JMenuItem item = new JMenuItem(icons.getIcon(IconManager.VIEWER));
+    	item.setText("View...");
+    	item.setActionCommand(""+EditorControl.VIEW_IMAGE);
+    	item.addActionListener(controller);
+    	menu.add(item);
+    	item = new JMenuItem(icons.getIcon(IconManager.VIEWER_IJ));
+    	item.setText("View in ImageJ...");
+    	item.setActionCommand(""+EditorControl.VIEW_IMAGE_IN_IJ);
+    	item.addActionListener(controller);
+    	menu.add(item);
+    	menu.show(source, p.x, p.y);
+    }
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -212,7 +239,7 @@ class ToolBar
 		downloadButton.setToolTipText("Download the Archived File(s).");
 		downloadButton.addActionListener(controller);
 		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
-		downloadButton.setEnabled(false);
+		//downloadButton.setEnabled(false);
 		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		rndButton = new JButton(icons.getIcon(IconManager.RENDERER));
@@ -224,7 +251,7 @@ class ToolBar
 		rndButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		refreshButton = new JButton(icons.getIcon(IconManager.REFRESH));
-		refreshButton.setToolTipText("Refresh the selected tab.");
+		refreshButton.setToolTipText("Refresh.");
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -316,6 +343,26 @@ class ToolBar
 		});
 		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
+		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
+		viewButton.setToolTipText("Open the Image Viewer");
+		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+			viewButton.addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Displays the <code>view</code> menu.
+				 * @see MouseListener#mouseReleased(MouseEvent)
+				 */
+				public void mouseReleased(MouseEvent e) {
+					showViewMenu((Component) e.getSource(), e.getPoint());
+				}
+			});
+		} else {
+			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
+	    	viewButton.addActionListener(controller);
+		}
+		
+    	UIUtilities.unifiedButtonLookAndFeel(viewButton);
+    	
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -350,6 +397,8 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(refreshButton);
     	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(viewButton);
+    	bar.add(Box.createHorizontalStrut(5));
     	/*
     	bar.add(downloadButton);
     	bar.add(Box.createHorizontalStrut(5));
@@ -358,12 +407,15 @@ class ToolBar
     	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
+    	/*
     	if (MetadataViewerAgent.isAdministrator()) {
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(uploadScriptButton);
     	}
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(scriptsButton);
+    	*/
+    	//bar.add(scriptsButton);
     	return bar;
     }
     
@@ -567,7 +619,7 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
-    	
+		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
@@ -586,8 +638,9 @@ class ToolBar
         			if (exportAsOmeTiffItem != null) {
         				exportAsOmeTiffButton.setEnabled(b);
         			}
-        			if (downloadItem != null && img.isArchived())
+        			if (downloadItem != null && model.isArchived())
         				downloadItem.setEnabled(true);
+        			viewButton.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}

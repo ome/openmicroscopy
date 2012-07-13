@@ -32,6 +32,7 @@ import java.util.Map;
 
 import loci.formats.meta.DummyMetadata;
 import ome.util.LSID;
+import ome.xml.model.primitives.Color;
 import omero.ServerError;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -161,12 +162,15 @@ public class OverlayMetadataStore extends DummyMetadata
     }
 
     @Override
-    public void setMaskStroke(Integer stroke, int roiIndex, int shapeIndex)
+    public void setMaskStrokeColor(Color stroke, int roiIndex, int shapeIndex)
     {
         Mask o = getMask(roiIndex, shapeIndex);
         if (o != null)
         {
-            o.setStrokeColor(rint(stroke));
+            java.awt.Color javaColor = new java.awt.Color(
+                    stroke.getRed(), stroke.getGreen(), stroke.getBlue(),
+                    stroke.getAlpha());
+            o.setStrokeColor(rint(javaColor.getRGB()));
         }
     }
 

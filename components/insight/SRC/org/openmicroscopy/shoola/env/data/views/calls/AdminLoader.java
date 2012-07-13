@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -87,18 +88,20 @@ public class AdminLoader
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
+     * @param ctx The security context.
      * @param type Either ExperimenterData or GroupData class.
      * @param id The id of the user, group or <code>-1</code>.
      * @param type Either experimenter or group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableSpaceCall(final Class type, final long id)
+    private BatchCall availableSpaceCall(final SecurityContext ctx,
+    		final Class type, final long id)
     {
         return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
             {
                 AdminService os = context.getAdminService();
-                result = os.getQuota(type, id);
+                result = os.getQuota(ctx, type, id);
             }
         };
     }
@@ -107,12 +110,14 @@ public class AdminLoader
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
+     * @param ctx The security context.
      * @param type Either ExperimenterData or GroupData class.
      * @param ids The id of the users or groups.
      * @param type Either experimenter or group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableSpaceCall(final Class type, final List<Long> ids)
+    private BatchCall availableSpaceCall(final SecurityContext ctx,
+    		final Class type, final List<Long> ids)
     {
         return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
@@ -121,7 +126,7 @@ public class AdminLoader
                 List<DiskQuota> list = new ArrayList<DiskQuota>();
                 Iterator<Long> i = ids.iterator();
                 while (i.hasNext()) {
-                	list.add(os.getQuota(type, i.next()));
+                	list.add(os.getQuota(ctx, type, i.next()));
 				}
                 result = list;
             }
@@ -133,18 +138,19 @@ public class AdminLoader
      * Creates a {@link BatchCall} to change the password
      * of the user currently logged in.
      * 
-	 * @param oldPassword 	The password used to log in.  
+     * @param ctx The security context.
+	 * @param oldPassword 	The password used to log in.
      * @param newPassword	The new password value.
      * @return The {@link BatchCall}.
      */
-    private BatchCall changePassword(final String oldPassword, 
-    								final String newPassword)
+    private BatchCall changePassword(final SecurityContext ctx,
+    		final String oldPassword, final String newPassword)
     {
         return new BatchCall("Change password") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.changePassword(oldPassword, newPassword);
+                result = os.changePassword(ctx, oldPassword, newPassword);
             }
         };
     }
@@ -152,16 +158,18 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to update the specified experimenter.
      * 
+     * @param ctx The security context.
 	 * @param exp 	The experimenter to update.
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateExperimenter(final ExperimenterData exp)
+    private BatchCall updateExperimenter(final SecurityContext ctx,
+    		final ExperimenterData exp)
     {
         return new BatchCall("Update experimenter") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.updateExperimenter(exp, null);
+                result = os.updateExperimenter(ctx, exp, null);
             }
         };
     }
@@ -169,17 +177,19 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to update the specified group.
      * 
+     * @param ctx The security context.
 	 * @param group The group to update.
 	 * @param permissions The desired permissions level or <code>-1</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateGroup(final GroupData group, final int permissions)
+    private BatchCall updateGroup(final SecurityContext ctx,
+    		final GroupData group, final int permissions)
     {
         return new BatchCall("Update group") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.updateGroup(group, permissions);
+                result = os.updateGroup(ctx, group, permissions);
             }
         };
     }
@@ -188,16 +198,17 @@ public class AdminLoader
      * Creates a {@link BatchCall} to load all the available group if the 
      * passed parameter is <code>-1</code>, load the group otherwise.
      * 
+     * @param ctx The security context.
 	 * @param id The id of the group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadGroup(final long id)
+    private BatchCall loadGroup(final SecurityContext ctx, final long id)
     {
         return new BatchCall("Load groups") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.loadGroups(id);
+                result = os.loadGroups(ctx, id);
             }
         };
     }
@@ -206,16 +217,18 @@ public class AdminLoader
      * Creates a {@link BatchCall} to load the experimenters contained 
      * within the specified group.
      * 
+     * @param ctx The security context.
 	 * @param id The id of the group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadExperimenters(final long id)
+    private BatchCall loadExperimenters(final SecurityContext ctx,
+    		final long id)
     {
         return new BatchCall("Load experimenters") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.loadExperimenters(id);
+                result = os.loadExperimenters(ctx, id);
             }
         };
     }
@@ -223,17 +236,19 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to update the specified experimenters.
      * 
+     * @param ctx The security context.
 	 * @param experimenters The experimenters to update. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateExperimenters(final GroupData group, 
-    		final Map<ExperimenterData, UserCredentials> experimenters)
+    private BatchCall updateExperimenters(final SecurityContext ctx,
+    	final GroupData group, 
+    	final Map<ExperimenterData, UserCredentials> experimenters)
     {
         return new BatchCall("Update experimenters") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.updateExperimenters(group, experimenters);
+                result = os.updateExperimenters(ctx, group, experimenters);
             }
         };
     }
@@ -241,10 +256,12 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to load the photo.
      * 
+     * @param ctx The security context.
 	 * @param experimenter The experimenter to handle. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadExperimenterPhoto(final ExperimenterData experimenter)
+    private BatchCall loadExperimenterPhoto(final SecurityContext ctx,
+    		final ExperimenterData experimenter)
     {
         return new BatchCall("Load photo") {
             public void doCall() throws Exception
@@ -253,7 +270,7 @@ public class AdminLoader
             	List<DataObject> exps = new ArrayList<DataObject>();
             	exps.add(experimenter);
             	Map<DataObject, BufferedImage> map = 
-            		os.getExperimenterThumbnailSet(exps, 96);
+            		os.getExperimenterThumbnailSet(ctx, exps, 96);
                result = map.get(experimenter);
            }
         };
@@ -262,12 +279,13 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to load the photo.
      * 
+     * @param ctx The security context.
 	 * @param experimenter The experimenter to handle.
 	 * @param photo The photo to upload.
 	 * @param format The format of the file.
      * @return The {@link BatchCall}.
      */
-    private BatchCall uploadExperimenterPhoto(
+    private BatchCall uploadExperimenterPhoto(final SecurityContext ctx,
     		final ExperimenterData experimenter, final File photo,
     		final String format)
     {
@@ -275,7 +293,7 @@ public class AdminLoader
             public void doCall() throws Exception
             {
             	AdminService svc = context.getAdminService();
-            	result = svc.uploadUserPhoto(photo, format, experimenter);
+            	result = svc.uploadUserPhoto(ctx, photo, format, experimenter);
            }
         };
     }
@@ -298,119 +316,128 @@ public class AdminLoader
      * @param id		The id of the user or <code>-1</code>.
      * @param index 	One of the constants defined by this class.
      */
-    public AdminLoader(long id, int index)
+    public AdminLoader(SecurityContext ctx, long id, int index)
     {
     	switch (index) {
 			case SPACE:
-				loadCall = availableSpaceCall(ExperimenterData.class, id);
+				loadCall = availableSpaceCall(ctx, ExperimenterData.class, id);
 				break;
 			case GROUPS:
-				loadCall = loadGroup(id);
+				loadCall = loadGroup(ctx, id);
 				break;
 			case EXPERIMENTERS:
-				loadCall = loadExperimenters(id);
+				loadCall = loadExperimenters(ctx, id);
 		}
     }
     
     /** 
      * Creates a new instance. 
      * 
+     * @param ctx The security context.
      * @param type	Either <code>ExperimenterData</code> or
      * 				<code>GroupData</code>
      * @param id	The id of the user or <code>-1</code>.
      */
-    public AdminLoader(Class type, long id)
+    public AdminLoader(SecurityContext ctx, Class type, long id)
     {
-    	loadCall = availableSpaceCall(type, id);
+    	loadCall = availableSpaceCall(ctx, type, id);
     }
 
     /** 
      * Creates a new instance. 
      * 
+     * @param ctx The security context.
      * @param type	Either <code>ExperimenterData</code> or
      * 				<code>GroupData</code>
      * @param ids	The id of the user or groups.
      */
-    public AdminLoader(Class type, List<Long> ids)
+    public AdminLoader(SecurityContext ctx, Class type, List<Long> ids)
     {
-    	loadCall = availableSpaceCall(type, ids);
+    	loadCall = availableSpaceCall(ctx, type, ids);
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param oldPassword 	The password used to log in.  
      * @param newPassword	The new password value.
      */
-    public AdminLoader(String oldPassword, String newPassword)
+    public AdminLoader(SecurityContext ctx, String oldPassword,
+    		String newPassword)
     {
     	if (newPassword == null || newPassword.trim().length() == 0)
     		throw new IllegalArgumentException("Password not valid.");
     	if (oldPassword == null || oldPassword.trim().length() == 0)
     		throw new IllegalArgumentException("Password not valid.");
-    	loadCall = changePassword(oldPassword, newPassword);
+    	loadCall = changePassword(ctx, oldPassword, newPassword);
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param exp The experimenter to update. Mustn't be <code>null</code>.
      */
-    public AdminLoader(ExperimenterData exp, int index)
+    public AdminLoader(SecurityContext ctx, ExperimenterData exp, int index)
     {
     	if (exp == null)
     		throw new IllegalArgumentException("Experimenter not valid.");
     	switch (index) {
     		case EXPERIMENTER_UPDATE:
-				loadCall = updateExperimenter(exp);
+				loadCall = updateExperimenter(ctx, exp);
 				break;
 			case EXPERIMENTER_PHOTO:
-				loadCall = loadExperimenterPhoto(exp);
+				loadCall = loadExperimenterPhoto(ctx, exp);
 		}
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param exp 	The experimenter to update. Mustn't be <code>null</code>.
      * @param photo The photo to upload. Mustn't be <code>null</code>.
      * @param format The format of the photo to upload.
      */
-    public AdminLoader(ExperimenterData exp, File photo, String format)
+    public AdminLoader(SecurityContext ctx, ExperimenterData exp, File photo,
+    		String format)
     {
     	if (exp == null)
     		throw new IllegalArgumentException("Experimenter not valid.");
     	if (photo == null)
     		throw new IllegalArgumentException("Photo not valid.");
-    	loadCall = uploadExperimenterPhoto(exp, photo, format);
+    	loadCall = uploadExperimenterPhoto(ctx, exp, photo, format);
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param group The group to update. Mustn't be <code>null</code>.
      * @param permissions The desired permissions level or <code>-1</code>.
      */
-    public AdminLoader(GroupData group, int permissions)
+    public AdminLoader(SecurityContext ctx, GroupData group, int permissions)
     {
     	if (group == null)
     		throw new IllegalArgumentException("Group not valid.");
-    	loadCall = updateGroup(group, permissions);
+    	loadCall = updateGroup(ctx, group, permissions);
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param group The default group to set.
      * @param experimenters The experimenters to update. 
      * 						Mustn't be <code>null</code>.
      */
-    public AdminLoader(GroupData group,
+    public AdminLoader(SecurityContext ctx, GroupData group,
     		Map<ExperimenterData, UserCredentials> experimenters)
     {
     	if (experimenters == null)
     		throw new IllegalArgumentException("No experimenters to update.");
-    	loadCall = updateExperimenters(group, experimenters);
+    	loadCall = updateExperimenters(ctx, group, experimenters);
     }
     
 }

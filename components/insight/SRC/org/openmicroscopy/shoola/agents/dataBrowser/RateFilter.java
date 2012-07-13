@@ -35,6 +35,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.RatingAnnotationData;
@@ -136,14 +137,15 @@ public class RateFilter
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param rate		One of the constants defined by this class.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public RateFilter(DataBrowser viewer, int rate, 
+	public RateFilter(DataBrowser viewer, SecurityContext ctx, int rate,
 					Collection<DataObject> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
 		checkRate(rate);
@@ -173,7 +175,7 @@ public class RateFilter
 	public void load()
 	{
 		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.loadRatings(nodeType, nodeIds, userID, this);
+		handle = mhView.loadRatings(ctx, nodeType, nodeIds, userID, this);
 	}
 	
 	/**

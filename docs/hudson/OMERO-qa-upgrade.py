@@ -2,43 +2,72 @@
 
 import os
 import platform
-WINDOWS = platform.system() == "Windows"
-###########################################################################
-# CONFIGURATION
-###########################################################################
+import subprocess
+
 
 def DEFINE(key, value):
     m = globals()
     m[key] = os.environ.get(key, value)
+    print key, "=>", m[key]
+
+
+###########################################################################
+# DETECTION
+###########################################################################
+WINDOWS = platform.system() == "Windows"
+p = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
+h = p.communicate()[0].strip()
+DEFINE("HOSTNAME", h)
+
+
+###########################################################################
+# CONFIGURATION
+###########################################################################
 
 # Most likely to be changed
-if WINDOWS:
-    DEFINE("NAME", "win-2k8")
-    DEFINE("ADDRESS", "10.2.1.191")
-    DEFINE("MEM", "Xmx1024M")
-else:
-    DEFINE("NAME", "gretzky")
+DEFINE("NAME", HOSTNAME)
+if HOSTNAME == "gretzky":
     DEFINE("ADDRESS", "gretzky.openmicroscopy.org.uk")
-    DEFINE("MEM", "Xmx1024M")
+elif HOSTNAME == "howe":
+    DEFINE("ADDRESS", "howe.openmicroscopy.org.uk")
+elif HOSTNAME == "ome-dev-svr":
+    DEFINE("NAME", "win-2k8")
+    DEFINE("ADDRESS", "bp.openmicroscopy.org.uk")
+else:
+    DEFINE("ADDRESS", HOSTNAME)
+    # Don't send emails if we're not on a known host.
+    DEFINE("SKIPEMAIL", "true")
+if "SKIPEMAIL" not in globals():
+    DEFINE("SKIPEMAIL", "false")
+
+if WINDOWS:
+    DEFINE("UNZIP", "C:\\Program Files (x86)\\7-Zip\\7z.exe")
+    DEFINE("UNZIPARGS", "x")
+else:
+    DEFINE("UNZIP", "unzip")
+    DEFINE("UNZIPARGS", "")
 
 # new_server.py
+DEFINE("MEM", "Xmx1024M")
 DEFINE("SYM", "OMERO-CURRENT")
 DEFINE("CFG", os.path.join(os.path.expanduser("~"), "config.xml"))
-DEFINE("WEB", """'[["localhost", 4064, "%s"], ["nightshade.openmicroscopy.org.uk", 4064, "nightshade"]]'""" % NAME)
+DEFINE("WEB", """'[["localhost", 4064, "%s"], ["gretzky.openmicroscopy.org.uk", 4064, "gretzky"], ["howe.openmicroscopy.org.uk", 4064, "howe"]]'""" % NAME)
 
 # send_email.py
 DEFINE("SUBJECT", "OMERO - %s was upgraded" % NAME)
-DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/")
-DEFINE("SENDER", "Aleksandra Tarkowska <aleksandrat@lifesci.dundee.ac.uk>")
+DEFINE("BRANCH", "OMERO-trunk")
+DEFINE("BUILD", "http://hudson.openmicroscopy.org.uk/job/%s/lastSuccessfulBuild/" % BRANCH)
+DEFINE("SENDER", "Chris Allan <callan@lifesci.dundee.ac.uk>")
 DEFINE("RECIPIENTS", ["ome-nitpick@lists.openmicroscopy.org.uk"])
 DEFINE("SERVER", "%s (%s)" % (NAME, ADDRESS))
-DEFINE("SMTP_SERVER", "mail.glencoesoftware.com")
-DEFINE("WEBURL", "http://%s/webclient/" % ADDRESS)
+DEFINE("SMTP_SERVER", "smtp.dundee.ac.uk")
+DEFINE("WEBURL", "http://%s/omero/webclient/" % ADDRESS)
+
 DEFINE("SKIPWEB", "false")
+DEFINE("SKIPUNZIP", "false")
 ###########################################################################
 
 import fileinput
-import subprocess
 import smtplib
 import sys
 import urllib
@@ -110,21 +139,34 @@ class Artifacts(object):
                     self.linux.append(base_url + artifact.find("relativePath").text)
 
     def download_server(self):
+
         if self.server == None:
             raise Exception("No server found")
+
         filename = os.path.basename(self.server)
-        if os.path.exists(filename):
-            unzipped = filename.replace(".zip", "")
-            if os.path.exists(unzipped):
-                return unzipped
-            else:
-                print "Unzip and run again"
-                sys.exit(1)
-        else:
+        unzipped = filename.replace(".zip", "")
+
+        if os.path.exists(unzipped):
+            return unzipped
+
+        if not os.path.exists(filename):
             print "Downloading %s..." % self.server
             urllib.urlretrieve(self.server, filename)
-            print "Unzip and run again"
-            sys.exit(0)
+
+        if "false" == SKIPUNZIP.lower():
+            if UNZIPARGS:
+                command = [UNZIP, UNZIPARGS, filename]
+            else:
+                command = [UNZIP, filename]
+            p = subprocess.Popen(command)
+            rc = p.wait()
+            if rc != 0:
+                print "Couldn't unzip!"
+            else:
+                return unzipped
+
+        print "Unzip and run again"
+        sys.exit(0)
 
 
 class Email(object):
@@ -136,7 +178,10 @@ class Email(object):
 
         TO = ",".join(recipients)
         FROM = sender
-        text = "The OMERO.server on %s has been upgraded. " \
+        text = "The OMERO.server on %s has been upgraded. \n" \
+                    "=========================\n" \
+                    "THIS SERVER REQUIRES VPN!\n" \
+                    "=========================\n" \
                     "Please download suitable clients from: \n " \
                     "\n - Windows: \n %s\n " \
                     "\n - MAC: \n %s\n " \
@@ -161,7 +206,7 @@ class Upgrade(object):
 
     def __init__(self, dir, cfg = CFG, mem = MEM, sym = SYM, skipweb = SKIPWEB):
 
-        print "%s: Upgrading %s..." % (self.__class__.__name__, dir)
+        print "%s: Upgrading %s (%s)..." % (self.__class__.__name__, dir, sym)
 
         self.mem = mem
         self.sym = sym
@@ -210,19 +255,20 @@ class Upgrade(object):
             _(["config", "set", "omero.web.server_list", WEB]) # TODO: Unneeded if copy old?
 
         for line in fileinput.input([self.dir / "etc" / "grid" / "templates.xml"], inplace=True):
-            print line.replace("Xmx512M", self.mem),
+            print line.replace("Xmx512M", self.mem).replace("Xmx256M", self.mem),
 
     def start(self, _):
         _("admin start")
         if self.web():
             print "Starting web ..."
-            _("web syncmedia")
             self.startweb(_)
 
     def set_cli(self, dir):
 
         dir = os.path.abspath(dir)
         lib = os.path.join(dir, "lib", "python")
+        if not os.path.exists(lib):
+            raise Exception("%s does not exist!" % lib)
         sys.path.insert(0, lib)
 
         import omero
@@ -265,6 +311,12 @@ class UnixUpgrade(Upgrade):
 
     def startweb(self, _):
         _("web start")
+
+    def confgure(self, _):
+        super(UnixUpgrade, self).configure(_)
+        var = self.dir / "var"
+        var.mkdir()
+        var.chmod(0755) # For Apache/Nginx
 
     def directories(self, _):
         try:
@@ -334,4 +386,7 @@ if __name__ == "__main__":
     else:
         u = WindowsUpgrade(dir)
 
-    e = Email(artifacts)
+    if "false" == SKIPEMAIL.lower():
+        e = Email(artifacts)
+    else:
+        print "Skipping email..."

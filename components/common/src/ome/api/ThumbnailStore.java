@@ -47,6 +47,16 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public boolean setPixelsId(long pixelsId);
 
     /**
+     * This returns the last available <i>in progress</i> state for a
+     * thumbnail. Its return value is <b>only</b> expected to be valid after
+     * the call to any of the individual thumbnail retrieval methods.
+     * @return <code>true</code> if the image is in the process of being
+     * imported or a pyramid is being generated for it.
+     *
+     */
+    public boolean isInProgress();
+
+    /**
      * This method manages the state of the service; it should be invoked
      * directly after {@link setPixelsId}. If it is not invoked with a valid
      * rendering definition ID before using the thumbnail accessor methods

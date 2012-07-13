@@ -84,8 +84,9 @@ class WebControl(BaseControl):
         config = parser.add(sub, self.config, "Output a config template for server ('nginx' or 'apache' for the moment")
         config.add_argument("type", choices=("nginx","apache"))
         config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)")
+        config.add_argument("--system", action="store_true", help="System appropriate configuration file")
 
-        parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
+        parser.add(sub, self.syncmedia, "[DEPRECATED] Advanced use: Creates needed symlinks for static media files")
 
         #
         # Developer
@@ -114,27 +115,12 @@ class WebControl(BaseControl):
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
 
 
-    def host_and_port(self, APPLICATION_HOST):
-        parts = APPLICATION_HOST.split(':')
-        if len(parts) != 3:
-            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
-        try:
-            host = parts[1]
-            while host.startswith(r"/"):
-                host = host[1:]
-            port = parts[2]
-            port = re.search(r'^(\d+).*', port).group(1)
-            port = int(port)
-            return (host, port)
-        except Exception, e:
-            self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
-
     def config(self, args):
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
-            host, port = self.host_and_port(settings.APPLICATION_HOST)
+            port = 8080
             if args.http:
                 port = args.http
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
@@ -147,7 +133,10 @@ class WebControl(BaseControl):
                                               settings.APPLICATION_SERVER_PORT)
                 else:
                     fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
-                c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
+                if args.system:
+                    c = file(self.ctx.dir / "etc" / "nginx.conf.system.template").read()
+                else:
+                    c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
                     "ROOT":self.ctx.dir,
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
@@ -164,6 +153,61 @@ class WebControl(BaseControl):
                     fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                         self.ctx.dir
                 stanza  = """###
+# apache config for omero
+# this file should be loaded *after* ssl.conf
+#
+# -D options to control configurations
+#  OmeroWebClientRedirect - redirect / to /omero/webclient
+#  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
+#  OmeroForceSSL - redirect all http requests to https
+
+###
+### Example SSL stanza for OMERO.web created %(NOW)s
+###
+
+# Eliminate overlap warnings with the default ssl vhost
+# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) support
+# most later versions of mod_ssl and OSes will support it
+# if you see "You should not use name-based virtual hosts in conjunction with SSL!!"
+# or similar start apache with -D DISABLE_SNI and modify ssl.conf
+#<IfDefine !DISABLE_SNI>
+#  NameVirtualHost *:443
+#</IfDefine>
+#
+## force https/ssl
+#<IfDefine OmeroForceSSL>
+#  RewriteEngine on
+#  RewriteCond %%{HTTPS} !on
+#  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
+#</IfDefine>
+#
+#<VirtualHost _default_:443>
+#
+#  ErrorLog logs/ssl_error_log
+#  TransferLog logs/ssl_access_log
+#  LogLevel warn
+#
+#  SSLEngine on
+#  SSLProtocol all -SSLv2
+#  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+#  SSLCertificateFile /etc/pki/tls/certs/server.crt
+#  SSLCertificateKeyFile /etc/pki/tls/private/server.key
+#
+#  # SSL Protocol Adjustments:
+#  SetEnvIf User-Agent ".*MSIE.*" \
+#    nokeepalive ssl-unclean-shutdown \
+#    downgrade-1.0 force-response-1.0
+#
+#  # Per-Server Logging:
+#  CustomLog logs/ssl_request_log \
+#    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
+#
+#</VirtualHost>
+
+RewriteEngine on
+RewriteRule ^/?$ /omero/ [R]
+
+###
 ### Stanza for OMERO.web created %(NOW)s
 ###
 FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
@@ -174,18 +218,18 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Allow from all
 </Directory>
 
-<Directory "%(MEDIA)s">
+<Directory "%(STATIC)s">
     Options -Indexes FollowSymLinks
     Order allow,deny
     Allow from all
 </Directory>
 
-Alias /appmedia %(MEDIA)s
-Alias / "%(ROOT)s/var/omero.fcgi/"
+Alias /static %(STATIC)s
+Alias /omero "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
                     "ROOT":self.ctx.dir,
-                    "MEDIA":self.ctx.dir / "lib" / "python" / "omeroweb" / "media",
+                    "STATIC":self.ctx.dir / "lib" / "python" / "omeroweb" / "static",
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
                     "FASTCGI_EXTERNAL":fastcgi_external,
                     "NOW":str(datetime.now()),
@@ -193,28 +237,9 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
                 self.ctx.out(stanza % d)
 
     def syncmedia(self, args):
-        import shutil
-        from glob import glob
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        # Targets
-        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, settings.INSTALLED_APPS)
-        apps = filter(lambda x: os.path.exists(location / x), apps)
-        # Destination dir
-        if not os.path.exists(location / 'media'):
-            os.mkdir(location / 'media')
-
-        # Create app media links
-        for app in apps:
-            media_dir = location / app / 'media'
-            if os.path.exists(media_dir):
-                if os.path.exists(location / 'media' / app):
-                    os.remove(os.path.abspath(location / 'media' / app))
-                try:
-                    # Windows does not support symlink
-                    sys.getwindowsversion()
-                    shutil.copytree(os.path.abspath(media_dir), location / 'media' / app) 
-                except:
-                    os.symlink(os.path.abspath(media_dir), location / 'media' / app)
+        self.ctx.out(
+                "** NO-OP ** syncmedia now part of 'web start' and is " \
+                "no longer required.")
 
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
@@ -318,8 +343,16 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             import traceback
             print traceback.print_exc()
 
+    def collectstatic(self):
+        # Ensure that static media is copied to the correct location
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
+        rv = self.ctx.call(args, cwd = location)
+        if rv != 0:
+            self.ctx.die(607, "Failed to collect static content.\n")
 
     def start(self, args):
+        self.collectstatic()
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -452,7 +485,7 @@ using bin\omero web start on Windows with FastCGI.
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
 
     def iis(self, args):
-
+        self.collectstatic()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 

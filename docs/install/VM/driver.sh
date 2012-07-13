@@ -3,6 +3,8 @@
 set -e -u -x
 
 PASSWORD=${PASSWORD:-"omero"}
+TARGET=${1:-"QA"}
+export TARGET
 
 OMERO_PATH="/home/omero/OMERO.server"
 OMERO_BIN=$OMERO_PATH/bin
@@ -15,8 +17,10 @@ echo $PASSWORD | sudo -S sh setup_postgres.sh
 sudo -k
 
 bash setup_environment.sh
+bash virtualbox_fix.sh
 bash setup_omero.sh
 bash setup_omero_daemon.sh
+bash setup_nginx.sh
 
 $OMERO_BIN/omero admin start
 

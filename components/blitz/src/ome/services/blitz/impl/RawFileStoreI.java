@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 import ome.api.RawFileStore;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.blitz.util.TieAware;
 import ome.services.util.Executor;
 import ome.util.SqlAction;
 import omero.ServerError;
@@ -32,6 +31,7 @@ import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
+import omero.util.TieAware;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,7 +145,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         // If this isn't available, it won't be possible for this instance
         // to be registered with
         Map<String, String> adjustedCtx = new HashMap<String, String>(current.ctx);
-        adjustedCtx.put("omero.session", current.id.category);
+        adjustedCtx.put(omero.constants.SESSIONUUID.value, current.id.category);
 
         final Ice.ObjectPrx prx = sf.getAdapter().createProxy(
                 Ice.Util.stringToIdentity("PublicRepository-" + repo));

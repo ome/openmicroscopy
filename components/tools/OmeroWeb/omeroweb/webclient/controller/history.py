@@ -50,7 +50,7 @@ class BaseCalendar(BaseController):
         self.month = int(month)
         if eid is None:
             self.eid = self.conn.getEventContext().userId
-        else:            
+        else:
             self.eid = eid
         
         if day:
@@ -58,13 +58,12 @@ class BaseCalendar(BaseController):
             # only for python 2.5
             # date = datetime.datetime.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")
             date = datetime.datetime(*(time.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")[0:6]))
-            self.eContext['breadcrumb'] = ['<a href="%s">History</a>' % reverse(viewname="load_history", args=[self.year, self.month, self.day]), '%s %s' % (date.strftime("%A, %d"), date.strftime("%B %Y"))]
+            self.displayDate = '%s %s' % (date.strftime("%A, %d"), date.strftime("%B %Y"))
             self.nameday = date.strftime("%A")
         else:
             # only for python 2.5
             # date = datetime.datetime.strptime(("%i-%i" % (self.year, self.month)), "%Y-%m")
             date = datetime.datetime(*(time.strptime(("%i-%i" % (self.year, self.month)), "%Y-%m")[0:6]))
-            self.eContext['breadcrumb'] = ["History"]
 
     def create_calendar(self):
         calendar.setfirstweekday(settings.FIRST_DAY_OF_WEEK)
@@ -180,7 +179,7 @@ class BaseCalendar(BaseController):
             month += 1
         return (datetime.date(year, month, 1), datetime.date(year, month, 1)-datetime.timedelta(days=1))
 
-    def get_items(self, cal_type=None, page=None):
+    def get_items(self, page=None):
         
         if self.month < 10:
             mn = '0%i' % self.month
@@ -204,58 +203,10 @@ class BaseCalendar(BaseController):
         self.day_items_size = 0
         self.total_items_size = self.conn.countDataByPeriod(start, end, self.eid)
         
-        if cal_type is not None:
-            obj_logs = self.conn.getDataByPeriod(start=start, end=end, eid=self.eid, otype=cal_type, page=page)
-            obj_logs_counter = self.conn.countDataByPeriod(start, end, self.eid, cal_type)
-            if len(obj_logs[cal_type]) > 0 :
-                
-                obj_ids = [ob.id for ob in obj_logs[cal_type]]
-                obj_annotation_counter = self.conn.getCollectionCount(cal_type.title(), "annotationLinks", obj_ids)
-                
-                obj_list_with_counters = list()
-                for obj in obj_logs[cal_type]:
-                    obj.annotation_counter = obj_annotation_counter.get(obj.id)
-                    obj_list_with_counters.append(obj)
-                    
-                self.day_items.append({cal_type:obj_list_with_counters})
-                self.day_items_size = len(obj_list_with_counters)
-                
-                self.paging = self.doPaging(page, len(obj_list_with_counters), obj_logs_counter)
-
-        else:
-            obj_logs = self.conn.getDataByPeriod(start, end, self.eid)
-            if len(obj_logs['image']) > 0 or len(obj_logs['dataset']) > 0 or len(obj_logs['project']) > 0:
-                
-                pr_list_with_counters = list()
-                ds_list_with_counters = list()
-                im_list_with_counters = list()
-                
-                pr_ids = [pr.id for pr in obj_logs['project']]
-                if len(pr_ids) > 0:
-                    pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-                    
-                    for pr in obj_logs['project']:
-                        pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                        pr_list_with_counters.append(pr)
-                    
-                ds_ids = [ds.id for ds in obj_logs['dataset']]
-                if len(ds_ids) > 0:
-                    ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-
-                    for ds in obj_logs['dataset']:
-                        ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                        ds_list_with_counters.append(ds)
-                
-                im_ids = [im.id for im in obj_logs['image']]
-                if len(im_ids) > 0:
-                    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-
-                    for im in obj_logs['image']:
-                        im.annotation_counter = im_annotation_counter.get(im.id)
-                        im_list_with_counters.append(im)
-                
-                self.day_items.append({'project':pr_list_with_counters, 'dataset':ds_list_with_counters, 'image':im_list_with_counters})
-                self.day_items_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
-        
-        self.history_type = cal_type
+        obj_logs = self.conn.getDataByPeriod(start=start, end=end, eid=self.eid, page=page)
+        obj_logs_counter = self.conn.countDataByPeriod(start, end, self.eid)
+        if len(obj_logs['image']) > 0 or len(obj_logs['dataset']) > 0 or len(obj_logs['project']) > 0:
+            self.day_items.append({'project':obj_logs['project'], 'dataset':obj_logs['dataset'], 'image':obj_logs['image']})
+            self.day_items_size = len(obj_logs['project'])+len(obj_logs['dataset'])+len(obj_logs['image'])
+            self.paging = self.doPaging(page, self.day_items_size, obj_logs_counter)
         

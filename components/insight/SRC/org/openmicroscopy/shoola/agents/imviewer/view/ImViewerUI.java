@@ -98,10 +98,12 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -171,6 +173,7 @@ class ImViewerUI
 		backgrounds.put(Color.LIGHT_GRAY, "Light Grey");
 	}
 
+	private static final String SCALE_BAR_TEXT = "Scale bar length (in ";
 	/** Reference to the Control. */
 	private ImViewerControl 					controller;
 
@@ -298,6 +301,12 @@ class ImViewerUI
 	/** The magnification factor for the big image.*/
 	private double								bigImageMagnification;
 	
+	/** Item used to show or hide the unit bar. */
+	private JCheckBoxMenuItem unitBarItem;
+	
+	/** Item used to show or hide the unit bar. */
+	private JMenu scaleBarMenu;
+	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
 	 * hierarchy.
@@ -375,8 +384,8 @@ class ImViewerUI
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getHelpMenu());
+		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
+		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
 		return menuBar;
 	}
 
@@ -472,8 +481,7 @@ class ImViewerUI
 	 */
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
-		JMenu menu = new JMenu("Scale bar length " +
-				"(in "+UIUtilities.NANOMETER+")");
+		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+model.getUnits()+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();
@@ -482,56 +490,56 @@ class ImViewerUI
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(a);
 		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWO);
 		item = new JCheckBoxMenuItem(a);
 		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIVE);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TEN);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TEN));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWENTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIFTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
+		scaleBarMenu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
 		scaleBarGroup.add(item);
 		item.setSelected(a.getIndex() == defaultIndex);
-		menu.add(item);
-		return menu;
+		scaleBarMenu.add(item);
+		return scaleBarMenu;
 	}
 
 	/**
@@ -544,10 +552,10 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Display");
 		menu.setMnemonic(KeyEvent.VK_V);
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-		item.setSelected(model.isUnitBar());
-		item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
-		menu.add(item);
+		unitBarItem = new JCheckBoxMenuItem();
+		unitBarItem.setSelected(model.isUnitBar());
+		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		menu.add(unitBarItem);
 		menu.add(createScaleBarLengthSubMenu(pref));
 		menu.add(createScaleBarColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -556,6 +564,16 @@ class ImViewerUI
 		return menu;
 	}
 
+	/** Synchronizes the unit bar selection. */
+	void handleUnitBar()
+	{
+		unitBarItem.removeActionListener(
+				controller.getAction(ImViewerControl.UNIT_BAR));
+		unitBarItem.setSelected(model.isUnitBar());
+		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+		scaleBarMenu.setText(SCALE_BAR_TEXT+model.getUnits()+")");
+	}
+	
 	/**
 	 * Helper method to create the controls menu.
 	 * 
@@ -1101,6 +1119,8 @@ class ImViewerUI
 	{
 		super(title);
 		loadingWindow = new LoadingWindow(this);
+		loadingWindow.setTitle("Opening Image Viewer...");
+		loadingWindow.setModal(false);
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 		bigImageMagnification = 1.0;
@@ -1212,7 +1232,9 @@ class ImViewerUI
 				}
 			}
 			f = Math.round(factor)/100.0;
-			bigImageMagnification = f;
+			bigImageMagnification = 
+				(double) model.getTiledImageSizeX()/model.getMaxX();
+			//bigImageMagnification = f;
 			//model.setZoomFactor(f, false);
 			statusBar.setRigthStatus("x: "+f);
 		}
@@ -1300,46 +1322,58 @@ class ImViewerUI
 	 */
 	void onStateChange(boolean b)
 	{ 
-		//TODO
-		//model.getRenderer().onStateChange(b);
 		model.getBrowser().onStateChange(b);
-		tabs.setEnabled(b);
-		enableSliders(b);
-		controlPane.onStateChange(b); 
-		toolBar.onStateChange(b); 
+		if (tabs != null) {
+			tabs.setEnabled(b);
+			enableSliders(b);
+			controlPane.onStateChange(b); 
+			toolBar.onStateChange(b); 
+		}
 	}
 	
 	/** Sets the default text of the status bar. */
 	void setLeftStatus()
 	{
-		String text = "";
 		int n;
 		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
+		UnitsObject o;
+		String units;
+		StringBuffer buffer = new StringBuffer();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
 			int m = getProjectionEndZ();
-			text += "Z range:"+(n+1);
-			text += "-"+(getProjectionEndZ()+1);
-			if (d > 0 && max > 0)
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+"-"+
-				UIUtilities.roundTwoDecimals(m*d)+" "+
-				EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z range:"+(n+1));
+			buffer.append("-"+(getProjectionEndZ()+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append("-");
+				o = EditorUtil.transformSize(m*d);
+				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(" "+units+")");
+			}
+			buffer.append("/"+(model.getMaxZ()+1));
+			controlPane.setRangeSliderToolTip(n, m);
 		} else {
 			n = model.getDefaultZ();
-			text += "Z="+(n+1);
-			if (d > 0 && max > 0) 
-				text += " ("+UIUtilities.roundTwoDecimals(n*d)+
-					EditorUtil.MICRONS_NO_BRACKET+")";
-			text += "/"+(model.getMaxZ()+1);
+			buffer.append("Z="+(n+1));
+			if (d > 0 && max > 0) {
+				o = EditorUtil.transformSize(n*d);
+				units = o.getUnits();
+				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append(units+")");
+			}
+				
+			buffer.append("/"+(model.getMaxZ()+1));
 		}
-		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
+		buffer.append(" T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1));
 		if (model.isNumerousChannel()) {
-			text += " L="+(model.getSelectedBin()+1);
-			text += "/"+(model.getMaxLifetimeBin());
+			buffer.append(" L="+(model.getSelectedBin()+1));
+			buffer.append("/"+(model.getMaxLifetimeBin()));
 		}
-		setLeftStatus(text);
+		setLeftStatus(buffer.toString());
 	}
 	
 	/**
@@ -1388,40 +1422,42 @@ class ImViewerUI
 		while (c.hasNext()) {
 			index = c.next().getIndex();
 			//if (indexes.contains(index)) {
-				s = "";
-				toolTipText = "";
-				tips = new ArrayList<String>();
-				info = model.getPlane(z, index, t);
-				comp = planes.get(index);
-				if (info != null) {
-					details = EditorUtil.transformPlaneInfo(info);
-					notSet = (List<String> )details.get(EditorUtil.NOT_SET);
-					comp.setColor(colors.get(index));
-					if (!notSet.contains(EditorUtil.DELTA_T)) {
-						s += EditorUtil.formatTimeInSeconds(
-								(Double) details.get(EditorUtil.DELTA_T));
-					}
-					if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-						toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-						toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
-						toolTipText += EditorUtil.TIME_UNIT;
-						tips.add(toolTipText);
-					}
-					toolTipText = "";
-					toolTipText += "Stage coordinates: ";
-					if (!notSet.contains(EditorUtil.POSITION_X))
-						toolTipText += 
-							"x="+details.get(EditorUtil.POSITION_X)+" ";
-					if (!notSet.contains(EditorUtil.POSITION_Y)) 
-						toolTipText += "y="+
-							details.get(EditorUtil.POSITION_Y)+" ";
-					if (!notSet.contains(EditorUtil.POSITION_Z)) 
-						toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+			s = "";
+			toolTipText = "";
+			tips = new ArrayList<String>();
+			info = model.getPlane(z, index, t);
+			comp = planes.get(index);
+			if (info != null) {
+				details = EditorUtil.transformPlaneInfo(info);
+				notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+				comp.setColor(colors.get(index));
+				if (!notSet.contains(EditorUtil.DELTA_T)) {
+					s += EditorUtil.formatTimeInSeconds(
+							(Double) details.get(EditorUtil.DELTA_T));
+				}
+				if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+					toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+					toolTipText += EditorUtil.TIME_UNIT;
 					tips.add(toolTipText);
-					comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+				}
+				toolTipText = "";
+				toolTipText += "Stage coordinates: ";
+				if (!notSet.contains(EditorUtil.POSITION_X))
+					toolTipText += 
+						"x="+details.get(EditorUtil.POSITION_X)+" ";
+				if (!notSet.contains(EditorUtil.POSITION_Y)) 
+					toolTipText += "y="+
+					details.get(EditorUtil.POSITION_Y)+" ";
+				if (!notSet.contains(EditorUtil.POSITION_Z)) 
+					toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+				tips.add(toolTipText);
+				comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+				if (s.trim().length() != 0) {
 					comp.setText(s);
 					panel.add(comp);
 				}
+			}
 			//}
 		}
 		statusBar.setCenterStatus(panel);
@@ -2617,6 +2653,13 @@ class ImViewerUI
 		statusBar.formatToolTip();
 	}
 	
+	/**
+     * Returns the group the image belongs to.
+     * 
+     * @return See above.
+     */
+    GroupData getSelectedGroup() { return model.getSelectedGroup(); }
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

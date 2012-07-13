@@ -21,22 +21,35 @@ build-* targets.
 -->
     <description>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Top-level OMERO build. "ant" will suffice for most builds. If you need
-OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
+Top-level OMERO build. The default build with a target ("./build.py" will suffice
+for most builds. If you need OmeroCpp (the C++ bindings for OMERO) use "build-all"
+or "build-cpp" targets:
 
-To get started using Eclipse, execute "ant" and then import the top-level
-project. If the build is failing, use "ant build-eclipse" to generate
-all needed directories. Eclipse projects also exist for each individual
-java component.
+  ./build.py build-all
+
+To get started using Eclipse, execute "./build.py build-dev" and import the top-level
+.project file. Eclipse projects also exist for each individual java component.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="init" depends="check-ivy,check-scons,check-ice">
+    <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
         <mkdir dir="${blitz.comp}/target/generated/src"/>
+    </target>
+
+    <target name="check-bioformats" unless="bioformats.done">
+        <!-- Prevent future invocations -->
+        <property name="bioformats.check.done" value="done"/>
+        <if><not><available file="${basedir}/components/bioformats/build.xml"/></not>
+        <then>
+            <fail>No components/bioformats/build.xml!
+
+            Use 'git submodule update --init' to checkout the source code.
+            </fail>
+        </then></if>
     </target>
 
     <target name="check-ivy" unless="ivy.done">
@@ -49,21 +62,23 @@ java component.
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/dsl/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/model/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/rendering/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/romio/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/server/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/specification/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/xsd-fu/" includes="build.xml"/>
+        </ivy:buildlist>
+        <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
-    </target>
-
-    <target name="quick" description="Deprecated">
-        <echo>
-
-        Deprecated: Tests are no longer run by default
-
-        </echo>
-        <property name="test.skip" value="true"/>
     </target>
 
     <target name="clean" description="Calls 'clean' on all components" depends="check-ivy">
@@ -79,6 +94,10 @@ java component.
             <fileset dir="${lib.dir}/repository" includes="omero/**,omero-tools/**"/>
         </delete>
         <delete dir="${target.dir}" quiet="true"/>
+        <delete dir="${omero.home}/test-output" quiet="true"/>
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
+        </delete>
     </target>
 
     <macrodef name="setup-py-install">
@@ -105,31 +124,49 @@ java component.
     </target>
 
     <target name="build-scons" description="Installs the scons build tool" unless="scons.py">
-        <unzip src="${lib.dir}/repository/scons-local-1.2.0.d20090223.zip" dest="target/scons"/>
+        <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
     </target>
 
     <target name="check-ice" description="Checks for slice/include files and unpacks">
         <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
         <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
+        <!-- Checking the slice2* version before continuing. See #1185 -->
+        <exec outputproperty="executable.ice.version" executable="slice2java">
+            <arg value="--version"/>
+        </exec>
+        <if>
+            <not>
+                <or>
+                    <matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/>
+                    <matches pattern="^${ice.compatibility}" string="auto"/>
+                </or>
+            </not>
+            <then><fail>WRONG ICE VERSION!
+
+                slice2java version = ${executable.ice.version}
+                Expected version = ${ice.compatibility}
+
+                If you would like to configure which Ice to use,
+                set ice.compatibility=3.3 or ice.compatibility=3.4
+                in your etc/local.properties file or on the command-
+                line: ./build.py -Dice.compatibility=3.3
+
+            </fail></then>
+        </if>
     </target>
 
     <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
         <if><not><available file="${target.dir}/Ice"/></not><then>
-	    <mkdir dir="${target.dir}/Ice"/>
-	    <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
+            <mkdir dir="${target.dir}/Ice"/>
+            <untar compression="gzip" src="${lib.dir}/repository/ice-includes-${versions.ice}.tar.gz" dest="target/Ice"/>
         </then></if>
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
     <target name="build" description="Build all components except for C++" depends="init">
         <property name="env.NOMAKE" value="1"/>
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
+        <iterate buildpathref="all.buildpath" target="dist"/>
+        <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
@@ -148,32 +185,67 @@ java component.
     <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
         depends="clean,init,build-default,test-compile,build-eclipse"/>
 
-    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
+    <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
+
+    <target name="build-server" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
+        <!-- TODO: importer too?? -->
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
+    <target name="build-java" description="Build Java bindings to the OMERO server" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
+
+    <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
+        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
+
+    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-web" description="Build OmeroWeb and copy to dist" depends="init">
+    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+        <iterate buildpathref="insight.buildpath" target="dist"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <if><isset property="env.NOMAKE"/><then>
             <echo>
 +------------------------------------------------------------------------+
@@ -192,36 +264,28 @@ java component.
         </if>
     </target>
 
-    <target name="build-java" description="Build OmeroJava bindings and copy to dist/lib" depends="init">
-        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-py" description="Build OmeroPy bindings and copy to dist/lib" depends="init">
-        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
         <iterate buildpathref="dsl.buildpath" target="clean"/>
         <iterate buildpathref="model.buildpath" target="clean"/>
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-model" description="Generate model code for all language bindings" depends="init">
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
+        <!-- Parts of build-dist: updates both server and client -->
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-matlab" description="Provides a matlab toolbox under target" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
+    <target name="build-matlab" description="Provides a matlab toolbox under target. May required 'build-java'" depends="init">
         <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
@@ -230,6 +294,7 @@ java component.
 
     <target name="build-eclipse" description="Creates all source directories needed by eclipse in case default build is failing." depends="init">
         <iterate buildpathref="all.buildpath" target="eclipse"/>
+        <iterate buildpathref="insight.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="eclipse"/>
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
@@ -241,7 +306,9 @@ java component.
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/insight/**/*,@{excludes}"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/insight/*/**/*.xml,@{excludes}"/>
+            <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
+            <fileset dir="${omero.home}/components/tools/OmeroImageJ" includes="*/build.xml"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
@@ -256,11 +323,21 @@ java component.
         <launchSuite suite="test-compile"/>
     </target>
 
-    <target name="test-unit" description="Run all unit tests" depends="init">
+    <target name="test-unit" description="Run all non-native unit tests" depends="init">
+        <property name="env.NOMAKE" value="1"/>
         <launchSuite suite="test"/>
     </target>
 
-    <target name="test-integration" description="Run all integration tests" depends="init">
+    <target name="test-unit-all" description="Run all unit (including C++) tests" depends="init">
+        <launchSuite suite="test"/>
+    </target>
+
+    <target name="test-integration" description="Run all non-native integration tests" depends="init">
+        <property name="env.NOMAKE" value="1"/>
+        <launchSuite suite="integration"/>
+    </target>
+
+    <target name="test-integration-all" description="Run all integration (including C++) tests" depends="init">
         <launchSuite suite="integration"/>
     </target>
 
@@ -283,7 +360,30 @@ java component.
 
     <target name="test-dist" description="Copy test files into dist for further testing" depends="test-compile">
         <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
-        <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+        <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
+    <target name="examples-cpp" description="Build and run OmeroCpp examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="builddir=${dist.dir}"/>
+            <arg value="run_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-java" description="Build and run OmeroJava examples">
+        <scons_py dir="${basedir}/examples">
+            <arg value="run_java=1"/>
+            <arg value="no_cpp=1"/>
+        </scons_py>
+    </target>
+
+    <target name="examples-py" description="Build and run OmeroPy examples">
+        <scons_py dir="${basedir}/examples" pythonpath="${env.PYTHONPATH}"><!-- omit OmeroPy/src -->
+            <arg value="run_py=1"/>
+            <arg value="no_cpp=1"/>
+            <arg value="no_java=1"/>
+        </scons_py>
     </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
@@ -304,26 +404,60 @@ java component.
             <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${OmeroImporter.comp}/src" prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
-        <!-- TODO: This should probably be made into another tools target tools-zip -->
-        <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-win-zip" inheritAll="false"/>
-        <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-osx-zip" inheritAll="false"/>
-        <ant antfile="${OmeroImageJ.comp}/build.xml" dir="${OmeroImageJ.comp}" target="tools-dist" inheritAll="false"/>
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
+        <ant antfile="${OmeroImageJ.comp}/build.xml" dir="${OmeroImageJ.comp}" target="tools-dist" inheritAll="false"/>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
+        <!-- These should eventually be removed in favor of an ivy-based approach -->
+        <copy todir="target">
+            <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
+            <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
+        </copy>
+        <copy todir="target">
+            <fileset dir="components/insight/target" includes="editor*.zip"/>
+            <mapper type="regexp" from="editor(.*).zip"  to="OMERO.editor-${omero.version}\1.zip"/>
+        </copy>
+		<copy todir="target">
+            <fileset dir="components/insight/target" includes="importer*.zip"/>
+            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer -${omero.version}\1.zip"/>
+        </copy>
+       	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
+    </target>
+
+    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
+        <git command="archive" output="release-src-command" failonerror="true">
+            <args>
+                <arg value="--format=zip"/>
+                <arg value="HEAD"/>
+                <arg value="-o"/>
+                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
+            </args>
+        </git>
+    </target>
+
+    <target name="release-clients">
+        <!-- This replaces the previous OMERO-trunk-clients build -->
+        <mkdir dir="target/pkg"/>
+        <delete includeemptydirs="true">
+            <fileset dir="target/pkg" includes="**/*"/>
+        </delete>
+        <apply executable="python" dir="${target.dir}/pkg" failonerror="true">
+           <env key="OMERO_VERSION" value="${omero.version}"/>
+           <fileset dir="${omero.home}/lib" includes="composite.py"/>
+       </apply>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
-        <tar destfile="${product.name}-${omero.version}.tar.bz2" compress="bzip2">
+        <tar destfile="${product.name}-${omero.version}.tar.bz2" compression="bzip2">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 excludes="bin/omero"/>
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
@@ -606,66 +740,183 @@ java component.
         </nsis>
     </target>
 
+    <target name="release-training" description="Produces a zip with the examples/Training files">
+        <zip destfile="${omero.home}/target/OMERO.training-${omero.version}.zip">
+            <zipfileset dir="${omero.home}/examples/Training" prefix="OMERO.training-${omero.version}" includes="**" excludes="markup.py"/>
+            <zipfileset dir="${omero.home}" prefix="OMERO.training-${omero.version}" includes="LICENSE.txt"/>
+        </zip>
+    </target>
+
     <!--
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init" description="Copy all components to dist/; called at the end of build-* targets">
+    <target name="build-dist" depends="init,copy-licenses,copy-etc,copy-sql,copy-server,copy-client,update-version"
+        description="Copy all components to dist/; called at the end of build-* targets"/>
+
+    <target name="copy-licenses" depends="init">
             <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
             </copy>
+    </target>
+
+    <target name="copy-etc" depends="init">
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
                 </fileset>
             </copy>
+
+            <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+    </target>
+
+    <target name="copy-sql" depends="init">
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
                 </fileset>
             </copy>
+    </target>
 
+    <target name="copy-client" depends="init">
             <mkdir dir="${dist.dir}/lib/client"/>
+            <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
+            <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
+    <target name="copy-server" depends="init">
             <mkdir dir="${dist.dir}/lib/server"/>
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
 
-            <loadproperties srcFile="${dist.dir}/etc/omero.properties">
-                <filterchain>
-                    <headfilter skip="20" lines="-1"/>
-                    <prefixlines prefix="dist.check."/>
-                </filterchain>
-            </loadproperties>
-            <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
-            <then>
-                <!-- Setting version -->
-                <copy todir="${dist.dir}/etc" overwrite="true">
-                    <fileset dir="${omero.home}/etc" includes="omero.properties"/>
-                </copy>
-                <echo file="${dist.dir}/etc/omero.properties" append="true">
-omero.version=${omero.version}
-                </echo>
-
-                <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-                <jar update="true" destfile="${dist.dir}/lib/server/blitz.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-                <jar update="true" destfile="${dist.dir}/lib/client/omero_client.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-                <jar update="true" destfile="${dist.dir}/lib/client/OmeroImporter.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-            </then>
+    <macrodef name="jar_update_if">
+        <attribute name="destfile"/>
+        <element name="filesets" implicit="yes"/>
+        <sequential>
+            <if>
+                <available file="@{destfile}"/>
+                <then>
+                    <jar update="true" destfile="@{destfile}">
+                        <filesets/>
+                    </jar>
+                    <signjar alias="${jarsign.alias}"
+                        keystore="${jarsign.keystore}"
+                        storepass="${jarsign.storepass}"
+                        preservelastmodified="true"
+                        jar="@{destfile}"/>
+                </then>
             </if>
+        </sequential>
+    </macrodef>
+
+    <target name="update-version">
+        <loadproperties srcFile="${dist.dir}/etc/omero.properties">
+            <filterchain>
+                <headfilter skip="20" lines="-1"/>
+                <prefixlines prefix="dist.check."/>
+            </filterchain>
+        </loadproperties>
+
+        <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
+        <then>
+            <!-- Setting version -->
+            <copy todir="${dist.dir}/etc" overwrite="true">
+                <fileset dir="${omero.home}/etc" includes="omero.properties"/>
+            </copy>
+            <echo file="${dist.dir}/etc/omero.properties" append="true">
+omero.version=${omero.version}
+            </echo>
+
+            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
+            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+        </then>
+        </if>
+    </target>
+
+    <target name="keystore" depends="init" description="Create keystore">
+        <genkey alias="${jarsign.alias}"
+            keystore="${jarsign.keystore}"
+            storepass="${jarsign.storepass}"
+            validity="${jarsign.validity}">
+            <dname>
+                <param name="CN" value="omedev"/>
+                <param name="OU" value="Open Microscopy Team"/>
+                <param name="O"  value="openmicroscopy.org"/>
+                <param name="C"  value="UK"/>
+            </dname>
+        </genkey>
+    </target>
+
+    <target name="server-verify">
+        <apply  executable="jarsigner" failonerror="true">
+            <fileset dir="${dist.dir}/lib/server" includes="*.jar"/>
+            <arg value="-verify"/>
+        </apply>
+    </target>
+
+    <target name="webstart-sign">
+        <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="true">
+            <path>
+                <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+            </path>
+        </signjar>
+    </target>
+
+    <target name="webstart-verify">
+        <apply  executable="jarsigner" failonerror="true">
+            <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+            <arg value="-verify"/>
+        </apply>
+    </target>
+
+    <target name="release-webstart" depends="init">
+        <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
+            <patternset>
+                <include name="**/*.jar"/>
+            </patternset>
+            <flattenmapper/>
+        </unzip>
+        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
+        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
     </target>
 
     <target name="version">
-      <echo>${omero.version}</echo>
+        <trycatch>
+            <try>
+                <git command="describe" output="version.describe" failonerror="true">
+                    <args>
+                        <arg line="--dirty"/>
+                    </args>
+                </git>
+                <!--"((.*?)-)(v.)+(.*?)-([0-9]+)-g([^-]+)(-dirty)?" select="1\1-2\2-3\3-4\4-5\5"-->
+                <propertyregex property="version.describe.clean" input="${version.describe}"
+                    regexp="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$" select="\2\3\5\6"/>
+                <echo>${version.describe.clean}-ice${versions.ice_lib}</echo>
+            </try>
+            <catch>
+                <echo>UNKNOWN-ice${versions.ice_lib}</echo>
+            </catch>
+        </trycatch>
+
+    </target>
+
+    <target name="print-mem">
+        <echo>
+            javac.maxmem=${javac.maxmem}
+            javadoc.maxmem=${javadoc.maxmem}
+        </echo>
     </target>
 
 </project>

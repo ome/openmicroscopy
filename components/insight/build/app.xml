@@ -46,13 +46,15 @@
   <property name="app.dir" location="${build.dir}/app"/>
   <property name="app.compiled.dir" location="${app.dir}/compiled"/> 
   <property name="app.config.dir" location="${app.dir}/config"/> 
-  <property name="app.lib.dir" location="${app.dir}/libs"/> 
+  <property name="app.lib.dir" location="${app.dir}/libs"/>
+  <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>  
   <patternset id="app.sources">
     <include name="**/*.java"/>
   </patternset>
-  <fileset id="app.libs" dir="${base.lib.dir}" includes="*.jar"/>
-  <fileset id="app.libs.opengl" dir="${base.lib.dir}" includes="*.jar"/>
+  <fileset id="app.libs" dir="${base.runtimelib.dir}" includes="*.jar"/>
+  <fileset id="app.libs.no-bioformats" dir="${base.runtimelib.dir}" includes="*.jar" excludes="bio-formats.jar,jai_imageio.jar,loci-common.jar,mdbtools-java.jar,metakit.jar,ome-xml.jar,poi-loci.jar,scifio.jar"/>
+  <fileset id="app.libs.opengl" dir="${base.runtimelib.dir}" includes="*.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
   <fileset id="app.config" dir="${base.config.dir}"/> 
   <path id="app.compile.classpath">
@@ -64,7 +66,7 @@
     <pathelement location="${app.compiled.dir}"/>
   </path>
   <property name="app.mainclass" value="org.openmicroscopy.shoola.Main"/>
- 
+  <property name="app.mainclass.ij" value="org.openmicroscopy.shoola.MainIJPlugin"/>
 <property name="app.compiled.util.dir" location="${app.dir}/compiled/util"/> 
 <fileset id="app.resources.util" dir="${base.src.dir}">
 	<include name="org/openmicroscopy/shoola/util/**" />
@@ -86,10 +88,8 @@
     <mkdir dir="${app.compiled.dir}"/>
     <mkdir dir="${app.config.dir}"/>
     <mkdir dir="${app.lib.dir}"/> 
-    <condition property="dist.bundle.version"
-               value="${omero.version}-${dist.environment.OMERO_BUILD}">
-      <isset property="dist.environment.OMERO_BUILD"/>
-    </condition>
+    <!-- No longer necessary to take environment.OMERO_BUILD
+    since this is already a part of omero.version -->
     <condition property="dist.bundle.version"
                value="${omero.version}">
       <not>
@@ -111,6 +111,10 @@
     <replace file="${app.config.dir}/about.xml"
         token="@DATE@"
         value="${about.time}"/>
+    <replace dir="${app.config.dir}"
+        token="@OMERO_DISPLAY_VERSION@"
+        value="${omero.display_version}"/>
+
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy> 
@@ -161,7 +165,7 @@
    * Run the app in its own JVM. 
    * The location of the home directory is passed to the app via the command
    * line. The JVM minimum memory size is set to 256M and the maximum to
-   * 512M. Note that JVM memory size is specified via -X options, which make
+   * 1024M. Note that JVM memory size is specified via -X options, which make
    * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="run"
@@ -171,7 +175,7 @@
           classpathref="app.run.classpath" 
           fork="yes"
           failonerror="yes">
-      <jvmarg line="-Xms256M -Xmx512M"/> 
+      <jvmarg line="${app.vmparameters}"/> 
       <jvmarg value="-Dinsight.switch_user=true"/>
       <arg line="container.xml"/>
       <arg value="${app.dir}"/> 
@@ -181,7 +185,7 @@
 	   * Run the app in its own JVM. 
 	   * The location of the home directory is passed to the app via the command
 	   * line. The JVM minimum memory size is set to 256M and the maximum to
-	   * 512M. Note that JVM memory size is specified via -X options, which make
+	   * 1024M. Note that JVM memory size is specified via -X options, which make
 	   * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
 	  <target name="run-editor"
@@ -192,7 +196,7 @@
 	          classpathref="app.run.classpath" 
 	          fork="yes"
 	          failonerror="yes">
-	      <jvmarg line="-Xms256M -Xmx512M"/> 
+	      <jvmarg line="${app.vmparameters}"/> 
 	      <arg line="containerEditor.xml"/>
 	      <arg value="${app.dir}"/> 
 	    </java>  

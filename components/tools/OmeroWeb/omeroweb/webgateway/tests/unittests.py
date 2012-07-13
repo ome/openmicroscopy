@@ -7,6 +7,8 @@ from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
 
+from decorators import login_required
+
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
@@ -44,6 +46,7 @@ def fakeRequest (**kwargs):
             'wsgi.multiprocess': True,
             'wsgi.multithread':  False,
             'wsgi.run_once':     False,
+            'wsgi.input':        None,
         }
         environ.update(self.defaults)
         environ.update(request)
@@ -64,12 +67,15 @@ def fakeRequest (**kwargs):
     return c.bogus_request(**kwargs)
 
 class WGTest (GTest):
-    def doLogin (self, user):
-        r = fakeRequest()
-        q = QueryDict('', mutable=True)
-        q.update({'username': user.name, 'password': user.passwd})
-        r.REQUEST.dicts += (q,)
-        self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
+    def doLogin (self, user=None):
+        self.gateway = None
+        if user:
+            r = fakeRequest()
+            q = QueryDict('', mutable=True)
+            q.update({'username': user.name, 'password': user.passwd})
+            r.REQUEST.dicts += (q,)
+            t = login_required(isAdmin=user.admin)
+            self.gateway = t.get_connection(1, r) #, group=user.groupname)
         if self.gateway is None:
             # If the login framework was customized (using this app outside omeroweb) the above fails
             super(WGTest, self).doLogin(user)
@@ -129,10 +135,19 @@ class FileCacheTest(unittest.TestCase):
 
     def testTimeouts (self):
         self.assertEqual(self.cache.get('date/test/1'), None, 'Key already exists in cache')
-        self.cache.set('date/test/1', '1', 3)
+        self.cache.set('date/test/1', '1', timeout=3)
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
         time.sleep(4)
         self.assertEqual(self.cache.get('date/test/1'), None, 'Timeout failed')
+        # if _default_timeout is 0, timeouts are simply not checked
+        self.cache.wipe()
+        self.cache._default_timeout = 0
+        self.assertEqual(self.cache.get('date/test/1'), None, 'Key already exists in cache')
+        self.cache.set('date/test/1', '1', timeout=3)
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
+        time.sleep(4)
+        self.assert_(self.cache.has_key('date/test/1'))
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key got timedout and should not')
 
     def testMaxSize (self):
         empty_size, cache_block = _testCacheFSBlockSize(self.cache)
@@ -145,6 +160,13 @@ class FileCacheTest(unittest.TestCase):
             self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
                              'Key %d not properly cached' % i)
         self.assertEqual(self.cache.get('date/test/5'), None, 'Size limit failed')
+        self.cache._max_size = 0
+        self.cache.wipe()
+        for i in range(6):
+            self.cache.set('date/test/%d' % i, 'abcdefgh'*127*cache_block)
+        for i in range(6):
+            self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
+                             'Key %d not properly cached' % i)
 
     def testMaxEntries (self):
         self.cache._max_entries = 2
@@ -154,6 +176,14 @@ class FileCacheTest(unittest.TestCase):
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
         self.assertEqual(self.cache.get('date/test/2'), '2', 'Key not properly cached')
         self.assertEqual(self.cache.get('date/test/3'), None, 'File number limit failed')
+        self.cache.wipe()
+        self.cache._max_entries = 0
+        self.cache.set('date/test/1', '1')
+        self.cache.set('date/test/2', '2')
+        self.cache.set('date/test/3', '3')
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/2'), '2', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/3'), '3', 'Key not properly cached')
 
     def testPurge (self):
         self.cache._max_entries = 2
@@ -206,13 +236,19 @@ class WebGatewayCacheTest(unittest.TestCase):
 
     def testCacheSettings (self):
         uid = 123
-        empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
-        max_size = empty_size + 4 * cache_block + 1
-        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        #empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=0 )
+        cachestr = 'abcdefgh'*127
+        self.wcache._thumb_cache.wipe()
         for i in range(6):
-            self.wcache.setThumb(self.request, 'test', uid, i, 'abcdefgh'*127*cache_block)
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
+        max_size = self.wcache._thumb_cache._du()
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        self.wcache._thumb_cache.wipe()
+        for i in range(6):
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
         for i in range(4):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), 'abcdefgh'*127*cache_block,
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), cachestr,
                              'Key %d not properly cached' % i)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 5), None, 'Size limit failed')
         for i in range(10):
@@ -323,7 +359,7 @@ class JsonTest (WGTest):
         self.loginAsAuthor()
         iid = self.getTestImage().getId()
         r = fakeRequest()
-        v = views.imageData_json(r, iid=iid, _conn=self.gateway)
+        v = views.imageData_json(r, iid=iid, server_id=1, conn=self.gateway, _internal=True)
         self.assert_(type(v) == type(''))
         self.assert_('"width": 512' in v)
         self.assert_('"split_channel":' in v)
@@ -332,7 +368,7 @@ class JsonTest (WGTest):
 class UserProxyTest (WGTest):
     def test (self):
         self.loginAsAuthor()
-        user = self.gateway.user
+        user = self.gateway.getUser()
         self.assertEqual(user.isAdmin(), False)
         int(user.getId())
         self.assertEqual(user.getName(), self.AUTHOR.name)

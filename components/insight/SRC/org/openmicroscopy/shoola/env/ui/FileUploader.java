@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
@@ -82,10 +84,10 @@ class FileUploader
      * @param src 		The source object. 
      * @param details	Object hosting the data to upload.
      */
-    FileUploader(UserNotifier viewer, Registry reg, MessengerDialog src,
-    		MessengerDetails details)
+    FileUploader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
+    	MessengerDialog src, MessengerDetails details)
 	{
-		super(viewer, reg, null);
+		super(viewer, reg,ctx, null);
 		if (details == null)
 			throw new IllegalArgumentException("No files to upload.");
 		this.details = details;
@@ -95,9 +97,31 @@ class FileUploader
 		if (l != null) {
 			Iterator i = l.iterator();
 			FileTableNode node;
+			int index = 0;
+			ImportErrorObject object;
+			File log = details.getLogFile();
 			while (i.hasNext()) {
 				node = (FileTableNode) i.next();
-				nodes.put(node.getFailure(), node);
+				object = node.getFailure();
+				if (index == 0) {
+					if (log != null) {
+						String[] used = object.getUsedFiles();
+						if (used == null) {
+							used = new String[1];
+							used[0] = log.getAbsolutePath();
+							object.setUsedFiles(used);
+						} else {
+							String[] values = new String[used.length+1];
+							for (int j = 0; j < used.length; j++) {
+								values[j] = used[j];
+							}
+							values[used.length] = log.getAbsolutePath();
+							object.setUsedFiles(values);
+						}
+					}
+				}
+				nodes.put(object, node);
+				index++;
 			}
 		}
 	}
@@ -109,18 +133,17 @@ class FileUploader
 	public void load()
 	{
 		total = nodes.size();
-		src.setSubmitStatus("0 out of "+total, false);
-		handle = mhView.submitFiles(details, this);
+		if (!details.isExceptionOnly()) {
+			src.setSubmitStatus("0 out of "+total, false);
+		}
+		handle = mhView.submitFiles(ctx, details, this);
 	}
     
 	/** 
 	 * Cancels the data uploading. 
 	 * @see UserNotifierLoader#cancel()
 	 */
-	public void cancel()
-	{ 
-		handle.cancel();
-	}
+	public void cancel() { handle.cancel(); }
 	
 	/** 
      * Feeds the results back. 
@@ -135,15 +158,29 @@ class FileUploader
         	nodes.remove(f);
         }
         int v = total-nodes.size();
-        if (v != total) src.setSubmitStatus(v+" out of "+total, false);
-        else src.setSubmitStatus("Done", true);
+        if (v != total) {
+    		if (!details.isExceptionOnly()) {
+    			src.setSubmitStatus(v+" out of "+total, false);
+    		}
+        } else {
+        	if (!details.isExceptionOnly())
+        		src.setSubmitStatus("Done", true);
+        }
         if (nodes.size() == 0) {
+        	String s = "";
+        	String verb = "has";
+        	if (total > 1) {
+        		s = "s";
+        		verb = "have";
+        	}
         	if (details.isExceptionOnly()) {
-        		viewer.notifyInfo("Submit Exceptions", "The exceptions " +
-        				"have been submitted.");
+        		String message = "The exception"+s+" "+verb+" been " +
+        				"successfully submitted.";
+        		viewer.notifyInfo("Submit Exception"+s, message);
         	} else {
-        		viewer.notifyInfo("Submit Files", "The files have been " +
-    			"successfully submitted.");
+        		String message = "The file"+s+" "+verb+" been " +
+				"successfully submitted.";
+        		viewer.notifyInfo("Submit File"+s, message);
         	}
         	if (src != null) {
         		src.setVisible(false);

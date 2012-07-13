@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -37,10 +38,12 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -132,14 +135,14 @@ public class TreeCellRenderer
 	/** Reference to the Annotated<code>Plate Acquisition</code> icon. */
 	private static final Icon PLATE_ACQUISITION_ANNOTATED_ICON;
 	
-	/** Reference to the <code>File</code> icon. */
-	private static final Icon FILE_ICON;
-	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon TAG_ICON;
 	
 	/** Reference to the <code>Tag Set</code> icon. */
 	private static final Icon TAG_SET_ICON;
+	
+	/** Reference to the <code>Tag not owned but used</code> icon. */
+	private static final Icon TAG_OTHER_OWNER_ICON;
 	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon PERSONAL_ICON;
@@ -213,11 +216,36 @@ public class TreeCellRenderer
 	/** Reference to the <code>Date</code> icon. */
 	private static final Icon DATE_ICON;
 	
-	/** Reference to the <code>Date</code> icon. */
+	/** Reference to the <code>Group</code> icon. */
 	private static final Icon OWNER_GROUP_ICON;
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
@@ -226,7 +254,6 @@ public class TreeCellRenderer
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
 		PLATE_ICON = icons.getIcon(IconManager.PLATE);
-		FILE_ICON = icons.getIcon(IconManager.FILE);
 		PROJECT_ANNOTATED_ICON = icons.getIcon(IconManager.PROJECT_ANNOTATED);
 		PROJECT_TO_REFRESH_ICON = icons.getIcon(IconManager.PROJECT_TO_REFRESH);
 		DATASET_ANNOTATED_ICON = icons.getIcon(IconManager.DATASET_ANNOTATED);
@@ -237,6 +264,7 @@ public class TreeCellRenderer
 			icons.getIcon(IconManager.PROJECT_ANNOTATED_TO_REFRESH);
 		TAG_ICON = icons.getIcon(IconManager.TAG);
 		TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
+		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
 		SCREEN_ANNOTATED_ICON = icons.getIcon(IconManager.SCREEN_ANNOTATED);
 		SCREEN_TO_REFRESH_ICON = icons.getIcon(IconManager.SCREEN_TO_REFRESH);
 		SCREEN_ANNOTATED_TO_REFRESH_ICON = 
@@ -253,7 +281,8 @@ public class TreeCellRenderer
 		OWNER_ICON = icons.getIcon(IconManager.OWNER);
 		OWNER_NOT_ACTIVE_ICON = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
 		ROOT_ICON = icons.getIcon(IconManager.ROOT);
-		OWNER_TO_REFRESH_ICON = icons.getIcon(IconManager.OWNER_TO_REFRESH);
+		OWNER_TO_REFRESH_ICON = icons.getIcon(IconManager.REFRESH);
+		//icons.getIcon(IconManager.OWNER_TO_REFRESH);
 		FILE_TEXT_ICON = icons.getIcon(IconManager.FILE_TEXT);
 		FILE_PDF_ICON = icons.getIcon(IconManager.FILE_PDF);
 		FILE_HTML_ICON = icons.getIcon(IconManager.FILE_HTML);
@@ -278,12 +307,24 @@ public class TreeCellRenderer
 	
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
-    
-    /** The ID of the current user. */
-    private long				userID;
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
+    
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean isTargetNode;
+    
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean droppedAllowed;
+    
+    /** The color used when dragging.*/
+    private Color draggedColor;
+
+    /** Indicates if the node is selected or not.*/
+    private boolean selected;
+    
+    /** The location of the text.*/
+    private int xText;
     
     /**
      * Sets the icon and the text corresponding to the user's object.
@@ -296,27 +337,24 @@ public class TreeCellRenderer
         Icon icon = FILE_TEXT_ICON;
         if (usrObject instanceof ProjectData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
+        		if (node.isAnnotated())
             		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
             	else icon = PROJECT_TO_REFRESH_ICON;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = PROJECT_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
             	else icon = PROJECT_ICON;
         	}
         } else if (usrObject instanceof DatasetData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
+        		if (node.isAnnotated())
+        			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
                 else icon = DATASET_TO_REFRESH_ICON;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = DATASET_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = DATASET_ANNOTATED_ICON;
                 else icon = DATASET_ICON;
         	}
         } else if (usrObject instanceof ImageData) {
-            if (EditorUtil.isAnnotated(usrObject))
-        		icon = IMAGE_ANNOTATED_ICON;
+            if (node.isAnnotated()) icon = IMAGE_ANNOTATED_ICON;
             else {
             	ImageData o = (ImageData) usrObject;
             	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
@@ -327,27 +365,54 @@ public class TreeCellRenderer
         	String ns = tag.getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
         		icon = TAG_SET_ICON;
-        	else icon = TAG_ICON;
+        	else {
+        		icon = TAG_ICON;
+        		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+        		if (n != null) {
+        			ExperimenterData exp = (ExperimenterData) n.getUserObject();
+        			if (!EditorUtil.isUserOwner(tag, exp.getId()))
+        				icon = TAG_OTHER_OWNER_ICON;
+        		}
+        	}
         } else if (usrObject instanceof ScreenData) {
         	if (node.isToRefresh()) {
-        		if (EditorUtil.isAnnotated(usrObject))
+        		if (node.isAnnotated())
             		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
             	else icon = SCREEN_TO_REFRESH_ICON;;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = SCREEN_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
             	else icon = SCREEN_ICON;
         	}
         } else if (usrObject instanceof PlateData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = PLATE_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ANNOTATED_ICON;
         	else icon = PLATE_ICON; 
         } else if (usrObject instanceof PlateAcquisitionData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = PLATE_ACQUISITION_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
-        	icon = OWNER_GROUP_ICON;
+        	GroupData g = (GroupData) usrObject;
+        	switch (g.getPermissions().getPermissionsLevel()) {
+	        	case GroupData.PERMISSIONS_PRIVATE:
+	        		icon = GROUP_PRIVATE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ:
+	        		icon = GROUP_READ_ONLY_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_LINK_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	        		icon = GROUP_READ_WRITE_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ:
+	        		icon = GROUP_PUBLIC_READ_ICON;
+	        		break;
+	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+	        		break;
+	        	default:
+	        		icon = OWNER_GROUP_ICON;
+        	}
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();
@@ -452,7 +517,11 @@ public class TreeCellRenderer
     public TreeCellRenderer(boolean b)
     {
         numberChildrenVisible = b;
+        selected = false;
         filter = new EditorFileFilter();
+        draggedColor = new Color(backgroundSelectionColor.getRed(),
+				backgroundSelectionColor.getGreen(),
+				backgroundSelectionColor.getBlue(), 100);
     }
     
     /** Creates a new instance. */
@@ -460,7 +529,7 @@ public class TreeCellRenderer
     
     /**
      * Overridden to set the icon and the text.
-     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
      * 								boolean, boolean, boolean, int, boolean)
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -469,6 +538,16 @@ public class TreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
+        isTargetNode = false;
+        droppedAllowed = true;
+        selected = sel;
+        if (tree instanceof DnDTree) {
+        	DnDTree dndTree = (DnDTree) tree;
+        	isTargetNode = (value == dndTree.getDropTargetNode());
+        	if (dndTree.getRowDropLocation() == row) {
+        		droppedAllowed = false;
+        	}
+        }
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -500,18 +579,39 @@ public class TreeCellRenderer
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
         else setTextColor(getBackgroundSelectionColor());
-        
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
+        xText = w;
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
     }
+    
+    /**
+     * Overridden to highlight the destination of the target.
+     * @see paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+    	if (isTargetNode) {
+			if (!droppedAllowed) {
+				if (selected) g.setColor(backgroundSelectionColor);
+				else g.setColor(backgroundNonSelectionColor);
+				
+			} else g.setColor(draggedColor);
+			g.fillRect(xText, 0, getSize().width, getSize().height);
+		}
+    	selected = false;
+    	isTargetNode = false;
+    	droppedAllowed = false;
+    	super.paintComponent(g);
+	}
   
 }

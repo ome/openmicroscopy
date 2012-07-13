@@ -18,20 +18,18 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.model.annotations.Annotation;
-import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.FatalBeanException;
 
 /**
- * {@link GraphSpec} specialized for deleting annotations. Adds options which
- * classes to delete as well as which namespaces.
+ * {@link GraphSpec} specialized for processing annotations. Adds options for
+ * which classes to process as well as which namespaces.
  *
  *
  * @author Josh Moore, josh at glencoesoftware.com
@@ -45,21 +43,21 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
 
     /**
      * Collection of namespace values (or LIKE values if they contain '%' or
-     * '?') which will be deleted automatically.
+     * '?') which will be included by default.
      */
     public static final Set<String> nsIncludes = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("foo")));
 
     /**
      * Collection of namespace values (defined as {@link #nsIncludes}) which
-     * will be omitted from deletes by default.
+     * will be omitted from processing by default.
      */
     public static final Set<String> nsExcludes = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("foo")));
 
     /**
-     * Whether or not the type of types[i] is abstract. If true, no deletion
-     * will take place, since otherwise duplicate multiple deletions would be
+     * Whether or not the type of types[i] is abstract. If true, no processing
+     * will take place, since otherwise duplicate multiple actions would be
      * attempted for each id.
      */
     private final boolean[] isAbstract;
@@ -377,40 +375,18 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
 
     /**
      * Returns true to prevent skipping of the entire subspec if there were any
-     * "excludes" passed in with the options. These namespaces must be deleted
+     * "excludes" passed in with the options. These namespaces must be processed
      * anyway.
      */
     @Override
     public boolean overrideKeep() {
         for (int step = 0; step < excludes.length; step++) {
             if (excludes[step] != null && excludes[step].length() > 0) {
-                // If we have an exclude, we have to perform the delete anyway
+                // If we have an exclude, we have to perform the action anyway
                 return true;
             }
         }
         return false;
-    }
-
-    @Override
-    public void runTopLevel(Session session, List<Long> ids) {
-        // If this is a top-level annotation delete then the first thing we
-        // do is delete all the links to it.
-        if (superspec == null || superspec.length() == 0) {
-            if (ids != null && ids.size() > 0) {
-                QueryBuilder qb = new QueryBuilder();
-                qb.delete("ome.model.IAnnotationLink");
-                qb.where();
-                qb.and("child.id in (:ids)");
-                qb.paramList("ids", ids);
-                // ticket:2962
-                EventContext ec = getCurrentDetails().getCurrentEventContext();
-                GraphState.permissionsClause(ec, qb);
-
-                Query q = qb.query(session);
-                int count = q.executeUpdate();
-                log.info("Graphed " + count + " annotation links");
-            }
-        }
     }
 
 }

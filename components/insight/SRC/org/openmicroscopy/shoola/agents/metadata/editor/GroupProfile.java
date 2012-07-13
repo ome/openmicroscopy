@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -51,7 +54,6 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
-import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -78,55 +80,77 @@ class GroupProfile
 {
 
     /** The name of the <code>Group</code>. */
-    private JTextField				namePane;
+    private JTextField namePane;
     
     /** The description of the <code>Group</code>. */
-    private JTextField				descriptionPane;
+    private JTextField descriptionPane;
     
     /** Component displaying the permissions status. */
-    private PermissionsPane			permissionsPane;
+    private PermissionsPane permissionsPane;
     
     /** The original permissions level. */
-    private int 					level;
+    private int level;
+    
+    /** Flag indicating if the name can be edited or not.*/
+    private boolean canEdit;
+    
+    /** The group object displayed.*/
+    private GroupData ref;
+    
+    /** Save changes.*/
+    private JButton saveButton;
+    
+    /** Reference to the view.*/
+    private EditorUI view;
     
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	GroupData data = (GroupData) model.getRefObject();
-    	
+    	ref = (GroupData) model.getRefObject();
+    	namePane = new JTextField();
+    	descriptionPane = new JTextField();
     	//permission level
-    	permissionsPane = new PermissionsPane(data.getPermissions(), 
+    	permissionsPane = new PermissionsPane(ref.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	level = permissionsPane.getPermissions();
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
     	permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
-    	namePane = new JTextField();
-    	
-    	namePane.setText(data.getName());
-    	descriptionPane = new JTextField();
-    	descriptionPane.setText(data.getDescription());
+    	namePane.setText(ref.getName());
+    	descriptionPane.setText(ref.getDescription());
     	GroupData group = (GroupData) model.getRefObject();
     	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
     	Set l = group.getLeaders();
     	ExperimenterData leader;
-    	boolean edit = false;
+    	canEdit = false;
     	if (l != null) {
     		Iterator i = l.iterator();
         	while (i.hasNext()) {
         		leader = (ExperimenterData) i.next();
     			if (leader.getId() == exp.getId()) {
-    				edit = true;
+    				canEdit = true;
     				break;
     			}
     		}
     	}
     	
-    	if (!edit) edit = MetadataViewerAgent.isAdministrator();
-    	namePane.setEditable(edit);
-    	if (edit) namePane.getDocument().addDocumentListener(this);
-    	descriptionPane.getDocument().addDocumentListener(this);
+    	if (!canEdit) canEdit = MetadataViewerAgent.isAdministrator();
+    	namePane.setEditable(canEdit);
+    	descriptionPane.setEditable(canEdit);
+    	permissionsPane.setEnabled(canEdit);
+    	if (canEdit) {
+    		namePane.getDocument().addDocumentListener(this);
+    		descriptionPane.getDocument().addDocumentListener(this);
+    	}
+    	saveButton = new JButton("Save");
+    	saveButton.setEnabled(false);
+    	saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {  
+            	view.saveData(true); 
+            }
+        });
     }
     
     /**
@@ -202,12 +226,12 @@ class GroupProfile
     	ExperimenterData exp;
     	while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
-			p.add(new JLabel(exp.getFirstName()+" "+exp.getLastName()));
+			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
 		}
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createTitledBorder("Owners"));
-    	
+    	content.add(p);
     	return content;
     }
     
@@ -215,11 +239,14 @@ class GroupProfile
      * Creates a new instance.
      * 
      * @param model	Reference to the model. Mustn't be <code>null</code>. 
-     * @param view 	Reference to the control. Mustn't be <code>null</code>.                     
+     * @param view 	Reference to the control. Mustn't be <code>null</code>.
      */
-	GroupProfile(EditorModel model)
+	GroupProfile(EditorModel model, EditorUI view)
 	{
 		super(model);
+		if (view == null)
+			throw new IllegalArgumentException("No view");
+		this.view = view;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
     
@@ -230,23 +257,18 @@ class GroupProfile
 	 */
 	AdminObject getAdminObject()
 	{
+		if (!canEdit) return null;
 		GroupData data = (GroupData) model.getRefObject();
 		String v = namePane.getText();
 		v = v.trim();
 		if (!data.getName().equals(v)) {
-			AdminService svc = 
-				MetadataViewerAgent.getRegistry().getAdminService();
-			try {
-				GroupData g = svc.lookupGroup(v);
-				if (g != null && data.getId() != g.getId()) {
-					UserNotifier un = 
+			if (model.doesGroupExist(data, v)) {
+				UserNotifier un = 
 					MetadataViewerAgent.getRegistry().getUserNotifier();
 					un.notifyInfo("Update Group", "A group with the " +
 							"same name already exists.");
 					return null;
-				}
-			} catch (Exception e) {}
-
+			}
 			data.setName(v);
 		}
 		//check description
@@ -285,6 +307,10 @@ class GroupProfile
     	p.add(permissionsPane, c);
 		c.gridy++;
 		p.add(buildOwnersPane(), c);
+		c.gridy++;
+		JPanel buttonPanel = UIUtilities.buildComponentPanel(saveButton);
+    	buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(buttonPanel, c);
 		setLayout(new BorderLayout(0, 0));
 		add(p, BorderLayout.NORTH);
 	}
@@ -303,7 +329,9 @@ class GroupProfile
 	 * @see AnnotationUI#clearDisplay()
 	 */
 	protected void clearDisplay()
-	{ 
+	{
+		if (namePane != null) namePane.setText("");
+		if (descriptionPane != null) descriptionPane.setText("");
 		revalidate();
 		repaint();
 	}
@@ -312,9 +340,9 @@ class GroupProfile
 	 * No-operation implementation in our case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		return new ArrayList<AnnotationData>();  
+		return new ArrayList<Object>();  
 	}
 
 	/**
@@ -338,19 +366,27 @@ class GroupProfile
 	 * @see AnnotationUI#hasDataToSave()
 	 */
 	protected boolean hasDataToSave()
-	{ 
-		GroupData data = (GroupData) model.getRefObject();
+	{
+		if (saveButton != null) saveButton.setEnabled(false);
 		if (namePane == null) return false;
 		String v = namePane.getText();
 		v = v.trim();
-		if (!data.getName().equals(v)) return true; 
+		if (!ref.getName().equals(v)) {
+			if (saveButton != null) saveButton.setEnabled(true);
+			return true;
+		}
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();
-		String description = data.getDescription();
+		String description = ref.getDescription();
 		if (description == null) description = "";
-		if (!description.equals(v)) return true; 
-		return level != permissionsPane.getPermissions();
+		if (!description.equals(v)) {
+			if (saveButton != null) saveButton.setEnabled(true);
+			return true;
+		}
+		boolean b = level != permissionsPane.getPermissions();
+		if (saveButton != null) saveButton.setEnabled(b);
+		return b;
 	}
 
 	/**

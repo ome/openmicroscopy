@@ -11,12 +11,13 @@ Build: @DATE@<br></br>
 </p>
 <p>
 <br></br>
-(c) Copyright 2006-2011. University of Dundee &amp; Open Microscopy Environment.
+(c) Copyright 2006-2012. University of Dundee &amp; Open Microscopy Environment.
  All Rights Reserved.
 </p>
 <p>
-This software is covered by the GPL license. <br></br>
+This software is distributed under the terms of the GNU General Public License
+.<br></br>
 For more information, visit 
-<a href="http://openmicroscopy.org">http://openmicroscopy.org</a>
+<a href="http://www.openmicroscopy.org">http://www.openmicroscopy.org</a>
 </p>
 </body></html>

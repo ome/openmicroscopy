@@ -23,7 +23,10 @@
  */
 package org.openmicroscopy.shoola.env.data.events;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 //Java imports
@@ -31,6 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -52,14 +56,14 @@ public class ReloadRenderingEngine
 {
 
 	/** The pixels for which the rendering engine could not be reloaded.*/
-	private List<Long> pixels;
+	private Map<SecurityContext, List<Long>> pixels;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param pixels The pixels to handle.
 	 */
-	public ReloadRenderingEngine(List<Long> pixels)
+	public ReloadRenderingEngine(Map<SecurityContext, List<Long>> pixels)
 	{
 		this.pixels = pixels;
 	}
@@ -69,6 +73,22 @@ public class ReloadRenderingEngine
 	 * 
 	 * @return See above.
 	 */
-	public List<Long> getPixels() { return pixels; }
+	public Map<SecurityContext, List<Long>> getPixels() { return pixels; }
 	
+	/**
+	 * Returns the re-activated images.
+	 * 
+	 * @return See above.
+	 */
+	public List<Long> getPixelsID()
+	{
+		if (pixels == null) return null;
+		Iterator<List<Long>> i = pixels.values().iterator();
+		List<Long> list = new ArrayList<Long>();
+		while (i.hasNext()) {
+			list.addAll(i.next());
+		}
+		return list;
+	}
+
 }

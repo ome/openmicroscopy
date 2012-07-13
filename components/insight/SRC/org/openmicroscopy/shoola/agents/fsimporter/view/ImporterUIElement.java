@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -66,6 +67,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
+import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -164,6 +166,9 @@ class ImporterUIElement
 	/** Reference to the controller. */
 	private ImporterControl controller;
 	
+	/** Reference to the controller. */
+	private ImporterModel model;
+	
 	/** The components displaying the components. */
 	private Map<JLabel, Object> containerComponents;
 	
@@ -186,7 +191,10 @@ class ImporterUIElement
 	private List<DataObject> existingContainers;
 
 	/** The busy label. */
-	private JXBusyLabel		busyLabel;
+	private JXBusyLabel busyLabel;
+	
+	/**The icon used to indicate an on-going import.*/
+	private RotationIcon rotationIcon;
 	
 	/**
 	 * Returns the object found by identifier.
@@ -385,10 +393,12 @@ class ImporterUIElement
 		}
 		JLabel l;
 		int count = 0;
+		boolean single = model.isSingleGroup();
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
-			c = new FileImportComponent(f, importable.isFolderAsContainer());
+			c = new FileImportComponent(f, importable.isFolderAsContainer(),
+					!controller.isMaster(), importable.getGroup(), single);
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);
@@ -688,20 +698,24 @@ class ImporterUIElement
 	 * Creates a new instance.
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
 	 * @param object the object to handle. Mustn't be <code>null</code>.
 	 */
-	ImporterUIElement(ImporterControl controller, int id, int index, 
-			String name, ImportableObject object)
+	ImporterUIElement(ImporterControl controller, ImporterModel model,
+			int id, int index, String name, ImportableObject object)
 	{
 		super(index, name, DESCRIPTION);
 		if (object == null) 
 			throw new IllegalArgumentException("No object specified.");
 		if (controller == null)
-			throw new IllegalArgumentException("No controller."); 
+			throw new IllegalArgumentException("No Control.");
+		if (model == null)
+			throw new IllegalArgumentException("No Model."); 
 		this.controller = controller;
+		this.model = model;
 		this.id = id;
 		this.object = object;
 		initialize();
@@ -727,6 +741,8 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
+			if (isDone() && rotationIcon != null)
+				rotationIcon.stopRotation();
 			if (f.isFile()) {
 				if (c.hasImportFailed()) countFailure++;
 				else if (!c.isCancelled()) countFilesImported++;
@@ -781,16 +797,18 @@ class ImporterUIElement
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
-				EventBus bus = ImporterAgent.getRegistry().getEventBus();
-				ImportStatusEvent event;
-				if (toRefresh) {
-					event = new ImportStatusEvent(false, 
-							getExistingContainers());
-				} else {
-					event = new ImportStatusEvent(false, null);
+				if (!controller.isMaster()) {
+					EventBus bus = ImporterAgent.getRegistry().getEventBus();
+					ImportStatusEvent event;
+					if (toRefresh) {
+						event = new ImportStatusEvent(false, 
+								getExistingContainers());
+					} else {
+						event = new ImportStatusEvent(false, null);
+					}
+					event.setToRefresh(hasToRefreshTree());
+					bus.post(event);
 				}
-				event.setToRefresh(hasToRefreshTree());
-				bus.post(event);
 			}
 		}
 	}
@@ -811,13 +829,18 @@ class ImporterUIElement
 	 */
 	boolean isLastImport() { return countImported == (totalToImport-1); }
 	
-	/** Indicates that the import has started. */
-	void startImport()
+	/** 
+	 * Indicates that the import has started. 
+	 * 
+	 * @param component The component of reference of the rotation icon.
+	 */
+	Icon startImport(JComponent component)
 	{ 
 		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
+		return new RotationIcon(busyLabel.getIcon(), component, true);
 	}
 	
 	/**
@@ -845,6 +868,29 @@ class ImporterUIElement
 			entry = (Entry) i.next();
 			fc = (FileImportComponent) entry.getValue();
 			l = fc.getImportErrors();
+			if (l != null && l.size() > 0)
+				list.addAll(l);
+		}
+		return list;
+	}
+	
+	/**
+	 * Returns the collection of files that could not be imported.
+	 * 
+	 * @return See above.
+	 */
+	List<FileImportComponent> getFilesToReimport()
+	{
+		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		File f;
+		List<FileImportComponent> l;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			l = fc.getReImport();
 			if (l != null && l.size() > 0)
 				list.addAll(l);
 		}
@@ -915,6 +961,26 @@ class ImporterUIElement
 		return false;
 	}
 
+	/**
+	 * Returns <code>true</code> if files to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReimport()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.hasFailuresToReimport()) 
+				return true;
+		}
+		return false;
+	}
+	
 	/** Indicates that the import has been cancel. */
 	void cancelLoading()
 	{
@@ -1042,4 +1108,11 @@ class ImporterUIElement
 		}
 	}
 
+	/**
+	 * Returns a copy of the importable object.
+	 * 
+	 * @return See above.
+	 */
+	ImportableObject getImportableObject() { return object.copy(); }
+	
 }

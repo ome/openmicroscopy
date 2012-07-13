@@ -48,11 +48,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentActi
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewInPluginAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -60,17 +62,15 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -78,8 +78,10 @@ import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
-import pojos.WellSampleData;
+import pojos.PlateAcquisitionData;
 
 /** 
  * The DataBrowser's Controller.
@@ -150,8 +152,11 @@ class DataBrowserControl
 	 */
 	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(15);
 	
-	/** Identifies the <code>Send Feedback action</code>.  */
+	/** Identifies the <code>Send Feedback action</code>. */
 	static final Integer    SEND_FEEDBACK = Integer.valueOf(16);
+	
+	/** Identifies the <code>View in ImageJ action</code>.*/
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(17);
 	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -165,9 +170,14 @@ class DataBrowserControl
 	 /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
     
+    /** One per group.*/
+	private List<MoveToAction> moveActions;
+	
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
+    	actionsMap.put(VIEW_IN_IJ, new ViewInPluginAction(model, 
+    			DataBrowser.IMAGE_J));
     	actionsMap.put(VIEW, new ViewAction(model));
     	actionsMap.put(COPY_OBJECT, new ManageObjectAction(model,
     								ManageObjectAction.COPY));
@@ -317,6 +327,89 @@ class DataBrowserControl
 	Action getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
+	 * Returns the actions used to move data between groups. 
+	 * 
+	 * @return See abo.ve
+	 */
+	List<MoveToAction> getMoveAction()
+	{
+		Browser browser = model.getBrowser();
+		Collection selection = null;
+		Iterator j;
+		List<Long> owners = new ArrayList<Long>();
+		if (browser != null) {
+			selection = browser.getSelectedDataObjects();
+			if (selection == null) return null;
+			int count = 0;
+			j = selection.iterator();
+			Object o;
+			DataObject data;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof DataObject) {
+					if (!(o instanceof GroupData ||
+						o instanceof ExperimenterData ||
+						o instanceof PlateAcquisitionData)) {
+						if (model.canChgrp(o)) {
+							data = (DataObject) o;
+							if (!owners.contains(data.getOwner().getId()))
+								owners.add(data.getOwner().getId());
+							count++;
+						}
+					}
+				}
+			}
+			if (count != selection.size()) return null;
+			if (owners.size() > 1) return null;
+		}
+		long userID = DataBrowserAgent.getUserDetails().getId();
+		long ownerID = -1;
+		if (owners.size() > 0) ownerID = owners.get(0);
+		
+		Collection l = null;
+		if (ownerID == userID) {
+			l = DataBrowserAgent.getAvailableUserGroups();
+		} else {
+			if (DataBrowserAgent.isAdministrator()) {
+				//load the group the user is member of
+				SecurityContext ctx = DataBrowserAgent.getAdminContext();
+				try {
+					l = DataBrowserAgent.getRegistry().
+						getAdminService().loadGroupsForExperimenter(ctx,
+								ownerID);
+				} catch (Exception e) {
+					DataBrowserAgent.getRegistry().getLogger().error(this,
+							"cannot retrieve user's groups");
+				}
+			}
+		}
+		if (l == null) return null;
+		ViewerSorter sorter = new ViewerSorter();
+		List values = sorter.sort(l);
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
+		List<Long> ids = new ArrayList<Long>();
+		if (browser != null && selection != null) {
+			j = selection.iterator();
+			DataObject data;
+			while (j.hasNext()) {
+				data = (DataObject) j.next();
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		GroupData group;
+		Iterator i = values.iterator();
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (!ids.contains(group.getGroupId()))
+				moveActions.add(new MoveToAction(model, group));
+		}
+		return moveActions;
+	}
+	
+	/**
 	 * Views the selected well sample field while browsing a plate.
 	 * 
 	 * @param field The index of the field.
@@ -356,37 +449,7 @@ class DataBrowserControl
 	 * 
 	 * @param node The node to handle.
 	 */
-	void viewDisplay(ImageDisplay node)
-	{
-		if (node instanceof ImageNode) {
-			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-			DataObject data = null;
-			Object uo = node.getHierarchyObject();
-			ViewImage event;
-			Object go;
-			ViewImageObject object;
-			if (uo instanceof ImageData) {
-				object = new ViewImageObject((ImageData) uo);
-				go =  view.getParentOfNodes();
-				if (go instanceof DataObject) 
-					data = (DataObject) go;
-				object.setContext(data, null);
-				bus.post(new ViewImage(object, null));
-				if (go instanceof DataObject) data = (DataObject) go;
-			} else if (uo instanceof WellSampleData) {
-				object = new ViewImageObject((WellSampleData) uo);
-				WellSampleNode wsn = (WellSampleNode) node;
-				Object parent = wsn.getParentObject();
-				if (parent instanceof DataObject) {
-					go =  view.getGrandParentOfNodes();
-					if (go instanceof DataObject)
-						data = (DataObject) go;
-					object.setContext((DataObject) parent, data);
-				}
-				bus.post(new ViewImage(object, null));
-			}
-		}
-	}
+	void viewDisplay(ImageDisplay node) { model.viewDisplay(node, false); }
 	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
@@ -399,6 +462,10 @@ class DataBrowserControl
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
             if (node == null) return;
 			model.setSelectedDisplay(node);
+		} else if (Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+				name)) {
+			List<ImageDisplay> nodes = (List<ImageDisplay>) evt.getNewValue();
+			model.setSelectedDisplays(nodes);
 		} else if (Browser.UNSELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
 				name)) {
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
@@ -474,6 +541,10 @@ class DataBrowserControl
 					p.isMultipleSelection());
 		} else if (Browser.VIEW_DISPLAY_PROPERTY.equals(name)) {
 			viewDisplay((ImageDisplay) evt.getNewValue());
+		} else if (Browser.MAIN_VIEW_DISPLAY_PROPERTY.equals(name)) {
+			ImageDisplay node = (ImageDisplay) evt.getNewValue();
+			Object ho = node.getHierarchyObject();
+			if (ho instanceof ImageData) model.viewDisplay(node, true);
 		}
 	}
 	

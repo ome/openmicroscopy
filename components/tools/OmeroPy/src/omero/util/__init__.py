@@ -22,6 +22,7 @@ import exceptions
 import logging.handlers
 import omero.util.concurrency
 import omero_ext.uuid as uuid # see ticket:3774
+import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
 
@@ -163,7 +164,6 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
     query = communicator.stringToProxy("IceGrid/Query")
     query = IceGrid.QueryPrx.checkedCast(query)
 
-    import omero_Constants_ice
     implicit_ctx = communicator.getImplicitContext()
     implicit_ctx.put(omero.constants.AGENT, "Python service")
     if client_uuid is not None:
@@ -387,6 +387,20 @@ class Server(Ice.Application):
         self.stop_event = omero.util.concurrency.get_event(name="Server")
         self.dependencies = dependencies
 
+    def waitOnStartup(self):
+        ms = 10000 # 10 seconds by default
+        try:
+            i = os.environ.get("OMERO_STARTUP_WAIT", "10000")
+            ms = int(i)
+        except:
+            self.logger.debug(exc_info=1)
+
+        try:
+            self.logger.info("Waiting %s ms on startup" % ms)
+            self.stop_event.wait(ms/1000)
+        except:
+            self.logger.debug(exc_info=1)
+
     def run(self,args):
 
         from omero.rtypes import ObjectFactories as rFactories
@@ -397,6 +411,7 @@ class Server(Ice.Application):
 
         self.logger = logging.getLogger("omero.util.Server")
         self.logger.info("*"*80)
+        self.waitOnStartup()
         self.logger.info("Starting")
 
         failures = 0
@@ -411,8 +426,7 @@ class Server(Ice.Application):
 
         try:
 
-            self.objectfactory = omero.clients.ObjectFactory()
-            self.objectfactory.registerObjectFactory(self.communicator())
+            ofr.registerObjectFactory(self.communicator(), None) # No client
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
 
@@ -677,8 +691,9 @@ class Environment:
         else:
             self.env = {}
         for arg in args:
-            if os.environ.has_key(arg):
+            if arg in os.environ:
                 self.env[arg] = os.environ[arg]
+
     def __call__(self):
         """
         Returns the environment map when called.

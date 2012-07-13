@@ -35,6 +35,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
@@ -70,10 +71,10 @@ class PointIterator
 	private DataSink	source;
 	
 	/** The number of z-sections. */
-	private int			sizeZ;   
+	private int			sizeZ;
 	
 	/** The number of timepoints. */
-	private int			sizeT;   
+	private int			sizeT;
 	
 	/** The number of pixels along the x-axis. */
 	private int 		sizeX;
@@ -272,13 +273,15 @@ class PointIterator
      * All registered {@link PointIteratorObserver}s get notified of every
      * iterated pixels value. 
      * 
-     * @param shape  	The shape to analyse. Mustn't be <code>null</code>.
-     * @param points	The collection of points contained in the shape.
-     * @param w 		The selected channel. 
+     * @param ctx The security context.
+     * @param shape The shape to analyze. Mustn't be <code>null</code>.
+     * @param points The collection of points contained in the shape.
+     * @param w The selected channel. 
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public void iterate(ROIShape shape, List<Point> points, int w) 
+    public void iterate(SecurityContext ctx, ROIShape shape, List<Point> points,
+    		int w)
         throws DataSourceException
     {
         if (shape == null) throw new NullPointerException("No shapes.");
@@ -290,7 +293,7 @@ class PointIterator
     		int t = shape.getT();
     		if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
         		notifyPlaneStart(z, w, t, points.size());
-        		Plane2D data = source.getPlane(z, t, w);
+        		Plane2D data = source.getPlane(ctx, z, t, w);
                 double value;
                 int length = 0;
                 int x1, x2;

@@ -5,7 +5,13 @@
 
 package ome.services.sharing;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,6 +49,7 @@ import ome.model.acquisition.Microscope;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.acquisition.TransmittanceRange;
+import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.system.OmeroContext;
@@ -444,4 +451,54 @@ public class BlobShareStore extends ShareStore implements
 
     }
 
+    public static void main(String[] args) throws Exception {
+
+        final BlobShareStore store = new BlobShareStore();
+
+        final ShareData template = new ShareData();
+        template.enabled = true;
+        template.guests = Arrays.asList("a","b","c");
+        template.id = 100;
+        template.members = Arrays.asList(1L, 2L, 3L);
+        template.objectList = Arrays.asList(new Obj("type", 200L));
+        template.objectMap = new HashMap<String, List<Long>>();
+        template.objectMap.put("type", Arrays.asList(100L));
+        template.optlock = 12345;
+        template.owner = 67890;
+
+        File file = new File(args[0]);
+        if (file.exists()) {
+            int size = (int) file.length();
+            byte[] buf = new byte[size];
+            FileInputStream fis = new FileInputStream(file);
+            fis.read(buf);
+            ShareData data = store.parse(1, buf);
+            System.out.println("enabled:" + data.enabled);
+            System.out.println("guests:" + data.guests);
+            System.out.println("id:" + data.id);
+            System.out.println("members:" + data.members);
+            System.out.println("objectList:" + data.objectList);
+            System.out.println("objectMap:" + data.objectMap);
+            System.out.println("optlock:" + data.optlock);
+            System.out.println("owner:" + data.owner);
+        } else {
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(file);
+                byte[] buf = store.parse(template);
+                fos.write(buf);
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        System.exit(0);
+
+    }
 }

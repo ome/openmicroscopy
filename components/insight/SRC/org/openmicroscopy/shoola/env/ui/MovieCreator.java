@@ -34,6 +34,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 import pojos.ImageData;
@@ -91,10 +92,10 @@ public class MovieCreator
      * @param activity 	The activity associated to this loader.
      */
 	public MovieCreator(UserNotifier viewer,  Registry registry,
-			MovieExportParam param, List<Integer> channels, 
+			SecurityContext ctx, MovieExportParam param, List<Integer> channels,
 			ImageData image, ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		if (param == null)
@@ -113,8 +114,8 @@ public class MovieCreator
     public void load()
     {
     	long pixelsID = image.getDefaultPixels().getId();
-        handle = ivView.createMovie(image.getId(), pixelsID, channels, param, 
-        		this);
+        handle = ivView.createMovie(ctx, image.getId(), pixelsID, channels,
+        	param, this);
     }
     
     /**

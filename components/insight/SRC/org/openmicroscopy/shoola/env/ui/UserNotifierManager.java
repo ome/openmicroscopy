@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -71,11 +72,11 @@ class UserNotifierManager
 {
     
 	/** The default message if an error occurred while transferring data. */
-	private static final String	MESSAGE_START = "Sorry, but due to an error " +
+	private static final String MESSAGE_START = "Sorry, but due to an error " +
 								"we were not able to automatically \n";
 	
 	/** The default message if an error occurred while transferring data. */
-	private static final String	MESSAGE_END = "\n\n"+
+	private static final String MESSAGE_END = "\n\n"+
 								"You can still send us the error message by " +
 								"clicking on the \n" +
 								"error message tab, copying the error " +
@@ -83,76 +84,89 @@ class UserNotifierManager
 								"and sending it to ";
 	
 	/** Message if the dialog's type is {@link MessengerDialog#ERROR_TYPE}. */
-	private static final String	ERROR_MSG = "send your debug information.";
+	private static final String ERROR_MSG = "send your debug information.";
 	
 	/** Message if the dialog's type is {@link MessengerDialog#COMMENT_TYPE}. */
-	private static final String	COMMENT_MSG = "send your comment.";
+	private static final String COMMENT_MSG = "send your comment.";
 	
 	/** Reply when sending the comments. */
-	private static final String	COMMENT_REPLY = "Thanks, your comments have " +
+	private static final String COMMENT_REPLY = "Thanks, your comments have " +
 											"been successfully posted.";
 	
 	/** Reply when sending the error message. */
-	private static final String	ERROR_REPLY = "Thanks, the error message " +
+	private static final String ERROR_REPLY = "Thanks, the error message " +
 										"has been successfully posted.";
 	
-	/** The tool invoking the service. */
-	private static final String INVOKER_ERROR = "insight_bugs";
-	
-	/** The tool invoking the service. */
-	private static final String INVOKER_COMMENT = "insight_comments";
-	
 	/** Default title for the comment dialog. */
-    private static final String	DEFAULT_COMMENT_TITLE = "Comment";
+    private static final String DEFAULT_COMMENT_TITLE = "Comment";
 
     /** Reference to the container. */
-	private Container						container;
+	private Container container;
 	
 	/** Back pointer to the component. */
-	private UserNotifier					component;
+	private UserNotifier component;
 
 	/** Map keeping track of the ongoing data loading. */
 	private Map<String, UserNotifierLoader> loaders;
 	
 	/** The Dialog used to send comments. */
-	private MessengerDialog					commentDialog;
+	private MessengerDialog commentDialog;
 	
 	/** The dialog keeping track of the activity files. */
-	private DownloadsDialog					activityDialog;
+	private DownloadsDialog activityDialog;
 	
 	/** The collection of running activities. */
-	private List<ActivityComponent>		   activities;
-	
+	private List<ActivityComponent> activities;
+
 	/**
-	 * Submits files that failed to import.
+	 * Returns the invoker depending on which application is running e.g.
+	 * insight, importer or editor.
 	 * 
-	 * @param source	The source of the message.
-	 * @param details 	The values to send.
+	 * @param comment Pass <code>true</code> to return the invoker for the 
+	 * comments, <code>false </code>
+	 * 
+	 * @return
 	 */
-	private void submitFiles(MessengerDialog source, 
-								MessengerDetails details)
+	private String getInvoker(boolean comment)
 	{
-		FileUploader loader = new FileUploader(component, 
-				container.getRegistry(), 
-				source, details);
-		
-		loader.load();
+		Registry reg = container.getRegistry();
+		String master = (String) reg.lookup(LookupNames.MASTER);
+		if (comment) {
+			if (LookupNames.MASTER_EDITOR.equals(master))
+				return "editor_comments";
+			if (LookupNames.MASTER_IMPORTER.equals(master))
+				return "importer_comments";
+			return "insight_comments";
+		}
+		if (LookupNames.MASTER_EDITOR.equals(master))
+			return "editor_bugs";
+		if (LookupNames.MASTER_IMPORTER.equals(master))
+			return "importer_bugs";
+		return "insight_bugs";
 	}
 	
 	/**
 	 * Sends a message.
 	 * 
-	 * @param source	The source of the message.
-	 * @param details 	The values to send.
+	 * @param source The source of the message.
+	 * @param details The values to send.
 	 */
 	private void handleSendMessage(MessengerDialog source, 
 								MessengerDetails details)
 	{
-		if (details.getObjectToSubmit() != null) {
-			submitFiles(source, details);
+		Registry reg = container.getRegistry();
+		if (details.getObjectToSubmit() != null || 
+				details.getLogFile() != null) {
+			ExperimenterData exp = (ExperimenterData) reg.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+			SecurityContext ctx = new SecurityContext(
+					exp.getDefaultGroup().getId());
+			FileUploader loader = new FileUploader(component, 
+					container.getRegistry(), ctx, source, details);
+			loader.load();
 			return;
 		}
-		Registry reg = container.getRegistry();
+		
 		boolean bug = true;
 		String error = details.getError();
 		if (error == null || error.length() == 0) bug = false;
@@ -173,12 +187,13 @@ class UserNotifierManager
 			
 			StringBuilder builder = new StringBuilder();
 			String reply = "";
-			if (!bug) c.submitComment(INVOKER_COMMENT,
-								details.getEmail(), details.getComment(), 
-								details.getExtra(), appName, v, builder);
-			else c.submitError(INVOKER_ERROR, 
-							details.getEmail(), details.getComment(), 
-					details.getExtra(), error, appName, v, builder);
+			String invoker = getInvoker(bug);
+			if (!bug) c.submitComment(invoker, details.getEmail(),
+					details.getComment(), details.getExtra(), appName, v, 
+					builder);
+			else c.submitError(invoker, details.getEmail(),
+					details.getComment(), details.getExtra(), error, appName, v,
+					builder);
 			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;
 			
@@ -275,12 +290,14 @@ class UserNotifierManager
 	String getServerVersion()
 	{
 		if (container == null) return "";
-		String version = 
-			container.getRegistry().getAdminService().getServerVersion();
-		if (version == null || version.trim().length() == 0)
-			version = "not available";
 		String name = container.getRegistry().getAdminService().getServerName();
 		if (name == null) name = "";
+		String version = 
+			container.getRegistry().getAdminService().getServerVersion();
+		if (name == null || name.trim().length() == 0) return "";
+		if (version == null || version.trim().length() == 0)
+			version = "not available";
+		
 		return "Server name: "+name+", version: "+version;
 	}
 	

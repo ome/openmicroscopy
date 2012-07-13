@@ -1,0 +1,304 @@
+{% extends "webgateway/core_html.html" %}
+{% load i18n %}
+{% load common_filters %}
+{% load common_tags %}
+
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block link %}
+    <!-- overwrite body.css -->
+{% endblock %}
+
+{% block script %}
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            
+                var show_batch_msg = function(text) {
+                    $("#batch_ann_msg").html(text).show().delay(1200).fadeOut(1000);
+                }
+                var show_batch_error = function(text) {
+                    $("#batch_ann_error").html(text + "<div><u>Click to Close</u></div>").show().click(function(){
+                        $(this).hide();
+                    });
+                }
+
+                $("#comments_container").hide_if_empty();
+                $("#fileanns_container").hide_if_empty();
+                $("#tags_container").hide_if_empty();
+
+
+                // handle submit of Add Comment form
+                $("#add_comment_form").ajaxForm({
+                    beforeSubmit: function(data) {
+                        var textArea = $('#add_comment_form textarea');
+                        if ($.trim(textArea.val()).length == 0) {
+                            show_batch_msg("Comment field was empty");
+                            return false;
+                        }
+                        $("#comment_spinner").show();
+                    },
+                    success: function(html) {
+                        $("#comment_spinner").hide();
+                        var $comment = $(html)
+                        $('#comments_container').prepend( $comment ).show();
+                        $(".removeComment", $comment).hide();
+                        var textArea = $('#add_comment_form textarea');
+                        textArea.val('');
+                        show_batch_msg("Comment added to Objects");
+                    },
+                    error: function(html) {
+                        show_batch_msg(html);
+                        $("#comment_spinner").hide();
+                    }
+                });
+
+
+
+                $(".dropdown_menu .menu_launch").click(function(e){
+                    $(this).parent().find('ul').css('visibility', 'visible');
+                    $(this).parent().find('.dropdown_menu_options').show();
+                    return false;
+                });
+                // on hover-out of the menu itself, hide drop-down menus
+                $(".dropdown_menu_options").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                }).hide();
+
+
+                // Choose to add tags...
+                $("#launch_tags_form").click(function(event) {
+                    $("#add_tags_form").dialog("open");
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("#add_tags_form").load(load_url);
+                    return false;
+                });
+                // set-up the tags form to use dialog
+                $("#add_tags_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 410,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#add_tags_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#add_tags_form').ajaxForm({
+                    beforeSubmit: function(data) {
+                        $("#tagann_spinner").show();
+                        $("#add_tags_form").dialog( "close" );
+                    },
+                    success: function(data) {
+                        $("#tagann_spinner").hide();
+                        // update the list of tags
+                        var $tag = $(data);
+                        $("#tags_container").prepend($tag).show();
+                        $(".removeTag", $tag).hide();
+                        show_batch_msg("Tags added to Objects");
+                    },
+                    error: function(data) {
+                        $("#tagann_spinner").hide();
+                    }
+                });
+
+
+                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+                $('#batch_attachments_form').ajaxForm({
+                    beforeSubmit: function(data) {
+                        $("#batch_attachments_form").dialog( "close" );
+                        $("#fileann_spinner").show();
+                    },
+                    success: function(data) {
+                        $("#fileann_spinner").hide();
+                        // update the list of file annotations and hide actions
+                        var $fileanns = $(data)
+                        $("#fileanns_container").prepend( $fileanns ).show();
+                        $("#fileanns_container .deleteFile").hide();
+                        $("#fileanns_container .removeFile").hide();
+                        show_batch_msg("File Annotation(s) added to Objects");
+                    },
+                    error: function(data){
+                        $("#fileann_spinner").hide();
+                    }
+                });
+                // prepare dialog for choosing file to attach...
+                $("#batch_attachments_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 400,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#batch_attachments_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // show dialog for choosing file to attach...
+                $("#choose_file_anns").click(function() {
+                    // show dialog first, then do the AJAX call to load files...
+                    var attach_form = $( "#batch_attachments_form" );
+                    attach_form.dialog( "open" );
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    attach_form.load(load_url);
+                    return false;
+                });
+
+            });
+            
+    </script>
+    
+{% endblock %}
+
+{% block body %}
+
+<div class="right_tab_inner">
+    
+    <div id="batch_ann_msg_container">
+        <div id="batch_ann_msg"></div>  <!-- hidden div to show success messages etc -->
+        <div id="batch_ann_error" title="Click to close"></div>
+    </div>
+
+
+	<h1>Batch Annotate:</h1>
+
+
+    <!-- TAGS -->               
+    <div class="annotations_section">
+                
+		<h2>{% trans "Tags" %}</h2>
+                
+		<form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
+		</form>
+				
+				
+        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver btn_add"><span></span></a>
+				
+        <div id="tags_container" class="lntags">
+        {% for tag in manager.tag_annotations %}
+            {% include "webclient/annotations/tag.html" %}
+        {% endfor %}
+        </div>
+ 
+    </div>
+	
+
+	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+
+    <!-- FILES -->
+    <div class="annotations_section">
+        <h2>{% trans "Attach" %}:</h2>
+
+           
+			
+            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}" class="btn silver btn_add">
+                <span></span>
+            </a>
+			
+			
+            <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+                    
+            <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
+            <form id="batch_attachments_form" title="Select Attachments" action="{% url annotate_file %}" method="post">
+            </form>
+            
+                    
+
+        <!-- display existing file annotations -->
+
+            <ul id="fileanns_container" class="lnfiles">
+                {% for fileann in manager.file_annotations %}
+                    {% include "webclient/annotations/fileann.html" %}
+                {% endfor %}
+            </ul>
+
+	</div>
+	
+
+
+	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+
+
+
+
+
+
+
+   
+                
+		<!-- COMMENTS -->
+        <div class="annotations_section">
+			
+			<h2>{% trans "Comment:" %}</h2>
+			
+                <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
+                <table>
+                    <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                    <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                    <tr>
+                        <td>{{ form_comment.comment }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="submit" value="{% trans 'Add Comment' %}" />
+                            <img id='comment_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+                        </td>
+                    </tr>
+                </table>
+                </form>
+                                       
+                
+				<div id="comments_container" class="lncomments">
+                    {% for tann in manager.text_annotations %}
+                        {% include "webclient/annotations/comment.html" %}
+                    {% endfor %}
+                </div>
+           
+        		<div class="clear"></div>
+             
+		</div>
+		
+</div>
+{% endblock %}

@@ -129,7 +129,7 @@ class TestScripts(lib.ITest):
         
     def testRunScript(self):
         # Trying to run script as described:
-        #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
+        #http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         client = self.root
@@ -416,6 +416,32 @@ client.closeSession()
 
         assertUploadAndReplace(clientA)
         assertUploadAndReplace(clientU)
+
+    # omero.group support in scripts
+    # See story ticket:3527. The permission
+
+    def test3527(self):
+        SCRIPT = """if True:
+        import omero.scripts
+        import omero.rtypes
+        client = omero.scripts.client("ticket3527", \
+                omero.scripts.Long("gid", out=True))
+        ec = client.sf.getAdminService().getEventContext()
+        gid = ec.groupId
+        client.setOutput("gid", omero.rtypes.rlong(gid))
+        """
+        impl = omero.processor.usermode_processor(self.client)
+        svc = self.client.sf.getScriptService()
+        try:
+            scriptID = svc.uploadScript("/test/test3527", SCRIPT)
+            process = svc.runScript(scriptID, {}, None)
+            cb = omero.scripts.ProcessCallbackI(self.client, process)
+            while cb.block(500) is None:
+                pass
+            results = process.getResults(0)
+            self.assertEquals(0, results["gid"].val)
+        finally:
+            impl.cleanup()
 
 if __name__ == '__main__':
     unittest.main()

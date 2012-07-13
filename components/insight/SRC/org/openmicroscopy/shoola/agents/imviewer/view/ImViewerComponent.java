@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -81,11 +82,12 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
@@ -167,6 +169,12 @@ class ImViewerComponent
     /** The list of component added to the main viewer. */
     private List<JComponent>				layers;
     
+    /** The color changes preview.*/
+    private Map<Integer, Color>				colorChanges;
+    
+    /** Flag indicating that it was not possible to save the settings.*/
+    private boolean failureToSave;
+    
 	/**
 	 * Creates and returns an image including the ROI
 	 * 
@@ -196,7 +204,8 @@ class ImViewerComponent
 	private void showProjectionDialog()
 	{
 		if (projDialog == null) {
-			projDialog = new ProjSavingDialog(view);
+			projDialog = new ProjSavingDialog(view, model.getParent(), 
+					model.getGrandParent());
 			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
 					model.getPixelsType(), model.getImageName(), 
 					model.getContainers(), model.getMaxZ()+1, 
@@ -223,6 +232,10 @@ class ImViewerComponent
 		}
 		MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
 				model.getDefaultZ(), model.getDefaultT(), f);
+		if (model.isBigImage()) {
+			event.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		bus.post(event);
 	}
 
@@ -280,17 +293,10 @@ class ImViewerComponent
 	 */
 	private boolean saveOnClose(boolean notifyUser)
 	{
-		if (isReadOnly()) return true;
+		if (!canAnnotate()) return true;
+		if (failureToSave) return true;
 		if (!notifyUser) {
-			//savePlane();
-			try {
-				saveRndSettings();
-			} catch (Exception e) {
-				LogMessage logMsg = new LogMessage();
-				logMsg.println("Cannot save rendering settings. ");
-				logMsg.print(e);
-				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-			}
+			saveRndSettings();
 			return true;
 		}
 		boolean showBox = false;
@@ -425,7 +431,8 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
 		}
 	}
 	
@@ -472,11 +479,16 @@ class ImViewerComponent
 		double f = 
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
-		MeasurementTool request = new MeasurementTool(model.getImageID(), 
+		MeasurementTool request = new MeasurementTool(
+				model.getSecurityContext(), model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 
 				view.getBounds(), model.getChannelData());
+		if (model.isBigImage()) {
+			request.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		request.setMeasurements(measurements);
@@ -599,6 +611,18 @@ class ImViewerComponent
     	fireStateChange();
     }
     
+    /**
+     * Returns <code>true</code> if some settings to save, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+	boolean hasSettingsToSave()
+	{
+		if (failureToSave) return false;
+		return !isOriginalSettings();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
@@ -615,8 +639,11 @@ class ImViewerComponent
 				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
-					fireStateChange();
+				} else {
+					model.setState(ImViewer.LOADING_IMAGE_DATA);
+					setImageData(model.getImage());
 				}
+				fireStateChange();
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -690,11 +717,18 @@ class ImViewerComponent
 				return;
 		}
 		if (model.isBigImage()) {
+			double ox = (double) model.getTiledImageSizeX();
+			double oy = (double) model.getTiledImageSizeY();
+			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
-			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),
-					model.getTiledImageSizeY());
-			loadTiles(null);
+			int w = model.getTiledImageSizeX();
+			int h = model.getTiledImageSizeY();
+			double nx = (double) w/ox;
+			double ny = (double) h/oy;
+			model.getBrowser().setViewLocation(nx, ny);
+			model.getBrowser().setComponentsSize(w, h);
+			//loadTiles(null);
 			postMeasurePlane();
 			return;
 		}
@@ -873,7 +907,7 @@ class ImViewerComponent
 			originalImage = model.getOriginalImage();
 			model.setImage((BufferedImage) image);
 		}
-		
+		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -925,9 +959,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setChannelColor(int, Color)
+	 * @see ImViewer#setChannelColor(int, Color, boolean)
 	 */
-	public void setChannelColor(int index, Color c)
+	public void setChannelColor(int index, Color c, boolean preview)
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -936,6 +970,21 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, " +
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
+		if (preview) {
+			if (colorChanges == null)
+				colorChanges = new HashMap<Integer, Color>();
+			if (c == null) {
+				c = colorChanges.get(index); //reset the color.
+				colorChanges.clear();
+			} else {
+				if (!colorChanges.containsKey(index))
+					colorChanges.put(index, model.getChannelColor(index));
+			}
+		} else {
+			if (colorChanges != null)
+				colorChanges.remove(index);
+		}
+		if (c == null) return;
 		try {
 			model.setChannelColor(index, c);
 			view.setChannelColor(index, c);
@@ -943,7 +992,6 @@ class ImViewerComponent
 				setChannelActive(index, true);
 				view.setChannelActive(index, ImViewerUI.ALL_VIEW);
 			}
-
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
 			//else 
@@ -1040,10 +1088,12 @@ class ImViewerComponent
 						"This method can't be invoked in the NEW state.");
 			case LOADING_IMAGE:
 			case DISCARDED:
+			//case LOADING_BIRD_EYE_VIEW:
+			case LOADING_RND:
 				return;
 		} 
 		if (model.isBigImage()) {
-			model.fireBirdEyeViewRetrieval();
+			//model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;
@@ -1854,6 +1904,7 @@ class ImViewerComponent
 			} else {
 				switch (index) {
 					case PlayMovieAction.ACROSS_Z:
+						d.setZRange(model.getDefaultZ(), model.getMaxZ());
 						controller.getAction(
 								ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
 						break;
@@ -2161,6 +2212,8 @@ class ImViewerComponent
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
+			saveBeforeCopy = false;
+			failureToSave = true;
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
 			logMsg.print("Rendering Exception:");
@@ -2255,15 +2308,22 @@ class ImViewerComponent
     {
     	try {
     		model.saveRndSettings(true);
+    		failureToSave = false;
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Save rendering settings");
+	        msg.print(e);
+	        logger.error(this, msg);
+	        failureToSave = true;
+	        //post event indicating no settings to save
 		}
 		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		List<Long> l = new ArrayList<Long>();
-		l.add(model.getImageID());
-		bus.post(new RndSettingsCopied(l, getPixelsID()));
+		bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
+				getPixelsID()));
 		fireStateChange();
     }
     
@@ -2455,9 +2515,9 @@ class ImViewerComponent
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		if (ref == null) 
 			throw new IllegalArgumentException("No projection object");
-		model.fireImageProjection(view.getProjectionStartZ(), 
-				view.getProjectionEndZ(), view.getProjectionStepping(), 
-				view.getProjectionType(), view.getProjectionTypeName(), ref);
+		model.fireImageProjection(ref.getStartZ(), ref.getEndZ(),
+				view.getProjectionStepping(), view.getProjectionType(),
+				view.getProjectionTypeName(), ref);
 		fireStateChange();
 	}
 
@@ -2778,9 +2838,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInMicrons()
+	 * @see ImViewer#getUnitInRefUnits()
 	 */
-	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2798,6 +2858,28 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	/** Build the view.*/
+	private void buildView()
+	{
+		int index = UnitBarSizeAction.getDefaultIndex(
+				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
+		setUnitBarSize(UnitBarSizeAction.getValue(index));
+		view.setDefaultScaleBarMenu(index);
+		colorModel = model.getColorModel();
+		view.buildComponents();
+		view.onRndLoaded();
+		if (model.isSeparateWindow()) {
+			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
+		} else {
+			postViewerCreated(true, false);;
+		}
+		if (ImViewerAgent.isFastConnection())
+			model.firePlaneInfoRetrieval();
+		view.setLeftStatus();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#onRndLoaded(boolean)
@@ -2805,35 +2887,21 @@ class ImViewerComponent
 	public void onRndLoaded(boolean reload)
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
+		if (model.getState() == DISCARDED) return;
 		model.onRndLoaded();
 		if (!reload) {
-			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
-			setUnitBarSize(UnitBarSizeAction.getValue(index));
-			view.setDefaultScaleBarMenu(index);
-			colorModel = model.getColorModel();
-			view.buildComponents();
-			view.onRndLoaded();
-			if (model.isSeparateWindow()) {
-				view.setOnScreen();
-				view.toFront();
-				view.requestFocusInWindow();
-			} else {
-				postViewerCreated(true, false);;
+			if (model.isBigImage()) {
+				model.fireBirdEyeViewRetrieval();
+				fireStateChange();
+				return;
 			}
-			if (ImViewerAgent.isFastConnection())
-				model.firePlaneInfoRetrieval();
-			view.setLeftStatus();
+			buildView();
 		} else {
 			//TODO
 			//clean history, reset UI element
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		
-		/*
-		if (model.isBigImage()) { //bird eye loaded.
-			model.fireBirdEyeViewRetrieval();
-		}*/
 		renderXYPlane();
 		fireStateChange();
 	}
@@ -3053,8 +3121,9 @@ class ImViewerComponent
 				if (notifyUser) {
 					postViewerState(ViewerState.CLOSE);
 					ImViewerRecentObject object = new ImViewerRecentObject(
-							model.getImageID(), model.getImageTitle(),
-							getImageIcon());
+						model.getSecurityContext(),
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
 					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				}
 				
@@ -3078,20 +3147,12 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isReadOnly()
+	 * @see ImViewer#canAnnotate()
 	 */
-	public boolean isReadOnly()
+	public boolean canAnnotate()
 	{
-		if (isUserOwner()) return false;
-		int level = 
-			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return false;
-		}
-		return true;
+		if (isUserOwner()) return true;
+		return model.getImage().canAnnotate();
 	}
 
 	/** 
@@ -3183,9 +3244,14 @@ class ImViewerComponent
 	 */
 	public void setBirdEyeView(BufferedImage image)
 	{
-		if (model.getState() == DISCARDED) 
-			return;
-		model.getBrowser().setBirdEyeView(image);
+		switch (model.getState()) {
+			case LOADING_BIRD_EYE_VIEW:
+				if (!view.isVisible()) {
+					buildView();
+					renderXYPlane();
+				}
+				model.setBirdEyeView(image);
+		}
 	}
 	
 	/** 
@@ -3307,22 +3373,55 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#cancelRendering()
+	 * @see ImViewer#cancelInit()
 	 */
-	public void cancelRendering()
+	public void cancelInit()
 	{
-		if (model.getState() == LOADING_IMAGE) {
-			model.cancelRendering();
-			view.getLoadingWindow().setVisible(false);
-			fireStateChange();
+		switch (model.getState()) {
+			case LOADING_RND:
+				if (model.isBigImage()) {
+					model.cancelBirdEyeView(); 
+					view.dispose();
+					fireStateChange();
+				} else {
+					model.cancelRendering();
+					discard();
+					fireStateChange();
+				}
+				break;
+			case LOADING_BIRD_EYE_VIEW:
+				model.cancelBirdEyeView(); 
+				view.dispose();
+				fireStateChange();
 		}
+	}
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext()
+	{ 
+		return model.getSecurityContext();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isCompressed()
+	 */
+	public boolean isCompressed()
+	{
+		return model.getCompressionLevel() != RenderingControl.UNCOMPRESSED;
 	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
-	public String toString() { return getTitle(); }
-
+	public String toString()
+	{ 
+		return "Image's Settings: "+EditorUtil.truncate(model.getImageName());
+	}
 
 }

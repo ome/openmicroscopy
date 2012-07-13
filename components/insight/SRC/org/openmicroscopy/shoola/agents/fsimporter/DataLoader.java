@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -62,22 +63,30 @@ public class DataLoader
 	/** Flag indicating to refresh the on-going import.*/
 	private boolean refreshImport;
 	
+	/** Flag indicating that the group has been modified.*/
+	private boolean changeGroup;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer 	The Importer this data loader is for.
-     * 					Mustn't be <code>null</code>.
-	 * @param rootType	Either Project or Screen.
+	 * @param viewer The Importer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param rootType Either Project or Screen.
 	 * @param refreshImport Flag indicating to refresh the on-going import.
+	 * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
 	 */
-	public DataLoader(Importer viewer, Class rootType, boolean refreshImport)
+	public DataLoader(Importer viewer, SecurityContext ctx, Class rootType,
+			boolean refreshImport, boolean changeGroup)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (!(ProjectData.class.equals(rootType) || 
 				ScreenData.class.equals(rootType)))
 			throw new IllegalArgumentException("Type not supported.");
 		this.rootType = rootType;
 		this.refreshImport = refreshImport;
+		this.changeGroup = changeGroup;
 	}
 	
 	/** 
@@ -86,7 +95,7 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		handle = dmView.loadContainerHierarchy(rootType, null, false,
+		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
 				getCurrentUserID(), groupID, this);	
 	}
 	
@@ -107,7 +116,8 @@ public class DataLoader
     	int type = Importer.PROJECT_TYPE;
     	if (ScreenData.class.equals(rootType))
     		type = Importer.SCREEN_TYPE;
-    	viewer.setContainers((Collection) result, refreshImport, type);
+    	viewer.setContainers((Collection) result, refreshImport, changeGroup,
+    			type);
     }
     
 }

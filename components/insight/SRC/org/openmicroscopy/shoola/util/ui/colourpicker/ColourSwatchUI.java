@@ -197,7 +197,8 @@ public class ColourSwatchUI
 						new Object[] {Color.yellow, "Yellow"},
 						new Object[] {new Color(75, 0, 130), "Indigo"},
 						new Object[] {new Color(238, 130, 238), "Violet"},
-							
+						new Object[] {Color.cyan, "Cyan"},
+						new Object[] {Color.magenta, "Magenta"},
 				});
 		colourlist.setCellRenderer(new ColourListRenderer());
 	}

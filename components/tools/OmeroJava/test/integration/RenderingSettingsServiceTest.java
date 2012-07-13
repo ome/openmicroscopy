@@ -9,6 +9,7 @@ package integration;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 /** 
@@ -52,7 +54,7 @@ import omero.sys.ParametersI;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RenderingSettingsServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     
@@ -108,7 +110,7 @@ public class RenderingSettingsServiceTest
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     	
     	//Image
     	ids = new ArrayList<Long>();
@@ -117,7 +119,7 @@ public class RenderingSettingsServiceTest
     	assertNotNull(v);
     	values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -138,14 +140,14 @@ public class RenderingSettingsServiceTest
     	ids.add(image.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Image.class.getName(), ids);
     	assertNotNull(v);
-    	assertNotNull(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -175,14 +177,14 @@ public class RenderingSettingsServiceTest
     	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), 
     			Arrays.asList(d.getId().getValue()));
     	assertNotNull(v);
-    	assertNotNull(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -236,17 +238,17 @@ public class RenderingSettingsServiceTest
 		"left outer join d.projectLinks as pdl " +
 		"left outer join pdl.parent as p " +
 		"where p.id in (:ids)";
-    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 1);
+    	assertEquals(iQuery.findAllByQuery(sql, param).size(), 1);
 
     	assertNotNull(v);
-    	assertNotNull(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -280,14 +282,14 @@ public class RenderingSettingsServiceTest
     	ids.add(screen.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Screen.class.getName(), ids);
     	assertNotNull(v);
-    	assertTrue(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -311,7 +313,7 @@ public class RenderingSettingsServiceTest
     	ids.add(d.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
     	assertNotNull(v);
-    	assertTrue(v.size() == 0);
+    	assertEquals(v.size(), 0);
     }
     
     /**
@@ -343,10 +345,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -392,10 +394,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -475,10 +477,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -527,10 +529,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -578,10 +580,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -644,10 +646,10 @@ public class RenderingSettingsServiceTest
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
     	assertNotNull(success);
     	assertNotNull(failure);
-    	assertTrue(success.size() == 1);
-    	assertTrue(failure.size() == 0);
+    	assertEquals(success.size(), 1);
+    	assertEquals(failure.size(), 0);
     	id = success.get(0); //image id.
-    	assertTrue(id == image2.getId().getValue());
+    	assertEquals(id, image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
@@ -678,14 +680,14 @@ public class RenderingSettingsServiceTest
     	ids.add(p.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Plate.class.getName(), ids);
     	assertNotNull(v);
-    	assertTrue(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
  
     /**
@@ -714,14 +716,14 @@ public class RenderingSettingsServiceTest
     	List<Long> v = prx.resetDefaultsInSet(PlateAcquisition.class.getName(),
     			ids);
     	assertNotNull(v);
-    	assertTrue(v.size() == 1);
+    	assertEquals(v.size(), 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
     			"where rdef.pixels.id = :pid";
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
-    	assertTrue(values.size() == 1);
+    	assertEquals(values.size(), 1);
     }
     
     /**
@@ -765,13 +767,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
     			Arrays.asList(image.getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
     }
     
@@ -823,13 +825,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), 
     			Arrays.asList(d.getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
     }
     
@@ -849,7 +851,7 @@ public class RenderingSettingsServiceTest
     			 Arrays.asList(d.getId().getValue()));
     	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), 
     			Arrays.asList(d.getId().getValue()));
-    	assertTrue(m.size() == 0);
+    	assertEquals(m.size(), 0);
     }
     
     /**
@@ -908,13 +910,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(Project.class.getName(),
     			Arrays.asList(project.getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
 		
     }
@@ -965,13 +967,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
     			Arrays.asList(plate.getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
     }
     
@@ -1022,13 +1024,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(PlateAcquisition.class.getName(), 
     			Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
     }
     
@@ -1085,13 +1087,13 @@ public class RenderingSettingsServiceTest
     	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
     			Arrays.asList(plate.getId().getValue()));
     	assertNotNull(m);
-    	assertTrue(m.size() == 1);
+    	assertEquals(m.size(), 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = def.getChannelBinding(i);
 			p = list.get(i);
-			assertTrue(channel.getInputStart().getValue() == p.getX());
-			assertTrue(channel.getInputEnd().getValue() == p.getY());
+			assertEquals(channel.getInputStart().getValue(), p.getX());
+			assertEquals(channel.getInputEnd().getValue(), p.getY());
 		}
     }
     
@@ -1134,4 +1136,202 @@ public class RenderingSettingsServiceTest
     	compareRenderingDef(def, def2);
     }
     
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwner() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
+    	
+    	disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		prx = factory.getRenderingSettingsService();
+		prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(image.getId().getValue()));
+    	
+    	//Image
+    	List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 1);
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	param.addLong("oid", ctx2.userId);
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid and rdef.details.owner.id = :oid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertEquals(values.size(), 1);
+    }
+
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerNoRndSettingsTarget() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
+    	
+    	disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		prx = factory.getRenderingSettingsService();
+		
+		//in that case create rendering settings for the target.
+    	//Image
+    	List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 1);
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	param.addLong("oid", ctx2.userId);
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid and rdef.details.owner.id = :oid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertEquals(values.size(), 1);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerNoRndSettingsSource() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	
+    	
+    	disconnect();
+		EventContext ctx2 = newUserInGroup(ctx);
+		prx = factory.getRenderingSettingsService();
+		prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(image.getId().getValue()));
+    	//Image
+    	List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForImageNoSettings() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	//Image
+    	//method already tested 
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(m);
+    	assertEquals(m.size(), 1);
+    }
+
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForNonValidImage() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = mmFactory.simpleImage(new Date().getTime());
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	//Image
+    	//method already tested 
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(m);
+    	assertEquals(m.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSetOriginalSettingsInSetNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.setOriginalSettingsInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultInSetNonValidImage() 
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwra--");
+    	Image image = (Image) 
+    	iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+    	//Image
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> v = prx.resetDefaultsInSet(Image.class.getName(), 
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(v);
+    	assertEquals(v.size(), 0);
+    }
 }

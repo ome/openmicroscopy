@@ -1,0 +1,89 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="insight"
+      status="integration"/>
+  <configurations>
+    <conf name="build"/>
+    <conf name="client"/>
+  </configurations>
+  <publications>
+    <artifact name="insight" type="jar"/>
+    <artifact name="insight" type="zip"/>
+    <artifact name="insight-win" type="zip"/>
+    <artifact name="insight-win-openGL" type="zip"/>
+    <artifact name="insight-win64-openGL" type="zip"/>
+    <artifact name="insight-mac" type="zip"/>
+    <artifact name="insight-mac-openGL" type="zip"/>
+    <artifact name="editor-mac" type="zip"/>
+    <artifact name="editor-win" type="zip"/>
+    <artifact name="insight-ij" type="zip"/>
+    <artifact name="importer-mac" type="zip"/>
+    <artifact name="importer-win" type="zip"/>
+  </publications>
+  <dependencies defaultconfmapping="build,client->default">
+    <!-- Internal -->
+    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
+    <!-- For UpgradeCheck -->
+    <dependency org="omero" name="common" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <dependency org="omero" name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <!-- For Schema -->
+    <dependency org="ome" name="specification" rev="${omero.version}" changing="true" conf="build->build;client->build"/>
+    <!-- For build -->
+    <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
+    <!-- From classpath -->
+    <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
+    <dependency org="insight" name="axis" rev="${versions.axis}"/>
+    <dependency org="insight" name="backport-util-concurrent" rev="${versions.backport}"/>
+    <dependency org="insight" name="commons-collections" rev="${versions.commons-collections}"/>
+    <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
+    <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
+    <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="insight" name="commons-lang" rev="${versions.commons-lang}"/>
+    <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
+    <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
+    <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
+    <dependency org="insight" name="ehcache" rev="${versions.ehcache}"/>
+    <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
+    <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
+    <dependency org="insight" name="ij" rev="${versions.ij}"/>
+    <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
+    <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
+    <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
+    <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
+    <dependency org="insight" name="jogl" rev="${versions.jogl}"/>
+    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
+    <dependency org="insight" name="ols-client" rev="${versions.ols-client}"/>
+    <dependency org="insight" name="physics" rev="${versions.physics}"/>
+    <dependency org="insight" name="poi" rev="${versions.poi}"/>
+    <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
+    <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
+    <dependency org="insight" name="saaj" rev="${versions.saaj}"/>
+    <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
+    <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
+    <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <dependency org="insight" name="jna" rev="${versions.jna}"/>
+    <dependency org="insight" name="platform" rev="${versions.platform}"/>
+    <!-- Required for annotations in Permissions.java -->
+    <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
+
+    <!-- Bioformats -->
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
+        <artifact name="bio-formats"/>
+        <artifact name="jai_imageio"/>
+        <artifact name="loci-common"/>
+        <artifact name="mdbtools-java"/>
+        <artifact name="metakit"/>
+        <artifact name="ome-io"/>
+        <artifact name="ome-xml"/>
+        <artifact name="poi-loci"/>
+        <artifact name="scifio"/>
+    </dependency>
+    
+    <!-- importer -->
+    <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
+    <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+  </dependencies>
+</ivy-module>

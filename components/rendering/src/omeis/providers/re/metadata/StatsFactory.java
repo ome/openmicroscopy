@@ -16,15 +16,13 @@ import java.awt.Dimension;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
-import omeis.providers.re.Renderer;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
@@ -92,14 +90,13 @@ public class StatsFactory {
      * inputWindow and the noiseReduction flag.
      * 
      * @param p2D 	 The selected plane2d.
-     * @param stats  The statistics for the selected channel.
+     * @param gMin The global minimum.
      * @param sizeX2 The size along one axis.
      * @param sizeX1 The size along the other axis.
      */
-    private void computeBins(Plane2D p2D, StatsInfo stats, int sizeX2,
+    private void computeBins(Plane2D p2D, double gMin, int sizeX2,
             int sizeX1) {
-    	double gMin = stats.getGlobalMin().doubleValue();
-        int[] totals = new int[NB_BIN];
+    	int[] totals = new int[NB_BIN];
         /*
          * Segment[] segments = new Segment[NB_BIN]; for (int i = 0; i < NB_BIN;
          * i++) { segments[i] = new Segment( gMin + i * sizeBin, 0, gMin + (i +
@@ -238,6 +235,47 @@ public class StatsFactory {
         return s;
     }
 
+
+    /** 
+     * Determines the minimum and maximum corresponding to the passed
+     * pixels type.
+     * 
+     * @param type The pixels type to handle.
+     */
+    public double[] initPixelsRange(PixelsType type)
+    {
+    	double[] minmax = new double[2];
+    	minmax[0] = 0;
+    	minmax[1] = 1;
+    	if (type == null) return minmax;
+    	String typeAsString = type.getValue();
+    	if (PlaneFactory.INT8.equals(typeAsString)) {
+    		minmax[0] = -128;
+    		minmax[1] = 127;
+    	} else if (PlaneFactory.UINT8.equals(typeAsString)) {
+    		minmax[0] = 0;
+    		minmax[1] = 255;
+    	} else if (PlaneFactory.INT16.equals(typeAsString)) {
+    		minmax[0] = -32768;
+    		minmax[1] = 32767;
+    	} else if (PlaneFactory.UINT16.equals(typeAsString)) {
+    		minmax[0] = 0;
+    		minmax[1] = 65535;
+    	} else if (PlaneFactory.INT32.equals(typeAsString)) {
+    		minmax[0] = -32768;
+			minmax[1] = 32767;
+    	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
+    		minmax[0] = 0;
+			minmax[1] = 65535;
+    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+    			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+    		//b/c we don't know if it is signed or not
+    		minmax[0] = 0;
+			minmax[1] = 32767;
+    	}
+    	return minmax;
+    }
+    
     /**
      * Helper object to determine the location of the pixels' values, the
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>
@@ -254,14 +292,25 @@ public class StatsFactory {
         log.debug("Computing location stats for Pixels:" + metadata.getId());
         Channel channel = metadata.getChannel(index);
         final StatsInfo stats = channel.getStatsInfo();
+        /*
         if (stats == null)
         {
         	throw new ResourceError("Pixels set is missing statistics for " +
         			"channel '" + index + "'. This suggests an image import " +
         			"error or failed image import.");
         }
-        double gMin = stats.getGlobalMin().doubleValue();
-        double gMax = stats.getGlobalMax().doubleValue();
+        */
+        double gMin = 0;
+        double gMax = 1;
+        if (stats == null) {
+        	double[] values = initPixelsRange(metadata.getPixelsType());
+        	gMin = values[0];
+        	gMax = values[1];
+        } else {
+        	gMin = stats.getGlobalMin().doubleValue();
+            gMax = stats.getGlobalMax().doubleValue();
+        }
+        
         Dimension tileSize = pixelsData.getTileSize();
         double range = gMax-gMin;
         if (range <= RANGE_RGB) {
@@ -277,6 +326,7 @@ public class StatsFactory {
         //value will be reset when calculating data.
         inputStart = gMax;
         inputEnd = gMin;
+        final double globalMin = gMin;
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
                     int tileHeight, int tileCount)
@@ -294,7 +344,7 @@ public class StatsFactory {
                 pd.setRegion(regionDef);
                 Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
                         pixelsData);
-                computeBins(plane2D, stats, tileHeight, tileWidth);
+                computeBins(plane2D, globalMin, tileHeight, tileWidth);
             }
         }, pixelsData, (int) tileSize.getWidth(), (int) tileSize.getHeight());
     }

@@ -24,14 +24,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -45,6 +44,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -73,7 +73,7 @@ import pojos.WellSampleData;
  * @since 3.0-Beta4
  */
 class GeneralPaneUI 
-	extends JScrollPane
+	extends JPanel//JScrollPane
 {
 
 	/** The default text. */
@@ -124,6 +124,9 @@ class GeneralPaneUI
 	/** The container hosting the <code>JXTaskPane</code>. */
 	private JXTaskPaneContainer 		container;
 	
+	/** The tool bar.*/
+	private ToolBar toolbar;
+	
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -133,9 +136,7 @@ class GeneralPaneUI
 	private void loadParents(boolean b)
 	{
 		if (b) controller.loadParents();
-		else {
-			model.cancelParentsLoading();
-		}
+		else model.cancelParentsLoading();
 	}
 	
     /** Initializes the UI components. */
@@ -157,7 +158,7 @@ class GeneralPaneUI
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
-		annotationUI = new AnnotationDataUI(model, controller);
+		annotationUI = new AnnotationDataUI(view, model, controller);
 
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
@@ -182,14 +183,21 @@ class GeneralPaneUI
 		annotationTaskPane.add(p);
 	}
 	
+	/** The Component hosting the container.*/
+	private JScrollPane pane;
+	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
+		setLayout(new BorderLayout(0, 0));
 		container.add(propertiesTaskPane);
 		container.add(annotationTaskPane);
-		JViewport viewport = getViewport();
+		pane = new JScrollPane();
+		JViewport viewport = pane.getViewport();
 		viewport.add(container);
 		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(toolbar, BorderLayout.NORTH);
+    	add(pane, BorderLayout.CENTER);
 	}
 	
 	/** 
@@ -247,8 +255,10 @@ class GeneralPaneUI
 	 * 						Mustn't be <code>null</code>.
 	 * @param controller	Reference to the Control. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param tooBar 		The tool Bar
 	 */
-	GeneralPaneUI(EditorUI view, EditorModel model, EditorControl controller)
+	GeneralPaneUI(EditorUI view, EditorModel model, EditorControl controller, 
+			ToolBar toolBar)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
@@ -258,6 +268,7 @@ class GeneralPaneUI
 			throw new IllegalArgumentException("No view.");
 		this.model = model;
 		this.controller = controller;
+		this.toolbar = toolBar;
 		this.view = view;
 		initComponents();
 		init = false;
@@ -279,7 +290,7 @@ class GeneralPaneUI
 		//TableLayout layout = (TableLayout) content.getLayout();
 		
 		double h = 0;
-		String s = "";
+		String s = Browser.TITLE;
 		boolean multi = model.isMultiSelection();
 		Object refObject = model.getRefObject();
 		if (refObject instanceof TagAnnotationData) {
@@ -290,7 +301,6 @@ class GeneralPaneUI
 			} else {
 				if (!multi) {
 					h = 1;
-					s = "Contained in Tag Sets";
 				}
 			}
 		} else if (refObject instanceof FileAnnotationData) {
@@ -301,12 +311,10 @@ class GeneralPaneUI
 		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = 1;
-				s = "Contained in Projects";
 			}
 		} else if (refObject instanceof ImageData) {
 			if (!multi) {
 				h = 1;
-				s = "Contained in Datasets";
 				controller.loadChannelData();
 			}
 		} else if (refObject instanceof WellSampleData) {
@@ -327,26 +335,28 @@ class GeneralPaneUI
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-		
-		
+		container.remove(propertiesTaskPane);
+		if (!multi) {
+			container.add(propertiesTaskPane, 0); //first index
+		}
 		if (h > 0) {
 			container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())
 				loadParents(true);
 		}
 	}
+
 	
 	/** 
-	 * Returns an array of size 2 with the collection of 
-	 * annotation to save. 
+	 * Returns the object hosting the annotation/link to save.
 	 * 
 	 * @return See above.
 	 */
-	Map<Integer, List<AnnotationData>> prepareDataToSave()
+	DataToSave prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
-		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+		List<Object> toRemove = new ArrayList<Object>();
 		List<AnnotationData> l = annotationUI.getAnnotationToSave();
 		//To add
 		if (l != null && l.size() > 0)
@@ -355,17 +365,14 @@ class GeneralPaneUI
 		if (l != null && l.size() > 0)
 			toAdd.addAll(l);
 		//To remove
-		l = annotationUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		Map<Integer, List<AnnotationData>> 
-			map = new HashMap<Integer, List<AnnotationData>>();
-		map.put(EditorUI.TO_ADD, toAdd);
-		map.put(EditorUI.TO_REMOVE, toRemove);
-		return map;
+		List<Object> ll = annotationUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		ll = textualAnnotationsUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		
+		return new DataToSave(toAdd, toRemove);
 	}
 	
 	/** Updates display when the parent of the root node is set. */
@@ -573,6 +580,18 @@ class GeneralPaneUI
 	{
 		if (objects == null) return;
 		annotationUI.handleObjectsSelection(type, objects, true);
+	}
+	
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		annotationUI.onRelatedNodesSet();
+	}
+
+	void setExtentWidth(int width)
+	{
+		if (propertiesUI != null)
+			propertiesUI.setExtentWidth(width);
 	}
 	
 }

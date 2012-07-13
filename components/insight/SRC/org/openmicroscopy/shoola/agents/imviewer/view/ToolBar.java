@@ -43,12 +43,15 @@ import javax.swing.JToolBar;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 
 /** 
@@ -153,6 +156,32 @@ class ToolBar
 	/** The index of the Metadata component. */
 	private static final int		METADATA_INDEX = 1;
 	
+    /**
+     * Returns the icon corresponding to the permissions of the group.
+     * 
+     * @param g The group to handle.
+     * @return See above.
+     */
+    private Icon getPermissionsIcon(GroupData g)
+    {
+    	IconManager icons = IconManager.getInstance();
+    	switch (g.getPermissions().getPermissionsLevel()) {
+	    	case GroupData.PERMISSIONS_PRIVATE:
+	    		return icons.getIcon(IconManager.PRIVATE_GROUP);
+	    	case GroupData.PERMISSIONS_GROUP_READ:
+	    		return icons.getIcon(IconManager.READ_GROUP);
+	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	    		return icons.getIcon(IconManager.READ_LINK_GROUP);
+	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	    		return icons.getIcon(IconManager.READ_WRITE_GROUP);
+	    	case GroupData.PERMISSIONS_PUBLIC_READ:
+	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
+	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
+		}
+    	return null;
+    }
+    
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -306,6 +335,15 @@ class ToolBar
     	bars.setBorder(null);
     	bars.add(bar);
     	if (p != null) bars.add(p);
+    	GroupData g = view.getSelectedGroup();
+    	if (g != null) {
+    		p = new JPanel();
+    		l = new JLabel(g.getName());
+    		l.setIcon(getPermissionsIcon(g));
+    		//indicate color using icon
+    		p.add(l);
+    		bars.add(p);
+    	}
     	//add(UIUtilities.buildComponentPanel(bar));
     	add(UIUtilities.buildComponentPanel(bars));
     	add(UIUtilities.buildComponentPanelRight(busyLabel));
@@ -342,27 +380,15 @@ class ToolBar
 	        //rndButton.setAction(a);
 		}
 		int compression = ImViewerFactory.getCompressionLevel();
+		
 		int value = (Integer) 
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		int index = view.convertCompressionLevel();
-		/*
-		if (view.isBigImage()) {
-			compressionBox = EditorUtil.createComboBox(compressionPartial, 0, 
-	    			getBackground());
-	    	compressionBox.setBackground(getBackground());
-	    	if (compression == MEDIUM || compression == LOW)
-				index = compression-1;
-	    	if (compression == UNCOMPRESSED)
-	    		index = MEDIUM-1;
-	    	compressionBox.setSelectedIndex(index);
-		} else {
-			if (compression >= UNCOMPRESSED && compression <= LOW)
-				index = compression;
-			compressionBox.setSelectedIndex(index);
+		if (view.isBigImage() && compression == ImViewer.UNCOMPRESSED) {
+			compression = ImViewer.MEDIUM;
 		}
-		*/
+		int index = view.convertCompressionLevel();
 		if (compression >= UNCOMPRESSED && compression <= LOW)
 			index = compression;
 		compressionBox.setSelectedIndex(index);
@@ -456,5 +482,5 @@ class ToolBar
 	{ 
 		return compressionBox.getSelectedIndex();
 	}
-	
+
 }

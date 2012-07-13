@@ -27,7 +27,7 @@ public class IObjectContainerStoreTest extends TestCase
 	@BeforeMethod
 	protected void setUp() throws Exception
 	{
-		ServiceFactoryPrx sf = new TestServiceFactory();
+		ServiceFactoryPrx sf = new TestServiceFactory().proxy();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setReader(new TestReader());
@@ -44,7 +44,7 @@ public class IObjectContainerStoreTest extends TestCase
         store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 1);
         
         // Add a reference
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX);
 	}
 	
 	@Test

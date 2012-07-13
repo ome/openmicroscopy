@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -47,32 +48,33 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class ContainersLoader 	
+public class ContainersLoader
 	extends MetadataLoader
 {
 
 	/** The type of <code>DataObject</code>. */
-	private Class		type;
+	private Class type;
 	
 	/** The ID of the parent of the {@link #refNode}. */
-	private long		id;
+	private long id;
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-	 * @param refNode	The node of reference. Mustn't be <code>null</code>.
-	 * @param type		The type of the parent of the {@link #refNode}.
-	 * @param id		The ID of the parent of the reference node.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param refNode The node of reference. Mustn't be <code>null</code>.
+	 * @param type The type of the parent of the {@link #refNode}.
+	 * @param id The ID of the parent of the reference node.
 	 */
-	public ContainersLoader(MetadataViewer viewer, TreeBrowserSet refNode,
-						Class type, long id)
+	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
+			TreeBrowserSet refNode, Class type, long id)
 	{
-		super(viewer, refNode);
+		super(viewer, ctx, refNode);
 		this.type = type;
 		this.id = id;
 	}
@@ -82,27 +84,29 @@ public class ContainersLoader
 	 * 
 	 * @param viewer The viewer this data loader is for.
 	 * 				 Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param type   The data type of the edited object.
-	 * @param id     The id of the currently edited object.	
+	 * @param id     The id of the currently edited object.
 	 */
-	public ContainersLoader(MetadataViewer viewer, Class type, long id)
+	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
+			Class type, long id)
 	{
-		super(viewer, null);
+		super(viewer, ctx);
 		this.type = type;
 		this.id = id;
 	}
 	
 	/** 
-	 * Loads the folders containing the object. 
+	 * Loads the folders containing the object.
 	 * @see MetadataLoader#cancel()
 	 */
 	public void load()
 	{
-		handle = mhView.loadContainers(type, id, -1L, this);
+		handle = mhView.loadContainers(ctx, type, id, -1L, this);
 	}
 	
 	/** 
-	 * Cancels the data loading. 
+	 * Cancels the data loading.
 	 * @see MetadataLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
@@ -116,5 +120,5 @@ public class ContainersLoader
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.setContainers(refNode, result);
     }
-    
+
 }

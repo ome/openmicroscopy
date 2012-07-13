@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.events.editor;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.FileAnnotationData;
 
@@ -53,29 +54,37 @@ public class EditFileEvent
 	private FileAnnotationData fileAnnotation;
 	
 	/** The id of the annotation to edit. */
-	private long			   fileAnnotationID;
+	private long fileAnnotationID;
+	
+	/** The security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param fileAnnotation	The annotation hosting the information about
-	 * 							the file to edit.
+	 * @param ctx The security context.
+	 * @param fileAnnotation The annotation hosting the information about
+	 * 						 the file to edit.
 	 */
-	public EditFileEvent(FileAnnotationData fileAnnotation)
+	public EditFileEvent(SecurityContext ctx,
+			FileAnnotationData fileAnnotation)
 	{
 		if (fileAnnotation == null)
 			throw new IllegalArgumentException("No file annotation.");
+		this.ctx = ctx;
 		this.fileAnnotation = fileAnnotation;
 	}
 
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param fileAnnotationID	The id of the annotation to edit.
 	 */
-	public EditFileEvent(long fileAnnotationID)
+	public EditFileEvent(SecurityContext ctx, long fileAnnotationID)
 	{
 		this.fileAnnotationID = fileAnnotationID;
+		this.ctx = ctx;
 	}
 	
 	/**
@@ -92,4 +101,11 @@ public class EditFileEvent
 	 */
 	public long getFileAnnotationID() { return fileAnnotationID; }
 	
-} 
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
+
+}

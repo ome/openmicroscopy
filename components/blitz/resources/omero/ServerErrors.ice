@@ -16,8 +16,8 @@
  * are available defined in each language binding separately, but will usually
  * subclass from "ClientError" For more information, see:
  *
- *   <a href="http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling">
- *      http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *   <a href="http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling">
+ *      http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling
  *   </a>
  *
  * including examples of what a appropriate try/catch block would look like.
@@ -40,6 +40,7 @@
  *   |_ InternalException (server bug)
  *   |
  *   |_ ResourceError (non-recoverable)
+ *   |  \_ NoProcessorAvailable
  *   |
  *   |_ ConcurrencyException (recoverable)
  *   |  |_ ConcurrentModification (data was changed)
@@ -199,8 +200,8 @@ module omero
   exception WrappedCreateSessionException extends Glacier2::CannotCreateSessionException
     {
       bool    concurrency;
-      long    backOff;    // Only used if ConcurrencyException
-      string  type;       // Ice static type information
+      long    backOff;    /* Only used if ConcurrencyException */
+      string  type;       /* Ice static type information */
     };
 
 
@@ -223,6 +224,21 @@ module omero
     {
     };
 
+  /**
+   * A script cannot be executed because no matching processor
+   * was found.
+   */
+  exception NoProcessorAvailable extends ResourceError
+    {
+        /**
+         * Number of processors that responded to the inquiry.
+         * If 1 or more, then the given script was not acceptable
+         * (e.g. non-official) and a specialized processor may need
+         * to be started.
+         **/
+        int processorCount;
+    };
+
   // CONCURRENCY
 
   /**
@@ -230,7 +246,7 @@ module omero
    */
   exception ConcurrencyException extends ServerError
     {
-       long backOff; // Backoff in milliseconds
+       long backOff; /* Backoff in milliseconds */
     };
 
   /**
@@ -262,7 +278,7 @@ module omero
    */
   exception LockTimeout extends ConcurrencyException
     {
-        int seconds; // Informational field on how long timeout was
+        int seconds; /* Informational field on how long timeout was */
     };
 
   /**
@@ -304,14 +320,14 @@ module omero
     {
     };
 
-  exception GroupSecurityViolation extends ServerError
+  exception GroupSecurityViolation extends SecurityViolation
     {
     };
 
-  exception PermissionMismatchGroupSecurityViolation extends ServerError
+  exception PermissionMismatchGroupSecurityViolation extends SecurityViolation
     {
     };
-  exception ReadOnlyGroupSecurityViolation extends ServerError
+  exception ReadOnlyGroupSecurityViolation extends SecurityViolation
     {
     };
 

@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -39,8 +36,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 /** 
  * Exit the application.
@@ -63,6 +63,12 @@ public class ExitApplicationAction
     /** The description of the action. */
     public static final String DESCRIPTION = "Exit the application.";
     
+    /** The name of the action. */
+    public static final String NAME_AS_PLUGIN = "Quit the plugin...";
+    
+    /** The description of the action. */
+    public static final String DESCRIPTION_AS_PLUGIN = "Exit the plugin.";
+    
     /** 
      * Sets the action enabled to <code>true</code>.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
@@ -78,9 +84,15 @@ public class ExitApplicationAction
     {
         super(model);
         setEnabled(true);
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+        if (!TreeViewerAgent.isRunAsPlugin()) {
+            putValue(Action.NAME, NAME);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+        } else {
+            putValue(Action.NAME, NAME_AS_PLUGIN);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_AS_PLUGIN));
+        }
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT_APPLICATION)); 
     }
@@ -93,7 +105,12 @@ public class ExitApplicationAction
     {
     	model.cancel();
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ExitApplication());
+    	ExitApplication a = new ExitApplication(
+    			!(TreeViewerAgent.isRunAsPlugin()));
+    	GroupData group = model.getSelectedGroup();
+    	if (group != null)
+    		a.setSecurityContext(new SecurityContext(group.getId()));
+        bus.post(a);
     }
 
 }

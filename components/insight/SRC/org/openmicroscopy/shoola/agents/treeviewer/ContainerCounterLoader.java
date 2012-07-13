@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -69,14 +70,15 @@ public class ContainerCounterLoader
      * Creates a new instance.
      * 
      * @param viewer  Reference to the Model. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param rootIDs The collection of <code>DataObject</code>s 
      *                we want to analyze.
      * @param nodes   The collection of corresponding nodes.
      */
-    public ContainerCounterLoader(Browser viewer, Set rootIDs, 
-    		Set<TreeImageSet> nodes)
+    public ContainerCounterLoader(Browser viewer, SecurityContext ctx,
+    	Set rootIDs, Set<TreeImageSet> nodes)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (rootIDs == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.rootIDs = rootIDs;
@@ -89,7 +91,7 @@ public class ContainerCounterLoader
      */
     public void load()
     {
-        handle = dmView.countContainerItems(rootIDs, this);
+        handle = dmView.countContainerItems(ctx, rootIDs, this);
     }
 
     /** 
