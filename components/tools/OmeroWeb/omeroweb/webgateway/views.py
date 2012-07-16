@@ -1209,7 +1209,7 @@ def imageMarshal (image, key=None):
     #big images
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()-1
+    levels = image._re.getResolutionLevels()
     init_zoom = 0
 
     try:
