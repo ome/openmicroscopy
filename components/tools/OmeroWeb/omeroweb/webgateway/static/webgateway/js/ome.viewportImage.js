@@ -394,7 +394,11 @@ $.fn.viewportImage = function(options) {
         InfoControl.prototype.viewerZoomed = function(e) {
             var sz = this.viewer.imageSize();
             if (this.dom_info) 
-                this.dom_info.innerHTML = 'Scale: '+ e.scale*100 +'%';
+                var scale = e.scale * 100;
+                if (scale < 1) {
+                    scale = scale.toPrecision(2);
+                }
+                this.dom_info.innerHTML = 'Scale: '+ scale +'%';
         }
         
         var myPyramid = new BisqueISPyramid(
