@@ -395,7 +395,7 @@ $.fn.viewportImage = function(options) {
             var sz = this.viewer.imageSize();
             if (this.dom_info) 
                 var scale = e.scale * 100;
-                if (scale < 1) {
+                if (scale % 1 !== 0) {
                     scale = scale.toFixed(2);
                 }
                 this.dom_info.innerHTML = 'Scale: '+ scale +'%';
