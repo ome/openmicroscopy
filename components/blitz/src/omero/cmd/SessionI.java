@@ -194,9 +194,8 @@ public class SessionI implements _SessionOperations {
             Ice.Identity id = holder.getIdentity("IHandle" + UUID.randomUUID().toString());
 
             // Tie
-            _HandleOperations ops = (_HandleOperations) servant;
-            HandlePrx prx = HandlePrxHelper.checkedCast(registerServant(id,
-                    new _HandleTie(ops)));
+            _HandleTie tie = (_HandleTie) servant;
+            HandlePrx prx = HandlePrxHelper.checkedCast(registerServant(id, tie));
 
             // Init
             try {
