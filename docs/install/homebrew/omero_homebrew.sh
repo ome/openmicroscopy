@@ -3,6 +3,7 @@
 set -e
 set -u
 
+ICE_VERSION=${ICE_VERSION:-zero-ice33}
 OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
@@ -70,7 +71,7 @@ export PATH=`bin/brew --prefix ccache`:`pwd`/bin/:$PATH
 installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
-installed zeroc-ice33 || bin/brew install zeroc-ice33
+installed $ICE_VERSION || bin/brew install $ICE_VERSION
 installed mplayer || bin/brew install mplayer
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
