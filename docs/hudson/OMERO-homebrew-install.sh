@@ -30,6 +30,8 @@ fi
 brew update
 brew install git
 
+export PATH=/usr/local/bin:$PATH
+
 # Run brew doctor
 brew_status=$(brew doctor)
 if echo $brew_status | grep "Error"
