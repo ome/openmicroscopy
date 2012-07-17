@@ -3,6 +3,7 @@
 set -e
 set -u
 
+WITHOUT_POSTGRESQL=${WITHOUT_POSTGRESQL:-false}
 ICE_VERSION=${ICE_VERSION:-zero-ice33}
 OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
@@ -110,6 +111,11 @@ export HDF5_DIR=`pwd`
 installed Cython || bin/pip install Cython
 installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
+
+# Postgresql
+if ! $WITHOUT_POSTGRESQL
+    installed postgresql || bin/brew install postgresql
+fi
 
 echo "Done."
 echo "You can now install OMERO with: 'bin/brew install omero ...'"
