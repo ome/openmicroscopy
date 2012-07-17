@@ -70,7 +70,7 @@ export PATH=`bin/brew --prefix ccache`:`pwd`/bin/:$PATH
 # Basic native requirements =======================================
 installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
-installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
+[ "$ICE_VERSION" == "zero-ice33" ] &&  installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
 installed $ICE_VERSION || bin/brew install $ICE_VERSION
 installed mplayer || bin/brew install mplayer
 # Requirements for PIL ============================================
