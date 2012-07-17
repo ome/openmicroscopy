@@ -5,6 +5,9 @@ set -e
 set -u
 set -x
 
+export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
+export OMERO_ALT=${OMERO_ALT:-ome/alt}
+
 # Remove existing formulas and ome/alt tap
 if (brew --version)
 then
@@ -46,12 +49,11 @@ chmod +x /tmp/omero_homebrew.sh
 . /tmp/omero_homebrew.sh
 
 # Install postgres and omero
-brew install postgres
 brew install omero
 
 # Set environment variables
 export ICE_CONFIG=$(brew --prefix omero)/etc/ice.config
-export ICE_HOME=$(brew --prefix zeroc-ice33)
+export ICE_HOME=$(brew --prefix $OMERO_ALT/$ICE_VERSION)
 export PYTHONPATH=$(brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
