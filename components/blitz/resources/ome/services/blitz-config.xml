@@ -30,6 +30,7 @@
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="ring"/>
+    <constructor-arg value="${omero.throttling.servants_per_session}"/>
   </bean>
 
   <bean id="ring" class="ome.services.blitz.fire.Ring">

@@ -61,6 +61,8 @@ public class BlitzConfiguration {
 
     private final Ice.ObjectPrx managerDirectProxy;
 
+    private final int servantsPerSession;
+
     /**
      * Single constructor which builds all Ice instances needed for the server
      * runtime based on arguments provided. Once the constructor is finished,
@@ -74,9 +76,11 @@ public class BlitzConfiguration {
      */
     public BlitzConfiguration(Ring ring,
             ome.services.sessions.SessionManager sessionManager,
-            SecuritySystem securitySystem, Executor executor)
+            SecuritySystem securitySystem, Executor executor,
+            int servantsPerSession)
             throws RuntimeException {
-        this(createId(), ring, sessionManager, securitySystem, executor);
+        this(createId(), ring, sessionManager, securitySystem, executor,
+            servantsPerSession);
     }
 
     /**
@@ -93,7 +97,8 @@ public class BlitzConfiguration {
      */
     public BlitzConfiguration(Ice.InitializationData id, Ring ring,
             ome.services.sessions.SessionManager sessionManager,
-            SecuritySystem securitySystem, Executor executor)
+            SecuritySystem securitySystem, Executor executor,
+            int servantsPerSession)
             throws RuntimeException {
 
         logger.info("Initializing Ice.Communicator");
@@ -101,6 +106,7 @@ public class BlitzConfiguration {
         this.id = id;
         this.blitzRing = ring;
         this.communicator = createCommunicator();
+        this.servantsPerSession = servantsPerSession;
 
         if (communicator == null) {
             throw new RuntimeException("No communicator cannot continue.");
@@ -251,7 +257,8 @@ public class BlitzConfiguration {
         throwIfInitialized(blitzManager);
 
         SessionManagerI manager = new SessionManagerI(blitzRing, blitzAdapter,
-                securitySystem, sessionManager, executor, topicManager, registry);
+                securitySystem, sessionManager, executor, topicManager, registry,
+                servantsPerSession);
         Ice.Identity id = managerId();
         Ice.ObjectPrx prx = this.blitzAdapter.add(manager, id);
         return manager;

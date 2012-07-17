@@ -90,6 +90,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     
     protected final AtomicBoolean loaded = new AtomicBoolean(false);
 
+    protected final int servantsPerSession;
+
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
@@ -100,7 +102,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
             SecuritySystem secSys, SessionManager sessionManager,
-            Executor executor, TopicManager topicManager, Registry reg) {
+            Executor executor, TopicManager topicManager, Registry reg,
+            int servantsPerSession) {
         this.ring = ring;
         this.registry = reg;
         this.adapter = adapter;
@@ -108,6 +111,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         this.securitySystem = secSys;
         this.topicManager = topicManager;
         this.sessionManager = sessionManager;
+        this.servantsPerSession = servantsPerSession;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
