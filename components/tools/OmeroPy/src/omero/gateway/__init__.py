@@ -761,10 +761,11 @@ class BlitzObjectWrapper (object):
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
             ids.append(a.id.val)
-        handle = self._conn.deleteObjects('/Annotation', ids)
-        self._conn._waitOnCmd(handle)
-        handle.close()
-        self._obj.unloadAnnotationLinks()        
+        if len(ids):
+            handle = self._conn.deleteObjects('/Annotation', ids)
+            self._conn._waitOnCmd(handle)
+            handle.close()
+            self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
     def getAnnotation (self, ns=None):
