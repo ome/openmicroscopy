@@ -742,12 +742,13 @@ class BlitzObjectWrapper (object):
 
         # Using omero.cmd.Delete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
-        try:
-            self._conn._waitOnCmd(handle)
-        finally:
-            handle.close()
-        self._obj.unloadAnnotationLinks()
+        if len(dcs):
+            handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
+            try:
+                self._conn._waitOnCmd(handle)
+            finally:
+                handle.close()
+            self._obj.unloadAnnotationLinks()
 
     def removeAnnotations (self, ns):
         """
