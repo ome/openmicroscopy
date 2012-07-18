@@ -140,7 +140,7 @@ def login(request):
         
         # TODO: version check should be done on the low level, see #5983
         if server_id is not None and username is not None and password is not None \
-                and _checkVersion(*connector.lookup_host_and_port()):
+                and _checkVersion(*connector.lookup_host_and_port()) and username != "guest":
             conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
                 request.session['connector'] = connector
@@ -155,8 +155,7 @@ def login(request):
                     return HttpResponseRedirect(url)
                 else:
                     return HttpResponseRedirect(reverse("webindex"))
-            else:
-                error = 'Login failed.'
+
     
     if request.method == 'POST' and server_id is not None:
         s = Server.get(server_id)
