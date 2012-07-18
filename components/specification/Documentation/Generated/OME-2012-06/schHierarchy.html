@@ -1,0 +1,456 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Schema documentation for </title>
+      <link rel="stylesheet" href="docHtml.css" type="text/css" /><script type="text/javascript">
+         <!--
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        var button_prefix = 'button_';
+        
+        /**
+        * Returns an element in the current HTML document.
+        *
+        * @param elementID Identifier of HTML element
+        * @return               HTML element object
+        */
+        function getElementObject(elementID) {
+            var elemObj = null;
+            if (document.getElementById) {
+                elemObj = document.getElementById(elementID);
+            }
+            return elemObj;
+        }
+        
+        /**
+        * Switches the state of a collapseable box, e.g.
+        * if it's opened, it'll be closed, and vice versa.
+        *
+        * @param boxID Identifier of box
+        */
+        function switchState(boxID) {
+            var boxObj = getElementObject(boxID);
+            var buttonObj = getElementObject(button_prefix + boxID);
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else if (boxObj.style.display == "none") {
+                // Box is closed, so open it
+                openBox(boxObj, buttonObj);
+            } else if (boxObj.style.display == "block") {
+                // Box is opened, so close it
+                closeBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+        * Opens a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function openBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "block";
+                
+                // Change text of button
+                if (boxObj.style.display == "block") {
+                    buttonObj.src = "img/btM.gif";
+                }
+            }
+        }
+        
+        /**
+        * Closes a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function closeBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "none";
+                
+                // Change text of button
+                if (boxObj.style.display == "none") {
+                    buttonObj.src = "img/btP.gif";
+                }
+            }
+        }
+    
+       function switchStateForAll(buttonObj, boxList) {
+            if (buttonObj == null) {
+                // button not found
+            } else if (buttonObj.value == "+") {
+                // Expand all
+                expandAll(boxList);
+                buttonObj.value = "-";
+            } else if (buttonObj.value == "-") {
+                // Collapse all
+                collapseAll(boxList);
+                buttonObj.value = "+";
+            }
+        }
+        
+        /**
+        * Closes all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function collapseAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                closeBox(boxObj, buttonObj);
+            }
+        }
+            
+        /**
+        * Open all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function expandAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                openBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+         * Update the message presented in the title of the html page.
+         * - If the documentation was splited by namespace we present something like: "Documentation for namespace 'ns'"
+         * - If the documentation was splited by location we present somehing like: "Documentation for 'Schema.xsd'"
+         * - If no split we always present: "Documentation for 'MainSchema.xsd'"
+         */
+        function updatePageTitle(message) {
+            top.document.title = message;
+        }
+        
+          
+                    
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function findAndFloat(id, x_displacement, y_displacement){
+
+            var element = getElementObject(id);            
+            
+            window[id + "_obj"] = element;
+            
+            if(document.layers) {
+               element.style = element;
+            }
+            
+            element.current_y = y_displacement;      
+            element.first_time = true;
+         
+            element.floatElement = function(){
+               // It may be closed by an user action.
+                
+               // Target X and Y coordinates.
+               var x, y;
+               
+               var myWidth = 0, myHeight = 0;
+               if( typeof( window.innerWidth ) == 'number' ) {
+                  //Non-IE
+                  myWidth = window.innerWidth;
+                  myHeight = window.innerHeight;
+               } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+                  //IE 6+ in 'standards compliant mode'
+                  myWidth = document.documentElement.clientWidth;
+                  myHeight = document.documentElement.clientHeight;
+               } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+                  //IE 4 compatible
+                  myWidth = document.body.clientWidth;
+                  myHeight = document.body.clientHeight;
+               }
+               
+               
+               x = myWidth - x_displacement;
+               
+               var ns = (navigator.appName.indexOf("Netscape") != -1);               
+               y = ns ? pageYOffset : document.documentElement && document.documentElement.scrollTop ? 
+                  document.documentElement.scrollTop : document.body.scrollTop;               
+               y = y + y_displacement;               
+               
+               // The current y is the current coordinate of the floating element.
+               // This should be at the limit the y target coordinate.
+               this.current_y += (y - this.current_y)/1.25;
+               
+               // Add the pixels constant after the values
+               // and move the element.
+               var px = document.layers ? "" : "px";
+               this.style.left =  x + px;
+               this.style.top =  this.current_y + px;
+                              
+               setTimeout(this.id + "_obj.floatElement()", 100);
+            }
+            
+            element.floatElement();
+            return element;
+          }
+
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function selectTOCGroupBy(id, isChunked, indexFileLocation, indexFileNamespace, indexFileComponent){
+
+            if (!isChunked) {
+             var selectIds = new Array('toc_group_by_namespace', 'toc_group_by_location', 'toc_group_by_component_type');
+             // Make all the tabs invisible.
+               for (i = 0; i < 3; i++){
+                  var tab = getElementObject(selectIds[i]);
+                  tab.style.display = 'none';
+               }
+               var selTab = getElementObject(id);
+               selTab.style.display = 'block';
+            } else {
+             if (id == 'toc_group_by_namespace') {
+               parent.indexFrame.location = indexFileNamespace;
+             } else  if (id == 'toc_group_by_location') {
+               parent.indexFrame.location = indexFileLocation;
+             } else  if (id == 'toc_group_by_component_type') {
+              parent.indexFrame.location = indexFileComponent;
+             }
+            }
+         }
+          
+
+    --></script></head>
+   <body>
+      <h2><a id="INDEX">Table of Contents</a></h2>
+      <p><a href="ome.indexList.html">Components</a><span> | </span><a href="schHierarchy.html">Resource Hierarchy</a></p>
+      <hr />
+      <ul class="schemaHierarchy">
+         <li>
+            <p class="componentTitle"><input id="button_sHome.xsd" type="image" value="-" src="img/btM.gif"
+                      onclick="switchState('sHome.xsd');"
+                      class="control" /><a href="#ome.xsd">ome.xsd</a></p>
+            <div id="sHome.xsd" style="display:block">
+               <ul>
+                  <li class="schemaHierarchy">
+                     <p><input id="button_sHome.xsdBinaryFile.xsd" type="image" value="-" src="img/btP.gif"
+                               onclick="switchState('sHome.xsdBinaryFile.xsd');"
+                               class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ome.xsd'." /> <a href="BinaryFile_xsd.html#BinaryFile.xsd" target="mainFrame"
+                           title="Imported by  'ome.xsd'."
+                           onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BinaryFile.xsd</a></p>
+                     <div id="sHome.xsdBinaryFile.xsd" style="display:none">
+                        <ul>
+                           <li class="schemaHierarchy">
+                              <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'BinaryFile.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame"
+                                    title="Imported by  'BinaryFile.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                           </li>
+                           <li class="schemaHierarchy">
+                              <p><img src="img/HierarchyCycle12.jpg"
+                                      title="Imported by  'BinaryFile.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame"
+                                    title="Imported by  'BinaryFile.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="schemaHierarchy">
+                     <p><input id="button_sHome.xsdSPW.xsd" type="image" value="-" src="img/btP.gif"
+                               onclick="switchState('sHome.xsdSPW.xsd');"
+                               class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ome.xsd'." /> <a href="SPW_xsd.html#SPW.xsd" target="mainFrame" title="Imported by  'ome.xsd'."
+                           onclick="updatePageTitle('Schema documentation for SPW.xsd')">SPW.xsd</a></p>
+                     <div id="sHome.xsdSPW.xsd" style="display:none">
+                        <ul>
+                           <li class="schemaHierarchy">
+                              <p><img src="img/HierarchyCycle12.jpg" title="Imported by  'SPW.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame" title="Imported by  'SPW.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                           </li>
+                           <li class="schemaHierarchy">
+                              <p><input id="button_sHome.xsdSPW.xsdSA.xsd" type="image" value="-" src="img/btM.gif"
+                                        onclick="switchState('sHome.xsdSPW.xsdSA.xsd');"
+                                        class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'SPW.xsd'." /> <a href="SA_xsd.html#SA.xsd" target="mainFrame" title="Imported by  'SPW.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for SA.xsd')">SA.xsd</a></p>
+                              <div id="sHome.xsdSPW.xsdSA.xsd" style="display:block">
+                                 <ul>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyCycle12.jpg" title="Imported by  'SA.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame" title="Imported by  'SA.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                    </li>
+                                    <li class="schemaHierarchy">
+                                       <p><input id="button_sHome.xsdSPW.xsdSA.xsdBinaryFile.xsd" type="image" value="-"
+                                                 src="img/btM.gif"
+                                                 onclick="switchState('sHome.xsdSPW.xsdSA.xsdBinaryFile.xsd');"
+                                                 class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'SA.xsd'." /> <a href="BinaryFile_xsd.html#BinaryFile.xsd" target="mainFrame"
+                                             title="Imported by  'SA.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BinaryFile.xsd</a></p>
+                                       <div id="sHome.xsdSPW.xsdSA.xsdBinaryFile.xsd" style="display:block">
+                                          <ul>
+                                             <li class="schemaHierarchy">
+                                                <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'BinaryFile.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame"
+                                                      title="Imported by  'BinaryFile.xsd'."
+                                                      onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                                             </li>
+                                             <li class="schemaHierarchy">
+                                                <p><img src="img/HierarchyCycle12.jpg"
+                                                        title="Imported by  'BinaryFile.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame"
+                                                      title="Imported by  'BinaryFile.xsd'."
+                                                      onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                             </li>
+                                          </ul>
+                                       </div>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="schemaHierarchy">
+                     <p><input id="button_sHome.xsdSA.xsd" type="image" value="-" src="img/btP.gif"
+                               onclick="switchState('sHome.xsdSA.xsd');"
+                               class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ome.xsd'." /> <a href="SA_xsd.html#SA.xsd" target="mainFrame" title="Imported by  'ome.xsd'."
+                           onclick="updatePageTitle('Schema documentation for SA.xsd')">SA.xsd</a></p>
+                     <div id="sHome.xsdSA.xsd" style="display:none">
+                        <ul>
+                           <li class="schemaHierarchy">
+                              <p><img src="img/HierarchyCycle12.jpg" title="Imported by  'SA.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame" title="Imported by  'SA.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                           </li>
+                           <li class="schemaHierarchy">
+                              <p><input id="button_sHome.xsdSA.xsdBinaryFile.xsd" type="image" value="-"
+                                        src="img/btM.gif"
+                                        onclick="switchState('sHome.xsdSA.xsdBinaryFile.xsd');"
+                                        class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'SA.xsd'." /> <a href="BinaryFile_xsd.html#BinaryFile.xsd" target="mainFrame"
+                                    title="Imported by  'SA.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BinaryFile.xsd</a></p>
+                              <div id="sHome.xsdSA.xsdBinaryFile.xsd" style="display:block">
+                                 <ul>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'BinaryFile.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame"
+                                             title="Imported by  'BinaryFile.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                                    </li>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyCycle12.jpg"
+                                               title="Imported by  'BinaryFile.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame"
+                                             title="Imported by  'BinaryFile.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="schemaHierarchy">
+                     <p><input id="button_sHome.xsdROI.xsd" type="image" value="-" src="img/btP.gif"
+                               onclick="switchState('sHome.xsdROI.xsd');"
+                               class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ome.xsd'." /> <a href="ROI_xsd.html#ROI.xsd" target="mainFrame" title="Imported by  'ome.xsd'."
+                           onclick="updatePageTitle('Schema documentation for ROI.xsd')">ROI.xsd</a></p>
+                     <div id="sHome.xsdROI.xsd" style="display:none">
+                        <ul>
+                           <li class="schemaHierarchy">
+                              <p><img src="img/HierarchyCycle12.jpg" title="Imported by  'ROI.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame" title="Imported by  'ROI.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                           </li>
+                           <li class="schemaHierarchy">
+                              <p><input id="button_sHome.xsdROI.xsdBinaryFile.xsd" type="image" value="-"
+                                        src="img/btM.gif"
+                                        onclick="switchState('sHome.xsdROI.xsdBinaryFile.xsd');"
+                                        class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ROI.xsd'." /> <a href="BinaryFile_xsd.html#BinaryFile.xsd" target="mainFrame"
+                                    title="Imported by  'ROI.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BinaryFile.xsd</a></p>
+                              <div id="sHome.xsdROI.xsdBinaryFile.xsd" style="display:block">
+                                 <ul>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'BinaryFile.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame"
+                                             title="Imported by  'BinaryFile.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                                    </li>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyCycle12.jpg"
+                                               title="Imported by  'BinaryFile.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame"
+                                             title="Imported by  'BinaryFile.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </li>
+                           <li class="schemaHierarchy">
+                              <p><input id="button_sHome.xsdROI.xsdSA.xsd" type="image" value="-" src="img/btM.gif"
+                                        onclick="switchState('sHome.xsdROI.xsdSA.xsd');"
+                                        class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ROI.xsd'." /> <a href="SA_xsd.html#SA.xsd" target="mainFrame" title="Imported by  'ROI.xsd'."
+                                    onclick="updatePageTitle('Schema documentation for SA.xsd')">SA.xsd</a></p>
+                              <div id="sHome.xsdROI.xsdSA.xsd" style="display:block">
+                                 <ul>
+                                    <li class="schemaHierarchy">
+                                       <p><img src="img/HierarchyCycle12.jpg" title="Imported by  'SA.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame" title="Imported by  'SA.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                    </li>
+                                    <li class="schemaHierarchy">
+                                       <p><input id="button_sHome.xsdROI.xsdSA.xsdBinaryFile.xsd" type="image" value="-"
+                                                 src="img/btM.gif"
+                                                 onclick="switchState('sHome.xsdROI.xsdSA.xsdBinaryFile.xsd');"
+                                                 class="control" /><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'SA.xsd'." /> <a href="BinaryFile_xsd.html#BinaryFile.xsd" target="mainFrame"
+                                             title="Imported by  'SA.xsd'."
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BinaryFile.xsd</a></p>
+                                       <div id="sHome.xsdROI.xsdSA.xsdBinaryFile.xsd" style="display:block">
+                                          <ul>
+                                             <li class="schemaHierarchy">
+                                                <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'BinaryFile.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame"
+                                                      title="Imported by  'BinaryFile.xsd'."
+                                                      onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                                             </li>
+                                             <li class="schemaHierarchy">
+                                                <p><img src="img/HierarchyCycle12.jpg"
+                                                        title="Imported by  'BinaryFile.xsd'. Cycle detected." /> <a href="ome_xsd.html#ome.xsd" target="mainFrame"
+                                                      title="Imported by  'BinaryFile.xsd'."
+                                                      onclick="updatePageTitle('Schema documentation for ome.xsd')">ome.xsd</a></p>
+                                             </li>
+                                          </ul>
+                                       </div>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="schemaHierarchy">
+                     <p><img src="img/HierarchyArrow12.jpg" /> <img src="img/Import12.jpg" title="Imported by  'ome.xsd'." /> <a href="xml_xsd.html#xml.xsd" target="mainFrame" title="Imported by  'ome.xsd'."
+                           onclick="updatePageTitle('Schema documentation for xml.xsd')">xml.xsd</a></p>
+                  </li>
+               </ul>
+            </div>
+         </li>
+      </ul>
+      <div class="footer">
+         <hr />
+         <div align="center">XML Schema documentation generated by <a href="http://www.oxygenxml.com" target="_parent"><span class="oXygenLogo"><span class="redX">&lt;</span>o<span class="redX">X</span>ygen<span class="redX">/&gt;</span></span></a><sup>®</sup> XML Editor.
+         </div>
+      </div>
+   </body>
+</html>

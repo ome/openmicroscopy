@@ -43,6 +43,7 @@ scons.log
 *.so
 *~
 *generated*
+!/components/specification/Documentation/Generated
 test-output
 temp-testng-customsuite.xml
 .settings
