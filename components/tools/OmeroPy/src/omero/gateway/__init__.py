@@ -743,8 +743,10 @@ class BlitzObjectWrapper (object):
         # Using omero.cmd.Delete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
         handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
-        self._conn._waitOnCmd(handle)
-        handle.close()
+        try:
+            self._conn._waitOnCmd(handle)
+        finally:
+            handle.close()
         self._obj.unloadAnnotationLinks()
 
     def removeAnnotations (self, ns):
@@ -763,8 +765,10 @@ class BlitzObjectWrapper (object):
             ids.append(a.id.val)
         if len(ids):
             handle = self._conn.deleteObjects('/Annotation', ids)
-            self._conn._waitOnCmd(handle)
-            handle.close()
+            try:
+                self._conn._waitOnCmd(handle)
+            finally:
+                handle.close()
             self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
@@ -6593,7 +6597,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         for chunk in ofw.getFileInChunks():
             outfile.write(chunk)
         outfile.close()
-        self._conn.deleteObjects('/OriginalFile', todel) # No error handling?
+        handle = self._conn.deleteObjects('/OriginalFile', todel)
+        try:
+            self._conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+
         return os.path.splitext(f.name.val)[-1], f.mimetype.val
         
     def renderImage (self, z, t, compression=0.9):
@@ -7013,8 +7022,10 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _deleteSettings(self):
         handle = self._conn.deleteObjects("/Image/Pixels/RenderingDef", [self.getId()])
-        self._conn._waitOnCmd(handle)
-        handle.close()
+        try:
+            self._conn._waitOnCmd(handle)
+        finally:
+            handle.close()
 
     def _collectRenderOptions (self):
         """
