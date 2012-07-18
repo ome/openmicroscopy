@@ -26,9 +26,9 @@ conn.connect()
 
 # Configuration
 # =================================================================
-projectId = 3109
+projectId = 2
 #Specify a local file. E.g. could be result of some analysis
-fileToUpload = "fileToUpload.txt"   # This file should already exist
+fileToUpload = "README.txt"   # This file should already exist
 
 
 # Create a new Dataset
