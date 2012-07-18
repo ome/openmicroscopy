@@ -177,7 +177,7 @@ class ServiceOptsDictTest(unittest.TestCase):
         self.assertEqual(d.copy(), d)
         self.assertNotEqual(getHash(d.copy()), getHash(d))
         self.assertEqual(ServiceOptsDict().copy(), ServiceOptsDict())
-        self.assertEqual(getHash(ServiceOptsDict().copy()), getHash(ServiceOptsDict()))
+        self.assertNotEqual(getHash(ServiceOptsDict().copy()), getHash(ServiceOptsDict()))
         self.assertRaises(TypeError, d.copy, None)
     
     def test_setter_an_getter(self):
