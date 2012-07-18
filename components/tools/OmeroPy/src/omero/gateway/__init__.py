@@ -743,10 +743,8 @@ class BlitzObjectWrapper (object):
         # Using omero.cmd.Delete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
         handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
-        callback = omero.callbacks.CmdCallbackI(self._conn.c, handle)
-        # Maximum wait time 5 seconds, will raise a LockTimeout if the
-        # delete has not finished by then.
-        callback.loop(10, 500)
+        self._conn._waitOnCmd(handle)
+        handle.close()
         self._obj.unloadAnnotationLinks()
 
     def removeAnnotations (self, ns):
@@ -763,12 +761,11 @@ class BlitzObjectWrapper (object):
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
             ids.append(a.id.val)
-        handle = self._conn.deleteObjects('/Annotation', ids)
-        callback = omero.callbacks.CmdCallbackI(self._conn.c, handle)
-        # Maximum wait time 5 seconds, will raise a LockTimeout if the
-        # delete has not finished by then.
-        callback.loop(10, 500)
-        self._obj.unloadAnnotationLinks()        
+        if len(ids):
+            handle = self._conn.deleteObjects('/Annotation', ids)
+            self._conn._waitOnCmd(handle)
+            handle.close()
+            self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
     def getAnnotation (self, ns=None):
@@ -7017,6 +7014,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _deleteSettings(self):
         handle = self._conn.deleteObjects("/Image/Pixels/RenderingDef", [self.getId()])
         self._conn._waitOnCmd(handle)
+        handle.close()
 
     def _collectRenderOptions (self):
         """
