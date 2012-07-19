@@ -140,26 +140,33 @@ def login(request):
         
         # TODO: version check should be done on the low level, see #5983
         if server_id is not None and username is not None and password is not None \
-                and _checkVersion(*connector.lookup_host_and_port()) and username != "guest":
+                and _checkVersion(*connector.lookup_host_and_port()):
             conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
-                request.session['connector'] = connector
-                upgradeCheck()
+                # Check if user is in "user" group
+                userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+                if userGroupId in conn.getEventContext().memberOfGroups:
+                    request.session['connector'] = connector
+                    upgradeCheck()
                 
-                # do we ned to display server version ?
-                # server_version = conn.getServerVersion()
-                if request.REQUEST.get('noredirect'):
-                    return HttpResponse('OK')
-                url = request.REQUEST.get("url")
-                if url is not None and len(url) != 0:
-                    return HttpResponseRedirect(url)
+                    # do we ned to display server version ?
+                    # server_version = conn.getServerVersion()
+                    if request.REQUEST.get('noredirect'):
+                        return HttpResponse('OK')
+                    url = request.REQUEST.get("url")
+                    if url is not None and len(url) != 0:
+                        return HttpResponseRedirect(url)
+                    else:
+                        return HttpResponseRedirect(reverse("webindex"))
+                elif username == "guest":
+                    error = "Guest account is for internal OMERO use only. Not for login."
                 else:
-                    return HttpResponseRedirect(reverse("webindex"))
+                    error = "This user is not active."
 
     
     if request.method == 'POST' and server_id is not None:
         s = Server.get(server_id)
-        if s is not None:
+        if s is not None and error is None:
             if not _isServerOn(s.host, s.port):
                 error = "Server is not responding, please contact administrator."
             elif not _checkVersion(s.host, s.port):
