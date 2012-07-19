@@ -11,7 +11,7 @@
     <import file="${import.dir}/global.xml"/>
     <import file="../common.xml"/>
 
-    <target name="tools-init" unless="env.NOMAKE">
+    <target name="tools-init">
         <get-source todir="${copy.dir}">
             <fileset dir="../../blitz/generated" includes="**/*.h,**/*.cpp">
                 <present present="srconly" targetdir="src"/>
@@ -88,22 +88,24 @@
 
     <target name="tools-build" depends="tools-init,build" description="Use scons to build the libraries" unless="env.NOMAKE"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOMAKE">
-        <scons_py>
-            <arg value="install"/>
-        </scons_py>
+    <target name="build-src">
         <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
         <copy todir="../target/include">
             <fileset dir="src"    includes="**/*.h"/>
             <fileset dir="target" includes="**/*.h"/>
         </copy>
 
-        <property prefix="src" file="${basedir}/compiler.log"/>
         <property name="src.build" value="OMERO.cpp-src-${omero.version}"/>
         <zip destfile="${omero.home}/target/${src.build}.zip">
              <zipfileset dir="${basedir}/src"        prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
              <zipfileset dir="${basedir}/target"     prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
         </zip>
+    </target>
+
+    <target name="tools-dist" depends="tools-build,build-src" description="Copies files into tools/target" unless="env.NOMAKE">
+        <scons_py>
+            <arg value="install"/>
+        </scons_py>
 
         <property prefix="compiler" file="${basedir}/compiler.log"/>
         <property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.PLATFORM}-${compiler.CXX}-${compiler.CXXVERSION}-${compiler.ARCH}${compiler.RELEASE}"/>
