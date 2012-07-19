@@ -743,7 +743,9 @@ class BlitzObjectWrapper (object):
         # Using omero.cmd.Delete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
         if len(dcs):
-            handle = self._conn.c.sf.submit(dcs, self._conn.SERVICE_OPTS)
+            doall = omero.cmd.DoAll()
+            doall.requests = dcs
+            handle = self._conn.c.sf.submit(doall, self._conn.SERVICE_OPTS)
             try:
                 self._conn._waitOnCmd(handle)
             finally:
