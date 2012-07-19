@@ -545,7 +545,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </emma>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api"/>
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+        <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
+            <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
+        </zip>
+    </target>
 
     <target name="release-slice2html" description="The Ice API Documentation">
       <mkdir dir="${omero.home}/target/docs"/>
