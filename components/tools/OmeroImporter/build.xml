@@ -62,7 +62,7 @@
             <fileset dir="${basedir}" includes="config/**/*"/>
         </copy>
         <copy todir="${target.dir}" flatten="true">
-            <fileset dir="${basedir}" includes="scripts/*"/>
+            <fileset dir="${basedir}" includes="scripts/*" excludes="importer-gui"/>
         </copy>
         <chmod perm="a+x">
             <fileset dir="${target.dir}" includes="importer-*,test-engine,metadata-validator"/>
