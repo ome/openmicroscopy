@@ -80,8 +80,8 @@ class login_required(omeroweb.decorators.login_required):
         if request.session.get('imageInBasket') is None:
             request.session['imageInBasket'] = set()
             changes = True
-        if request.session.get('basekt_counter') is None:
-            request.session['basekt_counter'] = 0
+        if request.session.get('basket_counter') is None:
+            request.session['basket_counter'] = 0
             changes = True
         if request.session.get('user_id') is None:
             request.session['user_id'] = 0
