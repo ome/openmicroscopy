@@ -44,21 +44,23 @@ class login_required(omeroweb.decorators.login_required):
     webclient specific extension of the OMERO.web login_required() decorator.
     """
 
-    def __init__(self, ignore_login_fail=False, **kwargs):
+    def __init__(self, ignore_login_fail=False, setGroupContext=False, **kwargs):
         """
         Initialises the decorator.
         """
         super(login_required, self).__init__(**kwargs)
         self.ignore_login_fail = ignore_login_fail
+        self.setGroupContext = setGroupContext
 
     def on_logged_in(self, request, conn):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
-        if request.session.get('active_group'):
-            conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
-        else:
-            conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
+        if self.setGroupContext:
+            if request.session.get('active_group'):
+                conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
+            else:
+                conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
         """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
