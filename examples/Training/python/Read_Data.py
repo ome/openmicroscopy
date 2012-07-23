@@ -24,9 +24,9 @@ conn.connect()
 
 # Configuration
 # =================================================================
-imageId = 27544
-datasetId = 2651
-plateId = -1
+imageId = 1
+datasetId = 2
+plateId = -1        # Don't need to set this
 
 
 def print_obj(obj, indent=0):
@@ -49,7 +49,8 @@ def print_obj(obj, indent=0):
 # visible in the current group are returned.
 print "\nList Projects:"
 print "=" * 50
-for project in conn.listProjects(only_owned=True):
+my_expId = conn.getUser().getId()
+for project in conn.listProjects(my_expId):
     print_obj(project)
     for dataset in project.listChildren():
         print_obj(dataset, 2)

@@ -200,7 +200,7 @@ class PythonParser(Parser):
         self.addRule(CodeRule())
 
         #self.addFilter(r'\*(.+?)\*', 'emphasis')
-        self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
+        self.addFilter(r'(http://[\.a-zA-Z0-9_/]+)', 'url')
 
 
 class MatlabParser(Parser):
@@ -253,10 +253,10 @@ def check_header(file_lines, quiet=False):
 
 if __name__ == "__main__":
 
-    pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Raw_Data_Access.py', 'python/Write_Data.py', 
-        'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 'python/Create_Image.py', 
-            'python/Scripting_Service_Example.py']
-    titles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', 
+    pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Groups_Permissions.py', 'python/Raw_Data_Access.py', 
+        'python/Write_Data.py', 'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 
+        'python/Create_Image.py', 'python/Scripting_Service_Example.py']
+    titles = ['Connect to OMERO', 'Read Data', 'Groups & Permissions', 'Raw Data Access', 'Write Data', 
         'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image', 'Python OMERO.scripts' ]
 
     if "--check_header" in sys.argv:
