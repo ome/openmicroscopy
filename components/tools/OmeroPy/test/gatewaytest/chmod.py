@@ -472,8 +472,7 @@ class DefaultSetupTest (lib.GTest):
         self.assertTrue(image.canAnnotate(), "Author can annotate their own image")
         
         # Login as Admin
-        root_client = self.loginAsAdmin()
-        user = self.gateway.getUser()
+        self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         i = self.gateway.getObject("Image", imageId)
         self.assertTrue(i.canEdit(), "Admin can edit Author's image")
@@ -499,7 +498,7 @@ class DefaultSetupTest (lib.GTest):
         self.assertTrue(self.gateway.setGroupForSession(image_gid))      # switch into group
         self.assertEqual(image_gid, self.gateway.getEventContext().groupId, "Confirm in same group as image")
         i = self.gateway.getObject("Image", imageId)
-        self.assertEqual(None, i, \
+        self.assertNotEqual(None, i, \
                 "User cannot access Author's image in Read-only group: %s" % i)
 
 if __name__ == '__main__':
