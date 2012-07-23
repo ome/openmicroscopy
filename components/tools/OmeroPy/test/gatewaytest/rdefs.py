@@ -185,6 +185,7 @@ class RDefsTest (lib.GTest):
         Test that images belonging to experimenters on collaborative rw group can be
         reset and rdef created by admin and then edited by owner of image.
         """
+        aobj = self.gateway.getUser()._obj
         self.loginAsAdmin()
         self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -192,8 +193,7 @@ class RDefsTest (lib.GTest):
         self.assert_(self.image.resetRDefs())
         self.assert_(self.image.saveDefaults())
         admin = self.gateway.getAdminService()
-        self.loginAsAuthor()
-        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
+        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, aobj)
         self.loginAsAuthor()
         try:
             self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
@@ -202,8 +202,12 @@ class RDefsTest (lib.GTest):
             self.assert_(self.image.resetRDefs())
             self.assert_(self.image.saveDefaults())
         finally:
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            self.image = self.getTestImage()
             admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
-                                  self.gateway._user._obj)
+                                  aobj)
 
         
         
