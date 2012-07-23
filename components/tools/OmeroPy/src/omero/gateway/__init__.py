@@ -1214,6 +1214,9 @@ class NoProxies (object):
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
 
+    def values (self):
+        return ()
+
 class _BlitzGateway (object):
     """
     Connection wrapper. Handles connecting and keeping the session alive, creation of various services,
