@@ -120,6 +120,9 @@ class ChmodBaseTest (lib.GTest):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
         nameEdited = False
+        # for saves, omero group must *not* be -1
+        g = blitzObject._conn.SERVICE_OPTS.getOmeroGroup()
+        blitzObject._conn.SERVICE_OPTS.setOmeroGroup()
         try:
             blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
@@ -161,6 +164,7 @@ class ChmodBaseTest (lib.GTest):
             if exc_info:
                 traceback.print_exc()
 
+        blitzObject._conn.SERVICE_OPTS.setOmeroGroup(g)
         self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
         self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
@@ -201,13 +205,15 @@ class ChmodGroupTest (ChmodBaseTest):
         # Login as group Admin to get group Id...
         self.doLogin(dbhelpers.USERS['chmod_group_admin'])
         group_Id = self.gateway.getEventContext().groupId
+        group_Name = self.gateway.getEventContext().groupName
         # do we need to log out of group when changing it's permissions??
-        self.tearDown()
-
+        #self.tearDown()
+        self.doDisconnect()
         # let another Admin change group permissions
         self.loginAsAdmin()
+        dbhelpers.UserEntry.check_group_perms(self.gateway, group_Name, READONLY)
         self.doChange(group_Id, READWRITE)
-
+        dbhelpers.UserEntry.check_group_perms(self.gateway, group_Name, READWRITE)
 
 class CustomUsersTest (ChmodBaseTest):
     """
@@ -361,7 +367,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertNotEqual(None, p, "Member can access Project")
         self.assertEqual(p.canDelete(), True, "Member can delete another user's Project")
         handle = self.gateway.deleteObjects("Project", [pr.id.val])
-        cb = self.waitOnCmd(self.gateway.c, handle)
+        cb = self.gateway._waitOnCmd(handle)
 
         # Must reload project
         p = self.gateway.getObject("Project", pr.id.val)
@@ -442,9 +448,11 @@ class DefaultSetupTest (lib.GTest):
         """ This is called at the start of tests """
         super(DefaultSetupTest, self).setUp()
         self.loginAsAuthor()
-        ctx = self.gateway.getEventContext()
+        ctxgroupname = self.gateway.getEventContext().groupName
+        self.loginAsAdmin()
+        dbhelpers.UserEntry.assert_group_perms(self.gateway, ctxgroupname, dbhelpers.DEFAULT_GROUP_PERMS)
+        self.loginAsAuthor()
         self.image = self.getTestImage()
-        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rw----")
 
     def testAuthorCanEdit(self):
         """
