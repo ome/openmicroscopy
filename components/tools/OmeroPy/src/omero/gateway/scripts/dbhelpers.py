@@ -135,7 +135,7 @@ class UserEntry (object):
         a = client.getAdminService()
         try:
             if isinstance(group, StringTypes):
-                g = a.lookupGroup(groupname)
+                g = a.lookupGroup(group)
             else:
                 g = group
             UserEntry.check_group_perms(client, g, groupperms)
