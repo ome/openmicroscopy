@@ -29,7 +29,7 @@ class DeleteObjectTest (lib.GTest):
         tag = image.linkAnnotation(tag)
         tagId = tag.getId()
         handle = self.gateway.deleteObjects("Annotation", [tagId])
-        self.waitOnCmd(self.gateway.c, handle)
+        self.gateway._waitOnCmd(handle)
         self.assertEqual(None, self.gateway.getObject("Annotation", tagId))
 
     def testDeleteImage(self):
@@ -59,7 +59,7 @@ class DeleteObjectTest (lib.GTest):
         # check Image, delete (wait) and check
         self.assertTrue(self.gateway.getObject("Image", imageId) != None)
         handle = self.gateway.deleteObjects("Image", [imageId])
-        self.waitOnCmd(self.gateway.c, handle)
+        self.gateway._waitOnCmd(handle)
         self.assertTrue(self.gateway.getObject("Image", imageId) == None)
 
         # Comment should be deleted but not the Tag (becomes orphan)
@@ -72,7 +72,7 @@ class DeleteObjectTest (lib.GTest):
         datasetIds = [d.getId() for d in project.listChildren()]
         self.assertTrue(len(datasetIds) > 0)
         handle = self.gateway.deleteObjects("Project", [projectId], deleteAnns=True, deleteChildren=True)
-        self.waitOnCmd(self.gateway.c, handle)
+        self.gateway._waitOnCmd(handle)
         self.assertTrue(self.gateway.getObject("Project", projectId) == None)
         self.assertTrue(self.gateway.getObject("Annotation", tag.id) == None) # Tag should be gone
 
@@ -324,22 +324,12 @@ class GetObjectTest (lib.GTest):
             self.assertEqual(gId, findG.id, "Check we found the same group")
 
     def testGetExperimenter(self):
-        self.loginAsAdmin()
-
-        # check that findExperimenter can be replaced by getObject()
-        #e = self.gateway.findExperimenter(self.USER.name)          # now removed from blitz gateway
-        findExp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
-        #self.assertEqual(e.id, findExp.id, "Finding experimenter via omeName - should return single exp")
-
         noExp = self.gateway.getObject("Experimenter", attributes={'omeName': "Dummy Fake Name"})
         self.assertEqual(noExp, None, "Should not find any matching experimenter")
-        #noE = self.gateway.findExperimenter("Dummy Fake Name")
-        #self.assertEqual(noE, None, "Should not find any matching experimenter")
 
+        findExp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
         exp = self.gateway.getObject("Experimenter", findExp.id) # uses iQuery
-        #experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
-        
-        self.assertEqual(exp.getDetails().getOwner().omeName, exp.getDetails().getOwner().omeName)
+        self.assertEqual(exp.omeName, findExp.omeName)
         
         # check groupExperimenterMap loaded for exp
         groupIds = []
