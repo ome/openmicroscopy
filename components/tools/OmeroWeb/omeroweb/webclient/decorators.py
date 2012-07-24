@@ -35,7 +35,6 @@ from django.core.urlresolvers import reverse
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webadmin.custom_models import Server
 from omeroweb.webclient.webclient_http import HttpLoginRedirect
-from omeroweb.webclient.webclient_utils import string_to_dict
 
 logger = logging.getLogger('omeroweb.webclient.decorators')
 
