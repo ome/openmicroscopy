@@ -315,7 +315,11 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # E.g. path=project-51|dataset-502|image-607
     path = request.REQUEST.get('path', '')
     first_sel = None
-    init['initially_open'] = [str(i) for i in path.split("|") if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate')]
+    for i in path.split("|"):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+            init['initially_open'].append(str(i))
+        elif i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+            init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
     if len(init['initially_open']) > 0:
         init['initially_select'] = init['initially_open'][-1]
         first_obj, first_id = init['initially_open'][0].split("-")
