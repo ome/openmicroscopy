@@ -552,3 +552,12 @@ def image_viewer (request, iid=None, conn=None, **kwargs):
     template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
     
     return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)
+
+@login_required()
+def stack_preview (request, imageId, conn=None, **kwargs):
+    """ Shows a subset of Z-planes for an image """
+    image = conn.getObject("Image", imageId)
+    image_name = image.getName()
+    sizeZ = image.getSizeZ()
+    z_indexes = [0, int(sizeZ*0.25), int(sizeZ*0.5), int(sizeZ*0.75), sizeZ-1]
+    return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
