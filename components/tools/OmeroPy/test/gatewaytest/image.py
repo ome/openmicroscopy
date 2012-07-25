@@ -180,6 +180,12 @@ class ImageTest (lib.GTest):
     def testExport (self):
         """ Test exporting the image to ometiff """
         self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # if we pass a bufsize we should get a generator back
+        size, gen = self.image.exportOmeTiff(bufsize=16)
+        self.assert_(hasattr(gen, 'next'))
+        self.assertEqual(len(gen.next()), 16)
+        for e in gen:
+            pass
         # Now try the same using a different user, admin first
         self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')

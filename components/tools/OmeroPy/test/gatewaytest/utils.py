@@ -31,7 +31,11 @@ class ServiceOptsDictTest(unittest.TestCase):
         d = ServiceOptsDict(x=1,y=2)
         self.assertEqual(d.get("x"), "1")
         self.assertEqual(d.get("y"), "2")
-        
+
+        # ServiceOptsDict can be passed initializing data, but it needs to be a dict
+        self.assertRaises(AttributeError, ServiceOptsDict, kwargs={"data":"data"})
+        s = ServiceOptsDict(data={'option':'a'})
+
     def test_keys(self):
         d = ServiceOptsDict()
         self.assertEqual(d.keys(), [])
@@ -125,11 +129,19 @@ class ServiceOptsDictTest(unittest.TestCase):
         d["omero.group"] = -1
         
         # long
-        
         import sys
         maxint = sys.maxint
         d = ServiceOptsDict({"omero.group": (maxint+1)})
         d["omero.user"] = (maxint+1)
+
+        # Setter passed None as value remove from internal dict
+        d = ServiceOptsDict({"omero.share": "2","omero.user": "1"})
+        self.assertNotEqual(d.get("omero.share"), None)
+        d.setOmeroShare()
+        self.assertEqual(d.get("omero.share"), None)
+        self.assertNotEqual(d.get("omero.user"), None)
+        d.setOmeroUser()
+        self.assertEqual(d.get("omero.user"), None)
         
         try:
             d = ServiceOptsDict({"omero.group": True})
