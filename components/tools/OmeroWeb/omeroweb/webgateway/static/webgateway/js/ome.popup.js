@@ -292,7 +292,6 @@ var login_dialog = function(login_url, callback) {
                 }
                 var obj_id = selected[0]['id'];     // E.g. image-123
                 var dtype = obj_id.split("-")[0];    // E.g. 'image'
-                if (dtype!="image") return;
                 var oid = obj_id.split("-")[1];
 
                 // if the tab is visible and not loaded yet...
@@ -333,25 +332,94 @@ var login_dialog = function(login_url, callback) {
                 } else { 
                     supported = tab_enabled(selected);
                 }
-                if (plugin_tab_index == select_tab) {
-                    // we don't want to select this tab if multiple selected supported_otypes
-                    if (!supported) {
+
+                // update enabled & selected state
+                if(!supported) {
+                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
+                    if (plugin_tab_index == select_tab) {
+                        // if we're currently selected - switch to first tab
                         $("#annotation_tabs").tabs("select", 0);
                     }
+                } else {
+                    $("#annotation_tabs").tabs("enable", plugin_tab_index);
+                    // update tab content
+                    update_tab_content();
+                }
+            });
+
+        });
+        // return the jquery selection (or if it was a method call that returned a value - the returned value)
+        return returnValue;
+    };
+
+
+    // This plugin is similar to the one above, handling center-panel webclient-plugin init.
+    $.fn.omeroweb_center_plugin = function (settings) {
+
+        returnValue = this;
+
+        // Process each jQuery object in array
+        this.each(function(i) {
+            // 'this' is the element we're working with
+            var $this = $(this);
+
+            // store settings
+            var plugin_index = settings['plugin_index'],
+                load_plugin_content = settings['load_plugin_content'],
+                supported_obj_types = settings['supported_obj_types'],
+                plugin_enabled = settings['plugin_enabled'];      // only used if 'supported_obj_types' undefined
+
+            var update_plugin_content = function() {
+                // get the selected id etc
+                var selected = $("body").data("selected_objects.ome");
+                if (selected.length == 0) {
+                    return;
+                }
+                var obj_id = selected[0]['id'];     // E.g. image-123
+                var dtype = obj_id.split("-")[0];    // E.g. 'image'
+                var oid = obj_id.split("-")[1];
+
+                // if the tab is visible and not loaded yet...
+                if ($this.is(":visible") && $this.is(":empty")) {
+                    // we want the context of load_plugin_content to be $this
+                    $.proxy(load_plugin_content,$this)(selected, dtype, oid);
+                };
+            };
+
+
+            $('#center_panel_chooser').bind('center_plugin_changed.ome', update_plugin_content);
+
+            // on change of selection in tree, update which tabs are enabled
+            $("body").bind("selection_change.ome", function(event) {
+
+                // clear contents of panel
+                $this.empty();
+
+                // get selected objects
+                var selected = $("body").data("selected_objects.ome");
+                if (selected.length == 0) {
+                    set_center_plugin_enabled(plugin_index, false);
+                    return;
+                }
+                var obj_id = selected[0]['id'];     // E.g. image-123
+                var orel = obj_id.split("-")[0];    // E.g. 'image'
+
+                // do we support the data currently selected?
+                var supported;
+                if (typeof supported_obj_types != 'undefined') {
+                    // simply test E.g. if "image" is in the supported types
+                    supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
+                } else {
+                    // OR use the user-specified function to check support
+                    supported = plugin_enabled(selected);
                 }
 
                 // update enabled state
-                if(!supported) {
-                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
-                } else {
-                    $("#annotation_tabs").tabs("enable", plugin_tab_index);
+                set_center_plugin_enabled(plugin_index, supported);
+                if(supported) {
+                    update_plugin_content();
                 }
-
-                // update tab content
-                update_tab_content();
             });
-
-
         });
 
         // return the jquery selection (or if it was a method call that returned a value - the returned value)
