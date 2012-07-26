@@ -312,17 +312,20 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     #tree support
     init = {'initially_open':[], 'initially_select': None}
-    # E.g. path=project-51|dataset-502|image-607
-    path = request.REQUEST.get('path', '')
     first_sel = None
-    for i in path.split("|"):
+    # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
+    path = request.REQUEST.get('path', '')
+    i = path.split("|")[-1]
+    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+        init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
+    # Now we support show=image-607|image-123  (multi-objects selected)
+    show = request.REQUEST.get('show', '')
+    for i in show.split("|"):
         if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
-            init['initially_open'].append(str(i))
-        elif i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
             init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
     if len(init['initially_open']) > 0:
-        init['initially_select'] = init['initially_open'][-1]
-        first_obj, first_id = init['initially_open'][0].split("-")
+        init['initially_select'] = init['initially_open'][:]    # copy list
+        first_obj, first_id = init['initially_open'][0].split("-",1)
         try:
             first_sel = conn.getObject(first_obj, long(first_id))
         except ValueError:
@@ -360,6 +363,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
+    if first_sel is not None:
+        user_id = first_sel.details.owner.id.val
     try:
         user_id = long(user_id)
     except:
