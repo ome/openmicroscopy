@@ -255,9 +255,9 @@ if __name__ == "__main__":
 
     pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Groups_Permissions.py', 'python/Raw_Data_Access.py', 
         'python/Write_Data.py', 'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 
-        'python/Create_Image.py', 'python/Scripting_Service_Example.py']
+        'python/Create_Image.py' ]
     titles = ['Connect to OMERO', 'Read Data', 'Groups & Permissions', 'Raw Data Access', 'Write Data', 
-        'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image', 'Python OMERO.scripts' ]
+        'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image' ]
 
     if "--check_header" in sys.argv:
         for py in pythonFiles:
