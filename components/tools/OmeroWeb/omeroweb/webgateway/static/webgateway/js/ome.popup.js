@@ -367,7 +367,9 @@ var login_dialog = function(login_url, callback) {
             var plugin_index = settings['plugin_index'],
                 load_plugin_content = settings['load_plugin_content'],
                 supported_obj_types = settings['supported_obj_types'],
-                plugin_enabled = settings['plugin_enabled'];      // only used if 'supported_obj_types' undefined
+                plugin_enabled = settings['plugin_enabled'],      // only used if 'supported_obj_types' undefined
+                empty_on_sel_change = settings['empty_on_sel_change'];
+            if (typeof empty_on_sel_change == 'undefined') empty_on_sel_change = true;  // TODO use default settings
 
             var update_plugin_content = function() {
                 // get the selected id etc
@@ -379,8 +381,8 @@ var login_dialog = function(login_url, callback) {
                 var dtype = obj_id.split("-")[0];    // E.g. 'image'
                 var oid = obj_id.split("-")[1];
 
-                // if the tab is visible and not loaded yet...
-                if ($this.is(":visible") && $this.is(":empty")) {
+                // if the tab is visible...
+                if ($this.is(":visible")) {
                     // we want the context of load_plugin_content to be $this
                     $.proxy(load_plugin_content,$this)(selected, dtype, oid);
                 };
@@ -393,7 +395,9 @@ var login_dialog = function(login_url, callback) {
             $("body").bind("selection_change.ome", function(event) {
 
                 // clear contents of panel
-                $this.empty();
+                if (empty_on_sel_change) {
+                    $this.empty();
+                }
 
                 // get selected objects
                 var selected = $("body").data("selected_objects.ome");
@@ -418,6 +422,8 @@ var login_dialog = function(login_url, callback) {
                 set_center_plugin_enabled(plugin_index, supported);
                 if(supported) {
                     update_plugin_content();
+                } else {
+                    $this.empty();
                 }
             });
         });
