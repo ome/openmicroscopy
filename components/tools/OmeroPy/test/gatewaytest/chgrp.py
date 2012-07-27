@@ -29,12 +29,12 @@ class ChgrpTest (lib.GTest):
         self.image = self.getTestImage()
 
 
-    def doChange(self, obj_type, obj_id, group_id, container_id=None, test_should_pass=True, return_complete=True):
+    def doChange(self, obj_type, obj_ids, group_id, container_id=None, test_should_pass=True, return_complete=True):
         """
         Performs the change-group action, waits on completion and checks that the 
         result is not an error.
         """
-        prx = self.gateway.chgrpObjects(obj_type, [obj_id], group_id, container_id)
+        prx = self.gateway.chgrpObjects(obj_type, obj_ids, group_id, container_id)
         
         if not return_complete:
             return prx
@@ -76,7 +76,7 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
         # Do the Chgrp
-        rsp = self.doChange("Image", image.getId(), gid)
+        rsp = self.doChange("Image", [image.getId()], gid)
 
         # Image should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
@@ -103,7 +103,7 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
         # Do the Chgrp
-        rsp = self.doChange("Dataset", dataset.getId(), gid)
+        rsp = self.doChange("Dataset", [dataset.getId()], gid)
 
         # Dataset should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Dataset", dataset.id), "Dataset should not be available in original group")
@@ -134,7 +134,7 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
         # Do the Chgrp
-        rsp = self.doChange("Project", project.getId(), gid)
+        rsp = self.doChange("Project", [project.getId()], gid)
 
         # Image should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
@@ -187,7 +187,7 @@ class ChgrpTest (lib.GTest):
         self.gateway.setGroupForSession(orig_gid)   # switch back
 
         # Do the Chgrp with one of the parents
-        rsp = self.doChange("Dataset", new_ds.id.val, gid)
+        rsp = self.doChange("Dataset", [new_ds.id.val], gid)
 
         # Dataset should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Dataset", new_ds.id.val), "Dataset should not be available in original group")
@@ -198,7 +198,7 @@ class ChgrpTest (lib.GTest):
 
         # Do the Chgrp with the OTHER parent
         self.gateway.setGroupForSession(gid)    # switch BEFORE doChange to allow Project link Save
-        rsp = self.doChange("Dataset", dataset.id, gid, container_id=p.id.val)
+        rsp = self.doChange("Dataset", [dataset.id], gid, container_id=p.id.val)
 
         # Confirm that Dataset AND Image is now in new group
         ctx = self.gateway.getAdminService().getEventContext()
@@ -213,6 +213,51 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, img, "Image should now be available in new group")
         self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
 
+
+    def testMultiDatasetDoAll(self):
+        """
+        Need to enable chgrp independently of EventContext group being the destination group.
+        Other tests that do not set omero.group require this for DoAll Save to work.
+        """
+        ctx = self.gateway.getAdminService().getEventContext()
+        uuid = ctx.sessionUuid
+        update = self.gateway.getUpdateService()
+
+        new_ds = omero.model.DatasetI()
+        new_ds.name = rstring("testMultiDatasetDoAll")
+        new_ds = update.saveAndReturnObject(new_ds)
+        
+        new_ds2 = omero.model.DatasetI()
+        new_ds2.name = rstring("testMultiDatasetDoAll2")
+        new_ds2 = update.saveAndReturnObject(new_ds2)
+        
+        # new group
+        self.loginAsAdmin()
+        gid = self.gateway.createGroup("testMultiDatasetDoAll-%s" % uuid, member_Ids=[ctx.userId])
+        self.loginAsAuthor()
+        
+        # create Project in new group
+        self.gateway.SERVICE_OPTS.setOmeroGroup(gid)
+        p = omero.model.ProjectI()
+        p.name = rstring("testMultiChgrp")
+        p = self.gateway.getUpdateService().saveAndReturnObject(p, self.gateway.SERVICE_OPTS)
+        self.assertEqual(p.details.group.id.val, gid, "Project should be created in target group")
+        
+        # Test that this works whichever group you're in
+        self.gateway.SERVICE_OPTS.setOmeroGroup(ctx.groupId)
+        dsIds = [new_ds.id.val, new_ds2.id.val]
+        
+        # Chgrp
+        rsp = self.doChange("Dataset", dsIds, gid, container_id=p.id.val)
+        
+        # Check all objects in destination group
+        self.gateway.SERVICE_OPTS.setOmeroGroup(-1)     # we can get objects from either group...
+        p = self.gateway.getObject("Project", p.id.val)
+        datasets = list(p.listChildren())
+        self.assertEqual(len(datasets), 2, "Project should have 2 new Datasets")
+        for d in datasets:
+            self.assertEqual(d.details.group.id.val, gid, "Dataset should be in new group")
+            self.assertTrue(d.getId() in dsIds, "Checking Datasets by ID")
 
     def testChgrpAsync(self):
         """
@@ -229,7 +274,7 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
         # Do the Chgrp
-        rsp = self.doChange("Image", image.getId(), gid, return_complete=False)
+        rsp = self.doChange("Image", [image.getId()], gid, return_complete=False)
         
         while rsp.getResponse() is None:
             # while waiting, try various things to reproduce race condition seen in web.
