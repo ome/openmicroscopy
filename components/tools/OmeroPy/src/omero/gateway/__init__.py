@@ -25,7 +25,8 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
-from omero.cmd import Chgrp
+from omero.cmd import Chgrp, DoAll
+from omero.api import Save
 from omero.callbacks import CmdCallbackI
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
@@ -3152,16 +3153,16 @@ class _BlitzGateway (object):
         return prx
 
 
-    def chgrpObject(self, graph_spec, obj_id, group_id):
+    def chgrpObjects(self, graph_spec, obj_ids, group_id, container_id=None):
         """
-        Change the Group for a specified object using queue.
+        Change the Group for a specified objects using queue.
 
         @param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
                                  * '/Image'
                                  * '/Project'   # will move contents too.
                                  * NB: Also supports 'Image' etc for convenience
-        @param obj_id:          ID for the object to move.
+        @param obj_ids:         IDs for the objects to move.
         @param group_id:        The group to move the data to.
         """
 
@@ -3169,9 +3170,26 @@ class _BlitzGateway (object):
             graph_spec = '/%s' % graph_spec
             logger.debug('chgrp Received object type, using "%s"' % graph_spec)
 
-        chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
+        # (link, child, parent)
+        parentLinkClasses = {"/Image": (omero.model.DatasetImageLinkI, omero.model.ImageI, omero.model.DatasetI),
+                        "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI)}
+        da = DoAll()
+        requests = []
+        for obj_id in obj_ids:
+            chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
+            requests.append(chgrp)
+            if container_id is not None and graph_spec in parentLinkClasses:
+                # get link class for graph_spec objects
+                link_klass = parentLinkClasses[graph_spec][0]
+                link = link_klass()
+                link.child = parentLinkClasses[graph_spec][1](obj_id, False)
+                link.parent = parentLinkClasses[graph_spec][2](container_id, False)
+                save = Save()
+                save.obj = link
+                requests.append(save)
 
-        prx = self.c.sf.submit(chgrp)
+        da.requests = requests
+        prx = self.c.sf.submit(da)
         return prx
 
 
