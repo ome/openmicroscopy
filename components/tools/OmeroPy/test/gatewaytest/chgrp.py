@@ -29,12 +29,12 @@ class ChgrpTest (lib.GTest):
         self.image = self.getTestImage()
 
 
-    def doChange(self, obj_type, obj_id, group_id, test_should_pass=True, return_complete=True):
+    def doChange(self, obj_type, obj_id, group_id, container_id=None, test_should_pass=True, return_complete=True):
         """
         Performs the change-group action, waits on completion and checks that the 
         result is not an error.
         """
-        prx = self.gateway.chgrpObject(obj_type, obj_id, group_id)
+        prx = self.gateway.chgrpObjects(obj_type, [obj_id], group_id, container_id)
         
         if not return_complete:
             return prx
@@ -152,7 +152,7 @@ class ChgrpTest (lib.GTest):
         self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
 
 
-    def testTwoDatasetsChgrp(self):
+    def testTwoDatasetsChgrpToProject(self):
         """
         Create a new group with the User as member. Image has 2 Dataset Parents.
         Test move one Dataset to new group. Image does not move. Move 2nd Dataset - Image moves.
@@ -178,6 +178,14 @@ class ChgrpTest (lib.GTest):
         self.loginAsAuthor()
         self.assertNotEqual(None, self.gateway.getObject("Dataset", dataset.id))
 
+        # create Project in destination group
+        self.gateway.setGroupForSession(gid)
+        p = omero.model.ProjectI()
+        p.name = rstring("testTwoDatasetsChgrpToProject")
+        p = self.gateway.getUpdateService().saveAndReturnObject(p)
+        self.assertEqual(p.details.group.id.val, gid, "Project should be created in target group")
+        self.gateway.setGroupForSession(orig_gid)   # switch back
+
         # Do the Chgrp with one of the parents
         rsp = self.doChange("Dataset", new_ds.id.val, gid)
 
@@ -189,14 +197,17 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, img, "Image should still be available in original group")
 
         # Do the Chgrp with the OTHER parent
-        self.gateway.setGroupForSession(orig_gid)
-        rsp = self.doChange("Dataset", dataset.id, gid)
+        self.gateway.setGroupForSession(gid)    # switch BEFORE doChange to allow Project link Save
+        rsp = self.doChange("Dataset", dataset.id, gid, container_id=p.id.val)
 
         # Confirm that Dataset AND Image is now in new group
-        self.gateway.setGroupForSession(gid)
         ctx = self.gateway.getAdminService().getEventContext()
         ds = self.gateway.getObject("Dataset", dataset.id)
+        projects = list(ds.listParents())
+        self.assertEqual(len(projects), 1, "Dataset should have one parent Project in new group")
+        self.assertEqual(projects[0].getId(), p.id.val, "Check Dataset parent is Project created above")
         self.assertNotEqual(None, ds, "Dataset should now be available in new group")
+        self.assertEqual(ds.getDetails().getGroup().id, gid, "Dataset group.id should match new group")
 
         img = self.gateway.getObject("Image", image.id)
         self.assertNotEqual(None, img, "Image should now be available in new group")
