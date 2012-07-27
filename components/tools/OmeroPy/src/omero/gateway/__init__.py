@@ -3189,7 +3189,9 @@ class _BlitzGateway (object):
                 requests.append(save)
 
         da.requests = requests
-        prx = self.c.sf.submit(da)
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(group_id)         # NB: For Save to work, we need to be in target group
+        prx = self.c.sf.submit(da, ctx)
         return prx
 
 
