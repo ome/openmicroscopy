@@ -3172,7 +3172,8 @@ class _BlitzGateway (object):
 
         # (link, child, parent)
         parentLinkClasses = {"/Image": (omero.model.DatasetImageLinkI, omero.model.ImageI, omero.model.DatasetI),
-                        "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI)}
+                        "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI),
+                        "/Plate": (omero.model.ScreenPlateLinkI, omero.model.PlateI, omero.model.ScreenI)}
         da = DoAll()
         requests = []
         for obj_id in obj_ids:
