@@ -56,16 +56,14 @@
                         </td>
                         <td class="script_description">
                             <span class="activity_title">
-                                Move {{ j.dtype }} to Group
+                                Move {{ j.dtype }}{{ j.obj_ids|pluralize }} to Group
                             </span>
                             <span class="message">
                                 {% ifequal j.status "in progress" %}
-                                    Moving {{ j.dtype }} to Group '{{ j.group }}'...
+                                    Moving {{ j.dtype }}{{ j.obj_ids|pluralize }} to Group '{{ j.group }}'...
                                 {% else %}
                                     {% ifequal j.status "finished" %}
-                                        {{ j.dtype }} moved to Group '{{ j.group }}'{% ifequal j.dtype "Image" %}.
-                                            Will be 'ophaned' in new group
-                                        {% endifequal %}
+                                        {{ j.dtype }}{{ j.obj_ids|pluralize }} moved to Group '{{ j.group }}'
                                     {% endifequal %}
                                     {% if j.error %}
                                         <div class="chgrp_error">
