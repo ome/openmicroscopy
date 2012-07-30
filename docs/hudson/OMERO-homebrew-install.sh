@@ -21,12 +21,15 @@ if (pip --version)
 then
     # Remove tables manually 
 	pip freeze -l | grep tables && pip uninstall -y tables
+
+	# Solve Cython uninstallation error exit
+	(pip freeze -l | grep Cython && pip uninstall -y Cython) || echo "Cython uninstalled"
+
 	for plugin in $(pip freeze -l); do
    		packagename=$(echo "$plugin" | awk -F == '{print $1}')
    		echo "Uninstalling $packagename..."
 		pip uninstall -y $packagename
 	done
-	# SB: there is a problem with pip uninstall Cython
 fi
 
 # Re-install git and update homebrew
