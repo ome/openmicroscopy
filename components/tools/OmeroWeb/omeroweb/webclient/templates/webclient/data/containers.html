@@ -50,7 +50,7 @@
             else if (chgrp_type == "plate") chgrp_target_url += "/screen/";
             
             if (chgrp_type == "project" || chgrp_type == "screen") {
-                $("#move_group_tree").html("<h1>"+ chgrp_type +" will be moved to group: " + gname +"</h1>");
+                $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
             } else {
                 // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
                 $("#move_group_tree").load(chgrp_target_url, function(){
@@ -61,7 +61,7 @@
                         if ($child_list.length > 0) {
                             $("ul" ,$(this).parent()).toggle();
                         } else {
-                            $(this).addClass("jstree-clicked");
+                            $("a" ,$(this).parent()).addClass("jstree-clicked");
                         }
                     };
                     $("#move_group_tree a").click(node_click);
