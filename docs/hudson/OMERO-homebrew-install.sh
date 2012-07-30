@@ -29,9 +29,10 @@ then
 	# SB: there is a problem with pip uninstall Cython
 fi
 
-# Update homebrew and re-install git
-brew update
+# Re-install git and update homebrew
 brew install git
+brew update
+
 
 export PATH=/usr/local/bin:$PATH
 
