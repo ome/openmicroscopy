@@ -454,6 +454,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 if index == 0:
                     index = fields[0]
             context['baseurl'] = reverse('webgateway').rstrip('/')
+            context['form_well_index'] = form_well_index
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
@@ -587,7 +588,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     form_well_index = None    
     
     
-    context = {'manager':manager, 'form_well_index':form_well_index}
+    context = {'manager':manager}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
