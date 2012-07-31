@@ -53,6 +53,7 @@ chmod +x /tmp/omero_homebrew.sh
 . /tmp/omero_homebrew.sh
 
 # Install postgres and omero
+brew install postgresql
 brew install omero
 
 # Set environment variables
