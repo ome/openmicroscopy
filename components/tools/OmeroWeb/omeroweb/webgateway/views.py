@@ -11,6 +11,8 @@
 #
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
+import re
+
 import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
@@ -21,7 +23,7 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
-from omero.rtypes import rlong
+from omero.rtypes import rlong, unwrap
 
 try:
     from hashlib import md5
@@ -54,6 +56,12 @@ from omeroweb.decorators import login_required
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
+
+# OMERO.insight point list regular expression
+INSIGHT_POINT_LIST_RE = re.compile(r'points\[([^\]]+)\]')
+
+# OME model point list regular expression
+OME_MODEL_POINT_LIST_RE = re.compile(r'([\d.]+),([\d.]+)')
 
 try:
     import Image
@@ -1258,6 +1266,90 @@ def imageMarshal (image, key=None):
             rv = None
     return rv
 
+def shapeMarshal(shape):
+    """
+    return a dict with all there is to know about a shape
+
+    @param channel:     L{omero.model.ShapeI}
+    @return:            Dict
+    """
+    rv = {}
+
+    def set_if(k, v, func=lambda a: a is not None):
+        """
+        Sets the key L{k} with the value of L{v} if the unwrapped value L{v}
+        passed to L{func} evaluates to True.  In the default case this is
+        True if the unwrapped value L{v} is not None.
+        """
+        v = unwrap(v)
+        if func(v):
+            rv[k] = v
+
+    rv['id'] = shape.getId().getValue()
+    rv['theT'] = shape.getTheT().getValue()
+    rv['theZ'] = shape.getTheZ().getValue()
+    shape_type = type(shape)
+    if shape_type == omero.model.RectI:
+        rv['type'] = 'Rectangle'
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+        rv['width'] = shape.getWidth().getValue()
+        rv['height'] = shape.getHeight().getValue()
+    elif shape_type == omero.model.MaskI:
+        rv['type'] = 'Mask'
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+        rv['width'] = shape.getWidth().getValue()
+        rv['height'] = shape.getHeight().getValue()
+        # TODO: support for mask
+    elif shape_type == omero.model.EllipseI:
+        rv['type'] = 'Ellipse'
+        rv['cx'] = shape.getCx().getValue()
+        rv['cy'] = shape.getCy().getValue()
+        rv['rx'] = shape.getRx().getValue()
+        rv['ry'] = shape.getRy().getValue()
+    elif shape_type == omero.model.PolylineI:
+        rv['type'] = 'PolyLine'
+        rv['points'] = stringToSvg(shape.getPoints().getValue())
+    elif shape_type == omero.model.LineI:
+        rv['type'] = 'Line'
+        rv['x1'] = shape.getX1().getValue()
+        rv['x2'] = shape.getX2().getValue()
+        rv['y1'] = shape.getY1().getValue()
+        rv['y2'] = shape.getY2().getValue()
+    elif shape_type == omero.model.PointI:
+        rv['type'] = 'Point'
+        rv['cx'] = shape.getCx().getValue()
+        rv['cy'] = shape.getCy().getValue()
+    elif shape_type == omero.model.PolygonI:
+        rv['type'] = 'Polygon'
+        rv['points'] = stringToSvg(shape.getPoints().getValue()) + "z" # z = closed line
+    elif shape_type == omero.model.LabelI:
+        rv['type'] = 'Label'
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+    else:
+        logger.debug("Shape type not supported: %s" % str(shape_type))
+
+    text_value = unwrap(shape.getTextValue())
+    if text_value is not None:
+        # only populate json with font styles if we have some text
+        rv['textValue'] = text_value
+        set_if('fontSize', shape.getFontSize())
+        set_if('fontStyle', shape.getFontStyle())
+        set_if('fontFamily', shape.getFontFamily())
+
+    set_if('transform', shape.getTransform(),
+           func=lambda a: a is not None and a != 'None')
+    fill_color = unwrap(shape.getFillColor())
+    if fill_color is not None:
+        rv['fillColor'], rv['fillAlpha'] = rgb_int2css(fill_color)
+    stroke_color = unwrap(shape.getStrokeColor())
+    if stroke_color is not None:
+        rv['strokeColor'], rv['strokeAlpha'] = rgb_int2css(stroke_color)
+    set_if('strokeWidth', shape.getStrokeWidth())
+    return rv
+
 @login_required()
 @jsonp
 def imageData_json (request, conn=None, _internal=False, **kwargs):
@@ -1742,35 +1834,54 @@ def full_viewer (request, iid, conn=None, **kwargs):
         raise Http404
     return HttpResponse(rsp)
 
+def stringToSvg(string):
+    """
+    Method for converting the string returned from omero.model.ShapeI.getPoints()
+    into an SVG for display on web.
+    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+    To: M 309 427 L 366 503 L 190 491 z
+    """
+    point_list = string.strip()
+    match = INSIGHT_POINT_LIST_RE.search(point_list)
+    if match is not None:
+        point_list = match.group(1)
+    point_list = OME_MODEL_POINT_LIST_RE.findall(point_list)
+    if len(point_list) == 0:
+        logger.error("Unrecognised ROI shape 'points' string: %r" % string)
+        return ""
+    point_list = ' L '.join([' '.join(point) for point in point_list])
+    return "M %s " % point_list
+
+def rgb_int2css(rgbint):
+    """
+    converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
+    """
+    alpha = rgbint // 256 // 256 // 256 % 256
+    alpha = float(alpha) / 256
+    r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    return "#%02x%02x%02x" % (r,g,b) , alpha
+
+@login_required()
+def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
+    roiId = int(roiId)
+    shapeId = int(shapeId)
+    shape = conn.getQueryService().findByQuery(
+            'select shape from Roi as roi ' \
+            'join roi.shapes as shape ' \
+            'where roi.id = %d and shape.id = %d' % (roiId, shapeId),
+            None)
+    logger.debug('Shape: %r' % shape)
+    if shape is None:
+        logger.debug('No such shape: %r' % shapeId)
+        raise Http404
+    return HttpResponse(simplejson.dumps(shapeMarshal(shape)),
+            mimetype='application/javascript')
+
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
     """
     Returns json data of the ROIs in the specified image. 
     """
-    def stringToSvg(string):
-        """
-        Method for converting the string returned from omero.model.ShapeI.getPoints()
-        into an SVG for display on web.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
-        To: M 309 427 L 366 503 L 190 491 z
-        """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
-        nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
-        return "M" + nums
-
-    def rgb_int2css(rgbint):
-        """
-        converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
-        """
-        alpha = rgbint // 256 // 256 // 256 % 256
-        alpha = float(alpha) / 256
-        r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
-        return "#%02x%02x%02x" % (r,g,b) , alpha
-            
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
@@ -1782,75 +1893,9 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         # go through all the shapes of the ROI
         shapes = []
         for s in r.copyShapes():
-            shape = {}
             if s is None:   # seems possible in some situations
                 continue
-            shape['id'] = s.getId().getValue()
-            shape['theT'] = s.getTheT().getValue()
-            shape['theZ'] = s.getTheZ().getValue()
-            if type(s) == omero.model.RectI:
-                shape['type'] = 'Rectangle'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-                shape['width'] = s.getWidth().getValue()
-                shape['height'] = s.getHeight().getValue()
-            elif type(s) == omero.model.MaskI:
-                shape['type'] = 'Mask'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-                shape['width'] = s.getWidth().getValue()
-                shape['height'] = s.getHeight().getValue()
-                # TODO: support for mask
-            elif type(s) == omero.model.EllipseI:
-                shape['type'] = 'Ellipse'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-                shape['rx'] = s.getRx().getValue()
-                shape['ry'] = s.getRy().getValue()
-            elif type(s) == omero.model.PolylineI:
-                shape['type'] = 'PolyLine'
-                shape['points'] = stringToSvg(s.getPoints().getValue())
-            elif type(s) == omero.model.LineI:
-                shape['type'] = 'Line'
-                shape['x1'] = s.getX1().getValue()
-                shape['x2'] = s.getX2().getValue()
-                shape['y1'] = s.getY1().getValue()
-                shape['y2'] = s.getY2().getValue()
-            elif type(s) == omero.model.PointI:
-                shape['type'] = 'Point'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-            elif type(s) == omero.model.PolygonI:
-                shape['type'] = 'Polygon'
-                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
-            elif type(s) == omero.model.LabelI:
-                shape['type'] = 'Label'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-            else:
-                logger.debug("Shape type not supported: %s" % str(type(s)))
-            try:
-                if s.getTextValue() and s.getTextValue().getValue():
-                    shape['textValue'] = s.getTextValue().getValue()
-                    # only populate json with font styles if we have some text
-                    if s.getFontSize() and s.getFontSize().getValue():
-                        shape['fontSize'] = s.getFontSize().getValue()
-                    if s.getFontStyle() and s.getFontStyle().getValue():
-                        shape['fontStyle'] = s.getFontStyle().getValue()
-                    if s.getFontFamily() and s.getFontFamily().getValue():
-                        shape['fontFamily'] = s.getFontFamily().getValue()
-            except AttributeError: pass
-            if s.getTransform():
-                t = s.getTransform().getValue()
-                if t and t != 'none':
-                    shape['transform'] = t
-            if s.getFillColor() and s.getFillColor().getValue():
-                shape['fillColor'], shape['fillAlpha'] = rgb_int2css(s.getFillColor().getValue())
-            if s.getStrokeColor() and s.getStrokeColor().getValue():
-                shape['strokeColor'], shape['strokeAlpha'] = rgb_int2css(s.getStrokeColor().getValue())
-            if s.getStrokeWidth() and s.getStrokeWidth().getValue():
-                shape['strokeWidth'] = s.getStrokeWidth().getValue()
-            shapes.append(shape)
+            shapes.append(shapeMarshal(s))
         # sort shapes by Z, then T. 
         shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
         roi['shapes'] = shapes
