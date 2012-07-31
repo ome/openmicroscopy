@@ -1949,7 +1949,7 @@ class ImViewerModel
 		buf.append("\n");
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
-		String range = "ZRange_"+(startZ+1)+"_"+(endZ+1)+"_";
+		String range = "_ZRange_"+(startZ+1)+"_"+(endZ+1);
 		int startT = ref.getStartT();
 		int endT = ref.getEndT();
 		if (startT == endT) buf.append("timepoint: "+(startT+1));
@@ -1957,7 +1957,7 @@ class ImViewerModel
 		List<Integer> channels = ref.getChannels();
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				startZ, endZ, stepping, type, startT, endT, channels, 
-				range+ref.getImageName());
+				ref.getImageName()+range);
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
 		param.setDatasetParent(ref.getProject());
