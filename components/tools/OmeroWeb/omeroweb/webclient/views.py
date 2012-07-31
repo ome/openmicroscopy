@@ -1085,7 +1085,7 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
