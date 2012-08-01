@@ -284,7 +284,7 @@
 			text-shadow:0 1px 0 white;
 		}
 		
-		.dropdown, .dropdown ul, .info_panel {
+		.dropdown, .dropdown ul, .info_panel, .info_popup {
 			background: #f2f2f2;
 			-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.5);
 			
@@ -313,7 +313,7 @@
 		
 		/* Context Box Arrow */
 		
-		.dropdown:before, .info_panel:before {
+		.dropdown:before, .info_panel:before, .info_popup:before {
 			top:-10px;
 			content:'';
 			width:20px;
@@ -332,6 +332,10 @@
 			left:9px;
 			z-index:999;
 			background:url(../img/contextbox_arrowup.png) center bottom no-repeat;	
+		}
+		.info_popup:before {
+		    right:10px;
+		    background:url(../img/contextbox_arrowup2.png) center bottom no-repeat;	
 		}
 		
 		#listViewPort {
