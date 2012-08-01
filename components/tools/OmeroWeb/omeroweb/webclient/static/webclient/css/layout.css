@@ -632,6 +632,7 @@
 		
 	
 	    .data_heading_id {
+	        position: relative;
 	        font-size:1em;
 	        color:hsl(210,5%,60%);
 	    }
