@@ -45,9 +45,11 @@
             $("#chgrp-form").dialog('open');
             var chgrp_target_url = "{% url webindex %}load_chgrp_target/"+gid;
             var chgrp_type = oid.split("-")[0];
-            if (chgrp_type == "dataset") chgrp_target_url += "/project/";
-            else if (chgrp_type == "image") chgrp_target_url += "/dataset/";
-            else if (chgrp_type == "plate") chgrp_target_url += "/screen/";
+            var target_type;
+            if (chgrp_type == "dataset") target_type = "project";
+            else if (chgrp_type == "image") target_type = "dataset";
+            else if (chgrp_type == "plate") target_type = "screen";
+            chgrp_target_url += "/"+target_type+"/";
             
             if (chgrp_type == "project" || chgrp_type == "screen") {
                 $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
@@ -56,13 +58,12 @@
                 $("#move_group_tree").load(chgrp_target_url, function(){
                     var node_click = function(){
                         $("#move_group_tree a").removeClass("jstree-clicked");
-                        var $child_list = $("ul li" ,$(this).parent());
-                        // only allow selection of leaf nodes
-                        if ($child_list.length > 0) {
-                            $("ul" ,$(this).parent()).toggle();
-                        } else {
+                        // only allow selection of correct nodes
+                        if ($(this).parent().attr('rel') == target_type) {
                             $("a" ,$(this).parent()).addClass("jstree-clicked");
                         }
+                        // toggle any children
+                        $("ul" ,$(this).parent()).toggle();
                     };
                     $("#move_group_tree a").click(node_click);
                     $("#move_group_tree ins").click(node_click);
