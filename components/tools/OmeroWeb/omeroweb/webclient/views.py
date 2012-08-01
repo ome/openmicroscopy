@@ -482,7 +482,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
     return context
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
