@@ -1286,8 +1286,8 @@ def shapeMarshal(shape):
             rv[k] = v
 
     rv['id'] = shape.getId().getValue()
-    rv['theT'] = shape.getTheT().getValue()
-    rv['theZ'] = shape.getTheZ().getValue()
+    set_if('theT', shape.getTheT())
+    set_if('theZ', shape.getTheZ())
     shape_type = type(shape)
     if shape_type == omero.model.RectI:
         rv['type'] = 'Rectangle'
@@ -1897,7 +1897,8 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
                 continue
             shapes.append(shapeMarshal(s))
         # sort shapes by Z, then T. 
-        shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
+        shapes.sort(key=lambda x:
+                "%03d%03d"% (x.get('theZ', -1), x.get('theT', -1)));
         roi['shapes'] = shapes
         rois.append(roi)
         

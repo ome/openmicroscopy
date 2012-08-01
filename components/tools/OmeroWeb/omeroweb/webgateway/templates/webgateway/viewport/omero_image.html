@@ -576,10 +576,20 @@
           var text;
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
-              if (minT === null || minT > shape['theT']) minT = shape['theT'];
-              if (maxT === null || maxT < shape['theT']) maxT = shape['theT'];
-              if (minZ === null || minZ > shape['theZ']) minZ = shape['theZ'];
-              if (maxZ === null || maxZ < shape['theZ']) maxZ = shape['theZ'];
+              // Handle cases where the shape is on all sections or all
+              // timepoints.
+              if (!shape.theT) {
+                  minT = 0;
+                  maxT = viewport.getTCount() - 1;
+              }
+              if (!shape.theZ) {
+                  minZ = 0;
+                  maxZ = viewport.getZCount() - 1;
+              }
+              if (minT === null || minT > shape.theT) minT = shape.theT;
+              if (maxT === null || maxT < shape.theT) maxT = shape.theT;
+              if (minZ === null || minZ > shape.theZ) minZ = shape.theZ;
+              if (maxZ === null || maxZ < shape.theZ) maxZ = shape.theZ;
               if (shape['textValue'] != null) {
                   text = shape['textValue']
                   if (firstText == null) firstText = text;
@@ -595,8 +605,10 @@
               shapesHtml += "<td></td>";
               shapesHtml += "<td class='shape_cell icon'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
-              shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
+              var theZ = !shape.theZ? "All" : shape.theZ + 1;
+              shapesHtml += "<td class='shape_cell'>" + theZ + "</td>";
+              var theT = !shape.theT? "All" : shape.theT + 1;
+              shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
               shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
@@ -1247,8 +1259,10 @@
             var scale = vpb.currentScale();
             vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true, true);
         }
-        var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
-        var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
+        var z = $shapeRow.find('td:nth-child(4)').text();
+        z = z == "All"? 0 : parseInt(z);
+        var t = $shapeRow.find('td:nth-child(5)').text();
+        t = t == "All"? 0 : parseInt(t);
         viewport.setZPos(z);
         viewport.setTPos(t);
     }
