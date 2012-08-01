@@ -157,7 +157,7 @@
 
 		/* Title of Info Panel Context Box */
 		
-			.info_panel_title {
+			.info_panel_title, .info_popup {
 			    border: solid #B0B7BB 1px;
 				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#E7E8E9', endColorstr='#D8DADC',GradientType=0 ); /* IE6-9 */
 			}

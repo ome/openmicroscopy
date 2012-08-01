@@ -396,17 +396,6 @@ class BlitzObjectWrapper (object):
         """
         return self._conn.canOwnerWrite(self)
     
-    def canDelete(self):
-        """
-        Determines whether the current user can delete this object.
-        Returns True if the object L{isOwned} by the current user or L{isLeaded}
-        (current user is leader of this the group that this object belongs to)
-        
-        @rtype:     Boolean
-        @return:    see above
-        """
-        return self.isOwned() or self.isLeaded()
-    
     def isOwned(self):
         """
         Returns True if the object owner is the same user specified in the connection's Event Context
@@ -701,11 +690,14 @@ class BlitzObjectWrapper (object):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
+        # Need to set group context. If '-1' then canDelete() etc on annotations will be False
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
             query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
             "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
             "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
-            links = self._conn.getQueryService().findAllByQuery(query, None, self._conn.SERVICE_OPTS)
+            links = self._conn.getQueryService().findAllByQuery(query, None, ctx)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 

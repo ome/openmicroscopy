@@ -22,78 +22,25 @@
 
 $(document).ready(function() {
     
-    // this script is an 'include' within a django for-loop, so we can get our index:
-    var acquisition_tab_index = {{ forloop.counter }};
-    var $metadata_acquisition = $("#metadata_tab");
-
-    var update_acquisition_tab = function() {
-
-        // get the selected id etc
-        var selected = $("body").data("selected_objects.ome");
-        if (!selected) return;
-        if (selected.length != 1) return;
-        var orel = selected[0]["id"].split("-")[0];
-        if ((orel!="image") && (orel!="well")) return;
-
-        var oid = selected[0]["id"];
-        // if the tab is visible and not loaded yet...
-        if ($metadata_acquisition.is(":visible") && $metadata_acquisition.is(":empty")) {
-            var url = null;
+    $("#metadata_tab").omeroweb_right_plugin({
+        plugin_index:{{ forloop.counter }},
+        load_tab_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
             var well_index = selected[0]["index"] || 0;
+            var url;
             if (selected[0]["share"]) {
-                url = '{% url webindex %}metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/?index='+well_index;
+                url = '{% url webindex %}metadata_acquisition/'+obj_dtype+'/'+obj_id+'/'+selected[0]["share"];
             } else {
-                url = '{% url webindex %}metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
+                url = '{% url webindex %}metadata_acquisition/'+obj_dtype+'/'+obj_id;
             }
-            $metadata_acquisition.html("<h1 style='padding: 20px 15px'><img src='{% static 'webgateway/img/spinner.gif' %}'/> Loading metadata...</h1>");
-            $metadata_acquisition.load(url);
-        };
-    };
-    
-    // update tabs when tree selection changes or tabs switch
-    $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
-        if (tab.index == acquisition_tab_index) {
-            $metadata_acquisition.show();   // sometimes this doesn't get shown until too late
-            update_acquisition_tab();
-        }
+            if (well_index > 0) {
+                url = url + '?index='+well_index;
+            }
+            $(this).html("<h1 style='padding: 20px 15px'><img src='{% static 'webgateway/img/spinner.gif' %}'/>Loading metadata...</h1>");
+            $(this).load(url);
+        },
+        supported_obj_types: ['image']
     });
 
-    // on change of selection, update which tabs are enabled
-    $("body").bind("selection_change.ome", function(event) {
-
-        // clear contents of all panels
-        $("#metadata_tab").empty();
-
-        var selected = $("body").data("selected_objects.ome");
-        // if nothing selected, disable and we're done.
-        if (selected.length == 0) {
-            $("#annotation_tabs").tabs("disable", acquisition_tab_index);
-            return;
-        }
-        var orel = selected[0]["id"].split("-")[0];
-
-        // we only care about changing selection if this tab is selected...
-        var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
-        if (acquisition_tab_index == select_tab) {
-            // we don't want to select this tab if multiple selected
-            if (((orel!="image") && (orel != "well")) || (selected.length > 1)) {
-                $("#annotation_tabs").tabs("select", 0);
-            }
-        }
-
-        // update enabled state
-        if((orel=="image" || orel=="well") && (selected.length == 1)) {
-            $("#annotation_tabs").tabs("enable", acquisition_tab_index);
-        } else {
-            $("#annotation_tabs").tabs("disable", acquisition_tab_index);
-        }
-
-        // update tab content
-        update_acquisition_tab();
-    });
-    
-    // update after we've loaded the document
-    update_acquisition_tab();
 });
 
 </script>

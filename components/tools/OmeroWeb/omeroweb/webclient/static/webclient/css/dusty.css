@@ -136,6 +136,9 @@ button::-moz-focus-inner {
 	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
 	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
 	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat; 
+	    float:right;
+	    position: relative}
 	
 	
 	
@@ -144,7 +147,11 @@ button::-moz-focus-inner {
 		height:18px;
 		display:block;
 	}
-	
+	.btn_link span {
+	    width:29px;
+	    height:18px;
+	    display:block;
+	}
 	
 	
 	
@@ -962,6 +969,16 @@ button::-moz-focus-inner {
 			right:-4px;
 			top:2px;
 		}
+	
+	/* same as .filtersearch label for top search field */
+	.inline_label {
+	    position:absolute;
+        z-index:50;
+        font-size:1.3em;
+        font-weight:lighter;
+        top:5px;
+        left:8px;
+	}
 	
 
 

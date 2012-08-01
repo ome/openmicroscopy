@@ -68,7 +68,6 @@ from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
 from webclient.webclient_gateway import OmeroWebGateway
-from omeroweb.webclient.webclient_utils import string_to_dict
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
@@ -143,24 +142,30 @@ def login(request):
                 and _checkVersion(*connector.lookup_host_and_port()):
             conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
-                request.session['connector'] = connector
-                upgradeCheck()
+                # Check if user is in "user" group
+                userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+                if userGroupId in conn.getEventContext().memberOfGroups:
+                    request.session['connector'] = connector
+                    upgradeCheck()
                 
-                # do we ned to display server version ?
-                # server_version = conn.getServerVersion()
-                if request.REQUEST.get('noredirect'):
-                    return HttpResponse('OK')
-                url = request.REQUEST.get("url")
-                if url is not None and len(url) != 0:
-                    return HttpResponseRedirect(url)
+                    # do we ned to display server version ?
+                    # server_version = conn.getServerVersion()
+                    if request.REQUEST.get('noredirect'):
+                        return HttpResponse('OK')
+                    url = request.REQUEST.get("url")
+                    if url is not None and len(url) != 0:
+                        return HttpResponseRedirect(url)
+                    else:
+                        return HttpResponseRedirect(reverse("webindex"))
+                elif username == "guest":
+                    error = "Guest account is for internal OMERO use only. Not for login."
                 else:
-                    return HttpResponseRedirect(reverse("webindex"))
-            else:
-                error = 'Login failed.'
+                    error = "This user is not active."
+
     
     if request.method == 'POST' and server_id is not None:
         s = Server.get(server_id)
-        if s is not None:
+        if s is not None and error is None:
             if not _isServerOn(s.host, s.port):
                 error = "Server is not responding, please contact administrator."
             elif not _checkVersion(s.host, s.port):
@@ -250,18 +255,26 @@ def index_tag_cloud(request, conn=None, **kwargs):
 @login_required()
 def change_active_group(request, conn=None, url=None, **kwargs):
     """
-    Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
-    First we log out and log in again, to force closing of any processes?
-    TODO: This requires usage of request.session.get('password'), which should be avoided.
+    Simply changes the request.session['active_group'] which is then used by the 
+    @login_required decorator to configure conn for any group-based queries.
     Finally this redirects to the 'url'.
     """
-    #TODO: we need to handle exception while changing active group faild, see #
-    
-    active_group = request.REQUEST.get('active_group')
-    request.session.modified = True
-    request.session['active_group'] = active_group
+    switch_active_group(request)
     url = url or reverse("webindex")
     return HttpResponseRedirect(url)
+
+def switch_active_group(request, active_group=None):
+    """
+    Simply changes the request.session['active_group'] which is then used by the 
+    @login_required decorator to configure conn for any group-based queries.
+    """
+    if active_group is None:
+        active_group = request.REQUEST.get('active_group')
+    if 'active_group' not in request.session or active_group != request.session['active_group']:
+        request.session.modified = True
+        request.session['active_group'] = active_group
+        request.session['imageInBasket'] = set()        # empty basket
+        request.session['basket_counter'] = 0
 
 @login_required()
 def logout(request, conn=None, **kwargs):
@@ -305,20 +318,32 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     #tree support
     init = {'initially_open':[], 'initially_select': None}
-    # E.g. path=project=51|dataset=502|image=607:selected
-    for k,v in string_to_dict(request.REQUEST.get('path')).items():
-        if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
-            for i in v.split(","):
-                if ":selected" in str(i) and init['initially_select'] is None:
-                    init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
-                else:
-                    init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
-
-        if init['initially_select'] is None:
-            sdict = string_to_dict(request.REQUEST.get('path'))
-            k = sdict.keys()[-1]
-            init['initially_select'] = k+"-"+sdict[k]
-
+    first_sel = None
+    # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
+    path = request.REQUEST.get('path', '')
+    i = path.split("|")[-1]
+    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+        init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
+    # Now we support show=image-607|image-123  (multi-objects selected)
+    show = request.REQUEST.get('show', '')
+    for i in show.split("|"):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+            init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
+    if len(init['initially_open']) > 0:
+        init['initially_select'] = init['initially_open'][:]    # copy list
+        first_obj, first_id = init['initially_open'][0].split("-",1)
+        try:
+            first_sel = conn.getObject(first_obj, long(first_id))
+        except ValueError:
+            pass    # invalid id
+        if first_obj not in ("project", "screen"):
+            # need to see if first item has parents
+            if first_sel is not None:
+                for p in first_sel.getAncestry():
+                    init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+    # need to be sure that tree will be correct omero.group
+    if first_sel is not None:
+        switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
     if menu == "search" and request.REQUEST.get('search_query'):
@@ -344,6 +369,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
+    if first_sel is not None:
+        user_id = first_sel.details.owner.id.val
     try:
         user_id = long(user_id)
     except:
@@ -380,7 +407,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
@@ -448,6 +475,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 if index == 0:
                     index = fields[0]
             context['baseurl'] = reverse('webgateway').rstrip('/')
+            context['form_well_index'] = form_well_index
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
@@ -466,7 +494,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
@@ -526,7 +554,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
@@ -581,7 +609,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     form_well_index = None    
     
     
-    context = {'manager':manager, 'form_well_index':form_well_index}
+    context = {'manager':manager}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -992,7 +1020,7 @@ def getIds(request):
     return selected
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
@@ -1017,7 +1045,7 @@ def batch_annotate(request, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """ 
@@ -1083,7 +1111,7 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
@@ -1120,7 +1148,7 @@ def annotate_comment(request, conn=None, **kwargs):
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
@@ -1186,7 +1214,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
@@ -1682,7 +1710,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 ##################################################################
 # Basket
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def basket_action (request, action=None, conn=None, **kwargs):
     """
@@ -1850,7 +1878,7 @@ def help(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
@@ -1874,7 +1902,7 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
@@ -1897,7 +1925,7 @@ def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=project=1|dataset=5|image=12601
+    E.g webclient/userdata/?path=image-12601 
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
@@ -1909,46 +1937,15 @@ def getObjectUrl(conn, obj):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
             links = fa.getParentLinks(ptype)
-            for l in links:
-                obj = l.parent
-
-    if isinstance(obj, omero.model.ImageI):
-        # return path from first Project we find, or None if no Projects
-        blitz_obj = conn.getObject("Image", obj.id.val)
-        for d in blitz_obj.listParents():
-            for p in d.listParents():
-                url = "%s?path=project=%d|dataset=%d|image=%d" % (base_url, p.id, d.id, blitz_obj.id)
+            if len(links) > 0:
+                obj = links[0].parent
                 break
-            if url is None:
-                url = "%s?path=dataset=%d|image=%d:selected" % (base_url, d.id, blitz_obj.id)   # if Dataset is orphan
-            break
 
-    if isinstance(obj, omero.model.DatasetI):
-        blitz_obj = conn.getObject("Dataset", obj.id.val)
-        for p in blitz_obj.listParents():
-            url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
-            break
+    if obj.__class__.__name__ in ("ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
+        otype = obj.__class__.__name__[:-1].lower()
+        base_url += "?path=%s-%s" % (otype, obj.id.val)
 
-    if isinstance(obj, omero.model.ProjectI):
-        blitz_obj = conn.getObject("Project", obj.id.val)
-        url = "%s?path=project=%d" % (base_url, obj.id.val)
-
-    if isinstance(obj, omero.model.PlateI):
-        blitz_obj = conn.getObject("Plate", obj.id.val)
-        screen = blitz_obj.getParent()
-        if screen is not None:
-            url = "%s?path=screen=%d|plate=%d" % (base_url, screen.id, blitz_obj.id)
-        else:
-            url = "%s?path=plate=%d" % (base_url, obj.id.val)
-
-    if isinstance(obj, omero.model.ScreenI):
-        blitz_obj = conn.getObject("Screen", obj.id.val)
-        url = "%s?path=screen=%d" % (base_url, obj.id.val)
-
-    if blitz_obj is None:
-        return (url, None)
-    group_id = blitz_obj.getDetails().getGroup().id
-    return (url, group_id)
+    return base_url
 
 
 ######################
@@ -1961,9 +1958,6 @@ def activities(request, conn=None, **kwargs):
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
-
-    # need to be able to retrieve the results from any group
-    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     in_progress = 0
     failure = 0
@@ -2072,9 +2066,7 @@ def activities(request, conn=None, **kwargs):
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
                                 obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
-                                browse_url, group_id = getObjectUrl(conn, v)
-                                obj_data['browse_url'] = browse_url
-                                obj_data['group_id'] = group_id
+                                obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
                                     mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
@@ -2352,7 +2344,7 @@ def chgrp(request, conn=None, **kwargs):
     return HttpResponse("OK")
 
 
-@login_required()
+@login_required(setGroupContext=True)
 def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST
