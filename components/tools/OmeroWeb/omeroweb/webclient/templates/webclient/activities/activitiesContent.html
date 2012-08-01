@@ -64,6 +64,9 @@
                                 {% else %}
                                     {% ifequal j.status "finished" %}
                                         {{ j.dtype }}{{ j.obj_ids|pluralize }} moved to Group '{{ j.group }}'
+                                        <a href="{% url webindex %}?show={% for o in j.obj_ids %}{{ j.dtype|lower }}-{{ o }}{% if not forloop.last %}|{% endif %}{% endfor %}">
+                                            Show {{ j.dtype }}{{ j.obj_ids|pluralize }}
+                                        </a>
                                     {% endifequal %}
                                     {% if j.error %}
                                         <div class="chgrp_error">
