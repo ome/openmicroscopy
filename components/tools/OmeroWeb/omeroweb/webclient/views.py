@@ -1032,8 +1032,9 @@ def batch_annotate(request, conn=None, **kwargs):
     for key in oids:
         obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
     obj_string = "&".join(obj_ids)
+    link_string = "|".join(obj_ids).replace("=", "-")
     
-    context = {'form_comment':form_comment, 'obj_string':obj_string}
+    context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string}
     context['template'] = "webclient/annotations/batch_annotate.html"
     return context
 

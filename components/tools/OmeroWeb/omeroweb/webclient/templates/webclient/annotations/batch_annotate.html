@@ -48,6 +48,20 @@
                 $("#tags_container").hide_if_empty();
 
 
+                // show a link to the current objects
+                $("#show_link_btn").click(function(){
+                    $("#link_info_popup").show();
+                    var lnk = location.href.substring(0,location.href.length - location.search.length);
+                    lnk = lnk + "?show={{ link_string }}";      // E.g. image-123|image-890
+                    var link_input = $("#link_info_popup input");
+                    link_input.val(lnk);
+                    link_input.get(0).focus();
+                    link_input.get(0).select();
+                });
+                $("#link_info_popup img").click(function(){
+                    $("#link_info_popup").hide();
+                });
+
                 // handle submit of Add Comment form
                 $("#add_comment_form").ajaxForm({
                     beforeSubmit: function(data) {
@@ -195,7 +209,17 @@
     </div>
 
 
-	<h1>Batch Annotate:</h1>
+	<h1 style="position: relative">
+	    Batch Annotate:
+	    <!-- multi-object link -->
+        <button id="show_link_btn" class="btn silver btn_link" title="Link to the selected Objects">
+			<span></span>
+		</button>
+		<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+		    <input type="text" size="30">
+		    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+		</div>
+	</h1>
 
 
     <!-- TAGS -->               
