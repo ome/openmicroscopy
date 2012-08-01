@@ -2340,7 +2340,7 @@ def chgrp(request, conn=None, **kwargs):
     return HttpResponse("OK")
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST
