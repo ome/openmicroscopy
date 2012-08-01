@@ -157,7 +157,7 @@ class GroupForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
         
-        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong> from <strong>Read-Annotate</strong> or <strong>Read-Only</strong> permissions. However, it is possible to <strong>promote</strong> a Private group to be Read-Annotate or Read-Only group.</p>")
+        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
         
         self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
@@ -188,7 +188,7 @@ class GroupOwnerForm(forms.Form):
             
         self.fields.keyOrder = ['owners', 'members', 'permissions']
             
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<p class=\"error\">WARNING: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong> from <strong>Read-Annotate</strong> or <strong>Read-Only</strong> permissions. However, it is possible to <strong>promote</strong> a Private group to be Read-Annotate or Read-Only group.</p>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
     
 class MyAccountForm(NonASCIIForm):
         
