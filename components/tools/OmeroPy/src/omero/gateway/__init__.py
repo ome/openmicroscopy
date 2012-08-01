@@ -3177,6 +3177,8 @@ class _BlitzGateway (object):
         da = DoAll()
         requests = []
         for obj_id in obj_ids:
+            obj_id = long(obj_id)
+            logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' % (graph_spec, obj_id, group_id))
             chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
             requests.append(chgrp)
             if container_id is not None and graph_spec in parentLinkClasses:
