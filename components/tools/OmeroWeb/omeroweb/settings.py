@@ -206,6 +206,7 @@ def leave_none_unset(s):
 
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
+    "omero.web.image_viewer.view": ["IMAGE_VIEWER_VIEW", 'webclient.views.image_viewer', str],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
     "omero.web.public.url_filter": ["PUBLIC_URL_FILTER", r'^/(?!webadmin)', re.compile],
     "omero.web.public.server_id": ["PUBLIC_SERVER_ID", 1, int],
