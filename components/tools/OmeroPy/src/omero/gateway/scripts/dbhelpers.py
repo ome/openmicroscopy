@@ -140,7 +140,7 @@ class UserEntry (object):
                 g = group
             UserEntry.check_group_perms(client, g, groupperms)
         except BadGroupPermissionsException:
-            a.changePermissions(g._obj, omero.model.PermissionsI(groupperms))
+            a.changePermissions(g, omero.model.PermissionsI(groupperms))
        
 
     @staticmethod

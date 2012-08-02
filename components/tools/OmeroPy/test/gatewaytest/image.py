@@ -184,8 +184,7 @@ class ImageTest (lib.GTest):
         size, gen = self.image.exportOmeTiff(bufsize=16)
         self.assert_(hasattr(gen, 'next'))
         self.assertEqual(len(gen.next()), 16)
-        for e in gen:
-            pass
+        del gen
         # Now try the same using a different user, admin first
         self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')

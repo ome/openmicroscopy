@@ -132,6 +132,8 @@ class TablesTest (lib.GTest):
         file_annotation.setFile(original_file)
         pr.linkAnnotation(file_annotation)
         # table created, can we read it back?
+        pr = self.getTestProject()
+        self.assertNotEqual(pr, None)
         file_annotation = pr.getAnnotation(ns='openmicroscopy.org/omero/bulk_annotations')
         self.assertNotEqual(file_annotation, None)
         table = sr.openTable(file_annotation._obj.file)
