@@ -417,6 +417,7 @@ $.fn.viewportImage = function(options) {
             $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
             jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
             
+            PanoJS.CREATE_CONTROL_MAXIMIZE = false;
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
