@@ -311,6 +311,7 @@
         border-bottom: solid 1px hsl(210,10%,90%);
 		border-right:solid 1px hsl( 210, 10%, 85% );
         overflow:hidden;
+        background: none repeat scroll 0 0 #EFF1F4;
     }
 	
         .toolbar li {
@@ -1418,9 +1419,6 @@
         #dataIcons li {
             float: left;
             text-align: center;
-			
-            width:80px;
-			height:80px;
             background-color:hsl(0,0%,95%);
             margin:5px;
             padding:5px 5px 2px;
@@ -1439,7 +1437,8 @@
         }
 
             #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img { 
-				max-height:75px;
+				max-width: 75px;
+				max-height: 75px;
             }
 
             #dataIcons .ui-selecting {  

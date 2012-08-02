@@ -39,6 +39,25 @@
         
         $(document).ready(function(){
             
+            // Handle zooming of thumbnails with jQuery slider
+            var icon_styles = [];
+            // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
+            $("#dataIcons img").each(function(){
+                icon_styles.push(this.style);
+            });
+            $("#thumb_size_slider").slider({
+                max: 200,
+                min: 30,
+                value: 75,
+                slide: function(event, ui) {
+                    for (s in icon_styles) {
+                        // have to set 'max' size to maintain aspect ratio BUT can't go bigger than 100%
+                        icon_styles[s].maxWidth = ui.value + "px";
+                        icon_styles[s].maxHeight = ui.value + "px";
+                    }
+                }
+            });
+            
             // when the jstree removes objects from the tree, handle each object...
             $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
             
@@ -111,14 +130,35 @@
         });
 
     </script>
+    <style type="text/css">
+        #thumb_size_slider {
+            border: 1px solid #aaa;
+            height: 6px;
+            left: 10px;
+            position: absolute;
+            top: 9px;
+            width: 120px;
+        }
+        #thumb_size_slider .ui-slider-handle {
+            /*background: -moz-linear-gradient(center top , #727C86 0%, #4F565D 100%) repeat scroll 0 0 #FFFFFF;*/
+            background: #727C86;
+            border-radius: 3px;
+        }
+    
+    </style>
 
+<div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
+    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
+</div>
+
+<div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px">
 {% if manager.containers.images %}
 
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
         <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.canEdit %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% url render_thumbnail_resize 200 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}
     </ul>
@@ -128,5 +168,5 @@
 {% else %}
     <p class="center_message no_data" title="Tip: Use OMERO.insight client to import some images">{% trans "No images in Dataset" %}</p>
 {% endif %}
-
+</div>
 
