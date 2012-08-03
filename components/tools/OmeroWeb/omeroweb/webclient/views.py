@@ -475,6 +475,22 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
 @login_required()
 @render_response()
+def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
+    """ Loads a tree for user to pick target Project, Dataset or Screen """
+
+    # filter by group (not switching group)
+    conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
+
+    manager= BaseContainer(conn)
+    manager.listContainerHierarchy()
+    template = 'webclient/data/chgrp_target_tree.html'
+    
+    show_projects = target_type in ('project', 'dataset')
+    context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
+    return context
+
+@login_required()
+@render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search 
@@ -2330,31 +2346,31 @@ def chgrp(request, conn=None, **kwargs):
     Adds the callback handle to the request.session['callback']['jobId']
     """
     
-    group_id = request.POST.get('group_id', None)
+    group_id = request.REQUEST.get('group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
     group = conn.getObject("ExperimenterGroup", group_id)
-
+    target_id = request.REQUEST.get('target_id', None)      # E.g. "dataset-234"
+    container_id = target_id is not None and target_id.split("-")[1] or None
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
-            for obj_id in oids.split(","):
-                obj_id = long(obj_id)
-                logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_id))
-                handle = conn.chgrpObject(dtype, obj_id, group_id)
-                jobId = str(handle)
-                request.session['callback'][jobId] = {
-                    'job_type': "chgrp",
-                    'group': group.getName(),
-                    'dtype': dtype,
-                    'obj_id': obj_id,
-                    'job_name': "Change group",
-                    'start_time': datetime.datetime.now(),
-                    'status':'in progress'}
-                request.session.modified = True
+            obj_ids = oids.split(",")
+            logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
+            handle = conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
+            jobId = str(handle)
+            request.session['callback'][jobId] = {
+                'job_type': "chgrp",
+                'group': group.getName(),
+                'dtype': dtype,
+                'obj_ids': obj_ids,
+                'job_name': "Change group",
+                'start_time': datetime.datetime.now(),
+                'status':'in progress'}
+            request.session.modified = True
 
     return HttpResponse("OK")
 
