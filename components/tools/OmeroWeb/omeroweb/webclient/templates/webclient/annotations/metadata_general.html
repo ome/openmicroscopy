@@ -117,6 +117,7 @@
                 $("#show_link_btn").click(function(){
                     $("#link_info_popup").show();
                     var lnk = location.href.substring(0,location.href.length - location.search.length);
+                    if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}
                     lnk += "?show={{manager.obj_type}}-{{ manager.obj_id }}";
                     var link_input = $("#link_info_popup input");
                     link_input.val(lnk);
