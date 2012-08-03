@@ -684,6 +684,12 @@
                             }
                             if(!obj.hasClass('canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
+                                // need to disable all the group submenu items we created above
+                                {% for grp in myGroups %}
+                                    {% ifnotequal grp.id active_group.id %}
+                                        config["chgrp"]["submenu"]["{{ grp.name }}"]["_disabled"] = true;
+                                    {% endifnotequal %}
+                                {% endfor %}
                             }
                             // if experimenter is selected, use 'locked' flag to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0) {
