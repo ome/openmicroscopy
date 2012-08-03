@@ -420,43 +420,13 @@ INSTALLED_APPS = (
 )
 
 
-# If ADDITIONAL APPS have settings.GLOBAL_APP_SETTINGS, we can extend or overwrite global settings.
-# E.g. GLOBAL_APP_SETTINGS = {'omero.web.ping_interval': 1000}
-def process_app_settings(app_settings, appname):
-    for k, v in app_settings.items():
-        if k in CUSTOM_SETTINGS_MAPPINGS:
-            global_name, default_value, mapping, default = CUSTOM_SETTINGS_MAPPINGS[k]
-            if global_name not in globals() or not default:
-                # Don't overwrite settings IF if they've been set explicitly
-                continue
-            global_value = globals()[global_name]
-            try:
-                app_val = mapping(v)
-                msg = "Overwriting settings.%s: %s with %s from app: %s" % (global_name, global_value, app_val, appname)
-                # For lists, we extend with the app settings list
-                if isinstance(global_value, list) and isinstance(app_val, list):
-                    global_value.extend(app_val)
-                # For everything else we overwrite?
-                elif type(global_value) == type(app_val):
-                    globals()[global_name] = app_val
-                    #pass    # TODO: Discuss behaviour we want!
-                logger.degub(msg)
-            except:
-                logger.warn("Failed to process setting name: %s value: %s from app: %s" % (k, v, appname))
-
-
-# ADDITONAL_APPS: Each additional application should have its templates
-# registered and be added to installed apps.
+# ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 for app in ADDITIONAL_APPS:
     INSTALLED_APPS += ('omeroweb.%s' % app,)
     try:
         a = __import__('%s.settings' % app)
-        app_settings = a.settings.GLOBAL_APP_SETTINGS
-        process_app_settings(app_settings, app)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
-    except AttributeError:
-        logger.debug("No settings found for app: %s" % app)
 
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
