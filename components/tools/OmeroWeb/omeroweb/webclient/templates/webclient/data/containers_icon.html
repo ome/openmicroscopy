@@ -41,9 +41,13 @@
             
             // Handle zooming of thumbnails with jQuery slider
             var icon_styles = [];
+            var li_styles = [];
             // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
             $("#dataIcons img").each(function(){
                 icon_styles.push(this.style);
+            });
+            $("#dataIcons li").each(function(){
+                li_styles.push(this.style);
             });
             $("#thumb_size_slider").slider({
                 max: 200,
@@ -54,6 +58,8 @@
                         // have to set 'max' size to maintain aspect ratio BUT can't go bigger than 100%
                         icon_styles[s].maxWidth = ui.value + "px";
                         icon_styles[s].maxHeight = ui.value + "px";
+                        li_styles[s].width = ui.value + "px";
+                        li_styles[s].height = ui.value + "px";
                     }
                 }
             });

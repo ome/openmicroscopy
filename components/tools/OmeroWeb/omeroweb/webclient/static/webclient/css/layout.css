@@ -1422,6 +1422,8 @@
             background-color:hsl(0,0%,95%);
             margin:5px;
             padding:5px 5px 2px;
+            width: 75px;
+            height: 75px;
 			
 			-webkit-border-radius:2px; /* Saf3+, Chrome */
 			   -moz-border-radius:2px; /* FF1+ */
