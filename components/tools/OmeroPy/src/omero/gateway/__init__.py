@@ -6068,16 +6068,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
         @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
         """
-
+        abs_channels = [abs(c) for c in channels]
+        idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
-                if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
-                    self._re.setChannelWindow(c, *(windows[c] + [self._conn.SERVICE_OPTS]))
-                if colors is not None and colors[c]:
-                    rgba = splitHTMLColor(colors[c])
+                if windows is not None and windows[idx][0] is not None and windows[idx][1] is not None:
+                    self._re.setChannelWindow(c, *(windows[idx] + [self._conn.SERVICE_OPTS]))
+                if colors is not None and colors[idx]:
+                    rgba = splitHTMLColor(colors[idx])
                     if rgba:
                         self._re.setRGBA(c, *(rgba + [self._conn.SERVICE_OPTS]))
+            if (c+1 in abs_channels):
+                idx += 1
         return True
 
     def getProjections (self):
