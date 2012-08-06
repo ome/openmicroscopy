@@ -337,8 +337,8 @@ class SplashScreenManager
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 			if (userCredentials != null  && lc != null) login(lc);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
-			 container.exit();
-		     component.close();
+			container.exit();
+			component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
 				ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
 			updateView();

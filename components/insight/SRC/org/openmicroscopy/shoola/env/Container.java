@@ -358,10 +358,11 @@ public final class Container
 	 */
 	public void exit()
 	{	
-		Environment env = (Environment) registry.lookup(LookupNames.ENV);
-		if (env != null && !env.isRunAsPlugin())
-			System.exit(0);
-		if (env == null) System.exit(0); //not started yet.
+		Integer v = (Integer) getRegistry().lookup(LookupNames.PLUGIN);
+		int value = -1;
+		if (v != null) value = v.intValue();
+		if (value <= 0) System.exit(0);
+		else singleton = null;
 	}
     
     
