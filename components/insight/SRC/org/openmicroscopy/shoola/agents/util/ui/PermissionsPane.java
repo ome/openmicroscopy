@@ -30,21 +30,23 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.Box;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
@@ -65,7 +67,7 @@ import pojos.PermissionData;
  */
 public class PermissionsPane 
 	extends JPanel
-	implements ChangeListener
+	implements ActionListener
 {
 
 	/** Bound property indicating that the permissions have been modified. */
@@ -73,8 +75,12 @@ public class PermissionsPane
 		"permissionsChange";
 	
 	/** Warning message. */
-	private static final String WARNING = "Upgrading the permissions cannot" +
-			" be undone.";
+	private static final String WARNING_TITLE = "Permissions Downgrade";
+		
+	/** Warning message. */
+	private static final String WARNING = 
+		"Changing group to Private will remove\nany Annotations etc added " +
+		"under Read-Annotate permissions.";
 	
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;
@@ -103,6 +109,45 @@ public class PermissionsPane
     /** The label hosting the default text. */
     private JLabel				label;
 
+    /**
+     * Flag indicating if the current user is allowed to downgrade to 
+     * private or not.
+     */
+    private boolean allowDowngrade;
+    
+    /** The original permissions level.*/
+    private int originalPermissions;
+    
+    /** The current permissions level.*/
+    private int currentPermissions;
+    
+    
+    private void setPermissions(int permissions)
+    {
+    	currentPermissions = permissions;
+    	switch (permissions) {
+		case GroupData.PERMISSIONS_PRIVATE:
+			privateBox.setSelected(true);
+			break;
+		case GroupData.PERMISSIONS_GROUP_READ:
+			readOnlyGroupBox.setSelected(true);
+			break;
+		case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			readAnnotateGroupBox.setSelected(true);
+			break;
+		case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			readWriteGroupBox.setSelected(true);
+			break;
+		case GroupData.PERMISSIONS_PUBLIC_READ:
+			readOnlyPublicBox.setSelected(true);
+			publicBox.setSelected(true);
+			break;
+		case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+			publicBox.setSelected(true);
+			readOnlyPublicBox.setEnabled(true);
+	}
+    }
+    
     /** 
      * Initializes the components.
      * 
@@ -110,6 +155,8 @@ public class PermissionsPane
      */
     private void initComponents(int permissions)
     {
+    	originalPermissions = permissions;
+    	allowDowngrade = true;
     	label = new JLabel();
     	Font f = label.getFont();
     	label.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
@@ -140,27 +187,8 @@ public class PermissionsPane
         group.add(readAnnotateGroupBox);
         group.add(readWriteGroupBox);
         
-        switch (permissions) {
-			case GroupData.PERMISSIONS_PRIVATE:
-				privateBox.setSelected(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ:
-				readOnlyGroupBox.setSelected(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				readAnnotateGroupBox.setSelected(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				readWriteGroupBox.setSelected(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				readOnlyPublicBox.setSelected(true);
-				publicBox.setSelected(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				publicBox.setSelected(true);
-				readOnlyPublicBox.setEnabled(true);
-		}
+        setPermissions(permissions);
+        
         
         readOnlyGroupBox.setBackground(getBackground());
         readOnlyPublicBox.setBackground(getBackground());
@@ -171,10 +199,10 @@ public class PermissionsPane
         publicBox.setBackground(getBackground());
         label.setBackground(getBackground());
       
-        publicBox.addChangeListener(this);
-        privateBox.addChangeListener(this);
-        readOnlyGroupBox.addChangeListener(this);
-        readAnnotateGroupBox.addChangeListener(this);
+        publicBox.addActionListener(this);
+        privateBox.addActionListener(this);
+        readOnlyGroupBox.addActionListener(this);
+        readAnnotateGroupBox.addActionListener(this);
     }
     
     /**
@@ -245,6 +273,19 @@ public class PermissionsPane
     	add(content);
     }
 
+    /**
+     * Initializes and builds the UI
+     * 
+     * @param permissions The permissions level.
+     * @param background The background color or <code>null</code>.
+     */
+    private void initialize(int permissions, Color background)
+    {
+    	if (background != null) setBackground(background);
+		initComponents(permissions);
+		buildGUI();
+    }
+    
 	/** Creates a new instance. */
 	public PermissionsPane()
 	{
@@ -279,9 +320,7 @@ public class PermissionsPane
 	 */
 	public PermissionsPane(int permissions, Color background)
 	{
-		if (background != null) setBackground(background);
-		initComponents(permissions);
-		buildGUI();
+		initialize(permissions, background);
 	}
 
 	/** 
@@ -306,9 +345,7 @@ public class PermissionsPane
 		int level = GroupData.PERMISSIONS_PRIVATE;
 		if (permissions != null)
 			level = permissions.getPermissionsLevel();
-    	if (background != null) setBackground(background);
-		initComponents(level);
-		buildGUI();
+		initialize(level, background);
 	}
 	
 	/**
@@ -340,12 +377,23 @@ public class PermissionsPane
 		repaint();
 	}
 	
+	/**
+	 * Allows the user to downgrade to private.
+	 * 
+	 * @param downgrade Pass <code>true</code> to allow, <code>false</code>
+	 *                  otherwise.
+	 */
+	public void allowDowngrade(boolean downgrade)
+	{
+		this.allowDowngrade = downgrade;
+	}
+	
 	/** Disables all the controls. */
 	public void disablePermissions()
 	{
-		publicBox.removeChangeListener(this);
+		publicBox.removeActionListener(this);
 		//collaborativeGroupBox.removeChangeListener(this);
-		privateBox.removeChangeListener(this);
+		privateBox.removeActionListener(this);
 		
 		readOnlyGroupBox.setEnabled(false);
 		readOnlyPublicBox.setEnabled(false);
@@ -355,8 +403,8 @@ public class PermissionsPane
         publicBox.setEnabled(false);
         
         //collaborativeGroupBox.addChangeListener(this);
-        publicBox.addChangeListener(this);
-        privateBox.addChangeListener(this);
+        publicBox.addActionListener(this);
+        privateBox.addActionListener(this);
         
         removeAll();
         JPanel p;
@@ -386,12 +434,12 @@ public class PermissionsPane
 	 */
 	public void setEnabled(boolean enabled)
 	{
-		publicBox.removeChangeListener(this);
+		publicBox.removeActionListener(this);
 		//collaborativeGroupBox.removeChangeListener(this);
-		privateBox.removeChangeListener(this);
-		readOnlyGroupBox.removeChangeListener(this);
-		readAnnotateGroupBox.removeChangeListener(this);
-		readWriteGroupBox.removeChangeListener(this);
+		privateBox.removeActionListener(this);
+		readOnlyGroupBox.removeActionListener(this);
+		readAnnotateGroupBox.removeActionListener(this);
+		readWriteGroupBox.removeActionListener(this);
 		if (privateBox != null) privateBox.setEnabled(enabled);
 		if (publicBox != null) publicBox.setEnabled(enabled);
 		//if (collaborativeGroupBox != null)
@@ -402,24 +450,35 @@ public class PermissionsPane
 			readWriteGroupBox.setEnabled(enabled);
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
-		publicBox.addChangeListener(this);
+		publicBox.addActionListener(this);
 		//collaborativeGroupBox.addChangeListener(this);
-		privateBox.addChangeListener(this);
-		readOnlyGroupBox.addChangeListener(this);
-		readAnnotateGroupBox.addChangeListener(this);
-		readWriteGroupBox.addChangeListener(this);
+		privateBox.addActionListener(this);
+		readOnlyGroupBox.addActionListener(this);
+		readAnnotateGroupBox.addActionListener(this);
+		readWriteGroupBox.addActionListener(this);
 	}
-	
+
 	/**
-	 * Sets the enabled flag of the {@link #readOnlyGroupBox} and
-	 * {@link #readOnlyPublicBox}.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 * Turns the controls on/off
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void stateChanged(ChangeEvent e)
-	{
+	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();
 		//turn controls on/off
-		if (readOnlyGroupBox == src || readAnnotateGroupBox == src ||
+		if (!allowDowngrade && privateBox == src && 
+				originalPermissions > GroupData.PERMISSIONS_PRIVATE) {
+			MessageBox d = new MessageBox(new JFrame(), WARNING_TITLE, WARNING);
+			if (d.centerMsgBox() == MessageBox.YES_OPTION) {
+				firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
+						getPermissions());
+			} else {
+				setPermissions(currentPermissions);
+			}
+			currentPermissions = getPermissions();
+			return;
+		}
+		currentPermissions = getPermissions();
+ 		if (readOnlyGroupBox == src || readAnnotateGroupBox == src ||
 				privateBox == src) {
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
 					getPermissions());

@@ -110,12 +110,14 @@ class GroupProfile
     	namePane = new JTextField();
     	descriptionPane = new JTextField();
     	//permission level
+
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	level = permissionsPane.getPermissions();
+    	permissionsPane.allowDowngrade(!model.isAdministrator());
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
-    	permissionsPane.displayWarningText();
+    	//permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
@@ -135,7 +137,7 @@ class GroupProfile
     		}
     	}
     	
-    	if (!canEdit) canEdit = MetadataViewerAgent.isAdministrator();
+    	if (!canEdit) canEdit = model.isAdministrator();
     	namePane.setEditable(canEdit);
     	descriptionPane.setEditable(canEdit);
     	permissionsPane.setEnabled(canEdit);
