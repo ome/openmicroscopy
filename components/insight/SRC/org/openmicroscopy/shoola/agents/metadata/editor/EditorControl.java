@@ -277,8 +277,10 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(model.getSecurityContext(),
-				new ViewImageObject(imageID), null));
+		ViewImage evt = new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null);
+		evt.setPlugin(MetadataViewerAgent.runAsPlugin());
+		bus.post(evt);
 	}
 
 	/**
