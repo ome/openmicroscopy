@@ -72,16 +72,10 @@ class RDefsTest (lib.GTest):
         self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
         self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
         self.assertEqual(self.channels[0].getWindowMin(), c0wmin)
-        ## Check that only author (or admin) can change defaults
-        #self.doLogin(GUEST)
-        #self.image = self.getTestImage(self.gateway, public=True)
-        #self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'F0F000', u'000F0F'])
-        #self.assert_(not self.image.saveDefaults(), 'saveDefaults should have failed!')
-        ## Verify we are still in the original state
-        #self.channels = self.image.getChannels()
-        #self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
-        #self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
-        #self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
+        # Check we can set any channel(s) independently - #8670
+        self.image.setActiveChannels([2],[[409.0, 5015.0]],[u'F0F0F0'])
+        self.assertEqual(self.channels[1].getColor().getHtml(), 'F0F0F0', "Channel 2 colour should be changed")
+        self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color, "Channel 1 colour should NOT be changed")
 
     def testCustomized (self):
         self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'FF0000', u'0000FF'])
