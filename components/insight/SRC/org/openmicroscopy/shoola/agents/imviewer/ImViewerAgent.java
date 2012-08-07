@@ -361,13 +361,23 @@ public class ImViewerAgent
     	Object o = evt.getObject();
     	if (evt.browseObject()) return;
     	if (o instanceof ImageData) {
-    		ImViewer view = ImViewerFactory.getImageViewer(
-    				evt.getSecurityContext(), ((ImageData) o).getId(),
-    				null, true);
-    		if (view != null) {
-    			view.activate(null, getUserDetails().getId());
+    		if (evt.getPlugin() > 0) {
     			JComponent src = evt.getSource();
     			if (src != null) src.setEnabled(true);
+    			ViewInPluginEvent event = new ViewInPluginEvent(
+        				evt.getSecurityContext(), ((ImageData) o).getId(),
+        				evt.getPlugin());
+        		EventBus bus = registry.getEventBus();
+        		bus.post(event);
+    		} else {
+    			ImViewer view = ImViewerFactory.getImageViewer(
+        				evt.getSecurityContext(), ((ImageData) o).getId(),
+        				null, true);
+        		if (view != null) {
+        			view.activate(null, getUserDetails().getId());
+        			JComponent src = evt.getSource();
+        			if (src != null) src.setEnabled(true);
+        		}
     		}
     	}
     }
