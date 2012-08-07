@@ -46,6 +46,7 @@ import javax.swing.JRadioButton;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -78,9 +79,9 @@ public class PermissionsPane
 	private static final String WARNING_TITLE = "Permissions Downgrade";
 		
 	/** Warning message. */
-	private static final String WARNING = 
-		"Changing group to Private will remove\nany Annotations etc added " +
-		"under Read-Annotate permissions.";
+	private static final String WARNING = "Changing group to Private " +
+			"will remove\nany Annotations etc added under Read-Annotate " +
+			"permissions.";
 	
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;
@@ -121,7 +122,11 @@ public class PermissionsPane
     /** The current permissions level.*/
     private int currentPermissions;
     
-    
+    /**
+     * Sets the controls depending on the specified permissions.
+     * 
+     * @param permissions The permissions to handle.
+     */
     private void setPermissions(int permissions)
     {
     	currentPermissions = permissions;
@@ -145,7 +150,7 @@ public class PermissionsPane
 		case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 			publicBox.setSelected(true);
 			readOnlyPublicBox.setEnabled(true);
-	}
+		}
     }
     
     /** 
@@ -467,7 +472,9 @@ public class PermissionsPane
 		//turn controls on/off
 		if (!allowDowngrade && privateBox == src && 
 				originalPermissions > GroupData.PERMISSIONS_PRIVATE) {
-			MessageBox d = new MessageBox(new JFrame(), WARNING_TITLE, WARNING);
+			JFrame f = new JFrame();
+			f.setIconImage(AbstractIconManager.getOMEImageIcon());
+			MessageBox d = new MessageBox(f, WARNING_TITLE, WARNING);
 			if (d.centerMsgBox() == MessageBox.YES_OPTION) {
 				firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
 						getPermissions());
