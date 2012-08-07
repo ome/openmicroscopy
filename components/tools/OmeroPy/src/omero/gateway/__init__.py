@@ -6374,19 +6374,19 @@ class _ImageWrapper (BlitzObjectWrapper):
 
 
     @assert_re()
-    def renderJpeg (self, z, t, compression=0.9):
+    def renderJpeg (self, z=None, t=None, compression=0.9):
         """
         Return the data from rendering image, compressed (and projected).
         Projection (or not) is specified by calling L{setProjection} before renderJpeg.
         
-        @param z:               The Z index. Ignored if projecting image. 
-        @param t:               The T index. 
+        @param z:               The Z index. Ignored if projecting image. If None, use defaultZ
+        @param t:               The T index. If None, use defaultT
         @param compression:     Compression level for jpeg
         @type compression:      Float
         """
         
-        self._pd.z = long(z)
-        self._pd.t = long(t)
+        self._pd.z = z is not None and long(z) or self._re.getDefaultZ()
+        self._pd.t = t is not None and long(t) or self._re.getDefaultT()
         try:
             if compression is not None:
                 try:
