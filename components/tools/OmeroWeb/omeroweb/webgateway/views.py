@@ -777,7 +777,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     return rsp    
     
 @login_required()
-def render_image (request, iid, z, t, conn=None, **kwargs):
+def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
