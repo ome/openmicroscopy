@@ -394,8 +394,13 @@ public final class Container
         	if (v == LoginService.CONNECTED) {
         		singleton.activateAgents();
         	} else {
-        		UserNotifier un = singleton.registry.getUserNotifier();
-        		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        		//Check if the splashscreen is up.
+        		Boolean b = (Boolean) singleton.registry.lookup(
+            			LookupNames.LOGIN_SPLASHSCREEN);
+        		if (b != null && !b.booleanValue()) {
+        			UserNotifier un = singleton.registry.getUserNotifier();
+            		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        		}
         	}
         	return Container.getInstance();
         }

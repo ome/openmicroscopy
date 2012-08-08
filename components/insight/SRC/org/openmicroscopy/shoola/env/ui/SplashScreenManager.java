@@ -236,6 +236,8 @@ class SplashScreenManager
 		view.setVisible(true);
 		view.setStatusVisible(true);
 		isOpen = true;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -250,6 +252,8 @@ class SplashScreenManager
 		view.dispose();
 		view = null;
 		isOpen = false;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(false));
 	}
 
 	/**
