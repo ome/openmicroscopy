@@ -351,13 +351,16 @@ class ImporterModel
 	 * 
 	 * @param rootType The type of nodes to load.
 	 * @param refreshImport Flag indicating to refresh the on-going import.
+	 * @param changeGroup Flag indicating that the group has been modified
+	 * if <code>true</code>, <code>false</code> otherwise.
 	 */
-	void fireContainerLoading(Class rootType, boolean refreshImport)
+	void fireContainerLoading(Class rootType, boolean refreshImport, boolean 
+			changeGroup)
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
 		DataLoader loader = new DataLoader(component, ctx, rootType,
-				refreshImport);
+				refreshImport, changeGroup);
 		loader.load();
 		state = Importer.LOADING_CONTAINER;
 	}

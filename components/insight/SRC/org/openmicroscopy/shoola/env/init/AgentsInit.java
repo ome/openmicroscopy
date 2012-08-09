@@ -96,10 +96,12 @@ public final class AgentsInit
 			info.setRegistry(reg);
 			//Register the master
 			if (info.isActive()) {
-				if (info.getNumber() == value) {
+				if (info.getNumber() == value && 
+					value == LookupNames.IMPORTER_ENTRY) {
 					container.getRegistry().bind(LookupNames.MASTER,
 							LookupNames.MASTER_IMPORTER);
-				} else if (info.getNumber() == value)
+				} else if (info.getNumber() == value  && 
+						value == LookupNames.EDITOR_ENTRY)
 					container.getRegistry().bind(LookupNames.MASTER,
 						LookupNames.MASTER_EDITOR);
 			}
@@ -164,11 +166,12 @@ public final class AgentsInit
 	{
 		Registry reg = container.getRegistry();
 		Integer v = (Integer) reg.lookup(LookupNames.ENTRY_POINT);
-		int value = -1;
+		int value = LookupNames.INSIGHT_ENTRY;
 		if (v != null) {
 			switch (v.intValue()) {
 				case LookupNames.EDITOR_ENTRY:
 				case LookupNames.IMPORTER_ENTRY:
+				case LookupNames.INSIGHT_ENTRY:
 					value = v.intValue();
 			}
 		}

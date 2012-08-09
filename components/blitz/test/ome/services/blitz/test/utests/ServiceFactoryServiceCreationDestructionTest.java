@@ -109,7 +109,9 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         });
 
         Principal p = new Principal("session", "group", "type");
-        sf = new ServiceFactoryI(current, null, context, manager, executor, p, hwi, null, null);
+        sf = new ServiceFactoryI(current,
+                new omero.util.ServantHolder("session"),
+                null, context, manager, executor, p, hwi, null, null);
     };
 
     @Test

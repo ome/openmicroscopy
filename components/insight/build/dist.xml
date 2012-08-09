@@ -272,7 +272,8 @@
   	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
     <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-ij-prefix}/${dist.app.config.dir.name}"/>
-      <zipfileset refid="app.libs" prefix="${main-dist-ij-prefix}/${dist.app.lib.dir.name}"/>
+      <zipfileset refid="app.libs.no-bioformats" prefix="${main-dist-ij-prefix}/${dist.app.lib.dir.name}">
+      </zipfileset>
       <zipfileset dir="${dist.dir}" prefix="${main-dist-ij-prefix}" includes="${dist.jar.ij.file}"/>
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-ij-prefix}/LICENSE"/>
     </zip>

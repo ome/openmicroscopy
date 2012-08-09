@@ -162,76 +162,53 @@ class WebControl(BaseControl):
 #  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
 #  OmeroForceSSL - redirect all http requests to https
 
+###
+### Example SSL stanza for OMERO.web created %(NOW)s
+###
 
 # Eliminate overlap warnings with the default ssl vhost
 # Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) support
 # most later versions of mod_ssl and OSes will support it
 # if you see "You should not use name-based virtual hosts in conjunction with SSL!!"
 # or similar start apache with -D DISABLE_SNI and modify ssl.conf
-<IfDefine !DISABLE_SNI>
-  NameVirtualHost *:443
-</IfDefine>
+#<IfDefine !DISABLE_SNI>
+#  NameVirtualHost *:443
+#</IfDefine>
+#
+## force https/ssl
+#<IfDefine OmeroForceSSL>
+#  RewriteEngine on
+#  RewriteCond %%{HTTPS} !on
+#  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
+#</IfDefine>
+#
+#<VirtualHost _default_:443>
+#
+#  ErrorLog logs/ssl_error_log
+#  TransferLog logs/ssl_access_log
+#  LogLevel warn
+#
+#  SSLEngine on
+#  SSLProtocol all -SSLv2
+#  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+#  SSLCertificateFile /etc/pki/tls/certs/server.crt
+#  SSLCertificateKeyFile /etc/pki/tls/private/server.key
+#
+#  # SSL Protocol Adjustments:
+#  SetEnvIf User-Agent ".*MSIE.*" \
+#    nokeepalive ssl-unclean-shutdown \
+#    downgrade-1.0 force-response-1.0
+#
+#  # Per-Server Logging:
+#  CustomLog logs/ssl_request_log \
+#    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
+#
+#</VirtualHost>
 
-# force https/ssl
-<IfDefine OmeroForceSSL>
-  RewriteEngine on
-  RewriteCond %%{HTTPS} !on
-  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
-</IfDefine>
+RewriteEngine on
+RewriteRule ^/?$ /omero/ [R]
 
-<VirtualHost _default_:443>
-
-  ErrorLog logs/ssl_error_log
-  TransferLog logs/ssl_access_log
-  LogLevel warn
-
-  SSLEngine on
-  SSLProtocol all -SSLv2
-  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
-  SSLCertificateFile /etc/pki/tls/certs/server.crt
-  SSLCertificateKeyFile /etc/pki/tls/private/server.key
-
-  # SSL Protocol Adjustments:
-  SetEnvIf User-Agent ".*MSIE.*" \
-    nokeepalive ssl-unclean-shutdown \
-    downgrade-1.0 force-response-1.0
-
-  # Per-Server Logging:
-  CustomLog logs/ssl_request_log \
-    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
-
-  # Rewrite / must be in ssl vhost as well
-  <IfDefine OmeroWebClientRedirect>
-    <IfDefine !OmeroWebAdminRedirect>
-      RewriteEngine on
-      RewriteRule ^/?$ /omero/webclient/ [R]
-    </IfDefine>
-  </IfDefine>
-
-  <IfDefine OmeroWebAdminRedirect>
-    <IfDefine !OmeroWebClientRedirect>
-      RewriteEngine on
-      RewriteRule ^/?$ /omero/webadmin/ [R]
-    </IfDefine>
-  </IfDefine>
-
-</VirtualHost>
-
-# Rewrite /
-<IfDefine OmeroWebClientRedirect>
-  <IfDefine !OmeroWebAdminRedirect>
-    RewriteEngine on
-    RewriteRule ^/?$ /omero/webclient/ [R]
-  </IfDefine>
-</IfDefine>
-
-<IfDefine OmeroWebAdminRedirect>
-  <IfDefine !OmeroWebClientRedirect>
-    RewriteEngine on
-    RewriteRule ^/?$ /omero/webadmin/ [R]
-  </IfDefine>
-</IfDefine>
-
+###
 ### Stanza for OMERO.web created %(NOW)s
 ###
 FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s

@@ -10,9 +10,12 @@ package omero.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import omero.api._StatefulServiceInterfaceOperations;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +44,59 @@ public class ServantHolder {
      * Write-once map which contains a {@link Lock} for each given name.
      */
     private final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
+
+    /**
+     * An internal mapping to all client ids from {@link omero.cmd.SessionI} for a given
+     * DB session since there is no method on {@link Ice.ObjectAdapter} to retrieve
+     * all servants.
+     */
+    protected final ConcurrentHashMap<String, Object> clientIds = new ConcurrentHashMap<String, Object>();
+
+    /**
+     * Storing session for debugging purposes.
+     */
+    private final String session;
+
+    public ServantHolder(String session) {
+        this.session = session;
+    }
+
+    //
+    // Session id related methods
+    //
+
+    public String getSession() {
+        return this.session;
+    }
+
+    /**
+     * Constructs an {@link Ice.Identity} from the current session
+     * and from the given {@link String} which for
+     * stateless services are defined by the instance fields {@link #adminKey},
+     * {@link #configKey}, etc. and for stateful services are UUIDs.
+     */
+    public Ice.Identity getIdentity(String idName) {
+        Ice.Identity id = new Ice.Identity();
+        id.category = this.session;
+        id.name = idName;
+        return id;
+    }
+
+    //
+    // ClientId methods
+    //
+
+    public void addClientId(String clientId) {
+        clientIds.put(clientId, Boolean.TRUE);
+    }
+
+    public void removeClientId(String clientId) {
+        clientIds.remove(clientId);
+    }
+
+    public Set<String> getClientIds() {
+        return clientIds.keySet();
+    }
 
     /**
      * Acquires the given lock or if necessary creates a new one.
@@ -95,6 +151,25 @@ public class ServantHolder {
         return new ArrayList<String>(servants.keySet());
     }
 
+    public String getStatefulServiceCount() {
+        String list = "";
+        final List<String> servants = getServantList();
+        for (final String idName : servants) {
+            final Ice.Identity id = getIdentity(idName);
+            final Object servant = getUntied(id);
+            if (servant != null) {
+                try {
+                    if (servant instanceof _StatefulServiceInterfaceOperations) {
+                        list += "\n" + idName;
+                    }
+                } catch (Exception e) {
+                    // oh well
+                }
+            }
+        }
+        return list;
+    }
+
     //
     // Implementation
     //
@@ -117,6 +192,5 @@ public class ServantHolder {
     private Ice.Object get(String key) {
         return servants.get(key);
     }
-
 
 }

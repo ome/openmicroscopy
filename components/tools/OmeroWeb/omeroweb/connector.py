@@ -36,6 +36,7 @@ class Connector(object):
         self.server_id = server_id
         self.is_secure = is_secure
         self.is_public = False
+        self.omero_session_key = None
 
     def lookup_host_and_port(self):
         server = Server.get(self.server_id)

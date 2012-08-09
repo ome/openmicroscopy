@@ -283,7 +283,7 @@ public class NullRenderingService
      * long, long, boolean)
      */
 	public Object importFile(ImportableObject object,
-			ImportableFile file, long userID, long groupID, boolean close) 
+			ImportableFile file, long userID, boolean close) 
 		throws ImportException
 	{
 		return null;

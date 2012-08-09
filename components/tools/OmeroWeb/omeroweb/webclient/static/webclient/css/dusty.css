@@ -963,6 +963,16 @@ button::-moz-focus-inner {
 			top:2px;
 		}
 	
+	/* same as .filtersearch label for top search field */
+	.inline_label {
+	    position:absolute;
+        z-index:50;
+        font-size:1.3em;
+        font-weight:lighter;
+        top:5px;
+        left:8px;
+	}
+	
 
 
 

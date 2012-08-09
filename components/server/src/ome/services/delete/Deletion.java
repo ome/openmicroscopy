@@ -189,7 +189,9 @@ public class Deletion {
         }
 
         try {
-            steps = spec.initialize(id, "", options);
+            if (this.spec != null) {
+                steps = spec.initialize(id, "", options);
+            }
         } catch (GraphException de) {
             error.append("Failed initialization: ");
             error.append(de.message);

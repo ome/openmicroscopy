@@ -25,7 +25,7 @@ TEST(ClientTest, ClientWithInitializationData )
   Ice::InitializationData id;
   id.properties = Ice::createProperties();
   id.properties->setProperty("omero.host","localhost");
-  omero::client(argc,argv,id);
+  omero::client_ptr c = new omero::client(argc,argv,id);
 }
 
 TEST(ClientTest, ClientWithInitializationData2 )
@@ -37,7 +37,7 @@ TEST(ClientTest, ClientWithInitializationData2 )
   Ice::InitializationData id;
   id.properties = Ice::createProperties(argc, const_cast<char**>(argv));
   id.properties->parseCommandLineOptions("omero", args);
-  omero::client c(id);
-  std::string s = c.getProperty("omero.host");
+  omero::client_ptr c = new omero::client(id);
+  std::string s = c->getProperty("omero.host");
   ASSERT_EQ("localhost", s);
 }

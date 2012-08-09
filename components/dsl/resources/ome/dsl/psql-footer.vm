@@ -303,6 +303,31 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger
 #end
 #end
 
+-- Delete triggers to go with update triggers (See #9337)
+CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+
+        SELECT INTO eid _current_or_new_event();
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, old.parent, TG_ARGV[0], eid;
+
+        RETURN old;
+
+    END;'
+LANGUAGE plpgsql;
+
+#foreach($type in $types)
+#if( ${type.annotated} && !${type.superclass})
+CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
+        BEFORE DELETE ON ${type.tableName()}annotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('${type.id}');
+#end
+#end
+
 
 --
 -- END #1390

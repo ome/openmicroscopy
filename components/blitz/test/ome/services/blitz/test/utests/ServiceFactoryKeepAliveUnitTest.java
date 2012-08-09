@@ -40,7 +40,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     ServiceFactoryI sf;
     ServiceInterfacePrx prx;
     SessionManager manager;
-    Ice.Identity id = Ice.Util.stringToIdentity("test");
+    Ice.Identity id = Ice.Util.stringToIdentity("test/session");
     Map<String, Ice.Object> map = new HashMap<String, Ice.Object>();
     Ice.Current current = new Ice.Current();
     {
@@ -63,7 +63,9 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
                 .will(returnValue(true));
         cacheMock.expects(once()).method("get").will(
                 returnValue(new Element("activeServants", map)));
-        sf = new ServiceFactoryI(current, null, null, manager, executor,
+        sf = new ServiceFactoryI(current,
+                new omero.util.ServantHolder("session"),
+                null, null, manager, executor,
                 new Principal("a", "b", "c"), null, null, null);
     }
 

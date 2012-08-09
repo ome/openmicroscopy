@@ -34,6 +34,7 @@ from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.core import template_loader
 from django.template import RequestContext
+from django.core.cache import cache
 
 from omeroweb.connector import Connector
 
@@ -47,6 +48,8 @@ class ConnCleaningHttpResponse(HttpResponse):
         try:
             logger.debug('Closing OMERO connection in %r' % self)
             if self.conn is not None and self.conn.c is not None:
+                for v in self.conn._proxies.values():
+                    v.close()
                 self.conn.c.closeSession()
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
@@ -167,6 +170,24 @@ class login_required(object):
             return self.allowPublic
         return False
 
+    def get_public_user_connector(self):
+        """
+        Returns the current cached OMERO.webpublic connector or None if
+        nothing has been cached.
+        """
+        if not settings.PUBLIC_CACHE_ENABLED:
+            return
+        return cache.get(settings.PUBLIC_CACHE_KEY)
+
+    def set_public_user_connector(self, connector):
+        """Sets the current cached OMERO.webpublic connector."""
+        if not settings.PUBLIC_CACHE_ENABLED \
+                or connector.omero_session_key is None:
+            return
+        logger.debug('Setting OMERO.webpublic connector: %r' % connector)
+        cache.set(settings.PUBLIC_CACHE_KEY, connector,
+                  settings.PUBLIC_CACHE_TIMEOUT)
+
     def get_connection(self, server_id, request):
         """
         Prepares a Blitz connection wrapper (from L{omero.gateway}) for
@@ -187,10 +208,28 @@ class login_required(object):
             password = settings.PUBLIC_PASSWORD
             is_secure = request.REQUEST.get('ssl', False)
             logger.debug('Is SSL? %s' % is_secure)
+            # Try and use a cached OMERO.webpublic user session key.
+            public_user_connector = self.get_public_user_connector()
+            if public_user_connector is not None:
+                logger.debug('Attempting to use cached OMERO.webpublic ' \
+                             'connector: %r' % public_user_connector)
+                connection = public_user_connector.join_connection(
+                        self.useragent)
+                if connection is not None:
+                    request.session['connector'] = public_user_connector
+                    logger.debug('Attempt to use cached OMERO.web public ' \
+                                 'session key successful!')
+                    return connection
+                logger.debug('Attempt to use cached OMERO.web public ' \
+                             'session key failed.')
+            # We don't have a cached OMERO.webpublic user session key,
+            # create a new connection based on the credentials we've been
+            # given.
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
                     self.useragent, username, password, is_public=True)
             request.session['connector'] = connector
+            self.set_public_user_connector(connector)
         elif connection is not None:
             is_anonymous = connection.isAnonymous()
             logger.debug('Is anonymous? %s' % is_anonymous)
@@ -340,6 +379,8 @@ class login_required(object):
                         doConnectionCleanup)
                 if doConnectionCleanup:
                     if conn is not None and conn.c is not None:
+                        for v in conn._proxies.values():
+                            v.close()
                         conn.c.closeSession()
             except:
                 logger.warn('Failed to clean up connection.', exc_info=True)

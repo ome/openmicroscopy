@@ -316,7 +316,7 @@ class UnixUpgrade(Upgrade):
         super(UnixUpgrade, self).configure(_)
         var = self.dir / "var"
         var.mkdir()
-        var.chmod(755) # For Apache/Nginx
+        var.chmod(0755) # For Apache/Nginx
 
     def directories(self, _):
         try:

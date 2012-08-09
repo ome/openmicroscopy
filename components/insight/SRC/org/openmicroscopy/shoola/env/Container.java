@@ -296,12 +296,12 @@ public final class Container
 	{
 		Integer v = (Integer) singleton.registry.lookup(
 				LookupNames.ENTRY_POINT);
-		int value = LookupNames.TREE_VIEWER_ENTRY;
+		int value = LookupNames.INSIGHT_ENTRY;
 		if (v != null) {
 			switch (v.intValue()) {
 				case LookupNames.EDITOR_ENTRY:
 				case LookupNames.IMPORTER_ENTRY:
-				case LookupNames.TREE_VIEWER_ENTRY:
+				case LookupNames.INSIGHT_ENTRY:
 					value = v.intValue();
 			}
 		}

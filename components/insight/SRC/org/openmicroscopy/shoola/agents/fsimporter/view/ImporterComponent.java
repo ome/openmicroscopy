@@ -207,7 +207,7 @@ class ImporterComponent
 			view.addComponent(chooser);
 		} else {
 			boolean remove = selectedContainer == null;
-			chooser.reset(selectedContainer, objects, type, remove);
+			chooser.reset(selectedContainer, objects, type, remove, false);
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -279,29 +279,13 @@ class ImporterComponent
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
-				//boolean b = chooser.reloadHierarchies();//element.getData().hasNewObjects();
 				if (markToclose) {
 					view.setVisible(false);
 					fireStateChange();
 					return;
 				}
 				element = view.getElementToStartImportFor();
-				if (element != null) 
-					importData(element);
-				/*
-				if (!b) {
-					element = view.getElementToStartImportFor();
-					if (element != null) 
-						importData(element);
-				} else {
-					//reload the hierarchies.
-					Class rootType = ProjectData.class;
-					if (chooser != null && 
-							chooser.getType() == Importer.SCREEN_TYPE)
-						rootType = ScreenData.class;
-					model.fireContainerLoading(rootType, true);
-				}
-				*/
+				if (element != null) importData(element);
 			}	
 			fireStateChange();
 		}
@@ -311,7 +295,7 @@ class ImporterComponent
 			if (chooser != null && 
 					chooser.getType() == Importer.SCREEN_TYPE)
 				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true);
+			model.fireContainerLoading(rootType, true, false);
 			fireStateChange();
 		}
 	}
@@ -553,7 +537,7 @@ class ImporterComponent
 		Class rootType = ProjectData.class;
 		if (type == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false);
+		model.fireContainerLoading(rootType, false, false);
 	}
 
 	/** 
@@ -561,7 +545,7 @@ class ImporterComponent
 	 * @see Importer#setContainers(Collection, boolean, int)
 	 */
 	public void setContainers(Collection result, boolean refreshImport, 
-			int type)
+			boolean changeGroup, int type)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -570,8 +554,8 @@ class ImporterComponent
 		if (chooser == null) return;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
-				-1);
-		chooser.reset(nodes, type);
+				model.getGroupId());
+		chooser.reset(nodes, type, changeGroup);
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
@@ -700,18 +684,16 @@ class ImporterComponent
 				return;
 		}
 		if (group == null) return;
-		ExperimenterData exp = ImporterAgent.getUserDetails();
 		long oldId = model.getGroupId();
 		if (group.getId() == oldId) return;
-		/*
-		Registry reg = ImporterAgent.getRegistry();
-		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
-		*/
-		//Load data for
-		
 		model.setGroupId(group.getId());
 		chooser.setSelectedGroup(getSelectedGroup());
-		refreshContainers(chooser.getType());
+		//refresh
+		view.showRefreshMessage(false);
+		Class rootType = ProjectData.class;
+		if (chooser.getType() == Importer.SCREEN_TYPE)
+			rootType = ScreenData.class;
+		model.fireContainerLoading(rootType, false, true);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 

@@ -83,8 +83,7 @@ public class ImagesImporter
     	OmeroImageService os = context.getImageService();
     	try {
     		partialResult.put(importable.getFile(), 
-    				os.importFile(object, importable, userID, groupID,
-    					close));
+    				os.importFile(object, importable, userID, close));
 		} catch (Exception e) {
 			partialResult.put(importable.getFile(), e);
 		}

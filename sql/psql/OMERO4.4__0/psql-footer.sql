@@ -1031,6 +1031,102 @@ CREATE TRIGGER experimenter_annotation_link_event_trigger
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Experimenter');
 
+-- Delete triggers to go with update triggers (See #9337)
+CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+
+        SELECT INTO eid _current_or_new_event();
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, old.parent, TG_ARGV[0], eid;
+
+        RETURN old;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_annotation_link_delete_trigger
+        BEFORE DELETE ON annotationannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.annotations.Annotation');
+CREATE TRIGGER channel_annotation_link_delete_trigger
+        BEFORE DELETE ON channelannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.Channel');
+CREATE TRIGGER dataset_annotation_link_delete_trigger
+        BEFORE DELETE ON datasetannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.containers.Dataset');
+CREATE TRIGGER experimenter_annotation_link_delete_trigger
+        BEFORE DELETE ON experimenterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Experimenter');
+CREATE TRIGGER experimentergroup_annotation_link_delete_trigger
+        BEFORE DELETE ON experimentergroupannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.ExperimenterGroup');
+CREATE TRIGGER image_annotation_link_delete_trigger
+        BEFORE DELETE ON imageannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.Image');
+CREATE TRIGGER namespace_annotation_link_delete_trigger
+        BEFORE DELETE ON namespaceannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Namespace');
+CREATE TRIGGER node_annotation_link_delete_trigger
+        BEFORE DELETE ON nodeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Node');
+CREATE TRIGGER originalfile_annotation_link_delete_trigger
+        BEFORE DELETE ON originalfileannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.OriginalFile');
+CREATE TRIGGER pixels_annotation_link_delete_trigger
+        BEFORE DELETE ON pixelsannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.Pixels');
+CREATE TRIGGER planeinfo_annotation_link_delete_trigger
+        BEFORE DELETE ON planeinfoannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.PlaneInfo');
+CREATE TRIGGER plate_annotation_link_delete_trigger
+        BEFORE DELETE ON plateannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Plate');
+CREATE TRIGGER plateacquisition_annotation_link_delete_trigger
+        BEFORE DELETE ON plateacquisitionannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.PlateAcquisition');
+CREATE TRIGGER project_annotation_link_delete_trigger
+        BEFORE DELETE ON projectannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.containers.Project');
+CREATE TRIGGER reagent_annotation_link_delete_trigger
+        BEFORE DELETE ON reagentannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Reagent');
+CREATE TRIGGER roi_annotation_link_delete_trigger
+        BEFORE DELETE ON roiannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.roi.Roi');
+CREATE TRIGGER screen_annotation_link_delete_trigger
+        BEFORE DELETE ON screenannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Screen');
+CREATE TRIGGER session_annotation_link_delete_trigger
+        BEFORE DELETE ON sessionannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Session');
+CREATE TRIGGER well_annotation_link_delete_trigger
+        BEFORE DELETE ON wellannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Well');
+CREATE TRIGGER wellsample_annotation_link_delete_trigger
+        BEFORE DELETE ON wellsampleannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.WellSample');
 
 --
 -- END #1390

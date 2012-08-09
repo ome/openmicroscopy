@@ -492,14 +492,13 @@ public interface OmeroImageService
 	 * @param object The object hosting the information about the file to import.
 	 * @param importable The file to import. Mustn't be <code>null</code>.
 	 * @param userID The id of the user.
-	 * @param groupIDThe id of the group.
      * @param close Pass <code>true</code> to close the import, 
      * <code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	public Object importFile(ImportableObject object,
-		ImportableFile importable, long userID, long groupID, boolean close)
+		ImportableFile importable, long userID, boolean close)
 		throws ImportException;
 	
 	/**

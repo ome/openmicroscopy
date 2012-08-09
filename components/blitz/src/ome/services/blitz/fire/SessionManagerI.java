@@ -36,6 +36,7 @@ import omero.api._ServiceFactoryTie;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 import omero.constants.topics.HEARTBEAT;
+import omero.util.ServantHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +95,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
      * all servants.
      */
-    protected final Map<String, Set<String>> sessionToClientIds = new ConcurrentHashMap<String, Set<String>>();
+    protected final ConcurrentHashMap<String, ServantHolder> sessionToHolder
+        = new ConcurrentHashMap<String, ServantHolder>();
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
             SecuritySystem secSys, SessionManager sessionManager,
@@ -127,9 +129,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             wrapped.type = "ApiUsageException";
             throw wrapped;
         }
-        
+
         try {
-            
+
             // First thing we do is guarantee that the client is giving us
             // the required information.
             ServiceFactoryI.clientId(current); // throws ApiUsageException
@@ -175,12 +177,19 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Principal sp = new Principal(s.getUuid(), group, event);
             // Event raised to add to Ring
 
+            ServantHolder holder = new ServantHolder(s.getUuid());
+            ServantHolder previous = sessionToHolder.putIfAbsent(s.getUuid(), holder);
+            if (previous != null) {
+                holder = previous;
+            }
+
             // Create the ServiceFactory
             ServiceFactoryI session = new ServiceFactoryI(local /* ticket:911 */,
-                    current, control, context, sessionManager, executor,
+                    current, holder, control, context, sessionManager, executor,
                     sp, CPTORS, topicManager, registry);
 
             Ice.Identity id = session.sessionId();
+            holder.addClientId(session.clientId);
 
             if (control != null) {
                 // Not having a control implies that this is an internal
@@ -189,13 +198,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 cat.add(new String[]{id.category});
                 cat.add(new String[]{id.name});
             }
-            
+
             _ServiceFactoryTie tie = new _ServiceFactoryTie(session);
             Ice.ObjectPrx _prx = current.adapter.add(tie, id); // OK Usage
 
             // Logging & sessionToClientIds addition
-            if (!sessionToClientIds.containsKey(s.getUuid())) {
-                sessionToClientIds.put(s.getUuid(), new HashSet<String>());
+
+            if (previous == null) {
                 log.info(String.format("Created session %s for user %s (agent=%s)",
                         session, userId, agent));
             } else {
@@ -204,7 +213,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                             session, agent));
                 }
             }
-            sessionToClientIds.get(s.getUuid()).add(session.clientId);
             return Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
         } catch (Exception t) {
@@ -305,26 +313,18 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     void checkStatefulServices(ChangeSecurityContextEvent csce) {
         String uuid = csce.getUuid();
-        Set<String> clientIds = sessionToClientIds.get(uuid);
-        if (clientIds == null) {
-            return; // nothing to be done. should only happen during testing.
+        ServantHolder holder = sessionToHolder.get(uuid);
+        if (holder == null) {
+            return; // Should never happen. Possibly during testing.
         }
-        clientIds = new HashSet<String>(clientIds);
-        for (String clientId : clientIds) {
-            try {
-                ServiceFactoryI sf = getServiceFactory(clientId, uuid);
-                if (sf != null) {
-                    String servants = sf.getStatefulServiceCount();
-                    if (servants.length() > 0) {
-                        String msg = sf.toString() + " has active stateful services:\n" + servants;
-                        log.debug(msg);
-                        csce.cancel(msg);
-                    }
-                }
-            } catch (Exception e) {
-                // ignore
-            }
+
+        String servants = holder.getStatefulServiceCount();
+        if (servants.length() > 0) {
+            String msg = uuid + " has active stateful services:\n" + servants;
+            log.debug(msg);
+            csce.cancel(msg);
         }
+
     }
 
     /**
@@ -347,7 +347,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * {@link ServiceFactoryI}
      */
     public void reapSession(String sessionId) {
-        Set<String> clientIds = sessionToClientIds.get(sessionId);
+        ServantHolder holder = sessionToHolder.remove(sessionId);
+        if (holder == null) {
+            return;
+        }
+
+        Set<String> clientIds = holder.getClientIds();
         if (clientIds != null) {
             if (clientIds.size() > 0) {
                 log.info("Reaping " + clientIds.size() + " clients for " + sessionId);
@@ -362,16 +367,18 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                         adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
+                    // If the object adapter is deactivated, then
+                    // there's basically nothing else we can do.
                     log.warn("Cannot reap session " + sessionId
                             + " from client " + clientId
-                            + " since adapter is deactivated.");
+                            + " since adapter is deactivated. Skipping rest");
+                    return;
                 } catch (Exception e) {
                     log.error("Error reaping session " + sessionId
                             + " from client " + clientId, e);
                 }
             }
         }
-        sessionToClientIds.remove(sessionId);
     }
 
     // Helpers
