@@ -1153,8 +1153,7 @@ public class UIUtilities
     {
     	if (b == null) return;
     	//String laf = UIManager.getSystemLookAndFeelClassName();
-    	String osName = System.getProperty("os.name");
-    	b.setContentAreaFilled(!(osName.startsWith("Mac OS")));
+    	b.setContentAreaFilled(!isMacOS());
     	//b.setContentAreaFilled(!(MAC_L_AND_F.equals(laf)));
     }
     
