@@ -118,7 +118,7 @@ class UserProxy (object):
         @rtype:     Long
         """
         
-        return self._blitzcon._user.id
+        return self._blitzcon.getUserId()
 
     def getName (self):
         """ 
@@ -128,7 +128,7 @@ class UserProxy (object):
         @rtype:     String
         """
         
-        return self._blitzcon._user.omeName
+        return self._blitzcon.getUser().omeName
 
     def getFirstName (self):
         """ 
@@ -138,7 +138,7 @@ class UserProxy (object):
         @rtype:     String
         """
         
-        return self._blitzcon._user.firstName or self.getName()
+        return self._blitzcon.getUser().firstName or self.getName()
 
 #    def getPreferences (self):
 #        return self._blitzcon._user.getPreferences()

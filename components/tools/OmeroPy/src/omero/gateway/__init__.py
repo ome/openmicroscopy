@@ -414,7 +414,7 @@ class BlitzObjectWrapper (object):
         @rtype:     Boolean
         @return:    True if current user owns this object
         """
-        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
+        return (self._obj.details.owner.id.val == self._conn.getUserId())
     
     def isLeaded(self):
         """
@@ -895,7 +895,7 @@ class BlitzObjectWrapper (object):
         if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
-            if self._conn.isAdmin() and self._conn._userid != d.getOwner().id:
+            if self._conn.isAdmin() and self._conn.getUserId() != d.getOwner().id:
                 # Keep the annotation owner the same as the linked of object's
                 if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
                     newConn = ann._conn
@@ -1523,14 +1523,9 @@ class _BlitzGateway (object):
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
-        self._ctx = self._proxies['admin'].getEventContext()
-        if self._ctx is not None:
-            self._userid = self._ctx.userId
-            self._username = self._ctx.userName
-        else:
-            self._userid = None
-            self._username = None
-            self._user = None
+        self._userid = None
+        self._user = None
+        self._ctx = None
 
         if self._session_cb: #pragma: no cover
             if self._was_join:
@@ -1772,6 +1767,24 @@ class _BlitzGateway (object):
             self._ctx = self._proxies['admin'].getEventContext()
         return self._ctx
 
+    def getUserId (self):
+        """
+        Returns current experimenter id
+
+        @return:    Current Experimenter id
+        @rtype:     long
+        """
+        if self._userid is None:
+            self._userid = self.getEventContext().userId
+        return self._userid
+
+    def setUserId (self, uid):
+        """
+        Sets current experimenter id
+        """
+        self._userid = uid
+        self._user = None
+            
     def getUser (self):
         """
         Returns current Experimenter.
@@ -1779,10 +1792,10 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
-        if self._ctx is None:
-            return None
         if self._user is None:
-            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
+            uid = self.getUserId()
+            if uid is not None:
+                self._user = self.getObject("Experimenter", self._userid) or None
         return self._user
     
     def getGroupFromContext(self):
@@ -1835,7 +1848,7 @@ class _BlitzGateway (object):
         @return:    Boolean
         """
         
-        return self.isAdmin() or (self._userid == obj.getDetails().getOwner().getId() and
+        return self.isAdmin() or (self.getUserId() == obj.getDetails().getOwner().getId() and
                                   obj.getDetails().getPermissions().isUserWrite())
 
     def canOwnerWrite (self, obj):
@@ -2346,7 +2359,7 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
-                if d.child.id.val != self.getEventContext().userId:
+                if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
     def groupSummary(self, gid=None, exclude_self=False):
@@ -2362,7 +2375,7 @@ class _BlitzGateway (object):
             gid = self.getEventContext().groupId
         userId = None
         if exclude_self:
-            userId = self.getEventContext().userId
+            userId = self.getUserId()
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
@@ -2397,7 +2410,7 @@ class _BlitzGateway (object):
                 "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.omeName"
         for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
-            if e.id.val != self.getEventContext().userId:
+            if e.id.val != self.getUserId():
                 yield ExperimenterWrapper(self, e)
 
     def listOwnedGroups(self):
@@ -4306,7 +4319,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def is_self(self):
         """ Returns True if this Experimenter is the current user """
-        return self.getId() == self._conn.getEventContext().userId
+        return self.getId() == self._conn.getUserId()
     
 ExperimenterWrapper = _ExperimenterWrapper
 
@@ -7139,7 +7152,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         roiOptions = omero.api.RoiOptions()
         if eid:
-            roiOptions.userId = omero.rtypes.rlong(self._conn._userid)
+            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
         
         result = self._conn.getRoiService().findByImage(self.id, roiOptions)
         count = sum(1 for roi in result.rois if isValidROI(roi))

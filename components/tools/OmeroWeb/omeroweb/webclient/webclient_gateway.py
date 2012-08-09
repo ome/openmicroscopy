@@ -1174,7 +1174,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(up_gr, permissions)
-        self._user = self.getObject("Experimenter", self._userid)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
     
@@ -1210,7 +1209,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         defultGroup = self.getObject("ExperimenterGroup", long(defaultGroupId))._obj
         admin_serv.setDefaultGroup(up_exp, defultGroup)
         self.changeActiveGroup(defultGroup.id)
-        self._user = self.getObject("Experimenter", self._userid)
 
     def setDefaultGroup(self, group_id, exp_id=None):
         """
@@ -1235,7 +1233,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(obj._obj, permissions)
-            self._user = self.getObject("Experimenter", self._userid)
     
     def saveObject (self, obj):
         """
