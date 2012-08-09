@@ -70,9 +70,28 @@ public class DowngradeChooser
     
     /** The button to bring up the help page.*/
     private JButton helpButton;
-    
-	/** Loads the specification if available.*/
-	private void parseData()
+	
+	/**
+     * Creates a new instance.
+     * 
+     * @param owner 		The owner of this dialog.
+     * @param dialogType	One of the constants defined by this class.
+     * @param title 		Title of the dialog.
+     * @param message 		Message of the dialog.
+     * @param filters 		The list of filters.
+     */
+	public DowngradeChooser(JFrame owner, int dialogType, String title, 
+    					String message, List<FileFilter> filters)
+	{
+		super(owner, dialogType, title, message, filters);
+	}
+	
+	/** Loads the specification if available.
+	 * 
+	 * @throws Thrown when an error occurred while parsing the catalog.
+	 */
+	public void parseData()
+		throws Exception
 	{
 		helpButton = new JButton();
 		UIUtilities.unifiedButtonLookAndFeel(helpButton);
@@ -90,45 +109,25 @@ public class DowngradeChooser
 			}
 		});
 		TransformsParser parser = new TransformsParser();
-		try {
-			parser.parse();
-			targets = parser.getTargets();
-			Collections.reverse(targets);
-			//Build the UI
-			Iterator<Target> i = targets.iterator();
-			Object[] values = new Object[targets.size()+1];
-			values[0] = parser.getCurrentSchema()+" (current)";
-			int index = 1;
-			while (i.hasNext()) {
-				values[index] = i.next();
-				index++;
-			}
-			box = new JComboBox(values);
-			JPanel p = new JPanel();
-			p.setLayout(new FlowLayout(FlowLayout.LEFT));
-			p.add(new JLabel("Version:"));
-			p.add(box);
-			p.add(helpButton);
-			addComponentToControls(p);
-		} catch (Exception e) {
-			//ignore
+		parser.parse();
+		targets = parser.getTargets();
+		Collections.reverse(targets);
+		//Build the UI
+		Iterator<Target> i = targets.iterator();
+		Object[] values = new Object[targets.size()+1];
+		values[0] = parser.getCurrentSchema()+" (current)";
+		int index = 1;
+		while (i.hasNext()) {
+			values[index] = i.next();
+			index++;
 		}
-	}
-	
-	/**
-     * Creates a new instance.
-     * 
-     * @param owner 		The owner of this dialog.
-     * @param dialogType	One of the constants defined by this class.
-     * @param title 		Title of the dialog.
-     * @param message 		Message of the dialog.
-     * @param filters 		The list of filters.
-     */
-	public DowngradeChooser(JFrame owner, int dialogType, String title, 
-    					String message, List<FileFilter> filters)
-	{
-		super(owner, dialogType, title, message, filters);
-		parseData();
+		box = new JComboBox(values);
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		p.add(new JLabel("Version:"));
+		p.add(box);
+		p.add(helpButton);
+		addComponentToControls(p);
 	}
 	
 	/**

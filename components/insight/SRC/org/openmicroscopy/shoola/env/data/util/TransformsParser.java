@@ -150,7 +150,7 @@ public class TransformsParser
 		if (values == null) 
 			values = IOUtil.extractJar(SPECIFICATION);
 		if (values == null)
-    		throw new IllegalArgumentException("Unable to load the jar");
+    		throw new Exception("Unable to load the jar");
 		//Extract catalog.
 		Iterator<String> i = values.keySet().iterator();
 		String key;
@@ -163,7 +163,7 @@ public class TransformsParser
 			}
 		}
 		if (stream == null)
-    		throw new IllegalArgumentException("No Catalog found.");
+    		throw new Exception("No Catalog found.");
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -171,10 +171,10 @@ public class TransformsParser
 			
 			current = document.getDocumentElement().getAttribute(CURRENT);
 			if (current == null || current.trim().length() == 0)
-				throw new IllegalArgumentException("No schema specified.");
+				throw new Exception("No schema specified.");
 			extractCurrentSchema(current);
 		} catch (Exception e) {
-			throw new Exception("Unable to paser the catalog.", e);
+			throw new Exception("Unable to parse the catalog.", e);
 		}
 	}
 
