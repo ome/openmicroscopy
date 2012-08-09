@@ -372,7 +372,6 @@ class EditorControl
 	/** Brings up the folder chooser. */
 	private void export()
 	{
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		DowngradeChooser chooser = new DowngradeChooser(new RefWindow(),
 				FileChooser.SAVE, "Export",
 				"Select where to export the image as OME-TIFF.", exportFilters);
