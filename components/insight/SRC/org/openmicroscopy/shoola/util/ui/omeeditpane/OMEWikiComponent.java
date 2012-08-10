@@ -248,9 +248,10 @@ public class OMEWikiComponent
 			toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			toolBar.setBorder(null);
 			toolBar.setFloatable(false);
-			Iterator<JButton> b = toolBarActions.iterator();
-			while (b.hasNext()) 
-				toolBar.add(b.next());
+			
+			for (JButton button : toolBarActions) {
+				toolBar.add(button);
+			}
 		}
 		setBackground(UIUtilities.BACKGROUND);
 	}
