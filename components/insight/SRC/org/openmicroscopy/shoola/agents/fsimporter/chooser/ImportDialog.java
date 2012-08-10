@@ -1499,15 +1499,8 @@ public class ImportDialog
 	private JComponent buildLocationBar()
 	{
 		toolBar = new JPanel();
-		//bar.setBackground(UIUtilities.BACKGROUND);
 		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		toolBar.add(reloadContainerButton);
-		/*
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(locationButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(locationLabel);
-		*/
 		toolBar.add(Box.createHorizontalStrut(5));
 		tbItems = toolBar.getComponentCount();
 		return toolBar;

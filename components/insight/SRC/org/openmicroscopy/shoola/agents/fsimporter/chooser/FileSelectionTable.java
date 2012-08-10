@@ -411,7 +411,6 @@ class FileSelectionTable
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		int rowCount = dtm.getRowCount();
 		Vector v = dtm.getDataVector();
 		List<Object> indexes = new ArrayList<Object>();
 		for (int i = 0; i < table.getRowCount(); i++) {
@@ -430,6 +429,29 @@ class FileSelectionTable
 		model.onSelectionChanged();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the file can be added to the queue again,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param queue The list of files already in the queue.
+	 * @param f The file to check.
+	 * @param gID The id of the group to import the image into.
+	 * @return See above.
+	 */
+	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID)
+	{
+		if (f == null) return false;
+		if (queue == null) return true;
+		Iterator<FileElement> i = queue.iterator();
+		FileElement fe;
+		String name = f.getAbsolutePath();
+		while (i.hasNext()) {
+			fe = i.next();
+			if (fe.getFile().getAbsolutePath().equals(name) &&
+				fe.getGroup().getId() == gID) return false;
+		}
+		return true;
+	}
 	/**
 	 * Sets the enabled flag of the buttons.
 	 * 
@@ -575,16 +597,15 @@ class FileSelectionTable
 	void addFiles(List<File> files, boolean fad, GroupData group)
 	{
 		if (files == null || files.size() == 0) return;
-		addButton.setEnabled(false);
 		enabledControl(true);
 		File f;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		//Check if the file has already 
-		List<String> inQueue = new ArrayList<String>();
+		List<FileElement> inQueue = new ArrayList<FileElement>();
 		FileElement element;
 		for (int i = 0; i < table.getRowCount(); i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			inQueue.add(element.getFile().getAbsolutePath());
+			inQueue.add(element);
 		}
 		Iterator<File> i = files.iterator();
 		boolean multi = !model.isSingleGroup();
@@ -594,9 +615,10 @@ class FileSelectionTable
 		String value = null;
 		boolean v = false;
 		boolean a = archivedBox.isSelected();
+		long gID = group.getId();
 		while (i.hasNext()) {
 			f = i.next();
-			if (!inQueue.contains(f.getAbsolutePath())) {
+			if (allowAddToQueue(inQueue, f, gID)) {
 				element = new FileElement(f, model.getType(), group);
 				element.setName(f.getName());
 				value = null;
