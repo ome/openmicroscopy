@@ -1414,7 +1414,7 @@ class _BlitzGateway (object):
             if self.c.sf is None: #pragma: no cover
                 logger.debug('... c.sf is None, reconnecting')
                 return self.connect()
-            return self.c.sf.keepAlive(self._proxies['admin']._obj)
+            return self.c.sf.keepAlive(self._proxies['admin']._getObj())
         except Ice.ObjectNotExistException: #pragma: no cover
             # The connection is there, but it has been reset, because the proxy no longer exists...
             logger.debug(traceback.format_exc())
