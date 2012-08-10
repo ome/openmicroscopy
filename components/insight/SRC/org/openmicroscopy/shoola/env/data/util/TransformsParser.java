@@ -61,9 +61,6 @@ public class TransformsParser
 	/** The jar to find. */
 	private static String SPECIFICATION = "specification";
 	
-	/** The folder to find. */
-	private static String XSLT = "Xslt";
-	
 	/** The <i>name</i> attribute. */
 	private static String CURRENT = "current";
 
@@ -147,9 +144,9 @@ public class TransformsParser
 	public void parse()
 		throws Exception
 	{
-		if (values == null) 
+		if (values == null || values.size() == 0)
 			values = IOUtil.extractJar(SPECIFICATION);
-		if (values == null)
+		if (values == null || values.size() == 0)
     		throw new Exception("Unable to load the jar");
 		//Extract catalog.
 		Iterator<String> i = values.keySet().iterator();

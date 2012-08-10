@@ -37,6 +37,9 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -330,13 +333,54 @@ public class IOUtil
 		if (name == null) return values;
 		String fullPath = System.getProperties().getProperty(
 				CLASS_PATH_PROPERTY_NAME);
+		File f;
+		ZipFile zfile;
+		Enumeration<? extends ZipEntry> entries;
+		ZipEntry entry;
 		String[] jars = fullPath.split(File.pathSeparator);
-		
+		//insight run doing java -jar insight.jar
+		if (jars.length == 1) {
+			String jn = jars[0];
+			if (jn.endsWith(".jar")) {
+				String location = "";
+				String userdir = System.getProperties().getProperty("user.dir");
+		        String pathtojar;
+		        //Now, if there are no File.separators in the path, then the jar
+		        //was run from the jar's location on the HD  
+		        //if there are File.separators then it was run from another 
+		        //place on the HD  
+		        if (fullPath.indexOf(File.separator) == -1)
+		            location = userdir+File.separator;
+		        pathtojar = location+fullPath;
+		        //Now we have the full path to the jar, print it to see
+		        
+		        
+				JarFile jf = new JarFile(pathtojar);
+				Manifest manifest = jf.getManifest();
+				//extract the jar from the class-path
+				if (manifest != null) {
+					Attributes a = manifest.getMainAttributes();
+					String path = a.getValue("Class-Path");
+					String[] paths = path.split(" ");
+					for (int i = 0; i < paths.length; i++) {
+						if (paths[i].contains(name)) {
+							
+							zfile = new ZipFile(location+paths[i]);
+							entries = zfile.entries();
+							while (entries.hasMoreElements()) {
+								entry = entries.nextElement();
+								if (!entry.isDirectory()) {
+									values.put(entry.getName(), 
+											zfile.getInputStream(entry));
+								}
+							}
+						}
+					}
+				}
+			}
+			return values;
+		}
 		try {
-			File f;
-			ZipFile zfile;
-			Enumeration<? extends ZipEntry> entries;
-			ZipEntry entry;
 			for (String jarName : jars) {
 				jarName = jarName.trim();
 				f = new File(jarName);
@@ -344,12 +388,12 @@ public class IOUtil
 					zfile = new ZipFile(f);
 					entries = zfile.entries();
 					while (entries.hasMoreElements()) {
-				        entry = entries.nextElement();
-				        if (!entry.isDirectory()) {
-				        	values.put(entry.getName(), 
-				        			zfile.getInputStream(entry));
-				        }
-				      }
+						entry = entries.nextElement();
+						if (!entry.isDirectory()) {
+							values.put(entry.getName(), 
+									zfile.getInputStream(entry));
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
