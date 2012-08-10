@@ -189,7 +189,7 @@ class ImageTest (lib.GTest):
         # what about a regular user?
         g = image.getDetails().getGroup()._obj
         self.loginAsUser()
-        uid = self.gateway._userid
+        uid = self.gateway.getUserId()
         self.loginAsAdmin()
         admin = self.gateway.getAdminService()
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
