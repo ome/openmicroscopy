@@ -422,17 +422,23 @@ using bin\omero web start on Windows with FastCGI.
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
-            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
-            django = (cmd % {'base': self.ctx.dir}).split()
+            cmd += " maxchildren=5 minspare=1 maxspare=5"
+            cmd += " maxrequests=%(maxrequests)d"
+            django = (cmd % {
+                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
+                'base': self.ctx.dir}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
         elif deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
-            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
-            django = (cmd % {'base': self.ctx.dir,
-                             'host': settings.APPLICATION_SERVER_HOST,
-                             'port': settings.APPLICATION_SERVER_PORT}).split()
+            cmd += " maxchildren=5 minspare=1 maxspare=5"
+            cmd += " maxrequests=$(maxrequests)d"
+            django = (cmd % {
+                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
+                'base': self.ctx.dir,
+                'host': settings.APPLICATION_SERVER_HOST,
+                'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
         else:
             django = [sys.executable,"manage.py","runserver", link, "--noreload"]
