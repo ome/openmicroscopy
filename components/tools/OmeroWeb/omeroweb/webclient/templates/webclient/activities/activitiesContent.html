@@ -208,7 +208,7 @@
 												<!-- Browser to file in tree -->
                                                 {% if v.browse_url %}
                                                     <li class="btn_folder">
-														<a href='{% url change_active_group %}?active_group={{ v.group_id }}&url={{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
+														<a href='{{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
                                                         	Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
 														</a>
 													</li>

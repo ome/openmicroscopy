@@ -113,6 +113,21 @@
                 })
                 {% endif %}
 
+                // show a link to the current object
+                $("#show_link_btn").click(function(){
+                    $("#link_info_popup").show();
+                    var lnk = location.href.substring(0,location.href.length - location.search.length);
+                    if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}
+                    lnk += "?show={{manager.obj_type}}-{{ manager.obj_id }}";
+                    var link_input = $("#link_info_popup input");
+                    link_input.val(lnk);
+                    link_input.get(0).focus();
+                    link_input.get(0).select();
+                });
+                $("#link_info_popup img").click(function(){
+                    $("#link_info_popup").hide();
+                });
+
 
                 // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
@@ -371,12 +386,24 @@
 				
 				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
-            	<h2 id='image_id'><strong>Image ID:</strong> {{ manager.image.id }}</h2>
+                
+            	<h2 class="data_heading_id" id='image_id'>
+            	    Image ID: <strong>{{ manager.image.id }}</strong>
+            	    <!-- open-image link -->
+                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
+    					<span></span>
+    				</button>
+    				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+    				    <input type="text" size="30">
+    				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+    				</div>
+            	</h2>
+            	
 				
-            <!-- open-image link -->
-            <div style="padding-bottom:6px">
+            <div style="padding-bottom:6px; position:relative">
+                
                 {% if manager.image.countArchivedFiles %}
-                    <div style="float:right">
+                    <div style="float:right; top:30px; padding:4px">
                         <a href="{% url archived_files manager.image.id %}">
                         <img src="{% static "webclient/image/nuvola_download_manager16.png" %}"
                             title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}"/>
@@ -509,7 +536,17 @@
 					
 					{% endif %}
 
-                <h2 class="data_heading_id">Dataset ID: <strong>{{ manager.dataset.id }}</strong></h2>    
+                <h2 class="data_heading_id">
+                    Dataset ID: <strong>{{ manager.dataset.id }}</strong>
+                    <!-- open-dataset link -->
+                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Dataset">
+    					<span></span>
+    				</button>
+    				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+    				    <input type="text" size="30">
+    				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+    				</div>
+                </h2>    
                 
 				<hr/>
 				
@@ -563,8 +600,17 @@
 					
 					<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
                     
-                    <h2 class="data_heading_id">Project ID: <strong>{{ manager.project.id }}</strong></h2>
-                    
+                    <h2 class="data_heading_id">
+                        Project ID: <strong>{{ manager.project.id }}</strong>
+                        <!-- open link -->
+                        <button id="show_link_btn" class="btn silver btn_link" title="Link to this Project">
+        					<span></span>
+        				</button>
+        				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+        				    <input type="text" size="30">
+        				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+        				</div>
+        			</h2>
 					<hr/>
 					
 					<!--Project Description -->
@@ -761,7 +807,17 @@
               
 			  		  
 			  
-                    <h2 class="data_heading_id">Plate ID: <strong>{{ manager.plate.id }}</strong></h2>
+                    <h2 class="data_heading_id">
+                        Plate ID: <strong>{{ manager.plate.id }}</strong>
+                        <!-- open link -->
+                        <button id="show_link_btn" class="btn silver btn_link" title="Link to this Plate">
+        					<span></span>
+        				</button>
+        				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+        				    <input type="text" size="30">
+        				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+        				</div>
+                    </h2>
 					
 					<hr/>
 					
@@ -812,7 +868,17 @@
 						
 						<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
             
-                        <h2 class="data_heading_id">Screen ID: <strong>{{ manager.screen.id }}</strong></h2>
+                        <h2 class="data_heading_id">
+                            Screen ID: <strong>{{ manager.screen.id }}</strong>
+                            <!-- open link -->
+                            <button id="show_link_btn" class="btn silver btn_link" title="Link to this Screen">
+            					<span></span>
+            				</button>
+            				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+            				    <input type="text" size="30">
+            				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            				</div>
+                        </h2>
 							
 						<hr/>	
 							
