@@ -22,6 +22,7 @@ import net.sf.ehcache.Element;
 
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
+import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -467,6 +468,9 @@ public class SessionI implements _SessionOperations {
     protected void internalServantConfig(Object obj) throws ServerError {
         if (obj instanceof SessionAware) {
             ((SessionAware) obj).setSession(this);
+        }
+        if (obj instanceof AbstractAmdServant) {
+            ((AbstractAmdServant) obj).setHolder(holder);
         }
     }
 

@@ -8,6 +8,7 @@
 package ome.services.blitz.util;
 
 import ome.util.messages.InternalMessage;
+import omero.util.ServantHolder;
 
 /**
  * {@link InternalMessage} raised when a servant should be removed from the
@@ -28,13 +29,20 @@ public class UnregisterServantMessage extends InternalMessage {
 
     private final transient Ice.Current curr;
 
-    public UnregisterServantMessage(Object source, Ice.Current current) {
+    private final transient ServantHolder holder;
+
+    public UnregisterServantMessage(Object source, Ice.Current current,
+        ServantHolder holder) {
         super(source);
         this.curr = current;
+        this.holder = holder;
     }
 
     public Ice.Current getCurrent() {
         return this.curr;
     }
 
+    public ServantHolder getHolder() {
+        return this.holder;
+    }
 }

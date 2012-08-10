@@ -284,13 +284,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (event instanceof UnregisterServantMessage) {
                 UnregisterServantMessage msg = (UnregisterServantMessage) event;
                 Ice.Current curr = msg.getCurrent();
-
-                // And unregister the service if possible
-                Ice.Identity id = getServiceFactoryIdentity(curr);
-                ServiceFactoryI sf = getServiceFactory(id);
-                if (sf != null) {
-                    sf.unregisterServant(curr.id);
-                }
+                ServantHolder holder = msg.getHolder();
+                // Using static method since we may not have a clientId
+                // in order to look up the SessionI/ServiceFactoryI
+                SessionI.unregisterServant(curr.id, adapter, holder);
             } else if (event instanceof RegisterServantMessage) {
                 RegisterServantMessage msg = (RegisterServantMessage) event;
                 Ice.Current curr = msg.getCurrent();
