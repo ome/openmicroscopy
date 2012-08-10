@@ -51,23 +51,4 @@ def _purgeCallback(request):
     if len(callbacks) > 200:
         for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-200)):
             del request.session['callback'][cbString]
-
-def string_to_dict(string):
-    """
-    Converts string e.g. path=project=51|dataset=502|image=607:selected to
-    dictionary that keeps its keys in the order in which they're inserted.
-    """
-    kwargs = SortedDict()
-    if string is not None and len(string) > 0:
-        string = str(string)
-        if '|' not in string:
-            # ensure at least one ','
-            string += '|'
-        for arg in string.split('|'):
-            arg = arg.strip()
-            if arg == '': continue
-            kw, val = arg.split('=', 1)
-            kwargs[kw] = val
-    return kwargs
-
         

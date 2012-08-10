@@ -557,7 +557,7 @@
                         "select_multiple_modifier": multi_key(),
                         "selected_parent_close": "select_parent",
                         "select_prev_on_delete": false,
-                        "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
+                        "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
                     },
                     // the core plugin - not many options here
                     "core" : { 
