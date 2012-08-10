@@ -66,6 +66,7 @@ import javax.swing.text.Document;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.lang.SystemUtils;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -1253,26 +1254,34 @@ class PropertiesUI
 	 */
 	void setExtentWidth(int width)
 	{
-		width = width-10;
+		int diff = 10;
+		int newWidth = width-diff;
+		
 		if (this.width != 0 && 
-				(this.width-10 <= width && width <= this.width+10)) return;
-		this.width = width;
+				(this.width-diff <= newWidth && newWidth <= this.width+diff)) return;
+		
+		this.width = newWidth;
+		
 		if (descriptionPanel != null) {
+			Dimension viewportSize = new Dimension(width, HEIGHT);
+			pane.getViewport().setPreferredSize(viewportSize);
+			
+			Dimension paneSize = pane.getSize();
+			int h = paneSize.height;
+			if (h < HEIGHT) h = HEIGHT;
+			
 			String newLineStr = null;
 			if (pane.getVerticalScrollBar().isVisible())
 				newLineStr = "\n";
-			//if (this.width < size.width) this.width = size.width;
-			Dimension d = new Dimension(this.width, HEIGHT);
-			pane.getViewport().setPreferredSize(d);
-			d = pane.getSize();
-			int h = d.height;
-			if (h < HEIGHT) h = HEIGHT;
-			d = new Dimension(this.width, h);
-			descriptionPane.setSize(d);
-			descriptionPane.setPreferredSize(d);
-			descriptionPane.wrapText(this.width, newLineStr);
-			descriptionPanel.setSize(d);
-			descriptionPanel.setPreferredSize(d);
+		
+			Dimension descriptionSize = new Dimension(this.width, HEIGHT);
+			
+			descriptionPane.setSize(descriptionSize);
+			descriptionPane.setPreferredSize(descriptionSize);
+		    descriptionPane.wrapText(this.width, newLineStr);
+		    
+			descriptionPanel.setSize(descriptionSize);
+			descriptionPanel.setPreferredSize(descriptionSize);
 		}
 	}
 	
