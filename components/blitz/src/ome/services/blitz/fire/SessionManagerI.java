@@ -34,6 +34,7 @@ import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api._ServiceFactoryTie;
+import omero.cmd.SessionI;
 import omero.constants.CLIENTUUID;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
@@ -359,55 +360,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         if (clientIds != null) {
             if (clientIds.size() > 0) {
                 log.info("Reaping " + clientIds.size() + " clients for " + sessionId);
-            } else {
-                log.info("Reaping all remaining servants for " + sessionId);
-                holder.acquireLock("*");
-                try {
-                    for (String idName : holder.getServantList()) {
-                        final Ice.Identity id = holder.getIdentity(idName);
-                        final Object servant = holder.getUntied(id);
-                        if (servant == null) {
-                            log.warn("Servant already removed: " + idName);
-                            // But calling unregister just in case
-                            adapter.remove(id);
-                            continue; // LOOP.
-                        }
-
-                        // All errors are ignored within the loop.
-                        try {
-
-                            // Now that we have the servant instance, we do what we can
-                            // to clean it up. Our AmdServants must use a message
-                            // to have the servant removed. InteractiveProcessors must
-                            // be stopped and unregistered. Stateless must only be
-                            // unregistered.
-                            //
-                            if (servant instanceof CloseableServant) {
-                                final Ice.Current __curr = new Ice.Current();
-                                __curr.id = id;
-                                __curr.adapter = adapter;
-                                __curr.operation = "close";
-                                __curr.ctx = new HashMap<String, String>();
-                                __curr.ctx.put(CLIENTUUID.value, "");
-                                CloseableServant cs = (CloseableServant) servant;
-                                cs.close(__curr);
-                            } else {
-                                log.error("Unknown servant type: " + servant);
-                            }
-                        } catch (Exception e) {
-                            log.error("Error destroying servant: " + idName + "="
-                                    + servant, e);
-                        } finally {
-                            // Now we will again try to remove the servant, which may
-                            // have already been done, after the method call, though, it
-                            // is guaranteed to no longer be active.
-                            adapter.remove(id);
-                            log.info("Removed servant from adapter: " + idName);
-                        }
-                    }
-                } finally {
-                    holder.releaseLock("*");
-                }
             }
             for (String clientId : clientIds) {
                 try {
@@ -429,6 +381,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                     log.error("Error reaping session " + sessionId
                             + " from client " + clientId, e);
                 }
+            }
+            List<String> servantIds = holder.getServantList();
+            if (servantIds.size() > 0) {
+                log.warn(String.format(
+                    "Reaping all remaining servants for %s: Count=%s",
+                    sessionId, servantIds.size()));
+                SessionI.cleanServants(true, null, holder, adapter);
             }
         }
     }
