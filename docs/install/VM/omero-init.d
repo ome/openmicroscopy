@@ -4,9 +4,9 @@
 # Subsystem file for "omero" server
 #
 ### BEGIN INIT INFO
-# Provides:             omero-server
+# Provides:             omero
 # Required-Start:       $local_fs $remote_fs $network $time postgresql
-# Required-Stop:        $local_fs $remote_fs $network $time
+# Required-Stop:        $local_fs $remote_fs $network $time postgresql
 # Default-Start:        2 3 4 5
 # Default-Stop:         0 1 6
 # Short-Description:    OMERO.server
@@ -23,7 +23,7 @@ OMERO_USER=${OMERO_USER:-"omero"}
 
 start() {	
 	echo -n $"Starting $prog:"
-	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero admin start
+	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero admin start &> /dev/null && echo -n ' OMERO.server'
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
 	echo
@@ -31,7 +31,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog:"
-	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero admin stop
+	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero admin stop &> /dev/null && echo -n ' OMERO.server'
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
 	echo
