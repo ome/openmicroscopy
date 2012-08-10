@@ -1422,8 +1422,8 @@
             background-color:hsl(0,0%,95%);
             margin:5px;
             padding:5px 5px 2px;
-            width: 75px;
-            height: 75px;
+            width: 65px;
+            height: 65px;
 			
 			-webkit-border-radius:2px; /* Saf3+, Chrome */
 			   -moz-border-radius:2px; /* FF1+ */
@@ -1438,6 +1438,14 @@
             border:solid 1px white; 
         }
 
+<<<<<<< HEAD
+=======
+            #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img { 
+				max-width: 65px;
+				max-height: 65px;
+            }
+
+>>>>>>> Use CSS to switch icon -> table layout, NOT table plugin. See #9466
             #dataIcons .ui-selecting {  
                 background-color:hsl(0,0%,90%);
             }

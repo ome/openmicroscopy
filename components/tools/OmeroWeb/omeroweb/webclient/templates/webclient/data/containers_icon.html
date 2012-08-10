@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -49,8 +49,9 @@
             $("#dataIcons img").each(function(){
                 icon_styles.push(this.style);
             });
+
             var sizeX, sizeY
-            $("#dataIcons li").each(function(){
+            $("#dataIcons tr").each(function(){
                 li_styles.push(this.style);
                 sizeX = $(".sizeX", $(this)).text();
                 sizeY = $(".sizeY", $(this)).text();
@@ -94,14 +95,23 @@
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
-            $("#dataIcons img").click(function(event) {
+            $("#dataIcons tr").click(function(event) {
                 handleClickSelection(event);
             });
             
             // handles selection for 'clicks' (not drags) 
             var handleClickSelection = function(event) {
                 var parent_id = '#'+$('#content_details').attr('rel');
-                var select_id = "image-" + $(event.target).attr('id');
+                var targetId = $(event.target).attr('id');      // target could be img, etc
+                var $tr;
+                if (event.target.nodeName.toLowerCase() == 'tr') {
+                    $tr = $(event.target);
+                } else if (event.target.nodeName.toLowerCase() == 'img') {
+                    $tr = $(event.target).parent().parent();
+                } else {
+                    $tr = $(event.target).parent();
+                }
+                var select_id = "image-" + $tr.attr('id').split("-")[1];
                 // find the matching child node from the tree
                 var $children = datatree._get_children(parent_id);
                 var toSelect = $children.filter(function(index) {
@@ -120,14 +130,14 @@
             }
             
             // plugin to handle drag-select of images
-            $("ul#dataIcons").selectable({
-                filter: 'li',
+            $("#dataIcons").selectable({
+                filter: 'tr',
                 distance: 2,
                 stop: function(){  
                     
                     // get the image ids from the thumbnails
                     var toSelectIds = new Array();
-                    $("li.ui-selected", this).each(function(i){
+                    $("tr.ui-selected", this).each(function(i){
                         var iId = $(this).attr('id').split("-")[1];
                         toSelectIds[i] = "image-"+iId;
                     });
@@ -152,6 +162,18 @@
                 start: function(){
                 }
             });
+
+            $("#layout_chooser input").click(function() {
+                var layout = $("#layout_chooser input:checked").attr('value');
+                if (layout == "icon"){
+                    $("#dataIcons").removeClass("tableLayout");
+                    $("#dataIcons").addClass("iconLayout");
+                }
+                else {
+                    $("#dataIcons").removeClass("iconLayout");
+                    $("#dataIcons").addClass("tableLayout");
+                }
+            });
         });
 
     </script>
@@ -169,25 +191,86 @@
             background: #727C86;
             border-radius: 3px;
         }
+
         .sizeX, .sizeY {display:none}
+        
+        .iconLayout tr {
+            float: left;
+            padding: 5px;
+        }
+        .iconLayout td.desc, .iconLayout td.date, .iconLayout tr.thead {
+            display: none;
+        }
+        .iconLayout tr {
+            background-color:hsl(0,0%,95%);
+            margin:5px;
+            padding:5px;
+            width: 65px;
+            height: 65px;
+            background-color: #F2F2F2;
+            border: 1px solid white;
+            border-radius: 2px 2px 2px 2px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .tableLayout {
+            position: relative;
+            width: 100%;
+        }
+        .tableLayout td.desc, .tableLayout td.date {
+            padding: 10px 0px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+        .tableLayout td.image {
+            padding: 5px;
+        }
+        .tableLayout tbody tr:nth-child(2n) {
+            background-color: #EFEFF0;
+        }
+        .tableLayout tbody tr:nth-child(2n) {
+            background-color: #EFEFF0;
+        }
+
     </style>
 
 <div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
+    
+    <div id="layout_chooser" style="position: absolute;left: 200px;">
+        Icon <input type="radio" name="layout" value="icon" checked='true'>
+        Table <input type="radio" name="layout" value="table">
+    </div>
 </div>
 
-<div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px">
+<div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px; right:0px">
 {% if manager.containers.images %}
 
-        
-    <ul id="dataIcons">
-        {% for c in manager.containers.images %}
-        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.canEdit %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-            <span class="sizeX">{{ c.getSizeX }}</span> <span class="sizeY">{{ c.getSizeY }}</span>
-        </li>
-        {% endfor %}
-    </ul>
+    
+    <table id="dataIcons" class="tablesorter iconLayout">
+        <thead> 
+            <tr class="thead"> 
+                <th class="table_images">{% trans "Images" %}</th> 
+                <th class="table_desc">{% trans "Name" %}</th> 
+                <th class="table_date">{% trans "Date" %}</th> 
+                <th>{% trans "Size X" %}</th> 
+                <th>{% trans "Size Y" %}</th> 
+            </tr> 
+        </thead>
+        <tbody>
+            {% for c in manager.containers.images %}
+                <tr id="image_row-{{ c.id }}">
+                    <td class="image" title="{{ c.name }}">
+                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 200 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                    </td>
+                    <td class="desc" valign="middle">{{ c.name|truncatebefor:"65" }}</td>
+                    <td class="date" valign="middle">{{ c.getDate }}</td>                    
+                    <td class="sizeX">{{ c.getSizeX }}</td>
+                    <td class="sizeY">{{ c.getSizeY }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     
     {% include "webclient/data/container_paging.html" %}
     
