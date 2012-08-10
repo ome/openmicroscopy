@@ -39,8 +39,36 @@
     <!-- set-up left panel tabs, jstree etc -->
     <script type="text/javascript">
 
-        var handleChgrp = function() {
+        var handleChgrp = function(gid, gname, oid) {
+            $("#chgrp-form").dialog( "option" , "title" ,"Move to Group: "+ gname);
+            $("#chgrp-form").data('group_id', gid);
             $("#chgrp-form").dialog('open');
+            var chgrp_target_url = "{% url webindex %}load_chgrp_target/"+gid;
+            var chgrp_type = oid.split("-")[0];
+            var target_type;
+            if (chgrp_type == "dataset") target_type = "project";
+            else if (chgrp_type == "image") target_type = "dataset";
+            else if (chgrp_type == "plate") target_type = "screen";
+            chgrp_target_url += "/"+target_type+"/";
+            
+            if (chgrp_type == "project" || chgrp_type == "screen") {
+                $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
+            } else {
+                // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
+                $("#move_group_tree").load(chgrp_target_url, function(){
+                    var node_click = function(){
+                        $("#move_group_tree a").removeClass("jstree-clicked");
+                        // only allow selection of correct nodes
+                        if ($(this).parent().attr('rel') == target_type) {
+                            $("a" ,$(this).parent()).addClass("jstree-clicked");
+                        }
+                        // toggle any children
+                        $("ul" ,$(this).parent()).toggle();
+                    };
+                    $("#move_group_tree a").click(node_click);
+                    $("#move_group_tree ins").click(node_click);
+                });
+            }
         }
 
         var handleNewContainer = function(container_type) {
@@ -244,14 +272,14 @@
                 // handle chgrp 
                 $("#chgrp-form").submit(function(e){
                     var selected = $.jstree._focused().get_selected();
-                    var postData = $(this).serialize();
-                    if ($(".group_option input[type='radio']:checked", $(this)).length < 1) {
-                        alert("No group chosen");   // just in case (shouldn't happen)
-                        return false;
-                    }
+                    var group_id = $("#chgrp-form").data('group_id');
                     $("#chgrp-form").dialog("close");
-                    var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
-                    $.post(actionUrl, postData, function(data){
+                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    var chgrp_target = $("#move_group_tree a.jstree-clicked");
+                    if (chgrp_target.length == 1){
+                        actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
+                    }
+                    $.post(actionUrl, function(data){
                         showActivities();
                         $("#dataTree").jstree('remove', selected);
                         
@@ -613,7 +641,29 @@
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
                                 "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
-                                "action": handleChgrp
+                                //"action": handleChgrp
+                                "submenu"   : {
+                                    {% for grp in myGroups %}
+                                        {% ifnotequal grp.id active_group.id %}
+                                            "{{ grp.name }}" : {
+                                                "label" : "{{ grp.name }}",
+                                                "icon"  : {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
+                                                {% else %}
+                                                    {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                                                    {% else %}
+                                                        {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                                                        {% else %}
+                                                            src="{% static "webclient/image/personal16.png" %}"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %},
+                                                "action": function(obj) {
+                                                    handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
+                                                }
+                                            },
+                                        {% endifnotequal %}
+                                    {% endfor %}
+                                }
                             };
                             
                             config["basket"] = {
@@ -634,6 +684,12 @@
                             }
                             if(!obj.hasClass('canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
+                                // need to disable all the group submenu items we created above
+                                {% for grp in myGroups %}
+                                    {% ifnotequal grp.id active_group.id %}
+                                        config["chgrp"]["submenu"]["{{ grp.name }}"]["_disabled"] = true;
+                                    {% endifnotequal %}
+                                {% endfor %}
                             }
                             // if experimenter is selected, use 'locked' flag to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0) {
@@ -1043,36 +1099,8 @@
 
         <!-- hidden form for chgrp -->
         <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none">
-            {% if myGroups|length_is:"1" %}
-                <p>
-                    You are only in a single group.<br>
-                    You cannot move data to another group.
-                </p>
-            {% else %}
-                <h1>Choose group to move data</h1>
-
-                <div class="gray_border">
-                {% for grp in myGroups %}
-                    {% ifnotequal grp.id active_group.id %}
-                        <div class='group_option'>
-                            <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
-                            <img
-                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
-                            {% else %}
-                                {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
-                                {% else %}
-                                    {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
-                                    {% else %}
-                                        src="{% static "webclient/image/personal16.png" %}"
-                                    {% endif %}
-                                {% endif %}
-                            {% endif %} />
-                            {{ grp.name }}
-                        </div>
-                    {% endifnotequal %}
-                {% endfor %}
-                </div>
-            {% endif %}
+            <div id="move_group_tree" class="gray_border">
+            </div>
         </form>
 
     </div>
