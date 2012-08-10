@@ -216,7 +216,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
-    "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 0, int],
+    "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 400, int],
     "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
