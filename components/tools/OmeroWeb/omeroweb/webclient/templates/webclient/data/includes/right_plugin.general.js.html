@@ -103,17 +103,11 @@ $(function () {
         }
     });
 
-    // always select this tab if multiple objects selected - then update
+    // on selection change, clear tab contents then update
     $("body").bind("selection_change.ome", function(event) {
 
         // clear contents of panel
         $("#metadata_general").empty();
-
-        var selected = $("body").data("selected_objects.ome");
-        if (selected.length > 1) {
-            // handle batch annotation - select first tab
-            $("#annotation_tabs").tabs("select", 0);
-        }
 
         update_metadata_general_tab();     // update
     });

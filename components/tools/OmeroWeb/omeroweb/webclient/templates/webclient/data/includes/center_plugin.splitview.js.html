@@ -21,75 +21,36 @@
 <script>
 
 $(document).ready(function() {
-
-    // this script is an 'include' within a django for-loop, so we can get our index:
-    var splitview_plugin_index = {{ forloop.counter }};
-
-    var update_dataset_split_viewer = function() {
-        
-        // this may have been called before datatree was initialised...
-        var datatree = $.jstree._focused();
-        if (!datatree) return;
-        
-        // get the selected id etc
-        var selected = datatree.data.ui.selected;
-        var oid = selected.attr('id');
-        var orel = selected.attr('rel').replace("-locked", "");
-        
-        // if the tab is visible and not loaded yet...
-        $split_view_panel = $("#split_view_panel");
-        var split_view_url;
-        if ($split_view_panel.is(":visible") && $split_view_panel.is(":empty")) {
-            // if image(s) selected, show typical split-view figure
-            if (orel=="image") {
+    
+    $("#split_view_panel").omeroweb_center_plugin({
+        plugin_index: {{ forloop.counter }},        // since we're in a Django template loop
+        load_plugin_content: function(selected, dtype, oid){
+            var split_view_url;
+            if (dtype=="image") {
                 var iids = [];
-                selected.each(function() {
-                    var dtype = this.id.split("-")[0];
+                for (var i=0; i<selected.length; i++) {
+                    var dtype = selected[i]['id'].split("-")[0];
                     if (dtype == "image") {
-                        iids.push(this.id.split("-")[1]);
+                        iids.push(selected[i]['id'].split("-")[1]);
                     };
-                });
+                }
                 split_view_url = '{% url webtest_split_view_figure_plugin %}?imageIds='+ iids.join(",") + "&width=120";
             // if it's a dataset, show 2 rendering settings side by side.
-            } else if (orel=="dataset") {
-                split_view_url = '{% url webtest_index %}dataset_split_view/'+oid.split("-")[1]+'/';
+            } else if (dtype=="dataset") {
+                split_view_url = '{% url webtest_index %}dataset_split_view/'+oid+'/';
             }
-            $split_view_panel.load(split_view_url);
-        };
-    };
-    
-    // update plugin when we switch between plugins
-    $('#center_panel_chooser').bind('center_plugin_changed.ome', update_dataset_split_viewer);
-
-    // on change of selection in tree, update which plugins are enabled
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
-
-        // clear contents of all panels
-        $("#split_view_panel").empty();
-
-        var selected = data.inst.get_selected();
-        if (selected.length == 0) {
-            set_center_plugin_enabled(splitview_plugin_index, false);
-            return;
+            $(this).load(split_view_url);
+        },
+        plugin_enabled: function(selected){
+            if (selected.length == 0) return false;
+            var dtype = selected[0]['id'].split('-')[0];
+            if (selected.length > 1) {
+                return (dtype == "image");
+            } else {
+                return ($.inArray(dtype, ["image", "dataset"]) > -1);
+            }
         }
-        var orel = selected.attr('rel').replace("-locked", "");
-
-        // update enabled state... split-view supports multiple 'image' or single dataset
-        if ((orel=="image") && (selected.length > 0)) {
-            set_center_plugin_enabled(splitview_plugin_index, true);
-        } else if ((orel=="dataset") && (selected.length == 1)) {
-            set_center_plugin_enabled(splitview_plugin_index, true);
-        } else {
-            // otherwise, disable this option
-            set_center_plugin_enabled(splitview_plugin_index, false);
-        }
-
-        // update tab content
-        update_dataset_split_viewer();
-    });
-    
-    // update after we've loaded the document
-    //update_img_viewer();
+    })
 });
 
 </script>
