@@ -669,7 +669,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <div id="ome-logo-for-top" style="display:none"><a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/" target="_top"><div id="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></a></div></div>
             <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava Api</b></div>
             <p><i>Version: ${omero.version}</i></p>
-            <p><b><i>Copyright &#169; 2012 The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
+            <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
             ]]></bottom>
 
             <tag name="DEV.TODO" scope="all" description="To do:"/>
@@ -706,6 +706,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 <link rel="icon"
       type="image/vnd.microsoft.icon"
       href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
+        </replace>
+        <tstamp>
+            <format property="yearvalue" pattern="yyyy"/>
+        </tstamp>
+        <replace dir="${dist.dir}/docs/api" value="${yearvalue}">
+            <replacetoken><![CDATA[@@YEAR@@]]></replacetoken>
         </replace>
     </target>
 
