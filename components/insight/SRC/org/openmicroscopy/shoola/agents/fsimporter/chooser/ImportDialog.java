@@ -190,10 +190,6 @@ public class ImportDialog
 	private static final String TITLE = "Select Data to Import";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE_LOCATION = "Select where to import " +
-			"the data";
-
-	/** The message to display in the header. */
 	private static final String MESSAGE_GROUP = "Group";
 	
 	/** Warning when de-selecting the name overriding option. */
@@ -279,9 +275,6 @@ public class ImportDialog
 	
 	/** Text field indicating how many folders to include. */
 	private NumericalTextField	numberOfFolders;
-	
-	/** The collection of supported filters. */
-	private FileFilter[]	filters;
 
 	/** Button to bring up the tags wizard. */
 	private JButton						tagButton;
@@ -346,15 +339,9 @@ public class ImportDialog
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox					showThumbnails;
 
-	/** Indicates to turn the folder as dataset. */
-	//private JCheckBox					fadBox;
-	
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
-	
-	/** The listener linked to the dataset box. */
-	//private ActionListener				datasetsBoxListener;
-	
+
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> 			hcsFilters;
 	
@@ -376,15 +363,10 @@ public class ImportDialog
 	/** The size of the import. */
 	private JLabel						sizeImportLabel;
 	
-	/** 
-	 * Used to create a dataset using the folder containing the selected images. 
-	 */
-	//private JCheckBox					folderAsDatasetBox;
-	
 	/** The owner related to the component. */
 	private JFrame						owner;
 	
-	/** The map holding the new nodes to create if in th P/D view.*/
+	/** The map holding the new nodes to create if in the P/D view.*/
 	private Map<DataNode, List<DataNode>>		newNodesPD;
 	
 	/** The new nodes to create in the screen view.*/
@@ -479,71 +461,9 @@ public class ImportDialog
 		parentsBox.addActionListener(parentsBoxListener);
 		parentsBox.setSelectedItem(nn);
 		repaint();
-		
-		/*//code if not saved.
-		if (project == null || project.getName().trim().length() == 0) return;
-		if (newNodesPD == null) 
-			newNodesPD = new HashMap<DataNode, List<DataNode>>();
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode defaultNode = null;
-		for (int i = 0; i < parentsBox.getItemCount(); i++) {
-			n = (DataNode) parentsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-			else defaultNode = n;
-		}
-		n = new DataNode(project);
-		n.addNode(new DataNode(DataNode.createDefaultDataset(), n));
-		nodes.add(n);
-		newNodesPD.put(n, new ArrayList<DataNode>());
-		List l = sorter.sort(nodes);
-		if (defaultNode != null) l.add(defaultNode);
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.removeAllItems();
-		parentsBox.addActionListener(parentsBoxListener);
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			parentsBox.addItem((DataNode) i.next());
-		}
-		parentsBox.setSelectedItem(n);
-		repaint();
-		*/
 	}
 	
-	/**
-	 * Creates a screen.
-	 * 
-	 * @param screen The screen to create.
-	 */
-	private void createScreen(ScreenData screen)
-	{
-		if (screen == null || screen.getName().trim().length() == 0) return;
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode defaultNode = null;
-		for (int i = 0; i < parentsBox.getItemCount(); i++) {
-			n = (DataNode) parentsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-			else defaultNode = n;
-		}
-		n = new DataNode(screen);
-		if (newNodesS == null) newNodesS = new ArrayList<DataNode>();
-		newNodesS.add(n);
-		nodes.add(n);
-		List l = sorter.sort(nodes);
-		if (defaultNode != null) l.add(defaultNode);
-		parentsBox.removeAllItems();
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			parentsBox.addItem((DataNode) i.next());
-		}
-		parentsBox.setSelectedItem(n);
-		repaint();
-	}
-	
-	
+
 	/** Adds the files to the selection. */
 	private void addFiles()
 	{
@@ -567,7 +487,6 @@ public class ImportDialog
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		//addFiles();
 		if (!popUpLocation) {
 			addFiles();
 		} else {
@@ -597,15 +516,15 @@ public class ImportDialog
 	 * 
 	 * @param tags The selected tags.
 	 */
-	private void handleTagsSelection(Collection tags)
+	private void handleTagsSelection(Collection<TagAnnotationData> tags)
 	{
 		Collection<TagAnnotationData> set = tagsMap.values();
 		Map<String, TagAnnotationData> 
 			newTags = new HashMap<String, TagAnnotationData>();
 		TagAnnotationData tag;
-		Iterator i = set.iterator();
+		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() < 0)
 				newTags.put(tag.getTagValue(), tag);
 		}
@@ -713,30 +632,6 @@ public class ImportDialog
 		wizard.setTitle(title, text, icon);
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
-	}
-	
-	/** Sets the properties of the dialog. */
-	private void setProperties()
-	{
-		/*
-		setTitle(TITLE);
-        setModal(true);
-        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        */
-	}
-
-	/** Installs the listeners. */
-	private void installListeners()
-	{
-        //addWindowListener(new WindowAdapter() {
-    		
-			/** 
-			 * Cancels the selection.
-			 * @see WindowAdapter#windowClosing(WindowEvent)
-			 */
-			//public void windowClosing(WindowEvent e) { cancelSelection(); }
-		
-		//});
 	}
 	
 	/**
@@ -1939,9 +1834,7 @@ public class ImportDialog
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	popUpLocation = selectedContainer == null;
-    	setProperties();
     	initComponents(filters);
-    	installListeners();
     	buildGUI();
     }
 
@@ -1988,7 +1881,6 @@ public class ImportDialog
     	if (type == Importer.SCREEN_TYPE) return false;
     	DataNode node = (DataNode) datasetsBox.getSelectedItem();
     	return node.isDefaultDataset();
-    	//return folderAsDatasetBox.isSelected();
     }
     /**
 	 * Returns the name to display for a file.
@@ -2155,12 +2047,10 @@ public class ImportDialog
 				}
 				chooser.setFileFilter(combinedFilter);
 			}
-			//File[] files = chooser.getSelectedFiles();
-			//table.reset(files != null && files.length > 0);
 		}
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
-		handleTagsSelection(new ArrayList());
+		handleTagsSelection(new ArrayList<TagAnnotationData>());
 		tabbedPane.setSelectedIndex(0);
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		if (filters != null && filters.length > 0)
@@ -2226,12 +2116,12 @@ public class ImportDialog
 		if (tags == null) return;
 		Collection<TagAnnotationData> set = tagsMap.values();
 		List<Long> ids = new ArrayList<Long>();
-		List available = new ArrayList();
-		List selected = new ArrayList();
+		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
+		List<TagAnnotationData> selected = new ArrayList<TagAnnotationData>();
 		TagAnnotationData tag;
-		Iterator i = set.iterator();
+		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() > 0)
 				ids.add(tag.getId());
 		}
@@ -2271,7 +2161,6 @@ public class ImportDialog
 		if (bar == null) return;
 		groupSelection = bar;
 		buildLocationPane();
-		//toolBar.add(bar);
 		//invoke when master
 		cancelButton.setVisible(false);
 	}
@@ -2337,7 +2226,6 @@ public class ImportDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
-			//addFiles();
 			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
 			int n = handleFilesSelection(chooser.getSelectedFiles());
@@ -2378,14 +2266,6 @@ public class ImportDialog
 			}
 			if (l.size() > 0) 
 				firePropertyChange(CREATE_OBJECT_PROPERTY, null, l);
-			/*
-			if (ho instanceof DatasetData)
-				createDataset((DatasetData) ho);
-			else if (ho instanceof ProjectData)
-				createProject((ProjectData) ho);
-			else if (ho instanceof ScreenData)
-				createScreen((ScreenData) ho);
-				*/
 		}
 	}
 

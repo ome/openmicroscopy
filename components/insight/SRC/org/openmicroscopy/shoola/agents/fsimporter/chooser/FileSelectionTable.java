@@ -163,12 +163,6 @@ class FileSelectionTable
 	/** The group where the files will be imported.*/
 	private static final String GROUP_TEXT = "Group";
 	
-	/** 
-	 * The text displayed where to import the data to if importing
-	 * to Screen.
-	 */
-	private static final String CONTAINER_SCREEN_TEXT = "Screen";
-	
 	static {
 		int n = 6;
 		COLUMNS = new Vector<String>(n);
@@ -199,9 +193,10 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = COLUMNS_TOOLTIP[SIZE_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] =
 			COLUMNS_TOOLTIP[CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] = 
+		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] =
 			COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] = COLUMNS_TOOLTIP[ARCHIVED_INDEX];
+		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] =
+			COLUMNS_TOOLTIP[ARCHIVED_INDEX];
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -252,7 +247,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setResizable(false);
 			tc = tcm.getColumn(ARCHIVED_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
@@ -263,7 +257,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setResizable(false);
 			tc = tcm.getColumn(ARCHIVED_INDEX-1);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
@@ -275,7 +268,6 @@ class FileSelectionTable
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		//renderer = new MultiLineHeader();
 		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
 				new MultilineHeaderSelectionRenderer());
 
@@ -287,7 +279,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(GROUP_INDEX);
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
@@ -295,16 +286,8 @@ class FileSelectionTable
 			tcm.getColumn(ARCHIVED_INDEX-1).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		}
-		/*
-		String text = CONTAINER_PROJECT_TEXT;
-		if (model.getType() == Importer.SCREEN_TYPE)
-			text = CONTAINER_SCREEN_TEXT;
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setHeaderValue(text);
-		*/
 		table.getTableHeader().resizeAndRepaint();
 		table.getTableHeader().setReorderingAllowed(false);
 	}
@@ -336,11 +319,7 @@ class FileSelectionTable
 		if (b != null) archivedTunable = b.booleanValue();
 		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
 		else selectedColumns = COLUMNS;
-		//if (model.useFolderAsContainer()) {
-			
-		//} else {
-		//	selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
-		//}
+		
 		table = new JXTable(new FileTableModel(selectedColumns));
 		table.getTableHeader().setReorderingAllowed(false);
 		keyListener = new KeyAdapter() {
@@ -367,7 +346,6 @@ class FileSelectionTable
 
 		archivedBox = new JCheckBox();
 		archivedBox.setBackground(UIUtilities.BACKGROUND);
-		//archivedBox.setHorizontalTextPosition(SwingConstants.LEFT);
 		archivedBox.setSelected(archived);
 		archivedBox.setEnabled(archivedTunable);
     	if (archivedTunable) {
@@ -795,7 +773,7 @@ class FileSelectionTable
 						return archivedTunable;
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;
-					return false;//f.isDirectory();
+					return false;
 				case ARCHIVED_INDEX: {
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;
