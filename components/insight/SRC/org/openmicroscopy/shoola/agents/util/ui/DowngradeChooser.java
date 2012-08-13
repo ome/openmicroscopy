@@ -90,7 +90,7 @@ public class DowngradeChooser
 	 * 
 	 * @throws Thrown when an error occurred while parsing the catalog.
 	 */
-	public void parseData()
+	public void parseData(String file)
 		throws Exception
 	{
 		helpButton = new JButton();
@@ -109,7 +109,7 @@ public class DowngradeChooser
 			}
 		});
 		TransformsParser parser = new TransformsParser();
-		parser.parse();
+		parser.parse(file);
 		targets = parser.getTargets();
 		Collections.reverse(targets);
 		//Build the UI

@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.TransformsParser;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -376,7 +377,10 @@ class EditorControl
 				FileChooser.SAVE, "Export",
 				"Select where to export the image as OME-TIFF.", exportFilters);
 		try {
-			chooser.parseData();
+			String path = 
+				MetadataViewerAgent.getRegistry().getTaskBar().
+				getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
+			chooser.parseData(path);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 	        msg.print(e);

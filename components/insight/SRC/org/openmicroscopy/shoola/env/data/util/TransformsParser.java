@@ -55,12 +55,12 @@ import org.w3c.dom.NodeList;
 public class TransformsParser
 {
 
+	/** The jar to find. */
+	public static String SPECIFICATION = "specification";
+	
 	/** The catalog file to find. */
 	private static String CATALOG = "ome-transforms.xml";
-	
-	/** The jar to find. */
-	private static String SPECIFICATION = "specification";
-	
+
 	/** The <i>name</i> attribute. */
 	private static String CURRENT = "current";
 
@@ -139,13 +139,19 @@ public class TransformsParser
 	/**
 	 * Parses the catalog.
 	 * 
+	 * @param path The relative path.
 	 * @throws Exception Thrown when an error occurred while parsing the file.
 	 */
-	public void parse()
+	public void parse(String path)
 		throws Exception
 	{
 		if (values == null || values.size() == 0)
-			values = IOUtil.extractJar(SPECIFICATION);
+			values = IOUtil.extractJarFromPath(SPECIFICATION);
+		if (values.size() == 0) {
+			//going to extract from libs.
+			values = IOUtil.readJar(path);
+		}
+		
 		if (values == null || values.size() == 0)
     		throw new Exception("Unable to load the jar");
 		//Extract catalog.

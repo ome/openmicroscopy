@@ -82,6 +82,13 @@ public final class Container
 	 */
 	public static final String		CONFIG_DIR = "config";
 	
+	/** 
+	 * Points to the libs directory.
+	 * The path is relative to the installation directory.
+	 */
+	public static final String		LIBS_DIR = "libs";
+	
+	
 	/** The name of the container's configuration file. */
 	public static final String		CONFIG_FILE = "container.xml";
 	
@@ -243,16 +250,27 @@ public final class Container
 	 */
 	public String getConfigFileRelative(String file)
 	{ 
+		return getFileRelative(CONFIG_DIR, file);
+	}
+	
+	/**
+	 * Returns the relative path to the container's configuration file or 
+	 * libs folder.
+	 * 
+	 * @param file The configuration file.
+	 * @return	See above.
+	 */
+	public String getFileRelative(String directory, String file)
+	{ 
 		if (IOUtil.isJavaWebStart()) {
-			StringBuffer relPath = new StringBuffer(CONFIG_DIR);
+			StringBuffer relPath = new StringBuffer(directory);
 	        if (UIUtilities.isWindowsOS()) relPath.append("/");
 	        else relPath.append(File.separatorChar);
 	        relPath.append(file);
 	        return relPath.toString();
 		}
-		return resolveFilePath(file, CONFIG_DIR);
+		return resolveFilePath(file, directory);
 	}
-	
 	/**
 	 * Resolves <code>fileName</code> against the configuration directory.
 	 * 

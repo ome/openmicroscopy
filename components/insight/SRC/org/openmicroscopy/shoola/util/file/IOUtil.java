@@ -34,12 +34,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -326,80 +325,66 @@ public class IOUtil
 	 * @param name Value contained in the jar name.
 	 * @return See above.
 	 */
-	public static Map<String, InputStream> extractJar(String name)
+	public static Map<String, InputStream> extractJarFromPath(String name)
 	throws Exception
 	{
 		Map<String, InputStream> values = new HashMap<String, InputStream>();
 		if (name == null) return values;
-		String fullPath = System.getProperties().getProperty(
-				CLASS_PATH_PROPERTY_NAME);
-		File f;
-		ZipFile zfile;
-		Enumeration<? extends ZipEntry> entries;
-		ZipEntry entry;
-		String[] jars = fullPath.split(File.pathSeparator);
-		//insight run doing java -jar insight.jar
-		if (jars.length == 1) {
-			String jn = jars[0];
-			if (jn.endsWith(".jar")) {
-				String location = "";
-				String userdir = System.getProperties().getProperty("user.dir");
-		        String pathtojar;
-		        //Now, if there are no File.separators in the path, then the jar
-		        //was run from the jar's location on the HD  
-		        //if there are File.separators then it was run from another 
-		        //place on the HD  
-		        if (fullPath.indexOf(File.separator) == -1)
-		            location = userdir+File.separator;
-		        pathtojar = location+fullPath;
-		        //Now we have the full path to the jar, print it to see
-		        
-		        
-				JarFile jf = new JarFile(pathtojar);
-				Manifest manifest = jf.getManifest();
-				//extract the jar from the class-path
-				if (manifest != null) {
-					Attributes a = manifest.getMainAttributes();
-					String path = a.getValue("Class-Path");
-					String[] paths = path.split(" ");
-					for (int i = 0; i < paths.length; i++) {
-						if (paths[i].contains(name)) {
-							
-							zfile = new ZipFile(location+paths[i]);
-							entries = zfile.entries();
-							while (entries.hasMoreElements()) {
-								entry = entries.nextElement();
-								if (!entry.isDirectory()) {
-									values.put(entry.getName(), 
-											zfile.getInputStream(entry));
-								}
-							}
-						}
-					}
-				}
-			}
-			return values;
-		}
+		ClassLoader loader = IOUtil.class.getClassLoader();
+
+        //Get the URLs
+        URL[] urls = ((URLClassLoader) loader).getURLs();
 		try {
-			for (String jarName : jars) {
-				jarName = jarName.trim();
-				f = new File(jarName);
+			File f;
+			String n;
+			for (URL url : urls) {
+				n = url.getFile();
+				f = new File(n);
 				if (f.getName().contains(name)) {
-					zfile = new ZipFile(f);
-					entries = zfile.entries();
-					while (entries.hasMoreElements()) {
-						entry = entries.nextElement();
-						if (!entry.isDirectory()) {
-							values.put(entry.getName(), 
-									zfile.getInputStream(entry));
-						}
-					}
+					readJar(values, f);
 				}
 			}
 		} catch (Exception e) {
 			throw new Exception("Cannot read the requested jar.", e);
 		}
-		
+		return values;
+	}
+	
+	/**
+	 * Reads the specified jar file.
+	 * 
+	 * @param values The values to add the entries to.
+	 * @param f The file to handle.
+	 * @throws Exception
+	 */
+	private static void readJar(Map<String, InputStream> values, File f)
+		throws Exception
+	{
+		ZipFile zfile;
+		Enumeration<? extends ZipEntry> entries;
+		ZipEntry entry;
+		zfile = new ZipFile(f);
+		entries = zfile.entries();
+		while (entries.hasMoreElements()) {
+			entry = entries.nextElement();
+			if (!entry.isDirectory()) {
+				values.put(entry.getName(), 
+						zfile.getInputStream(entry));
+			}
+		}
+	}
+	/**
+	 * Extracts the content of the specified jar.
+	 * 
+	 * @param name The jar file to handle..
+	 * @return See above.
+	 */
+	public static Map<String, InputStream> readJar(String name)
+	throws Exception
+	{
+		Map<String, InputStream> values = new HashMap<String, InputStream>();
+		if (name == null) return values;
+		readJar(values, new File(name));
 		return values;
 	}
 

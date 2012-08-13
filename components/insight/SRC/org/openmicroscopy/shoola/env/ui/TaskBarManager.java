@@ -1011,6 +1011,18 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Returns the relative path to the <code>Libs</code> directory.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	String getLibFileRelative(String file)
+	{
+		if (file == null) return "";
+		return container.getFileRelative(Container.LIBS_DIR, file);
+	}
+	
+	/**
 	 * Intercepts {@link ServiceActivationResponse} events in order to keep
 	 * the connection-related buttons in synch with the actual state of the
 	 * connection.
