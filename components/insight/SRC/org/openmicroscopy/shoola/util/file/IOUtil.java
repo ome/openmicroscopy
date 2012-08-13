@@ -374,6 +374,7 @@ public class IOUtil
 			}
 		}
 	}
+	
 	/**
 	 * Extracts the content of the specified jar.
 	 * 

@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.util.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -71,6 +73,9 @@ public class DowngradeChooser
     /** The button to bring up the help page.*/
     private JButton helpButton;
 	
+    /** The parser used to read the downgrade sheets.*/
+    private TransformsParser parser;
+    
 	/**
      * Creates a new instance.
      * 
@@ -93,6 +98,15 @@ public class DowngradeChooser
 	public void parseData(String file)
 		throws Exception
 	{
+		addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (CANCEL_SELECTION_PROPERTY.equals(evt.getPropertyName())) {
+					parser.close();
+				}
+				
+			}
+		});
 		helpButton = new JButton();
 		UIUtilities.unifiedButtonLookAndFeel(helpButton);
 		helpButton.setIcon(IconManager.getInstance().getIcon(IconManager.HELP));
@@ -108,7 +122,7 @@ public class DowngradeChooser
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		});
-		TransformsParser parser = new TransformsParser();
+		parser = new TransformsParser();
 		parser.parse(file);
 		targets = parser.getTargets();
 		Collections.reverse(targets);

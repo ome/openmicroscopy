@@ -122,6 +122,15 @@ public class TransformsParser
 		targets = new ArrayList<Target>();
 	}
 	
+    /** Closes the input stream.*/
+    public void close()
+    {
+    	Iterator<Target> i = targets.iterator();
+    	while (i.hasNext()) {
+			i.next().close();
+		}
+    }
+    
     /**
      * Returns the collection of targets.
      * 

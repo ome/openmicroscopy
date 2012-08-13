@@ -203,6 +203,18 @@ public class Target {
 	 */
 	public String getInformation() { return info; }
 
+	/** Closes the streams.*/
+	public void close()
+	{
+		if (styleSheets == null) return;
+		Iterator<InputStream> i = styleSheets.iterator();
+		while (i.hasNext()) {
+			try {
+				i.next().close();
+			} catch (Exception e) {}
+		}
+	}
+	
 	/**
 	 * Overridden to return the name of the schema.
 	 */
