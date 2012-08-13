@@ -331,7 +331,8 @@ public class IOUtil
 		Map<String, InputStream> values = new HashMap<String, InputStream>();
 		if (name == null) return values;
 		ClassLoader loader = IOUtil.class.getClassLoader();
-
+		if (isJavaWebStart())
+			loader = Thread.currentThread().getContextClassLoader();
         //Get the URLs
         URL[] urls = ((URLClassLoader) loader).getURLs();
 		try {
