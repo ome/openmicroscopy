@@ -532,9 +532,13 @@ public class OMEWikiComponent
 	{
 		super.setEnabled(enabled);
 		if (pane != null) pane.setEditable(enabled);
-		Iterator<JButton> i = toolBarActions.iterator();
-		while (i.hasNext()) 
-			i.next().setEnabled(enabled);
+		
+		if(toolBarActions != null)
+		{
+			for (JButton toolBarButton : toolBarActions) {
+				toolBarButton.setEnabled(enabled);
+			}
+		}
 	}
 	
 	/**
