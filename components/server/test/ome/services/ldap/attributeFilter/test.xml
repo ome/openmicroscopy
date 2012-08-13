@@ -15,7 +15,7 @@
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
-      <constructor-arg index="1" value=":attribute:roleOccupant"/>
+      <constructor-arg index="1" value=":filtered_attribute:roleOccupant"/>
       <!-- using roleOccupant since Apache DS doesn't support memberOf -->
       <constructor-arg index="2" value="(objectClass=person)"/>
       <constructor-arg index="3" value="(objectClass=groupOfNames)"/>

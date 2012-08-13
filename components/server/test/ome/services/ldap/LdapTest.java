@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
@@ -239,12 +240,19 @@ public class LdapTest extends MockObjectTestCase {
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
                 fail("user didn't fail");
             } catch (ValidationException e) {
-                throw e; // This means that we couldn't insert.
-                // See the thread on case-senitivty in #2557
+                if (e.getMessage().equals("No group found for: cn=user,ou=attributeFilter")) {
+                    // good. This is the expected result for #8357
+                } else {
+                    throw e; // This means that we couldn't insert.
+                    // See the thread on case-senitivty in #2557
+                }
             } catch (ApiUsageException e) {
                 // if not a ValidationException, but otherwise an ApiUsageException,
                 // then this will be the "Cannot find unique DN" which we are
                 // looking for.
+            } catch (SecurityViolation sv) {
+                // e.g. User 466 is not a member of group 54 and cannot login
+                // also good.
             }
         }
     }
