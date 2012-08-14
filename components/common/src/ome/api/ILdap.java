@@ -141,14 +141,10 @@ public interface ILdap extends ServiceInterface {
     Experimenter findExperimenter(@NotNull String username);
     
 	/**
-	 * Searchs all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
-	 * person
-	 * 
-	 * @param omeName
-	 *            Name of the Experimenter
-	 * @return an Experimenter. Never null.
-	 * @throws ome.conditions.ApiUsageException
-	 *             if omeName does not exist.
+         * If "dn" is "true", then LDAP will be enabled for the given user.
+         * If "dn" is "false", then LDAP will be disabled. All other values
+         * will throw an {@link ome.conditions.ApiUsageException} since
+         * this method is essentially deprecated starting with 4.4.2.
 	 */
 	void setDN(@NotNull
 	Long experimenterID, @NotNull

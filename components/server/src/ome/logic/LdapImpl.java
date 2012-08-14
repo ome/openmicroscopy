@@ -248,6 +248,13 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setDN(@NotNull Long experimenterID, String dn) {
+        if (dn != null) {
+            String lower = dn.toLowerCase();
+            if ("true".equals(lower) || "false".equals(lower)) {
+                sql.setUserLdapFlag(experimenterID, Boolean.valueOf(lower));
+                return;
+            }
+        }
         throw new ApiUsageException("No longer supported. Change the DN via LDAP");
     }
 
