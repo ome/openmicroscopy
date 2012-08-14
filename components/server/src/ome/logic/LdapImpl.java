@@ -286,15 +286,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         String ldapDN = getContextMapper().getDn(ldapExp);
         DistinguishedName dn = new DistinguishedName(ldapDN);
         List<Long> ldapGroups = loadLdapGroups(username, dn);
-        List<Object[]> omeGroups = iQuery.projection(
-                "select g.id from ExperimenterGroup g " +
-			"join g.groupExperimenterMap m join m.child e where e.id = :id",
-                new Parameters().addId(omeExp.getId()));
-
-        Set<Long> omeGroupIds = new HashSet<Long>();
-        for (Object[] objs : omeGroups) {
-            omeGroupIds.add((Long) objs[0]);
-        }
+        List<Long> omeGroupIds = sql.getLdapGroupsForUser(omeExp.getId());
 
         // All the omeGroups not in ldapGroups should be removed.
         modifyGroups(omeExp, omeGroupIds, ldapGroups, false);
