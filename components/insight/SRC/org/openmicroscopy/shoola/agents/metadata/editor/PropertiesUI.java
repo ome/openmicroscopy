@@ -1254,6 +1254,7 @@ class PropertiesUI
 	 */
 	void setExtentWidth(int width)
 	{
+		/*
 		int diff = 10;
 		int newWidth = width-diff;
 		
@@ -1283,6 +1284,7 @@ class PropertiesUI
 			descriptionPanel.setSize(descriptionSize);
 			descriptionPanel.setPreferredSize(descriptionSize);
 		}
+		*/
 	}
 	
 	/**
