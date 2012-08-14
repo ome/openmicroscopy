@@ -29,8 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Iterator;
-import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -44,7 +42,6 @@ import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import omero.api.delete.DeleteReport;
 import omero.model.OriginalFile;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -321,19 +318,6 @@ class ActivityResultRow
 				text += "File ID:";
 				text += data.getId().getValue();
 			}
-		} else if (row instanceof DeleteReport) {
-			DeleteReport report = (DeleteReport) row;
-			Map<String, long[]> undeletedFiles = report.undeletedFiles;
-			int count = 0;
-			Iterator<String> i = undeletedFiles.keySet().iterator();
-			while (i.hasNext()) {
-				count += undeletedFiles.get(i.next()).length;
-			}
-			text = convertReport(report.error);
-			if (count > 0) {
-				text += " Unable to delete "+count+" file";
-				if (count > 1) text += "s";
-			}
 		} else if (row instanceof ProcessReport) {
 			ProcessReport report = (ProcessReport) row;
 			StringBuffer buffer = new StringBuffer();
@@ -360,20 +344,6 @@ class ActivityResultRow
 		setToolTipText(text);
 		Font f = getFont();
 		setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-	}
-	
-	/**
-	 * Converts the report error.
-	 * 
-	 * @param error The error to handle.
-	 * @return See above.
-	 */
-	private String convertReport(String error)
-	{
-		if (error == null) return "";
-		if (error.startsWith("ConstraintViolation"))
-			return "Object used by others.";
-		return error;
 	}
 	
 	/**

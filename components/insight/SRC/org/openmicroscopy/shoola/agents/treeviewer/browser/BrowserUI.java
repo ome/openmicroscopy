@@ -951,8 +951,10 @@ class BrowserUI
             	switch (keyEvent) {
 					case KeyEvent.VK_DOWN:
 					case KeyEvent.VK_UP:
-						controller.onClick(
-	            				Arrays.asList(treeDisplay.getSelectionPaths()));
+						TreePath[] paths = treeDisplay.getSelectionPaths();
+						if (paths != null)
+							controller.onClick(Arrays.asList(paths));
+						else controller.onClick(new ArrayList<TreePath>());
 						break; 
 				}
             }

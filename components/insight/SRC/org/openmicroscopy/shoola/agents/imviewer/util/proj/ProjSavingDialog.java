@@ -571,34 +571,20 @@ public class ProjSavingDialog
     /** Projects the image. */
     private void project()
     {
-    	/*
-		Iterator<JCheckBox> i = selection.keySet().iterator();
-		JCheckBox box;
-		while (i.hasNext()) {
-			box = i.next();
-			if (box.isSelected())
-				datasets.add(selection.get(box));
-		}
-		*/
 		int startT = 0, endT = 0;
 		if (maxT > 0) {
 			startT = (int) timeSelection.getStartValue()-1;
 			endT = (int) timeSelection.getEndValue()-1;
 		}
-		/*
-		String type = null;
-		if (algorithm == ImViewer.SUM_INTENSITY) {
-			String value = (String) pixelsType.getSelectedItem();
-			type = EditorUtil.PIXELS_TYPE.get(value);
-			if (type.equals(value)) type = null;
-		}
-		*/
+
 		ProjectionRef ref = new ProjectionRef();
-		ref.setDatasets(Arrays.asList(selectedDataset));
-		if (selectedDataset.getId() <= 0) {
-			DataNode node = (DataNode) parentsBox.getSelectedItem();
-			if (!node.isDefaultNode()) 
-				ref.setProject((ProjectData) node.getDataObject());
+		if (selectedDataset != null) {
+			ref.setDatasets(Arrays.asList(selectedDataset));
+			if (selectedDataset.getId() <= 0) {
+				DataNode node = (DataNode) parentsBox.getSelectedItem();
+				if (!node.isDefaultNode()) 
+					ref.setProject((ProjectData) node.getDataObject());
+			}
 		}
 		ref.setImageName(nameField.getText());
 		ref.setTInterval(startT, endT);

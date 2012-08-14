@@ -34,6 +34,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -323,39 +325,68 @@ public class IOUtil
 	 * @param name Value contained in the jar name.
 	 * @return See above.
 	 */
-	public static Map<String, InputStream> extractJar(String name)
+	public static Map<String, InputStream> extractJarFromPath(String name)
 	throws Exception
 	{
 		Map<String, InputStream> values = new HashMap<String, InputStream>();
 		if (name == null) return values;
-		String fullPath = System.getProperties().getProperty(
-				CLASS_PATH_PROPERTY_NAME);
-		String[] jars = fullPath.split(File.pathSeparator);
-		
+		ClassLoader loader = IOUtil.class.getClassLoader();
+		if (isJavaWebStart())
+			loader = Thread.currentThread().getContextClassLoader();
+        //Get the URLs
+        URL[] urls = ((URLClassLoader) loader).getURLs();
 		try {
 			File f;
-			ZipFile zfile;
-			Enumeration<? extends ZipEntry> entries;
-			ZipEntry entry;
-			for (String jarName : jars) {
-				jarName = jarName.trim();
-				f = new File(jarName);
+			String n;
+			for (URL url : urls) {
+				n = url.getFile();
+				f = new File(n);
 				if (f.getName().contains(name)) {
-					zfile = new ZipFile(f);
-					entries = zfile.entries();
-					while (entries.hasMoreElements()) {
-				        entry = entries.nextElement();
-				        if (!entry.isDirectory()) {
-				        	values.put(entry.getName(), 
-				        			zfile.getInputStream(entry));
-				        }
-				      }
+					readJar(values, f);
 				}
 			}
 		} catch (Exception e) {
 			throw new Exception("Cannot read the requested jar.", e);
 		}
-		
+		return values;
+	}
+	
+	/**
+	 * Reads the specified jar file.
+	 * 
+	 * @param values The values to add the entries to.
+	 * @param f The file to handle.
+	 * @throws Exception
+	 */
+	private static void readJar(Map<String, InputStream> values, File f)
+		throws Exception
+	{
+		ZipFile zfile;
+		Enumeration<? extends ZipEntry> entries;
+		ZipEntry entry;
+		zfile = new ZipFile(f);
+		entries = zfile.entries();
+		while (entries.hasMoreElements()) {
+			entry = entries.nextElement();
+			if (!entry.isDirectory()) {
+				values.put(entry.getName(), 
+						zfile.getInputStream(entry));
+			}
+		}
+	}
+	
+	/**
+	 * Extracts the content of the specified jar.
+	 * 
+	 * @param name The jar file to handle..
+	 * @return See above.
+	 */
+	public static Map<String, InputStream> readJar(String name)
+	throws Exception
+	{
+		Map<String, InputStream> values = new HashMap<String, InputStream>();
+		if (name == null) return values;
+		readJar(values, new File(name));
 		return values;
 	}
 
