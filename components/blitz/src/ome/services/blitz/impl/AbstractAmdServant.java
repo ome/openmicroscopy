@@ -34,6 +34,7 @@ import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ServiceInterfaceOperations;
 import omero.util.CloseableServant;
 import omero.util.IceMapper;
+import omero.util.ServantHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,9 +75,21 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
 
     protected OmeroContext ctx;
 
+    protected ServantHolder holder;
+
     public AbstractAmdServant(ServiceInterface service, BlitzExecutor be) {
         this.be = be;
         this.service = service;
+    }
+
+    /**
+     * Sets the {@link ServantHolder} for the current session so that on
+     * {@link #close_async(AMD_StatefulServiceInterface_close, Current)}
+     * it will be possible to cleanup the resources.
+     * @param holder
+     */
+    public void setHolder(ServantHolder holder) {
+        this.holder = holder;
     }
 
     /**
@@ -237,7 +250,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
 
         // Then we publish the close event
         try {
-            InternalMessage msg = new UnregisterServantMessage(this, __current);
+            InternalMessage msg = new UnregisterServantMessage(this, __current, holder);
             ctx.publishMessage(msg);
         } catch (ObjectAdapterDeactivatedException oade) {
             log.warn("ObjectAdapter deactivated!");
