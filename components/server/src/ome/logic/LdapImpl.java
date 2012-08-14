@@ -208,8 +208,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 return p.get(0);
             }
         }
-        throw new ApiUsageException(
-                    "Cannot find unique DistinguishedName: found=" + p.size());
+        throw new ApiUsageException(String.format(
+                    "Cannot find unique DistinguishedName '%s': found=%s",
+                    username, p.size()));
 
     }
 
@@ -489,10 +490,15 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         for (Map.Entry<Long, String> entry :  users.entrySet()){
             String name = entry.getValue();
             Long id = entry.getKey();
-            String dn = findDN(name);
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put(dn, id);
-            rv.add(map);
+            try {
+                String dn = findDN(name);
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("dn", dn);
+                map.put("experimenter_id", id);
+                rv.add(map);
+            } catch (ApiUsageException aue) {
+                getBeanHelper().getLogger().warn(aue.getMessage());
+            }
         }
         return rv;
     }
