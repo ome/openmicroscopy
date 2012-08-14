@@ -6060,6 +6060,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return (0, pmax-1)
 
     @assert_pixels
+    def requiresPixelsPyramid (self):
+        pixels_id = self._obj.getPrimaryPixels().getId().val
+        rp = self._conn.createRawPixelsStore()
+        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+        return rp.requiresPixelsPyramid()
+
+    @assert_pixels
     def getPrimaryPixels (self):
         """
         Loads pixels and returns object in a L{PixelsWrapper}
