@@ -22,6 +22,7 @@ import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
@@ -55,6 +56,7 @@ public class LdapTest extends MockObjectTestCase {
         LdapConfig config;
         LdapPasswordProvider provider;
         public LdapTemplate template;
+        public OmeroContext applicationContext;
 
         public void createUserWithGroup(LdapTest t, final String dn, String group) {
             role.expects(atLeastOnce()).method("createGroup")
@@ -150,7 +152,7 @@ public class LdapTest extends MockObjectTestCase {
     protected Fixture createFixture(File ctxFile) throws Exception {
 
         Fixture fixture = new Fixture();
-        fixture.ctx =new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
+        fixture.ctx = new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
         fixture.config = (LdapConfig) fixture.ctx.getBean("config");
 
         Map<String, LdapContextSource> sources =
