@@ -163,8 +163,8 @@
                 }
             });
 
-            $("#layout_chooser input").click(function() {
-                var layout = $("#layout_chooser input:checked").attr('value');
+            // switch between 'icon' or 'table' layout by switching CSS
+            var setLayout = function(layout) {
                 if (layout == "icon"){
                     $("#dataIcons").removeClass("tableLayout");
                     $("#dataIcons").addClass("iconLayout");
@@ -173,7 +173,21 @@
                     $("#dataIcons").removeClass("iconLayout");
                     $("#dataIcons").addClass("tableLayout");
                 }
+            }
+
+            // handle Radio buttons 
+            $("#layout_chooser input").click(function() {
+                var layout = $("#layout_chooser input:checked").attr('value');
+                setLayout(layout);
+                $("#content_details").data('layout', layout);   // preserve state for new datasets
             });
+
+            // check if we've previously set layout - if so, configure UI accordingly
+            var existing_layout = $("#content_details").data('layout');
+            if (existing_layout) {
+                setLayout(existing_layout);
+                $("#layout_chooser input[value='"+ existing_layout + "']").attr('checked', 'true');
+            }
         });
 
     </script>
