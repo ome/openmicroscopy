@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -413,7 +414,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(), false);
 
             long uid = provider.createExperimenter(exp, grp1, grpOther);
-            setDN(uid, dn.toString());
         }
         return access;
     }
@@ -501,16 +501,27 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        // FIXME8344
-        // need to load all experiments with ldap=true, and then
-        // map then to their DNs
-        return null;
+        final Map<Long, String> users = sql.getLdapUsers();
+        final List<Map<String, Object>> rv = new ArrayList<Map<String, Object>>();
+        for (Map.Entry<Long, String> entry :  users.entrySet()){
+            String name = entry.getValue();
+            Long id = entry.getKey();
+            String dn = findDN(name);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(dn, id);
+            rv.add(map);
+        }
+        return rv;
     }
 
     public String lookupLdapAuthExperimenter(Long id) {
-        // FIXME8344
-        // see above
-        return null;
+        boolean isLdap = sql.getUserLdapFlag(id);
+        if (!isLdap) {
+            return null;
+        }
+        String name = (String) iQuery.projection(
+            "select e.omeName from Experimenter e where id = " + id, null).get(0)[0];
+        return findDN(name);
     }
 
     // Helpers

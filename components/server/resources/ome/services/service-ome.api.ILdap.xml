@@ -31,7 +31,7 @@
 		<constructor-arg ref="ldapTemplate"/>
 		<constructor-arg ref="roles"/>
 		<constructor-arg ref="ldapConfig" />
-		<constructor-arg ref="roleProvider"/>
+		<constructor-arg ref="ldapRoleProvider"/>
 		<constructor-arg ref="simpleSqlAction"/>
 	</bean>
 

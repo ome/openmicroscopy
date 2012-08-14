@@ -23,7 +23,10 @@ module omero {
         ["ami", "amd"] interface IAdmin extends ServiceInterface
             {
 
+                //
                 // Getters
+                //
+
                 idempotent bool canUpdate(omero::model::IObject obj) throws ServerError;
                 idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
                 idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
@@ -34,12 +37,23 @@ module omero {
                 idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
                 idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
                 idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
-                idempotent string lookupLdapAuthExperimenter(long id) throws ServerError;
-                idempotent RList lookupLdapAuthExperimenters() throws ServerError;
                 idempotent LongList getMemberOfGroupIds(omero::model::Experimenter exp) throws ServerError;
                 idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
 
+                /**
+                 * Returns the DN for the user.
+                 **/
+                idempotent string lookupLdapAuthExperimenter(long id) throws ServerError;
+
+                /**
+                 * Returns an RList of RMap instances each of which have a single key-value pair
+                 * from the DN for the user (an RString) to the id of the user (RLong)
+                 **/
+                idempotent RList lookupLdapAuthExperimenters() throws ServerError;
+
+                //
                 // Mutators
+                //
 
                 void updateSelf(omero::model::Experimenter experimenter) throws ServerError;
                 long uploadMyUserPhoto(string filename, string format, Ice::ByteSeq data) throws ServerError;

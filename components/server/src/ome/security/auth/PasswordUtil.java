@@ -71,12 +71,6 @@ public class PasswordUtil {
         return buffer.toString();
     }
 
-    public String getDnById(Long id) {
-        // FIXME8344
-        // this needs to use ldaptemplate based on the experimenter omename
-        return null;
-    }
-
     public void changeUserPasswordById(Long id, String password) {
         if (! sql.setUserPassword(id, preparePassword(password))) {
             throw new InternalException("0 results for password insert.");

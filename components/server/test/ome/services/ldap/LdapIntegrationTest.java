@@ -64,7 +64,7 @@ public class LdapIntegrationTest extends LdapTest {
     }
 
     RoleProvider provider() {
-        return (RoleProvider) mCtx.getBean("roleProvider");
+        return (RoleProvider) mCtx.getBean("ldapRoleProvider");
     }
 
     RoleProvider nonLdapProvider() {

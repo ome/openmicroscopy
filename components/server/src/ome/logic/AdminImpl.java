@@ -1050,12 +1050,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     private boolean isDnById(long id) {
-        String dn = passwordUtil.getDnById(id);
-        if (dn != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return sql.getUserLdapFlag(id);
     }
 
     private boolean sendEmail(Experimenter e, String newPassword) {
