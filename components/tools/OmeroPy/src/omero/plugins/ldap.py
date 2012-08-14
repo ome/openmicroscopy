@@ -26,8 +26,8 @@ Examples:
   bin/omero ldap list
   bin/omero ldap getdn jack
   bin/omero ldap getdn beth || echo "No DN"
-  bin/omero ldap setdn jack uid=me,ou=example,o=com
-  bin/omero ldap setdn jack ""                        # Disables LDAP login.
+  bin/omero ldap setdn jack true                      # Enables LDAP login
+  bin/omero ldap setdn jack false                     # Disables LDAP login
   bin/omero ldap discover --commands                  # Requires "ldap" module
 
 """
@@ -47,16 +47,19 @@ class LdapControl(BaseControl):
         list = parser.add(sub, self.list, help = "List all OMERO users with DNs")
 
         getdn = parser.add(sub, self.getdn, help = "Get DN for user on stdout")
-        setdn = parser.add(sub, self.setdn, help = """Set DN for user (admins only)
+        setdn = parser.add(sub, self.setdn, help = """Enable/disable DN-lookup for user (admins only)
 
-Once the DN is set for a user, the password set via OMERO is
+Once LDAP is enabled for a user, the password set via OMERO is
 ignored, and any attempt to change it will result in an error. When
-you remove the DN, the previous password will be in effect, but if the
-user never had a password, one will need to be set!""")
+you disable LDAP, the previous password will be in effect, but if the
+user never had a password, one will need to be set!
+
+Only valid values: true, false """)
 
         for x in (getdn, setdn):
             x.add_argument("username", help = "User's OMERO login name")
-        setdn.add_argument("dn", help = "User's LDAP distinguished name. If empty, LDAP will be disabled for the user")
+        setdn.add_argument("dn", choices=("true","false"), \
+                help = "true to enable, false to disable LDAP-lookup")
 
         discover = parser.add(sub, self.discover, help = "Discover distinguished names for existing OMERO users")
         discover.add_argument("--commands", action="store_true", default=False, help = "Print setdn commands on standard out")
