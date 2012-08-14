@@ -260,8 +260,6 @@ def change_active_group(request, conn=None, url=None, **kwargs):
     active_group = request.REQUEST.get('active_group')
     request.session.modified = True
     request.session['active_group'] = active_group
-    request.session['imageInBasket'] = set()        # empty basket
-    request.session['basket_counter'] = 0
     url = url or reverse("webindex")
     return HttpResponseRedirect(url)
 
