@@ -182,6 +182,13 @@ public interface SqlAction {
     Map<Long, String> getLdapUsers();
 
     /**
+     * Return the id of all ldap-groups which this user is a member of.
+     * @param id
+     * @return
+     */
+    List<Long> getLdapGroupsForUser(long id);
+
+    /**
      * Set the "ldap" flag for a particular {@link Experimenter} instance.
      */
     void setUserLdapFlag(long id, boolean isLdap);
@@ -574,6 +581,12 @@ public interface SqlAction {
             _jdbc().query(_lookup("ldap.get_groups"), //$NON-NLS-1$
                 new MapRowMapper(rv));
             return rv;
+        }
+
+        public List<Long> getLdapGroupsForUser(long id) {
+            return _jdbc().query(_lookup("ldap.get_groups_for_user"), //$NON-NLS-1$
+                new IdRowMapper(), id);
+
         }
 
         public String fileRepo(long fileId) {

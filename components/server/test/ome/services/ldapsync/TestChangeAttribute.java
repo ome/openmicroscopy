@@ -66,13 +66,13 @@ public class TestChangeAttribute implements Modification {
 
         // Add the user to a new group. This requires starting a tx as
         // root.
+        final String uuid = UUID.randomUUID().toString();
         fixture.login("root", "system", null);
         final long grp3 = (Long)
             fixture.execute(new Executor.SimpleWork(this, "addUserToNewGroup"){
             @Transactional(readOnly=false)
             /*@Override*/
             public Object doWork(Session session, ServiceFactory sf) {
-                String uuid = UUID.randomUUID().toString();
                 long grp3 = simpleRP.createGroup(uuid, Permissions.PRIVATE, true);
                 simpleRP.addGroups(new Experimenter(ec1.getCurrentUserId(), false),
                     new ExperimenterGroup(grp3, false));
@@ -84,14 +84,14 @@ public class TestChangeAttribute implements Modification {
 
 
         // And remove from the old group
-        final ModificationItem[] mods = new ModificationItem[2];
+        final ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                 new BasicAttribute("roleOccupant", toRemove));
         fixture.template.modifyAttributes("cn=test1", mods);
 
 
         // Check that the user is no longer in grp1, but is still in grp3
-        final EventContext ec3 = fixture.login("test1", "grp3", "password");
+        final EventContext ec3 = fixture.login("test1", uuid, "password");
         assertMember(ec3, grp1, false);
         assertMember(ec3, grp3, true);
 
