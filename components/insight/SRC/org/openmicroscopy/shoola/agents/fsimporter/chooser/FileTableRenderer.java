@@ -92,17 +92,10 @@ public class FileTableRenderer
 			else setIcon(FILE_ICON);
 			setText(element.toString());
 		} else if (column == FileSelectionTable.FOLDER_AS_CONTAINER_INDEX) {
-			FileElement element = (FileElement) dtm.getValueAt(row, 
-					FileSelectionTable.FILE_INDEX);
 			Component 
 			c = table.getDefaultRenderer(
 					Boolean.class).getTableCellRendererComponent(
 							table, value, isSelected, hasFocus, row, column);
-			/*
-			if (element.getFile().isFile()) {
-				c.setEnabled(element.isToggleContainer());
-			}
-			*/
 			c.setEnabled(false);
 			return c;
 		} else if (column == FileSelectionTable.CONTAINER_INDEX) {
@@ -116,5 +109,5 @@ public class FileTableRenderer
 		}
 		return this;
 	}
-	
+
 }

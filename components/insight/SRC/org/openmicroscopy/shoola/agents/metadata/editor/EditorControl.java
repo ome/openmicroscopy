@@ -78,9 +78,11 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.TransformsParser;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -277,8 +279,10 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(model.getSecurityContext(),
-				new ViewImageObject(imageID), null));
+		ViewImage evt = new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null);
+		evt.setPlugin(MetadataViewerAgent.runAsPlugin());
+		bus.post(evt);
 	}
 
 	/**
@@ -369,10 +373,19 @@ class EditorControl
 	/** Brings up the folder chooser. */
 	private void export()
 	{
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		DowngradeChooser chooser = new DowngradeChooser(f, FileChooser.SAVE, 
-				"Export", "Select where to export the image as OME-TIFF.",
-				exportFilters);
+		DowngradeChooser chooser = new DowngradeChooser(new RefWindow(),
+				FileChooser.SAVE, "Export",
+				"Select where to export the image as OME-TIFF.", exportFilters);
+		try {
+			String path = 
+				MetadataViewerAgent.getRegistry().getTaskBar().
+				getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
+			chooser.parseData(path);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+	        msg.print(e);
+	        MetadataViewerAgent.getRegistry().getLogger().debug(this, msg);
+		}
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
 		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
 		chooser.setApproveButtonText("Export");

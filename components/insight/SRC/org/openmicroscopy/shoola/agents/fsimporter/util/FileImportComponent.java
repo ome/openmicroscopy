@@ -430,25 +430,30 @@ public class FileImportComponent
 			public void mousePressed(MouseEvent e)
 			{ 
 				if (e.getClickCount() == 1) {
+					ViewImage evt;
+					int plugin = ImporterAgent.runAsPlugin();
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data.getImage() != null) {
-							bus.post(new ViewImage(
+							evt = new ViewImage(
 									new SecurityContext(group.getId()),
 									new ViewImageObject(
-									data.getImage()), null));
+									data.getImage()), null);
+							evt.setPlugin(plugin);
+							bus.post(evt);
 						}
 					} else if (image instanceof ImageData) {
 						ImageData data = (ImageData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data != null) {
-							bus.post(new ViewImage(
+							evt = new ViewImage(
 									new SecurityContext(group.getId()),
-									new ViewImageObject(
-									data), null));
+									new ViewImageObject(data), null);
+							evt.setPlugin(plugin);
+							bus.post(evt);
 						}
 					} else if (image instanceof PlateData) {
 						firePropertyChange(BROWSE_PROPERTY, null, image);

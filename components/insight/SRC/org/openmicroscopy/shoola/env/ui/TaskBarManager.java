@@ -365,10 +365,10 @@ public class TaskBarManager
 	/**
 	 * Views the image as an <code>ImageJ</code>.
 	 * 
-	 * @param image The image to view.
+	 * @param id The image's id to view.
 	 * @param ctx The security context.
 	 */
-	private void runAsImageJ(ImageData image, SecurityContext ctx)
+	private void runAsImageJ(long id, SecurityContext ctx)
 	{
 		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
 				LookupNames.USER_CREDENTIALS);
@@ -385,7 +385,7 @@ public class TaskBarManager
 			buffer.append("\ngroupID=");
 			buffer.append(ctx.getGroupID());
 			buffer.append("\niid=");
-			buffer.append(image.getId());
+			buffer.append(id);
 			buffer.append("]");
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
 		} catch (Exception e) {
@@ -407,8 +407,7 @@ public class TaskBarManager
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
 			case ViewInPluginEvent.IMAGE_J:
-				runAsImageJ((ImageData) evt.getObject(),
-						evt.getSecurityContext());
+				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}
 	}
@@ -1009,6 +1008,18 @@ public class TaskBarManager
 			// TODO: handle exception
 		}
 		return success;
+	}
+	
+	/**
+	 * Returns the relative path to the <code>Libs</code> directory.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	String getLibFileRelative(String file)
+	{
+		if (file == null) return "";
+		return container.getFileRelative(Container.LIBS_DIR, file);
 	}
 	
 	/**
