@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
  * Extends {@link LdapIntegrationTest} to use test how modifications of LDAP
  * users/groups are propagated to OMERO.
  */
-@Test(groups = "integration")
+@Test(groups = {"ldap", "integration"})
 public class LdapSyncTest extends LdapIntegrationTest {
 
     /**
