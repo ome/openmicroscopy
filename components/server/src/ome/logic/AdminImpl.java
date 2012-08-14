@@ -234,27 +234,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return groupIds;
     }
 
+    @SuppressWarnings("unchecked")
     @RolesAllowed("user")
     public List<Long> getMemberOfGroupIds(final Experimenter e) {
-        Assert.notNull(e);
-        Assert.notNull(e.getId());
-
-        List<Long> groupIds = iQuery.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                org.hibernate.Query q = session
-                        .createQuery("select m.parent.id from GroupExperimenterMap m "
-                                + "where m.child.id = :id");
-                q.setParameter("id", e.getId());
-                return q.list();
-            }
-        });
-        return groupIds;
+        return (List<Long>) getGroupField(e, "id");
     }
 
+    @SuppressWarnings("unchecked")
     @RolesAllowed("user")
-    // TODO copied from getMemberOfGroupIds
     public List<String> getUserRoles(final Experimenter e) {
+        return (List<String>) getGroupField(e, "name");
+    }
+
+    @SuppressWarnings("rawtypes")
+    private List getGroupField(final Experimenter e, final String name) {
         Assert.notNull(e);
         Assert.notNull(e.getId());
 
@@ -262,8 +255,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = session
-                        .createQuery("select m.parent.name from GroupExperimenterMap m "
-                                + "where m.child.id = :id");
+                        .createQuery("select m.parent." + name + " " +
+                            "from Experimenter e " +
+                            "join e.groupExperimenterMap m " +
+                            "where e.id = :id order by index(m)");
                 q.setParameter("id", e.getId());
                 return q.list();
             }
