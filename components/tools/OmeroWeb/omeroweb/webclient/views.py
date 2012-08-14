@@ -317,20 +317,21 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     url = reverse(viewname="load_template", args=[menu])
 
     #tree support
-    init = {'initially_open':[], 'initially_select': None}
+    init = {'initially_open':None, 'initially_select': []}
     first_sel = None
     # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
     path = request.REQUEST.get('path', '')
     i = path.split("|")[-1]
     if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
-        init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
+        init['initially_select'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
         if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
-            init['initially_open'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
-    if len(init['initially_open']) > 0:
-        init['initially_select'] = init['initially_open'][:]    # copy list
+            init['initially_select'].append(str(i))
+    if len(init['initially_select']) > 0:
+        # tree hierarchy open to first selected object
+        init['initially_open'] = [ init['initially_select'][0] ]
         first_obj, first_id = init['initially_open'][0].split("-",1)
         try:
             conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
