@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -34,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -323,6 +321,16 @@ public interface SqlAction {
     // End PgArrayHelper
     //
 
+
+    //
+    // UPGRADES
+    //
+
+    /**
+     * Applies the auto-upgrade to 4.4__1 if the current version is 4.4__0.
+     */
+    void version441Upgrade();
+
     /**
      * Base implementation which can be used
      */
@@ -553,6 +561,18 @@ public interface SqlAction {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
 
+        }
+
+        //
+        // UPGRADES
+        //
+
+        public void version441Upgrade() {
+            _jdbc().update(_lookup("version441.step01")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step02")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step03")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step04")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step05")); //$NON-NLS-1$
         }
 
     }

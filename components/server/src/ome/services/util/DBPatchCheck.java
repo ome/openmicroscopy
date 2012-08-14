@@ -7,14 +7,17 @@
 
 package ome.services.util;
 
-import ome.api.local.LocalConfig;
 import ome.conditions.InternalException;
 import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Hook run by the context. This hook tests the database version against the
@@ -27,10 +30,12 @@ public class DBPatchCheck {
 
     public final static Log log = LogFactory.getLog(DBPatchCheck.class);
 
+    final PlatformTransactionManager tm;
     final SqlAction sql;
     final PreferenceContext prefs;
 
-    public DBPatchCheck(SqlAction sql, PreferenceContext prefs) {
+    public DBPatchCheck(SqlAction sql, PreferenceContext prefs, PlatformTransactionManager tm) {
+        this.tm = tm;
         this.sql = sql;
         this.prefs = prefs;
     }
@@ -64,19 +69,37 @@ public class DBPatchCheck {
             InternalException ie = new InternalException(no_table);
             throw ie;
         }
-
+        
         String patch = results[0];
         String version = results[1];
         String dbpatch = results[2];
         String omero = version + "__" + dbpatch;
         if (patch == null || !patch.equals(omero)) {
-            String str = String.format(wrong_version, patch, omero);
-            log.fatal(str);
-            InternalException ie = new InternalException(str);
-            throw ie;
+            if ("OMERO4.4__0".equals(patch) && "OMERO4.4__1".equals(omero)) {
+                upgrade441();
+            } else {
+                String str = String.format(wrong_version, patch, omero);
+                log.fatal(str);
+                InternalException ie = new InternalException(str);
+                throw ie;
+            }
         }
 
         log.info(String.format("Verified database patch: %s", patch));
+    }
+
+    protected void upgrade441()
+    {
+        // 4.4__1 upgrade: this is being handled automatically for the user
+        // since it's not something that everyone will be interested in.
+        TransactionTemplate tt = new TransactionTemplate(tm);
+        tt.execute(new TransactionCallback<Object>(){
+            @Override
+            @Transactional(readOnly=false)
+            public Object doInTransaction(TransactionStatus arg0) {
+                sql.version441Upgrade();
+                return null;
+            }});
     }
 
 }
