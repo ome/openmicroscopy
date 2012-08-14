@@ -1416,36 +1416,7 @@
         position: relative;
     }
 
-        #dataIcons li {
-            float: left;
-            text-align: center;
-            background-color:hsl(0,0%,95%);
-            margin:5px;
-            padding:5px 5px 2px;
-            width: 65px;
-            height: 65px;
-			
-			-webkit-border-radius:2px; /* Saf3+, Chrome */
-			   -moz-border-radius:2px; /* FF1+ */
-			        border-radius:2px; /* Opera 10.5, IE 9 */ 
-			
-            -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
-			
-			-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-			   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-			        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-			
-            border:solid 1px white; 
-        }
 
-<<<<<<< HEAD
-=======
-            #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img { 
-				max-width: 65px;
-				max-height: 65px;
-            }
-
->>>>>>> Use CSS to switch icon -> table layout, NOT table plugin. See #9466
             #dataIcons .ui-selecting {  
                 background-color:hsl(0,0%,90%);
             }
