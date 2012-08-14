@@ -84,10 +84,18 @@ PanoControls.prototype.initControls = function() {
 PanoControls.prototype.createDOMElements = function() {
     this.dom_element = this.viewer.viewerDomElement();
       
-    this.createButton (PanoJS.CONTROL_ZOOMIN);
-    this.createButton (PanoJS.CONTROL_ZOOM11);
-    this.createButton (PanoJS.CONTROL_ZOOMOUT);
-    this.createButton (PanoJS.CONTROL_MAXIMIZE);  
+    if (PanoJS.CREATE_CONTROL_ZOOMIN) {
+      this.createButton (PanoJS.CONTROL_ZOOMIN);
+    }
+    if (PanoJS.CREATE_CONTROL_ZOOM11) {
+      this.createButton (PanoJS.CONTROL_ZOOM11);
+    }
+    if (PanoJS.CREATE_CONTROL_ZOOMOUT) {
+      this.createButton (PanoJS.CONTROL_ZOOMOUT);
+    }
+    if (PanoJS.CREATE_CONTROL_MAXIMIZE) {
+      this.createButton (PanoJS.CONTROL_MAXIMIZE);
+    }
 }
 
 PanoControls.prototype.createButton = function(control) {
