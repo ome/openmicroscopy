@@ -226,6 +226,11 @@
                 $("#thumb_size_slider").slider('value', existing_icon_size);
             }
 
+            $('input#id_search').quicksearch('#dataIcons tbody tr', {
+                'delay': 300,
+                'loader': 'span.loading'
+            });
+
         });
 
     </script>
@@ -233,7 +238,7 @@
         #thumb_size_slider {
             border: 1px solid #aaa;
             height: 6px;
-            right: 20px;
+            right: 150px;
             position: absolute;
             top: 9px;
             width: 120px;
@@ -289,10 +294,13 @@
 <div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
     
-    <div id="layout_chooser" style="position: absolute;left: 200px;">
+    <div id="layout_chooser" style="position: absolute;right: 20px;">
         Icon <input type="radio" name="layout" value="icon" checked='true'>
         Table <input type="radio" name="layout" value="table">
     </div>
+
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value=""> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+    
 </div>
 
 <div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px; right:0px">
