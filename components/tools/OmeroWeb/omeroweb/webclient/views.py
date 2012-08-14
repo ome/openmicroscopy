@@ -333,6 +333,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         init['initially_select'] = init['initially_open'][:]    # copy list
         first_obj, first_id = init['initially_open'][0].split("-",1)
         try:
+            conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
             first_sel = conn.getObject(first_obj, long(first_id))
         except ValueError:
             pass    # invalid id
