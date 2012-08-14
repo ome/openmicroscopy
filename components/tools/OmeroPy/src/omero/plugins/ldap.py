@@ -103,9 +103,9 @@ user never had a password, one will need to be set!""")
                 for dn, id in map.items():
                     try:
                         exp = iadmin.getExperimenter(id)
-                    except:
+                    except omero.ValidationException, ve:
                         self.ctx.err("Bad experimenter: %s" % id)
-
+                        continue
                     tb.row(count, *(id, exp.omeName.val, dn))
                     count += 1
             self.ctx.out(str(tb.build()))
