@@ -394,10 +394,15 @@ $.fn.viewportImage = function(options) {
         InfoControl.prototype.viewerZoomed = function(e) {
             var sz = this.viewer.imageSize();
             if (this.dom_info) 
-                this.dom_info.innerHTML = 'Scale: '+ e.scale*100 +'%';
+                var scale = e.scale * 100;
+                if (scale % 1 !== 0) {
+                    scale = scale.toFixed(2);
+                }
+                this.dom_info.innerHTML = 'Scale: '+ scale +'%';
         }
         
-        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
+        var myPyramid = new BisqueISPyramid(
+                imagewidth, imageheight, xtilesize, ytilesize, levels);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
             return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
@@ -412,6 +417,8 @@ $.fn.viewportImage = function(options) {
             $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
             jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
             
+            PanoJS.CREATE_CONTROL_MAXIMIZE = false;
+            PanoJS.PRE_CACHE_AMOUNT = 2;
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
