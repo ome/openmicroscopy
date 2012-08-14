@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,9 +52,42 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  */
 public interface SqlAction {
 
+    /**
+     * {@link RowMapper} which always reads the first and only the first argument
+     * as a single long.
+     */
     public static class IdRowMapper implements RowMapper<Long> {
         public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getLong(1);
+        }
+    }
+
+    /**
+     * {@link RowMapper} which always reads the first and only the first argument
+     * as a single String.
+     */
+    public static class StringRowMapper implements RowMapper<String> {
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
+        }
+    }
+
+    /**
+     * {@link RowMapper} which reads the first and second elements only, both as
+     * objects, and uses them as the key and the value, respectively, of an
+     * entry in the map passed to the constructor. The map is returned for
+     * every row.
+     */
+    @SuppressWarnings("rawtypes")
+    public static class MapRowMapper implements RowMapper<Map<Object, Object>> {
+        final private Map map;
+        public MapRowMapper(Map map) {
+            this.map = map;
+        }
+        @SuppressWarnings("unchecked")
+        public Map<Object, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+            map.put(rs.getObject(1), rs.getObject(2));
+            return map;
         }
     }
 
@@ -122,6 +156,36 @@ public interface SqlAction {
      */
     ExperimenterGroup groupInfoFor(String table, long id);
 
+    /**
+     * Get the "ldap" flag for a particular {@link ExperimenterGroup} instance.
+     */
+    boolean getGroupLdapFlag(long id);
+
+    /**
+     * Set the "ldap" flag for a particular {@link ExperimenterGroup} instance.
+     */
+    void setGroupLdapFlag(long id, boolean isLdap);
+
+    /**
+     * Get the "ldap" flag for a particular {@link Experimenter} instance.
+     */
+    boolean getUserLdapFlag(long id);
+
+    /**
+     * Return the id and name of all groups that are configured for LDAP.
+     */
+    Map<Long, String> getLdapGroups();
+
+    /**
+     * Return the id and name of all users who are configured for LDAP.
+     */
+    Map<Long, String> getLdapUsers();
+
+    /**
+     * Set the "ldap" flag for a particular {@link Experimenter} instance.
+     */
+    void setUserLdapFlag(long id, boolean isLdap);
+    
     String fileRepo(long fileId);
 
     /**
@@ -474,6 +538,42 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
+        }
+
+        public boolean getGroupLdapFlag(long id) {
+            return _jdbc().queryForObject(
+                _lookup("ldap.set_flag.group"), //$NON-NLS-1$
+                Boolean.class, id);
+        }
+
+        public void setGroupLdapFlag(long id, boolean isLdap) {
+            _jdbc().update(_lookup("ldap.set_flag.group"), //$NON-NLS-1$
+                isLdap, id);
+        }
+
+        public boolean getUserLdapFlag(long id) {
+            return _jdbc().queryForObject(
+                _lookup("ldap.get_flag.user"), //$NON-NLS-1$
+                Boolean.class, id);
+        }
+
+        public void setUserLdapFlag(long id, boolean isLdap) {
+            _jdbc().update(_lookup("ldap.set_flag.user"), //$NON-NLS-1$
+                isLdap, id);
+        }
+
+        public Map<Long, String> getLdapGroups() {
+            final Map<Long, String> rv = new HashMap<Long, String>();
+            _jdbc().query(_lookup("ldap.get_groups"), //$NON-NLS-1$
+                new MapRowMapper(rv));
+            return rv;
+        }
+
+        public Map<Long, String> getLdapUsers() {
+            final Map<Long, String> rv = new HashMap<Long, String>();
+            _jdbc().query(_lookup("ldap.get_groups"), //$NON-NLS-1$
+                new MapRowMapper(rv));
+            return rv;
         }
 
         public String fileRepo(long fileId) {
