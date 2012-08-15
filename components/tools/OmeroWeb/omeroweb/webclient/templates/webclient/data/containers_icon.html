@@ -42,49 +42,6 @@
         $(document).ready(function(){
             
             var $parent_container = $("#content_details");
-
-            // Handle zooming of thumbnails with jQuery slider
-            var icon_styles = [];
-            var li_styles = [];
-            var aspect_ratios = [];
-            // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
-            $("#dataIcons img").each(function(){
-                icon_styles.push(this.style);
-            });
-
-            var sizeX, sizeY
-            $("#dataIcons tr").each(function(){
-                li_styles.push(this.style);
-                sizeX = $(".sizeX", $(this)).text();
-                sizeY = $(".sizeY", $(this)).text();
-                aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
-            });
-            var setIconSize = function(icon_size) {
-                for (s in icon_styles) {
-                    if (aspect_ratios[s] < 1) {
-                        icon_styles[s].width = (icon_size * aspect_ratios[s]) >> 0 + "px";
-                        icon_styles[s].height = icon_size + "px";
-                    } else if (aspect_ratios[s] > 1) {
-                        icon_styles[s].height = (icon_size / aspect_ratios[s]) >> 0 + "px";
-                        icon_styles[s].width = icon_size + "px";
-                    } else {
-                        icon_styles[s].width = icon_size + "px";
-                        icon_styles[s].height = icon_size + "px";
-                    }
-                    li_styles[s].width = icon_size + "px";
-                    li_styles[s].height = icon_size + "px";
-                }
-            }
-            $("#thumb_size_slider").slider({
-                max: 200,
-                min: 30,
-                value: INITIAL_ICON_SIZE,
-                slide: function(event, ui) {
-                    setIconSize(ui.value);
-                }
-            });
-            
-            setIconSize(INITIAL_ICON_SIZE);
             
             // when the jstree removes objects from the tree, handle each object...
             $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
@@ -201,24 +158,54 @@
                     li_styles.push(this.style);
                 }
             });
-            var setIconSize = function(size) {
+            
+            // Handle zooming of thumbnails with jQuery slider
+            var icon_styles = [];
+            var li_styles = [];
+            var aspect_ratios = [];
+            // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
+            $("#dataIcons img").each(function(){
+                icon_styles.push(this.style);
+            });
+
+            var sizeX, sizeY
+            $("#dataIcons tr").each(function(){
+                if (! $(this).hasClass('thead')) {
+                    li_styles.push(this.style);
+                    sizeX = $(".sizeX", $(this)).text();
+                    sizeY = $(".sizeY", $(this)).text();
+                    aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
+                }
+            });
+
+            var setIconSize = function(icon_size) {
                 for (s in icon_styles) {
-                    // have to set 'max' size to maintain aspect ratio BUT can't go bigger than 100%
-                    icon_styles[s].maxWidth = size + "px";
-                    icon_styles[s].maxHeight = size + "px";
-                    li_styles[s].width = size + "px";
-                    li_styles[s].height = size + "px";
+                    if (aspect_ratios[s] < 1) {
+                        icon_styles[s].width = (icon_size * aspect_ratios[s]) >> 0 + "px";
+                        icon_styles[s].height = icon_size + "px";
+                    } else if (aspect_ratios[s] > 1) {
+                        icon_styles[s].height = (icon_size / aspect_ratios[s]) >> 0 + "px";
+                        icon_styles[s].width = icon_size + "px";
+                    } else {
+                        icon_styles[s].width = icon_size + "px";
+                        icon_styles[s].height = icon_size + "px";
+                    }
+                    li_styles[s].width = icon_size + "px";
+                    li_styles[s].height = icon_size + "px";
                 }
             }
             $("#thumb_size_slider").slider({
                 max: 200,
                 min: 30,
-                value: 65,
+                value: INITIAL_ICON_SIZE,
                 slide: function(event, ui) {
                     setIconSize(ui.value);
                     $parent_container.data('icon_size', ui.value);   // preserve icon size for new datasets
                 }
             });
+            
+            setIconSize(INITIAL_ICON_SIZE);
+
             // check if we've previously set icon size - if so, configure UI accordingly
             var existing_icon_size = $parent_container.data('icon_size');
             if (existing_icon_size) {
@@ -249,13 +236,12 @@
             border-radius: 3px;
         }
 
-        .sizeX, .sizeY {display:none}
         
         .iconLayout tr {
             float: left;
             padding: 5px;
         }
-        .iconLayout td.desc, .iconLayout td.date, .iconLayout tr.thead {
+        .iconLayout td.desc, .iconLayout td.date, .iconLayout tr.thead, .iconLayout td.sizeX, .iconLayout td.sizeY {
             display: none;
         }
         .iconLayout tr {
@@ -274,7 +260,7 @@
             position: relative;
             width: 100%;
         }
-        .tableLayout td.desc, .tableLayout td.date {
+        .tableLayout td.desc, .tableLayout td.date, .tableLayout td.sizeX, .tableLayout td.sizeY {
             padding: 10px 0px;
             font-size: 1.2em;
             vertical-align: middle;
@@ -321,12 +307,12 @@
             {% for c in manager.containers.images %}
                 <tr id="image_row-{{ c.id }}">
                     <td class="image" title="{{ c.name }}">
-                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 200 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                     </td>
                     <td class="desc" valign="middle">{{ c.name|truncatebefor:"65" }}</td>
                     <td class="date" valign="middle">{{ c.getDate }}</td>                    
-                    <td class="sizeX">{{ c.getSizeX }}</td>
-                    <td class="sizeY">{{ c.getSizeY }}</td>
+                    <td class="sizeX" valign="middle">{{ c.getSizeX }}</td>
+                    <td class="sizeY" valign="middle">{{ c.getSizeY }}</td>
                 </tr>
             {% endfor %}
         </tbody>
