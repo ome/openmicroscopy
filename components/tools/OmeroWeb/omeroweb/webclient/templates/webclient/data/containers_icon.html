@@ -213,10 +213,11 @@
                 $("#thumb_size_slider").slider('value', existing_icon_size);
             }
 
-            $('input#id_search').quicksearch('#dataIcons tbody tr', {
+            $('#id_search').quicksearch('#dataIcons tbody tr', {
                 'delay': 300,
                 'loader': 'span.loading'
             });
+            $("#filtersearch label").inFieldLabels();
 
         });
 
@@ -227,11 +228,10 @@
             height: 6px;
             right: 150px;
             position: absolute;
-            top: 9px;
+            top: 11px;
             width: 120px;
         }
         #thumb_size_slider .ui-slider-handle {
-            /*background: -moz-linear-gradient(center top , #727C86 0%, #4F565D 100%) repeat scroll 0 0 #FFFFFF;*/
             background: #727C86;
             border-radius: 3px;
         }
@@ -277,7 +277,7 @@
 
     </style>
 
-<div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
+<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
     
     <div id="layout_chooser" style="position: absolute;right: 20px;">
@@ -285,11 +285,16 @@
         Table <input type="radio" name="layout" value="table">
     </div>
 
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value=""> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-    
+    <form class="search filtersearch" id="filtersearch" action="#">
+        <div>
+            <label for="id_search"> Filter Images </label>
+            <input id="id_search" type="text" size="25">
+        </div>
+        <span class="loading" style="display: none;">
+    </form>
 </div>
 
-<div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px; right:0px">
+<div style="position:absolute; top:29px; left:0px; bottom:0px; overflow:auto; margin-top:0px; right:0px">
 {% if manager.containers.images %}
 
     
