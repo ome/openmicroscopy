@@ -40,25 +40,28 @@ class ChgrpTest (lib.GTest):
             return prx
         
         cb = CmdCallbackI(self.gateway.c, prx)
-        for i in range(10):
-            cb.loop(20, 500)
-            if prx.getResponse() != None:
-                break
-
-        self.assertNotEqual(prx.getResponse(), None)
-
-        status = prx.getStatus()
-        rsp = prx.getResponse()
-
-        if test_should_pass:
-            if isinstance(rsp, ERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
-            self.assertFalse(State.FAILURE in prx.getStatus().flags)
-        else:
-            if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s", rsp)
-            self.assertTrue(State.FAILURE in prx.getStatus().flags)
-        return rsp
+        try:
+            for i in range(10):
+                cb.loop(20, 500)
+                if prx.getResponse() != None:
+                    break
+    
+            self.assertNotEqual(prx.getResponse(), None)
+    
+            status = prx.getStatus()
+            rsp = prx.getResponse()
+    
+            if test_should_pass:
+                if isinstance(rsp, ERR):
+                    self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
+                self.assertFalse(State.FAILURE in prx.getStatus().flags)
+            else:
+                if isinstance(rsp, OK):
+                    self.fail("Found OK when test_should_pass==false: %s", rsp)
+                self.assertTrue(State.FAILURE in prx.getStatus().flags)
+            return rsp
+        finally:
+            cb.close(True)
 
 
     def testImageChgrp(self):
