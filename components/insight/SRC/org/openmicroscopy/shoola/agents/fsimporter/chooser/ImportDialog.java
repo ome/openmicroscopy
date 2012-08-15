@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -45,8 +47,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -74,12 +77,9 @@ import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
 import loci.formats.gui.ComboFileFilter;
-import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTaskPane;
 
-//Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
@@ -1458,11 +1458,29 @@ public class ImportDialog
 		List<DataNode> list = n.getDatasetNodes();
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null) list.addAll(nl);
-		List l = sorter.sort(list);
+		List<DataNode> l = sorter.sort(list);
 		//datasetsBox.removeActionListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
-		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		//datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+		datasetsBox.setRenderer(renderer);
+		ArrayList<String> tooltips = new ArrayList<String>(l.size());
+		
+		String hoverSuffix =  " [mouse over for full name] ";
+		int maxDatasetDisplayNameLength = 75 - hoverSuffix.length();
+		
+		for (DataNode datasetNode : l) {
+			String datasetName = datasetNode.getFullName(); 
+			
+			datasetsBox.addItem(datasetNode);
+			
+			tooltips.add(datasetName);
+		}
+		
+		renderer.setTooltips(tooltips);
+		
 		if (selectedContainer != null) {
 			Object o = selectedContainer.getUserObject();
 			if (o instanceof DatasetData) {

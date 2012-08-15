@@ -29,10 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -371,16 +369,30 @@ public class DataNode
 	 * @see #toString()
 	 */
 	public String toString()
-	{ 
+	{
 		//space added at the end otherwise does not show on linux if
 		//name ends up with "v".
+		String name = getFullName();
+		
+		return EditorUtil.truncate(name, 50);
+	}
+	
+	/**
+	 * Returns the full length name of the DataNode
+	 * 
+	 * @return see above.
+	 */
+	public String getFullName()
+	{
+		String name = " ";
+		
 		if (data instanceof DatasetData)
-			return ((DatasetData) data).getName()+" "; 
+			name = ((DatasetData) data).getName() + " "; 
 		else if (data instanceof ProjectData) 
-			return ((ProjectData) data).getName()+" "; 
+			name = ((ProjectData) data).getName() + " "; 
 		else if (data instanceof ScreenData) 
-			return ((ScreenData) data).getName()+" "; 
-		return ""; 
+			name = ((ScreenData) data).getName() + " ";
+		return name;
 	}
 	
 }
