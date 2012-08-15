@@ -1438,11 +1438,6 @@
             border:solid 1px white; 
         }
 
-            #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img { 
-				max-width: 75px;
-				max-height: 75px;
-            }
-
             #dataIcons .ui-selecting {  
                 background-color:hsl(0,0%,90%);
             }

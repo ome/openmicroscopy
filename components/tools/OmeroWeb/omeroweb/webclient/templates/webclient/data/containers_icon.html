@@ -23,6 +23,8 @@
 
     <script type="text/javascript">
 
+        INITIAL_ICON_SIZE = 65;
+
         var handleRemove = function (e, data) {
             var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
             data.rslt.obj.each(function() {
@@ -42,27 +44,44 @@
             // Handle zooming of thumbnails with jQuery slider
             var icon_styles = [];
             var li_styles = [];
+            var aspect_ratios = [];
             // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
             $("#dataIcons img").each(function(){
                 icon_styles.push(this.style);
             });
+            var sizeX, sizeY
             $("#dataIcons li").each(function(){
                 li_styles.push(this.style);
+                sizeX = $(".sizeX", $(this)).text();
+                sizeY = $(".sizeY", $(this)).text();
+                aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
             });
+            var setIconSize = function(icon_size) {
+                for (s in icon_styles) {
+                    if (aspect_ratios[s] < 1) {
+                        icon_styles[s].width = (icon_size * aspect_ratios[s]) >> 0 + "px";
+                        icon_styles[s].height = icon_size + "px";
+                    } else if (aspect_ratios[s] > 1) {
+                        icon_styles[s].height = (icon_size / aspect_ratios[s]) >> 0 + "px";
+                        icon_styles[s].width = icon_size + "px";
+                    } else {
+                        icon_styles[s].width = icon_size + "px";
+                        icon_styles[s].height = icon_size + "px";
+                    }
+                    li_styles[s].width = icon_size + "px";
+                    li_styles[s].height = icon_size + "px";
+                }
+            }
             $("#thumb_size_slider").slider({
                 max: 200,
                 min: 30,
-                value: 75,
+                value: INITIAL_ICON_SIZE,
                 slide: function(event, ui) {
-                    for (s in icon_styles) {
-                        // have to set 'max' size to maintain aspect ratio BUT can't go bigger than 100%
-                        icon_styles[s].maxWidth = ui.value + "px";
-                        icon_styles[s].maxHeight = ui.value + "px";
-                        li_styles[s].width = ui.value + "px";
-                        li_styles[s].height = ui.value + "px";
-                    }
+                    setIconSize(ui.value);
                 }
             });
+            
+            setIconSize(INITIAL_ICON_SIZE);
             
             // when the jstree removes objects from the tree, handle each object...
             $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
@@ -150,7 +169,7 @@
             background: #727C86;
             border-radius: 3px;
         }
-    
+        .sizeX, .sizeY {display:none}
     </style>
 
 <div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
@@ -164,7 +183,8 @@
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
         <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.canEdit %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% url render_thumbnail_resize 200 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <span class="sizeX">{{ c.getSizeX }}</span> <span class="sizeY">{{ c.getSizeY }}</span>
         </li>
         {% endfor %}
     </ul>

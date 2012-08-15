@@ -440,7 +440,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/container_subtree.html"
     elif len(kw.keys()) > 0 :
         if kw.has_key('dataset'):
-            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page)
+            load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
+            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
             elif view =='table':
