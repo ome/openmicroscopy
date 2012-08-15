@@ -94,7 +94,7 @@ public class ExitApplicationAction
                     UIUtilities.formatToolTipText(DESCRIPTION_AS_PLUGIN));
         }
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT_APPLICATION)); 
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT_APPLICATION));
     }
     
     /** 
@@ -105,8 +105,7 @@ public class ExitApplicationAction
     {
     	model.cancel();
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-    	ExitApplication a = new ExitApplication(
-    			!(TreeViewerAgent.isRunAsPlugin()));
+    	ExitApplication a = new ExitApplication(false);
     	GroupData group = model.getSelectedGroup();
     	if (group != null)
     		a.setSecurityContext(new SecurityContext(group.getId()));
