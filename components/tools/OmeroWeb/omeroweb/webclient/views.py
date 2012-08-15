@@ -343,6 +343,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
             if first_sel is not None:
                 for p in first_sel.getAncestry():
                     init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+                if init['initially_open'][0].split("-")[0] == 'image':
+                    init['initially_open'].insert(0, "orphaned-0")
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
         switch_active_group(request, first_sel.details.group.id.val)
