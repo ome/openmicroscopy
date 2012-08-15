@@ -52,6 +52,25 @@ def insight(request):
     pattern = os.path.abspath(os.path.join(settings.OMERO_HOME, "lib", "insight",  "*.jar").replace('\\','/'))
     jarlist = glob(pattern)
     jarlist = [os.path.basename(x) for x in jarlist]
-    context = {'codebase': codebase, 'href': href, 'jarlist': jarlist}
+
+    # ticket:9478 put insight jar at the start of the list if available
+    # This can be configured via omero.web.webstart_jar to point to a
+    # custom value.
+    idx = jarlist.index(settings.WEBSTART_JAR)
+    if idx > 0:
+        jarlist.pop(idx)
+        jarlist.insert(0, settings.WEBSTART_JAR)
+
+    context = {'codebase': codebase, 'href': href, 'jarlist': jarlist,
+               'icon': settings.WEBSTART_ICON,
+               'heap': settings.WEBSTART_HEAP,
+               'host': settings.WEBSTART_HOST,
+               'port': settings.WEBSTART_PORT,
+               'class': settings.WEBSTART_CLASS,
+               'title': settings.WEBSTART_TITLE,
+               'vendor': settings.WEBSTART_VENDOR,
+               'homepage': settings.WEBSTART_HOMEPAGE,
+              }
+
     c = Context(request, context)
     return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")
