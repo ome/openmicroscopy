@@ -76,6 +76,8 @@ class RDefsTest (lib.GTest):
         self.image.setActiveChannels([2],[[409.0, 5015.0]],[u'F0F0F0'])
         self.assertEqual(self.channels[1].getColor().getHtml(), 'F0F0F0', "Channel 2 colour should be changed")
         self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color, "Channel 1 colour should NOT be changed")
+        self.assertEqual(self.channels[0].isActive(), False, "Channel 1 should be Inactive")
+        self.assertEqual(self.channels[1].isActive(), True, "Channel 2 should be Active")
 
     def testCustomized (self):
         self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'FF0000', u'0000FF'])
