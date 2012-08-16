@@ -374,7 +374,7 @@ public class DataNode
 		//name ends up with "v".
 		String name = getFullName();
 		
-		return EditorUtil.truncate(name, 50);
+		return EditorUtil.truncate(name, 48);
 	}
 	
 	/**

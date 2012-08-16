@@ -19,7 +19,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.chooser;
+package org.openmicroscopy.shoola.util.ui;
 
 /** 
  * Provides a wrapped renderer for displaying tooltip information on mouse hover

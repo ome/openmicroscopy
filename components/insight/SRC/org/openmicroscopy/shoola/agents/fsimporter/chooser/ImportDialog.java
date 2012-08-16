@@ -97,6 +97,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.filter.file.HCSFilter;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
+import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
@@ -438,12 +439,12 @@ public class ImportDialog
 			if (!n.isDefaultNode()) nodes.add(n);
 			else dn = n;
 		}
-		List l = sorter.sort(nodes);
+		List<DataNode> l = sorter.sort(nodes);
 		if (dn != null) l.add(dn);
 		datasetsBox.removeAllItems();
-		Iterator i = l.iterator();
+		Iterator<DataNode> i = l.iterator();
 		while (i.hasNext()) {
-			datasetsBox.addItem((DataNode) i.next());
+			datasetsBox.addItem(i.next());
 		}
 		datasetsBox.setSelectedItem(nn);
 	}
@@ -468,13 +469,13 @@ public class ImportDialog
 		if (data instanceof ProjectData) 
 			nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
 		nodes.add(nn);
-		List l = sorter.sort(nodes);
+		List<DataNode> l = sorter.sort(nodes);
 		if (dn != null) l.add(dn);
 		parentsBox.removeActionListener(parentsBoxListener);
 		parentsBox.removeAllItems();
-		Iterator i = l.iterator();
+		Iterator<DataNode> i = l.iterator();
 		while (i.hasNext()) {
-			parentsBox.addItem((DataNode) i.next());
+			parentsBox.addItem(i.next());
 		}
 		parentsBox.addActionListener(parentsBoxListener);
 		parentsBox.setSelectedItem(nn);
@@ -532,12 +533,12 @@ public class ImportDialog
 		if (newNodesS == null) newNodesS = new ArrayList<DataNode>();
 		newNodesS.add(n);
 		nodes.add(n);
-		List l = sorter.sort(nodes);
+		List<DataNode> l = sorter.sort(nodes);
 		if (defaultNode != null) l.add(defaultNode);
 		parentsBox.removeAllItems();
-		Iterator i = l.iterator();
+		Iterator<DataNode> i = l.iterator();
 		while (i.hasNext()) {
-			parentsBox.addItem((DataNode) i.next());
+			parentsBox.addItem(i.next());
 		}
 		parentsBox.setSelectedItem(n);
 		repaint();
@@ -597,22 +598,22 @@ public class ImportDialog
 	 * 
 	 * @param tags The selected tags.
 	 */
-	private void handleTagsSelection(Collection tags)
+	private void handleTagsSelection(Collection<TagAnnotationData> tags)
 	{
 		Collection<TagAnnotationData> set = tagsMap.values();
 		Map<String, TagAnnotationData> 
 			newTags = new HashMap<String, TagAnnotationData>();
 		TagAnnotationData tag;
-		Iterator i = set.iterator();
+		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() < 0)
 				newTags.put(tag.getTagValue(), tag);
 		}
 		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
 		i = tags.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() < 0) {
 				if (!newTags.containsKey(tag.getTagValue())) {
 					toKeep.add(tag);
@@ -630,7 +631,7 @@ public class ImportDialog
 		JPanel p = initRow();
 		int width = 0;
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			entry = buildTagEntry(tag, icons.getIcon(IconManager.MINUS_11));
 			if (width+entry.getPreferredSize().width >= COLUMN_WIDTH) {
 		    	tagsPane.add(p);
@@ -692,8 +693,8 @@ public class ImportDialog
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
 	 */
-	private void showSelectionWizard(Class type, Collection available, 
-									Collection selected, boolean addCreation)
+	private void showSelectionWizard(Class<TagAnnotationData> type, Collection<Object> available, 
+									Collection<Object> selected, boolean addCreation)
 	{
 		IconManager icons = IconManager.getInstance();
 		Registry reg = ImporterAgent.getRegistry();
@@ -960,7 +961,7 @@ public class ImportDialog
 				}
 			}
 			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
-			combinedHCSFilter = new HCSFilter((String[]) set.toArray(
+			combinedHCSFilter = new HCSFilter(set.toArray(
 					new String[set.size()]));
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
@@ -1370,12 +1371,12 @@ public class ImportDialog
 				}
 			}
 		}
-		List sortedList = new ArrayList();
+		List<DataNode> sortedList = new ArrayList<DataNode>();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
 		int size;
-		List finalList = new ArrayList();
+		List<DataNode> finalList = new ArrayList<DataNode>();
 		int index = 0;
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
@@ -1454,22 +1455,18 @@ public class ImportDialog
 	private void populateDatasetsBox()
 	{
 		if (type == Importer.SCREEN_TYPE) return;
+		
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getDatasetNodes();
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null) list.addAll(nl);
 		List<DataNode> l = sorter.sort(list);
-		//datasetsBox.removeActionListener(datasetsBoxListener);
-		datasetsBox.removeAllItems();
-		
-		//datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
 		
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
-		datasetsBox.setRenderer(renderer);
-		ArrayList<String> tooltips = new ArrayList<String>(l.size());
 		
-		String hoverSuffix =  " [mouse over for full name] ";
-		int maxDatasetDisplayNameLength = 75 - hoverSuffix.length();
+		datasetsBox.removeAllItems();
+		datasetsBox.setRenderer(renderer);
+		List<String> tooltips = new ArrayList<String>(l.size());
 		
 		for (DataNode datasetNode : l) {
 			String datasetName = datasetNode.getFullName(); 
@@ -2185,7 +2182,7 @@ public class ImportDialog
 		}
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
-		handleTagsSelection(new ArrayList());
+		handleTagsSelection(new ArrayList<TagAnnotationData>());
 		tabbedPane.setSelectedIndex(0);
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		if (filters != null && filters.length > 0)
@@ -2246,23 +2243,23 @@ public class ImportDialog
 	 * 
 	 * @param tags The collection of existing tags.
 	 */
-	public void setTags(Collection tags)
+	public void setTags(Collection<TagAnnotationData> tags)
 	{
 		if (tags == null) return;
 		Collection<TagAnnotationData> set = tagsMap.values();
 		List<Long> ids = new ArrayList<Long>();
-		List available = new ArrayList();
-		List selected = new ArrayList();
+		List<Object> available = new ArrayList<Object>();
+		List<Object> selected = new ArrayList<Object>();
 		TagAnnotationData tag;
-		Iterator i = set.iterator();
+		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() > 0)
 				ids.add(tag.getId());
 		}
 		i = tags.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (ids.contains(tag.getId())) 
 				selected.add(tag);
 			else available.add(tag);
@@ -2387,7 +2384,7 @@ public class ImportDialog
 				entry = (Entry) i.next();
 				type = (Class) entry.getKey();
 				if (TagAnnotationData.class.getName().equals(type.getName()))
-					handleTagsSelection((Collection) entry.getValue());
+					handleTagsSelection((Collection<TagAnnotationData>) entry.getValue());
 			}
 		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			Object ho = evt.getNewValue();
