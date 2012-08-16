@@ -341,20 +341,11 @@ public class ImportDialog
 	/** Sorts the objects from the display. */
 	private ViewerSorter				sorter;
 	
-	/** The class of reference for the container. */
-	private Class						reference;
-	
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox					showThumbnails;
-
-	/** Indicates to turn the folder as dataset. */
-	//private JCheckBox					fadBox;
 	
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
-	
-	/** The listener linked to the dataset box. */
-	//private ActionListener				datasetsBoxListener;
 	
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> 			hcsFilters;
@@ -376,11 +367,6 @@ public class ImportDialog
 	
 	/** The size of the import. */
 	private JLabel						sizeImportLabel;
-	
-	/** 
-	 * Used to create a dataset using the folder containing the selected images. 
-	 */
-	//private JCheckBox					folderAsDatasetBox;
 	
 	/** The owner related to the component. */
 	private JFrame						owner;
@@ -760,7 +746,7 @@ public class ImportDialog
     			FOLDER_AS_DATASET);
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
-		reference = null;
+    	
 		parentsBox = new JComboBox();
 		parentsBoxListener = new ActionListener() {
 			
@@ -1339,7 +1325,6 @@ public class ImportDialog
 					list.addAll(l);
 				n = new DataNode(list);
 			}
-			//sortedList.add(n);
 			finalList.add(n);
 			finalList.addAll(sortedList);
 			parentsBox.removeActionListener(parentsBoxListener);
@@ -1460,15 +1445,8 @@ public class ImportDialog
 	private JComponent buildLocationBar()
 	{
 		toolBar = new JPanel();
-		//bar.setBackground(UIUtilities.BACKGROUND);
 		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		toolBar.add(reloadContainerButton);
-		/*
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(locationButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(locationLabel);
-		*/
 		toolBar.add(Box.createHorizontalStrut(5));
 		tbItems = toolBar.getComponentCount();
 		return toolBar;
@@ -1841,7 +1819,6 @@ public class ImportDialog
     	if (type == Importer.SCREEN_TYPE) return false;
     	DataNode node = (DataNode) datasetsBox.getSelectedItem();
     	return node.isDefaultDataset();
-    	//return folderAsDatasetBox.isSelected();
     }
     /**
 	 * Returns the name to display for a file.
@@ -2008,8 +1985,6 @@ public class ImportDialog
 				}
 				chooser.setFileFilter(combinedFilter);
 			}
-			//File[] files = chooser.getSelectedFiles();
-			//table.reset(files != null && files.length > 0);
 		}
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
@@ -2190,7 +2165,6 @@ public class ImportDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
-			//addFiles();
 			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
 			int n = handleFilesSelection(chooser.getSelectedFiles());
@@ -2231,14 +2205,6 @@ public class ImportDialog
 			}
 			if (l.size() > 0) 
 				firePropertyChange(CREATE_OBJECT_PROPERTY, null, l);
-			/*
-			if (ho instanceof DatasetData)
-				createDataset((DatasetData) ho);
-			else if (ho instanceof ProjectData)
-				createProject((ProjectData) ho);
-			else if (ho instanceof ScreenData)
-				createScreen((ScreenData) ho);
-				*/
 		}
 	}
 
