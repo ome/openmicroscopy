@@ -67,7 +67,10 @@ public class MainIJPlugin
 	private static final String TITLE = "Open Microscopy Environment";
 	
 	/** The name of the jar to check. */
-	private static final String LOCI_TOOL = "loci_tool.jar";
+	private static final String LOCI_TOOL = "loci_tools.jar";
+	
+	/** The name of directory where the plugins are added. */
+	private static final String PLUGINS_DIR = "plugins";
 	
 	/** Reference to the container.*/
 	private Container container;
@@ -150,23 +153,35 @@ public class MainIJPlugin
 			if (values.length > 0) configFile = values[0];
 			if (values.length > 1) homeDir = values[1];
 		}
+		IJ.debugMode = true;
+		CodeSource src = 
+			MainIJPlugin.class.getProtectionDomain().getCodeSource();
+		File jarFile;
 		if (homeDir.length() == 0) {
-			CodeSource src = 
-				MainIJPlugin.class.getProtectionDomain().getCodeSource();
 			try {
-				File jarFile = new File(src.getLocation().toURI().getPath());
+				jarFile = new File(src.getLocation().toURI().getPath());
 			    homeDir = jarFile.getParentFile().getPath();
-			    //Plugin folder
-			    String plugins = 
-			    	jarFile.getParentFile().getParentFile().getPath();
-			    File f = new File(plugins+File.pathSeparator+LOCI_TOOL);
-			    if (!f.exists()) {
-			    	IJ.showMessage(TITLE, "This plugin requires \n"+LOCI_TOOL);
-					return;
-			    }
-			    
 			} catch (Exception e) {}
 		}
+		//Check if plugin is there
+		try {
+			jarFile = new File(src.getLocation().toURI().getPath());
+		    //Plugin folder
+			File dir = new File(System.getProperty("user.dir"), PLUGINS_DIR);
+		    File[] l = dir.listFiles();
+		    boolean exist = false;
+		    for (int i = 0; i < l.length; i++) {
+				if (l[i].getName().equals(LOCI_TOOL)) {
+					exist = true;
+					break;
+				}
+			}
+		    if (!exist) {
+		    	IJ.showMessage(TITLE, "This plugin requires \n"+LOCI_TOOL);
+				return;
+		    }
+		    
+		} catch (Exception e) {}
 		attachListeners();
 		container = Container.startupInPluginMode(homeDir, configFile,
 				LookupNames.IMAGE_J);
