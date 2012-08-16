@@ -22,20 +22,20 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 /** 
- * 
+ * Provides a wrapped renderer for displaying tooltip information on mouse hover
  *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 import java.awt.Component;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
 public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
-	ArrayList<String> tooltips;
+	List<String> tooltips;
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value,
@@ -44,13 +44,14 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 		JComponent comp = (JComponent) super.getListCellRendererComponent(list,
 				value, index, isSelected, cellHasFocus);
 
-		if (-1 < index && value != null && tooltips != null) {
+		if (-1 < index && value != null && tooltips != null
+				&& tooltips.size() > index) {
 			list.setToolTipText(tooltips.get(index));
 		}
 		return comp;
 	}
 
-	public void setTooltips(ArrayList<String> tooltips) {
+	public void setTooltips(List<String> tooltips) {
 		this.tooltips = tooltips;
 	}
 }
