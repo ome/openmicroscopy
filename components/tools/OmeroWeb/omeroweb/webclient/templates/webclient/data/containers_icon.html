@@ -134,16 +134,22 @@
                 }
             }
             // handle Radio buttons 
-            $("#layout_chooser input").click(function() {
-                var layout = $("#layout_chooser input:checked").attr('value');
+            $("#layout_chooser button").click(function(event) {
+                var layout = 'icon';
+                if ($(event.target).attr('id') == 'table_layout') {
+                    layout = 'table';
+                }
                 setLayout(layout);
+                $("#layout_chooser button").removeClass("checked");
+                $(event.target).addClass("checked");
                 $parent_container.data('layout', layout);   // preserve state for new datasets
             });
             // check if we've previously set layout - if so, configure UI accordingly
             var existing_layout = $parent_container.data('layout');
             if (existing_layout) {
                 setLayout(existing_layout);
-                $("#layout_chooser input[value='"+ existing_layout + "']").attr('checked', 'true');
+                $("#layout_chooser button").removeClass("checked");
+                $("#"+existing_layout+"_layout").addClass("checked");
             }
 
             // Handle zooming of thumbnails with jQuery slider
@@ -274,15 +280,43 @@
         .tableLayout tbody tr:nth-child(2n) {
             background-color: #EFEFF0;
         }
+        #layout_chooser {
+            position: absolute;
+            right: 20px;
+            top: 4px;
+            border: 1px solid #9EA5AC;
+            background-color: #E3E5E7;
+            border-radius: 4px;
+            padding:0px;
+        }
+        #layout_chooser button {
+            width: 25px;
+            height: 20px;
+            border-left: 0px;
+            border-bottom: 0px;
+            border-top: 0px;
+        }
+        #icon_layout {
+            border-right: 1px solid #9EA5AC;
+            border-bottom-left-radius: 4px;
+            border-top-left-radius: 4px;
+        }
+        #table_layout {
+            border-right: 0px solid #9EA5AC;
+            border-bottom-right-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+        #layout_chooser button.checked {
+            background-color: #B2BDCB;
+        }
 
     </style>
 
 <div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
     
-    <div id="layout_chooser" style="position: absolute;right: 20px;">
-        Icon <input type="radio" name="layout" value="icon" checked='true'>
-        Table <input type="radio" name="layout" value="table">
+    <div id="layout_chooser">
+        <button id='icon_layout' title="Icon Layout" class="checked"/><button id='table_layout' title="Table Layout"/>
     </div>
 
     <form class="search filtersearch" id="filtersearch" action="#">

@@ -1305,7 +1305,13 @@
 			
 		}
 	
-    
+
+    #icon_layout {
+        background: url("../image/icon_layout.png") no-repeat scroll center center transparent;
+    }
+    #table_layout {
+        background: url("../image/table_layout.png") no-repeat scroll center center transparent;
+    }
 	
 	
 	
