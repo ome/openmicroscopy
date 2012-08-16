@@ -686,30 +686,6 @@ public class ImportDialog
 		UIUtilities.centerAndShow(wizard);
 	}
 	
-	/** Sets the properties of the dialog. */
-	private void setProperties()
-	{
-		/*
-		setTitle(TITLE);
-        setModal(true);
-        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        */
-	}
-
-	/** Installs the listeners. */
-	private void installListeners()
-	{
-        //addWindowListener(new WindowAdapter() {
-    		
-			/** 
-			 * Cancels the selection.
-			 * @see WindowAdapter#windowClosing(WindowEvent)
-			 */
-			//public void windowClosing(WindowEvent e) { cancelSelection(); }
-		
-		//});
-	}
-	
 	/**
 	 * Formats the {@link #projectLocationButton}.
 	 * 
@@ -1818,9 +1794,7 @@ public class ImportDialog
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	popUpLocation = selectedContainer == null;
-    	setProperties();
     	initComponents(filters);
-    	installListeners();
     	buildGUI();
     }
 
