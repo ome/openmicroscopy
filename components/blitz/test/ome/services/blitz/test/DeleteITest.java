@@ -20,6 +20,8 @@ import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
+import ome.testing.ObjectFactory;
+import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
 import omero.ServerError;
@@ -39,6 +41,8 @@ import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.Plate;
 import omero.model.PlateI;
 import omero.model.Project;
@@ -56,12 +60,11 @@ import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.sys.ParametersI;
+import omero.util.IceMapper;
 
 import org.hibernate.Session;
 import org.jmock.Mock;
-import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
-import org.jmock.core.Stub;
 import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -225,7 +228,7 @@ public class DeleteITest extends AbstractServantTest {
         for (DeleteReport report : reports) {
             found |= report.error.contains("ConstraintViolation");
         }
-        assertTrue(reports.toString(), found);
+        assertTrue(toString(reports), found);
 
         // Check that data is gone
         List<List<RType>> ids = assertProjection(
@@ -632,6 +635,77 @@ public class DeleteITest extends AbstractServantTest {
         return Arrays.asList(link.getChild().getId().getValue());
     }
 
+    // original files
+    //
+
+    @Test(groups = "ticket:7314")
+    public void testOriginalFileAnnoation() throws Exception {
+        final FileAnnotationI ann = mockAnnotation();
+        final OriginalFile file = ann.getFile();
+        final long id = file.getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        DeleteCommand dc = new DeleteCommand("/OriginalFile", id, options);
+        doDelete(dc);
+
+        assertGone(file);
+        assertGone(ann);
+
+    }
+
+    /**
+     *
+     * @throws Exception
+     */
+    @Test(groups = "ticket:7314")
+    public void testOriginalFileAnnoationWithKeep() throws Exception {
+        final FileAnnotationI ann = mockAnnotation();
+        final OriginalFile file = ann.getFile();
+        final long id = file.getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/OriginalFile/Annotation", "KEEP");
+        DeleteCommand dc = new DeleteCommand("/OriginalFile", id, options);
+        doDelete(dc);
+
+        assertNotGone(file);
+        assertGone(ann);
+
+    }
+
+    private FileAnnotationI mockAnnotation()
+        throws Exception
+    {
+        OriginalFile file = (OriginalFileI) new IceMapper().map(ObjectFactory.createFile());
+        FileAnnotationI ann = new FileAnnotationI();
+        ann.setFile(file);
+        ann = assertSaveAndReturn(ann);
+        return ann;
+    }
+
+    void assertGone(IObject obj) throws Exception {
+        List<IObject> test = assertLoadObject(obj);
+        assertEquals(test.toString(), 0, test.size());
+    }
+
+    void assertNotGone(IObject obj) throws Exception {
+        List<IObject> test = assertLoadObject(obj);
+        assertEquals(test.toString(), 1, test.size());
+    }
+
+    private List<IObject> assertLoadObject(IObject obj)
+        throws ApiUsageException, Exception
+    {
+        String kls = new IceMapper().omeroClass(obj.getClass().getName(), true)
+            .getSimpleName();
+        List<IObject> test = assertFindByQuery(
+            "select x from " + kls + " x where x.id = " +
+            obj.getId().getValue(), null);
+        return test;
+    }
+
     //
     // Specs
     //
@@ -688,7 +762,9 @@ public class DeleteITest extends AbstractServantTest {
                                     */
                                     return rv;
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    RuntimeException rt = new RuntimeException(e.getMessage());
+                                    rt.initCause(e);
+                                    throw rt;
                                 }
                             }
                         });
@@ -726,8 +802,20 @@ public class DeleteITest extends AbstractServantTest {
         //DeleteSpecFactory factory = specFactory();
         DeleteHandleI handle = new DeleteHandleI(user.delete.loadSpecs(), id, user.sf, afs, dc, 1000);
         handle.run();
-        assertEquals(handle.report(null).toString(), 0, handle.errors(null));
+        DeleteReport[] reports = handle.report(null);
+        assertEquals(toString(reports), 0, handle.errors(null));
         return new _DeleteHandleTie(handle);
+    }
+
+    protected String toString(DeleteReport[] reports)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        for (DeleteReport report : reports) {
+            sb.append(report.error);
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
     /**

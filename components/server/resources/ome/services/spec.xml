@@ -37,27 +37,15 @@
 
    <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
-        <description>
-        Lists all abstract and concrete annotation types as steps with their
-        default operations.
-
-        This list is checked at startup to make sure that no values have been
-        omitted.
-        In the implementation, the type hierarchy is used to apply user options
-        to the given type and all sub-types.
-
-        For example, if /BasicAnnotation=KEEP is applied,
-        then boolean, double, long, term, and timestamp
-        annotations will all be marked KEEP.
-
-        Order represents the hierarchy, from bottom to type.
-        </description>
+    <bean name="fileNamespaces" class="java.util.HashMap">
         <constructor-arg>
             <map>
                 <entry key="/FileAnnotation" value="openmicroscopy.org/omero/import/companionFile,openmicroscopy.org/omero/measurement"/>
             </map>
         </constructor-arg>
+    </bean>
+
+    <bean name="annotationList" class="java.util.ArrayList">
         <constructor-arg>
             <list>
                <value>/Annotation/AnnotationAnnotationLink;FORCE</value>
@@ -81,6 +69,35 @@
                <value>/Annotation</value>
             </list>
         </constructor-arg>
+    </bean>
+    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
+        <description>
+        Lists all abstract and concrete annotation types as steps with their
+        default operations.
+
+        This list is checked at startup to make sure that no values have been
+        omitted.
+        In the implementation, the type hierarchy is used to apply user options
+        to the given type and all sub-types.
+
+        For example, if /BasicAnnotation=KEEP is applied,
+        then boolean, double, long, term, and timestamp
+        annotations will all be marked KEEP.
+
+        Order represents the hierarchy, from bottom to type.
+        </description>
+        <constructor-arg ref="fileNamespaces"/>
+        <constructor-arg ref="annotationList"/>
+    </bean>
+
+    <bean parent="delSpec" name="/FileAnnotation+special" class="ome.services.graphs.AnnotationGraphSpec">
+        <description>
+        More specific version of /Annotation which
+        Primarily necessary since for /OriginalFile there are two links to
+        Annotations which overwrite one another.
+        </description>
+        <constructor-arg ref="fileNamespaces"/>
+        <constructor-arg ref="annotationList"/><!-- optimally just FA -->
     </bean>
 
     <bean parent="delSpec" name="/Roi">
@@ -317,8 +334,10 @@
         <constructor-arg>
             <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
+                <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
+                <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
+                <!-- value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value-->
                 <value>/OriginalFile</value>
             </list>
         </constructor-arg>
