@@ -422,11 +422,15 @@ INSTALLED_APPS = (
     
 )
 
-# ADDITONAL_APPS: Each additional application should have its templates
-# registered and be added to installed apps.
+
+# ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 for app in ADDITIONAL_APPS:
-    app_dir = os.path.join(os.path.dirname(__file__), app)
     INSTALLED_APPS += ('omeroweb.%s' % app,)
+    try:
+        a = __import__('%s.settings' % app)
+    except ImportError:
+        logger.debug("Couldn't import settings from app: %s" % app)
+
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to http://qa.openmicroscopy.org.uk.
