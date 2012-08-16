@@ -153,7 +153,6 @@ public class MainIJPlugin
 			if (values.length > 0) configFile = values[0];
 			if (values.length > 1) homeDir = values[1];
 		}
-		IJ.debugMode = true;
 		CodeSource src = 
 			MainIJPlugin.class.getProtectionDomain().getCodeSource();
 		File jarFile;
