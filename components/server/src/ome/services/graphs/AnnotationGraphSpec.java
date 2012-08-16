@@ -339,15 +339,14 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
         final String alias = "ROOT" + which;
 
         and = new QueryBuilder();
-        and.skipFrom();
-        and.skipWhere();
+        and.whereClause();
         if ("Annotation".equals(klass)) {
             // ticket:5793 - ROOT.class = Annotation will never
             // return true since it is an abstract type. We should
             // really check for any abstract type here and produce
             // a query including all of the subtypes.
         } else {
-            and.append(alias + ".class = " + klass);
+            and.and(alias + ".class = " + klass);
         }
 
         // If we have excludes and this is a KEEP, we only want
@@ -356,7 +355,6 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
             String exclude = excludes[step];
             if (excludes[step] != null && excludes[step].length() > 0) {
                 final String[] parts = exclude.split(",");
-                and.appendSpace();
                 and.and(alias + ".ns in (:excludes)");
                 and.paramList("excludes", Arrays.asList(parts));
                 log.debug("Exclude statement: " + and.toString());
@@ -366,7 +364,7 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
                 return new long[0][0]; // EARLY EXIT!
             }
         }
-        if ("".equals(and.queryString())) {
+        if ("".equals(and.queryString().trim())) {
             and = null;
         }
 
