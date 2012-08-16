@@ -64,7 +64,10 @@ public class MainIJPlugin
 	private static final String IJ_VERSION = "1.39u";
 	
 	/** The title of the splash screens. */
-	private static final String	TITLE = "Open Microscopy Environment";
+	private static final String TITLE = "Open Microscopy Environment";
+	
+	/** The name of the jar to check. */
+	private static final String LOCI_TOOL = "loci_tool.jar";
 	
 	/** Reference to the container.*/
 	private Container container;
@@ -142,7 +145,6 @@ public class MainIJPlugin
 		}
 		String homeDir = "";
 		String configFile = null;
-		
 		if (args != null) {
 			String[] values = args.split(" ");
 			if (values.length > 0) configFile = values[0];
@@ -154,6 +156,15 @@ public class MainIJPlugin
 			try {
 				File jarFile = new File(src.getLocation().toURI().getPath());
 			    homeDir = jarFile.getParentFile().getPath();
+			    //Plugin folder
+			    String plugins = 
+			    	jarFile.getParentFile().getParentFile().getPath();
+			    File f = new File(plugins+File.pathSeparator+LOCI_TOOL);
+			    if (!f.exists()) {
+			    	IJ.showMessage(TITLE, "This plugin requires \n"+LOCI_TOOL);
+					return;
+			    }
+			    
 			} catch (Exception e) {}
 		}
 		attachListeners();
