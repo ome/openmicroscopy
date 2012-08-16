@@ -1712,116 +1712,6 @@ public class ImportDialog
     		}
     	}
     	
-    	/*
-    	ProjectData project;
-    	DataObject parent;
-    	DatasetData dataset, folder;
-    	OmeroDataService svc = ImporterAgent.getRegistry().getDataService();
-    	Logger log = ImporterAgent.getRegistry().getLogger();
-    	while (i.hasNext()) {
-			file = i.next();
-			if (file.isFolderAsContainer() && 
-					!ImportableObject.isHCSFile(file.getFile())) {
-				//going to check if the dataset has been created.
-				parent = file.getParent();
-				try {
-					if (parent != null && parent instanceof ProjectData) {
-						folder = (DatasetData) object.createFolderAsContainer(
-								file);
-						dataset = object.isDatasetCreated(parent.getId(),
-								folder);
-						
-						if (dataset == null) {
-							dataset = (DatasetData) 
-								svc.createDataObject(folder, parent, null);
-							//reload the project.
-							object.registerDataset(parent.getId(), dataset);
-							//toReload.add(parent);
-							reload = true;
-						}
-						file.setLocation(parent, dataset);
-						file.setFolderAsContainer(false);
-					} else if (parent == null) {
-						folder = (DatasetData) object.createFolderAsContainer(
-								file);
-						parent = object.hasObjectBeenCreated(folder);
-						if (parent == null) {
-							dataset = (DatasetData) 
-								svc.createDataObject(folder, null, 
-										null);
-							object.addNewDataObject(dataset);
-							reload = true;
-						} else dataset = (DatasetData) parent;
-						file.setLocation(null, dataset);
-						file.setFolderAsContainer(false);
-					}
-				} catch (Exception e) {
-					LogMessage msg = new LogMessage();
-					msg.print("Cannot create container");
-					msg.print(e);
-					log.error(this, msg);
-				}
-			}
-		}
-		if (reload) {
-    		Class klass = ProjectData.class;
-    		if (type == Importer.SCREEN_TYPE)
-    			klass = ScreenData.class;
-    		try {
-    			ExperimenterData exp = ImporterAgent.getUserDetails();
-    			Set set = svc.loadContainerHierarchy(klass, null, false, 
-        				exp.getId(), -1);
-    			if (set != null) {
-    				
-    				Set nodes = TreeViewerTranslator.transformHierarchy(set, 
-    						exp.getId(), -1);
-    				DataNode node = (DataNode) parentsBox.getSelectedItem();
-    				Iterator kk = nodes.iterator();
-					TreeImageDisplay display;
-					Object ho;
-					DataObject o = null;
-					String name = "", hoName = "";
-    				if (node.isDefaultNode()) {
-    					selectedContainer = null;
-    					node = (DataNode) datasetsBox.getSelectedItem();
-    					if (!node.isDefaultNode()) {
-    						o = node.getDataObject();
-    						name = node.toString().trim();
-    					}
-    				} else {
-    					o = node.getDataObject();
-    					name = node.toString().trim();
-    				}
-    				if (o != null) {
-    					while (kk.hasNext()) {
-    						display = (TreeImageDisplay) kk.next();
-    						ho = display.getUserObject();
-    						if (ho instanceof ProjectData) {
-    							hoName = ((ProjectData) ho).getName();
-    						} else if (ho instanceof ScreenData) {
-    							hoName = ((ScreenData) ho).getName();
-    						}
-    						if (ho.getClass().equals(o.getClass()) && 
-    								name.equals(hoName)) {
-    							selectedContainer = display;
-    							break;
-    						}
-    					}
-    				}
-    				
-    				reset(selectedContainer, nodes, type);
-    			}
-			} catch (Exception e) {
-				LogMessage msg = new LogMessage();
-				msg.print("Cannot reload container");
-				msg.print(e);
-				log.error(this, msg);
-			}
-    	}
-    	*/
-    	
-    	
-    	
     	object.setScanningDepth(ImporterAgent.getScanningDepth());
     	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
     			LOAD_THUMBNAIL);
@@ -1876,9 +1766,6 @@ public class ImportDialog
     	tagsMap.clear();
 		tagsPane.removeAll();
 		tagsPane.repaint();
-    	//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
-    	//setVisible(false);
-    	//dispose();
     }
 
 	/**
