@@ -147,7 +147,11 @@ def login(request):
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
                     upgradeCheck()
-                
+
+                    # if 'active_group' remains in session from previous login, check it's valid for this user
+                    if request.session.get('active_group'):
+                        if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
+                            del request.session['active_group']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
                     if request.REQUEST.get('noredirect'):
