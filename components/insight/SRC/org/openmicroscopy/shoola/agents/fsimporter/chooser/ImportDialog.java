@@ -480,36 +480,6 @@ public class ImportDialog
 		parentsBox.addActionListener(parentsBoxListener);
 		parentsBox.setSelectedItem(nn);
 		repaint();
-		
-		/*//code if not saved.
-		if (project == null || project.getName().trim().length() == 0) return;
-		if (newNodesPD == null) 
-			newNodesPD = new HashMap<DataNode, List<DataNode>>();
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode defaultNode = null;
-		for (int i = 0; i < parentsBox.getItemCount(); i++) {
-			n = (DataNode) parentsBox.getItemAt(i);
-			if (!n.isDefaultNode()) 
-				nodes.add(n);
-			else defaultNode = n;
-		}
-		n = new DataNode(project);
-		n.addNode(new DataNode(DataNode.createDefaultDataset(), n));
-		nodes.add(n);
-		newNodesPD.put(n, new ArrayList<DataNode>());
-		List l = sorter.sort(nodes);
-		if (defaultNode != null) l.add(defaultNode);
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.removeAllItems();
-		parentsBox.addActionListener(parentsBoxListener);
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			parentsBox.addItem((DataNode) i.next());
-		}
-		parentsBox.setSelectedItem(n);
-		repaint();
-		*/
 	}
 	
 	/**
