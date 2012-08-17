@@ -613,6 +613,15 @@
             border:solid 1px rgba(0,0,0,.6);
             border-top:solid 1px rgba(0,0,0,.6);
         }
+
+        .filtersearch label {
+            position:absolute;
+            z-index:50;
+            font-size:1.3em;
+            font-weight:lighter;
+            top:5px;
+            left:8px;
+        }
 	
 	    /* same as .filtersearch label for top search field */
     	.inline_label {

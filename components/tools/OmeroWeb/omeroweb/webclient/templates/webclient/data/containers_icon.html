@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
 
-        INITIAL_ICON_SIZE = 65;
+        var INITIAL_ICON_SIZE = 65;
 
         var handleRemove = function (e, data) {
             var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
@@ -54,7 +54,7 @@
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
-            $("#dataIcons tr").click(function(event) {
+            $("#dataIcons li").click(function(event) {
                 handleClickSelection(event);
             });
             
@@ -62,15 +62,15 @@
             var handleClickSelection = function(event) {
                 var parent_id = '#'+$('#content_details').attr('rel');
                 var targetId = $(event.target).attr('id');      // target could be img, etc
-                var $tr;
-                if (event.target.nodeName.toLowerCase() == 'tr') {
-                    $tr = $(event.target);
+                var $li;
+                if (event.target.nodeName.toLowerCase() == 'li') {
+                    $li = $(event.target);
                 } else if (event.target.nodeName.toLowerCase() == 'img') {
-                    $tr = $(event.target).parent().parent();
+                    $li = $(event.target).parent().parent();
                 } else {
-                    $tr = $(event.target).parent();
+                    $li = $(event.target).parent();
                 }
-                var select_id = "image-" + $tr.attr('id').split("-")[1];
+                var select_id = "image-" + $li.attr('id').split("-")[1];
                 // find the matching child node from the tree
                 var $children = datatree._get_children(parent_id);
                 var toSelect = $children.filter(function(index) {
@@ -90,13 +90,13 @@
             
             // plugin to handle drag-select of images
             $("#dataIcons").selectable({
-                filter: 'tr',
+                filter: 'li',
                 distance: 2,
                 stop: function(){  
                     
                     // get the image ids from the thumbnails
                     var toSelectIds = new Array();
-                    $("tr.ui-selected", this).each(function(i){
+                    $("li.ui-selected", this).each(function(i){
                         var iId = $(this).attr('id').split("-")[1];
                         toSelectIds[i] = "image-"+iId;
                     });
@@ -155,27 +155,14 @@
             // Handle zooming of thumbnails with jQuery slider
             var icon_styles = [];
             var li_styles = [];
-            // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
-            $("#dataIcons img").each(function(){
-                icon_styles.push(this.style);
-            });
-            $("#dataIcons tr").each(function(){
-                if (! $(this).hasClass('thead')) {
-                    li_styles.push(this.style);
-                }
-            });
-            
-            // Handle zooming of thumbnails with jQuery slider
-            var icon_styles = [];
-            var li_styles = [];
             var aspect_ratios = [];
             // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
             $("#dataIcons img").each(function(){
                 icon_styles.push(this.style);
             });
 
-            var sizeX, sizeY
-            $("#dataIcons tr").each(function(){
+            var sizeX, sizeY;
+            $("#dataIcons li").each(function(){
                 if (! $(this).hasClass('thead')) {
                     li_styles.push(this.style);
                     sizeX = $(".sizeX", $(this)).text();
@@ -209,17 +196,17 @@
                     $parent_container.data('icon_size', ui.value);   // preserve icon size for new datasets
                 }
             });
-            
-            setIconSize(INITIAL_ICON_SIZE);
 
             // check if we've previously set icon size - if so, configure UI accordingly
             var existing_icon_size = $parent_container.data('icon_size');
             if (existing_icon_size) {
                 setIconSize(existing_icon_size);
                 $("#thumb_size_slider").slider('value', existing_icon_size);
+            } else {
+                setIconSize(INITIAL_ICON_SIZE);
             }
 
-            $('#id_search').quicksearch('#dataIcons tbody tr', {
+            $('#id_search').quicksearch('#dataIcons li', {
                 'delay': 300,
                 'loader': 'span.loading'
             });
@@ -228,89 +215,7 @@
         });
 
     </script>
-    <style type="text/css">
-        #thumb_size_slider {
-            border: 1px solid #aaa;
-            height: 6px;
-            right: 150px;
-            position: absolute;
-            top: 11px;
-            width: 120px;
-        }
-        #thumb_size_slider .ui-slider-handle {
-            background: #727C86;
-            border-radius: 3px;
-        }
 
-        
-        .iconLayout tr {
-            float: left;
-            padding: 5px;
-        }
-        .iconLayout td.desc, .iconLayout td.date, .iconLayout tr.thead, .iconLayout td.sizeX, .iconLayout td.sizeY {
-            display: none;
-        }
-        .iconLayout tr {
-            background-color:hsl(0,0%,95%);
-            margin:5px;
-            padding:5px;
-            width: 65px;
-            height: 65px;
-            background-color: #F2F2F2;
-            border: 1px solid white;
-            border-radius: 2px 2px 2px 2px;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-        .tableLayout {
-            position: relative;
-            width: 100%;
-        }
-        .tableLayout td.desc, .tableLayout td.date, .tableLayout td.sizeX, .tableLayout td.sizeY {
-            padding: 10px 0px;
-            font-size: 1.2em;
-            vertical-align: middle;
-        }
-        .tableLayout td.image {
-            padding: 5px;
-        }
-        .tableLayout tbody tr:nth-child(2n) {
-            background-color: #EFEFF0;
-        }
-        .tableLayout tbody tr:nth-child(2n) {
-            background-color: #EFEFF0;
-        }
-        #layout_chooser {
-            position: absolute;
-            right: 20px;
-            top: 4px;
-            border: 1px solid #9EA5AC;
-            background-color: #E3E5E7;
-            border-radius: 4px;
-            padding:0px;
-        }
-        #layout_chooser button {
-            width: 25px;
-            height: 20px;
-            border-left: 0px;
-            border-bottom: 0px;
-            border-top: 0px;
-        }
-        #icon_layout {
-            border-right: 1px solid #9EA5AC;
-            border-bottom-left-radius: 4px;
-            border-top-left-radius: 4px;
-        }
-        #table_layout {
-            border-right: 0px solid #9EA5AC;
-            border-bottom-right-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-        #layout_chooser button.checked {
-            background-color: #B2BDCB;
-        }
-
-    </style>
 
 <div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
@@ -319,12 +224,12 @@
         <button id='icon_layout' title="Icon Layout" class="checked"/><button id='table_layout' title="Table Layout"/>
     </div>
 
-    <form class="search filtersearch" id="filtersearch" action="#">
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px">
         <div>
             <label for="id_search"> Filter Images </label>
             <input id="id_search" type="text" size="25">
         </div>
-        <span class="loading" style="display: none;">
+        <span class="loading" style="display: none;"></span>
     </form>
 </div>
 
@@ -332,30 +237,26 @@
 {% if manager.containers.images %}
 
     
-    <table id="dataIcons" class="tablesorter iconLayout">
-        <thead> 
-            <tr class="thead"> 
-                <th class="table_images">{% trans "Images" %}</th> 
-                <th class="table_desc">{% trans "Name" %}</th> 
-                <th class="table_date">{% trans "Date" %}</th> 
-                <th>{% trans "Size X" %}</th> 
-                <th>{% trans "Size Y" %}</th> 
-            </tr> 
-        </thead>
-        <tbody>
-            {% for c in manager.containers.images %}
-                <tr id="image_row-{{ c.id }}">
-                    <td class="image" title="{{ c.name }}">
-                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-                    </td>
-                    <td class="desc" valign="middle">{{ c.name|truncatebefor:"65" }}</td>
-                    <td class="date" valign="middle">{{ c.getDate }}</td>                    
-                    <td class="sizeX" valign="middle">{{ c.getSizeX }}</td>
-                    <td class="sizeY" valign="middle">{{ c.getSizeY }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <ul id="dataIcons" class="tablesorter iconLayout">
+        <li class="thead"> 
+            <div>{% trans "Images" %}</div> 
+            <div>{% trans "Name" %}</div> 
+            <div>{% trans "Date" %}</div> 
+            <div>{% trans "Size X" %}</div> 
+            <div>{% trans "Size Y" %}</div> 
+        </li>
+        {% for c in manager.containers.images %}
+            <li id="image_row-{{ c.id }}">
+                <div class="image" title="{{ c.name }}">
+                    <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                </div>
+                <div class="desc" valign="middle">{{ c.name|truncatebefor:"65" }}</div>
+                <div class="date" valign="middle">{{ c.getDate }}</div>                    
+                <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
+                <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
+            </li>
+        {% endfor %}
+    </ul>
     
     {% include "webclient/data/container_paging.html" %}
     

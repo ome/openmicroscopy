@@ -738,10 +738,6 @@
                 box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
             }
 
-            #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
-                max-height: 65px;
-                max-width: 65px;
-            }
 
 
 
