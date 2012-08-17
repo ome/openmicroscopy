@@ -37,11 +37,24 @@
     {% if manager.image.countParents %}
     <ul>
         {% for c in manager.image.listParents %}
-            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% static "webclient/image/folder_image16.png" %}"/></ins>{{ c.name|truncatebefor:"35" }}</a>
+            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}">
+                <ins class="jstree-icon">&nbsp;</ins>
+                <a href="{% url webindex %}?show=dataset-{{ c.id }}">
+                    <ins class="jstree-icon">
+                        <img src="{% static "webclient/image/folder_image16.png" %}"/>
+                    </ins>{{ c.name|truncatebefor:"35" }}
+                </a>
                 {% if c.countParents %}
                 <ul>
                     {% for d in c.listParents %}
-                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% static "webclient/image/folder16.png" %}"/></ins>{{ d.name|truncatebefor:"35" }}</a></li>
+                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf">
+                            <ins class="jstree-icon">&nbsp;</ins>
+                            <a href="{% url webindex %}?show=project-{{ d.id }}">
+                                <ins class="jstree-icon">
+                                    <img src="{% static "webclient/image/folder16.png" %}"/>
+                                </ins>{{ d.name|truncatebefor:"35" }}
+                            </a>
+                        </li>
                     {% endfor %}
                 </ul>
                 {% endif %}
