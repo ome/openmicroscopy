@@ -264,6 +264,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
+    # WEBSTART
+    "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
+    "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
+    "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
+    "omero.web.webstart_host": ["WEBSTART_HOST", "localhost", str],
+    "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str],
+    "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str],
+    "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
+    "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
+    "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
 }
 
 
