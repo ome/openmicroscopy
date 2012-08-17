@@ -7,13 +7,13 @@ set -x
 
 export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 export OMERO_ALT=${OMERO_ALT:-ome/alt}
+export BREW_DIR=${BREW_DIR:-/tmp/homebrew}
 
 # Remove existing formulas and ome/alt tap
-if (brew --version)
+if ($BREW_DIR/bin/brew --version)
 then
-	echo "Cleaning existing formulas"
-	brew list | xargs brew remove
-	brew tap | grep ome/alt | xargs brew untap	
+	echo "Removing Homebrew installation"
+	rm -rf $BREW_DIR
 fi
 
 # Remove pip installed packages
@@ -32,20 +32,23 @@ then
 	done
 fi
 
+mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
+cd $BREW_DIR
+
 # Re-install git and update homebrew
-brew install git
-brew update
+bin/brew install git
+bin/brew update
 
 
-export PATH=/usr/local/bin:$PATH
+export PATH=$(bin/brew --prefix)/bin:$PATH
 
 # Run brew doctor
-brew_status=$(brew doctor)
-if echo $brew_status | grep "Error"
-then
-	echo "Please fix brew doctor first."
-	exit 1
-fi
+#brew_status=$(brew doctor)
+#if echo $brew_status | grep "Error"
+#then
+#	echo "Please fix brew doctor first."
+#	exit 1
+#fi
 
 # Install homebrew dependencies
 curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > /tmp/omero_homebrew.sh
@@ -53,27 +56,27 @@ chmod +x /tmp/omero_homebrew.sh
 . /tmp/omero_homebrew.sh
 
 # Install postgres and omero
-brew install postgresql
-brew install omero
+bin/brew install postgresql
+bin/brew install omero
 
 # Set environment variables
-export ICE_CONFIG=$(brew --prefix omero)/etc/ice.config
-export ICE_HOME=$(brew --prefix $OMERO_ALT/$ICE_VERSION)
-export PYTHONPATH=$(brew --prefix omero)/lib/python:$ICE_HOME/python
-export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
+export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
+export ICE_HOME=$(bin/brew --prefix $OMERO_ALT/$ICE_VERSION)
+export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
+export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
 # Set database
-omero config set omero.db.name omero_database
-omero config set omero.db.user db_user
-omero config set omero.db.pass db_password
+bin/omero config set omero.db.name omero_database
+bin/omero config set omero.db.user db_user
+bin/omero config set omero.db.pass db_password
 
 # Set up the data directory
 mkdir -p ~/var/OMERO.data
-omero config set omero.data.dir ~/var/OMERO.data
+bin/omero config set omero.data.dir ~/var/OMERO.data
 
 # Start the server
-omero admin start
+bin/omero admin start
 
 # Set config for OMERO web
 #omero config set omero.web.application_server "development"
