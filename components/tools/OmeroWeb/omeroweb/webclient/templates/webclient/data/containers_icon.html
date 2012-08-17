@@ -84,39 +84,55 @@
                 } else {
                     // tree handles control/shift clicks for multi-select
                     datatree.select_node(toSelect, true, event);
+                    deselectFilteredFromTree();     // in case shift-click selected filtered images
                     return false;
                 }
             }
-            
+
+            // When we filter, need to make sure that the Tree doesn't have filtered images selected
+            var deselectFilteredFromTree = function(e, a){
+                // check if any selection change is needed...
+                if ($("#dataIcons li.ui-selected:hidden").length == 0) return;
+                // if so, use selection by IDs...
+                syncTreeSelection();
+            };
+
+            // use IDs of the selected visible thumbnails to sync tree selection
+            var syncTreeSelection = function() {
+                var toSelectIds = new Array();
+                $("#dataIcons li.ui-selected:visible").each(function(i){
+                    var iId = $(this).attr('id').split("-")[1];
+                    toSelectIds[i] = "image-"+iId;
+                });
+                
+                // find the matching child nodes from the tree
+                var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
+                var toSelect = $children.filter(function(index) {
+                    return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
+                });
+
+                if (toSelect.length == 0) {
+                    datatree.deselect_all();
+                    tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
+                    return;
+                }
+                // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
+                datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
+                // choose the first of our selection
+                var $first = toSelect.first();
+                toSelect = toSelect.slice(1);   // the rest
+                // manually select all apart from the first
+                datatree.data.ui.selected = toSelect;
+                toSelect.children("a").addClass("jstree-clicked");
+                // select the first (triggers selection event)
+                datatree.select_node($first);
+            }
             // plugin to handle drag-select of images
             $("#dataIcons").selectable({
                 filter: 'li',
                 distance: 2,
                 stop: function(){  
-                    
-                    // get the image ids from the thumbnails
-                    var toSelectIds = new Array();
-                    $("li.ui-selected", this).each(function(i){
-                        var iId = $(this).attr('id').split("-")[1];
-                        toSelectIds[i] = "image-"+iId;
-                    });
-                    
-                    // find the matching child nodes from the tree
-                    var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
-                    var toSelect = $children.filter(function(index) {
-                        return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
-                    });
-
-                    // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
-                    datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
-                    // choose the first of our selection
-                    var $first = toSelect.first();
-                    toSelect = toSelect.slice(1);   // the rest
-                    // manually select all apart from the first
-                    datatree.data.ui.selected = toSelect;
-                    toSelect.children("a").addClass("jstree-clicked");
-                    // select the first (triggers selection event)
-                    datatree.select_node($first);
+                    syncTreeSelection();
                 },
                 start: function(){
                 }
@@ -206,9 +222,20 @@
                 setIconSize(INITIAL_ICON_SIZE);
             }
 
-            $('#id_search').quicksearch('#dataIcons li', {
+            var $filter_input = $('#id_search');
+            var filter_txt = $filter_input.val();
+            $filter_input.quicksearch('#dataIcons li', {
                 'delay': 300,
-                'loader': 'span.loading'
+                'bind': 'keyup',
+                'loader': 'span.loading',
+                onAfter: function(){
+                    // onAfter can get triggered without text change, E.g. by tree selection!
+                    var new_txt = $filter_input.val();
+                    if (filter_txt != new_txt){     // test text has changed
+                        filter_txt = new_txt;
+                        deselectFilteredFromTree();
+                    }
+                }
             });
             $("#filtersearch label").inFieldLabels();
 
