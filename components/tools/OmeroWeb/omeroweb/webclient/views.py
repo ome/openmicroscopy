@@ -434,8 +434,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         manager.listOrphanedImages(filter_user_id, page)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/container_subtree.html"
     elif len(kw.keys()) > 0 :
@@ -444,8 +442,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
-            elif view =='table':
-                template = "webclient/data/containers_table.html"
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
@@ -463,8 +459,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/containers.html"
 
@@ -576,8 +570,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
                 template = "webclient/data/container_tags_containers.html"
             elif view == "icon":
                 template = "webclient/data/containers_icon.html"
-            elif view == "table":
-                template = "webclient/data/containers_table.html"
             
         elif o_type == "dataset":
             manager.listImagesInDataset(o_id, filter_user_id)
