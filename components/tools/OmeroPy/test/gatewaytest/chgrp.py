@@ -271,38 +271,5 @@ class ChgrpTest (lib.GTest):
             self.assertEqual(d.details.group.id.val, gid, "Dataset should be in new group")
             self.assertTrue(d.getId() in dsIds, "Checking Datasets by ID")
 
-    def testChgrpAsync(self):
-        """
-        Try to reproduce "race condition" bugs seen in web #8037 (fails to reproduce)
-        """
-        image = self.image
-        ctx = self.gateway.getAdminService().getEventContext()
-        uuid = ctx.sessionUuid
-
-        self.loginAsAdmin()
-        gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
-        self.loginAsAuthor()
-        original_group = ctx.groupId
-        self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
-
-        # Do the Chgrp
-        rsp = self.doChange("Image", [image.getId()], gid, return_complete=False)
-        
-        while rsp.getResponse() is None:
-            # while waiting, try various things to reproduce race condition seen in web.
-            img = self.gateway.getObject("Image", image.id)
-            c = BlitzGateway()
-            c.connect(sUuid=uuid)
-            #self.gateway.setGroupForSession(gid)
-
-        # Image should no-longer be available in current group
-        self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
-
-        # Switch to new group - confirm that image is there.
-        self.gateway.setGroupForSession(gid)
-        img = self.gateway.getObject("Image", image.id)
-        self.assertNotEqual(None, img, "Image should be available in new group")
-        self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
-
 if __name__ == '__main__':
     unittest.main()
