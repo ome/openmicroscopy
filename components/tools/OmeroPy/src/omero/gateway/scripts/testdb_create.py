@@ -150,5 +150,22 @@ class GTest(unittest.TestCase):
         rsp = callback.getResponse()
         self.assert_(isinstance(rsp, omero.cmd.OK))
         return callback
-        
-        
+
+    def createTestImage(self, imageName="testImage", dataset=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
+        """
+        Creates a test image of the required dimensions, where each pixel value is set 
+        to the average value of x & y. 
+        """
+        from numpy import fromfunction, int16
+        from omero.util import script_utils
+        import random
+
+        def f(x,y):
+            return x
+
+        def planeGen():
+            for p in range(sizeZ * sizeC * sizeT):
+                yield fromfunction(f,(sizeY,sizeX),dtype=int16)
+
+        image = self.gateway.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, dataset=dataset)
+        return image
