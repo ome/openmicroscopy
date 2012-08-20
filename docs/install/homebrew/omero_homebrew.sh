@@ -4,6 +4,7 @@ set -e
 set -u
 
 WITHOUT_POSTGRESQL=${WITHOUT_POSTGRESQL:-false}
+WITHOUT_MPLAYER=${WITHOUT_MPLAYER:-false}
 ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
@@ -73,11 +74,14 @@ installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 [ "$ICE_VERSION" == "zeroc-ice33" ] &&  (installed berkeley-db46 || bin/brew install berkeley-db46 --without-java)
 installed $OMERO_ALT/$ICE_VERSION || bin/brew install $OMERO_ALT/$ICE_VERSION
-installed mplayer || bin/brew install mplayer
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
 # Requirements for scipy ============================================
 installed gfortran || bin/brew install gfortran
+
+if ! $WITHOUT_MPLAYER; then
+    installed mplayer || bin/brew install mplayer
+fi
 
 ###################################################################
 # PIP INSTALLS
