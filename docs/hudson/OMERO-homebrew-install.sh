@@ -14,24 +14,26 @@ export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 # Remove existing formulas and ome/alt tap
 if ($BREW_DIR/bin/brew --version)
 then
-	echo "Removing Homebrew installation"
-	rm -rf $BREW_DIR
-fi
+    cd $BREW_DIR
+    if (bin/pip --version)
+    then
+        echo "Removing pip-installed packages"
 
-# Remove pip installed packages
-if (pip --version)
-then
-    # Remove tables manually 
-	pip freeze -l | grep tables && pip uninstall -y tables
+        # Remove tables manually
+        bin/pip freeze -l | grep tables && bin/pip uninstall -y tables
 
-	# Solve Cython uninstallation error exit
-	(pip freeze -l | grep Cython && pip uninstall -y Cython) || echo "Cython uninstalled"
+        # Solve Cython uninstallation error exit
+        (bin/pip freeze -l | grep Cython && bin/pip uninstall -y Cython) || echo "Cython uninstalled"
 
-	for plugin in $(pip freeze -l); do
-   		packagename=$(echo "$plugin" | awk -F == '{print $1}')
-   		echo "Uninstalling $packagename..."
-		pip uninstall -y $packagename
-	done
+        for plugin in $(pip freeze -l); do
+            packagename=$(echo "$plugin" | awk -F == '{print $1}')
+            echo "Uninstalling $packagename..."
+            bin/pip uninstall -y $packagename
+        done
+    fi
+
+    echo "Removing Homebrew installation"
+    rm -rf $BREW_DIR
 fi
 
 mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
@@ -43,14 +45,6 @@ bin/brew update
 
 
 export PATH=$(bin/brew --prefix)/bin:$PATH
-
-# Run brew doctor
-#brew_status=$(brew doctor)
-#if echo $brew_status | grep "Error"
-#then
-#	echo "Please fix brew doctor first."
-#	exit 1
-#fi
 
 # Install homebrew dependencies
 curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > /tmp/omero_homebrew.sh
