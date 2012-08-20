@@ -321,6 +321,26 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
 
+
+    def testGroupMinusOne(self):
+        """ Should be able to Annotate and Edit object retrieved with omero.group:'-1' """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_ann_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_ann_proj')
+        pid = p.id
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_ann_leader'])
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+
     def testReadWrite(self):
         """ In a read-write group, all should be able to Annotate and Edit"""
         # Login as owner...
