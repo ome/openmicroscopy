@@ -10,6 +10,7 @@
 
 import unittest, os
 import omero
+from omero.rtypes import rstring
 
 from omero.gateway.scripts import dbhelpers
 
@@ -151,10 +152,15 @@ class GTest(unittest.TestCase):
         self.assert_(isinstance(rsp, omero.cmd.OK))
         return callback
 
-    def createTestImage(self, imageName="testImage", dataset=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
+
+    def createTestImage(self, imageName="testImage", dataset=None, project=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
-        to the average value of x & y. 
+        to the average value of x & y. If dataset (obj or name) is specified, will be linked to image.
+        If project (obj or name) is specified, will be created/linked to dataset (if dataset not None)
+        
+        @param dataset:     omero.model.DatasetI OR DatasetWrapper OR dataset name (to create new)
+        @param project:     omero.model.ProjectI OR ProjectWrapper OR project name (to create new)
         """
         from numpy import fromfunction, int16
         from omero.util import script_utils
@@ -167,5 +173,28 @@ class GTest(unittest.TestCase):
             for p in range(sizeZ * sizeC * sizeT):
                 yield fromfunction(f,(sizeY,sizeX),dtype=int16)
 
-        image = self.gateway.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, dataset=dataset)
+        ds = None
+        if dataset is not None:
+            if hasattr(dataset, "_obj"):
+                dataset = dataset._obj
+            if isinstance(dataset, omero.model.DatasetI):
+                ds = dataset
+            else:
+                ds = omero.model.DatasetI()
+                ds.name = rstring(str(dataset))
+                ds = self.gateway.getUpdateService().saveAndReturnObject(ds)
+            if project is not None:
+                if isinstance(project, omero.model.ProjectI):
+                    pr = omero.model.ProjectI(project.id.val, False)
+                elif hasattr(project, "id"):
+                    pr = omero.model.ProjectI(project.id, False)
+                else:
+                    pr = omero.model.ProjectI()
+                    pr.name = rstring(str(project))
+                link = omero.model.ProjectDatasetLinkI()
+                link.setParent(pr)
+                link.setChild(omero.model.DatasetI(ds.id.val, False))
+                link = self.gateway.getUpdateService().saveAndReturnObject(link)
+        image = self.gateway.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, dataset=ds)
         return image
+
