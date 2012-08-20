@@ -25,7 +25,7 @@ then
         # Solve Cython uninstallation error exit
         (bin/pip freeze -l | grep Cython && bin/pip uninstall -y Cython) || echo "Cython uninstalled"
 
-        for plugin in $(pip freeze -l); do
+        for plugin in $(bin/pip freeze -l); do
             packagename=$(echo "$plugin" | awk -F == '{print $1}')
             echo "Uninstalling $packagename..."
             bin/pip uninstall -y $packagename
