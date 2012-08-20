@@ -457,7 +457,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield links[obj_type][1](self, e)
     
-    def listImagesInDataset (self, oid, eid=None, page=None):
+    def listImagesInDataset (self, oid, eid=None, page=None, load_pixels=False):
         """
         List Images in the given Dataset.
         Optinally filter by experimenter 'eid'
@@ -479,12 +479,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             f.limit = rint(PAGE)
             f.offset = rint((int(page)-1)*PAGE)
             p.theFilter = f
+        if load_pixels:
+            pixels = "join fetch im.pixels "
+        else:
+            pixels = ""
         sql = "select im from Image im "\
                 "join fetch im.details.creationEvent "\
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
-                "left outer join fetch dil.parent d " \
-                "where d.id = :oid"
+                "left outer join fetch dil.parent d %s" \
+                "where d.id = :oid" % pixels
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
