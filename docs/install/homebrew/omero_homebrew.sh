@@ -113,7 +113,7 @@ installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
 
 # Postgresql
-if ! $WITHOUT_POSTGRESQL
+if ! $WITHOUT_POSTGRESQL; then
     installed postgresql || bin/brew install postgresql
 fi
 
