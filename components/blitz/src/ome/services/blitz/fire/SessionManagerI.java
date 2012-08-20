@@ -7,6 +7,7 @@
 
 package ome.services.blitz.fire;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,12 @@ import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api._ServiceFactoryTie;
+import omero.cmd.SessionI;
+import omero.constants.CLIENTUUID;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 import omero.constants.topics.HEARTBEAT;
+import omero.util.CloseableServant;
 import omero.util.ServantHolder;
 
 import org.apache.commons.logging.Log;
@@ -90,6 +94,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     
     protected final AtomicBoolean loaded = new AtomicBoolean(false);
 
+    protected final int servantsPerSession;
+
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
@@ -100,7 +106,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
             SecuritySystem secSys, SessionManager sessionManager,
-            Executor executor, TopicManager topicManager, Registry reg) {
+            Executor executor, TopicManager topicManager, Registry reg,
+            int servantsPerSession) {
         this.ring = ring;
         this.registry = reg;
         this.adapter = adapter;
@@ -108,6 +115,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         this.securitySystem = secSys;
         this.topicManager = topicManager;
         this.sessionManager = sessionManager;
+        this.servantsPerSession = servantsPerSession;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -280,13 +288,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (event instanceof UnregisterServantMessage) {
                 UnregisterServantMessage msg = (UnregisterServantMessage) event;
                 Ice.Current curr = msg.getCurrent();
-
-                // And unregister the service if possible
-                Ice.Identity id = getServiceFactoryIdentity(curr);
-                ServiceFactoryI sf = getServiceFactory(id);
-                if (sf != null) {
-                    sf.unregisterServant(curr.id);
-                }
+                ServantHolder holder = msg.getHolder();
+                // Using static method since we may not have a clientId
+                // in order to look up the SessionI/ServiceFactoryI
+                SessionI.unregisterServant(curr.id, adapter, holder);
             } else if (event instanceof RegisterServantMessage) {
                 RegisterServantMessage msg = (RegisterServantMessage) event;
                 Ice.Current curr = msg.getCurrent();
@@ -377,6 +382,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                     log.error("Error reaping session " + sessionId
                             + " from client " + clientId, e);
                 }
+            }
+            List<String> servantIds = holder.getServantList();
+            if (servantIds.size() > 0) {
+                log.warn(String.format(
+                    "Reaping all remaining servants for %s: Count=%s",
+                    sessionId, servantIds.size()));
+                SessionI.cleanServants(true, null, holder, adapter);
             }
         }
     }

@@ -136,6 +136,9 @@ button::-moz-focus-inner {
 	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
 	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
 	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat; 
+	    float:right;
+	    position: relative}
 	
 	
 	
@@ -144,7 +147,11 @@ button::-moz-focus-inner {
 		height:18px;
 		display:block;
 	}
-	
+	.btn_link span {
+	    width:29px;
+	    height:18px;
+	    display:block;
+	}
 	
 	
 	
@@ -752,7 +759,7 @@ button::-moz-focus-inner {
 	   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); /* FF3.5+ */
 	        box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); /* Opera 10.5, IE 9.0 */
 	
-	margin-bottom:15px;
+	margin-bottom:0px;
 	position: relative;
 	border-bottom:solid 1px hsl(210,10%,65%);
 }

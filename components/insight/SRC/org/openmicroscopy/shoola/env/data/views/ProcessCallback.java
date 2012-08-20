@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DeleteCallback;
 import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.ProcessException;
@@ -64,7 +63,6 @@ public class ProcessCallback
 	private void checkHandle(Object callback)
 	{
 		if (callback instanceof ScriptCallback) return;
-		if (callback instanceof DeleteCallback) return;
 		if (callback instanceof RequestCallback) return;
 		throw new omero.IllegalArgumentException("Call back not supported.");
 	}
@@ -91,8 +89,6 @@ public class ProcessCallback
 	{
 		if (callback instanceof ScriptCallback)
 			((ScriptCallback) callback).setAdapter(adapter);
-		else if (callback instanceof DeleteCallback)
-			((DeleteCallback) callback).setAdapter(adapter);
 		else if (callback instanceof RequestCallback)
 			((RequestCallback) callback).setAdapter(adapter);
 	}
@@ -117,8 +113,6 @@ public class ProcessCallback
 	{
 		if (callback instanceof ScriptCallback)
 			return ((ScriptCallback) callback).block(value);
-		if (callback instanceof DeleteCallback)
-			return ((DeleteCallback) callback).block(value);
 		if (callback instanceof RequestCallback)
 			return ((RequestCallback) callback).block(value);
 		return null;
@@ -133,8 +127,6 @@ public class ProcessCallback
 	{
 		if (callback instanceof ScriptCallback) {
 			((ScriptCallback) callback).close();
-		} else if (callback instanceof DeleteCallback) {
-			((DeleteCallback) callback).close();
 		} else if (callback instanceof RequestCallback) {
 			((RequestCallback) callback).close(true);
 		}

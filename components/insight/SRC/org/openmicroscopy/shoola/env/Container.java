@@ -82,6 +82,13 @@ public final class Container
 	 */
 	public static final String		CONFIG_DIR = "config";
 	
+	/** 
+	 * Points to the libs directory.
+	 * The path is relative to the installation directory.
+	 */
+	public static final String		LIBS_DIR = "libs";
+	
+	
 	/** The name of the container's configuration file. */
 	public static final String		CONFIG_FILE = "container.xml";
 	
@@ -243,16 +250,27 @@ public final class Container
 	 */
 	public String getConfigFileRelative(String file)
 	{ 
+		return getFileRelative(CONFIG_DIR, file);
+	}
+	
+	/**
+	 * Returns the relative path to the container's configuration file or 
+	 * libs folder.
+	 * 
+	 * @param file The configuration file.
+	 * @return	See above.
+	 */
+	public String getFileRelative(String directory, String file)
+	{ 
 		if (IOUtil.isJavaWebStart()) {
-			StringBuffer relPath = new StringBuffer(CONFIG_DIR);
+			StringBuffer relPath = new StringBuffer(directory);
 	        if (UIUtilities.isWindowsOS()) relPath.append("/");
 	        else relPath.append(File.separatorChar);
 	        relPath.append(file);
 	        return relPath.toString();
 		}
-		return resolveFilePath(file, CONFIG_DIR);
+		return resolveFilePath(file, directory);
 	}
-	
 	/**
 	 * Resolves <code>fileName</code> against the configuration directory.
 	 * 
@@ -358,10 +376,11 @@ public final class Container
 	 */
 	public void exit()
 	{	
-		Environment env = (Environment) registry.lookup(LookupNames.ENV);
-		if (env != null && !env.isRunAsPlugin())
-			System.exit(0);
-		if (env == null) System.exit(0); //not started yet.
+		Integer v = (Integer) getRegistry().lookup(LookupNames.PLUGIN);
+		int value = -1;
+		if (v != null) value = v.intValue();
+		if (value <= 0) System.exit(0);
+		else singleton = null;
 	}
     
     
@@ -393,8 +412,13 @@ public final class Container
         	if (v == LoginService.CONNECTED) {
         		singleton.activateAgents();
         	} else {
-        		UserNotifier un = singleton.registry.getUserNotifier();
-        		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        		//Check if the splashscreen is up.
+        		Boolean b = (Boolean) singleton.registry.lookup(
+            			LookupNames.LOGIN_SPLASHSCREEN);
+        		if (b != null && !b.booleanValue()) {
+        			UserNotifier un = singleton.registry.getUserNotifier();
+            		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        		}
         	}
         	return Container.getInstance();
         }

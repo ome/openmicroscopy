@@ -31,20 +31,11 @@
     }
     
     var setupResultOptions = function() {
-        $("a.browse").click(function() {
+        $("#activities_content a").click(function() {
             var href = $(this).attr('href');
             if (href) {
                 window.location.href = href;
             }
-        });
-        $(".dropdown_menu .menu_launch").click(function(e){
-            $(".dropdown_menu .menu_launch").parent().find('ul').css('visibility', 'hidden'); // hide any other dd_menus
-            $(this).parent().find('ul').css('visibility', 'visible');
-            return false;
-        });
-        // on hover-out of the menu itself, hide drop-down menus
-        $(".dropdown_menu_options").hover(function(){}, function(){
-            $(this).css('visibility', 'hidden');
         });
         // show chgrp errors in new window
         $(".chgrp_error a").click(function(event) {

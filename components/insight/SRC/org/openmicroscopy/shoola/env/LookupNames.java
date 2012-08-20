@@ -232,6 +232,10 @@ public class LookupNames
     								"/services/RE/compressionLow";
     
     /** Field to access the <code>Log service</code> information. */
+    public static final String LOGIN_SPLASHSCREEN = 
+    	"/services/Login/splashscreen";
+    
+    /** Field to access the <code>Log service</code> information. */
     public static final String LOGIN = "/services/Login";
     
     /**

@@ -55,15 +55,12 @@ import org.w3c.dom.NodeList;
 public class TransformsParser
 {
 
+	/** The jar to find. */
+	public static String SPECIFICATION = "specification";
+	
 	/** The catalog file to find. */
 	private static String CATALOG = "ome-transforms.xml";
-	
-	/** The jar to find. */
-	private static String SPECIFICATION = "specification";
-	
-	/** The folder to find. */
-	private static String XSLT = "Xslt";
-	
+
 	/** The <i>name</i> attribute. */
 	private static String CURRENT = "current";
 
@@ -125,6 +122,15 @@ public class TransformsParser
 		targets = new ArrayList<Target>();
 	}
 	
+    /** Closes the input stream.*/
+    public void close()
+    {
+    	Iterator<Target> i = targets.iterator();
+    	while (i.hasNext()) {
+			i.next().close();
+		}
+    }
+    
     /**
      * Returns the collection of targets.
      * 
@@ -142,15 +148,21 @@ public class TransformsParser
 	/**
 	 * Parses the catalog.
 	 * 
+	 * @param path The relative path.
 	 * @throws Exception Thrown when an error occurred while parsing the file.
 	 */
-	public void parse()
+	public void parse(String path)
 		throws Exception
 	{
-		if (values == null) 
-			values = IOUtil.extractJar(SPECIFICATION);
-		if (values == null)
-    		throw new IllegalArgumentException("Unable to load the jar");
+		if (values == null || values.size() == 0)
+			values = IOUtil.extractJarFromPath(SPECIFICATION);
+		if (values.size() == 0) {
+			//going to extract from libs.
+			values = IOUtil.readJar(path);
+		}
+		
+		if (values == null || values.size() == 0)
+    		throw new Exception("Unable to load the jar");
 		//Extract catalog.
 		Iterator<String> i = values.keySet().iterator();
 		String key;
@@ -163,7 +175,7 @@ public class TransformsParser
 			}
 		}
 		if (stream == null)
-    		throw new IllegalArgumentException("No Catalog found.");
+    		throw new Exception("No Catalog found.");
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -171,10 +183,10 @@ public class TransformsParser
 			
 			current = document.getDocumentElement().getAttribute(CURRENT);
 			if (current == null || current.trim().length() == 0)
-				throw new IllegalArgumentException("No schema specified.");
+				throw new Exception("No schema specified.");
 			extractCurrentSchema(current);
 		} catch (Exception e) {
-			throw new Exception("Unable to paser the catalog.", e);
+			throw new Exception("Unable to parse the catalog.", e);
 		}
 	}
 

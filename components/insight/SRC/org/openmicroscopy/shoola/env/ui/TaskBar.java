@@ -35,7 +35,6 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 
 /** 
  * Defines the functionality of the task bar UI.
@@ -207,4 +206,13 @@ public interface TaskBar
      * @return See above.
      */
     public JMenu getMenu(int menuID);
+    
+    /**
+     * Returns the relative path for file in the libs folder.
+     * 
+     * @param file The file to handle.
+     * @return See above.
+     */
+    public String getLibFileRelative(String file);
+
 }

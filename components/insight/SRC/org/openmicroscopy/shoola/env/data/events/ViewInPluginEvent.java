@@ -46,7 +46,7 @@ public class ViewInPluginEvent
 {
 
 	/** Identifies the <code>ImageJ</code> plugin.*/
-	public static final int IMAGE_J = 0;
+	public static final int IMAGE_J = 1;
 	
 	/** The selected plugin.*/
 	private int plugin;
@@ -56,6 +56,25 @@ public class ViewInPluginEvent
 	
 	/** The security context.*/
 	private SecurityContext ctx;
+	
+	/**
+	 * The id of the object.
+	 */
+	private long objectID;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param ctx The security context.
+	 * @param objectID The object's id to view.
+	 * @param plugin The selected plugin.
+	 */
+	public ViewInPluginEvent(SecurityContext ctx, long objectID, int plugin)
+	{
+		this.plugin = plugin;
+		this.objectID = objectID;
+		this.ctx = ctx;
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -92,4 +111,15 @@ public class ViewInPluginEvent
 	 */
 	public DataObject getObject() { return object; }
 	
+	
+	/**
+	 * Returns the data object.
+	 * 
+	 * @return See above.
+	 */
+	public long getObjectID()
+	{ 
+		if (object != null) return object.getId();
+		return objectID; 
+	}
 }

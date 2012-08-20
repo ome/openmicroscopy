@@ -57,8 +57,19 @@ public class ServantHolder {
      */
     private final String session;
 
+    /**
+     * The number of servants that are allowed to be registered for a user
+     * in a single session before a {@link omero.OverUsageException} is thrown.
+     */
+    private final int servantsPerSession;
+
     public ServantHolder(String session) {
+        this(session, 10000);
+    }
+
+    public ServantHolder(String session, int servantsPerSession) {
         this.session = session;
+        this.servantsPerSession = servantsPerSession;
     }
 
     //
@@ -139,7 +150,24 @@ public class ServantHolder {
          }
     }
 
-    public void put(Ice.Identity id, Ice.Object servant) {
+    public void put(Ice.Identity id, Ice.Object servant)
+        throws omero.OverUsageException {
+        final int size = servants.size();
+        if (size >= servantsPerSession) {
+            String msg = String.format("servantsPerSession reached for %s: %s",
+                session, servantsPerSession);
+            log.error(msg);
+            omero.OverUsageException oue = new omero.OverUsageException();
+            omero.util.IceMapper.fillServerError(oue,
+                new ome.conditions.OverUsageException(msg));
+            throw oue;
+        }
+
+        double percent = (100.0 * size / servantsPerSession);
+        if (percent > 0 && (percent % 10) == 0) {
+            log.warn(String.format("%s of servants used for session %s",
+                (int) percent, session));
+        }
         put(id.name, servant);
     }
 

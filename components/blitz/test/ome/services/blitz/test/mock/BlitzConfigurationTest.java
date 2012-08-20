@@ -39,7 +39,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();
         id.properties.setProperty("BlitzAdapter.Endpoints", "default -h 127.0.0.1");
-        config = new BlitzConfiguration(id, ring, sm, ss, ex);
+        config = new BlitzConfiguration(id, ring, sm, ss, ex, 10000);
     }
     
     @Test
@@ -47,7 +47,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();
         id.properties.setProperty("BlitzAdapter.Endpoints", "default -h 127.0.0.1");
-        config = new BlitzConfiguration(id, ring, sm, ss, ex);
+        config = new BlitzConfiguration(id, ring, sm, ss, ex, 10000);
         config.destroy();
     }
 

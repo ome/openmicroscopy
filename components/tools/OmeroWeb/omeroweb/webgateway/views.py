@@ -777,7 +777,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     return rsp    
     
 @login_required()
-def render_image (request, iid, z, t, conn=None, **kwargs):
+def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
@@ -810,12 +810,17 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
     (d)ataset, or (p)roject.
+    For multiple images export, images that require pixels pyramid (big images) will be silently skipped.
+    If exporting a single big image or if all images in a multple image export are big,
+    a 404 will be triggered.
+    A request parameter dryrun can be passed to return the count of images that would actually be exported.
     
     @param request:     http request
     @param ctx:         'p' or 'd' or 'i'
     @param cid:         Project, Dataset or Image ID
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
+                        if dryrun is True, returns count of images that would be exported
     """
     server_id = request.session['connector'].server_id
     imgs = []
@@ -854,6 +859,17 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
             raise Http404
         imgs.append(obj)
 
+    imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
+
+    if request.REQUEST.get('dryrun', False):
+        rv = simplejson.dumps(len(imgs))
+        c = request.REQUEST.get('callback', None)
+        if c is not None and not kwargs.get('_internal', False):
+            rv = '%s(%s)' % (c, rv)
+        return HttpResponse(rv, mimetype='application/javascript')
+    
+    if len(imgs) == 0:
+        raise Http404
     if len(imgs) == 1:
         obj = imgs[0]
         key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
@@ -1209,8 +1225,10 @@ def imageMarshal (image, key=None):
     #big images
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()-1
-    init_zoom = image._re.getResolutionLevel()
+    levels = image._re.getResolutionLevels()
+    init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
+    if init_zoom < 0:
+        init_zoom = levels + init_zoom
 
     try:
         rv.update({

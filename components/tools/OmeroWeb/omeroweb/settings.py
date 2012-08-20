@@ -219,6 +219,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
+    "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 400, int],
     "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
@@ -238,6 +239,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
+    # Configuration options for the viewer
+    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", -1, int],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
@@ -262,6 +265,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
+    # WEBSTART
+    "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
+    "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
+    "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
+    "omero.web.webstart_host": ["WEBSTART_HOST", "localhost", str],
+    "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str],
+    "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str],
+    "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
+    "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
+    "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
 }
 
 
@@ -420,11 +433,15 @@ INSTALLED_APPS = (
     
 )
 
-# ADDITONAL_APPS: Each additional application should have its templates
-# registered and be added to installed apps.
+
+# ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 for app in ADDITIONAL_APPS:
-    app_dir = os.path.join(os.path.dirname(__file__), app)
     INSTALLED_APPS += ('omeroweb.%s' % app,)
+    try:
+        a = __import__('%s.settings' % app)
+    except ImportError:
+        logger.debug("Couldn't import settings from app: %s" % app)
+
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to http://qa.openmicroscopy.org.uk.
