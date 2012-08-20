@@ -91,10 +91,12 @@
 
             // When we filter, need to make sure that the Tree doesn't have filtered images selected
             var deselectFilteredFromTree = function(e, a){
-                // check if any selection change is needed...
-                if ($("#dataIcons li.ui-selected:hidden").length == 0) return;
-                // if so, use selection by IDs...
-                syncTreeSelection();
+                // check if any selection change is needed... timeout allows selection sync
+                setTimeout(function(){
+                    if ($("#dataIcons li.ui-selected:hidden").length == 0) return;
+                    // if so, use selection by IDs...
+                    syncTreeSelection();
+                }, 20);
             };
 
             // use IDs of the selected visible thumbnails to sync tree selection
