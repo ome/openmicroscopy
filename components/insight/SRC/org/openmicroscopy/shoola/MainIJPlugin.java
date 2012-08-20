@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
@@ -34,11 +35,20 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.security.CodeSource;
+
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 //Third-party libraries
 import ij.IJ;
 import ij.ImageJ;
+import ij.plugin.BrowserLauncher;
 import ij.plugin.PlugIn;
 
 //Application-internal dependencies
@@ -74,6 +84,62 @@ public class MainIJPlugin
 	
 	/** Reference to the container.*/
 	private Container container;
+	
+	/** Builds the component indicating where to download the jar.*/
+	private void showMessage()
+	{
+		JEditorPane htmlPane = new JEditorPane("text/html",
+				formatWarningMessage());
+        htmlPane.setEditable(false);
+        htmlPane.setOpaque(false);
+        htmlPane.addHyperlinkListener(new HyperlinkListener() {
+        	public void hyperlinkUpdate(HyperlinkEvent e) {
+        		if (HyperlinkEvent.EventType.ACTIVATED.equals(
+        				e.getEventType()))
+        			try {
+        				BrowserLauncher.openURL(e.getURL().toString());
+        			} catch (IOException exception) {
+        				IJ.log(exception.toString());
+        			}
+        	}
+        });
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(htmlPane, BorderLayout.CENTER);
+        JButton okay = new JButton("OK");
+        panel.add(UIUtilities.buildComponentPanelCenter(okay),
+        		BorderLayout.SOUTH);
+
+       	final JFrame frame = new JFrame("Warning");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setResizable(false);
+        okay.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                        frame.dispose();
+                }
+        });
+        UIUtilities.centerAndShow(frame);
+	}
+	
+	/** 
+	 * Builds the warning message and indicates where to download the jar.
+	 * 
+	 * @return See above.
+	 */
+	private String formatWarningMessage()
+	{
+		
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<html><body>");
+		buffer.append("<p>The plugin requires loci_tools.jar<br>" +
+				"Download the release version from<br>");
+		buffer.append("<a href=\"http://loci.wisc.edu/bio-formats/downloads\">" +
+				"bio-formats/downloads</a>");
+		buffer.append("</body><html>");
+		return buffer.toString();
+	}
 	
 	/** Notifies that <code>ImageJ</code> is closing.*/
 	private void onImageJClosing()
@@ -176,7 +242,8 @@ public class MainIJPlugin
 				}
 			}
 		    if (!exist) {
-		    	IJ.showMessage(TITLE, "This plugin requires \n"+LOCI_TOOL);
+		    	//IJ.showMessage(TITLE, formatWarningMessage());
+		    	showMessage();
 				return;
 		    }
 		    
