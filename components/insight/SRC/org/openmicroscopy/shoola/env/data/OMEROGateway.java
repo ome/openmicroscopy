@@ -6970,14 +6970,14 @@ class OMEROGateway
 				try {
 					if (store != null) closeService(ctx, store);
 				} catch (Exception e) {}
-				if (exception != null) throw exception;
-				return f;
 			}
 		} catch (Throwable t) {
 			if (f != null) f.delete();
 			throw new DSAccessException(
 					"Cannot export the image as an OME-TIFF", t);
 		}
+		if (exception != null) throw exception;
+		return f;
 	}
 	
 	/**
