@@ -221,10 +221,10 @@ public class RandomGraph
 	 */
 	public void mouseReleased()
 	{
-		if(picked==true)
+		if (picked)
 		{
 			p.makeFree();
-			if(pickedId==0)
+			if (pickedId == 0)
 				p.makeFixed();
 			//p.setMass(1);
 			picked = false;
@@ -279,7 +279,7 @@ public class RandomGraph
 	 */
 	public void mouseDragged()
 	{
-		if(picked==true)
+		if (picked)
 		{
 		 
 		System.err.println(p.position());
