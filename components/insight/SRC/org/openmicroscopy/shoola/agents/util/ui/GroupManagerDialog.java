@@ -159,7 +159,7 @@ public class GroupManagerDialog
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
 		ViewerSorter sorter = new ViewerSorter();
-		List<GroupData> l = (List<GroupData>) sorter.sort(groups);
+		List<GroupData> l = sorter.sort(groups);
 		groupsTable = new SelectionTable();
 		groupsTable.setGroups(l);
 		List<Long> ids = new ArrayList<Long>(selectedGroups.size());

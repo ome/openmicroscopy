@@ -461,7 +461,7 @@ public class TaskBarManager
 	private void handleLogOff(LogOff evt)
 	{
 		if (evt == null) return;
-		if (!((LogOff) evt).isAskQuestion()) {
+		if (!evt.isAskQuestion()) {
 			logOut();
 			return;
 		}
@@ -476,14 +476,15 @@ public class TaskBarManager
 				logOut();
 			} else {
 				List<Object> nodes = new ArrayList<Object>();
-				Iterator i = map.entrySet().iterator();
-				Entry entry;
+				Iterator<Entry<Agent, AgentSaveInfo>> 
+				i = map.entrySet().iterator();
+				Entry<Agent, AgentSaveInfo> entry;
 				Agent agent;
 				AgentSaveInfo info;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					agent = (Agent) entry.getKey();
-					info = (AgentSaveInfo) entry.getValue();
+					entry = i.next();
+					agent = entry.getKey();
+					info = entry.getValue();
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}

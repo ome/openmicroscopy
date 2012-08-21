@@ -68,8 +68,9 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 	 */
 	protected void notifyActivityEnd() {
 		type.setText("Opening File");
-		DownloadAndLaunchActivityParam param = (DownloadAndLaunchActivityParam) parameters;
-		viewer.openApplication((ApplicationData) param.getApplicationData(),
+		DownloadAndLaunchActivityParam param =
+			(DownloadAndLaunchActivityParam) parameters;
+		viewer.openApplication(param.getApplicationData(),
 				file.getAbsolutePath());
 		if (parameters.getSource() != null)
 			parameters.getSource().setEnabled(true);

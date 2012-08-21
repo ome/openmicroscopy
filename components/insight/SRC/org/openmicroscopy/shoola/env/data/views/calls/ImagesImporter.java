@@ -102,7 +102,7 @@ public class ImagesImporter
 		int index = 0;
 		int n = files.size()-1;
 		while (i.hasNext()) {
-			io = (ImportableFile) i.next();
+			io = i.next();
 			final ImportableFile f = io;
 			final boolean b = index == n;
 			index++;

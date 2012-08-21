@@ -992,8 +992,7 @@ class MeasurementViewerModel
 		}
 		
 		state = MeasurementViewer.LOADING_ROI;
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		currentLoader = new ROILoader(component, getSecurityContext(),
 				getImageID(), files, exp.getId());
 		currentLoader.load();
@@ -1008,8 +1007,7 @@ class MeasurementViewerModel
 	void fireLoadROIServerOrClient(boolean dataChanged)
 	{
 		state = MeasurementViewer.LOADING_ROI;
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		currentLoader = new ServerSideROILoader(component, getSecurityContext(),
 				getImageID(),  exp.getId());
 		currentLoader.load();
@@ -1021,8 +1019,7 @@ class MeasurementViewerModel
 	 */
 	void fireLoadWorkflow()
 	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		currentLoader = new WorkflowLoader(component, getSecurityContext(),
 				exp.getId());
 		currentLoader.load();
@@ -1033,8 +1030,7 @@ class MeasurementViewerModel
 	 */
 	void retrieveWorkflowsFromServer()
 	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		OmeroImageService svc = 
 			MeasurementAgent.getRegistry().getImageService();
 		try
@@ -1160,8 +1156,7 @@ class MeasurementViewerModel
 	{
 		try {
 			List<ROIData> roiList = getROIData();
-			ExperimenterData exp = 
-				(ExperimenterData) MeasurementAgent.getUserDetails();
+			ExperimenterData exp = MeasurementAgent.getUserDetails();
 			if (roiList.size() == 0) return;
 			roiComponent.reset();
 			if (async) {
@@ -1255,8 +1250,7 @@ class MeasurementViewerModel
 		while (workflowIterator.hasNext())
 			workflowList.add(workflowIterator.next());
 		try {
-			ExperimenterData exp = 
-				(ExperimenterData) MeasurementAgent.getUserDetails();
+			ExperimenterData exp = MeasurementAgent.getUserDetails();
 			if (async) {
 				currentSaver = new WorkflowSaver(component,
 					getSecurityContext(), workflowList, exp.getId());

@@ -133,7 +133,7 @@ class IconFactoryEntry
 	{ 
 		try {
 			Map<String, String> tags = extractValues(node);
-			location = (String) tags.get(LOCATION_TAG);
+			location = tags.get(LOCATION_TAG);
 		} catch (DOMException dex) { 
 			rethrow("Can't parse icons entry.", dex);
 		}

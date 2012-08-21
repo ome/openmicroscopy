@@ -136,7 +136,7 @@ class SelectionTableRenderer
 				hasFocus, row, column);
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		if (column == 0) {
-			Object element = (Object) dtm.getValueAt(row, column);
+			Object element = dtm.getValueAt(row, column);
 			if (element instanceof ExperimenterData) {
 				ExperimenterData exp = (ExperimenterData) element;
 				setText(EditorUtil.formatExperimenter(exp));

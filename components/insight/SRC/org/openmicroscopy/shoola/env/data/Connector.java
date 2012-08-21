@@ -687,7 +687,7 @@ class Connector
 		if (services.size() > 0) all.addAll(services);
 		if (reServices.size() > 0) all.addAll(reServices.values());
 		if (all.size() == 0) return;
-		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
+		ServiceInterfacePrx[] entries = 
 			all.toArray(new ServiceInterfacePrx[all.size()]);
 		try {
 			entryEncrypted.keepAllAlive(entries);

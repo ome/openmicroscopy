@@ -291,7 +291,7 @@ public class RefreshExperimenterDataLoader
         				nl = new ArrayList<Object>();
         				j = l.iterator();
         				while (j.hasNext()) {
-							ob = (Object) j.next();
+							ob = j.next();
 							if (ob instanceof TreeFileSet) {
 								ref = new TimeRefObject(userID,
 										TimeRefObject.FILE);

@@ -531,7 +531,7 @@ public class ImportDialog
 		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
 		i = tags.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (tag.getId() < 0) {
 				if (!newTags.containsKey(tag.getTagValue())) {
 					toKeep.add(tag);
@@ -549,7 +549,7 @@ public class ImportDialog
 		JPanel p = initRow();
 		int width = 0;
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			entry = buildTagEntry(tag, icons.getIcon(IconManager.MINUS_11));
 			if (width+entry.getPreferredSize().width >= COLUMN_WIDTH) {
 		    	tagsPane.add(p);
@@ -855,7 +855,7 @@ public class ImportDialog
 				}
 			}
 			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
-			combinedHCSFilter = new HCSFilter((String[]) set.toArray(
+			combinedHCSFilter = new HCSFilter(set.toArray(
 					new String[set.size()]));
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
@@ -2127,7 +2127,7 @@ public class ImportDialog
 		}
 		i = tags.iterator();
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			if (ids.contains(tag.getId())) 
 				selected.add(tag);
 			else available.add(tag);

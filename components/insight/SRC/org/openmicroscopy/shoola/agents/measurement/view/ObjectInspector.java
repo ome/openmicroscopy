@@ -305,7 +305,7 @@ class ObjectInspector
 	{
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
-		Object v = (Boolean) fieldTable.getModel().getValueAt(row, col);
+		Object v = fieldTable.getModel().getValueAt(row, col);
 		Boolean value = Boolean.valueOf(false);
 		if (v != null) value = (Boolean) v;
 		boolean newValue = !(value.booleanValue()); 

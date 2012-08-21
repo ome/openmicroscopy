@@ -125,7 +125,7 @@ class ColorEntry
      */
     private int getRedComponent(Map<String, String> colorAttributes)
     {
-        String value = (String) colorAttributes.get(RED_TAG);
+        String value = colorAttributes.get(RED_TAG);
         return parseValue(value, DEFAULT_RED);
     }
     
@@ -144,7 +144,7 @@ class ColorEntry
      */
     private int getGreenComponent(Map<String, String> colorAttributes)
     {
-        String value = (String) colorAttributes.get(GREEN_TAG);
+        String value = colorAttributes.get(GREEN_TAG);
         return parseValue(value, DEFAULT_GREEN);
     }
     
@@ -163,7 +163,7 @@ class ColorEntry
      */
     private int getBlueComponent(Map<String, String> colorAttributes)
     {
-        String value = (String) colorAttributes.get(BLUE_TAG);
+        String value = colorAttributes.get(BLUE_TAG);
         return parseValue(value, DEFAULT_BLUE);
     }
     

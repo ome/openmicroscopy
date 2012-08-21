@@ -284,20 +284,20 @@ class TreeViewerWin
             tabs.setFont(font);
             tabs.setForeground(UIUtilities.STEELBLUE);
             
-            browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+            browser = browsers.get(Browser.PROJECTS_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());
 
-            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+            browser = browsers.get(Browser.FILES_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());
-            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+            browser = browsers.get(Browser.TAGS_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());
-            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+            browser = browsers.get(Browser.IMAGES_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());

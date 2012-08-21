@@ -124,7 +124,7 @@ class FontEntry
 	 */
 	private int getSize(Map<String, String> fontAttributes)
 	{
-		String value = (String) fontAttributes.get(SIZE_TAG);
+		String value = fontAttributes.get(SIZE_TAG);
 		int size = DEFAULT_SIZE;
 		try {
 			size = Integer.parseInt(value);
@@ -145,7 +145,7 @@ class FontEntry
 	 */
 	private int getStyle(Map<String, String> fontAttributes)
 	{
-		String value = (String) fontAttributes.get(STYLE_TAG);
+		String value = fontAttributes.get(STYLE_TAG);
 		int style = DEFAULT_STYLE;
 		Integer id = FONT_STYLES.get(value);
 		if (id != null) style = id.intValue();
@@ -233,8 +233,8 @@ class FontEntry
     { 
 		try {
 			Map<String, String> tags = extractValues(node);
-			value = new Font((String) tags.get(FAMILY_TAG),
-								getStyle(tags), getSize(tags));
+			value = new Font(tags.get(FAMILY_TAG),
+					getStyle(tags), getSize(tags));
 		} catch (DOMException dex) { 
 			rethrow("Can't parse font entry.", dex);
 		} 

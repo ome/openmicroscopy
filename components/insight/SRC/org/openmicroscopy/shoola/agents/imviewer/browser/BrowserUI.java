@@ -166,10 +166,10 @@ class BrowserUI
     	int ry = sizeY/d.height;
     	if (rx == 0) rx = 1;
     	if (ry == 0) ry = 1;
-    	int x = (int) (r.x/rx);
-    	int y = (int) (r.y/ry);
-    	int w = (int) (r.width/rx);
-    	int h = (int) (r.height/ry);
+    	int x = (r.x/rx);
+    	int y = (r.y/ry);
+    	int w = (r.width/rx);
+    	int h = (r.height/ry);
     	birdEyeView.setSelection(x, y, w, h);
     }
     

@@ -286,7 +286,7 @@ class TreeViewerModel
 			parent = child.getParentDisplay();
 			if (parent != null) {
 				po = parent.getUserObject();
-				children = (Set) map.get(po);
+				children = map.get(po);
 				if (children == null) {
 					children = new HashSet<Object>();   
 					map.put(po, children);
@@ -1005,7 +1005,7 @@ class TreeViewerModel
 		Iterator i = images.iterator();
 		Object o;
 		while (i.hasNext()) {
-			o = (Object) i.next();
+			o = i.next();
 			if (o instanceof ImageData) {
 				img = (ImageData) o;
 				if (img.isArchived()) {
@@ -1297,8 +1297,7 @@ class TreeViewerModel
 	 */
 	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes)
 	{
-		nodesToCopy = (TreeImageDisplay[]) nodes.toArray(
-				new TreeImageDisplay[0]);
+		nodesToCopy = nodes.toArray(new TreeImageDisplay[0]);
 		copyIndex = TreeViewer.CUT_AND_PASTE;
 		Map toRemove = buildCutMap(nodesToCopy);
 		Map map = new HashMap();

@@ -134,10 +134,10 @@ class ProjectionBICanvas
         			int l = text.length();
         			String s1 = text.substring(0, l/2);
         			String s2 = text.substring(l/2+1, l);
-        			width = (int) (fm.stringWidth(s1));
+        			width = fm.stringWidth(s1);
         			int x = (w-width)/2;
         			g2D.drawString(s1, x, h/2);
-        			width = (int) (fm.stringWidth(s2));
+        			width = fm.stringWidth(s2);
         			x = (w-width)/2;
         			g2D.drawString(s2, x, (h+fm.getHeight()+10)/2);
         		} else {

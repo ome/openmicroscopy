@@ -911,7 +911,7 @@ public class EditorUtil
 			Entry<Long, Long> entry;
 			while (i.hasNext()) {
 				entry = i.next();
-				value += (Long) entry.getValue();
+				value += entry.getValue();
 			}
 			value += count;
 			return value > n;

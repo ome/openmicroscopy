@@ -558,7 +558,7 @@ public class FigureDialog
 		ROIFigure fig;
 		ro = displayedROIs.iterator();
 		while (ro.hasNext()) {
-			roi = (ROI) ro.next();
+			roi = ro.next();
 			shapes = roi.getShapes();
 			k = shapes.entrySet().iterator();
 			while (k.hasNext()) {
@@ -1851,7 +1851,7 @@ public class FigureDialog
 		Integer n = (Integer) field.getValueAsNumber();
 		if (n == null) return;
 		Document doc;
-		int v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
+		int v = ((n*pixels.getSizeX())/pixels.getSizeY());
 		if (field == widthField) {
 			doc = heightField.getDocument();
 			doc.removeDocumentListener(this);

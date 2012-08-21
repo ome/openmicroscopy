@@ -526,13 +526,13 @@ public class DataBrowserFactory
 			Iterator<DatasetData> i = datasets.iterator();
 			List<Long> ids = new ArrayList<Long>();
 			while (i.hasNext()) {
-				ids.add(((DatasetData) i.next()).getId());
+				ids.add(i.next().getId());
 			}
 			sortNodes(ids);
 			Iterator<Long> j = ids.iterator();
 			
 			while (j.hasNext()) {
-				buffer.append(""+(Long) j.next());
+				buffer.append(""+ j.next());
 			}
 		} else buffer.append(parent.toString()+parent.getId());
 		browsers.put(buffer.toString(), comp);

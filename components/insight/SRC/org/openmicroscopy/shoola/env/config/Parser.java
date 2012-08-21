@@ -163,7 +163,7 @@ class Parser
 			Node node;
 			Entry entry;
             while (i.hasNext()) {
-               node = (Node) i.next();
+               node = i.next();
                entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }

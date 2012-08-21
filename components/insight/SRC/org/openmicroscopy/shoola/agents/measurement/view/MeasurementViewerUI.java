@@ -922,7 +922,7 @@ class MeasurementViewerUI
 			Iterator<ROIShape> j = roiShapeList.iterator();
 			ROIShape roiShape;
 			while (j.hasNext()) {
-				roiShape = (ROIShape) j.next();
+				roiShape = j.next();
 				ids.add(roiShape.getROI().getID());
 			}
 			Component c = tabs.getSelectedComponent();
@@ -966,7 +966,7 @@ class MeasurementViewerUI
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = shapeList.iterator();
 			while (j.hasNext()) {
-				shape = (ROIShape) j.next();
+				shape = j.next();
 				ids.add(shape.getROI().getID());
 			}
 			Component c = tabs.getSelectedComponent();

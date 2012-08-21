@@ -857,9 +857,9 @@ public abstract class ActivityComponent
 				int max = 2;
 				JButton moreButton = null;
 				while (i.hasNext()) {
-					entry = (Entry<String, Object>) i.next();
+					entry = i.next();
 					this.result = entry.getValue();
-					row = new ActivityResultRow((String) entry.getKey(), 
+					row = new ActivityResultRow(entry.getKey(),
 							entry.getValue(), this);
 					row.setBackground(c);
 					row.addPropertyChangeListener(listener);

@@ -384,7 +384,7 @@ public class ROITreeTable
 		{
 				node = (ROITreeNode) root.getChildAt(i);
 				if (node.isExpanded()) 
-					expandROIRow((ROITreeNode) node);
+					expandROIRow(node);
 		}
 	}
 	

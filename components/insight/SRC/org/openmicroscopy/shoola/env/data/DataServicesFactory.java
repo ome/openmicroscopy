@@ -580,7 +580,7 @@ public class DataServicesFactory
         	Iterator j;
         	ExperimenterData e;
         	while (i.hasNext()) {
-        		g = (GroupData) i.next();
+        		g = i.next();
         		set = g.getExperimenters();
         		j = set.iterator();
         		while (j.hasNext()) {

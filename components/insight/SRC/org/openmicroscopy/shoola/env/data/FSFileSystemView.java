@@ -424,7 +424,7 @@ public class FSFileSystemView
 					"Cannot retrieves the files contained in: " +
 					dir.getAbsolutePath(), e);
 		}
-    	return (DataObject[]) files.toArray(new DataObject[files.size()]);
+    	return files.toArray(new DataObject[files.size()]);
     }
     
     /**
@@ -434,6 +434,5 @@ public class FSFileSystemView
      * @return See above.
      */
     public boolean isHiddenFile(FileData f) { return f.isHidden(); }
-    
     
 }

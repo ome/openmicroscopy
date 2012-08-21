@@ -2962,7 +2962,7 @@ class TreeViewerComponent
 		if (node == null) {
 			if (browser == null) return;
 			if (data instanceof DatasetData) {
-				finder = new NodesFinder((DataObject) data);
+				finder = new NodesFinder(data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
 				ExperimenterData exp;
@@ -2986,14 +2986,14 @@ class TreeViewerComponent
 					}
 				}
 			} else if (data instanceof PlateData) {
-				finder = new NodesFinder((DataObject) data);
+				finder = new NodesFinder(data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
 				if (nodes.size() > 0) { //node found.
 					model.browsePlates(nodes, withThumbnails);
 				}
 			} else if (data instanceof ImageData) {
-				finder = new NodesFinder((DataObject) data);
+				finder = new NodesFinder(data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
 				ExperimenterData exp;
@@ -3045,7 +3045,7 @@ class TreeViewerComponent
 		} else if (uo instanceof ScreenData) {
 			if (data instanceof PlateData) {
 				//Find node
-				finder = new NodesFinder((DataObject) data);
+				finder = new NodesFinder(data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
 				if (nodes.size() > 0) { //node found.
@@ -3065,7 +3065,7 @@ class TreeViewerComponent
 				}
 			} else if (data instanceof ScreenData) {
 				//Find node
-				finder = new NodesFinder((DataObject) data);
+				finder = new NodesFinder(data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
 				if (nodes.size() > 0) { //node found.
@@ -3121,7 +3121,7 @@ class TreeViewerComponent
 					Object object;
 					TreeImageDisplay child;
 					while (i.hasNext()) {
-						child = (TreeImageDisplay) i.next();
+						child = i.next();
 						object = child.getUserObject();
 						if (object instanceof ImageData) 
 							leaves.add(object);

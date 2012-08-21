@@ -79,16 +79,15 @@ public class CheckoutBox
 	private void handleSelection()
 	{
 		if (components == null) return;
-		Entry entry;
+		Entry<Agent, List<CheckOutItem>> entry;
 		Iterator<Entry<Agent, List<CheckOutItem>>> 
 		i = components.entrySet().iterator();
 		List<CheckOutItem> l;
 		Iterator<CheckOutItem> j;
-		CheckOutItem item;
 		boolean selected = saveAll.isSelected();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			l = (List<CheckOutItem>) entry.getValue();
+			entry = i.next();
+			l = entry.getValue();
 			if (l != null) {
 				j = l.iterator();
 				while (j.hasNext()) {

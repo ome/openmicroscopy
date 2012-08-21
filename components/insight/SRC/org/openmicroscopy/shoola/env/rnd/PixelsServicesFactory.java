@@ -658,8 +658,7 @@ public class PixelsServicesFactory
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = pixels.getId().getValue();
-		RenderingControl rnd = 
-			(RenderingControl) singleton.rndSvcProxies.get(id);
+		RenderingControl rnd = singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
 		singleton.rndSvcProxiesCount.put(id, 1);
 		rnd = new RenderingControlProxy(ctx, registry, re, pixels, metadata, 

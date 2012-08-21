@@ -211,8 +211,8 @@ public class ROINode
 		 {
 			 ROIShape shape = (ROIShape) userObject;
 			 child.setExpanded(true);
-			 childMap.put(shape, (ROINode) child);
-			 childCoordMap.put(shape.getCoord3D(), (ROINode) child);
+			 childMap.put(shape, child);
+			 childCoordMap.put(shape.getCoord3D(), child);
 		 }
 	 }
 

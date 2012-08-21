@@ -296,7 +296,7 @@ class EditorModel
 			Iterator i = l.iterator();
 			Object o;
 			while (i.hasNext()) {
-				o = (Object) i.next();
+				o = i.next();
 				if (o instanceof ImageData) {
 					img = (ImageData) o;
 					images.add(img);
@@ -1391,7 +1391,7 @@ class EditorModel
 				ids.put(f.getId(), f);
 			}
 		}
-		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
+		List<Long> orderedIds = sorter.sort(ids.keySet());
 		if (orderedIds.size() == 0) return null;
 		int index = 0; //this should be modified.
 		Iterator<Long> j = orderedIds.iterator();
@@ -2309,7 +2309,7 @@ class EditorModel
 	List<EnumerationObject> getImageEnumerations(String name)
 	{
 		if (imageEnumerations != null)
-			return (List<EnumerationObject>) imageEnumerations.get(name);
+			return imageEnumerations.get(name);
 		return new ArrayList<EnumerationObject>();
 	}
 
@@ -2322,7 +2322,7 @@ class EditorModel
 	List<EnumerationObject> getChannelEnumerations(String name)
 	{
 		if (channelEnumerations != null)
-			return (List<EnumerationObject>) channelEnumerations.get(name);
+			return channelEnumerations.get(name);
 		return new ArrayList<EnumerationObject>();
 	}
 	
@@ -3153,7 +3153,7 @@ class EditorModel
 		if (l != null) {
 			Iterator i = l.iterator();
 			while (i.hasNext()) {
-				o = (Object) i.next();
+				o = i.next();
 				if (o instanceof ImageData || o instanceof DatasetData) {
 					objects.add((DataObject) o);
 				}

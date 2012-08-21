@@ -279,7 +279,7 @@ public class DMRefreshLoader
     					Iterator<GroupData> k = groups.iterator();
                         GroupData g;
                         while (k.hasNext()) {
-        					g = (GroupData) k.next();
+        					g = k.next();
         					if (!toRemove.contains(g.getId())) 
         						r.add(g);
         				}

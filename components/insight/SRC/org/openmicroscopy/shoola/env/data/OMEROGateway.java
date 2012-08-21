@@ -617,7 +617,7 @@ class OMEROGateway
 		
 		ExperimenterGroup g = null;
 		while (i.hasNext()) {
-			g = (ExperimenterGroup) i.next();
+			g = i.next();
 			if (g.getName() != null && name.equals(g.getName().getValue()))
 				return g;
 		}
@@ -806,7 +806,7 @@ class OMEROGateway
 			long[] rowSubset;
 			Map<Integer, Integer> indexes = new HashMap<Integer, Integer>();
 			while (rowsToGo > 0) {
-				rowCount = (int) Math.min(MAX_TABLE_ROW_RETRIEVAL,
+				rowCount = Math.min(MAX_TABLE_ROW_RETRIEVAL,
 				                          totalRowCount - rowOffset);
 				rowSubset = new long[rowCount];
 				System.arraycopy(rows, rowOffset, rowSubset, 0, rowCount);
@@ -6179,7 +6179,7 @@ class OMEROGateway
 		dataType = omero.rtypes.rstring("Image");
 		map.put("Data_Type", dataType);
 		if (scriptIndex == FigureParam.THUMBNAILS) {
-			DataObject d = (DataObject) param.getAnchor();
+			DataObject d = param.getAnchor();
 			long parentID = -1;
 			if (d instanceof DatasetData ||
 					d instanceof ProjectData) parentID = d.getId();
@@ -7117,7 +7117,7 @@ class OMEROGateway
 				g = groups.get(0).asGroup();
 				Iterator<GroupData> j = groups.iterator();
 				while (j.hasNext()) 
-					l.add(((GroupData) j.next()).asGroup());
+					l.add(j.next().asGroup());
 			}
 			long id;
 			Experimenter value;
@@ -7182,7 +7182,7 @@ class OMEROGateway
 			Experimenter exp;
 			UserCredentials uc;
 			String password;
-			GroupData groupData = (GroupData) object.getGroup();
+			GroupData groupData = object.getGroup();
 			ExperimenterGroup g = lookupGroup(ctx, groupData.getName());
 			
 			if (g != null) return null; 
@@ -7263,7 +7263,7 @@ class OMEROGateway
 			IQueryPrx svc = getQueryService(ctx);
 			ParametersI p = new ParametersI();
 			p.addLongs("gids", groupIds);
-			List list = (List) svc.findAllByQuery("select m " +
+			List list = svc.findAllByQuery("select m " +
 					"from GroupExperimenterMap as m"
 	                + " left outer join fetch m.parent"
 	                		+" where m.parent.id in (:gids)", p);
@@ -7327,7 +7327,7 @@ class OMEROGateway
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
 			p.addId(experimenterID);
-			groups = (List) svc.findAllByQuery("select distinct g " +
+			groups = (List<ExperimenterGroup>) svc.findAllByQuery("select distinct g " +
 					"from ExperimenterGroup g "
 	                + "left outer join fetch g.groupExperimenterMap m "
 	                + "left outer join fetch m.child u " +
