@@ -146,7 +146,7 @@ extends PApplet
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();;
+			ex.printStackTrace();
 		}
 		mapper = new XMLMapper((XMLElement)document);
 		mapper.parseDocument();
