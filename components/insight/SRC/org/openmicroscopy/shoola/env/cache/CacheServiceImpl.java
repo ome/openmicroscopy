@@ -34,6 +34,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 
 /** 
  * Provides the caching service.
@@ -56,16 +58,23 @@ class CacheServiceImpl
 	private CacheManager manager;
 	
 	/** The id of the last created cache. */
-	private int 		cacheID;
+	private int cacheID;
+	
+	/** Reference to the log service.*/ 
+	private Logger log;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param stream
+	 * @param config The configuration file as input stream.
+	 * @param log Reference to the logger.
 	 */
-	CacheServiceImpl(InputStream stream)
+	CacheServiceImpl(InputStream config, Logger log)
 	{
-		manager = new CacheManager(stream);
+		if (log == null)
+			throw new IllegalArgumentException("Logger cannot be null");
+		manager = new CacheManager(config);
+		this.log = log;
 		cacheID = -1;
 	}
 
@@ -75,7 +84,11 @@ class CacheServiceImpl
 		try {
 			manager.shutdown();
 		} catch (Exception e) {
-			//just it case it has already been shut down.
+			String s = "Cache shut down";
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 	}
 	
@@ -107,7 +120,6 @@ class CacheServiceImpl
 						manager.getDiskStorePath(), false, 300, 600,
 						false, 300, null, null, 10000000);
 				manager.addCache(cache);
-				//cache.initialise();
 				break;
 			case DEFAULT:
 				cacheID++;
@@ -117,14 +129,13 @@ class CacheServiceImpl
 				return -1;
 		}
 		return cacheID;
-		
 	}
 	
 	/** 
 	 * Implemented as specified by {@link CacheService}.
 	 * @see CacheService#createCache(int)
 	 */
-	public int createCache(int type) 
+	public int createCache(int type)
 	{
 		return createCache(type, CACHE_SIZE);
 	}
@@ -139,7 +150,11 @@ class CacheServiceImpl
 		try {
 			cache = manager.getCache(""+cacheID);
 		} catch (Exception e) {
-			//the cache is no longer alive.
+			String s = "Remove cache with ID: "+cacheID;
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (cache != null) manager.removeCache(""+cacheID);
 	}
@@ -154,7 +169,11 @@ class CacheServiceImpl
 		try {
 			cache = manager.getCache(""+cacheID);
 		} catch (Exception e) {
-			//the cache is no longer alive.
+			String s = "Cannot retrieve cache with ID: "+cacheID;
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (cache == null) return;
 		if (cache.getSize() >= 
@@ -173,13 +192,22 @@ class CacheServiceImpl
 		try {
 			cache = manager.getCache(""+cacheID);
 		} catch (Exception e) {
-			//the cache is no longer alive.
+			String s = "Cannot retrieve cache with ID: "+cacheID;
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (cache == null) return null;
 		Element element = null;
 		try {
 			element = cache.get(key);
-		} catch (Exception e) { //Problem w/ cache.
+		} catch (Exception e) { 
+			String s = "Cannot retrieve the specified key: "+key.toString();
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (element == null) return null;
 		return element.getObjectValue();
@@ -195,7 +223,11 @@ class CacheServiceImpl
 		try {
 			cache = manager.getCache(""+cacheID);
 		} catch (Exception e) {
-			//the cache is no longer alive.
+			String s = "Cannot retrieve cache with ID: "+cacheID;
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (cache == null) return;
 		cache.removeAll();
@@ -226,7 +258,11 @@ class CacheServiceImpl
 		try {
 			cache = manager.getCache(""+cacheID);
 		} catch (Exception e) {
-			//the cache is no longer alive.
+			String s = "Cannot retrieve cache with ID: "+cacheID;
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        log.debug(this, msg);
 		}
 		if (cache == null) return;
 		cache.flush();
