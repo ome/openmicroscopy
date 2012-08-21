@@ -210,7 +210,7 @@ class WorkflowDialog
 
 	public void actionPerformed(ActionEvent e)
 	{
-		if (e.getActionCommand() == "Create")
+		if (e.getActionCommand().equals("Create"))
 		{
 			createWorkflow();
 		}

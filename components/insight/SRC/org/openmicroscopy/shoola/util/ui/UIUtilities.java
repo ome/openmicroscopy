@@ -1302,7 +1302,7 @@ public class UIUtilities
     public static File getDefaultFolder()
     {
     	String f = UIUtilities.getDefaultFolderAsString();
-    	if (f == null || f == "") return null; 
+    	if (f == null || f.trim().length() == 0) return null;
     	return new File(f);
     }
     
