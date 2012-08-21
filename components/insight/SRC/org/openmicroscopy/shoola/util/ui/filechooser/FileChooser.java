@@ -186,7 +186,7 @@ public class FileChooser
     			int n = l.length-1;
         		for (int i = 0; i < n; i++) {
     				buffer.append(l[i]);
-    				if (i < (n-1)) buffer.append(".");
+    				if (i < (n-1)) buffer.append('.');
     			}
         		name = buffer.toString();
     		}

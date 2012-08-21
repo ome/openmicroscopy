@@ -202,7 +202,7 @@ class WellFieldsView
 					if (node != null) {
 						StringBuffer buffer = new StringBuffer();
 						buffer.append(DEFAULT_FIELD_TEXT+node.getIndex());
-						buffer.append("\n");
+						buffer.append('\n');
 						buffer.append("x="+node.getPositionX()+", " +
 								"y="+node.getPositionY());
 						String s = buffer.toString();

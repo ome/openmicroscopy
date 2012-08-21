@@ -266,7 +266,7 @@ class OriginalMetadataComponent
 							s = "";
 							for (int j = 0; j < values.length-1; j++) {
 								buffer.append(values[j]);
-								if (j < values.length-2) buffer.append("=");
+								if (j < values.length-2) buffer.append('=');
 							}
 							
 							data[index][0] = buffer.toString();
@@ -276,7 +276,7 @@ class OriginalMetadataComponent
 							s = "";
 							for (int j = 1; j < values.length; j++) {
 								buffer.append(values[j]);
-								if (j < values.length-1) buffer.append("=");
+								if (j < values.length-1) buffer.append('=');
 							}
 							data[index][1] = buffer.toString();
 						}

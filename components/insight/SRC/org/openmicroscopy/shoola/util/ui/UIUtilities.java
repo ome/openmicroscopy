@@ -1674,8 +1674,8 @@ public class UIUtilities
 		buf.append("<html><body>");
 		buf.append("<a href=\"");
 		buf.append(url);
-		buf.append("\"");
-		buf.append(">");
+		buf.append('\"');
+		buf.append('>');
 		buf.append(url);
 		buf.append("</a>");
 		buf.append("</body></html>");
@@ -1937,7 +1937,7 @@ public class UIUtilities
         			buffer = new StringBuffer();
             		for (int i = 0; i < n; i++) {
             			buffer.append(l[i]);
-        				if (i < (n-1)) buffer.append(".");
+        				if (i < (n-1)) buffer.append('.');
         			}
             		name = buffer.toString();
         		}
@@ -1954,7 +1954,7 @@ public class UIUtilities
     			buffer = new StringBuffer();
         		for (int i = 0; i < n; i++) {
         			buffer.append(l[i]);
-    				if (i < (n-1)) buffer.append(".");
+    				if (i < (n-1)) buffer.append('.');
     			}
         		name = buffer.toString();
     		}
@@ -2137,7 +2137,7 @@ public class UIUtilities
 		for (int i = 0 ; i < list.size() ; i++) {
 			buffer.append(list.get(i));
 			if (i < list.size()-1)
-				buffer.append(",");
+				buffer.append(',');
 		}
 		return buffer.toString();
 	}

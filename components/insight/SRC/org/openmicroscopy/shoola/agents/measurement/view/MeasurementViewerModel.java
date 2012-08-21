@@ -945,9 +945,9 @@ class MeasurementViewerModel
 		{
 			buffer.append(keyword.get(i));
 			if (i < keyword.size()-1)
-				buffer.append(",");
+				buffer.append(',');
 		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
+		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());
 		return roi;
 	}
 	

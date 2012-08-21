@@ -1349,7 +1349,7 @@ class ImViewerUI
 				o = EditorUtil.transformSize(n*d);
 				units = o.getUnits();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
-				buffer.append("-");
+				buffer.append('-');
 				o = EditorUtil.transformSize(m*d);
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(" "+units+")");

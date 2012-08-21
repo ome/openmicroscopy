@@ -548,7 +548,7 @@ public class OutputStrategy
 		StringBuffer maskValues = new StringBuffer();
 		for( int i = 0 ; i < maskList.size()-1; i++) {
 			maskValues.append(maskList.get(i));
-			maskValues.append(",");
+			maskValues.append(',');
 		}
 			
 		maskValues.append(maskList.get(maskList.size()-1));
@@ -595,7 +595,7 @@ public class OutputStrategy
 		StringBuffer maskValues = new StringBuffer();
 		for( int i = 0 ; i < maskList.size()-1; i++) {
 			maskValues.append(maskList.get(i));
-			maskValues.append(",");
+			maskValues.append(',');
 		}
 		maskValues.append(maskList.get(maskList.size()-1));
 

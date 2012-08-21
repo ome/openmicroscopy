@@ -268,7 +268,7 @@ public class ROI
 			type = typeIterator.next();
 			if (!first)
 			{
-				buffer.append(",");
+				buffer.append(',');
 				first = false;
 			}
 			buffer.append(type);

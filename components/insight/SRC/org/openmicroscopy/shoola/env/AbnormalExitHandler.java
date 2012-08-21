@@ -135,7 +135,7 @@ class AbnormalExitHandler
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("An unforeseen error occurred, the application" +
 				" will exit.");
-		buffer.append("\n");
+		buffer.append('\n');
 		String message = msg.toString();
 		int length = message.length();
 		if (length > 200) length = 200;

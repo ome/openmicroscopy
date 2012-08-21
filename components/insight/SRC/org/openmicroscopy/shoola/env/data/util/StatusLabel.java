@@ -301,7 +301,7 @@ public class StatusLabel
 			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 			ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
 			StringBuffer buffer = new StringBuffer();
-			buffer.append("\n");
+			buffer.append('\n');
 			buffer.append("> [" + ev.index + "] Loading image \""+
 					ev.shortName + "\"...\n");
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
@@ -311,7 +311,7 @@ public class StatusLabel
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("> [" + ev.index + "] "+
 					"Saving metadata for " + "image \""+ev.filename+"\"... ");
-			buffer.append("\n");
+			buffer.append('\n');
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
@@ -320,7 +320,7 @@ public class StatusLabel
 			buffer.append(" Succesfully loaded.\n");
 			buffer.append("> [" + ev.index + "] Importing metadata for image \""
 					+ev.shortName + "\"... ");
-			buffer.append("\n");
+			buffer.append('\n');
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");
@@ -335,7 +335,7 @@ public class StatusLabel
 			maxPlanes = ev.size.imageCount;
 			buffer.append("> [" + ev.series + "] " +
 					"Importing pixel data for image \""+ev.filename+"\"... ");
-			buffer.append("\n");
+			buffer.append('\n');
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.DATA_STORED) {
 			StringBuffer buffer = new StringBuffer();
@@ -343,7 +343,7 @@ public class StatusLabel
 			buffer.append("> Successfully stored with pixels id \""+
 					ev.pixId+ "\".");
 			buffer.append("> ["+ev.filename+"] Image imported successfully!");
-			buffer.append("\n");
+			buffer.append('\n');
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.IMPORT_STEP) {
 			ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;

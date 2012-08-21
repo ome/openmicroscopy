@@ -708,7 +708,7 @@ public class DataServicesFactory
 				while (i.hasNext()) {
 					agentInfo = i.next();
 					buffer.append(agentInfo.getName());
-					buffer.append("\n");
+					buffer.append('\n');
 				}
 				String message = "The following components " +
 				"could not be closed safely:\n"+buffer.toString()+"\n" +

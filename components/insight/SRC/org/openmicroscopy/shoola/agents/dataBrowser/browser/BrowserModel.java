@@ -295,7 +295,7 @@ class BrowserModel
 	    int n = titleBuf.size();
 	    for (int i = 0; i < n; i++) {
 			buf.append(titleBuf.get(n-1-i));
-			if (i != (n-1)) buf.append(">");
+			if (i != (n-1)) buf.append('>');
 		}
 	    return buf.toString();
 	}

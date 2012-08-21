@@ -67,7 +67,7 @@ public class ExcelFilter
 			if (i < extensions.length-1)
 				s.append(", ");
 		}
-		s.append(")");
+		s.append(')');
 		description = s.toString();
 	}
 	

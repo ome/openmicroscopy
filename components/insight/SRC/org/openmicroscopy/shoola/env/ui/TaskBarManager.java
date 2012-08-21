@@ -386,7 +386,7 @@ public class TaskBarManager
 			buffer.append(ctx.getGroupID());
 			buffer.append("\niid=");
 			buffer.append(id);
-			buffer.append("]");
+			buffer.append(']');
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
 		} catch (Exception e) {
 			LogMessage message = new LogMessage();

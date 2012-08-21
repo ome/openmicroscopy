@@ -264,7 +264,7 @@ public final class Container
 	{ 
 		if (IOUtil.isJavaWebStart()) {
 			StringBuffer relPath = new StringBuffer(directory);
-	        if (UIUtilities.isWindowsOS()) relPath.append("/");
+	        if (UIUtilities.isWindowsOS()) relPath.append('/');
 	        else relPath.append(File.separatorChar);
 	        relPath.append(file);
 	        return relPath.toString();

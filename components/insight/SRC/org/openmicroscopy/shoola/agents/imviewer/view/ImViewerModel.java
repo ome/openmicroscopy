@@ -1942,13 +1942,13 @@ class ImViewerModel
 		state = ImViewer.PROJECTING;
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("Original Image ID: "+getImageID());
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("Projection type: "+typeName);
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
-		buf.append("\n");
+		buf.append('\n');
 		String range = "ZRange_"+(startZ+1)+"_"+(endZ+1)+"_";
 		int startT = ref.getStartT();
 		int endT = ref.getEndT();
