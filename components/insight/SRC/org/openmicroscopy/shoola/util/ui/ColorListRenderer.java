@@ -34,7 +34,6 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
 
 /** 
  * ColourListRenderer will render the colour icons and colour names in the list

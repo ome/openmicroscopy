@@ -35,16 +35,6 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIMap;
-import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
-import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipList;
-import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipMap;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipMap;
-import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 

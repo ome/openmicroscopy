@@ -46,7 +46,6 @@ import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
