@@ -97,7 +97,7 @@ class login_required(object):
             return None
         share = conn.getShare(share_id)
         try:
-            if share.getOwner().id != conn.getEventContext().userId:
+            if share.getOwner().id != conn.getUserId():
                 return self.get_share_connection(request, conn, share_id)
         except:
             logger.error('Error retrieving share connection.', exc_info=True)
@@ -277,6 +277,7 @@ class login_required(object):
             # to try join an existing connection / OMERO session.
             logger.debug('Have OMERO session key %s, attempting to join...' % \
                     omero_session_key)
+            connector.user_id = None
             connector.omero_session_key = omero_session_key
             connection = connector.join_connection(self.useragent)
             session['connector'] = connector
