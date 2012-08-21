@@ -77,7 +77,7 @@ public class ViewImageObject
      */
     public ViewImageObject(long imageID)
     {
-        if (imageID < 0l) 
+        if (imageID < 0L) 
             throw new IllegalArgumentException("Image ID not valid.");
         this.imageID = imageID;
         selectedUserID = -1;
