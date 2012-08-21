@@ -63,7 +63,7 @@ public class CppFilter
 	static {
 		extensions = new String[2];
 		extensions[0] = CPP;
-		extensions[01] = CC;
+		extensions[1] = CC;
 		StringBuffer s = new StringBuffer();
 		s.append("C++ (");
 		for (int i = 0; i < extensions.length; i++) {
