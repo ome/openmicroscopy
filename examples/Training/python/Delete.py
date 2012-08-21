@@ -25,7 +25,7 @@ conn.connect()
 
 # Configuration
 # =================================================================
-projectId = 3110
+projectId = 507        # NB: This will be deleted! 
 
 
 # Load the Project
@@ -52,28 +52,17 @@ handle = conn.deleteObjects("Project", obj_ids,\
 
 # Retrieve callback and wait until delete completes
 # =================================================================
-#callback = omero.callbacks.DeleteCallbackI(conn.c, handle)
-#print "Deleting, please wait."
-#while callback.block(500) is not None:   # ms.
-#    print "."
-#print "Errors:", handle.errors()
-#callback.close()
-
-
-# Retrieve callback from string
-# =================================================================
-# If you've stored the string representation of the callback, then
-# you can load the handle proxy to see the state of the delete.
-
-## import Ice
-## callback as string
-## cbString = str(handle)
-## try:
-##     post_handle = omero.api.delete.DeleteHandlePrx.checkedCast(\
-##                       conn.c.ic.stringToProxy(cbString))
-##     self.fail("exception Ice.ObjectNotExistException was not thrown")
-## except Ice.ObjectNotExistException:
-##     pass
+# This is not necessary for the Delete to complete. Can be used 
+# if you want to know when delete is finished or if there were any errors
+cb = omero.callbacks.CmdCallbackI(conn.c, handle)
+print "Deleting, please wait."
+while not cb.block(500):
+    print "."
+err = isinstance(cb.getResponse(), omero.cmd.ERR)
+print "Error?", err
+if err:
+    print cb.getResponse()
+cb.close(True)      # close handle too
 
 
 # Close connection:

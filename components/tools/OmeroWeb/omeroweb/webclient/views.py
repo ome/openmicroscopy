@@ -68,7 +68,6 @@ from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
 from webclient.webclient_gateway import OmeroWebGateway
-from omeroweb.webclient.webclient_utils import string_to_dict
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
@@ -148,7 +147,11 @@ def login(request):
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
                     upgradeCheck()
-                
+
+                    # if 'active_group' remains in session from previous login, check it's valid for this user
+                    if request.session.get('active_group'):
+                        if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
+                            del request.session['active_group']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
                     if request.REQUEST.get('noredirect'):
@@ -256,18 +259,26 @@ def index_tag_cloud(request, conn=None, **kwargs):
 @login_required()
 def change_active_group(request, conn=None, url=None, **kwargs):
     """
-    Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
-    First we log out and log in again, to force closing of any processes?
-    TODO: This requires usage of request.session.get('password'), which should be avoided.
+    Simply changes the request.session['active_group'] which is then used by the 
+    @login_required decorator to configure conn for any group-based queries.
     Finally this redirects to the 'url'.
     """
-    #TODO: we need to handle exception while changing active group faild, see #
-    
-    active_group = request.REQUEST.get('active_group')
-    request.session.modified = True
-    request.session['active_group'] = active_group
+    switch_active_group(request)
     url = url or reverse("webindex")
     return HttpResponseRedirect(url)
+
+def switch_active_group(request, active_group=None):
+    """
+    Simply changes the request.session['active_group'] which is then used by the 
+    @login_required decorator to configure conn for any group-based queries.
+    """
+    if active_group is None:
+        active_group = request.REQUEST.get('active_group')
+    if 'active_group' not in request.session or active_group != request.session['active_group']:
+        request.session.modified = True
+        request.session['active_group'] = active_group
+        request.session['imageInBasket'] = set()        # empty basket
+        request.session['basket_counter'] = 0
 
 @login_required()
 def logout(request, conn=None, **kwargs):
@@ -310,21 +321,37 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     url = reverse(viewname="load_template", args=[menu])
 
     #tree support
-    init = {'initially_open':[], 'initially_select': None}
-    # E.g. path=project=51|dataset=502|image=607:selected
-    for k,v in string_to_dict(request.REQUEST.get('path')).items():
-        if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
-            for i in v.split(","):
-                if ":selected" in str(i) and init['initially_select'] is None:
-                    init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
-                else:
-                    init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
-
-        if init['initially_select'] is None:
-            sdict = string_to_dict(request.REQUEST.get('path'))
-            k = sdict.keys()[-1]
-            init['initially_select'] = k+"-"+sdict[k]
-
+    init = {'initially_open':None, 'initially_select': []}
+    first_sel = None
+    # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
+    path = request.REQUEST.get('path', '')
+    i = path.split("|")[-1]
+    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+        init['initially_select'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
+    # Now we support show=image-607|image-123  (multi-objects selected)
+    show = request.REQUEST.get('show', '')
+    for i in show.split("|"):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+            init['initially_select'].append(str(i))
+    if len(init['initially_select']) > 0:
+        # tree hierarchy open to first selected object
+        init['initially_open'] = [ init['initially_select'][0] ]
+        first_obj, first_id = init['initially_open'][0].split("-",1)
+        try:
+            conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
+            first_sel = conn.getObject(first_obj, long(first_id))
+        except ValueError:
+            pass    # invalid id
+        if first_obj not in ("project", "screen"):
+            # need to see if first item has parents
+            if first_sel is not None:
+                for p in first_sel.getAncestry():
+                    init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+                if init['initially_open'][0].split("-")[0] == 'image':
+                    init['initially_open'].insert(0, "orphaned-0")
+    # need to be sure that tree will be correct omero.group
+    if first_sel is not None:
+        switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
     if menu == "search" and request.REQUEST.get('search_query'):
@@ -350,6 +377,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
+    if first_sel is not None:
+        user_id = first_sel.details.owner.id.val
     try:
         user_id = long(user_id)
     except:
@@ -440,7 +469,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/container_subtree.html"
     elif len(kw.keys()) > 0 :
         if kw.has_key('dataset'):
-            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page)
+            load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
+            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
             elif view =='table':
@@ -472,6 +502,22 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
+    """ Loads a tree for user to pick target Project, Dataset or Screen """
+
+    # filter by group (not switching group)
+    conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
+
+    manager= BaseContainer(conn)
+    manager.listContainerHierarchy()
+    template = 'webclient/data/chgrp_target_tree.html'
+    
+    show_projects = target_type in ('project', 'dataset')
+    context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
+    return context
 
 @login_required()
 @render_response()
@@ -1018,8 +1064,9 @@ def batch_annotate(request, conn=None, **kwargs):
     for key in oids:
         obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
     obj_string = "&".join(obj_ids)
+    link_string = "|".join(obj_ids).replace("=", "-")
     
-    context = {'form_comment':form_comment, 'obj_string':obj_string}
+    context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string}
     context['template'] = "webclient/annotations/batch_annotate.html"
     return context
 
@@ -1904,7 +1951,7 @@ def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=project=1|dataset=5|image=12601
+    E.g webclient/userdata/?path=image-12601 
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
@@ -1916,46 +1963,15 @@ def getObjectUrl(conn, obj):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
             links = fa.getParentLinks(ptype)
-            for l in links:
-                obj = l.parent
-
-    if isinstance(obj, omero.model.ImageI):
-        # return path from first Project we find, or None if no Projects
-        blitz_obj = conn.getObject("Image", obj.id.val)
-        for d in blitz_obj.listParents():
-            for p in d.listParents():
-                url = "%s?path=project=%d|dataset=%d|image=%d" % (base_url, p.id, d.id, blitz_obj.id)
+            if len(links) > 0:
+                obj = links[0].parent
                 break
-            if url is None:
-                url = "%s?path=dataset=%d|image=%d:selected" % (base_url, d.id, blitz_obj.id)   # if Dataset is orphan
-            break
 
-    if isinstance(obj, omero.model.DatasetI):
-        blitz_obj = conn.getObject("Dataset", obj.id.val)
-        for p in blitz_obj.listParents():
-            url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
-            break
+    if obj.__class__.__name__ in ("ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
+        otype = obj.__class__.__name__[:-1].lower()
+        base_url += "?show=%s-%s" % (otype, obj.id.val)
 
-    if isinstance(obj, omero.model.ProjectI):
-        blitz_obj = conn.getObject("Project", obj.id.val)
-        url = "%s?path=project=%d" % (base_url, obj.id.val)
-
-    if isinstance(obj, omero.model.PlateI):
-        blitz_obj = conn.getObject("Plate", obj.id.val)
-        screen = blitz_obj.getParent()
-        if screen is not None:
-            url = "%s?path=screen=%d|plate=%d" % (base_url, screen.id, blitz_obj.id)
-        else:
-            url = "%s?path=plate=%d" % (base_url, obj.id.val)
-
-    if isinstance(obj, omero.model.ScreenI):
-        blitz_obj = conn.getObject("Screen", obj.id.val)
-        url = "%s?path=screen=%d" % (base_url, obj.id.val)
-
-    if blitz_obj is None:
-        return (url, None)
-    group_id = blitz_obj.getDetails().getGroup().id
-    return (url, group_id)
+    return base_url
 
 
 ######################
@@ -2079,9 +2095,7 @@ def activities(request, conn=None, **kwargs):
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
                                 obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
-                                browse_url, group_id = getObjectUrl(conn, v)
-                                obj_data['browse_url'] = browse_url
-                                obj_data['group_id'] = group_id
+                                obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
                                     mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
@@ -2330,31 +2344,31 @@ def chgrp(request, conn=None, **kwargs):
     Adds the callback handle to the request.session['callback']['jobId']
     """
     
-    group_id = request.POST.get('group_id', None)
+    group_id = request.REQUEST.get('group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
     group = conn.getObject("ExperimenterGroup", group_id)
-
+    target_id = request.REQUEST.get('target_id', None)      # E.g. "dataset-234"
+    container_id = target_id is not None and target_id.split("-")[1] or None
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
-            for obj_id in oids.split(","):
-                obj_id = long(obj_id)
-                logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_id))
-                handle = conn.chgrpObject(dtype, obj_id, group_id)
-                jobId = str(handle)
-                request.session['callback'][jobId] = {
-                    'job_type': "chgrp",
-                    'group': group.getName(),
-                    'dtype': dtype,
-                    'obj_id': obj_id,
-                    'job_name': "Change group",
-                    'start_time': datetime.datetime.now(),
-                    'status':'in progress'}
-                request.session.modified = True
+            obj_ids = oids.split(",")
+            logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
+            handle = conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
+            jobId = str(handle)
+            request.session['callback'][jobId] = {
+                'job_type': "chgrp",
+                'group': group.getName(),
+                'dtype': dtype,
+                'obj_ids': obj_ids,
+                'job_name': "Change group",
+                'start_time': datetime.datetime.now(),
+                'status':'in progress'}
+            request.session.modified = True
 
     return HttpResponse("OK")
 

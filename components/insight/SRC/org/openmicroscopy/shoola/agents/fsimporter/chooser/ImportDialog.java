@@ -529,9 +529,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
-	/** Displays the location of the import. */
-	private void showLocationDialog() {
-		// addFiles();
+	/** Displays the location of the import.*/
+	private void showLocationDialog()
+	{
 		if (!popUpLocation) {
 			addFiles();
 		} else {
@@ -562,7 +562,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 	 * @param tags
 	 *            The selected tags.
 	 */
-	private void handleTagsSelection(Collection<TagAnnotationData> tags) {
+	private void handleTagsSelection(Collection<TagAnnotationData> tags)
+	{
 		Collection<TagAnnotationData> set = tagsMap.values();
 		Map<String, TagAnnotationData> newTags = new HashMap<String, TagAnnotationData>();
 		TagAnnotationData tag;
@@ -681,7 +682,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
 	}
-
+	
 	/**
 	 * Formats the {@link #projectLocationButton}.
 	 * 
@@ -1855,20 +1856,19 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 		}
 	}
 
-	/**
-	 * Returns <code>true</code> if the folder containing an image has to be
-	 * used as a dataset, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isParentFolderAsDataset() {
-		if (type == Importer.SCREEN_TYPE)
-			return false;
-		DataNode node = (DataNode) datasetsBox.getSelectedItem();
-		return node.isDefaultDataset();
-	}
-
-	/**
+    /**
+     * Returns <code>true</code> if the folder containing an image has to be
+     * used as a dataset, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isParentFolderAsDataset()
+    {
+    	if (type == Importer.SCREEN_TYPE) return false;
+    	DataNode node = (DataNode) datasetsBox.getSelectedItem();
+    	return node.isDefaultDataset();
+    }
+    /**
 	 * Returns the name to display for a file.
 	 * 
 	 * @param fullPath
@@ -2108,8 +2108,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			return;
 		Collection<TagAnnotationData> set = tagsMap.values();
 		List<Long> ids = new ArrayList<Long>();
+
 		List<Object> available = new ArrayList<Object>();
 		List<Object> selected = new ArrayList<Object>();
+
 		TagAnnotationData tag;
 		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
@@ -2157,8 +2159,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			return;
 		groupSelection = bar;
 		buildLocationPane();
-		// toolBar.add(bar);
-		// invoke when master
 		cancelButton.setVisible(false);
 	}
 

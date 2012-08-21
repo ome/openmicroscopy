@@ -61,6 +61,8 @@ public class ViewObjectEvent
 	/** The security context.*/
 	private SecurityContext ctx;
 	
+	/** The plugin if any.*/
+	private int plugin;
 	
 	/**
 	 * Creates a new instance.
@@ -76,7 +78,22 @@ public class ViewObjectEvent
 		this.object = object;
 		this.source = source;
 		browse = false;
+		plugin = -1;
 	}
+	
+	/**
+	 * Sets the plug-in.
+	 * 
+	 * @param plugin See above.
+	 */
+	public void setPlugin(int plugin) { this.plugin = plugin; }
+	
+	/**
+	 * Returns the plug-in.
+	 * 
+	 * @return See above.
+	 */
+	public int getPlugin() { return plugin; }
 	
 	/**
 	 * Sets to <code>true</code> to browse the node, <code>false</code>

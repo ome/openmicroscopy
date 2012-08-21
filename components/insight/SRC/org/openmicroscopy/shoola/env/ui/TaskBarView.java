@@ -728,5 +728,14 @@ class TaskBarView
 	{
 		manager.sessionExpired(index);
 	}
+
+	/**
+     * Implemented as specified by {@link TaskBar}.
+     * @see TaskBar#getLibFileRelative(String)
+     */
+	public String getLibFileRelative(String file)
+	{
+		return manager.getLibFileRelative(file);
+	}
 	
 }

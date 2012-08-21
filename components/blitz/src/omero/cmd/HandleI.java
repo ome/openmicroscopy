@@ -232,7 +232,11 @@ public class HandleI implements _HandleOperations, IHandle,
         try {
             boolean cancelled = cancelWithoutNotification();
             if (cancelled) {
-                helper.cancel(new ERR(), null, "cancel-called");
+                try {
+                    helper.cancel(new ERR(), null, "cancel-called");
+                } catch (Cancel c) {
+                    // Duh. we're cancel'ing. This is expected.
+                }
             }
             return cancelled;
         } finally {

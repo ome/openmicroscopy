@@ -137,7 +137,7 @@ public class MockFixture {
         this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(true));
         this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(Collections.EMPTY_LIST));
         */
-        blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
+        blitz = new BlitzConfiguration(id, ring, mgr, ss, ex, 10000);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);
         this.ctx.addApplicationListener(this.sm);

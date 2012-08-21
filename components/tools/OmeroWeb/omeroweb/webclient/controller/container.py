@@ -258,11 +258,10 @@ class BaseContainer(BaseController):
         self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
         self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
         
-    def listImagesInDataset(self, did, eid=None, page=None):
+    def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
             self.experimenter = self.conn.getObject("Experimenter", eid)  
-        
-        im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
+        im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page, load_pixels=load_pixels))
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]

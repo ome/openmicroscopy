@@ -1521,9 +1521,13 @@ class PropertiesUI
 			long id = object.getId();
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
-					if (id > 0) 
-						bus.post(new ViewImage(model.getSecurityContext(),
-								new ViewImageObject(id), null));
+					if (id > 0) {
+						ViewImage event = new ViewImage(
+								model.getSecurityContext(),
+								new ViewImageObject(id), null);
+						event.setPlugin(MetadataViewerAgent.runAsPlugin());
+						bus.post(event);
+					}
 					break;
 				case WikiDataObject.PROTOCOL:
 					bus.post(new EditFileEvent(model.getSecurityContext(),
