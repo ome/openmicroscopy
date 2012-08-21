@@ -23,10 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 
 //Java imports
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
 //Third-party libraries

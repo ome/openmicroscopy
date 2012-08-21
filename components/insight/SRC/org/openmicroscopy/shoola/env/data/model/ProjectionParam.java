@@ -35,7 +35,6 @@ import java.util.Map;
 import omero.constants.projection.ProjectionType;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import pojos.DatasetData;
-import pojos.ProjectData;
 
 
 /** 

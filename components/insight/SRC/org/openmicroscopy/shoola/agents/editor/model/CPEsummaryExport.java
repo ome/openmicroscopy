@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
-
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,7 +32,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
 //Third-party libraries
-
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLWriter;

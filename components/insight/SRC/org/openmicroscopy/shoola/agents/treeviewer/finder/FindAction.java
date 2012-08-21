@@ -34,7 +34,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to find all occurences of the phrase.
+ * Action to find all occurrences of the phrase.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
 import java.util.Collection;
-import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -34,8 +32,6 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;

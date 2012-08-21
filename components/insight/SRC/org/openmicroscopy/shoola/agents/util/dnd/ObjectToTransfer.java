@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 
 
 //Java imports
-import java.awt.dnd.DnDConstants;
-import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries

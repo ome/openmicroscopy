@@ -25,7 +25,6 @@
 package org.openmicroscopy.shoola.agents.editor.util;
 
 // Java imports
-
 import java.io.File;
 import java.io.IOException;
 
@@ -36,14 +35,11 @@ import javax.xml.parsers.ParserConfigurationException;
 //Third-party libraries
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 /** 

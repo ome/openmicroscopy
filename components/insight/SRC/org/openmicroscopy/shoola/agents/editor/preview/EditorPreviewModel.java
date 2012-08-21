@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.preview;
 
 //Java imports
 import java.io.File;
-
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -36,8 +35,6 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
-
-import pojos.FileAnnotationData;
 
 /** 
  * 

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.util.Arrays;
 import java.util.Collection;
 
 //Third-party libraries
@@ -33,9 +32,7 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ExperimenterData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 

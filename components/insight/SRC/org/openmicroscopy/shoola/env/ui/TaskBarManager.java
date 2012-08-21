@@ -94,7 +94,6 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.

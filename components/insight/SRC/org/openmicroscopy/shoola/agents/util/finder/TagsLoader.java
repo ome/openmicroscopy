@@ -30,12 +30,8 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
