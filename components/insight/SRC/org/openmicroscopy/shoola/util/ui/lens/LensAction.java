@@ -238,7 +238,7 @@ class LensAction
 	        	lens.setLensSize(SIZE_40, SIZE_40);
 	        	break;
 	        case LensAction.LENS50x50:
-	        	lens.setLensSize(SIZE_50, SIZE_50);;
+	        	lens.setLensSize(SIZE_50, SIZE_50);
 	        	break;
 	        case LensAction.LENS60x60:
 	        	lens.setLensSize(SIZE_60, SIZE_60);

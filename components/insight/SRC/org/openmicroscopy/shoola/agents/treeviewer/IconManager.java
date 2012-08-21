@@ -684,7 +684,7 @@ public class IconManager
         relPaths[UPLOAD] = "nuvola_download_manager_rotated16.png";
         relPaths[UPLOAD_48] = "nuvola_download_manager_rotated48.png";
         relPaths[ADMIN] = "nuvola_personal16.png";
-        relPaths[DIRECTORY_REGISTERED] = "nuvola_folder_grey_annotated16.png";;//"nuvola_folder_grey16.png";
+        relPaths[DIRECTORY_REGISTERED] = "nuvola_folder_grey_annotated16.png";//"nuvola_folder_grey16.png";
         relPaths[FILE_REGISTERED] = "nuvola_txt_annotated16.png";//"nuvola_folder_grey16.png";
         relPaths[IMAGE_UNREGISTERED] = "nuvola_image_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";

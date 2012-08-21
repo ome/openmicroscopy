@@ -90,7 +90,7 @@ class GridBICanvas
         String v = model.getUnitBarValue(); 
         int s = (int) (model.getGridBarSize());
         Color c = model.getUnitBarColor();
-        Font font = getFont();;
+        Font font = getFont();
         FontMetrics fm = getFontMetrics(font);
         int textWidth;
         boolean text = model.isTextVisible();

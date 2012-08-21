@@ -478,7 +478,7 @@ public class MovieExportDialog
 			Number n = scaleBar.getValueAsNumber();
 			if (n != null) scale = n.intValue();
 		}
-		int type = MovieExportParam.ZT_MOVIE;;
+		int type = MovieExportParam.ZT_MOVIE;
 		if (!timeInterval.isSelected() && zInterval.isSelected()) 
 			type = MovieExportParam.Z_MOVIE;
 		else if (timeInterval.isSelected() && !zInterval.isSelected()) 

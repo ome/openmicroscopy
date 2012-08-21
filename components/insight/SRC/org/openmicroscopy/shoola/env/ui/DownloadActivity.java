@@ -133,7 +133,6 @@ public class DownloadActivity extends ActivityComponent {
 			return getFileName(files, value, value, dirPath, 1, extension);
 		}
 		value = parameters.getOriginalFileName();
-		;
 		if (value == null || value.length() == 0)
 			return "";
 		return getFileName(files, value, value, dirPath, 1, null);

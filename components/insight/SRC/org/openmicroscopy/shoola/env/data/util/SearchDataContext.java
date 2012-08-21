@@ -324,7 +324,7 @@ public class SearchDataContext
 				timeIndex = index;
 				break;
 			default:
-				timeIndex = -1;;
+				timeIndex = -1;
 		}
 	}
 	

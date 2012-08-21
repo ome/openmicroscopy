@@ -657,7 +657,7 @@ class OMEROGateway
 					}
 				}
 			}
-			if (imageIndex == -1 || roiIndex == -1) return null;;
+			if (imageIndex == -1 || roiIndex == -1) return null;
 			String[] headers = new String[size];
 			String[] headersDescriptions = new String[size];
 			headers[0] = cols[imageIndex].name;

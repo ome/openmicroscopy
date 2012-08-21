@@ -422,7 +422,7 @@ public class FilteringDialog
 					break;
 				case EXACT_RATING:
 					index = FilterContext.EQUAL;
-			};
+			}
 			filter = true;
 			context.setRate(index, rating.getCurrentValue());
 		}

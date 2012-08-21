@@ -1058,7 +1058,7 @@ public class TaskBarManager
 		} else if (MacOSMenuHandler.ABOUT_APPLICATION_PROPERTY.equals(name)) {
 			softwareAbout();
 		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
-			Registry reg = container.getRegistry();;
+			Registry reg = container.getRegistry();
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
 			if (exp == null) container.exit(); //not connected
 			//else doExit(true, null);

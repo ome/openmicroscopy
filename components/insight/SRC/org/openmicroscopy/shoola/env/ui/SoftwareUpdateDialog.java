@@ -112,7 +112,7 @@ class SoftwareUpdateDialog
     private JPanel buildToolBar()
     {
         JPanel bar = new JPanel();
-        bar.setBorder(null);;
+        bar.setBorder(null);
         bar.add(closeButton);
         return bar;
     }

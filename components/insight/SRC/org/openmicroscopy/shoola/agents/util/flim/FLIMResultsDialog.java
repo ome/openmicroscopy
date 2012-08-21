@@ -967,7 +967,7 @@ public class FLIMResultsDialog
 		if(binStats==null)
 			return;
 	
-		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));;
+		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
 		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
 		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
