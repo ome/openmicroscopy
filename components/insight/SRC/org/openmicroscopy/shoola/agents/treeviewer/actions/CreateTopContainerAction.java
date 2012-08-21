@@ -347,7 +347,7 @@ public class CreateTopContainerAction
 							String ns = tag.getNameSpace();
 							if (ns != null && 
 								TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-											ns));
+											ns))
 								withParent = model.canLink(tag);
 						}
 				}
