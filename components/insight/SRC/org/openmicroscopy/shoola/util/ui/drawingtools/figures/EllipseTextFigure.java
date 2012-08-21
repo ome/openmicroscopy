@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;

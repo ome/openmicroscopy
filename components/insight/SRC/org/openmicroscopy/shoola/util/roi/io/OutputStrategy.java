@@ -42,7 +42,6 @@ import java.util.Map.Entry;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.FILL_GRADIENT;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_GRADIENT;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.TextHolderFigure;

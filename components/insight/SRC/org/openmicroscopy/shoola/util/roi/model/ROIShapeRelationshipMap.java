@@ -24,12 +24,11 @@ package org.openmicroscopy.shoola.util.roi.model;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 
 /** 
  * 
@@ -46,8 +45,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
  */
 public class ROIShapeRelationshipMap
 {
-	HashMap <Long, ROIShapeRelationshipList> roiShapeRelationshipMap;
-	HashMap <Long, ROIShapeRelationship> relationshipMap;
+	Map <Long, ROIShapeRelationshipList> roiShapeRelationshipMap;
+	Map <Long, ROIShapeRelationship> relationshipMap;
 	
 	public ROIShapeRelationshipMap()
 	{

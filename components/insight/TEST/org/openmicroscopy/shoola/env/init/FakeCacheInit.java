@@ -22,18 +22,16 @@
  */
 package org.openmicroscopy.shoola.env.init;
 
-import org.openmicroscopy.shoola.env.cache.CacheService;
-import org.openmicroscopy.shoola.env.cache.NullCacheService;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.log.NullLogger;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.cache.CacheService;
+import org.openmicroscopy.shoola.env.cache.NullCacheService;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
 
 /** 
  * 
@@ -48,7 +46,7 @@ import org.openmicroscopy.shoola.env.log.NullLogger;
  * </small>
  * @since 3.0-Beta3
  */
-public class FakeCacheInit    
+public class FakeCacheInit
 	extends InitializationTask
 {
 
