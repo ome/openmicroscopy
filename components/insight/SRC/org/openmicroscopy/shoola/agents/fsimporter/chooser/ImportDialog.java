@@ -1256,6 +1256,7 @@ public class ImportDialog
 		parentsBox.removeAllItems();
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox.removeAllItems();
+		
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataNode n;
@@ -1310,6 +1311,7 @@ public class ImportDialog
 		int size;
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		int index = 0;
+
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
 			List<DataNode> l = getOrphanedNewDatasetNode();
@@ -1327,9 +1329,11 @@ public class ImportDialog
 			}
 			finalList.add(n);
 			finalList.addAll(sortedList);
-			parentsBox.removeActionListener(parentsBoxListener);
-			parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
+
+			populateAndAddTooltipsToComboBox(finalList, parentsBox);
+			
 			parentsBox.addActionListener(parentsBoxListener);
+			
 			//Determine the node to select.
 			size = parentsBox.getItemCount();
 			if (selectedContainer != null) {
@@ -1382,6 +1386,31 @@ public class ImportDialog
 		}
 	}
 	
+	/**
+	 * Takes the dataNdoes and populates the combo box witht he values as well
+	 * as adding a tooltip for each item
+	 * @param dataNodes
+	 * @param comboBox
+	 */
+	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
+			JComboBox comboBox) {
+		List<String> tooltips = new ArrayList<String>(dataNodes.size());
+
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+		
+		comboBox.setRenderer(renderer);
+		
+		for (DataNode projectNode : dataNodes) {
+			String projectName = projectNode.getFullName(); 
+			
+			comboBox.addItem(projectNode);
+			
+			tooltips.add(projectName);
+		}
+		
+		renderer.setTooltips(tooltips);
+	}
+
 	/** Populates the datasets box depending on the selected project. */
 	private void populateDatasetsBox()
 	{
@@ -1391,29 +1420,16 @@ public class ImportDialog
 		List<DataNode> list = n.getDatasetNodes();
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null) list.addAll(nl);
-		List<DataNode> l = sorter.sort(list);
-		
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
-		
+		List<DataNode> sortedDatasets = sorter.sort(list);
 		datasetsBox.removeAllItems();
-		datasetsBox.setRenderer(renderer);
-		List<String> tooltips = new ArrayList<String>(l.size());
 		
-		for (DataNode datasetNode : l) {
-			String datasetName = datasetNode.getFullName(); 
-			
-			datasetsBox.addItem(datasetNode);
-			
-			tooltips.add(datasetName);
-		}
-		
-		renderer.setTooltips(tooltips);
+		populateAndAddTooltipsToComboBox(sortedDatasets, datasetsBox);
 		
 		if (selectedContainer != null) {
 			Object o = selectedContainer.getUserObject();
 			if (o instanceof DatasetData) {
 				DatasetData d = (DatasetData) o;
-				Iterator<DataNode> i = l.iterator();
+				Iterator<DataNode> i = sortedDatasets.iterator();
 				while (i.hasNext()) {
 					n = i.next();
 					if (n.getDataObject().getId() == d.getId()) {
@@ -1423,8 +1439,8 @@ public class ImportDialog
 				}
 			}
 		} else { // no node selected
-			if (l.size() > 1) {
-				Iterator<DataNode> i = l.iterator();
+			if (sortedDatasets.size() > 1) {
+				Iterator<DataNode> i = sortedDatasets.iterator();
 				while (i.hasNext()) {
 					n = i.next();
 					if (n.isDefaultDataset()) {
@@ -1433,7 +1449,6 @@ public class ImportDialog
 					}
 				}
 			}
-			
 		}
 	}
 	

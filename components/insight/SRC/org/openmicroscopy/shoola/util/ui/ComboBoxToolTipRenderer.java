@@ -51,6 +51,11 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 		return comp;
 	}
 
+	/**
+	 * Populates the renderer with the tooltips provided
+	 * 
+	 * @param tooltips
+	 */
 	public void setTooltips(List<String> tooltips) {
 		this.tooltips = tooltips;
 	}
