@@ -261,7 +261,7 @@ public class MockedCall
  	{
 		StringBuffer buf = new StringBuffer();
 		buf.append(signature.getName());
-		buf.append("(");
+		buf.append('(');
 		if (args.length != 0) {
 			int i = 0;
 			while (i < args.length-1) {
@@ -270,7 +270,7 @@ public class MockedCall
 			}
 			buf.append(args[i]);	
 		}
-		buf.append(")");
+		buf.append(')');
 		return buf.toString();
 	}
 	

@@ -213,7 +213,7 @@ public class MockSupport
 		buf.append(expectedCalls.size());
 		buf.append(" - performed: ");
 		buf.append(performedCalls);
-		buf.append(".");
+		buf.append('.');
 		Assert.fail(buf.toString());
 	}
 	
@@ -228,7 +228,7 @@ public class MockSupport
 		StringBuffer buf = new StringBuffer();
 		buf.append("Exceeding call: ");
 		buf.append(unexpected);
-		buf.append(".");
+		buf.append('.');
 		Assert.fail(buf.toString());
 	}
 	
@@ -251,7 +251,7 @@ public class MockSupport
 		buf.append(index);
 		buf.append("): ");
 		buf.append(expected);
-		buf.append(".");
+		buf.append('.');
 		Assert.fail(buf.toString());
 	}
 
