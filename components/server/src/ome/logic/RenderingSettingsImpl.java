@@ -96,6 +96,24 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels pixelsMetadata;
 
+    /** Factory object used to determine the global min/max depending on 
+     * the pixels type if the values have not been stored.
+     */
+    protected transient StatsFactory factory;
+    
+    /**
+     * Returns the min/max depending on the pixels type if the values
+     * have not seen stored.
+     * 
+     * @param type The pixels type
+     * @return See above.
+     */
+    private double[] initPixelsRange(PixelsType type)
+    {
+    	if (factory == null) factory = new StatsFactory();
+    	return factory.initPixelsRange(type);
+    }
+    
     /**
      * Returns the Id of the currently logged in user. Opposed to ThumbnailBean,
      * here we do not support share contexts since this service requires a viable
@@ -623,7 +641,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
             } catch (ConcurrencyException e) {
-                log.warn(e.getClass().getSimpleName() + ", not resetting settings for Image:"
+                log.warn(e.getClass().getSimpleName() + ", " +
+                		"not resetting settings for Image:"
                          + p.getImage().getId());
             } catch (Exception e) {
                 log.warn("Exception while resetting settings for Image:"
@@ -824,6 +843,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	double min, max;
             QuantumStrategy qs;
             PixelsType pt = pixels.getPixelsType();
+            double[] range;
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
@@ -831,13 +851,21 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 // of the channels linked to the pixels set.
             	channelBinding = channelBindings.get(w);
             	stats = pixels.getChannel(w).getStatsInfo();
+            	if (stats == null) {
+            		range = initPixelsRange(pt);
+            		min = range[0];
+            		max = range[1];
+            	} else {
+            		min = stats.getGlobalMin().doubleValue();
+                	max = stats.getGlobalMax().doubleValue();
+            	}
+            	/*
             	if (stats == null)
             		throw new ResourceError("Pixels set is missing statistics" +
             				" for channel '"+ w +"'. This suggests an image " +
             		"import error, import in progress or failed image import.");
+            	*/
             	
-            	min = stats.getGlobalMin().doubleValue();
-            	max = stats.getGlobalMax().doubleValue();
             	if (Math.abs(min-max) < EPSILON) { //to be on the save side
             		qs = quantumFactory.getStrategy(qDef, pt);
             		min = qs.getPixelsTypeMin();
@@ -1448,6 +1476,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         RenderingDef settings;
         ChannelBinding cb;
         StatsInfo stats;
+        double[] range;
+        double min, max;
         for (Pixels pixels : pixelsList)
         {
             settings = mySettings.get(pixels.getId());
@@ -1473,8 +1503,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 {
                     cb = settings.getChannelBinding(i);
                     stats = pixels.getChannel(i).getStatsInfo();
-                    cb.setInputStart(stats.getGlobalMin());
-                    cb.setInputEnd(stats.getGlobalMax());
+                    if (stats == null) {
+                    	range = initPixelsRange(pixels.getPixelsType());
+                    	min = range[0];
+                    	max = range[1];
+                    } else {
+                    	min = stats.getGlobalMin();
+                    	max = stats.getGlobalMax();
+                    }
+                    cb.setInputStart(min);
+                    cb.setInputEnd(max);
                 }
                 toReturn.add(pixels.getId());
                 toSave.add(settings);
