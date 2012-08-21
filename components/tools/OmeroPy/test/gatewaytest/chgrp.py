@@ -160,7 +160,7 @@ class ChgrpTest (lib.GTest):
             self.loginAsAuthor()
             
             # Do the Chgrp
-            rsp = self.doChange("Project", project.getId(), grp.id.val)
+            rsp = self.doChange("Project", [project.getId()], grp.id.val)
 
             # Image should again be available in current group
             self.assertNotEqual(None, self.gateway.getObject("Image", image.id), "Image should be available in original group")
