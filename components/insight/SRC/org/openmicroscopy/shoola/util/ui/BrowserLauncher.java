@@ -119,7 +119,7 @@ public class BrowserLauncher
 		} catch (Exception e) {
 			JFrame f = new JFrame();
 			if (topLeftIcon != null) {
-				f.setIconImage((Image) topLeftIcon);
+				f.setIconImage(topLeftIcon);
 			}
 			NotificationDialog dialog = new NotificationDialog(
                     f, "Launch Browser", 

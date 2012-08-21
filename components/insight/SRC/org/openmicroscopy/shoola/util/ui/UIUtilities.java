@@ -1980,13 +1980,13 @@ public class UIUtilities
     	if (fullPath.endsWith("\\")) extension = "\\";
     	else if (fullPath.endsWith("/")) extension = "/";
     	String start = null;
-    	if (fullPath.startsWith("\\")) start = "\\";
-    	else if (fullPath.startsWith("/")) start = "/";
+    	if (fullPath.charAt(0) == '\\') start = "\\";
+    	else if (fullPath.charAt(0) == '/') start = "/";
     	String sep = UIUtilities.getStringSeparator(fullPath);
     	if (sep == null) sep = "";
     	String text = "";
     	int folder = -1;
-    	if (number != null && number >= 0) folder = (Integer) number;
+    	if (number != null && number >= 0) folder = number;
     	if (folder == -1) return null;
     	if (l != null && l.length > 1) {
     		int n = 0;

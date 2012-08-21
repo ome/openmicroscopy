@@ -302,7 +302,7 @@ class OriginalMetadataComponent
 	private int getStart(String line)
 	{
 		if (line == null || line.length() == 0) return 0;
-		if (line.startsWith("[")) return 1;
+		if (line.charAt(0) == '[') return 1;
 		return 0;
 	}
 	

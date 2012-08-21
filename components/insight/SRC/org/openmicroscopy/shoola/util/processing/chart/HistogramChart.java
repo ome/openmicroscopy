@@ -350,9 +350,9 @@ public class HistogramChart
 	{
 		float offset = 1;
 		
-		int redBin = (int)red;
+		int redBin = red;
 		PVector pRed = this.getDataToScreen(new PVector(redBin, 0));
-		int blueBin = (int)blue;
+		int blueBin = blue;
 		PVector pBlue = this.getDataToScreen(new PVector(blueBin, 0));
 		parent.pushStyle();
 		parent.noStroke();
@@ -380,7 +380,7 @@ public class HistogramChart
 					for(double x = left ; x < right ; x += gradientStep)
 					{
 						parent.fill(gradientColour(x));
-						parent.rect((float) x, (float) top, 
+						parent.rect((float) x, top, 
 								(float) gradientStep, bottom-top+1, 
 								offset, offset);
 					}
@@ -406,7 +406,7 @@ public class HistogramChart
 					for(double x = left ; x < right ; x += gradientStep)
 					{
 						parent.fill(gradientColour(x));
-						parent.rect((float) x, (float) top,(float) gradientStep,
+						parent.rect((float) x, top,(float) gradientStep,
 								bottom-top+1, offset, offset);
 					}
 			}

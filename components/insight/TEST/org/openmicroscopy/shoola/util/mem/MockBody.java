@@ -98,7 +98,7 @@ class MockBody
     //Used in verification mode.
     public Object copy()
     {
-        MockedCall mc = new MockedCall(copy, (Object) null);
+        MockedCall mc = new MockedCall(copy, null);
         mc = mockSupport.verifyCall(mc);
         return mc.getResult();
     }

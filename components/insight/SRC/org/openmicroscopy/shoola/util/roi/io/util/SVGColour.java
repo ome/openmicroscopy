@@ -278,9 +278,9 @@ public class SVGColour
 			return SVG_COLORS.get(colourString);
         else if (colourString.equals(VALUE_NULL))
         	return DEFAULT_COLOR;
-        else if (colourString.startsWith("#") && colourString.length() == 7)
+        else if (colourString.charAt(0) == '#' && colourString.length() == 7)
            	return new Color(Integer.decode(colourString));
-        else if (colourString.startsWith("#") && colourString.length() == 4)
+        else if (colourString.charAt(0) == '#' && colourString.length() == 4)
         {
         	 int th = Integer.decode(colourString);
 	         return new Color(

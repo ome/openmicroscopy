@@ -78,7 +78,7 @@ public class MockMultiStepTask
     public Object doStep()
         throws Exception
     {
-        MockedCall mc = new MockedCall(doStep, (Object) null);
+        MockedCall mc = new MockedCall(doStep, null);
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException())
             throw (Exception) mc.getException();

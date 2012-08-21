@@ -73,7 +73,7 @@ public class MockInvocation
     //Used in verification mode.
     public Object call()
     {
-        MockedCall mc = new MockedCall(call, (Object) null);
+        MockedCall mc = new MockedCall(call, null);
         mc = mockSupport.verifyCall(mc);
         return mc.getResult();
     }

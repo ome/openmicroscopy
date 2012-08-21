@@ -281,7 +281,7 @@ public class DataServicesFactory
     private boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
-    	if (client.startsWith("@")) return true;
+    	if (client.charAt(0) == '@') return true;
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))

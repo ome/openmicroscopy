@@ -302,7 +302,7 @@ public class MeasureLineFigure
 					if (yLoc < p.y) yLoc = p.y;
 				}
 				Rectangle2D b = g.getFontMetrics().getStringBounds(v, g);
-				g.drawString(v, (int) minX, (int) (yLoc+b.getHeight()));
+				g.drawString(v, minX, (int) (yLoc+b.getHeight()));
 			}
 		}
 		if (MeasurementAttributes.SHOWID.get(this))

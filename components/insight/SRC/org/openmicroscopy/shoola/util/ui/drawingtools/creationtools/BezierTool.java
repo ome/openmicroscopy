@@ -154,7 +154,7 @@ public class BezierTool
     }
     
     protected BezierTextFigure createFigure() {
-    	BezierTextFigure f = (BezierTextFigure) prototype.clone();
+    	BezierTextFigure f = prototype.clone();
         getEditor().applyDefaultAttributesTo(f);
         if (attributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
