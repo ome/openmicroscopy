@@ -7327,7 +7327,7 @@ class OMEROGateway
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
 			p.addId(experimenterID);
-			groups = (List<ExperimenterGroup>) svc.findAllByQuery("select distinct g " +
+			groups = (List) svc.findAllByQuery("select distinct g " +
 					"from ExperimenterGroup g "
 	                + "left outer join fetch g.groupExperimenterMap m "
 	                + "left outer join fetch m.child u " +

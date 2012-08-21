@@ -40,7 +40,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 
 /** 
  * This UI contains a {@link JXTaskPane} showing the metadata preview for an 

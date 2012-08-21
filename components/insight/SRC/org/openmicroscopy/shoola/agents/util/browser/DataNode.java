@@ -32,7 +32,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;

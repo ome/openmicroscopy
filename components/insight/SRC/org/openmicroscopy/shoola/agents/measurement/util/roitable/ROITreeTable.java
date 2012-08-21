@@ -44,7 +44,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITreeNode;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
