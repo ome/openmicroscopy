@@ -166,24 +166,6 @@ public class PointTextFigure
 			}
 		}	
 	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see PointFigure#invalidate()
-	 */
-	public void invalidate() 
-	{
-		super.invalidate();
-	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see PointFigure#validate()
-	 */
-	public void validate() 
-	{
-		super.validate();
-	}
 	
 	/**
 	 * Overridden to return the bounds of the text area.

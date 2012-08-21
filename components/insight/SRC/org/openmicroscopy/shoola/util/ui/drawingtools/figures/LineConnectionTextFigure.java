@@ -172,24 +172,6 @@ public class LineConnectionTextFigure
 		}
 	}
 	
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see LineConnectionFigure#invalidate()
-	 */
-	public void invalidate() 
-	{
-		super.invalidate();
-	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see LineConnectionFigure#validate()
-	 */
-	public void validate() 
-	{
-		super.validate();
-	}
-	
 	/**
 	 * Overridden to return the bounds of the text area.
 	 * @see LineConnectionFigure#getDrawingArea()

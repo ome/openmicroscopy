@@ -116,29 +116,6 @@ public class EllipseTextFigure
 		fromTransformUpdate = false;
 	}	
 	
-	/**
-	 * Overridden to set the value of the transform.
-	 * @see #setAttribute(AttributeKey, Object)
-	 */
-	public void setAttribute(AttributeKey key, Object newValue) 
-	{
-		super.setAttribute(key, newValue);
-		/* TODO: To fix
-		if (!fromTransformUpdate)
-		{
-			if (key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
-			{
-				double newHeight = MeasurementAttributes.HEIGHT.get(this);
-				this.setHeight(newHeight);	
-			}
-			if (key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
-			{
-				double newWidth = MeasurementAttributes.WIDTH.get(this);
-				this.setWidth(newWidth);	
-			}
-		}
-		*/
-	}
 	
 	/**
 	 * Transform the shape by the affineTransform, tx. This methods will  
@@ -287,24 +264,6 @@ public class EllipseTextFigure
 				y += layout.getDescent()+layout.getLeading();
 			}
 		}	
-	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>. 
-	 * @see EllipseFigure#invalidate()
-	 */
-	public void invalidate() 
-	{
-		super.invalidate();
-	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>. 
-	 * @see EllipseFigure#validate()
-	 */
-	protected void validate() 
-	{
-		super.validate();
 	}
 
 	/**
