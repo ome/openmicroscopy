@@ -30,10 +30,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -85,10 +85,10 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 public class OutputStrategy
 {
 	
-	private final static HashMap<Integer, String>	strokeLinejoinMap;
+	private final static Map<Integer, String>	strokeLinejoinMap;
 	static
 	{
-		strokeLinejoinMap=new HashMap<Integer, String>();
+		strokeLinejoinMap = new HashMap<Integer, String>();
 		strokeLinejoinMap.put(BasicStroke.JOIN_MITER, "miter");
 		strokeLinejoinMap.put(BasicStroke.JOIN_ROUND, "round");
 		strokeLinejoinMap.put(BasicStroke.JOIN_BEVEL, "bevel");
@@ -185,10 +185,10 @@ public class OutputStrategy
 		writeROIAnnotations(roiElement, roi);
 		
 		TreeMap<Coord3D, ROIShape> roiShapes=roi.getShapes();
-		Iterator iterator=roiShapes.values().iterator();
+		Iterator<ROIShape> iterator=roiShapes.values().iterator();
 		
 		while (iterator.hasNext())
-			writeROIShape(roiElement, (ROIShape) iterator.next());
+			writeROIShape(roiElement, iterator.next());
 	}
 	
 	/**
@@ -335,9 +335,9 @@ public class OutputStrategy
 			annotation.setAttribute(IOConstants.Z_ATTRIBUTE, coord
 				.getZSection()+"");
 		}
-		else if (value instanceof ArrayList)
+		else if (value instanceof List)
 		{
-			ArrayList list=(ArrayList) value;
+			List list = (List) value;
 			annotation.setAttribute(IOConstants.DATATYPE_ATTRIBUTE,
 				IOConstants.ATTRIBUTE_DATATYPE_ARRAYLIST);
 			annotation.setAttribute(IOConstants.SIZE_ATTRIBUTE, list.size()+"");
