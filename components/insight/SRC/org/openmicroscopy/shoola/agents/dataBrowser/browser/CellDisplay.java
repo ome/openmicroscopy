@@ -225,14 +225,5 @@ public class CellDisplay
     	if (highlight == null) highlight = DEFAULT_COLOR;
     	cellColor = highlight;
     }
-    
-    /**
-     * Overridden to be on the save side.
-     * @see ImageNode#setBounds(int, int, int, int)
-     */
-    public void setBounds(int x, int y, int w, int h)
-    {
-    	super.setBounds(x, y, w, h);
-    }
-    
+
 }
