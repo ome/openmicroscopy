@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
@@ -120,6 +121,7 @@ public class MainIJPlugin
                         frame.dispose();
                 }
         });
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         UIUtilities.centerAndShow(frame);
 	}
 	
