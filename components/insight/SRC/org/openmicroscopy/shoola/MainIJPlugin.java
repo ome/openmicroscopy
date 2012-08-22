@@ -136,7 +136,6 @@ public class MainIJPlugin
 	 */
 	private String formatWarningMessage()
 	{
-		
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><body>");
 		buffer.append("<p>The plugin requires loci_tools.jar<br>" +
@@ -211,7 +210,6 @@ public class MainIJPlugin
 	 */
 	public void run(String args)
 	{
-		IJ.debugMode = true;
 		if (IJ.versionLessThan(IJ_VERSION))	 {
 			IJ.showMessage(TITLE,
 					"This plugin requires ImageJ\n"+IJ_VERSION+
@@ -243,14 +241,12 @@ public class MainIJPlugin
 		    File[] l = dir.listFiles();
 		    boolean exist = false;
 		    for (int i = 0; i < l.length; i++) {
-		    	IJ.log(l[i].getName());
 				if (l[i].getName().equals(LOCI_TOOL)) {
 					exist = true;
 					break;
 				}
 			}
 		    if (!exist) {
-		    	//IJ.showMessage(TITLE, formatWarningMessage());
 		    	showMessage();
 				return;
 		    }
