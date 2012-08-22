@@ -153,14 +153,57 @@ class GTest(unittest.TestCase):
         return callback
 
 
-    def createTestImage(self, imageName="testImage", dataset=None, project=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
+    def createPDTree(self, project=None, dataset=None):
+        """
+        Create/link a Project and/or Dataset (link them if both are specified)
+        Existing objects can be parsed as an omero.model object(s) or blitz Wrapper objects.
+        Otherwise new objects will be created with name str(project) or str(dataset).
+        If project OR dataset is specified, the ProjectWrapper or DatasetWrapper is returned.
+        If both project and dataset are specified, they will be linked and the
+        PD-link is returned as a BlitzObjectWrapper.
+        
+        @param project:     omero.model.ProjectI OR omero.gateway.ProjectWrapper or name (string)
+        @param dataset:     omero.model.DatasetI OR omero.gateway.DatasetWrapper or name (string)
+        """
+        dsId = ds = None
+        prId = pr = None
+        returnVal = None
+        if dataset is not None:
+            try:
+                dsId = dataset.id
+                dsId = dsId.val
+            except:
+                ds = omero.model.DatasetI()
+                ds.name = rstring(str(dataset))
+                ds = self.gateway.getUpdateService().saveAndReturnObject(ds)
+                returnVal = omero.gateway.DatasetWrapper(self.gateway, ds)
+                dsId = ds.id.val
+        if project is not None:
+            try:
+                prId = project.id
+                prId = prId.val
+            except:
+                pr = omero.model.ProjectI()
+                pr.name = rstring(str(project))
+                pr = self.gateway.getUpdateService().saveAndReturnObject(pr)
+                returnVal = omero.gateway.ProjectWrapper(self.gateway, pr)
+                prId = pr.id.val
+        if dsId and prId:
+            link = omero.model.ProjectDatasetLinkI()
+            link.setParent(omero.model.ProjectI(prId, False))
+            link.setChild(omero.model.DatasetI(dsId, False))
+            link = self.gateway.getUpdateService().saveAndReturnObject(link)
+            returnVal = omero.gateway.BlitzObjectWrapper(self.gateway, link)
+
+        return returnVal
+
+    def createTestImage(self, imageName="testImage", dataset=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
         to the average value of x & y. If dataset (obj or name) is specified, will be linked to image.
         If project (obj or name) is specified, will be created/linked to dataset (if dataset not None)
         
-        @param dataset:     omero.model.DatasetI OR DatasetWrapper OR dataset name (to create new)
-        @param project:     omero.model.ProjectI OR ProjectWrapper OR project name (to create new)
+        @param dataset:     omero.model.DatasetI OR DatasetWrapper OR dataset ID
         """
         from numpy import fromfunction, int16
         from omero.util import script_utils
@@ -180,21 +223,12 @@ class GTest(unittest.TestCase):
             if isinstance(dataset, omero.model.DatasetI):
                 ds = dataset
             else:
-                ds = omero.model.DatasetI()
-                ds.name = rstring(str(dataset))
-                ds = self.gateway.getUpdateService().saveAndReturnObject(ds)
-            if project is not None:
-                if isinstance(project, omero.model.ProjectI):
-                    pr = omero.model.ProjectI(project.id.val, False)
-                elif hasattr(project, "id"):
-                    pr = omero.model.ProjectI(project.id, False)
-                else:
-                    pr = omero.model.ProjectI()
-                    pr.name = rstring(str(project))
-                link = omero.model.ProjectDatasetLinkI()
-                link.setParent(pr)
-                link.setChild(omero.model.DatasetI(ds.id.val, False))
-                link = self.gateway.getUpdateService().saveAndReturnObject(link)
+                try:
+                    dsId = long(dataset)
+                    ds = omero.model.DatasetI(dsId, False)
+                except:
+                    pass
+        
         image = self.gateway.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, dataset=ds)
         return image
 

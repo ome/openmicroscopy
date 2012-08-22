@@ -91,8 +91,8 @@ class ChgrpTest (lib.GTest):
         """
         Create a new group with the User as member. Test move the Dataset/Image to new group.
         """
-        image = self.createTestImage(dataset="testDatasetChgrp")
-        dataset = image.getParent()
+        dataset = self.createPDTree(dataset="testDatasetChgrp")
+        image = self.createTestImage(dataset=dataset)
         ctx = self.gateway.getAdminService().getEventContext()
         uuid = ctx.sessionUuid
 
@@ -121,9 +121,10 @@ class ChgrpTest (lib.GTest):
         """
         Create a new group with the User as member. Test move the Project/Dataset/Image to new group.
         """
-        image = self.createTestImage(dataset="testPDIChgrp", project="testPDIChgrp")
-        dataset = image.getParent()
-        project = dataset.getParent()
+        link = self.createPDTree(project="testPDIChgrp", dataset="testPDIChgrp")
+        dataset = link.getChild()   # DatasetWrapper
+        project = link.parent   # omero.model.ProjectI - link.getParent() overwritten - returns None
+        image = self.createTestImage(dataset=dataset)
 
         ctx = self.gateway.getAdminService().getEventContext()
         uuid = ctx.sessionUuid
@@ -134,14 +135,14 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
         # Do the Chgrp
-        rsp = self.doChange("Project", [project.id], gid)
+        rsp = self.doChange("Project", [project.id.val], gid)
 
         # Image should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
 
         # Switch to new group - confirm that Project, Dataset, Image is there.
         self.gateway.setGroupForSession(gid)
-        prj = self.gateway.getObject("Project", project.id)
+        prj = self.gateway.getObject("Project", project.id.val)
         self.assertNotEqual(None, prj, "Project should be available in new group")
 
         ds = self.gateway.getObject("Dataset", dataset.id)
@@ -157,16 +158,14 @@ class ChgrpTest (lib.GTest):
         Create a new group with the User as member. Image has 2 Dataset Parents.
         Test move one Dataset to new group. Image does not move. Move 2nd Dataset - Image moves.
         """
-        image = self.createTestImage(dataset="testTwoDatasetsChgrpToProject")
-        dataset = image.getParent()
+        dataset = self.createPDTree(dataset="testTwoDatasetsChgrpToProject")
+        image = self.createTestImage(dataset=dataset)
         orig_gid = dataset.details.group.id.val
 
+        new_ds = self.createPDTree(dataset="testTwoDatasetsChgrp-parent2")
         update = self.gateway.getUpdateService()
-        new_ds = omero.model.DatasetI()
-        new_ds.name = rstring("testTwoDatasetsChgrp-parent2")
-        new_ds = update.saveAndReturnObject(new_ds)
         link = omero.model.DatasetImageLinkI()
-        link.setParent(omero.model.DatasetI(new_ds.id.val, False))
+        link.setParent(omero.model.DatasetI(new_ds.id, False))
         link.setChild(omero.model.ImageI(image.id, False))
         update.saveObject(link)
 
@@ -187,10 +186,10 @@ class ChgrpTest (lib.GTest):
         self.gateway.setGroupForSession(orig_gid)   # switch back
 
         # Do the Chgrp with one of the parents
-        rsp = self.doChange("Dataset", [new_ds.id.val], gid)
+        rsp = self.doChange("Dataset", [new_ds.id], gid)
 
         # Dataset should no-longer be available in current group
-        self.assertEqual(None, self.gateway.getObject("Dataset", new_ds.id.val), "Dataset should not be available in original group")
+        self.assertEqual(None, self.gateway.getObject("Dataset", new_ds.id), "Dataset should not be available in original group")
         self.assertNotEqual(None, self.gateway.getObject("Dataset", dataset.getId()), "Other Dataset should still be in original group")
         # But Image should
         img = self.gateway.getObject("Image", image.id)
