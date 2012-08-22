@@ -1863,7 +1863,7 @@ public class OMEROMetadataStoreClient
                 stream = new FileInputStream(file);
                 rawFileStore.setFileId(originalFile.getId().getValue());
                 int rlen = 0;
-                int offset = 0;
+                long offset = 0;
                 while (stream.available() != 0)
                 {
                     rlen = stream.read(buf);

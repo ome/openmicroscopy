@@ -3872,7 +3872,7 @@ class OMEROGateway
 			handleException(e, "Cannot set the file's id.");
 		}
 		String path = file.getAbsolutePath();
-		int offset = 0;
+		long offset = 0;
 		int length = (int) size;
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
@@ -3883,7 +3883,7 @@ class OMEROGateway
 						offset += INC;
 					}	
 				} finally {
-					stream.write(store.read(offset, length-offset)); 
+					stream.write(store.read(offset, (int) (length-offset)));
 					stream.close();
 				}
 			} catch (Exception e) {
