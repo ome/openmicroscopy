@@ -95,12 +95,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels pixelsMetadata;
-
-    /** Factory object used to determine the global min/max depending on 
-     * the pixels type if the values have not been stored.
-     */
-    protected transient StatsFactory factory;
-    
+ 
     /**
      * Returns the min/max depending on the pixels type if the values
      * have not seen stored.
@@ -110,7 +105,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private double[] initPixelsRange(PixelsType type)
     {
-    	if (factory == null) factory = new StatsFactory();
+    	StatsFactory factory = new StatsFactory();
     	return factory.initPixelsRange(type);
     }
     
