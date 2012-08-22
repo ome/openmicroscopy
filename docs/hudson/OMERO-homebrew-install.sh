@@ -51,8 +51,7 @@ curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/i
 chmod +x /tmp/omero_homebrew.sh
 . /tmp/omero_homebrew.sh
 
-# Install postgres and omero
-bin/brew install postgresql
+# Install omero
 bin/brew install omero
 
 # Set environment variables
