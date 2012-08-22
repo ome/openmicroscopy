@@ -281,6 +281,10 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
                     String key = (String) item.get("dn");
                     omero.RType val = mapper.toRType(item.get("experimenter_id"));
                     map.put(key, val);
+                    if (key == null || val == null) {
+                        throw new IllegalArgumentException(String.format(
+                                "Nulls in map! %s=>%s", key, val));
+                    }
                     list.add(map);
                 }
                 return list;
