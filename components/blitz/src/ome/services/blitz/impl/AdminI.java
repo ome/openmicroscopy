@@ -283,7 +283,7 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
                     map.put(key, val);
                     if (key == null || val == null) {
                         throw new IllegalArgumentException(String.format(
-                                "Nulls in map! %s=>%s" % (key, val)));
+                                "Nulls in map! %s=>%s", key, val));
                     }
                     list.add(map);
                 }
