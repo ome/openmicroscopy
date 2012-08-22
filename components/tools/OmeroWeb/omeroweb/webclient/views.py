@@ -745,6 +745,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     # the index of a field within a well
     index = int(request.REQUEST.get('index', 0))
+    http_host = request.META.get('HTTP_HOST', None)
 
     # we only expect a single object, but forms can take multiple objects
     images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
@@ -796,6 +797,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
+    if http_host is not None:
+        context['webclient_path'] = "http://%s%s" % (http_host, reverse('webindex'))
     return context
 
 
