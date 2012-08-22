@@ -1975,9 +1975,12 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Adds the ZRange to end of the the image name preserving the file extension
-	 * @param imageName
-	 * @param range
+	 * Adds the ZRange to end of the the image name preserving the original 
+	 * file extension
+	 * @param imageName The name of the projection
+	 * @param imageName The original name of the image
+	 * @param startZ The starting Z value used to create the projection
+	 * @param endZ The ending Z value used to create the projection
 	 * @return
 	 */
 	private String combineFilenameWith(String projectName, String imageName, int startZ, int endZ) {

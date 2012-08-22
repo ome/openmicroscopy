@@ -1401,11 +1401,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 	}
 
 	/**
-	 * Takes the dataNdoes and populates the combo box witht he values as well
+	 * Takes the dataNdoes and populates the combo box with the values as well
 	 * as adding a tooltip for each item
 	 * 
-	 * @param dataNodes
-	 * @param comboBox
+	 * @param dataNodes the nodes used to be displayed in the combo box
+	 * @param comboBox the JComboBox that hosts the options
 	 */
 	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
 			JComboBox comboBox) {
