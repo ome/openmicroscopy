@@ -38,7 +38,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.CodeSource;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -106,15 +108,17 @@ public class MainIJPlugin
         });
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(htmlPane, BorderLayout.CENTER);
+        panel.add(UIUtilities.buildComponentPanelCenter(htmlPane),
+        		BorderLayout.CENTER);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton okay = new JButton("OK");
         panel.add(UIUtilities.buildComponentPanelCenter(okay),
         		BorderLayout.SOUTH);
 
-       	final JFrame frame = new JFrame("Warning");
+       	final JDialog frame = new JDialog(IJ.getInstance(), "Warning");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        frame.pack();
+        frame.setSize(250, 200);
         frame.setResizable(false);
         okay.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -207,6 +211,7 @@ public class MainIJPlugin
 	 */
 	public void run(String args)
 	{
+		IJ.debugMode = true;
 		if (IJ.versionLessThan(IJ_VERSION))	 {
 			IJ.showMessage(TITLE,
 					"This plugin requires ImageJ\n"+IJ_VERSION+
@@ -238,6 +243,7 @@ public class MainIJPlugin
 		    File[] l = dir.listFiles();
 		    boolean exist = false;
 		    for (int i = 0; i < l.length; i++) {
+		    	IJ.log(l[i].getName());
 				if (l[i].getName().equals(LOCI_TOOL)) {
 					exist = true;
 					break;
