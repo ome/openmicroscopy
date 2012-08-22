@@ -3873,7 +3873,6 @@ class OMEROGateway
 		}
 		String path = file.getAbsolutePath();
 		long offset = 0;
-		int length = (int) size;
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			try {
@@ -3883,7 +3882,7 @@ class OMEROGateway
 						offset += INC;
 					}	
 				} finally {
-					stream.write(store.read(offset, (int) (length-offset)));
+					stream.write(store.read(offset, (int) (size-offset)));
 					stream.close();
 				}
 			} catch (Exception e) {
