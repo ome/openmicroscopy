@@ -1004,8 +1004,7 @@ public class client {
 
         final long size = obj.getSize().getValue();
 
-        int offset = 0;
-        int length = (int) size;
+        long offset = 0;
 
         store.setFileId(fileId);
         try {
@@ -1013,7 +1012,7 @@ public class client {
                 stream.write(store.read(offset, blockSize));
                 offset += blockSize;
             }
-            stream.write(store.read(offset, length-offset));
+            stream.write(store.read(offset, (int) (size-offset)));
         } finally {
             Utils.closeQuietly(stream);
             store.close();
