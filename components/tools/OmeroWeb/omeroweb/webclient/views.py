@@ -415,7 +415,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
@@ -503,7 +503,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     """ Loads a tree for user to pick target Project, Dataset or Screen """
@@ -579,7 +579,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
@@ -734,7 +734,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)   # TODO: Remove setGroupContext=True when #9505 is fixed
 @render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
@@ -1045,7 +1045,7 @@ def getIds(request):
     return selected
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
@@ -1071,7 +1071,7 @@ def batch_annotate(request, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """ 
@@ -1137,7 +1137,7 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
@@ -1174,7 +1174,7 @@ def annotate_comment(request, conn=None, **kwargs):
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
@@ -1240,7 +1240,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
@@ -1736,7 +1736,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 ##################################################################
 # Basket
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def basket_action (request, action=None, conn=None, **kwargs):
     """
@@ -1904,7 +1904,7 @@ def help(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
@@ -1928,7 +1928,7 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
@@ -1984,9 +1984,6 @@ def activities(request, conn=None, **kwargs):
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
-
-    # need to be able to retrieve the results from any group
-    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     in_progress = 0
     failure = 0
@@ -2373,7 +2370,7 @@ def chgrp(request, conn=None, **kwargs):
     return HttpResponse("OK")
 
 
-@login_required()
+@login_required(setGroupContext=True)
 def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST
