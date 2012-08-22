@@ -6432,8 +6432,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type compression:      Float
         """
         
-        self._pd.z = z is not None and long(z) or self._re.getDefaultZ()
-        self._pd.t = t is not None and long(t) or self._re.getDefaultT()
+        if z is None:
+            z = self._re.getDefaultZ()
+        self._pd.z = long(z)
+        if t is None:
+            t = self._re.getDefaultT()
+        self._pd.t = long(t)
         try:
             if compression is not None:
                 try:
