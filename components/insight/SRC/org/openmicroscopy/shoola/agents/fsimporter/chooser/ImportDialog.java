@@ -55,7 +55,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -1416,11 +1415,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 		comboBox.setRenderer(renderer);
 
 		for (DataNode projectNode : dataNodes) {
+			comboBox.addItem(projectNode);
+			
 			String projectName = projectNode.getFullName();
 
-			comboBox.addItem(projectNode);
-
-			tooltips.add(projectName);
+			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
+			
+			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
 		}
 
 		renderer.setTooltips(tooltips);
