@@ -1287,6 +1287,7 @@ class _BlitzGateway (object):
         self._anonymous = anonymous
         self._defaultOmeroGroup = None
         self._defaultOmeroUser = None
+        self._maxPlaneSize = None
 
         self._connected = False
         self._user = None
@@ -1325,6 +1326,13 @@ class _BlitzGateway (object):
     def getDefaultOmeroUser(self):
         return self._defaultOmeroUser
 
+    def getMaxPlaneSize (self):
+        if self._maxPlaneSize == None:
+            c = self.getConfigService()
+            self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
+                                  int(c.getConfigValue('omero.pixeldata.max_plane_height')))
+        return self._maxPlaneSize
+    
     def isAnonymous (self):
         """ 
         Returns the anonymous flag 
