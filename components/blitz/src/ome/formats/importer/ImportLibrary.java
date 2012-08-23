@@ -105,9 +105,6 @@ public class ImportLibrary implements IObservable
     /** Whether or not to import as metadata only. */
     private boolean isMetadataOnly = false;
 
-    /** List of readers for which we have FS lite enabled. */
-    private final Set<String> fsLiteReaders;
-
     /** Maximum plane width. */
     private int maxPlaneWidth;
 
@@ -132,26 +129,6 @@ public class ImportLibrary implements IObservable
         this.store = client;
         this.reader = reader;
         repo = getLegacyRepository();
-        String fsLiteReadersString =
-            store.getConfigValue("omero.pixeldata.fs_lite_readers");
-        if (fsLiteReadersString == null || fsLiteReadersString.length() == 0)
-        {
-            fsLiteReaders = new HashSet<String>();
-            log.warn("Pre 4.3.2 server or empty " +
-                     "omero.pixeldata.fs_lite_readers, using hard coded " +
-                     "readers!");
-            fsLiteReaders.add(loci.formats.in.SVSReader.class.getName());
-            fsLiteReaders.add(loci.formats.in.APNGReader.class.getName());
-            fsLiteReaders.add(loci.formats.in.JPEG2000Reader.class.getName());
-            fsLiteReaders.add(loci.formats.in.JPEGReader.class.getName());
-            fsLiteReaders.add(loci.formats.in.LeicaSCNReader.class.getName());
-            fsLiteReaders.add(loci.formats.in.TiffDelegateReader.class.getName());
-        }
-        else
-        {
-            fsLiteReaders = new HashSet<String>(Arrays.asList(
-                    fsLiteReadersString.split(",")));
-        }
         try
         {
             maxPlaneWidth = Integer.parseInt(store.getConfigValue(
@@ -178,9 +155,6 @@ public class ImportLibrary implements IObservable
         }
         if (log.isDebugEnabled())
         {
-            log.debug("FS lite enabled readers: " +
-                    Arrays.toString(fsLiteReaders.toArray(
-                            new String[fsLiteReaders.size()])));
             log.debug("Maximum plane width: " + maxPlaneWidth);
             log.debug("Maximum plane height: " + maxPlaneHeight);
         }
@@ -292,10 +266,7 @@ public class ImportLibrary implements IObservable
                 }
 
                 try {
-                    if(!ic.getMetadataOnly()) {
-                        ic = uploadFilesToRepository(ic);
-                    }
-                    importMetadataOnly(ic,index,numDone,containers.size());
+                    importImage(ic,index,numDone,containers.size());
                     numDone++;
                 } catch (Throwable t) {
                     log.error("Error on import", t);
@@ -557,47 +528,36 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Perform various specific operations on big image formats.
-     * @param reader The base reader currently being used.
-     * @param container The current import container we're to handle.
+     * Perform an image import.  <em>Note: this method both notifies
+     * {@link #observers} of error states AND throws the exception to cancel
+     * processing.</em>
+     * {@link #importCandidates(ImportConfig, ImportCandidates)}
+     * uses {@link ImportConfig#contOnError} to act on these exceptions.
+     * @param container The import container which houses all the configuration
+     * values and target for the import.
+     * @param index Index of the import in a set. <code>0</code> is safe if
+     * this is a singular import.
+     * @param numDone Number of imports completed in a set. <code>0</code> is
+     * safe if this is a singular import.
+     * @param total Total number of imports in a set. <code>1</code> is safe
+     * if this is a singular import.
+     * @return List of Pixels that have been imported.
+     * @throws FormatException If there is a Bio-Formats image file format
+     * error during import.
+     * @throws IOException If there is an I/O error.
+     * @throws ServerError If there is an error communicating with the OMERO
+     * server we're importing into.
+     * @since OMERO Beta 4.5.
      */
-    private void handleBigImageFormats(IFormatReader reader,
-                                       ImportContainer container)
+    public List<Pixels> importImage(ImportContainer container, int index,
+                                    int numDone, int total)
+            throws FormatException, IOException, Throwable
     {
-        String readerName = reader.getClass().getName();
-        if (fsLiteReaders.contains(readerName))
-        {
-            if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class)
-                || reader.getClass().equals(loci.formats.in.APNGReader.class)
-                || reader.getClass().equals(loci.formats.in.JPEGReader.class))
-            {
-                log.debug("Using TIFF/PNG/JPEG reader FS lite handling.");
-                List<Pixels> pixelsList = store.getSourceObjects(Pixels.class);
-                int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
-                boolean doBigImage = false;
-                for (Pixels pixels : pixelsList)
-                {
-                    if (((long) pixels.getSizeX().getValue()
-                         * (long) pixels.getSizeY().getValue()) > maxPlaneSize)
-                    {
-                        doBigImage = true;
-                        log.debug("Image meets big image size criteria.");
-                        break;
-                    }
-                }
-                if (!doBigImage)
-                {
-                    log.debug("Image does not meet big image size criteria.");
-                    return;
-                }
-            }
-            log.info("Big image, enabling big image import.");
-            container.setBigImage(true);
+        if(!container.getMetadataOnly()) {
+            container = uploadFilesToRepository(container);
         }
-        else
-        {
-            log.debug("FS lite disabled for: " + readerName);
-        }
+        List<Pixels> pixList = importMetadataOnly(container, index, numDone, total);
+        return pixList;
     }
 
     /**
@@ -620,9 +580,9 @@ public class ImportLibrary implements IObservable
      * @throws IOException If there is an I/O error.
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
-     * @since OMERO Beta 4.2.1.
+     * @since OMERO Beta 4.5.
      */
-    public List<Pixels> importImage(ImportContainer container, int index,
+    public List<Pixels> importImageInternal(ImportContainer container, int index,
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
@@ -663,7 +623,6 @@ public class ImportLibrary implements IObservable
                 }
             }
             IFormatReader baseReader = reader.getImageReader().getReader();
-            handleBigImageFormats(baseReader, container);
             // Forcing these to false for now but remove completely once tested?
             boolean useMetadataFile = false;
             if (log.isInfoEnabled())
@@ -709,20 +668,18 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // Parse the binary data to generate min/max values
-            if (!container.getBigImage()) {
-                int seriesCount = reader.getSeriesCount();
-                for (int series = 0; series < seriesCount; series++) {
-                    ImportSize size = new ImportSize(fileName,
-                            pixList.get(series), reader.getDimensionOrder());
-                    Pixels pixels = pixList.get(series);
-                    long pixId = pixels.getId().getValue();
-                    MessageDigest md = parseData(fileName, series, size);
-                    if (md != null) {
-                        String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                                md.digest());
-                        pixels.setSha1(store.toRType(s));
-                        saveSha1 = true;
-                    }
+            int seriesCount = reader.getSeriesCount();
+            for (int series = 0; series < seriesCount; series++) {
+                ImportSize size = new ImportSize(fileName,
+                        pixList.get(series), reader.getDimensionOrder());
+                Pixels pixels = pixList.get(series);
+                long pixId = pixels.getId().getValue();
+                MessageDigest md = parseData(fileName, series, size);
+                if (md != null) {
+                    String s = OMEROMetadataStoreClient.byteArrayToHexString(
+                            md.digest());
+                    pixels.setSha1(store.toRType(s));
+                    saveSha1 = true;
                 }
             }
             // Original file absolute path to original file map for uploading
