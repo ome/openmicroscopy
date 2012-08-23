@@ -479,9 +479,9 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     default_yDim = 'Z'
     
-    xDim = request.REQUEST.get('xDim', 'T')
+    xDim = request.REQUEST.get('xDim', 'C')
     if xDim not in dims.keys():
-        xDim = 'T'
+        xDim = 'C'
         
     yDim = request.REQUEST.get('yDim', default_yDim)
     if yDim not in dims.keys():
@@ -489,7 +489,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     xFrames = int(request.REQUEST.get('xFrames', 5))
     xSize = dims[xDim]
-    yFrames = int(request.REQUEST.get('yFrames', 5))
+    yFrames = int(request.REQUEST.get('yFrames', 10))
     ySize = dims[yDim]
     
     xFrames = min(xFrames, xSize)
