@@ -255,6 +255,9 @@ public class ScreenLogin
 	/** The listener to encrypt the data transfer.*/
 	private ActionListener encryptionListener;
 	
+    /** Flag indicating to modify the host.*/
+    private boolean hostConfigurable;
+    
 	/** Quits the application. */
 	private void quit()
 	{
@@ -262,10 +265,7 @@ public class ScreenLogin
 		String server = serverText.getText();
 		if (usr == null) usr = "";
 		if (server == null) server = "";
-		//if (!server.equals(originalServerName) || !usr.equals(originalName))
-			//registerGroup(null);
-	
-		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -349,9 +349,13 @@ public class ScreenLogin
 	{
 		ServerDialog d;
 		String s = serverText.getText().trim();
-		if (connectionSpeed) 
-			d = new ServerDialog(this, editor, s, speedIndex);
-		else d = new ServerDialog(this, editor, s);
+		if (!hostConfigurable) {
+			d = new ServerDialog(this, speedIndex);
+		} else {
+			if (connectionSpeed) 
+				d = new ServerDialog(this, editor, s, speedIndex);
+			else d = new ServerDialog(this, editor, s);
+		}
 		d.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(d);
 	}
@@ -432,8 +436,6 @@ public class ScreenLogin
 	 */
 	private void setButtonDefault(JButton button)
 	{
-		//Next two statements get rid of surrounding border.
-		//button.setOpaque(true);
 		button.setRolloverEnabled(false);
 		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
@@ -445,12 +447,12 @@ public class ScreenLogin
 		if (groups != null && groups.size() > 1) {
 			groupNames = new HashMap<Integer, String>();
 			groupValues = new String[groups.size()];
-			Entry entry;
-			Iterator i = groups.entrySet().iterator();
+			Entry<Long, String> entry;
+			Iterator<Entry<Long, String>> i = groups.entrySet().iterator();
 			int index = 0;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				groupValues[index] = (String) entry.getValue();
+				entry = i.next();
+				groupValues[index] =  entry.getValue();
 				index++;
 			}
 			String selectedGroup = groupValues[groupValues.length-1];
@@ -1321,14 +1323,13 @@ public class ScreenLogin
      */
     public void setHostNameConfiguration(String hostName, boolean configurable)
     {
+    	hostConfigurable = configurable;
     	if (!configurable && hostName != null && hostName.trim().length() > 0) {
     		serverName = hostName;
     		originalServerName = serverName;
     		selectedPort = Integer.parseInt(editor.getDefaultPort());
     		setNewServer(originalServerName);
     	}
-    	//Do not allow to modify the server information. Only the change the
-    	//specify the speed.
     }
     
 	/**
