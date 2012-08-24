@@ -16,15 +16,13 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-{% endcomment %}
-
-<?xml version="1.0" encoding="utf-8"?>
+{% endcomment %}<?xml version="1.0" encoding="utf-8"?>
 <jnlp codebase="{{ codebase }}" href="{{ href }}">
   <information>
-    <title>OMERO.insight</title>
-    <vendor>The Open Microscopy Environment</vendor>
-    <homepage href="http://www.openmicroscopy.org"/>
-    <icon href="{% static 'webstart/img/icon-omero-insight.png' %}"/>
+    <title>{{title}}</title>
+    <vendor>{{vendor}}</vendor>
+    <homepage href="{{homepage}}"/>
+    <icon href="{% static icon %}"/>
     <shortcut online="false">
       <desktop/>
     </shortcut>
@@ -34,9 +32,11 @@
       <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.5+" max-heap-size="512m"/>{% for jar in jarlist %}
+    <j2se version="1.5+" max-heap-size="{{heap}}"/>{% for jar in jarlist %}
     <jar href="{{jar}}"/>{% endfor %}
+    <property name="jnlp.omero.host" value="{{host}}"/>
+    <property name="jnlp.omero.port" value="{{port}}"/>
   </resources>
-  <application-desc main-class="org.openmicroscopy.shoola.Main"/>
+  <application-desc main-class="{{class}}"/>
 </jnlp>
 

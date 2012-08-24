@@ -269,7 +269,7 @@ public class IniFileLoader {
         try
         {
             ResourceBundle bundle = ResourceBundle.getBundle("omero");
-            return "Beta" + bundle.getString("omero.version");
+            return bundle.getString("omero.version");
         }
         catch (MissingResourceException e)
         {
