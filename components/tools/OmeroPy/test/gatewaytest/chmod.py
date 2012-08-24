@@ -119,7 +119,12 @@ class ChmodBaseTest (lib.GTest):
             sudo_needed=False, exc_info=False):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
+        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        # Now test if we can actually Edit and 'Hard link' the object
         nameEdited = False
+        origGroup = self.gateway.SERVICE_OPTS.getOmeroGroup()   # need to switch back to this after edits
+        gid = blitzObject.details.group.id.val
+        self.gateway.SERVICE_OPTS.setOmeroGroup(gid)
         try:
             blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
@@ -161,14 +166,15 @@ class ChmodBaseTest (lib.GTest):
             if exc_info:
                 traceback.print_exc()
 
-        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
         self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
+        self.gateway.SERVICE_OPTS.setOmeroGroup(origGroup)  # revert back
 
     def assertCanAnnotate(self, blitzObject, expected=True,
             sudo_needed=False, exc_info=False):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
+        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
@@ -179,7 +185,6 @@ class ChmodBaseTest (lib.GTest):
         except omero.SecurityViolation:
             if exc_info:
                 traceback.print_exc()
-        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
 
@@ -331,6 +336,8 @@ class CustomUsersTest (ChmodBaseTest):
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
+        # Need to get object again since p.save() in assertCanEdit() reloads it under different context
+        p = self.gateway.getObject("Project", pid)
         self.assertCanAnnotate(p, True)
 
         # Login as group leader...
@@ -338,6 +345,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
+        p = self.gateway.getObject("Project", pid)
         self.assertCanAnnotate(p, True)
 
 
