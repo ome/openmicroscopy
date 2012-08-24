@@ -133,6 +133,9 @@ class ScriptControl(BaseControl):
         replace.add_argument("id", type=long, help = "Id of the original file which is to be replaced")
         replace.add_argument("file", help = "Local script which should overwrite the existing one")
 
+        delete = parser.add(sub, self.delete, help = "delete an existing script")
+        delete.add_argument("id", type=long, help = "Id of the original file which is to be deleted")
+
         run = parser.add(sub, self.run, help = "Run a script with the OMERO libraries loaded and current login")
         run.add_argument("file", help = "Local script file to run")
         run.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
@@ -284,8 +287,8 @@ class ScriptControl(BaseControl):
         except exceptions.Exception, e:
             self.ctx.err("Failed to clean processors: %s" % e)
 
-        ## self.ctx.out("\nDeleting script from server...")
-        ## self.delete(args.for_pub(str(id)))
+        self.ctx.out("\nDeleting script from server...")
+        self.delete(args.for_pub(str(id)))
 
     def cat(self, args):
         client = self.ctx.conn(args)
@@ -575,7 +578,7 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         ofile = client.sf.getQueryService().get("OriginalFile", ofile)
         #client.upload(fpath, ofile=ofile)
-        
+
         file = open(fpath)
         scriptText = file.read()
         file.close()
@@ -583,10 +586,7 @@ class ScriptControl(BaseControl):
         scriptSvc.editScript(ofile, scriptText)
 
     def delete(self, args):
-        if len(args) != 1:
-            self.ctx.die(123, "Usage: <original file id>")
-
-        ofile = long(args.args[0])
+        ofile = args.id
         client = self.ctx.conn(args)
         try:
             client.sf.getScriptService().deleteScript(ofile)

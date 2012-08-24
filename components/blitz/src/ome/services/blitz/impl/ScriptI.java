@@ -23,10 +23,13 @@ import Ice.Current;
 
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
+import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -653,23 +656,41 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             return;
         }
 
-        Boolean success = (Boolean) factory.executor.execute(current.ctx, factory.principal,
+        Deletion deletion = (Deletion) factory.executor.execute(current.ctx, factory.principal,
                 new Executor.SimpleWork(this, "deleteOriginalFile") {
 
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        IUpdate update = sf.getUpdateService();
                         try {
-                            update.deleteObject(file);
+                            EventContext ec = ((LocalAdmin) sf.getAdminService())
+                                .getEventContextQuiet();
+                            Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
+                            int steps = d.start(ec, getSqlAction(), session,
+                                "/OriginalFile", file.getId(), null);
+                            if (steps > 0) {
+                                for (int i = 0; i < steps; i++) {
+                                    d.execute(i);
+                                }
+                                return d;
+                            }
                         } catch (ome.conditions.ValidationException ve) {
-                            return false;
+                            log.debug("ValidationException on delete", ve);
                         }
-                        return true;
+                        catch (GraphException ge) {
+                            log.debug("GraphException on delete", ge);
+                        }
+                        catch (Throwable e) {
+                            log.warn("Throwable while deleting script " + file.getId(), e);
+                        }
+                        return null;
                     }
 
                 });
 
-        if (success == null || !success) {
+        if (deletion != null) {
+            deletion.deleteFiles();
+            deletion.stop();
+        } else {
             throw new omero.ApiUsageException(null, null, "Cannot delete "
                     + file + "\nIs in use by other objects");
         }
