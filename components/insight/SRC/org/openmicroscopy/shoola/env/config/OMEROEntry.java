@@ -160,7 +160,6 @@ class OMEROEntry
                 }
             }
         }
-        System.err.println(hostConfigurable+" "+encryptedConfigurable);
         if (port == null || port.trim().length() == 0)
             throw new ConfigException("Missing "+PORT_TAG+
                                       " tag within omeds-conf entry.");
