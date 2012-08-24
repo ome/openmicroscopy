@@ -1327,7 +1327,7 @@ class _BlitzGateway (object):
         return self._defaultOmeroUser
 
     def getMaxPlaneSize (self):
-        if self._maxPlaneSize == None:
+        if self._maxPlaneSize is None:
             c = self.getConfigService()
             self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
                                   int(c.getConfigValue('omero.pixeldata.max_plane_height')))
