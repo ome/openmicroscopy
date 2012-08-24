@@ -36,7 +36,7 @@ def _checkVersion(host, port):
             local_cleaned = regex.match(omero_version).group(1)
             local_split = local_cleaned.split(".")
 
-            rv = (agent_split == local_split)
+            rv = (agent_split[:-1] == local_split[:-1])     # ignore point releases
             logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
         except Exception, x:
             logger.error(traceback.format_exc())
