@@ -336,6 +336,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 
 	/** Registers the agent with the tool bar. */
 	private void register() {
+		groupId = -1;
 		TaskBar tb = registry.getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.EDITOR));
@@ -344,23 +345,17 @@ public class EditorAgent implements Agent, AgentEventListener {
 
 			/** Posts an event to start the agent. */
 			public void actionPerformed(ActionEvent e) {
-				EventBus bus = registry.getEventBus();
 				ExperimenterData exp = (ExperimenterData) registry
 						.lookup(LookupNames.CURRENT_USER_DETAILS);
 				if (exp == null)
 					return;
-				GroupData gp = null;
-				try {
-					gp = exp.getDefaultGroup();
-				} catch (Exception ex) {
-					// No default group
-				}
+				GroupData gp = exp.getDefaultGroup();
 				long id = -1;
-				if (gp != null)
-					id = gp.getId();
-				if (groupId == -1)
-					groupId = id;
-				bus.post(new ShowEditorEvent(new SecurityContext(groupId)));
+				if (gp != null) id = gp.getId();
+				if (groupId == -1) groupId = id;
+				
+				handleShowEditor(new ShowEditorEvent(
+						new SecurityContext(groupId)), false);
 			}
 		};
 		b.addActionListener(l);
