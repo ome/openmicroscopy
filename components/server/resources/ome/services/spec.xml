@@ -337,7 +337,8 @@
                 <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
                 <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
-                <!-- value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value-->
+                <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
+                <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
                 <value>/OriginalFile</value>
             </list>
         </constructor-arg>
