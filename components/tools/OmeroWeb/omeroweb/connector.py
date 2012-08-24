@@ -37,6 +37,7 @@ class Connector(object):
         self.is_secure = is_secure
         self.is_public = False
         self.omero_session_key = None
+        self.user_id = None
 
     def lookup_host_and_port(self):
         server = Server.get(self.server_id)
@@ -59,6 +60,7 @@ class Connector(object):
         connection.user = UserProxy(connection)
         connection.user.logIn()
         self.omero_session_key = connection._sessionUuid
+        self.user_id = connection.getUserId()
         logger.debug('Successfully prepared gateway: %s' % \
                 self.omero_session_key)
         # TODO: Properly handle activating the weblitz_cache
@@ -82,6 +84,7 @@ class Connector(object):
             if connection.connect(sUuid=self.omero_session_key):
                 logger.debug('Successfully joined connection: %s' % \
                         self.omero_session_key)
+                connection.setUserId(self.user_id)
                 self.prepare_gateway(connection)
                 return connection
         except:

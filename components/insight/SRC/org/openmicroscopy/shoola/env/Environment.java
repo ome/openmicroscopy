@@ -118,8 +118,9 @@ public class Environment
 	}
 	
 	/**
-	 * Returns the value 
-	 * @return
+	 * Returns the value of the plug-in or <code>-1</code>.
+	 * 
+	 * @return See above.
 	 */
 	public int runAsPlugin()
 	{

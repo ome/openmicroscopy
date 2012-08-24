@@ -204,13 +204,13 @@ class UserEntry (object):
         a = client.getAdminService()
         admin_gateway = None
         try:
-            if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
+            if not 'system' in [x.name.val for x in a.containedGroups(client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
             else:
                 admin = client
             g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
-            a.addGroups(a.getExperimenter(client._userid), (g,))
+            a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
             # Always clean up the results of login
             if admin_gateway:
@@ -222,7 +222,7 @@ class UserEntry (object):
             groupperms = DEFAULT_GROUP_PERMS
             
         a = client.getAdminService()
-        if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
+        if not groupname in [x.name.val for x in a.containedGroups(client.getUserId())]:
             UserEntry.addGroupToUser(client, groupname, groupperms)
             # Must reconnect to read new groupexperimentermap
             t = client.clone()

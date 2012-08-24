@@ -236,6 +236,8 @@ class SplashScreenManager
 		view.setVisible(true);
 		view.setStatusVisible(true);
 		isOpen = true;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -250,6 +252,8 @@ class SplashScreenManager
 		view.dispose();
 		view = null;
 		isOpen = false;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(false));
 	}
 
 	/**
@@ -337,8 +341,8 @@ class SplashScreenManager
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 			if (userCredentials != null  && lc != null) login(lc);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
-			 container.exit();
-		     component.close();
+			container.exit();
+			component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
 				ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
 			updateView();

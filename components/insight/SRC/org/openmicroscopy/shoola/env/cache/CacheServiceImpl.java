@@ -207,12 +207,16 @@ class CacheServiceImpl
 	 */
 	public void clearAllCaches() 
 	{
-		String[] names = manager.getCacheNames();
-		if (names == null) return;
-		Cache cache;
-		for (int i = 0; i < names.length; i++) {
-			cache = manager.getCache(names[i]);
-			if (cache != null) cache.removeAll();
+		try {
+			String[] names = manager.getCacheNames();
+			if (names == null) return;
+			Cache cache;
+			for (int i = 0; i < names.length; i++) {
+				cache = manager.getCache(names[i]);
+				if (cache != null) cache.removeAll();
+			}
+		} catch (Exception e) {
+			//the cache is not alive.
 		}
 	}
 	

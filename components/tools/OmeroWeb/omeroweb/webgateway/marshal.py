@@ -22,6 +22,7 @@ import omero
 import time
 import re
 
+from django.conf import settings
 from omero.rtypes import unwrap
 
 # OMERO.insight point list regular expression
@@ -106,7 +107,9 @@ def imageMarshal (image, key=None):
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
     levels = image._re.getResolutionLevels()-1
-    init_zoom = image._re.getResolutionLevel()
+    init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
+    if init_zoom < 0:
+        init_zoom = levels + init_zoom
 
     try:
         rv.update({

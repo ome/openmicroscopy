@@ -18,7 +18,7 @@ webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
 Returns a main prefix
 """
 
-render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image')
+render_image = (r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
 in the request parameters. See L{views.getImgDetailsFromReq} for details. 
