@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -48,9 +49,6 @@ import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -209,7 +207,7 @@ class FileSelectionTable
 	private JButton 			removeAllButton;
 
 	/** The table displaying the collection to files to import. */
-	private JXTable				table;
+	private JTable				table;
 	
 	/** Reference to the model. */
 	private ImportDialog 		model;
@@ -320,7 +318,7 @@ class FileSelectionTable
 		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
 		else selectedColumns = COLUMNS;
 		
-		table = new JXTable(new FileTableModel(selectedColumns));
+		table = new JTable(new FileTableModel(selectedColumns));
 		table.getTableHeader().setReorderingAllowed(false);
 		keyListener = new KeyAdapter() {
 			
@@ -337,12 +335,6 @@ class FileSelectionTable
 			}
 		};
 		table.addKeyListener(keyListener);
-		
-		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
-				UIUtilities.BACKGROUND_COLOUR_ODD);
-		table.addHighlighter(h);
-		
 
 		archivedBox = new JCheckBox();
 		archivedBox.setBackground(UIUtilities.BACKGROUND);

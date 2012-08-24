@@ -731,7 +731,10 @@ public class DataServicesFactory
 			}
 		}
 		shutdown(null);
-		if (exit) container.exit();
+		if (exit) {
+			singleton = null;
+			container.exit();
+		}
 	}
 
 	/**
