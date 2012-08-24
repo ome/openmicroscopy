@@ -15,9 +15,9 @@ def getGuestConnection(host, port):
         # do not store connection on connectors
         conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
-            logger.info("Have connection as Guest")
+            logger.debug("Have connection as Guest")
         else:
-            logger.info("Open connection is not available")
+            logger.debug("Open connection is not available")
     except Exception, x:
         logger.error(traceback.format_exc())
     return conn
