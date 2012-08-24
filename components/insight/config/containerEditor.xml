@@ -39,13 +39,13 @@
       <!-- The configurable attribute indicates that the user can modify the
       value from the UI.
       -->
-      <hostName configurable="false">localhost</hostName>
+      <hostName configurable="true">localhost</hostName>
       <port>4063</port>
       <portSSL>4064</portSSL>
       <!-- Indicates the data transfer is encrypted (slower).
       The default value is false
       -->
-      <encrypted configurable="false">false</encrypted>
+      <encrypted configurable="true">false</encrypted>
     </structuredEntry>
      <!-- the value corresponding to the agent defined as the master
     i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
