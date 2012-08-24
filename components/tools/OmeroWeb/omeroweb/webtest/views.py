@@ -52,8 +52,13 @@ def index(request, conn=None, **kwargs):
     
     imgIds = ",".join([str(img.getId()) for img in images])
     
+    # get a random dataset (making sure we get one that has some images in it)
     all_datasets = list(conn.getObjects("Dataset"))
     dataset = random.choice(all_datasets)
+    attempts = 0
+    while (dataset.countChildren() == 0 and attempts < 10):
+        dataset = random.choice(all_datasets)
+        attempts += 1
 
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
