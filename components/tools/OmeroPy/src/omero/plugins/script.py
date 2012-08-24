@@ -374,7 +374,7 @@ class ScriptControl(BaseControl):
 
             f = rv.get(m, None)
             if f and f.val:
-                self.ctx.out("\n\t*** start %s ***" % m)
+                self.ctx.out("\n\t*** start %s (id=%s)***" % (m, f.val.id.val))
                 try:
                     client.download(ofile=f.val, filehandle=handle())
                 except:
