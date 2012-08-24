@@ -157,13 +157,17 @@ class SplashScreenManager
     	String v = "";
     	if (version != null && version instanceof String)
     		v = (String) version;
-    	OMEROInfo omeroInfo = 
+    	OMEROInfo info = 
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
-    	String port = ""+omeroInfo.getPortSSL();
+    	String port = ""+info.getPortSSL();
     	
     	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port, 
-    			omeroInfo.getHostName(), connectToServer());
+    			info.getHostName(), connectToServer());
+    	view.setEncryptionConfiguration(info.isEncrypted(),
+    			info.isEncryptedConfigurable());
+    	view.setHostNameConfiguration(info.getHostName(),
+    			info.isHostNameConfigurable());
 		view.showConnectionSpeed(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = view.getPreferredSize();

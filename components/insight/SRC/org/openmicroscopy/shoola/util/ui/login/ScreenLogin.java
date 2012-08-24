@@ -252,6 +252,9 @@ public class ScreenLogin
 	/** Indicates when attempting to log in.*/
 	private boolean loginAttempt;
 	
+	/** The listener to encrypt the data transfer.*/
+	private ActionListener encryptionListener;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -359,6 +362,7 @@ public class ScreenLogin
 	 */
 	private void encrypt()
 	{
+		if (!encryptedButton.isEnabled()) return;
 		encrypted = !encrypted;
 		IconManager icons = IconManager.getInstance();
 		if (encrypted) 
@@ -380,9 +384,10 @@ public class ScreenLogin
 		configButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { config(); }
 		});
-		encryptedButton.addActionListener(new ActionListener() {
+		encryptionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) { encrypt(); }
-		});
+		};
+		encryptedButton.addActionListener(encryptionListener);
 		addWindowListener(new WindowAdapter()
 		{
 			public void windowOpened(WindowEvent e) {
@@ -531,7 +536,7 @@ public class ScreenLogin
 			}
 		} else {
 			if (servers == null || servers.size() == 0) 
-				serverName = DEFAULT_SERVER;
+				serverName = hostName;//DEFAULT_SERVER;
 			else {
 				int n = servers.size()-1;
 				Iterator<String> i = servers.keySet().iterator();
@@ -551,7 +556,7 @@ public class ScreenLogin
 				}
 			}
 		}
-		
+		if (serverName.length() == 0) serverName = DEFAULT_SERVER;
 		if (!DEFAULT_SERVER.equals(serverName))
 			originalServerName = serverName;
 		connectionSpeedText = new JLabel(getConnectionSpeed());
@@ -986,7 +991,6 @@ public class ScreenLogin
 		return groups;
 	}
 	
-	//public void registerGroup(Map<Str>)
 	/** 
 	 * Sets the default for the window. 
 	 * 
@@ -1289,6 +1293,42 @@ public class ScreenLogin
     		login.setEnabled(true);
     		requestFocusOnField();
     	}
+    }
+    
+    /**
+     * Sets the encryption parameters.
+     * 
+     * @param encrypted Pass <code>true</code> to encrypt the data transfer,
+     * 					<code>false</code> otherwise.
+     * @param configurable Pass <code>true</code> to allow the user to interact
+     * with the encryption controls, <code>false</code> otherwise.
+     */
+    public void setEncryptionConfiguration(boolean encrypted,
+    		boolean configurable)
+    {
+    	if ((encrypted && !this.encrypted) || (!encrypted && this.encrypted))
+    		encrypt();
+    	if (!configurable)
+    		encryptedButton.removeActionListener(encryptionListener);
+    }
+    
+    /**
+     * Indicates if the user can modify or not the host name from the UI.
+     * 
+     * @param hostName The hostname.
+     * @param configurable Pass <code>true</code> to allow to change the 
+     * host name, <code>false</code> otherwise.
+     */
+    public void setHostNameConfiguration(String hostName, boolean configurable)
+    {
+    	if (!configurable && hostName != null && hostName.trim().length() > 0) {
+    		serverName = hostName;
+    		originalServerName = serverName;
+    		selectedPort = Integer.parseInt(editor.getDefaultPort());
+    		setNewServer(originalServerName);
+    	}
+    	//Do not allow to modify the server information. Only the change the
+    	//specify the speed.
     }
     
 	/**

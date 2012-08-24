@@ -151,7 +151,7 @@ public class OMEROInfo
      * 
      * @return See above.
      */
-    public boolean getEncrypted() { return encrypted; }
+    public boolean isEncrypted() { return encrypted; }
 
     /**
      * Returns <code>true</code> if the host name can be modified by the user,
