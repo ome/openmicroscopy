@@ -400,12 +400,16 @@ public class QueryBuilder {
         skipFrom();
     }
 
-    public void skipFrom() {
-        // no-op
+    public QueryBuilder skipFrom() {
+        current = from;
+        appendSpace();
+        return this;
     }
 
-    public void skipWhere() {
-        // no-op
+    public QueryBuilder skipWhere() {
+        current = where;
+        appendSpace();
+        return this;
     }
 
     /**
