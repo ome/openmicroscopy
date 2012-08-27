@@ -10,21 +10,25 @@ package ome.services.scripts;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ome.api.local.LocalAdmin;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
 import ome.model.meta.ExperimenterGroup;
+import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -44,7 +48,6 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.hibernate.type.StringType;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -507,17 +510,66 @@ public class ScriptRepoHelper {
             return false;
         }
 
-        ex.execute(p, new Executor.SimpleWork(this, "delete", id) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                sf.getUpdateService().deleteObject(file);
-                return null;
-            }
-        });
+        simpleDelete(null, ex, p, id);
 
         FileUtils.deleteQuietly(new File(dir, file.getPath()));
 
         return true;
     }
 
+    /**
+     * Unlike {@link #delete(long)} this method simply performs the DB delete
+     * on the given original file id.
+     *
+     * @param context 
+     *                  Call context which affecets which group the current user is in. 
+     *                  Can be null to pass no call context.
+     * @param executor
+     * @param p
+     * @param id
+     *                  Id of the {@link OriginalFile} to delete.
+     */
+    public void simpleDelete(Map<String, String> context, final Executor executor,
+        Principal p, final long id) {
+
+        Deletion deletion = (Deletion) executor.execute(context, p,
+                new Executor.SimpleWork(this, "deleteOriginalFile") {
+
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        try {
+                            EventContext ec = ((LocalAdmin) sf.getAdminService())
+                                .getEventContextQuiet();
+                            Deletion d = executor.getContext().getBean(
+                                Deletion.class.getName(), Deletion.class);
+                            int steps = d.start(ec, getSqlAction(), session,
+                                "/OriginalFile", id, null);
+                            if (steps > 0) {
+                                for (int i = 0; i < steps; i++) {
+                                    d.execute(i);
+                                }
+                                return d;
+                            }
+                        } catch (ome.conditions.ValidationException ve) {
+                            log.debug("ValidationException on delete", ve);
+                        }
+                        catch (GraphException ge) {
+                            log.debug("GraphException on delete", ge);
+                        }
+                        catch (Throwable e) {
+                            log.warn("Throwable while deleting script " + id, e);
+                        }
+                        return null;
+                    }
+
+                });
+
+        if (deletion != null) {
+            deletion.deleteFiles();
+            deletion.stop();
+        } else {
+            throw new ApiUsageException("Cannot delete "
+                    + id + "\nIs in use by other objects");
+        }
+    }
 }

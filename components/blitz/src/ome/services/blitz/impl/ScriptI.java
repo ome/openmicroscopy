@@ -656,44 +656,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             return;
         }
 
-        Deletion deletion = (Deletion) factory.executor.execute(current.ctx, factory.principal,
-                new Executor.SimpleWork(this, "deleteOriginalFile") {
-
-                    @Transactional(readOnly = false)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        try {
-                            EventContext ec = ((LocalAdmin) sf.getAdminService())
-                                .getEventContextQuiet();
-                            Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
-                            int steps = d.start(ec, getSqlAction(), session,
-                                "/OriginalFile", file.getId(), null);
-                            if (steps > 0) {
-                                for (int i = 0; i < steps; i++) {
-                                    d.execute(i);
-                                }
-                                return d;
-                            }
-                        } catch (ome.conditions.ValidationException ve) {
-                            log.debug("ValidationException on delete", ve);
-                        }
-                        catch (GraphException ge) {
-                            log.debug("GraphException on delete", ge);
-                        }
-                        catch (Throwable e) {
-                            log.warn("Throwable while deleting script " + file.getId(), e);
-                        }
-                        return null;
-                    }
-
-                });
-
-        if (deletion != null) {
-            deletion.deleteFiles();
-            deletion.stop();
-        } else {
-            throw new omero.ApiUsageException(null, null, "Cannot delete "
-                    + file + "\nIs in use by other objects");
-        }
+        scripts.simpleDelete(current.ctx, factory.executor, factory.principal,
+            file.getId());
 
     }
 
