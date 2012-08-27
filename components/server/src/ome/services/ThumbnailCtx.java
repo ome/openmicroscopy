@@ -428,7 +428,7 @@ public class ThumbnailCtx
     public Thumbnail getMetadata(long pixelsId)
     {
         Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
-        if (thumbnail == null && securitySystem.isGraphCritical())
+        if (thumbnail == null && securitySystem.isGraphCritical(null)) // maythrow
         {
             Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
             long ownerId = pixels.getDetails().getOwner().getId();
@@ -611,7 +611,7 @@ public class ThumbnailCtx
         {
             return true;
         }
-        if (securitySystem.isGraphCritical()
+        if (securitySystem.isGraphCritical(null) // May throw
             || currentGroupPermissions.identical(readOnly))
         {
             for (Long pixelsId : pixelsIds)

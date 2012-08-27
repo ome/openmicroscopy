@@ -115,6 +115,12 @@ class ThreadPool:
 # Global thread pool for use by ROI workers
 thread_pool = None
 
+def get_thread_pool():
+    global thread_pool
+    if thread_pool is None:
+        thread_pool = ThreadPool(1)
+    return thread_pool
+
 class MeasurementError(Exception):
     """
     Raised by the analysis or measurement context when an error condition
@@ -541,6 +547,7 @@ class AbstractMeasurementCtx(object):
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
         super(AbstractMeasurementCtx, self).__init__()
+        self.thread_pool = get_thread_pool()
         self.analysis_ctx = analysis_ctx
         self.service_factory = service_factory
         self.original_file_provider = original_file_provider
@@ -815,11 +822,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             roi.linkAnnotation(unloaded_file_annotation)
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+                self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
                 batch_no += 1
-        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
-        thread_pool.wait_completion()
+        self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        self.thread_pool.wait_completion()
         batch_keys = batches.keys()
         batch_keys.sort()
         for k in batch_keys:
@@ -853,11 +860,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             roi.linkAnnotation(unloaded_file_annotation)
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+                self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
                 batch_no += 1
-        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
-        thread_pool.wait_completion()
+        self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        self.thread_pool.wait_completion()
         batch_keys = batches.keys()
         batch_keys.sort()
         for k in batch_keys:
@@ -1183,11 +1190,11 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             else:
                 raise MeasurementError('Not a nucleus or cell ROI')
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+                self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
                 batch_no += 1
-        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
-        thread_pool.wait_completion()
+        self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        self.thread_pool.wait_completion()
         batch_keys = batches.keys()
         batch_keys.sort()
         for k in batch_keys:

@@ -35,7 +35,12 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
@@ -59,6 +64,51 @@ import ome.util.SqlAction;
  * @see omero.cmd.graphs.DeleteI
  */
 public class Deletion {
+
+    /**
+     * Inner class which can be used to generate a Deletion. The use of 
+     * {@link OmeroContext} makes creating this object from the command-line
+     * somewhat complicated, but with a Deletion.Builder inside of the Spring
+     * configuration it should be possible to use:
+     * <pre>
+     * Deletion d = ctx.getBean("Deletion", Deletion.class);
+     * </pre>
+     * anywhere that a new deletion is needed.
+     */
+    public static class Builder extends AbstractFactoryBean<Deletion>
+        implements ApplicationContextAware {
+
+        protected OmeroContext ctx;
+
+        protected ApplicationContext specs;
+
+        protected AbstractFileSystemService afs;
+
+        public Builder(AbstractFileSystemService afs) {
+            this.afs = afs;
+        }
+
+        @Override
+        public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+            this.ctx = (OmeroContext) ctx;
+        }
+
+        @Override
+        protected Deletion createInstance()
+            throws Exception {
+            ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
+            DeleteStepFactory dsf = new DeleteStepFactory(this.ctx);
+            return new Deletion(specs, dsf, afs);
+        }
+
+        @Override
+        public Class<? extends Deletion> getObjectType() {
+            return Deletion.class;
+        }
+
+    }
 
     private static final Log log = LogFactory.getLog(Deletion.class);
 
