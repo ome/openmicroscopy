@@ -192,6 +192,7 @@ public class LoginServiceImpl
                 Logger logger = container.getRegistry().getLogger();
                 logger.debug(this, msg);
         	}
+        	
         }
         return NOT_CONNECTED;
     }
@@ -268,7 +269,7 @@ public class LoginServiceImpl
     	
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);
-        int succeeded = attempt(); 
+        int succeeded = attempt();
         state = IDLE;
         return succeeded;
     }

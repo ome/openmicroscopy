@@ -122,6 +122,7 @@ public final class Container
 			initManager = new Initializer(singleton);
 			initManager.configure();
 			initManager.doInit();
+			
 			//startService() called by Initializer at end of doInit().
 		} catch (StartupException se) {
 			if (initManager != null) initManager.rollback();

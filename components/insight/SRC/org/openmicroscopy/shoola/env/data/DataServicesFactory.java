@@ -57,11 +57,13 @@ import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -527,17 +529,21 @@ public class DataServicesFactory
         ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
         		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
         		uc.getGroup());
+        //Post an event to indicate that the user is connected.
+        EventBus bus = container.getRegistry().getEventBus();
+        bus.post(new ConnectedEvent());
+        //Post an event to notify 
         compatible = true;
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
         msg.println("Server version: "+version);
         msg.println("Client version: "+clientVersion);
-        Entry entry;
-        Iterator k = info.entrySet().iterator();
+        Entry<String, String> entry;
+        Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
-        	entry = (Entry) k.next();
-        	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
+        	entry = k.next();
+        	msg.println(entry.getKey()+": "+entry.getValue());
 		}
         registry.getLogger().info(this, msg);
         
