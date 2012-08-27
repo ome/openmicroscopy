@@ -121,13 +121,9 @@ import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
-import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
-import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -2962,13 +2958,8 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		try {
-			if (object instanceof Plate) {
-				IDeletePrx svc = getDeleteService(ctx);
-				svc.deletePlate(object.getId().getValue());
-			} else {
-				IUpdatePrx service = getUpdateService(ctx);
-				service.deleteObject(object);
-			}
+			IUpdatePrx service = getUpdateService(ctx);
+			service.deleteObject(object);
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
 		}
@@ -3872,8 +3863,7 @@ class OMEROGateway
 			handleException(e, "Cannot set the file's id.");
 		}
 		String path = file.getAbsolutePath();
-		int offset = 0;
-		int length = (int) size;
+		long offset = 0;
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			try {
@@ -3883,7 +3873,7 @@ class OMEROGateway
 						offset += INC;
 					}	
 				} finally {
-					stream.write(store.read(offset, length-offset)); 
+					stream.write(store.read(offset, (int) (size-offset)));
 					stream.close();
 				}
 			} catch (Exception e) {

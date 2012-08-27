@@ -74,30 +74,6 @@ class FileElement
 	/** The group where the file will be imported.*/
 	private GroupData group;
 	
-	/**
-	 * Determines the length of the directory depending on the actual
-	 * level reached and the scanning depth.
-	 * 
-	 * @param file	The directory to scan.
-	 * @param depth The scanning depth set in configuration.
-	 * @param level The level reached. 
-	 */
-	private void determineLength(File file, int depth, int level)
-	{
-		if (file.isFile()) length += file.length();
-		else {
-			if (level == depth) return;
-			level++;
-			File[] files = file.listFiles();
-			if (files != null) {
-				for (int i = 0; i < files.length; i++) {
-					determineLength(files[i], depth, level);
-				}
-			}
-			
-		}
-	}
-	
 	/** 
 	 * Creates a new instance. 
 	 * 
@@ -139,7 +115,7 @@ class FileElement
 	boolean isToggleContainer()
 	{ 
 		if (type == Importer.SCREEN_TYPE) return false;
-		return toggleContainer; 
+		return toggleContainer;
 	}
 	
 	/**
@@ -157,12 +133,8 @@ class FileElement
 	long getFileLength()
 	{
 		if (length > 0) return length;
-		if (file.isFile()) {
-			length = file.length();
-		} else { 
-			length = FileUtils.sizeOfDirectory(file);
-			//determineLength(file, ImporterAgent.getScanningDepth(), 0);
-		}
+		if (file.isFile()) length = file.length();
+		else length = FileUtils.sizeOfDirectory(file);
 		return length;
 	}
 	

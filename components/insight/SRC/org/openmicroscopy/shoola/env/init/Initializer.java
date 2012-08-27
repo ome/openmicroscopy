@@ -191,7 +191,7 @@ public class Initializer
     }
     
     /**
-     * Only for the benefit of subclasses that want to modifiy the
+     * Only for the benefit of subclasses that want to modify the
      * {@link #initList}.
      * This should only be done for the purpose of testing.
      */

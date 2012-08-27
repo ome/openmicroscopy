@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -156,6 +157,13 @@ public class ImViewerAgent
         ImViewer view = null;
         boolean b = evt.isSeparateWindow();
         if (image != null) {
+        	if (evt.getPlugin() > 0) {
+        		ViewInPluginEvent event = new ViewInPluginEvent(
+        				evt.getSecurityContext(), image, evt.getPlugin());
+        		EventBus bus = registry.getEventBus();
+        		bus.post(event);
+        		return;
+        	}
         	PixelsData pixels = null;
         	if (image instanceof ImageData) {
         		pixels = ((ImageData) image).getDefaultPixels();
@@ -165,9 +173,19 @@ public class ImViewerAgent
         	if (pixels != null)
         		view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
         				image, r, b);
-        } else
-        	view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
-        			object.getImageID(), r, b);
+        } else {
+        	if (evt.getPlugin() > 0) {
+        		ViewInPluginEvent event = new ViewInPluginEvent(
+        				evt.getSecurityContext(),object.getImageID(),
+        				evt.getPlugin());
+        		EventBus bus = registry.getEventBus();
+        		bus.post(event);
+        	} else {
+            	view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+            			object.getImageID(), r, b);
+        	}
+        }
+        	
         if (view != null) {
         	view.activate(object.getSettings(), object.getSelectedUserID());
         	view.setContext(object.getParent(), object.getGrandParent());
@@ -343,13 +361,23 @@ public class ImViewerAgent
     	Object o = evt.getObject();
     	if (evt.browseObject()) return;
     	if (o instanceof ImageData) {
-    		ImViewer view = ImViewerFactory.getImageViewer(
-    				evt.getSecurityContext(), ((ImageData) o).getId(),
-    				null, true);
-    		if (view != null) {
-    			view.activate(null, getUserDetails().getId());
+    		if (evt.getPlugin() > 0) {
     			JComponent src = evt.getSource();
     			if (src != null) src.setEnabled(true);
+    			ViewInPluginEvent event = new ViewInPluginEvent(
+        				evt.getSecurityContext(), ((ImageData) o).getId(),
+        				evt.getPlugin());
+        		EventBus bus = registry.getEventBus();
+        		bus.post(event);
+    		} else {
+    			ImViewer view = ImViewerFactory.getImageViewer(
+        				evt.getSecurityContext(), ((ImageData) o).getId(),
+        				null, true);
+        		if (view != null) {
+        			view.activate(null, getUserDetails().getId());
+        			JComponent src = evt.getSource();
+        			if (src != null) src.setEnabled(true);
+        		}
     		}
     	}
     }

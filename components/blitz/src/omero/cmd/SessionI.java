@@ -369,7 +369,29 @@ public class SessionI implements _SessionOperations {
         cleanServants(true);
     }
 
-    private void cleanServants(boolean all) {
+    /**
+     * Use {@link #cleanServants(boolean, String, ServantHolder, Ice.ObjectAdapter)}
+     * to clean up.
+     *
+     * @param all
+     */
+    public void cleanServants(boolean all) {
+        cleanServants(all, clientId, holder, adapter);
+    }
+
+    /**
+     * Clean all servants that are in the current holder and remove them from
+     * the adapter. If all is true, then all servants that are non-null will be
+     * processed. Otherwise, only servants that a) belong to this clientId and
+     * b) are not stateful (since stateful services may be used by other clients).
+     *
+     * @param all
+     * @param clientId Only used if all is false.
+     * @param holder {@link ServantHolder} to be cleaned.
+     * @param adapter from which the servants should be removed.
+     */
+    public static void cleanServants(boolean all, String clientId,
+        ServantHolder holder, Ice.ObjectAdapter adapter) {
 
         // Cleaning up resources
         // =================================================
@@ -383,7 +405,7 @@ public class SessionI implements _SessionOperations {
                 if (servant == null) {
                     log.warn("Servant already removed: " + idName);
                     // But calling unregister just in case
-                    unregisterServant(id);
+                    unregisterServant(id, adapter, holder);
                     continue; // LOOP.
                 }
 
@@ -429,7 +451,7 @@ public class SessionI implements _SessionOperations {
                     // Now we will again try to remove the servant, which may
                     // have already been done, after the method call, though, it
                     // is guaranteed to no longer be active.
-                    unregisterServant(id);
+                    unregisterServant(id, adapter, holder);
                     log.info("Removed servant from adapter: " + idName);
                 }
             }
@@ -574,13 +596,21 @@ public class SessionI implements _SessionOperations {
     }
 
     /**
+     * Calls {@link #unregisterServant(Ice.Identity, Ice.ObjectAdapter, ServantHolder)}
+     */
+    public void unregisterServant(Ice.Identity id) {
+        unregisterServant(id, adapter, holder);
+    }
+
+    /**
      * Reverts all the additions made by
      * {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
      *
      * Now called by {@link ome.services.blitz.fire.SessionManagerI} in response
      * to an {@link UnregisterServantMessage}
      */
-    public void unregisterServant(Ice.Identity id) {
+    public static void unregisterServant(Ice.Identity id, Ice.ObjectAdapter adapter,
+        ServantHolder holder) {
 
         // If this is not found ignore.
         if (null == adapter.find(id)) {
@@ -602,7 +632,7 @@ public class SessionI implements _SessionOperations {
         }
     }
 
-    private String servantString(Ice.Identity id, Object obj) {
+    private static String servantString(Ice.Identity id, Object obj) {
         StringBuilder sb = new StringBuilder(Ice.Util.identityToString(id));
         sb.append("(");
         sb.append(obj);

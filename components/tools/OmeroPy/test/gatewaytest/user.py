@@ -58,7 +58,7 @@ class UserTest (lib.GTest):
 
     def testCrossGroupSave (self):
         self.loginAsUser()
-        uid = self.gateway._userid
+        uid = self.gateway.getUserId()
         self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         d = self.getTestDataset()
@@ -131,7 +131,7 @@ class UserTest (lib.GTest):
             # Admin
             # add User to group
             self.loginAsUser()
-            uid = self.gateway._userid
+            uid = self.gateway.getUserId()
             self.loginAsAdmin()
             admin = self.gateway.getAdminService()
             admin.addGroups(omero.model.ExperimenterI(uid, False), [g])

@@ -3,6 +3,9 @@
 set -e
 set -u
 
+WITHOUT_POSTGRESQL=${WITHOUT_POSTGRESQL:-false}
+WITHOUT_MPLAYER=${WITHOUT_MPLAYER:-false}
+ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
@@ -69,13 +72,16 @@ export PATH=`bin/brew --prefix ccache`:`pwd`/bin/:$PATH
 # Basic native requirements =======================================
 installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
-installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
-installed zeroc-ice33 || bin/brew install zeroc-ice33
-installed mplayer || bin/brew install mplayer
+[ "$ICE_VERSION" == "zeroc-ice33" ] &&  (installed berkeley-db46 || bin/brew install berkeley-db46 --without-java)
+installed $OMERO_ALT/$ICE_VERSION || bin/brew install $OMERO_ALT/$ICE_VERSION
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
 # Requirements for scipy ============================================
 installed gfortran || bin/brew install gfortran
+
+if ! $WITHOUT_MPLAYER; then
+    installed mplayer || bin/brew install mplayer
+fi
 
 ###################################################################
 # PIP INSTALLS
@@ -109,6 +115,11 @@ export HDF5_DIR=`pwd`
 installed Cython || bin/pip install Cython
 installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
+
+# Postgresql
+if ! $WITHOUT_POSTGRESQL; then
+    installed postgresql || bin/brew install postgresql
+fi
 
 echo "Done."
 echo "You can now install OMERO with: 'bin/brew install omero ...'"

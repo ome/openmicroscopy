@@ -34,6 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
@@ -56,6 +57,12 @@ public class ViewImage
     extends RequestEvent
 {
 
+	/** Identifies the <code>ImageJ</code> plugin.*/
+	public static final int IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
+	/** The selected plugin.*/
+	private int plugin;
+	
     /** The images to view. */
     private List<ViewImageObject> images;
 
@@ -145,4 +152,17 @@ public class ViewImage
      */
     public SecurityContext getSecurityContext() { return ctx; }
 
+	/** 
+	 * Returns the selected plug-in.
+	 * 
+	 * @return See above.
+	 */
+	public int getPlugin() { return plugin; }
+	
+	/** 
+	 * Sets the selected plug-in.
+	 * 
+	 * @param The value to set.
+	 */
+	public void setPlugin(int plugin) { this.plugin = plugin; }
 }

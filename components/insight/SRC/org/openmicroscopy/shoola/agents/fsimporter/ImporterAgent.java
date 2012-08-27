@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -126,6 +127,22 @@ public class ImporterAgent
 	{
 		return (Collection) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
+    
+	/**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return ViewInPluginEvent.IMAGE_J;
+		}
+    	return -1;
+    }
     
 	/**
 	 * Returns the default value from the configuration file.

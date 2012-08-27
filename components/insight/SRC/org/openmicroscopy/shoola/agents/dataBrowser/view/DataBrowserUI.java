@@ -532,9 +532,10 @@ class DataBrowserUI
     	if (!(node instanceof ImageNode)) return;
     	ImageData data = (ImageData) node.getHierarchyObject();
     	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-    	
-    	bus.post(new ViewImage(model.getSecurityContext(),
-    			new ViewImageObject(data), null));
+    	ViewImage evt = new ViewImage(model.getSecurityContext(),
+    			new ViewImageObject(data), null);
+    	evt.setPlugin(DataBrowserAgent.runAsPlugin());
+    	bus.post(evt);
     }
     
     /**

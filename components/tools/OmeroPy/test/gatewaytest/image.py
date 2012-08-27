@@ -60,7 +60,7 @@ class ImageTest (lib.GTest):
 
     def testRenderingModels (self):
         # default is color model
-        cimg = self.image.renderJpeg(0,0)
+        cimg = self.image.renderJpeg()
         ifile = StringIO(cimg)
         img = Image.open(ifile)
         extrema = img.getextrema()
@@ -194,7 +194,7 @@ class ImageTest (lib.GTest):
         # what about a regular user?
         g = image.getDetails().getGroup()._obj
         self.loginAsUser()
-        uid = self.gateway._userid
+        uid = self.gateway.getUserId()
         self.loginAsAdmin()
         admin = self.gateway.getAdminService()
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g])

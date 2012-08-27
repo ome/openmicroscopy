@@ -397,17 +397,6 @@ class BlitzObjectWrapper (object):
         """
         return self._conn.canOwnerWrite(self)
     
-    def canDelete(self):
-        """
-        Determines whether the current user can delete this object.
-        Returns True if the object L{isOwned} by the current user or L{isLeaded}
-        (current user is leader of this the group that this object belongs to)
-        
-        @rtype:     Boolean
-        @return:    see above
-        """
-        return self.isOwned() or self.isLeaded()
-    
     def isOwned(self):
         """
         Returns True if the object owner is the same user specified in the connection's Event Context
@@ -415,7 +404,7 @@ class BlitzObjectWrapper (object):
         @rtype:     Boolean
         @return:    True if current user owns this object
         """
-        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
+        return (self._obj.details.owner.id.val == self._conn.getUserId())
     
     def isLeaded(self):
         """
@@ -702,11 +691,14 @@ class BlitzObjectWrapper (object):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
+        # Need to set group context. If '-1' then canDelete() etc on annotations will be False
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
             query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
             "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
             "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
-            links = self._conn.getQueryService().findAllByQuery(query, None, self._conn.SERVICE_OPTS)
+            links = self._conn.getQueryService().findAllByQuery(query, None, ctx)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
@@ -900,7 +892,7 @@ class BlitzObjectWrapper (object):
         if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
-            if self._conn.isAdmin() and self._conn._userid != d.getOwner().id:
+            if self._conn.isAdmin() and self._conn.getUserId() != d.getOwner().id:
                 # Keep the annotation owner the same as the linked of object's
                 if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
                     newConn = ann._conn
@@ -1422,7 +1414,7 @@ class _BlitzGateway (object):
             if self.c.sf is None: #pragma: no cover
                 logger.debug('... c.sf is None, reconnecting')
                 return self.connect()
-            return self.c.sf.keepAlive(self._proxies['admin']._obj)
+            return self.c.sf.keepAlive(self._proxies['admin']._getObj())
         except Ice.ObjectNotExistException: #pragma: no cover
             # The connection is there, but it has been reset, because the proxy no longer exists...
             logger.debug(traceback.format_exc())
@@ -1531,14 +1523,9 @@ class _BlitzGateway (object):
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
-        self._ctx = self._proxies['admin'].getEventContext()
-        if self._ctx is not None:
-            self._userid = self._ctx.userId
-            self._username = self._ctx.userName
-        else:
-            self._userid = None
-            self._username = None
-            self._user = None
+        self._userid = None
+        self._user = None
+        self._ctx = None
 
         if self._session_cb: #pragma: no cover
             if self._was_join:
@@ -1659,7 +1646,7 @@ class _BlitzGateway (object):
                     s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
                     self.SERVICE_OPTS = self.createServiceOptsDict()
-                    logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
+                    logger.debug('Joined Session OK with Uuid: %s' % (self._sessionUuid,))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
                     raise
@@ -1691,7 +1678,7 @@ class _BlitzGateway (object):
                 try:
                     logger.debug("Creating Session...")
                     self._createSession()
-                    logger.debug("Session created with timeout: %s & timeToLive: %s" % (self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
+                    logger.debug("Session created")
                 except omero.SecurityViolation:
                     if self.group is not None:
                         # User don't have access to group
@@ -1780,6 +1767,24 @@ class _BlitzGateway (object):
             self._ctx = self._proxies['admin'].getEventContext()
         return self._ctx
 
+    def getUserId (self):
+        """
+        Returns current experimenter id
+
+        @return:    Current Experimenter id
+        @rtype:     long
+        """
+        if self._userid is None:
+            self._userid = self.getEventContext().userId
+        return self._userid
+
+    def setUserId (self, uid):
+        """
+        Sets current experimenter id
+        """
+        self._userid = uid
+        self._user = None
+            
     def getUser (self):
         """
         Returns current Experimenter.
@@ -1787,10 +1792,10 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
-        if self._ctx is None:
-            return None
         if self._user is None:
-            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
+            uid = self.getUserId()
+            if uid is not None:
+                self._user = self.getObject("Experimenter", self._userid) or None
         return self._user
     
     def getGroupFromContext(self):
@@ -1843,7 +1848,7 @@ class _BlitzGateway (object):
         @return:    Boolean
         """
         
-        return self.isAdmin() or (self._userid == obj.getDetails().getOwner().getId() and
+        return self.isAdmin() or (self.getUserId() == obj.getDetails().getOwner().getId() and
                                   obj.getDetails().getPermissions().isUserWrite())
 
     def canOwnerWrite (self, obj):
@@ -2354,7 +2359,7 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
-                if d.child.id.val != self.getEventContext().userId:
+                if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
     def groupSummary(self, gid=None, exclude_self=False):
@@ -2370,7 +2375,7 @@ class _BlitzGateway (object):
             gid = self.getEventContext().groupId
         userId = None
         if exclude_self:
-            userId = self.getEventContext().userId
+            userId = self.getUserId()
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
@@ -2405,7 +2410,7 @@ class _BlitzGateway (object):
                 "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.omeName"
         for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
-            if e.id.val != self.getEventContext().userId:
+            if e.id.val != self.getUserId():
                 yield ExperimenterWrapper(self, e)
 
     def listOwnedGroups(self):
@@ -4336,7 +4341,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def is_self(self):
         """ Returns True if this Experimenter is the current user """
-        return self.getId() == self._conn.getEventContext().userId
+        return self.getId() == self._conn.getUserId()
     
 ExperimenterWrapper = _ExperimenterWrapper
 
@@ -6063,6 +6068,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return (0, pmax-1)
 
     @assert_pixels
+    def requiresPixelsPyramid (self):
+        pixels_id = self._obj.getPrimaryPixels().getId().val
+        rp = self._conn.createRawPixelsStore()
+        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+        return rp.requiresPixelsPyramid()
+
+    @assert_pixels
     def getPrimaryPixels (self):
         """
         Loads pixels and returns object in a L{PixelsWrapper}
@@ -6098,16 +6110,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
         @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
         """
-
+        abs_channels = [abs(c) for c in channels]
+        idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
-                if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
-                    self._re.setChannelWindow(c, *(windows[c] + [self._conn.SERVICE_OPTS]))
-                if colors is not None and colors[c]:
-                    rgba = splitHTMLColor(colors[c])
+                if windows is not None and windows[idx][0] is not None and windows[idx][1] is not None:
+                    self._re.setChannelWindow(c, *(windows[idx] + [self._conn.SERVICE_OPTS]))
+                if colors is not None and colors[idx]:
+                    rgba = splitHTMLColor(colors[idx])
                     if rgba:
                         self._re.setRGBA(c, *(rgba + [self._conn.SERVICE_OPTS]))
+            if (c+1 in abs_channels):
+                idx += 1
         return True
 
     def getProjections (self):
@@ -6401,19 +6416,19 @@ class _ImageWrapper (BlitzObjectWrapper):
 
 
     @assert_re()
-    def renderJpeg (self, z, t, compression=0.9):
+    def renderJpeg (self, z=None, t=None, compression=0.9):
         """
         Return the data from rendering image, compressed (and projected).
         Projection (or not) is specified by calling L{setProjection} before renderJpeg.
         
-        @param z:               The Z index. Ignored if projecting image. 
-        @param t:               The T index. 
+        @param z:               The Z index. Ignored if projecting image. If None, use defaultZ
+        @param t:               The T index. If None, use defaultT
         @param compression:     Compression level for jpeg
         @type compression:      Float
         """
         
-        self._pd.z = long(z)
-        self._pd.t = long(t)
+        self._pd.z = z is not None and long(z) or self._re.getDefaultZ()
+        self._pd.t = t is not None and long(t) or self._re.getDefaultT()
         try:
             if compression is not None:
                 try:
@@ -7177,7 +7192,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         roiOptions = omero.api.RoiOptions()
         if eid:
-            roiOptions.userId = omero.rtypes.rlong(self._conn._userid)
+            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
         
         result = self._conn.getRoiService().findByImage(self.id, roiOptions)
         count = sum(1 for roi in result.rois if isValidROI(roi))

@@ -26,22 +26,16 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
-
 import javax.swing.Icon;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.GroupData;
 
 /** 
@@ -52,7 +46,7 @@ import pojos.GroupData;
  * @since Beta4.4
  */
 class SelectionTable 
-	extends JXTable
+	extends JTable
 {
 
 	/** The columns.*/
@@ -86,10 +80,10 @@ class SelectionTable
 		TableColumn tc = tcm.getColumn(0);
 		if (icon != null) tc.setCellRenderer(new SelectionTableRenderer(icon));
 		else tc.setCellRenderer(new SelectionTableRenderer(this));
-		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
-				UIUtilities.BACKGROUND_COLOUR_ODD);
-		addHighlighter(h);
+		
+		tc = tcm.getColumn(1);
+		tc.setCellEditor(getDefaultEditor(Boolean.class));
+		tc.setCellRenderer(getDefaultRenderer(Boolean.class));
 	}
 
 	/**

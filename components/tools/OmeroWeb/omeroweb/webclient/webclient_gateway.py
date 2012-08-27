@@ -457,7 +457,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield links[obj_type][1](self, e)
     
-    def listImagesInDataset (self, oid, eid=None, page=None):
+    def listImagesInDataset (self, oid, eid=None, page=None, load_pixels=False):
         """
         List Images in the given Dataset.
         Optinally filter by experimenter 'eid'
@@ -479,12 +479,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             f.limit = rint(PAGE)
             f.offset = rint((int(page)-1)*PAGE)
             p.theFilter = f
+        if load_pixels:
+            pixels = "join fetch im.pixels "
+        else:
+            pixels = ""
         sql = "select im from Image im "\
                 "join fetch im.details.creationEvent "\
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
-                "left outer join fetch dil.parent d " \
-                "where d.id = :oid"
+                "left outer join fetch dil.parent d %s" \
+                "where d.id = :oid" % pixels
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
@@ -1174,7 +1178,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(up_gr, permissions)
-        self._user = self.getObject("Experimenter", self._userid)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
     
@@ -1210,7 +1213,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         defultGroup = self.getObject("ExperimenterGroup", long(defaultGroupId))._obj
         admin_serv.setDefaultGroup(up_exp, defultGroup)
         self.changeActiveGroup(defultGroup.id)
-        self._user = self.getObject("Experimenter", self._userid)
 
     def setDefaultGroup(self, group_id, exp_id=None):
         """
@@ -1235,7 +1237,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(obj._obj, permissions)
-            self._user = self.getObject("Experimenter", self._userid)
     
     def saveObject (self, obj):
         """

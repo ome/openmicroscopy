@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ProcessException;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
@@ -416,6 +417,22 @@ public abstract class ActivityComponent
 		viewer.notifyError(type.getText(), messageLabel.getText(), exception);
 	}
 	
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    private int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return ViewInPluginEvent.IMAGE_J;
+		}
+    	return -1;
+    }
+    
 	/**
      * Creates a new instance.
      * 
@@ -672,7 +689,10 @@ public abstract class ActivityComponent
 			if (source != null) source.setEnabled(true);
 		} else {
 			EventBus bus = registry.getEventBus();
-			bus.post(new ViewObjectEvent(ctx, object, source));
+			//Check if running as plug-in
+			ViewObjectEvent evt = new ViewObjectEvent(ctx, object, source);
+			evt.setPlugin(runAsPlugin());
+			bus.post(evt);
 		}
 	}
 	

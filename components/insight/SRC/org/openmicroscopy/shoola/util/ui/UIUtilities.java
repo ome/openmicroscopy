@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
@@ -1152,8 +1153,7 @@ public class UIUtilities
     {
     	if (b == null) return;
     	//String laf = UIManager.getSystemLookAndFeelClassName();
-    	String osName = System.getProperty("os.name");
-    	b.setContentAreaFilled(!(osName.startsWith("Mac OS")));
+    	b.setContentAreaFilled(!isMacOS());
     	//b.setContentAreaFilled(!(MAC_L_AND_F.equals(laf)));
     }
     
@@ -1428,7 +1428,8 @@ public class UIUtilities
     	if (time == null)  
     		time = getDefaultTimestamp();
     	return DateFormat.getDateTimeInstance(
-    			DateFormat.SHORT, DateFormat.SHORT).format(time);  
+    			DateFormat.SHORT, DateFormat.SHORT,
+    			Locale.getDefault()).format(time);
     }
     
     /**
@@ -1456,8 +1457,13 @@ public class UIUtilities
     	if (time == null) time = getDefaultTimestamp();
     	if (pattern == null || pattern.length() == 0) 
     		pattern = WDMY_FORMAT;
-    	SimpleDateFormat formatter = new SimpleDateFormat(pattern);
-    	return formatter.format(time);  
+    	DateFormat df;
+    	if (WDMY_FORMAT.equals(pattern))
+    		df = DateFormat.getDateTimeInstance(
+        			DateFormat.FULL, DateFormat.LONG, Locale.getDefault());
+    	else df = 
+    		DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+    	return df.format(time);
     }
     
     /**

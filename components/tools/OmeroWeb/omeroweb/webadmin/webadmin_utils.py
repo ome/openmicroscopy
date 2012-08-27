@@ -15,9 +15,9 @@ def getGuestConnection(host, port):
         # do not store connection on connectors
         conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
-            logger.info("Have connection as Guest")
+            logger.debug("Have connection as Guest")
         else:
-            logger.info("Open connection is not available")
+            logger.debug("Open connection is not available")
     except Exception, x:
         logger.error(traceback.format_exc())
     return conn
@@ -36,7 +36,7 @@ def _checkVersion(host, port):
             local_cleaned = regex.match(omero_version).group(1)
             local_split = local_cleaned.split(".")
 
-            rv = (agent_split == local_split)
+            rv = (agent_split[0:2] == local_split[0:2])     # ignore point releases
             logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
         except Exception, x:
             logger.error(traceback.format_exc())
