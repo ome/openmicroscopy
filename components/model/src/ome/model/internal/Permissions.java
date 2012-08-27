@@ -157,6 +157,7 @@ public class Permissions implements Serializable {
                     "Make sure that you have not passed omero.group=-1 for a save without context");
         }
         this.revokeAll(p);
+        this.restrictions = p.restrictions;
     }
 
     // ~ Fields

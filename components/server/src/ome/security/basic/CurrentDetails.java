@@ -415,6 +415,11 @@ public class CurrentDetails implements PrincipalHolder {
 
     }
 
+    /**
+     * Checks the "groupPermissions" map in {@link BasicEventContext} which has
+     * been filled up by calls to {@link BasicEventContext#setPermissionsForGroup(Long, Permissions)}
+     * during {@link BasicACLVoter#allowLoad(org.hibernate.Session, Class, Details, long)}.
+     */
     public void loadPermissions(org.hibernate.Session session) {
         current().loadPermissions(session);
     }

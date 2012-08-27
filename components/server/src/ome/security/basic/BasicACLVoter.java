@@ -179,7 +179,8 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
+            c.getCurrentGroupPermissions(), Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -198,7 +199,8 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
+                c.getCurrentGroupPermissions(), Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -247,7 +249,7 @@ public class BasicACLVoter implements ACLVoter {
      *     which should be allowed.
      */
     private int allowUpdateOrDelete(EventContext c, IObject iObject,
-        Details trustedDetails, Scope...scopes) {
+        Details trustedDetails, Permissions grpPermissions, Scope...scopes) {
 
         int rv = 0;
 
@@ -298,10 +300,8 @@ public class BasicACLVoter implements ACLVoter {
             throw new InternalException("trustedDetails are null!");
         }
 
-        final Permissions p = c.getCurrentGroupPermissions(); // From Group!
-
         // this should never occur.
-        if (p == null) {
+        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
             throw new InternalException(
                     "Permissions null! Security system "
                             + "failure -- refusing to continue. The Permissions should "
@@ -321,11 +321,11 @@ public class BasicACLVoter implements ACLVoter {
             }
 
             // standard
-            else if (p.isGranted(WORLD, scope.right)) {
+            else if (grpPermissions.isGranted(WORLD, scope.right)) {
                 rv |= (1<<i);
             }
 
-            else if (owner && p.isGranted(USER, scope.right)) {
+            else if (owner && grpPermissions.isGranted(USER, scope.right)) {
                 // Using cuId rather than getOwner since postProcess is also
                 // post-login!
                 rv |= (1<<i);
@@ -333,7 +333,7 @@ public class BasicACLVoter implements ACLVoter {
             // Previously restricted by ticket:1992
             // As of ticket:8562 this is handled by
             // the separation of ANNOTATE and WRITE
-            else if (member && p.isGranted(GROUP, scope.right) ) {
+            else if (member && grpPermissions.isGranted(GROUP, scope.right) ) {
                 rv |= (1<<i);
             }
         }
@@ -353,8 +353,12 @@ public class BasicACLVoter implements ACLVoter {
                     !(object instanceof ExperimenterGroup));
 
             final BasicEventContext c = currentUser.current();
+            Permissions grpPermissions = c.getCurrentGroupPermissions();
+            if (grpPermissions == Permissions.DUMMY && details.getGroup() != null) {
+                grpPermissions = c.getPermissionsForGroup(details.getGroup().getId());
+            }
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            final int allow = allowUpdateOrDelete(c, object, details, grpPermissions,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
