@@ -10,12 +10,14 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -1333,5 +1335,46 @@ public class RenderingSettingsServiceTest
     			Arrays.asList(image.getId().getValue()));
     	assertNotNull(v);
     	assertEquals(v.size(), 0);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o stats info
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForImageNoStatsInfo() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	//Delete the stats info object.
+    	Pixels pixels = image.getPixels(0);
+    	//load the channel.
+    	Channel channel;
+    	String sql = "select c from Channel as c where c.pixels.id = :iid";
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", pixels.getId().getValue());
+    	List<IObject> channels = iQuery.findAllByQuery(sql, param);
+    	Iterator<IObject> i = channels.iterator();
+    	while (i.hasNext()) {
+			channel = (Channel) i.next();
+			channel.setStatsInfo(null);
+			iUpdate.saveAndReturnObject(channel);
+		}
+    	
+    	//Make sure the channels not have stats info.
+    	channels = iQuery.findAllByQuery(sql, param);
+    	i = channels.iterator();
+    	while (i.hasNext()) {
+			channel = (Channel) i.next();
+			assertNull(channel.getStatsInfo());
+		}
+    	//Image
+    	//method already tested 
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    	assertNotNull(m);
+    	assertEquals(m.size(), 1);
     }
 }
