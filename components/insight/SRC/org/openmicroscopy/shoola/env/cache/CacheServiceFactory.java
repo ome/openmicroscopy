@@ -52,7 +52,7 @@ public class CacheServiceFactory
 {
 
 	/** The name of the cache configuration file in the config directory. */
-	public static final String		CACHE_CONFIG_FILE = "ehcache.xml";
+	public static final String CACHE_CONFIG_FILE = "ehcache.xml";
 	
 	/**
 	 * Creates a new {@link CacheService}.
@@ -77,7 +77,8 @@ public class CacheServiceFactory
 		if (config == null)	return makeNoOpCache();
 		
 		//We have a config file, set up ehcache.
-		CacheService cache = new CacheServiceImpl(config);
+		CacheService cache = new CacheServiceImpl(config,
+				container.getRegistry().getLogger());
 		try {
 			config.close();
 		} catch (Exception e) {}
