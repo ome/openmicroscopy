@@ -854,13 +854,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             		min = stats.getGlobalMin().doubleValue();
                 	max = stats.getGlobalMax().doubleValue();
             	}
-            	/*
-            	if (stats == null)
-            		throw new ResourceError("Pixels set is missing statistics" +
-            				" for channel '"+ w +"'. This suggests an image " +
-            		"import error, import in progress or failed image import.");
-            	*/
-            	
             	if (Math.abs(min-max) < EPSILON) { //to be on the save side
             		qs = quantumFactory.getStrategy(qDef, pt);
             		min = qs.getPixelsTypeMin();
@@ -1135,12 +1128,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			break;
     		}
     	}
-    	/*
-    	if (pixelsFrom == null)
-    	{
-    		throw new ValidationException("No pixels set with ID: " + from);
-    	}
-    	*/
+
     	
     	// Perform the actual work of copying rendering settings, collecting
     	// the settings that need to be saved and saving the newly modified or
