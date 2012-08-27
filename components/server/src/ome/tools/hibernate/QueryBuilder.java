@@ -17,6 +17,8 @@ import ome.conditions.ApiUsageException;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -35,15 +37,40 @@ import org.hibernate.Session;
  */
 public class QueryBuilder {
 
+    private final static Log log = LogFactory.getLog(QueryBuilder.class);
+
     private int count = 0;
 
-    private final StringBuilder sb;
+    private final StringBuilder select = new StringBuilder();
+
+    private final StringBuilder from = new StringBuilder();
+
+    private final StringBuilder join = new StringBuilder();
+
+    private final StringBuilder where = new StringBuilder();
+
+    private final StringBuilder order = new StringBuilder();
+
+    private final StringBuilder group = new StringBuilder();
 
     private final Set<String> random = new HashSet<String>();
 
     private final Map<String, Object> params = new HashMap<String, Object>();
 
     private final Map<String, Collection> listParams = new HashMap<String, Collection>();
+
+    /**
+     * final {@link StringBuilder} instance which is currently being modified.
+     * For example, when "select" is called, then the {@link #select} instance
+     * is stored in {@link #current} so that calls to methods like
+     * {@link #append(String)} do the right thing.
+     */
+    private StringBuilder current;
+
+    /**
+     * Number of clauses in the where.
+     */
+    private int whereCount = 0;
 
     private String self;
 
@@ -55,22 +82,13 @@ public class QueryBuilder {
      */
     private String filterTarget;
 
-    /** Booleans which represent what is already complete */
-    private boolean select, from, join, where, order, group;
-
     public QueryBuilder() {
-        sb = new StringBuilder();
+        // no-op
     }
 
     public QueryBuilder(int size) {
-        sb = new StringBuilder(size);
-    }
-
-    public void throwUsage() throws ApiUsageException {
-        StringBuilder err = new StringBuilder();
-        err.append("It is required to call in the following order:\n");
-        err.append("select, from, join*, where, [and,or]*, order*, group*");
-        throw new ApiUsageException(err.toString());
+        // ignore size for the moment
+        this();
     }
 
     /**
@@ -94,69 +112,74 @@ public class QueryBuilder {
      * Simple delegate method to allow appending arbitrary strings.
      */
     public QueryBuilder append(String string) {
-        sb.append(string);
+        current.append(string);
         return this;
     }
 
     public QueryBuilder select(String... selects) {
-        if (select || from || join || where || order || group) {
-            throwUsage();
-        }
+        _type("select");
 
         if (selects == null || selects.length == 0) {
-            throwUsage();
+            throw new ApiUsageException("Empty select");
         }
 
-        sb.append("select ");
         for (int i = 0; i < selects.length; i++) {
             if (i != 0) {
-                sb.append(", ");
+                select.append(", ");
             }
-            sb.append(selects[i]);
+            select.append(selects[i]);
             appendSpace();
         }
-        select = true;
         return this;
     }
 
+    void _type(String type) {
+        current = select;
+        if (select.length() == 0) {
+            select.append(type);
+            appendSpace();
+        }
+
+    }
+
     /**
-     * 
+     *
      * @param type
      * @param alias
      * @return
      */
     public QueryBuilder from(String type, String alias) {
-        if (!select || join || where || order || group) {
-            throwUsage();
+        current = from;
+        if (from.length() == 0) {
+            from.append("from ");
+        } else {
+            from.append(", ");
         }
+
         this.self = alias;
-        sb.append("from ");
-        sb.append(type);
+        from.append(type);
         appendSpace();
-        sb.append("as ");
-        sb.append(alias);
+        from.append("as ");
+        from.append(alias);
         appendSpace();
-        select = true;
-        from = true;
         return this;
     }
 
     public QueryBuilder join(String path, String alias, boolean outer,
             boolean fetch) {
-        if (!select || !from || where || order || group) {
-            throwUsage();
-        }
+        current = join;
+
         if (outer) {
-            sb.append("left outer ");
+            join.append("left outer ");
         }
-        sb.append("join ");
+        join.append("join ");
         if (fetch) {
-            sb.append("fetch ");
+            join.append("fetch ");
         }
-        sb.append(path);
+        join.append(path);
         appendSpace();
-        sb.append("as ");
-        sb.append(alias);
+        join.append("as ");
+        join.append(alias);
         appendSpace();
         return this;
     }
@@ -165,14 +188,12 @@ public class QueryBuilder {
      * Marks the end of all fetches by adding a "where" clause to the string.
      */
     public QueryBuilder where() {
-        if (!select || !from || where || order || group) {
-            throwUsage();
+        current = where;
+
+        if (where.length() == 0) {
+            where.append("where ");
         }
 
-        if (!join) { // i.e. we have't already done this
-            sb.append("where ");
-        }
-        join = true;
         return this;
     }
 
@@ -184,19 +205,9 @@ public class QueryBuilder {
      * @return
      */
     public QueryBuilder and(String str) {
-        if (!select || !from || !join || order || group) {
-            throwUsage();
-        }
-        if (!where) {
-            sb.append(str);
-            where = true;
-        } else {
-            sb.append("and ");
-            sb.append(str);
-        }
-        appendSpace();
-        return this;
+        return _where("and ", str);
     }
+
 
     /**
      * Appends "or" plus your string unless this is the first where-spec in
@@ -206,16 +217,17 @@ public class QueryBuilder {
      * @return
      */
     public QueryBuilder or(String str) {
-        if (!select || !from || !join || order || group) {
-            throwUsage();
-        }
-        if (!where) {
-            sb.append(str);
-            where = true;
-        } else {
-            sb.append("or ");
-            sb.append(str);
-        }
+        return _where("or ", str);
+    }
+
+    private QueryBuilder _where(String bool, String str) {
+        where(); // check size and set current
+        whereCount++;
+
+        if (whereCount != 1) {
+            where.append(bool);
+         }
+        where.append(str);
         appendSpace();
         return this;
     }
@@ -225,15 +237,16 @@ public class QueryBuilder {
      * inside of parentheses.
      */
     public QueryBuilder subselect(QueryBuilder subselect) {
-        if (!select || !from || !join || !where || order || group) {
-            throwUsage();
+
+        // Leave current as is.
+
+        if ("".equals(subselect.queryString().trim())) {
+            // Nothing to do.
+            return this;
         }
-        sb.append("(");
-        sb.append(subselect.queryString());
-        sb.append(")");
-        for (String key : subselect.params.keySet()) {
-            this.params.put(key, subselect.params.get(key));
-        }
+        current.append("(");
+        current.append(subselect.queryString());
+        current.append(")");
         for (String key : subselect.listParams.keySet()) {
             this.listParams.put(key, subselect.listParams.get(key));
         }
@@ -242,21 +255,19 @@ public class QueryBuilder {
     }
 
     public QueryBuilder order(String path, boolean ascending) {
-        if (!select || !from || !join || !where || group) {
-            throwUsage();
-        }
-        if (!order) {
-            sb.append("order by ");
-            order = true;
+        current = order;
+
+        if (order.length() == 0) {
+            order.append("order by ");
         } else {
-            sb.append(", ");
+            order.append(", ");
         }
-        sb.append(path);
+        order.append(path);
         appendSpace();
         if (ascending) {
-            sb.append("asc ");
+            order.append("asc ");
         } else {
-            sb.append("desc ");
+            order.append("desc ");
         }
         return this;
     }
@@ -312,7 +323,15 @@ public class QueryBuilder {
         if (usefilter) {
             filterNow();
         }
-        Query q = session.createQuery(sb.toString());
+
+        Query q = null;
+        try {
+            q = session.createQuery(queryString());
+        } catch (RuntimeException rt) {
+            log.warn("Failed query: " + queryString());
+            throw rt;
+        }
+
         for (String key : params.keySet()) {
             q.setParameter(key, params.get(key));
         }
@@ -331,8 +350,10 @@ public class QueryBuilder {
     }
 
     public QueryBuilder appendSpace() {
-        if (sb.charAt(sb.length() - 1) != ' ') {
-            sb.append(' ');
+        if (current.length() == 0) {
+            current.append(' ');
+        } else if (current.charAt(current.length() - 1) != ' ') {
+            current.append(' ');
         }
         return this;
 
@@ -343,13 +364,20 @@ public class QueryBuilder {
      * this method should return parseable HQL.
      */
     public String queryString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.select.toString());
+        sb.append(this.from.toString());
+        sb.append(this.join.toString());
+        sb.append(this.where.toString());
+        sb.append(this.group.toString());
+        sb.append(this.order.toString());
         return sb.toString();
     }
 
     @Override
     public String toString() {
         StringBuilder toString = new StringBuilder();
-        toString.append(sb);
+        toString.append(queryString());
         toString.append(params);
         toString.append(listParams);
         return toString.toString();
@@ -359,28 +387,39 @@ public class QueryBuilder {
     // Used in case the standard workflow is not optimal
 
     public void update(String table) {
-        sb.append("update ");
-        sb.append(table);
+        _type("update");
+        select.append(table);
         appendSpace();
         skipFrom();
     }
 
     public void delete(String table) {
-        sb.append("delete ");
-        sb.append(table);
+        _type("delete");
+        select.append(table);
         appendSpace();
         skipFrom();
     }
 
     public void skipFrom() {
-        select = true;
-        from = true;
+        // no-op
     }
 
     public void skipWhere() {
-        join = true;
-        where = true;
+        // no-op
     }
+
+    /**
+     * Similar to how skipFrom and skipWhere were previously used, this sets
+     * the current builder to {@link #where} but without prefacing the
+     * "where " string. Instead, it adds a space so that further calls to
+     * {@link #where} also won't add it. This can be used to create a clause
+     * that can later be combined via {@link #subselect(QueryBuilder)}.
+     */
+    public QueryBuilder whereClause() {
+        current = where;
+        appendSpace(); // Add something empty.
+        return this;
+     }
 
     public void filter(String string, Filter filter) {
         filterTarget = string;

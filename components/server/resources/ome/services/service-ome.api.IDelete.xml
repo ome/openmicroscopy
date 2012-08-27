@@ -30,4 +30,8 @@
     <property name="target" ref="internal-ome.api.IDelete"/>
   </bean>
 
+  <bean id="ome.services.delete.Deletion" class="ome.services.delete.Deletion$Builder">
+      <constructor-arg ref="/OMERO/Files"/>
+  </bean>
+
 </beans>

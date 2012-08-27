@@ -411,6 +411,8 @@ class TestDelete(lib.ITest):
         command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
+        self.assertRaises(omero.ServerError, \
+                self.client.sf.getQueryService().get, "FileAnnotation", fa.id.val)
 
 
 if __name__ == '__main__':

@@ -308,6 +308,16 @@ public class Permissions implements Serializable {
         this.restrictions = copy;
     }
 
+    public void copyRestrictions(int allow) {
+        if (restrictions == null) {
+            this.restrictions = new boolean[4]; // All false
+        }
+        this.restrictions[LINKRESTRICTION] |= (0 == (allow & (1 << LINKRESTRICTION)));
+        this.restrictions[EDITRESTRICTION] |= (0 == (allow & (1 << EDITRESTRICTION)));
+        this.restrictions[DELETERESTRICTION] |= (0 == (allow & (1 << DELETERESTRICTION)));
+        this.restrictions[ANNOTATERESTRICTION] |= (0 == (allow & (1 << ANNOTATERESTRICTION)));
+    }
+
     // ~ Setters (return this)
     // =========================================================================
 
