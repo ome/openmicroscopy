@@ -36,6 +36,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -938,17 +939,18 @@ class IntensityView
 		Coord3D end = shapeMap.lastKey();
 		Coord3D coord;
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
-		for (Integer c : channels)
-		{
-			for (int z = start.getZSection() ; z <= end.getZSection(); z++)
-				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); 
-					t++)
-				{
-					coord = new Coord3D(z, t);
-					populateData(coord, c);
-					outputSummaryRow(writer, rowIndex, c, z, t);
-					rowIndex++;
-				}
+		Set<Coord3D> keys;
+		Iterator<Coord3D> i;
+		for (Integer c : channels) {
+			keys = shapeMap.keySet();
+			i = keys.iterator();
+			while (i.hasNext()) {
+				coord = (Coord3D) i.next();
+				populateData(coord, c);
+				outputSummaryRow(writer, rowIndex, c, coord.getZSection(),
+						coord.getTimePoint());
+				rowIndex++;
+			}
 		}
 	}
 
