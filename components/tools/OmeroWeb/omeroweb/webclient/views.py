@@ -1962,7 +1962,7 @@ def getObjectUrl(conn, obj):
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
-            links = fa.getParentLinks(ptype)
+            links = list(fa.getParentLinks(ptype))
             if len(links) > 0:
                 obj = links[0].parent
                 break
