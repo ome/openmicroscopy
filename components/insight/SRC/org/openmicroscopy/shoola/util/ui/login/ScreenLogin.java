@@ -258,6 +258,9 @@ public class ScreenLogin
     /** Flag indicating to modify the host.*/
     private boolean hostConfigurable;
     
+    /** The default server name from the configuration file.*/
+    private String configureServerName;
+    
 	/** Quits the application. */
 	private void quit()
 	{
@@ -356,6 +359,8 @@ public class ScreenLogin
 				d = new ServerDialog(this, editor, s, speedIndex);
 			else d = new ServerDialog(this, editor, s);
 		}
+		if (editor.getRowCount() == 0 && configureServerName != null)
+			editor.addRow(configureServerName);
 		d.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(d);
 	}
@@ -538,7 +543,7 @@ public class ScreenLogin
 			}
 		} else {
 			if (servers == null || servers.size() == 0) 
-				serverName = hostName;//DEFAULT_SERVER;
+				serverName = hostName;
 			else {
 				int n = servers.size()-1;
 				Iterator<String> i = servers.keySet().iterator();
@@ -796,7 +801,11 @@ public class ScreenLogin
 	 */
 	private void setNewServer(String s)
 	{
-		if (s == null || s.length() == 0) s = DEFAULT_SERVER;
+		if (s == null || s.length() == 0) {
+			if (configureServerName != null)
+				s = configureServerName;
+			else s = DEFAULT_SERVER;
+		}
 		String[] values = s.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
 		s = values[0];
 		if (values.length == 2) {
@@ -805,8 +814,6 @@ public class ScreenLogin
 			} catch (Exception e) {}
 		}
 		serverText.setText(s);
-		//serverText.validate();
-		//serverText.repaint();
 		serverTextPane.validate();
 		serverTextPane.repaint();
 		initializeGroups();
@@ -823,20 +830,14 @@ public class ScreenLogin
 		String usr = user.getText().trim();
 		usr = usr.trim();
 		if (s == null || usr == null || name == null) {
-			//login.setEnabled(false);
-			//return;
 			enabled = false;
 		} else {
 			s = s.trim();
 			if (login != null) {
 				if (DEFAULT_SERVER.equals(s)) {
-					//login.setEnabled(false);
-					//return;
 					enabled = false;
 				} else {
 					if (usr.length() == 0 || name.length == 0) {
-						//login.setEnabled(false);
-						//return;
 						enabled = false;
 					}
 				}
@@ -857,7 +858,6 @@ public class ScreenLogin
 			}
 			login.setForeground(defaultForeground);
 		} else {
-			//login.removeActionListener(this);
 			login.setForeground(FOREGROUND_COLOR);
 		}
 		layout(hasGroupOption());
@@ -1324,11 +1324,31 @@ public class ScreenLogin
     public void setHostNameConfiguration(String hostName, boolean configurable)
     {
     	hostConfigurable = configurable;
-    	if (!configurable && hostName != null && hostName.trim().length() > 0) {
-    		serverName = hostName;
-    		originalServerName = serverName;
-    		selectedPort = Integer.parseInt(editor.getDefaultPort());
-    		setNewServer(originalServerName);
+    	configureServerName = hostName;
+    	if (hostName != null && hostName.trim().length() > 0) {
+    		if (configurable) {
+        		Map<String, String> servers = editor.getServers();
+        		if (servers == null || servers.size() == 0) 
+    				editor.addRow(hostName);
+    			else {
+    				Iterator<String> i = servers.keySet().iterator();
+    				String value;
+    				boolean exist = false;
+    				while (i.hasNext()) {
+    					value = i.next();
+    					if (hostName.equals(value)) {
+    						exist = true;
+    						break;
+    					}
+    				}
+    				if (!exist) editor.addRow(hostName);
+    			}
+        	} else {
+        		serverName = hostName;
+        		originalServerName = serverName;
+        		selectedPort = Integer.parseInt(editor.getDefaultPort());
+        		setNewServer(originalServerName);
+        	}
     	}
     }
     

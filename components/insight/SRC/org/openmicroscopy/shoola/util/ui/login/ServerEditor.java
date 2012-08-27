@@ -826,4 +826,11 @@ public class ServerEditor
 		}	
 	}
 	
+	/**
+	 * Returns the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getRowCount() { return table.getRowCount(); }
+	
 }
