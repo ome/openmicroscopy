@@ -1,7 +1,7 @@
 """
     OMERO.fs Util module.
 
-    Copyright 2009 University of Dundee. All rights reserved.
+    Copyright 2012 University of Dundee. All rights reserved.
     Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -16,8 +16,8 @@ def monitorPackage():
     #
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
-    #     * Linux kernel 2.6 then .13 or higher, ie 2.8 would fail.
-    #     * Windows XP no other flavours at present, XP version irrelevant
+    #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
+    #     * Windows: XP, 2003Server, Vista, and 7
     #
     # Some fine-tuning may need to be applied, some additional Windows platforms added.
     # If any platform-specific stuff in the imported library fails an exception will be
@@ -63,7 +63,7 @@ def monitorPackage():
     elif system == 'Linux':
         kernel = platform.platform().split('-')[1].split('.')
         # Supported Linux kernel version.
-        if int(kernel[0]) == 2 and int(kernel[1]) == 6 and int(kernel[2]) >= 13:
+        if int(kernel[0]) >= 3 or (int(kernel[0]) == 2 and int(kernel[1]) == 6 and int(kernel[2]) >= 13):
             current = 'LINUX_2_6_13+pyinotify'
         # Unsupported Linux kernel version.    
         else:
