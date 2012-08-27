@@ -149,7 +149,7 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
  * A dialog for sending feedback. 
  * Loads and submits the feedback form at "/feedback/feedback"
  */
-var feedback_dialog = function(error) {
+var feedback_dialog = function(error, feedbackUrl) {
 
     var $feedback_dialog = $("#feedback_dialog");
     if ($feedback_dialog.length > 0) {       // get rid of any old dialogs
@@ -159,7 +159,7 @@ var feedback_dialog = function(error) {
     $('body').append($feedback_dialog);
 
     $feedback_dialog.attr("title", "Send Feedback").hide();
-    $feedback_dialog.load("/feedback/feedback #form-500", function() {
+    $feedback_dialog.load(feedbackUrl + " #form-500", function() {
         $("textarea[name=error]", $feedback_dialog).val(error);
         $("input[type=submit]", $feedback_dialog).hide();
         $("form", $feedback_dialog).ajaxForm({
@@ -195,7 +195,7 @@ var feedback_dialog = function(error) {
  * Handle jQuery load() errors (E.g. timeout)
  * In this case we simply refresh (will redirect to login page)
 **/
-$(document).ready(function(){
+var setupAjaxError = function(feedbackUrl){
     $("body").ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
@@ -206,10 +206,10 @@ $(document).ready(function(){
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
             var error = req.responseText;
-            feedback_dialog(error);
+            feedback_dialog(error, feedbackUrl);
         }
     });
-});
+};
 
 
 /*
