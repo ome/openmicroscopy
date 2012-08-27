@@ -968,8 +968,8 @@ class IntensityView
 	{
 		String name = channelName.get(channel);
 		writer.writeElement(rowIndex, 0, name);
-		writer.writeElement(rowIndex, 1, z+"");
-		writer.writeElement(rowIndex, 2, t+"");
+		writer.writeElement(rowIndex, 1, ""+(z+1));
+		writer.writeElement(rowIndex, 2, ""+(t+1));
 		int col;
 		String v;
 		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
