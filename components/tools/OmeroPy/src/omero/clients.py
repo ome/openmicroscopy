@@ -343,12 +343,19 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
-    def getSession(self):
+    def getSession(self, blocking=True):
         """
         Returns the current active session or throws an exception if none has been
         created since the last closeSession()
+
+        If blocking is False, then self.__lock is not acquired and the value
+        of self.__sf is simply returned. Clients must properly handle the
+        situation where this value is None.
         """
-        self.__lock.acquire()
+        if not blocking:
+            return self.__sf
+
+        self.__lock.acquire(blocking)
         try:
             sf = self.__sf
             if not sf:

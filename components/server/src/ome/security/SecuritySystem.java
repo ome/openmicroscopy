@@ -209,12 +209,30 @@ public interface SecuritySystem {
      * create an object linked to an object with lower READ rights, then
      * corruption could occur.
      *
+     * Starting with 4.4.2, a trusted details object should be passed in order
+     * to handle the situation where the current group id is -1. Possibles
+     * cases that can occur:
+     *
+     * <pre>
+     *  The current group is non-negative, then use the previous logic;
+     *  else the current group is negative,
+     *     and the object is in a non-"user" group: USE THAT GROUP;
+     *     else the object is in the "user" group: UNCLEAR
+     *     (for the moment we're throwing an exception)
+     * </pre>
+     *
+     * If no {@link Details} instance is passed or a {@link Details} without
+     * a {@link ExperimenterGroup} value, then throw as well.
+     *
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1434>1434</a>
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
+     * @see <a
+     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/9474>9474</a>
+     * @return
      */
-    boolean isGraphCritical();
+    boolean isGraphCritical(Details details);
 
     /**
      * creates a new secure {@link IObject#getDetails() details} for transient

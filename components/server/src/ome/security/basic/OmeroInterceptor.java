@@ -446,7 +446,7 @@ public class OmeroInterceptor implements Interceptor {
             final Permissions p = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
 
-            if (!isOwner && currentUser.isGraphCritical()) {
+            if (!isOwner && currentUser.isGraphCritical(rv)) {
                 // ticket:1769
                 String gname = currentUser.getGroup().getName();
                 String oname = currentUser.getOwner().getOmeName();

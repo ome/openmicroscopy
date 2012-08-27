@@ -23,10 +23,13 @@ import Ice.Current;
 
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
+import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -653,26 +656,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             return;
         }
 
-        Boolean success = (Boolean) factory.executor.execute(current.ctx, factory.principal,
-                new Executor.SimpleWork(this, "deleteOriginalFile") {
-
-                    @Transactional(readOnly = false)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        IUpdate update = sf.getUpdateService();
-                        try {
-                            update.deleteObject(file);
-                        } catch (ome.conditions.ValidationException ve) {
-                            return false;
-                        }
-                        return true;
-                    }
-
-                });
-
-        if (success == null || !success) {
-            throw new omero.ApiUsageException(null, null, "Cannot delete "
-                    + file + "\nIs in use by other objects");
-        }
+        scripts.simpleDelete(current.ctx, factory.executor, factory.principal,
+            file.getId());
 
     }
 
