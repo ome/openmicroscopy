@@ -326,12 +326,12 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
     path = request.REQUEST.get('path', '')
     i = path.split("|")[-1]
-    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
         init['initially_select'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -339,6 +339,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         first_obj, first_id = init['initially_open'][0].split("-",1)
         try:
             conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
+            if first_obj == "tag":
+                first_obj = "TagAnnotation"
             first_sel = conn.getObject(first_obj, long(first_id))
         except ValueError:
             pass    # invalid id
