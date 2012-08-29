@@ -83,7 +83,7 @@ class ImgSaverPreviewerCanvas
             g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
             width = img.getWidth();
             if (b && v != null && size < width && 
-            	model.getType() != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS) {
+            	model.getImageType() != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS) {
                 ImagePaintingFactory.paintScaleBar(g2D, w+width-size-10, 
                         ImgSaverPreviewer.SPACE+img.getHeight()-10, size, v,
                         model.getUnitBarColor());
@@ -127,7 +127,7 @@ class ImgSaverPreviewerCanvas
         g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
         int width = img.getWidth();
         if (unitBar && value != null && size < width && 
-        	model.getType() != ImgSaverUI.GRID_IMAGE)
+        	model.getImageType() != ImgSaverUI.GRID_IMAGE)
             ImagePaintingFactory.paintScaleBar(g2D, w+width-size-10, 
                 ImgSaverPreviewer.SPACE+img.getHeight()-10, size, value,
                 model.getUnitBarColor());

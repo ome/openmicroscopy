@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.GroupData;
+
 /** 
  * The {@link Editor}'s View.
  *
@@ -346,6 +348,14 @@ class EditorUI
 	 */
 	void setGroupInformation() { toolBar.setGroupInformation(); }
 	
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+	SecurityContext geSecurityContext() { return model.getSecurityContext(); }
+    
+	
     /** 
      * Overrides the {@link #setOnScreen() setOnScreen} method. 
      * Does not make the window visible, since this only occurs after 
@@ -371,5 +381,5 @@ class EditorUI
     	y = y + offset;
     	setLocation(x, y);
     }
-    
+
 }

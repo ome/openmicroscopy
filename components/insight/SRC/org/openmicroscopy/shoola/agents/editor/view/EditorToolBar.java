@@ -154,27 +154,22 @@ class EditorToolBar
 	private JPanel createManagementBar()
 	{
 		groupLabel = new JLabel();
-		/*
-		PersonalManagementAction a = (PersonalManagementAction)
-		controller.getAction(EditorControl.PERSONAL);
-		groupButton = new JButton(a);
-        BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
-        		BorderFactory.createLineBorder(Color.GRAY));
-        Collection l = EditorAgent.getAvailableUserGroups();
-        if (l.size() > 1)
-        	groupButton.addMouseListener(a);
-        */
 		Collection set = EditorAgent.getAvailableUserGroups();
 		JComboBoxImageObject[] objects = new JComboBoxImageObject[set.size()];
         Iterator i = set.iterator();
         int index = 0;
         GroupData g;
+        int selected = 0;
+        long groupId = view.geSecurityContext().getGroupID();
         while (i.hasNext()) {
         	g = (GroupData) i.next();
         	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
+        	if (g.getId() == groupId)
+        		selected = index;
 			index++;
 		}
         groupButton = new JComboBox(objects);
+        groupButton.setSelectedIndex(selected);
         JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
         groupButton.setRenderer(rnd);
         rnd.setPreferredSize(new Dimension(200, 130));
