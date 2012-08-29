@@ -213,12 +213,15 @@ public class ROI
 	 */
 	public String getTRange()
 	{
+		/*
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
 		int s = low.getTimePoint()+1;
 		int e = high.getTimePoint()+1;
 		if (s == e) return ""+s;
 		return s+"-"+e;
+		*/
+		return "";
 	}
 	
 	/** 
@@ -228,12 +231,15 @@ public class ROI
 	 */
 	public String getZRange()
 	{
+		/*
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
 		int s = low.getZSection()+1;
 		int e = high.getZSection()+1;
 		if (s == e) return ""+s;
 		return s+"-"+e;
+		*/
+		return "";
 	}
 	
 	/** 
