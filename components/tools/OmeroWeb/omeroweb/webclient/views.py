@@ -309,16 +309,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
-    
-    if menu == 'userdata':
-        template = "webclient/data/containers.html"
-    elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
-    else:
-        template = "webclient/%s/%s.html" % (menu,menu)
-
-    # get url without request string - used to refresh page after switch user/group etc
-    url = reverse(viewname="load_template", args=[menu])
 
     #tree support
     init = {'initially_open':None, 'initially_select': []}
@@ -340,20 +330,23 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         try:
             conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
             if first_obj == "tag":
-                first_obj = "TagAnnotation"
-            first_sel = conn.getObject(first_obj, long(first_id))
+                first_sel = conn.getObject("TagAnnotation", long(first_id))
+            else:
+                first_sel = conn.getObject(first_obj, long(first_id))
         except ValueError:
             pass    # invalid id
         if first_obj not in ("project", "screen"):
             # need to see if first item has parents
             if first_sel is not None:
                 for p in first_sel.getAncestry():
-                    if first_obj == "TagAnnotation":  # parents of tags must be tags (no OMERO_CLASS)
+                    if first_obj == "tag":  # parents of tags must be tags (no OMERO_CLASS)
                         init['initially_open'].insert(0, "tag-%s" % p.getId())
                     else:
                         init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
                 if init['initially_open'][0].split("-")[0] == 'image':
                     init['initially_open'].insert(0, "orphaned-0")
+        if first_obj == "tag":
+            menu = 'usertags'
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
         switch_active_group(request, first_sel.details.group.id.val)
@@ -362,6 +355,16 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == "search" and request.REQUEST.get('search_query'):
         init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
 
+
+    if menu == 'userdata':
+        template = "webclient/data/containers.html"
+    elif menu == 'usertags':
+        template = "webclient/data/container_tags.html"
+    else:
+        template = "webclient/%s/%s.html" % (menu,menu)
+
+    # get url without request string - used to refresh page after switch user/group etc
+    url = reverse(viewname="load_template", args=[menu])
 
     manager = BaseContainer(conn)
 
