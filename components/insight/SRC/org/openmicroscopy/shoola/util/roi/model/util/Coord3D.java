@@ -130,11 +130,12 @@ public class Coord3D
 			return -1;
 		Coord3D a = (Coord3D) o1;
 		Coord3D b = (Coord3D) o2;
+		if (a.z < 0 || b.z < 0 || a.t < 0 || b.t < 0) return 0;
 		if (a.t < b.t) return -1;
 		else if (a.t > b.t) return 1;
 		else if (a.z < b.z) return -1;
 		else if (a.z > b.z) return 1;
-		else return 0;
+		return 0;
 	}
 
 	/**
