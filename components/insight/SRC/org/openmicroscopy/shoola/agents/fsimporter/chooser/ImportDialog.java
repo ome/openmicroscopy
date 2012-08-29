@@ -1489,10 +1489,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 	 * @return See above.
 	 */
 	private void buildLocationPane() {
-		Dimension paneMinimumSize = new Dimension((int) (this.getWidth() * 0.75),
-				(int) (this.getHeight() * 0.75));
 		locationPane.removeAll();
-		locationPane.setMinimumSize(paneMinimumSize);
 		
 		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
@@ -1527,8 +1524,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			locationPane.add(row);
 			locationPane.add(new JSeparator());
 		}
-		//locationPane.validate();
-		//locationPane.repaint();
+		locationPane.validate();
+		locationPane.repaint();
 	}
 
 	/**
