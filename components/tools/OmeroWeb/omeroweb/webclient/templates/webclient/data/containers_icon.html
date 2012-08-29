@@ -98,26 +98,14 @@
             var datatree = $.jstree._focused();
             
             // double-click handler on image - launches image viewer
-            $("#dataIcons img").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+            $("#dataIcons li").dblclick(function(event) {
+                openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("#dataIcons li").click(function(event) {
-                handleClickSelection(event);
-            });
-            
-            // handles selection for 'clicks' (not drags) 
-            var handleClickSelection = function(event) {
                 var parent_id = '#'+$('#content_details').attr('rel');
-                var targetId = $(event.target).attr('id');      // target could be img, etc
-                var $li;
-                if (event.target.nodeName.toLowerCase() == 'li') {
-                    $li = $(event.target);
-                } else if (event.target.nodeName.toLowerCase() == 'img') {
-                    $li = $(event.target).parent();
-                }
-                var select_id = "image-" + $li.attr('id').split("-")[1];
+                var select_id = "image-" + $(this).attr('id').split("-")[1];
                 // find the matching child node from the tree
                 var $children = datatree._get_children(parent_id);
                 var toSelect = $children.filter(function(index) {
@@ -133,7 +121,7 @@
                     datatree.select_node(toSelect, true, event);
                     return false;
                 }
-            }
+            });
             
             // plugin to handle drag-select of images
             $("ul#dataIcons").selectable({
