@@ -345,7 +345,7 @@ public class CurrentDetails implements PrincipalHolder {
         l.setEntityId(id);
         l.setEvent(c.getEvent());
         Details d = Details.create();
-        d.setPermissions(new Permissions());
+        d.setPermissions(Permissions.WORLD_IMMUTABLE);
         l.getDetails().copy(d);
         list.add(l);
     }
@@ -381,9 +381,7 @@ public class CurrentDetails implements PrincipalHolder {
         d.setGroup(c.getGroup());
         // ticket:1434
         final Permissions groupPerms = c.getCurrentGroupPermissions();
-        final Permissions userUmask = c.getCurrentUmask();
         final Permissions p = new Permissions(groupPerms);
-        p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
     }

@@ -200,16 +200,6 @@ public class BasicEventContext extends SimpleEventContext {
     // ~ Getters/Setters for superclass state
     // =========================================================================
 
-    @Override
-    public Permissions getCurrentUmask() {
-        Permissions umask = super.getCurrentUmask();
-        if (umask == null) {
-            umask = new Permissions();
-            setUmask(umask);
-        }
-        return umask;
-    }
-
     public void setUmask(Permissions umask) {
         this.umask = umask;
     }
