@@ -183,28 +183,11 @@ public class ProjSavingDialog
 	/** The selected dataset.*/
 	private DatasetData					selectedDataset;
 	
-	/** The container indicating where to save the projected image.*/
-	private JLabel						containerLabel;
-	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
 		setTitle(TITLE);
 		setModal(true);
-	}
-	
-	/** Displays where to save the image.*/
-	private void setLabelText()
-	{
-		StringBuffer buffer = new StringBuffer();
-		if (parentsBox.getItemCount() > 0) {
-			DataNode node = (DataNode) parentsBox.getSelectedItem();
-			if (!node.isDefaultProject())
-				buffer.append(node.toString()+"/");
-		}
-		if (selectedDataset != null)
-			buffer.append(selectedDataset.getName());
-		containerLabel.setText(buffer.toString());
 	}
 	
 	/** Populates the datasets box depending on the selected project. */
@@ -248,7 +231,6 @@ public class ProjSavingDialog
 			}
 		}
 		datasetsBox.addActionListener(datasetsBoxListener);
-		setLabelText();
 	}
 	
 	/**
@@ -263,7 +245,6 @@ public class ProjSavingDialog
 	private void initComponents(String imageName, String type, int maxZ,
 			int startZ, int endZ)
 	{
-		containerLabel = new JLabel();
 		parentsBox = new JComboBox();
 		parentsBoxListener = new ActionListener() {
 			
@@ -279,7 +260,6 @@ public class ProjSavingDialog
 				DataNode node = (DataNode) datasetsBox.getSelectedItem();
 				if (node != null) {
 					selectedDataset = (DatasetData) node.getDataObject();
-					setLabelText();
 				}
 			}
 		};
@@ -467,24 +447,24 @@ public class ProjSavingDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
         				TableLayout.PREFERRED, height, 5,
         				TableLayout.PREFERRED, TableLayout.FILL} }; //rows
         content.setLayout(new TableLayout(tl));
+        
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
         content.add(UIUtilities.setTextFont("Name "), "0, 1, LEFT, CENTER");
         content.add(nameField, "1, 1, FULL, CENTER");
+        
         content.add(new JLabel(), "0, 2, 1, 2");
+        
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, LEFT, CENTER");
-        content.add(containerLabel, "1, 3, LEFT, CENTER");
-        //content.add(UIUtilities.buildComponentPanel(buildControls()), 
-        //		"0, 5, l, c");
-    	content.add(buildControls(), "1, 4, 1, 6");
-        content.add(new JLabel(), "0, 7, 1, 7");
-        content.add(UIUtilities.setTextFont("Parameters "), "0, 8," +
-        		"LEFT, CENTER");
-        content.add(buildParametersPanel(), "1, 8, 1, 9");
+    	content.add(buildControls(), "1, 3, 1, 4");
+        
+    	content.add(new JLabel(), "0, 5, 1, 5");
+        
+        content.add(UIUtilities.setTextFont("Parameters "), "0, 6, LEFT, CENTER");
+        content.add(buildParametersPanel(), "1, 6, 1, 7");
 		return content;
 	}
 	
@@ -527,28 +507,6 @@ public class ProjSavingDialog
 		DatasetData d = new DatasetData();
 		d.setName(name);
 		selectedDataset = d;
-		setLabelText();
-		/*
-		JCheckBox newBox = new JCheckBox(name);
-		newBox.setSelected(true);
-		DatasetData d = new DatasetData();
-		d.setName(name);
-		selectionPane.removeAll();
-		selectionPane.add(newBox);
-		if (selection != null) {
-        	Iterator i = selection.keySet().iterator();
-        	JCheckBox box;
-        	while (i.hasNext()) {
-        		selectionPane.add((JCheckBox) i.next());
-        	}
-        }
-		if (selection == null) 
-			selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		selection.put(newBox, d);
-		selectionPane.revalidate();
-		selectionPane.repaint();
-		newFolderButton.setEnabled(false);
-		*/
 	}
 	
 	/** Closes and disposes. */
@@ -762,7 +720,6 @@ public class ProjSavingDialog
 				d.setDefaultName("untitled dataset");
 				d.addPropertyChangeListener(
 						CreateFolderDialog.CREATE_FOLDER_PROPERTY, this);
-				d.pack();
 				UIUtilities.centerAndShow(this, d);
 		}
 	}
