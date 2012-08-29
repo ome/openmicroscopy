@@ -478,7 +478,11 @@ def cleanup ():
         p = p.get()
         if p is not None:
             client = p._conn
-            client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            handle = client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            try:
+                client._waitOnCmd(handle)
+            finally:
+                handle.close()
     client.seppuku()
     client = loginAsRoot()
     admin = client.getAdminService()
