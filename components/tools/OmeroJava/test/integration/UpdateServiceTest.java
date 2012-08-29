@@ -1170,7 +1170,7 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
-        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        String points = "points[10,10] points1[10,10] points2[10,10]";
         Polygon rect = new PolygonI();
         rect.setPoints(omero.rtypes.rstring(points));
         rect.setTheZ(omero.rtypes.rint(z));
@@ -1216,7 +1216,7 @@ public class UpdateServiceTest
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
-        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        String points = "points[10,10] points1[10,10] points2[10,10]";
         int z = 0;
         int t = 0;
         int c = 0;
@@ -1846,5 +1846,105 @@ public class UpdateServiceTest
     	param.addId(id);
     	results = iQuery.findAllByQuery(sql, param);
     	assertEquals(results.size(), 0);
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polylines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * The list of points follows the specification.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPolylineUsingSchema() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        String points = "10,10 11,11";
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Polyline rect = new PolylineI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PolylineData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PolylineData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getPoints().size() == 2);
+        	assertTrue(shape.getPoints1().size() == 2);
+        	assertTrue(shape.getPoints2().size() == 2);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPolygonUsingSchema() 
+    	throws Exception
+    {
+       	Image image = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        double w = 11;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        String points = "10,10 11,11";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PolygonData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PolygonData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getPoints().size() == 2);
+        	assertTrue(shape.getPoints1().size() == 2);
+        	assertTrue(shape.getPoints2().size() == 2);
+		}
     }
 }
