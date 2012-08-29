@@ -402,7 +402,11 @@ public class CurrentDetails implements PrincipalHolder {
                 if (group != null) {
                     // Systypes still will have DUMMY values.
                     Long gid = details.getGroup().getId();
-                    Permissions p = c.getPermissionsForGroup(gid);
+                    // Ticket:9505. This must be a new copy of the permissions
+                    // in order to prevent the restrictions being modified by
+                    // later objects!
+                    Permissions p = new Permissions(
+                        c.getPermissionsForGroup(gid));
                     if (p != null) {
                         copy = p;
                     }
