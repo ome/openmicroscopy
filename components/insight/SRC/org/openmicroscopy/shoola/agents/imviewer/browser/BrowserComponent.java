@@ -472,8 +472,6 @@ class BrowserComponent
 				gridView.paintImage();
 				break;
 			case ImViewer.PROJECTION_INDEX:	
-				projectionView.initialize();
-				//projectionView.repaint();
 				break;
 			case ImViewer.VIEW_INDEX:	
 				view.zoomImage();

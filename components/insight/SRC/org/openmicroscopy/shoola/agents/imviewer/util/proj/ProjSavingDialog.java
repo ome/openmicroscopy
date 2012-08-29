@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -211,16 +212,17 @@ public class ProjSavingDialog
 	{
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getUIDatasetNodes();
-		List l;
+		List<DataNode> l;
 		if (list == null || list.size() == 0) {
-			l = new ArrayList();
+			l = new ArrayList<DataNode>();
 			l.add(new DataNode(DataNode.createDefaultDataset()));
 		} else l = sorter.sort(list);
 		
 		datasetsBox.removeActionListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
-		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		populateAndAddTooltipsToComboBox(l, datasetsBox);
+		
 		if (selectedContainer != null && 
 			selectedContainer instanceof DatasetData) {
 			DatasetData d = (DatasetData) selectedContainer;
@@ -647,6 +649,34 @@ public class ProjSavingDialog
 		zrangeSelection.setInterval(startZ, endZ);
 	}
 	
+	/**
+	 * Takes the dataNdoes and populates the combo box with the values as well
+	 * as adding a tooltip for each item
+	 * 
+	 * @param dataNodes the nodes used to be displayed in the combo box
+	 * @param comboBox the JComboBox that hosts the options
+	 */
+	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
+			JComboBox comboBox) {
+		List<String> tooltips = new ArrayList<String>(dataNodes.size());
+
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+
+		comboBox.setRenderer(renderer);
+
+		for (DataNode projectNode : dataNodes) {
+			comboBox.addItem(projectNode);
+			
+			String projectName = projectNode.getFullName();
+
+			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
+			
+			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
+		}
+
+		renderer.setTooltips(tooltips);
+	}
+	
 	/** 
 	 * Sets the available containers.
 	 * 
@@ -657,12 +687,13 @@ public class ProjSavingDialog
 		if (containers == null || containers.size() == 0) return;
 		parentsBox.removeActionListener(parentsBoxListener);
 		parentsBox.removeAllItems();
-		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox.removeAllItems();
+		
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataObject ho;
 		DataNode n;
+		
 		if (containers != null && containers.size() > 0) {
 			Iterator<DataObject> i = containers.iterator();
 			while (i.hasNext()) {
@@ -676,18 +707,19 @@ public class ProjSavingDialog
 				}
 			}
 		}
-		List sortedList = new ArrayList();
+		
+		List<DataNode> sortedList = new ArrayList<DataNode>();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
 		
 		//check if new top nodes
-		List finalList = new ArrayList();
+		List<DataNode> finalList = new ArrayList<DataNode>();
 		if (datasetsList.size() > 0)
 			finalList.add(new DataNode(datasetsList));
 		finalList.addAll(sortedList);
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
+
+		populateAndAddTooltipsToComboBox(finalList, parentsBox);
 		
 		if (selectedGrandParentContainer != null &&
 				selectedGrandParentContainer instanceof ProjectData) {
@@ -704,35 +736,6 @@ public class ProjSavingDialog
 		parentsBox.addActionListener(parentsBoxListener);
 		populateDatasetsBox();
 		buildLocationPane();
-		
-		/*
-		if (datasets == null) return;
-		List<String> selected = getSelectedDatasets();
-		JCheckBox box;
-		DatasetData d;
-		if (selection == null)
-			selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		else {
-			selection.clear();
-		}
-		if (datasets != null && datasets.size() > 0) {
-			List l = sorter.sort(datasets);
-			Iterator j = l.iterator();
-			while (j.hasNext()) {
-				d = (DatasetData) j.next();
-				box = new JCheckBox(d.getName());
-				selection.put(box, d);
-				box.setSelected(selected.contains(d.getName()));
-			}
-			selectionPane.removeAll();
-			Iterator i = selection.keySet().iterator();
-        	while (i.hasNext()) 
-        		selectionPane.add((JComponent) i.next());
-        	selectionPane.validate();
-        	selectionPane.repaint();
-        	pane.revalidate();
-		}
-		*/
 	}
 	
 	/**
