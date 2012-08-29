@@ -906,7 +906,6 @@ class MeasurementViewerComponent
 				return;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
