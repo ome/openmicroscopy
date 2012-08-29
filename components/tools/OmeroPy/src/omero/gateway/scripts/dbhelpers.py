@@ -454,23 +454,27 @@ def getDataset (client, alias, forceproj=None):
 def getImage (client, alias, forceds=None):
     return IMAGES[alias].get(client, forceds)
 
-def bootstrap ():
+def bootstrap (onlyUsers=False):
     # Create users
     client = loginAsRoot()
-    for k, u in USERS.items():
-        if not u.create(client, ROOT.passwd):
-            u.changePassword(client, u.passwd, ROOT.passwd)
-    for k, p in PROJECTS.items():
-        p = p.create()
-        p._conn.seppuku()
-        #print p.get(client).getDetails().getPermissions().isUserWrite()
-    for k, d in DATASETS.items():
-        d = d.create()
-        d._conn.seppuku()
-    for k, i in IMAGES.items():
-        i = i.create()
-        i._conn.seppuku()
-    client.seppuku()
+    try:
+        for k, u in USERS.items():
+            if not u.create(client, ROOT.passwd):
+                u.changePassword(client, u.passwd, ROOT.passwd)
+        if onlyUsers:
+            return
+        for k, p in PROJECTS.items():
+            p = p.create()
+            p._conn.seppuku()
+            #print p.get(client).getDetails().getPermissions().isUserWrite()
+        for k, d in DATASETS.items():
+            d = d.create()
+            d._conn.seppuku()
+        for k, i in IMAGES.items():
+            i = i.create()
+            i._conn.seppuku()
+    finally:
+        client.seppuku()
 
 def cleanup ():
     for k, p in PROJECTS.items():
