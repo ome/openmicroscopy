@@ -138,15 +138,6 @@ class ProjectionUI
 		buildGUI();
 	}
 	
-	/** Creates a preview of the projection. */
-	void initialize()
-	{
-		//if (!init) {
-			//model.projectionPreview();
-			//init = true;
-		//}
-	}
-	
 	/** Creates the image to save. */
 	BufferedImage activeFileSave()
 	{
