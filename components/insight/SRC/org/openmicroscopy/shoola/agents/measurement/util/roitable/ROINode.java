@@ -283,6 +283,7 @@ public class ROINode
 		else if (userObject instanceof ROIShape)
 		{
 			ROIShape roiShape = (ROIShape) userObject;
+			int v;
 			switch (column)
 			{
 				case 0:
@@ -292,10 +293,13 @@ public class ROINode
 						return "--";
 					return Long.valueOf(roiShape.getROIShapeID());
 				case TIME_COLUMN+1:
-					return ((Integer) (roiShape.getT()+1)).toString();
+					v = roiShape.getT();
+					if (v < 0) return "-";
+					return ((Integer) (v+1)).toString();
 				case Z_COLUMN+1:
-					Integer z = roiShape.getZ()+1;
-					return z.toString();
+					v = roiShape.getZ();
+					if (v < 0) return "-";
+					return ((Integer) (v+1)).toString();
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
