@@ -271,14 +271,7 @@ public class ROINode
 				case Z_COLUMN+1:
 					return roi.getZRange();
 				case SHAPE_COLUMN+1:
-					return roi.getShapeTypes();
-					/*
-				case NAMESPACE_COLUMN+1:
-					return EditorUtil.getWorkflowForDisplay(
-							AnnotationKeys.NAMESPACE.get(roi));
-				case KEYWORDS_COLUMN+1:
-					return AnnotationKeys.KEYWORDS.get(roi);
-					*/
+					return null;//roi.getShapeTypes();
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:
