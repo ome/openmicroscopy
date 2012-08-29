@@ -60,7 +60,7 @@ class ImageTest (lib.GTest):
 
     def testRenderingModels (self):
         # default is color model
-        cimg = self.image.renderJpeg()
+        cimg = self.image.renderJpeg(0,0)
         ifile = StringIO(cimg)
         img = Image.open(ifile)
         extrema = img.getextrema()
