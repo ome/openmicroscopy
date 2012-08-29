@@ -165,7 +165,7 @@ public class ImgSaver
     private List            imageComponents;
     
     /** The type of the image to save. */
-    private int				type;
+    private int				imageType;
     
     /** One of the following constants: {@link #FULL}, {@link #PARTIAL}. */
     private int				savingType;
@@ -210,45 +210,45 @@ public class ImgSaver
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
-            	type = ImgSaverUI.IMAGE;
+            	imageType = ImgSaverUI.IMAGE;
                 mainImage = model.getDisplayedImage(b);
                 imageComponents = null;
                 break;
             case ImgSaverUI.GRID_IMAGE:
-            	type = ImgSaverUI.GRID_IMAGE;
+            	imageType = ImgSaverUI.GRID_IMAGE;
                 mainImage = model.getGridImage();
                 imageComponents = null;
                 break;
             case ImgSaverUI.PROJECTED_IMAGE:
-            	type = ImgSaverUI.PROJECTED_IMAGE;
+            	imageType = ImgSaverUI.PROJECTED_IMAGE;
                 mainImage = model.getDisplayedProjectedImage();
                 imageComponents = null;
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
-            	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
+            	imageType = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage(b);
                 imageComponents = model.getImageComponents(
                 						ImViewer.RGB_MODEL, b);
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS_GREY:
-            	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
+            	imageType = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage(b);
                 imageComponents = model.getImageComponents(
                 							ImViewer.GREY_SCALE_MODEL, b);
                 break;
             case ImgSaverUI.LENS_IMAGE:
-            	type = ImgSaverUI.LENS_IMAGE;
+            	imageType = ImgSaverUI.LENS_IMAGE;
             	mainImage = model.getZoomedLensImage();
             	imageComponents = null;
                 break;
             case ImgSaverUI.LENS_IMAGE_AND_COMPONENTS:
-            	type = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            	imageType = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
             	mainImage = model.getZoomedLensImage();
             	imageComponents = model.getLensImageComponents(
             								ImViewer.RGB_MODEL);
                 break;
             case ImgSaverUI.LENS_IMAGE_AND_COMPONENTS_GREY:
-            	type = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            	imageType = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
             	mainImage = model.getZoomedLensImage();
             	imageComponents = model.getLensImageComponents(
             								ImViewer.GREY_SCALE_MODEL);
@@ -397,7 +397,7 @@ public class ImgSaver
      * 
      * @return See above.
      */
-    int getType() { return type; }
+    int getImageType() { return imageType; }
     
     /**
      * Sets the format of the file.
@@ -479,7 +479,7 @@ public class ImgSaver
         	String name = uiDelegate.getSelectedFilePath();
             if (imageComponents == null) {
             	constrain = unitBar && v != null && s < mainImage.getWidth() 
-            				&& type == ImgSaverUI.IMAGE;
+            				&& imageType == ImgSaverUI.IMAGE;
             	writeSingleImage(mainImage, constrain, name);
             } else {
             	if (mainImage == null) return;
@@ -489,13 +489,13 @@ public class ImgSaver
             	Graphics2D g2;
             	if (uiDelegate.isSaveImagesInSeparatedFiles()) {
             		constrain = unitBar && v != null && s < mainImage.getWidth() 
-    							&& type == ImgSaverUI.IMAGE;
+    							&& imageType == ImgSaverUI.IMAGE;
             		writeSingleImage(mainImage, constrain, name);
             		i = imageComponents.iterator();
             		int j = 0;
             		while (i.hasNext()) {
             			constrain = unitBar && v != null && 
-            				type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            				imageType != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
             			writeSingleImage((BufferedImage) i.next(), constrain, 
             							name+"_"+j);
             			j++;
@@ -517,7 +517,7 @@ public class ImgSaver
                     while (i.hasNext()) {
                         g2.drawImage((BufferedImage) i.next(), null, x, 0); 
                         if (unitBar && v != null && 
-                            	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
+                            	imageType != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
                             ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
                             								h-10, s, v);
                         x += width;
@@ -526,8 +526,8 @@ public class ImgSaver
                     }
                     g2.drawImage(mainImage, null, x, 0); 
                     if (unitBar && v != null && 
-                    	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
-                    	 type == ImgSaverUI.LENS_IMAGE))
+                    	!(imageType == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
+                    	 imageType == ImgSaverUI.LENS_IMAGE))
                         ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
                         		h-10, s, v);
                     writeImage(newImage, name);

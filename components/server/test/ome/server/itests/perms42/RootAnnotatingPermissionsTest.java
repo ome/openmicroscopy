@@ -72,7 +72,7 @@ public class RootAnnotatingPermissionsTest extends PermissionsTest {
         executor.execute(loginAop.p, new Executor.SimpleWork(this, "isGraphCritical"){
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                rv[0] = securitySystem.isGraphCritical();
+                rv[0] = securitySystem.isGraphCritical(null); // may throw
                 return null;
             }});
         assertEquals(value, rv[0]);

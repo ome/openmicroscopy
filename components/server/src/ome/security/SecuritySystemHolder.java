@@ -137,8 +137,8 @@ public class SecuritySystemHolder implements SecuritySystem {
         choose().runAsAdmin(group, action);
     }
 
-    public boolean isGraphCritical() {
-        return choose().isGraphCritical();
+    public boolean isGraphCritical(Details details) {
+        return choose().isGraphCritical(details);
     }
 
 }

@@ -519,6 +519,7 @@ public class TimelineI extends AbstractAmdServant implements
                 qb.append(qString.replaceAll("@FETCH@", "fetch"));
             }
             qb.skipWhere();
+            qb.and("");
 
             String owningObject = OWNERSHIP.get(type);
             if (owningObject == null) {

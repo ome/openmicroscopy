@@ -287,7 +287,7 @@ class ITest(unittest.TestCase):
         callback.loop(loops, ms) # throws on timeout
         rsp = callback.getResponse()
         is_ok = isinstance(rsp, omero.cmd.OK)
-        self.assert_(passes, is_ok)
+        self.assertEquals(passes, is_ok, str(rsp))
         return callback
 
     def new_user(self, group = None, perms = None,

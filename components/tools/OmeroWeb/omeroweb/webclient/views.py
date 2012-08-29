@@ -519,7 +519,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
@@ -1962,7 +1962,7 @@ def getObjectUrl(conn, obj):
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
-            links = fa.getParentLinks(ptype)
+            links = list(fa.getParentLinks(ptype))
             if len(links) > 0:
                 obj = links[0].parent
                 break
