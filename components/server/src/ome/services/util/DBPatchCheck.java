@@ -94,7 +94,7 @@ public class DBPatchCheck {
         // since it's not something that everyone will be interested in.
         TransactionTemplate tt = new TransactionTemplate(tm);
         tt.execute(new TransactionCallback<Object>(){
-            @Override
+            /* @Override - JDK6 only */
             @Transactional(readOnly=false)
             public Object doInTransaction(TransactionStatus arg0) {
                 sql.version441Upgrade();

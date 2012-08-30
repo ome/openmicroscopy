@@ -71,7 +71,7 @@ public class TestChangeAttribute implements Modification {
         final long grp3 = (Long)
             fixture.execute(new Executor.SimpleWork(this, "addUserToNewGroup"){
             @Transactional(readOnly=false)
-            /*@Override*/
+            /* @Override - JDK6 only*/
             public Object doWork(Session session, ServiceFactory sf) {
                 long grp3 = simpleRP.createGroup(uuid, Permissions.PRIVATE, true);
                 simpleRP.addGroups(new Experimenter(ec1.getCurrentUserId(), false),
