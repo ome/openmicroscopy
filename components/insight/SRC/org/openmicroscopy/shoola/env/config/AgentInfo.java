@@ -50,16 +50,16 @@ public class AgentInfo
 {
 
 	/** Identifies the <code>true</code> active value. */
-	private static final String TRUE = "true";
+	public static final String TRUE = "true";
 	
 	/** Identifies the <code>true</code> active value. */
-	private static final String TRUE_SHORT = "t";
+	public static final String TRUE_SHORT = "t";
 	
 	/** Identifies the <code>false</code> active value. */
-	private static final String FALSE = "false";
+	public static final String FALSE = "false";
 	
 	/** Identifies the <code>false</code> active value. */
-	private static final String FALSE_SHORT = "f";
+	public static final String FALSE_SHORT = "f";
 	
 	/** The value of the <code>name</code> tag. */
     private String				name; 
