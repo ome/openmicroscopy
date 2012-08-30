@@ -574,23 +574,23 @@
           var minT = maxT = minZ = maxZ = null;
           var shapesHtml = '<tbody>';
           var shape = null;
-          var text;
+          var text, tRange, zRange;
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
               // Handle cases where the shape is on all sections or all
               // timepoints.
               if (typeof shape.theT === "undefined") {
-                  minT = 0;
-                  maxT = viewport.getTCount() - 1;
+                  tRange = NOZT;
+              } else {
+                  if (minT === null || minT > shape.theT) minT = shape.theT;
+                  if (maxT === null || maxT < shape.theT) maxT = shape.theT;
               }
               if (typeof shape.theZ === "undefined") {
-                  minZ = 0;
-                  maxZ = viewport.getZCount() - 1;
+                  zRange = NOZT;
+              } else {
+                  if (minZ === null || minZ > shape.theZ) minZ = shape.theZ;
+                  if (maxZ === null || maxZ < shape.theZ) maxZ = shape.theZ;
               }
-              if (minT === null || minT > shape.theT) minT = shape.theT;
-              if (maxT === null || maxT < shape.theT) maxT = shape.theT;
-              if (minZ === null || minZ > shape.theZ) minZ = shape.theZ;
-              if (maxZ === null || maxZ < shape.theZ) maxZ = shape.theZ;
               if (shape['textValue'] != null) {
                   text = shape['textValue']
                   if (firstText == null) firstText = text;
@@ -621,12 +621,14 @@
           shapesHtml += '</tbody>';
           
           // new tbody for each ROI
+          if (tRange != NOZT) tRange = "" + (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || (""));
+          if (zRange != NOZT) zRange = "" + (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || (""));
           var roi_html = "<thead><tr class='roi_row'>";
           roi_html += "<th><img class='expand_arrow' src='{% static "webgateway/img/arrowRight_grey.png" %}' /></th>";
           roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th style='white-space: nowrap'> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
-          roi_html += "<th style='white-space: nowrap'> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ tRange +" </th>"; // no Z for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ zRange +" </th>"; // no T for ROI
           roi_html += "<th class='shape_text' title=\""+ firstText +"\"><p>"+ truncate_text(firstText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
