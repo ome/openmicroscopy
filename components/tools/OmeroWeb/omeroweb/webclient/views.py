@@ -796,6 +796,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
+    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 
