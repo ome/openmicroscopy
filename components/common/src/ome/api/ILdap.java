@@ -112,19 +112,22 @@ public interface ILdap extends ServiceInterface {
 	String userdn);
 
 	/**
-	 * Searchs unique Distinguished Name - {@link java.lang.String} in
-	 * LDAP for Common Name equals username. Common Name should be unique under
-	 * the specified base. If list of cn's contains more then one DN will return
-	 * exception.
+	 * Searches for Distinguished Names in LDAP which match the passed
+	 * user or group name. If list of cn's contains more then one DN will
+	 * return exception.
+	 *
+	 * By default this method searches for user names. However if the value
+	 * is prefixed with either "user:" or "group:" then that string will
+	 * be stripped off and will determine the search method to use.
 	 * 
-	 * @param username
-	 *            Name of the Experimenter equals CommonName.
+	 * @param userOrGroupName
+	 *            Name of the Experimenter or ExperimenterGroup.
 	 * @return an String Distinguished Name. Never null.
 	 * @throws ome.conditions.ApiUsageException
-	 *             if more then one 'cn' under the specified base.
+	 *             if more or less one 'cn' under the specified base.
 	 */
 	String findDN(@NotNull
-	String username);
+	String userOrGroupName);
 
     /**
      * Searchs Experimenter by unique Distinguished Name - {@link java.lang.String} in
@@ -144,10 +147,13 @@ public interface ILdap extends ServiceInterface {
          * If "dn" is "true", then LDAP will be enabled for the given user.
          * If "dn" is "false", then LDAP will be disabled. All other values
          * will throw an {@link ome.conditions.ApiUsageException} since
-         * this method is essentially deprecated starting with 4.4.2.
+         * If "dn" is "group:true", then LDAP will be enabled for the given group.
+         * If "dn" is "group:false", then LDAP will be disabled for the given group.
+         *
+         * All other values this method is essentially deprecated after 4.4.2.
 	 */
 	void setDN(@NotNull
-	Long experimenterID, @NotNull
+	Long userOrGroupID, @NotNull
 	String dn);
 
 	// ~ Getting Ldap paramiters for searching

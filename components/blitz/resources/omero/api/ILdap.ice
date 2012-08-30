@@ -25,9 +25,9 @@ module omero {
                 idempotent ExperimenterList searchByAttribute(string dn, string attribute, string value) throws ServerError;
                 idempotent ExperimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
                 idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
-                idempotent string findDN(string username) throws ServerError;
+                idempotent string findDN(string userOrGroupName) throws ServerError;
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
-                idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
+                idempotent void setDN(omero::RLong userOrGroupID, string dn) throws ServerError;
                 idempotent bool getSetting() throws ServerError;
             };
 

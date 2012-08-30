@@ -12,6 +12,7 @@ import java.util.List;
 
 import ome.conditions.ValidationException;
 import ome.security.SecuritySystem;
+import ome.security.auth.mappers.GroupAttributeMapper;
 
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.filter.AndFilter;
