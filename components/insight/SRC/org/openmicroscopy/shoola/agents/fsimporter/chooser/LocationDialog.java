@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -145,6 +146,12 @@ class LocationDialog
 		initComponents();
 		buildGUI(location);
 		pack();
+		
+		int minHeight = this.getHeight();
+		int minWidth = this.getWidth();
+		Dimension minimumSize = new Dimension(minWidth, minHeight);
+		
+		setMinimumSize(minimumSize);
 	}
 
     /**
