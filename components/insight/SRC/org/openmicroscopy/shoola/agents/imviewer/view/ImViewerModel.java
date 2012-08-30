@@ -32,6 +32,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,13 +43,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
@@ -99,6 +99,8 @@ import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellData;
 import pojos.WellSampleData;
+
+import com.sun.opengl.util.texture.TextureData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -1949,15 +1951,20 @@ class ImViewerModel
 		buf.append("\n");
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
-		String range = "ZRange_"+(startZ+1)+"_"+(endZ+1)+"_";
+		
+		String imageNameWithRange = combineFilenameWith(ref.getImageName(), 
+				getImageName(), startZ, endZ);
+		
 		int startT = ref.getStartT();
 		int endT = ref.getEndT();
 		if (startT == endT) buf.append("timepoint: "+(startT+1));
 		else buf.append("timepoints: "+(startT+1)+"-"+(endT+1));
 		List<Integer> channels = ref.getChannels();
+		
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				startZ, endZ, stepping, type, startT, endT, channels, 
-				range+ref.getImageName());
+				imageNameWithRange);
+		
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
 		param.setDatasetParent(ref.getProject());
@@ -1965,6 +1972,27 @@ class ImViewerModel
 		ProjectionSaver loader = new ProjectionSaver(component, ctx, param, 
 							ProjectionSaver.PROJECTION, ref.isApplySettings());
 		loader.load();
+	}
+	
+	/**
+	 * Adds the ZRange to end of the the image name preserving the original 
+	 * file extension
+	 * @param imageName The name of the projection
+	 * @param imageName The original name of the image
+	 * @param startZ The starting Z value used to create the projection
+	 * @param endZ The ending Z value used to create the projection
+	 * @return
+	 */
+	private String combineFilenameWith(String projectName, String imageName, int startZ, int endZ) {
+		String extension = FilenameUtils.getExtension(imageName);
+		
+		StringBuilder nameBuilder = new StringBuilder();
+		nameBuilder.append(projectName);
+		nameBuilder.append(String.format("_ZRange_%s_%s", (startZ + 1), (endZ + 1)));
+		nameBuilder.append(".");
+		nameBuilder.append(extension);
+		
+		return nameBuilder.toString();
 	}
 	
 	/**
