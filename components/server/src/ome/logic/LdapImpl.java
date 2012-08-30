@@ -38,18 +38,18 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
 import ome.security.auth.AttributeSet;
 import ome.security.auth.FilteredAttributeNewUserGroupBean;
-import ome.security.auth.GroupAttributeMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.OrgUnitNewUserGroupBean;
-import ome.security.auth.PersonContextMapper;
 import ome.security.auth.QueryNewUserGroupBean;
 import ome.security.auth.RoleProvider;
+import ome.security.auth.mappers.GroupAttributeMapper;
+import ome.security.auth.mappers.GroupContextMapper;
+import ome.security.auth.mappers.PersonContextMapper;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
@@ -59,12 +59,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
-import org.springframework.ldap.core.LdapRdn;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
@@ -190,13 +189,24 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
     public String findDN(String username) {
+        boolean searchUser = true;
+        if (username.startsWith("user:")) {
+            username = username.substring("user:".length());
+        } else if (username.startsWith("group:")) {
+            searchUser = false;
+            username = username.substring("group:".length());
+        }
 
-        PersonContextMapper mapper = getContextMapper();
-        Experimenter exp = mapUserName(username, mapper);
-        return mapper.getDn(exp);
-
+        if (searchUser) {
+            PersonContextMapper mapper = getContextMapper();
+            Experimenter exp = mapUserName(username, mapper);
+            return mapper.getDn(exp);
+        } else {
+            GroupContextMapper mapper = getGroupContextMapper();
+            ExperimenterGroup grp = mapGroupName(username, mapper);
+            return mapper.getDn(grp);
+        }
     }
-
 
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
@@ -235,6 +245,23 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     }
 
+    @SuppressWarnings("unchecked")
+    private ExperimenterGroup mapGroupName(String groupname, GroupContextMapper mapper) {
+        Filter filter = config.groupnameFilter(groupname);
+        List<ExperimenterGroup> p = ldap.search("", filter.encode(), mapper);
+
+        if (p.size() == 1 && p.get(0) != null) {
+            ExperimenterGroup g = p.get(0);
+            if (g.getName().equals(groupname)) {
+                return p.get(0);
+            }
+        }
+        throw new ApiUsageException(String.format(
+                    "Cannot find unique DistinguishedName '%s': found=%s",
+                    groupname, p.size()));
+
+    }
+
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
     public List<String> searchDnInGroups(String attr, String value) {
@@ -268,11 +295,14 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @Deprecated
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(@NotNull Long experimenterID, String dn) {
+    public void setDN(@NotNull Long userOrGroupID, String dn) {
         if (dn != null) {
             String lower = dn.toLowerCase();
             if ("true".equals(lower) || "false".equals(lower)) {
-                sql.setUserLdapFlag(experimenterID, Boolean.valueOf(lower));
+                sql.setUserLdapFlag(userOrGroupID, Boolean.valueOf(lower));
+                return;
+            } else if ("group:true".equals(lower) || "group:false".equals(lower)) {
+                sql.setGroupLdapFlag(userOrGroupID, Boolean.valueOf(lower));
                 return;
             }
         }
@@ -542,6 +572,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     private PersonContextMapper getContextMapper(String attr) {
         return new PersonContextMapper(config, getBase(), attr);
+    }
+
+    private GroupContextMapper getGroupContextMapper() {
+        return new GroupContextMapper(config, getBase());
     }
 
     /**
