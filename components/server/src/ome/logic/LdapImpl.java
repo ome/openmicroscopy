@@ -56,9 +56,11 @@ import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
@@ -115,6 +117,25 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         this.roles = roles;
         this.config = config;
         this.provider = roleProvider;
+        Log log = getBeanHelper().getLogger();
+        try {
+            int userCount = searchAll().size();
+            int grpCount = ldap.search(DistinguishedName.EMPTY_PATH,
+                config.getGroupFilter().encode(), new ContextMapper(){
+                    public Object mapFromContext(Object arg0) {
+                        return arg0.toString();
+                    }}).size();
+            log.info(String.format(
+                "LDAP Connected: Found %s users and %s groups total",
+                userCount, grpCount));
+        } catch (Exception e) {
+            String row = "\n************************************\n";
+            String msg = row + "Failed to connect to LDAP! Refusing to startup.\n";
+            msg += "Please check your configuration\n";
+            msg += row;
+            log.fatal(msg, e);
+            throw new FatalBeanException(msg);
+        }
     }
 
     public void setApplicationContext(ApplicationContext arg0)
