@@ -219,9 +219,9 @@ public class ROI
 		int s = low.getTimePoint();
 		int e = high.getTimePoint();
 		if (s < 0 || e < 0) return "";
-		if (s == e) return ""+s;
 		s++;
 		e++;
+		if (s == e) return ""+s;
 		return s+"-"+e;
 		
 	}
@@ -238,9 +238,9 @@ public class ROI
 		int s = low.getZSection();
 		int e = high.getZSection();
 		if (s < 0 || e < 0) return "";
-		if (s == e) return ""+s;
 		s++;
 		e++;
+		if (s == e) return ""+s;
 		return s+"-"+e;
 	}
 	
