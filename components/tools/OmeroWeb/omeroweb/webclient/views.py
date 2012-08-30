@@ -310,6 +310,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     request.session.modified = True
 
+    if menu == 'userdata':
+        template = "webclient/data/containers.html"
+    elif menu == 'usertags':
+        template = "webclient/data/container_tags.html"
+    else:
+        template = "webclient/%s/%s.html" % (menu,menu)
+
     #tree support
     init = {'initially_open':None, 'initially_select': []}
     first_sel = None
@@ -327,6 +334,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         # tree hierarchy open to first selected object
         init['initially_open'] = [ init['initially_select'][0] ]
         first_obj, first_id = init['initially_open'][0].split("-",1)
+        # if we're showing a tag, make sure we're on the tags page...
+        if first_obj == "tag" and menu != "usertags":
+            return HttpResponseRedirect(reverse(viewname="load_template", args=['usertags']) + "?show=" + init['initially_select'][0])
         try:
             conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
             if first_obj == "tag":
@@ -345,8 +355,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                         init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
                 if init['initially_open'][0].split("-")[0] == 'image':
                     init['initially_open'].insert(0, "orphaned-0")
-        if first_obj == "tag":
-            menu = 'usertags'
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
         switch_active_group(request, first_sel.details.group.id.val)
@@ -354,14 +362,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # search support
     if menu == "search" and request.REQUEST.get('search_query'):
         init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
-
-
-    if menu == 'userdata':
-        template = "webclient/data/containers.html"
-    elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
-    else:
-        template = "webclient/%s/%s.html" % (menu,menu)
 
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
