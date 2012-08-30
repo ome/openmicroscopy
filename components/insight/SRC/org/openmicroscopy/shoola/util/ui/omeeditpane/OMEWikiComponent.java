@@ -520,7 +520,7 @@ public class OMEWikiComponent
 		value = prepare(value, false);
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
-		columns = (int) (1*width)/charWidth;
+		columns = (int) (1.5 * width) / charWidth;
 		setText(WordUtils.wrap(value, columns, newLineStr, false));
 	}
 	
