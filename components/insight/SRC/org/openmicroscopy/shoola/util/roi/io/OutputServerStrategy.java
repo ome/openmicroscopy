@@ -173,9 +173,9 @@ class OutputServerStrategy
 		if (shape == null)
 			throw new Exception("ROIShape not supported : " + 
 									clientShape.getClass().toString());
-		if (clientShape.getT() > 0)
+		if (clientShape.getT() >= 0)
 			shape.setT(clientShape.getT());
-		if (clientShape.getZ() > 0)
+		if (clientShape.getZ() >= 0)
 			shape.setZ(clientShape.getZ());
 		shape.setDirty(fig.isDirty());
 		if (!fig.isClientObject())
