@@ -119,6 +119,12 @@ public class LdapTest extends MockObjectTestCase {
     public void testLdiffFile(File file) throws Exception {
 
         Fixture fixture = createFixture(file);
+        if (fixture == null) {
+            // Skipping this fixture. Continue.
+            // See LdapInitTest for an example of skippage.
+            return;
+        }
+
         try {
             Map<String, List<String>> good = fixture.ctx.getBean("good", Map.class);
             Map<String, List<String>> bad = fixture.ctx.getBean("bad", Map.class);

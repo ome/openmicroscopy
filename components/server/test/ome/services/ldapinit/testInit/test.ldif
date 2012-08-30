@@ -1,0 +1,29 @@
+version: 1
+
+dn: ou=initGroup
+objectClass: organizationalUnit
+objectClass: top
+ou: initGroup
+
+dn: ou=testInit,ou=initGroup
+objectClass: organizationalUnit
+objectClass: top
+ou: testInit
+
+dn: cn=test1init,ou=testInit,ou=initGroup
+cn: test1init
+givenName: Testy
+sn: Tester
+objectClass: person
+objectClass: inetOrgPerson
+employeeType: Employee
+userPassword: password
+
+dn: cn=test2init,ou=testInit,ou=initGroup
+cn: test2init
+givenName: Testy
+sn: Tester
+objectClass: person
+objectClass: inetOrgPerson
+employeeType: Employee
+userPassword: password
