@@ -516,6 +516,7 @@
       $("#roi_table_postit").hide();
   }
   
+  var NOZT = "";
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
       var $roi_table = $("#roi_small_table");
@@ -606,10 +607,10 @@
               shapesHtml += "<td class='shape_cell icon'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               var theZ =
-                  typeof shape.theZ === "undefined"? "All" : shape.theZ + 1;
+                  typeof shape.theZ === "undefined"? NOZT : shape.theZ + 1;
               shapesHtml += "<td class='shape_cell'>" + theZ + "</td>";
               var theT =
-                  typeof shape.theT === "undefined"? "All" : shape.theT + 1;
+                  typeof shape.theT === "undefined"? NOZT : shape.theT + 1;
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
               shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
@@ -1262,11 +1263,13 @@
             vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true, true);
         }
         var z = $shapeRow.find('td:nth-child(4)').text();
-        z = z == "All"? 0 : parseInt(z);
+        if (z != NOZT) {
+            viewport.setZPos(parseInt(z));
+        }
         var t = $shapeRow.find('td:nth-child(5)').text();
-        t = t == "All"? 0 : parseInt(t);
-        viewport.setZPos(z);
-        viewport.setTPos(t);
+        if (t != NOZT) {
+            viewport.setTPos(parseInt(t));
+        }
     }
     
     $("#roi_small_table").click(function(event) {
