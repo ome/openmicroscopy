@@ -98,7 +98,10 @@ public class ScriptingDialog
 	
 	/** Message indicating that script can only run on objects.*/
 	public static final String WARNING = 
-		"You can only run script on objects from the same group.";
+		"The script currently only takes objects from " +
+		"the same group as input.\n" +
+		"Please only select objects from the same for that run.\n"+
+		"The script will have to be ran once per group.";
 	
 	/** Bound property indicating to run the script. */
 	public static final String RUN_SELECTED_SCRIPT_PROPERTY = 
