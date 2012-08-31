@@ -1000,7 +1000,7 @@ public class TaskBarManager
 		    			info.isEncryptedConfigurable());
 		    	login.setHostNameConfiguration(info.getHostName(),
 		    			info.isHostNameConfigurable());
-		    	//login.setModal(true);
+		    	login.setModal(true);
 		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
 				login.addPropertyChangeListener(this);
