@@ -74,8 +74,6 @@ public class Coord3D
 	 */
 	public Coord3D(int zsec, int time)
 	{
-		//if (zsec < 0 || time < 0)
-		//	throw new IllegalArgumentException("Coordinates not valid.");
 		t = time;
 		z = zsec;
 		c = -1;
