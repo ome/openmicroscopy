@@ -236,6 +236,7 @@ class CustomUsersTest (ChmodBaseTest):
         ReadOnly('admin', admin=True)
         ReadOnly('leader', groupowner=True)
         dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
+        dbhelpers.PROJECTS['read_only_proj_2'] = dbhelpers.ProjectEntry('read_only_proj_2', 'read_only_owner')
 
         # read-annotate users & data
         def ReadAnn(key, admin=False, groupowner=False):
@@ -275,9 +276,15 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as owner...
         self.doLogin(dbhelpers.USERS['read_only_owner'])
         p = dbhelpers.getProject(self.gateway, 'read_only_proj')
+        p2 = dbhelpers.getProject(self.gateway, 'read_only_proj_2')
         pid = p.id
+        pid2 = p2.id
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+        # Test Bug from #9505 commits: Second Project canEdit() is False
+        pros = self.gateway.getObjects("Project", [pid, pid2])
+        for p in pros:
+            self.assertCanEdit(p, True)
 
         # Login as user...
         self.doLogin(dbhelpers.USERS['read_only_user'])
