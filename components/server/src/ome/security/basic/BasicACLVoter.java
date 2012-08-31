@@ -30,6 +30,7 @@ import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.system.EventContext;
+import ome.system.Roles;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,12 +76,20 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final SecurityFilter securityFilter;
 
+    protected final Roles roles;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-            TokenHolder tokenHolder, SecurityFilter securityFilter) {
+        TokenHolder tokenHolder, SecurityFilter securityFilter) {
+        this(cd, sysTypes, tokenHolder, securityFilter, new Roles());
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+        TokenHolder tokenHolder, SecurityFilter securityFilter, Roles roles) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
+        this.roles = roles;
     }
 
     // ~ Interface methods
@@ -355,7 +364,11 @@ public class BasicACLVoter implements ACLVoter {
             final BasicEventContext c = currentUser.current();
             Permissions grpPermissions = c.getCurrentGroupPermissions();
             if (grpPermissions == Permissions.DUMMY && details.getGroup() != null) {
-                grpPermissions = c.getPermissionsForGroup(details.getGroup().getId());
+                Long gid = details.getGroup().getId();
+                grpPermissions = c.getPermissionsForGroup(gid);
+                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
+                    grpPermissions = new Permissions(Permissions.EMPTY);
+                }
             }
             final Permissions p = details.getPermissions();
             final int allow = allowUpdateOrDelete(c, object, details, grpPermissions,

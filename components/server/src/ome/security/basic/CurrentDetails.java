@@ -392,9 +392,8 @@ public class CurrentDetails implements PrincipalHolder {
         if (changePerms) {
             // Make the permissions match (#8277)
             final Permissions groupPerms = c.getCurrentGroupPermissions();
-            Permissions copy = new Permissions(Permissions.EMPTY);
             if (groupPerms != Permissions.DUMMY) {
-                copy = new Permissions(groupPerms);
+                details.setPermissions(new Permissions(groupPerms));
             } else {
                 // In the case of the dummy, we will be required to have
                 // the group id already set in the context.
@@ -402,17 +401,19 @@ public class CurrentDetails implements PrincipalHolder {
                 if (group != null) {
                     // Systypes still will have DUMMY values.
                     Long gid = details.getGroup().getId();
-                    // Ticket:9505. This must be a new copy of the permissions
-                    // in order to prevent the restrictions being modified by
-                    // later objects!
-                    Permissions p = new Permissions(
-                        c.getPermissionsForGroup(gid));
+                    Permissions p = c.getPermissionsForGroup(gid);
                     if (p != null) {
-                        copy = p;
+                        // Ticket:9505. This must be a new copy of the permissions
+                        // in order to prevent the restrictions being modified by
+                        // later objects!
+                        details.setPermissions(new Permissions(p));
+                    } else if (gid.equals(Long.valueOf(roles.getUserGroupId()))) {
+                        details.setPermissions(new Permissions(Permissions.EMPTY));
+                    } else {
+                        throw new InternalException("No permissions: " + details);
                     }
                 }
             }
-            details.setPermissions(copy);
         }
 
     }
