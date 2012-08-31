@@ -57,6 +57,21 @@ public class OMEROInfo
     /** The value of the <code>hostName</code> sub-tag. */ 
     private String     hostName;
     
+    /** The value of the <code>encrypted</code> sub-tag. */ 
+    private boolean     encrypted;
+    
+    /** 
+     * Flag indicating  if the host name can be modified by the user,
+     * or not.
+     */
+    private boolean hostNameConfigurable;
+    
+    /** 
+     * Flag indicating  if the encryption of the data transfer
+     * can be modified by the user or not.
+     */
+    private boolean encryptedConfigurable;
+    
     /**
      * Parses the specified string into an integer.
      * 
@@ -84,15 +99,30 @@ public class OMEROInfo
      * @param port The value of the <code>port</code> sub-tag.
      * @param portSSL The value of the <code>portSSL</code> sub-tag.
      * @param hostname The value of the <code>hostname</code> sub-tag.
+     * @param encrypted The value of the <code>encrypted</code> sub-tag.
      * @throws ConfigException If <code>port</code> can't be parsed into an 
      *                          integer.
      */
-    public OMEROInfo(String port, String portSSL, String hostName)
+    public OMEROInfo(String port, String portSSL, String hostName,
+    		String encrypted)
         throws ConfigException
     {
         this.portSSL = parseInt(portSSL);
         this.port = parseInt(port);
         this.hostName = hostName;
+        hostNameConfigurable = true;
+        encryptedConfigurable = true;
+        if (encrypted == null) this.encrypted = false; 
+		else {
+			encrypted = encrypted.toLowerCase();
+			if (AgentInfo.TRUE.equals(encrypted) ||
+				AgentInfo.TRUE.equals(encrypted))
+				this.encrypted = true;
+			else if (AgentInfo.FALSE.equals(encrypted) ||
+				AgentInfo.FALSE_SHORT.equals(encrypted))
+				this.encrypted = false;
+			else this.encrypted = false;
+		}
     }
     
     /**
@@ -115,5 +145,50 @@ public class OMEROInfo
      * @return See above.
      */
     public String getHostName() { return hostName; }
+    
+    /**
+     * Returns the value of the <code>encrypted</code> sub-tag.
+     * 
+     * @return See above.
+     */
+    public boolean isEncrypted() { return encrypted; }
+
+    /**
+     * Returns <code>true</code> if the host name can be modified by the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isHostNameConfigurable() { return hostNameConfigurable; }
+    
+    /**
+     * Returns <code>true</code> if the encryption of the data transfer
+     * can be modified by the user, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isEncryptedConfigurable() { return encryptedConfigurable; }
+    
+    /**
+     * Sets to <code>true</code> if the host name can be modified by the user,
+     * to <code>false</code> otherwise.
+     * 
+     * @param hostNameConfigurable See above.
+     */
+    public void setHostNameConfigurable(boolean hostNameConfigurable)
+    { 
+    	this.hostNameConfigurable = hostNameConfigurable;
+    }
+    
+    /**
+     * Sets to <code>true</code> if the encryption of the data transfer
+     * can be modified by the user, to <code>false</code> otherwise.
+     * 
+     * @param encryptedConfigurable See above.
+     */
+    public void setEncryptedConfigurable(boolean encryptedConfigurable)
+    {
+    	this.encryptedConfigurable = encryptedConfigurable;
+    }
     
 }

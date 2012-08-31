@@ -99,22 +99,22 @@ class ServerTable
 	{
 		String[] columnNames = {"", "", ""};
 		final Object[][] objects;
-		Boolean focus = Boolean.TRUE;
+		Boolean focus = Boolean.valueOf(true);
 		if (servers == null || servers.size() == 0) {
 			objects = new Object[1][3];
 			objects[0][0] = icon;
 			objects[0][1] = "";
 			objects[0][2] = parent.getDefaultPort();
-			focus = Boolean.FALSE;
+			focus = Boolean.valueOf(false);
 		} else {
 			objects = new Object[servers.size()][3];
-			Iterator i = servers.entrySet().iterator();
+			Iterator<Entry<String, String>> i = servers.entrySet().iterator();
 			int j = 0;
 			String s;
-			Entry entry;
+			Entry<String, String> entry;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				s = (String) entry.getKey();
+				entry = i.next();
+				s = entry.getKey();
 				objects[j][0] = icon;
 				objects[j][1] = s;
 				objects[j][2] = entry.getValue();
@@ -127,7 +127,7 @@ class ServerTable
 			w = icon.getIconWidth();
 			h = icon.getIconHeight();
 		}
-		focus = Boolean.FALSE;
+		focus = Boolean.valueOf(false);
 		putClientProperty("terminateEditOnFocusLost", focus);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setModel(new ServerTableModel(objects, columnNames));

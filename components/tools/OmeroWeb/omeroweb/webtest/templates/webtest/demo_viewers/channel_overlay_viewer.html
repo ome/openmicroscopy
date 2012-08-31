@@ -8,9 +8,9 @@ body {
     font-family: arial;
 }
 </style>
-
-<script type="text/javascript" src="/webtest/statictest/js/imgareaselect/jquery.imgareaselect.js"></script>
-<link rel="stylesheet" type="text/css" href="/webtest/statictest/css/imgareaselect-default.css" /> 
+{% include "webgateway/base/includes/script_src_jquery.html" %}
+<script type="text/javascript" src="{% static 'webadmin/javascript/jquery.imgareaselect-0.9.8/jquery.imgareaselect.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'webadmin/javascript/jquery.imgareaselect-0.9.8/css/imgareaselect-default.css' %}" /> 
 
 <script type="text/javascript">
 
@@ -26,9 +26,9 @@ $(document).ready(function() {
             return;
 
         var zoomPercent = parseInt($zoomSelect.attr('value'));
-        var height = $viewer.attr('height') * zoomPercent/100;
-        var width = $viewer.attr('width') * zoomPercent/100;
-        
+        var height = {{ image.getSizeY }} * zoomPercent/100;
+        var width = {{ image.getSizeX }} * zoomPercent/100;
+
         var viewPortWidth = Math.round(selection.width * zoomPercent/100);
         var viewPortHeight = Math.round(selection.height * zoomPercent/100);
         var marginLeft = -Math.round(selection.x1 * zoomPercent/100);
@@ -36,14 +36,14 @@ $(document).ready(function() {
         
         
         $('#preview').css({
-            width: viewPortWidth,
-            height: viewPortHeight,
+            width: viewPortWidth + "px",
+            height: viewPortHeight + "px",
         });
         $('#preview img').css({
-            width: width,
-            height: height,
-            marginLeft: -Math.round(selection.x1 * zoomPercent/100),
-            marginTop: -Math.round(selection.y1 * zoomPercent/100)
+            width: width + "px",
+            height: height + "px",
+            marginLeft: -Math.round(selection.x1 * zoomPercent/100)  + "px",
+            marginTop: -Math.round(selection.y1 * zoomPercent/100) + "px"
         });
  
     }
@@ -58,6 +58,15 @@ $(document).ready(function() {
         
         var $radio = $(this);
         var cIndex = $radio.attr('value');
+        
+        $(".planeRow").css("background", "white")
+            .each(function() {
+                var $i = $('input:checked', this);
+                if ($i.length == 1) {
+                    $(this).css("background", $i.attr('name'));
+                }
+            });
+        
         refreshImage();
     });
     
@@ -233,7 +242,11 @@ $(document).ready(function() {
                 <td>Channel Name</td><td>x-shift</td><td>y-shift</td>
             </tr>
         {% for c in channels %}
-            <tr class='planeRow'>
+            <tr class='planeRow' 
+                {% ifequal blue forloop.counter0 %}bgcolor="blue"{% endifequal %}
+                {% ifequal green forloop.counter0 %}bgcolor="green"{% endifequal %}
+                {% ifequal red forloop.counter0 %}bgcolor="red"{% endifequal %}
+                >
                 <td><input class='cSelect' type="radio" name="red" value="{{ forloop.counter0 }}"
                     {% ifequal red forloop.counter0 %} checked="True" {% endifequal %}/></td>
                 <td><input class='cSelect' type="radio" name="green" value="{{ forloop.counter0 }}"
