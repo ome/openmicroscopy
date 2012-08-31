@@ -64,7 +64,11 @@ public class LdapIntegrationTest extends LdapTest {
     }
 
     RoleProvider provider() {
-        return (RoleProvider) mCtx.getBean("roleProvider");
+        return (RoleProvider) mCtx.getBean("ldapRoleProvider");
+    }
+
+    RoleProvider nonLdapProvider() {
+        return (RoleProvider) mCtx.getBean("simpleRoleProvider");
     }
 
     @BeforeMethod
@@ -197,6 +201,7 @@ public class LdapIntegrationTest extends LdapTest {
 
         hsts.swap(source);
 
+        fixture.applicationContext = this.mCtx;
         fixture.template = (LdapTemplate) mCtx.getBean("ldapTemplate");
         fixture.template.setContextSource(source);
 

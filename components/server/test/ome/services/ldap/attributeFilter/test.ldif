@@ -1,0 +1,14 @@
+version: 1
+
+dn: ou=attributeFilter
+objectClass: organizationalUnit
+objectClass: top
+ou: attributeFilter
+
+dn: cn=user,ou=attributeFilter
+cn: user
+givenName: Testy
+sn: Tester
+objectClass: person
+roleOccupant: ThisGroupDoesNotExist
+userPassword: password

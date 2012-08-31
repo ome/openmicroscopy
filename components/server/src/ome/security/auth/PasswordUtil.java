@@ -71,10 +71,6 @@ public class PasswordUtil {
         return buffer.toString();
     }
 
-    public String getDnById(Long id) {
-        return sql.dnForUser(id);
-    }
-
     public void changeUserPasswordById(Long id, String password) {
         if (! sql.setUserPassword(id, preparePassword(password))) {
             throw new InternalException("0 results for password insert.");

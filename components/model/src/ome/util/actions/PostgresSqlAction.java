@@ -295,7 +295,7 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 password, experimenterID);
         if (results < 1) {
             results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                    experimenterID, password, null);
+                    experimenterID, password);
         }
         return results >= 1;
     }

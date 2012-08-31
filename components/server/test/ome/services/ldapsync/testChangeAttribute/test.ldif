@@ -1,0 +1,24 @@
+dn: ou=testChangeAttribute,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: testChangeAttribute
+
+dn: cn=grp1,ou=testChangeAttribute,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp1
+
+dn: cn=grp2,ou=testChangeAttribute,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp2
+
+dn: cn=test1,ou=testChangeAttribute,o=eg
+objectClass: person
+cn: test1
+givenName: Testy
+sn: Tester
+mail: test1@test.com
+userPassword: password
+roleOccupant: grp1
+roleOccupant: grp2

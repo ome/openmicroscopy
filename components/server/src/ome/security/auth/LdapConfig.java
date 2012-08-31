@@ -96,6 +96,14 @@ public class LdapConfig {
         return filter;
     }
 
+    public Filter groupnameFilter(String groupname) {
+        String attributeKey = getGroupAttribute("name");
+        AndFilter filter = new AndFilter();
+        filter.and(getGroupFilter());
+        filter.and(new EqualsFilter(attributeKey, groupname));
+        return filter;
+    }
+
     // Accessors
 
     public boolean isEnabled() {

@@ -15,13 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -53,9 +52,42 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  */
 public interface SqlAction {
 
+    /**
+     * {@link RowMapper} which always reads the first and only the first argument
+     * as a single long.
+     */
     public static class IdRowMapper implements RowMapper<Long> {
         public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getLong(1);
+        }
+    }
+
+    /**
+     * {@link RowMapper} which always reads the first and only the first argument
+     * as a single String.
+     */
+    public static class StringRowMapper implements RowMapper<String> {
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
+        }
+    }
+
+    /**
+     * {@link RowMapper} which reads the first and second elements only, both as
+     * objects, and uses them as the key and the value, respectively, of an
+     * entry in the map passed to the constructor. The map is returned for
+     * every row.
+     */
+    @SuppressWarnings("rawtypes")
+    public static class MapRowMapper implements RowMapper<Map<Object, Object>> {
+        final private Map map;
+        public MapRowMapper(Map map) {
+            this.map = map;
+        }
+        @SuppressWarnings("unchecked")
+        public Map<Object, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+            map.put(rs.getObject(1), rs.getObject(2));
+            return map;
         }
     }
 
@@ -124,6 +156,43 @@ public interface SqlAction {
      */
     ExperimenterGroup groupInfoFor(String table, long id);
 
+    /**
+     * Get the "ldap" flag for a particular {@link ExperimenterGroup} instance.
+     */
+    boolean getGroupLdapFlag(long id);
+
+    /**
+     * Set the "ldap" flag for a particular {@link ExperimenterGroup} instance.
+     */
+    void setGroupLdapFlag(long id, boolean isLdap);
+
+    /**
+     * Get the "ldap" flag for a particular {@link Experimenter} instance.
+     */
+    boolean getUserLdapFlag(long id);
+
+    /**
+     * Return the id and name of all groups that are configured for LDAP.
+     */
+    Map<Long, String> getLdapGroups();
+
+    /**
+     * Return the id and name of all users who are configured for LDAP.
+     */
+    Map<Long, String> getLdapUsers();
+
+    /**
+     * Return the id of all ldap-groups which this user is a member of.
+     * @param id
+     * @return
+     */
+    List<Long> getLdapGroupsForUser(long id);
+
+    /**
+     * Set the "ldap" flag for a particular {@link Experimenter} instance.
+     */
+    void setUserLdapFlag(long id, boolean isLdap);
+    
     String fileRepo(long fileId);
 
     /**
@@ -229,12 +298,6 @@ public interface SqlAction {
 
     List<Long> getShapeIds(long roiId);
 
-    String dnForUser(Long id);
-
-    List<Map<String, Object>> dnExperimenterMaps();
-
-    void setUserDn(Long experimenterID, String dn);
-
     boolean setUserPassword(Long experimenterID, String password);
 
     String getPasswordHash(Long experimenterID);
@@ -329,6 +392,16 @@ public interface SqlAction {
     // End PgArrayHelper
     //
 
+
+    //
+    // UPGRADES
+    //
+
+    /**
+     * Applies the auto-upgrade to 4.4__1 if the current version is 4.4__0.
+     */
+    void version441Upgrade();
+
     /**
      * Base implementation which can be used
      */
@@ -401,7 +474,7 @@ public interface SqlAction {
                     password, experimenterID);
             if (results < 1) {
                 results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                        experimenterID, password, null);
+                        experimenterID, password);
             }
             return results >= 1;
         }
@@ -472,6 +545,48 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
+        }
+
+        public boolean getGroupLdapFlag(long id) {
+            return _jdbc().queryForObject(
+                _lookup("ldap.set_flag.group"), //$NON-NLS-1$
+                Boolean.class, id);
+        }
+
+        public void setGroupLdapFlag(long id, boolean isLdap) {
+            _jdbc().update(_lookup("ldap.set_flag.group"), //$NON-NLS-1$
+                isLdap, id);
+        }
+
+        public boolean getUserLdapFlag(long id) {
+            return _jdbc().queryForObject(
+                _lookup("ldap.get_flag.user"), //$NON-NLS-1$
+                Boolean.class, id);
+        }
+
+        public void setUserLdapFlag(long id, boolean isLdap) {
+            _jdbc().update(_lookup("ldap.set_flag.user"), //$NON-NLS-1$
+                isLdap, id);
+        }
+
+        public Map<Long, String> getLdapGroups() {
+            final Map<Long, String> rv = new HashMap<Long, String>();
+            _jdbc().query(_lookup("ldap.get_groups"), //$NON-NLS-1$
+                new MapRowMapper(rv));
+            return rv;
+        }
+
+        public Map<Long, String> getLdapUsers() {
+            final Map<Long, String> rv = new HashMap<Long, String>();
+            _jdbc().query(_lookup("ldap.get_groups"), //$NON-NLS-1$
+                new MapRowMapper(rv));
+            return rv;
+        }
+
+        public List<Long> getLdapGroupsForUser(long id) {
+            return _jdbc().query(_lookup("ldap.get_groups_for_user"), //$NON-NLS-1$
+                new IdRowMapper(), id);
+
         }
 
         public String fileRepo(long fileId) {
@@ -562,52 +677,17 @@ public interface SqlAction {
         }
 
         //
-        // DISTINGUISHED NAME (DN)
-        // These methods guarantee that an empty or whitespace only string
-        // will be treated as a null DN. See #4833. For maximum protection,
-        // we are performing checks here in code as well as in the SQL.
+        // UPGRADES
         //
 
-        public String dnForUser(Long id) {
-            String dn;
-            try {
-                dn = _jdbc().queryForObject(
-                        _lookup("dn_for_user"), String.class, id); //$NON-NLS-1$
-            } catch (EmptyResultDataAccessException e) {
-                dn = null; // This means there's not one.
-            }
-
-            if (dn == null || dn.trim().length() == 0) {
-                return null;
-            }
-            return dn;
+        public void version441Upgrade() {
+            _jdbc().update(_lookup("version441.step01")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step02")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step03")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step04")); //$NON-NLS-1$
+            _jdbc().update(_lookup("version441.step05")); //$NON-NLS-1$
         }
 
-        public List<Map<String, Object>> dnExperimenterMaps() {
-            List<Map<String, Object>> maps = _jdbc().queryForList(_lookup("dn_exp_maps")); //$NON-NLS-1$
-            List<Map<String, Object>> copy = new ArrayList<Map<String, Object>>();
-            for (Map<String, Object> map : maps) {
-                if (map.keySet().iterator().next().trim().length() > 0) {
-                    copy.add(map);
-                }
-            }
-            return copy;
-        }
-
-        public void setUserDn(Long experimenterID, String dn) {
-
-            if (dn != null && dn.trim().length() == 0) {
-                dn = null; // #4833
-            }
-
-            int results = _jdbc().update(_lookup("set_user_dn"), //$NON-NLS-1$
-                    dn, experimenterID);
-            if (results < 1) {
-                results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                        experimenterID, null, dn);
-            }
-
-        }
     }
 
 }

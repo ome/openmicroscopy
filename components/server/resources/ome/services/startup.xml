@@ -28,6 +28,7 @@
      init-method="start" lazy-init="false">
      <constructor-arg ref="simpleSqlAction"/>
      <constructor-arg ref="preferenceContext"/>
+     <constructor-arg ref="transactionManager"/>
   </bean>
 
   <bean id="namespaceCheck"
