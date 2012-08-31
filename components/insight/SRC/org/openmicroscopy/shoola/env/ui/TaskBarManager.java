@@ -984,11 +984,11 @@ public class TaskBarManager
 		    	String v = "";
 		    	if (version != null && version instanceof String)
 		    		v = (String) version;
-		    	OMEROInfo omeroInfo = 
+		    	OMEROInfo info = 
 		    		(OMEROInfo) container.getRegistry().lookup(
 		    				LookupNames.OMERODS);
 		        
-		    	String port = ""+omeroInfo.getPortSSL();
+		    	String port = ""+info.getPortSSL();
 		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
@@ -996,6 +996,10 @@ public class TaskBarManager
 
 		    	login = new ScreenLoginDialog(Container.TITLE,
 		    		getSplashScreen(Factory.createIcon(n, f)), img, v, port);
+		    	login.setEncryptionConfiguration(info.isEncrypted(),
+		    			info.isEncryptedConfigurable());
+		    	login.setHostNameConfiguration(info.getHostName(),
+		    			info.isHostNameConfigurable());
 		    	//login.setModal(true);
 		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
