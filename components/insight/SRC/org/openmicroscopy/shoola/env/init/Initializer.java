@@ -196,7 +196,7 @@ public class Initializer
      */
     protected Initializer() {}
     
-	/**
+    /**
 	 * Creates a new instance.
 	 * The {@link Container} is the only class that can possibly create this
 	 * object. In fact, the {@link Container} is the only class to have
@@ -206,10 +206,24 @@ public class Initializer
 	 */
 	public Initializer(Container c)
 	{
+		this(c, false);
+	}
+	/**
+	 * Creates a new instance.
+	 * The {@link Container} is the only class that can possibly create this
+	 * object. In fact, the {@link Container} is the only class to have
+	 * a reference to the singleton {@link Container}.
+	 * 
+	 * @param c	A reference to the singleton {@link Container}.
+	 * @param headless Flag indicating to start the application head-less or not.
+	 */
+	public Initializer(Container c, boolean headless)
+	{
 		if (c == null) throw new NullPointerException();
 		processingQueue = new ArrayList<InitializationTask>();
 		doneTasks = new Stack<InitializationTask>(); 
 		initListeners = new HashSet<InitializationListener>();
+		if (headless) initList.remove(SplashScreenInit.class);
 		container = c;
 	}
 	

@@ -308,4 +308,9 @@ public class LookupNames
 	public static final String ENTRY_POINT_HIERARCHY = 
 		"/application/entryPointHierarchy";
 
+	/** 
+	 * Field indicating that the application is ran head-less.
+	 */
+	public static final String HEADLESS = "Headless";
+	
 }
