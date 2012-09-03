@@ -1680,8 +1680,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			object.setLoadThumbnail(showThumbnails.isSelected());
 		}
 		// tags
-		if (tagsMap.size() > 0)
-			object.setTags(tagsMap.values());
+		if (tagsMap.size() > 0) {
+			Iterator<TagAnnotationData> j = tagsMap.values().iterator();
+			List<TagAnnotationData> l = new ArrayList<TagAnnotationData>();
+			while (j.hasNext()) {
+				l.add(j.next());
+			}
+			object.setTags(l);
+		}
+			
 		if (partialName.isSelected()) {
 			Integer number = (Integer) numberOfFolders.getValueAsNumber();
 			if (number != null && number >= 0)
