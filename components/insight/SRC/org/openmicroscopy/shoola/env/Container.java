@@ -36,6 +36,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.init.Initializer;
@@ -381,7 +382,12 @@ public final class Container
 		int value = -1;
 		if (v != null) value = v.intValue();
 		if (value <= 0) System.exit(0);
-		else singleton = null;
+		else {
+			//Post an event
+			singleton.getRegistry().getEventBus().post(
+					new ConnectedEvent(false));
+			singleton = null;
+		}
 	}
     
     

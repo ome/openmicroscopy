@@ -84,7 +84,6 @@ public class Initializer
         //(b/c it creates and fills up the container's config).
     	
         initList.add(ContainerConfigInit.class);
-
         initList.add(SplashScreenInit.class);
         initList.add(LoggerInit.class);
         initList.add(CacheInit.class);
@@ -228,7 +227,7 @@ public class Initializer
 		InitializationTask task;
         Iterator<Class<?>> type = initList.iterator();
         while (type.hasNext()) {
-            task = createInitTask(type.next(), container,this); 
+            task = createInitTask(type.next(), container, this); 
             task.configure();
             processingQueue.add(task);
         }

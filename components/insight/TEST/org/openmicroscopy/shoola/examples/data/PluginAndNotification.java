@@ -21,9 +21,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.examples.startup;
+package org.openmicroscopy.shoola.examples.data;
 
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -49,8 +50,16 @@ public class PluginAndNotification
 	{
 		
 		String home = "";
+		//Login in with splash screen
 		Container c = Container.startupInPluginMode(home, null, 1);
-		c.getRegistry().getEventBus().register(this, ConnectedEvent.class);
+		//Check if connected
+		Registry reg = c.getRegistry();
+		if (!reg.getAdminService().isConnected()) {
+			System.err.println("not connected");
+			return;
+		}
+		//Register to connected event to know when we log off.
+		reg.getEventBus().register(this, ConnectedEvent.class);
 	}
 	
 	public static void main(String[] args)
@@ -59,6 +68,7 @@ public class PluginAndNotification
 	}
 
 	public void eventFired(AgentEvent e) {
+		//we are now disconnected
 		if (e instanceof ConnectedEvent) {
 			System.err.println(e);
 		}
