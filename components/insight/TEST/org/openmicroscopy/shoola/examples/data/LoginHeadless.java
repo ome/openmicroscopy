@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.examples.startup.PluginAndNotification 
+ * org.openmicroscopy.shoola.examples.data.LoginHeadless 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
@@ -30,51 +30,41 @@ package org.openmicroscopy.shoola.examples.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+
 
 /** 
- * Login and list to connection event sent.
+ * Connect to OMERO w/o splash-screen. The credentials might have already 
+ * been stored locally.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class PluginAndNotification 
-	implements AgentEventListener
-{
+public class LoginHeadless {
 
-	PluginAndNotification()
+	LoginHeadless()
 	{
-		
-		String home = "";
-		//Login in with splash screen
-		Container c = Container.startupInPluginMode(home, null, 1);
-		//If we arrive here the user clicks on Login/Quit.
-		//Check if connected
-		Registry reg = c.getRegistry();
-		if (!reg.getAdminService().isConnected()) {
-			System.err.println("not connected");
-			return;
+		String homeDir = "";
+		Container container = Container.startupInHeadlessMode(homeDir, null, 1);
+		Registry reg = container.getRegistry();
+		LoginService svc = (LoginService) reg.lookup(LookupNames.LOGIN);
+		UserCredentials uc = new UserCredentials("root", "omero",
+				"localhost", UserCredentials.HIGH);
+		int value = svc.login(uc);
+		if (value == LoginService.CONNECTED) {
+			System.err.println("connected");
+			//For testing purpose. Now start the UI if required.
+			container.activateUI();
 		}
-		//Register to connected event to know when we log off.
-		reg.getEventBus().register(this, ConnectedEvent.class);
-		
 	}
 	
 	public static void main(String[] args)
 	{
-		new PluginAndNotification();
-	}
-
-	public void eventFired(AgentEvent e) {
-		//we are now disconnected
-		if (e instanceof ConnectedEvent) {
-			System.err.println(e);
-		}
-		
+		new LoginHeadless();
 	}
 	
 }

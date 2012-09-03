@@ -338,6 +338,15 @@ public final class Container
 		}
 	}
 	
+	/** 
+	 * This method should only be invoked if insight was started in head-less
+	 * mode.
+	 */
+	public void activateUI()
+	{
+		activateAgents();
+	}
+	
 	/**
 	 * Activates all services, all agents and starts interacting with the
 	 * user. 
@@ -365,7 +374,6 @@ public final class Container
 		
 		//Agents activation phase.
 		activateAgents();
-		
 		//TODO: activate services (EventBus, what else?).
 			
 		//Get ready to interact with the user.
@@ -389,7 +397,7 @@ public final class Container
 			singleton = null;
 		}
 	}
-    
+	
     
 	/**
      * Entry point to launch the container and bring up the whole client
