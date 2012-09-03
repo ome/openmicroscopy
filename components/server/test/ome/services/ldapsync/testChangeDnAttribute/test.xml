@@ -10,21 +10,22 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=testChangeAttribute,o=eg"
-        ldif="classpath:ome/services/ldapsync/testChangeAttribute/*.ldif"/>
+    <security:ldap-server root="ou=testChangeDnAttribute,o=eg"
+        ldif="classpath:ome/services/ldapsync/testChangeDnAttribute/*.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
-      <constructor-arg index="1" value=":filtered_attribute:roleOccupant"/>
+      <constructor-arg index="1" value=":filtered_dn_attribute:roleOccupant"/>
       <constructor-arg index="2" value="(objectClass=person)"/>
       <constructor-arg index="3" value="(objectClass=groupOfNames)"/>
       <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn,email=mail"/>
       <constructor-arg index="5" value="name=cn"/>
       <constructor-arg index="6" value="true"/>
+      <constructor-arg index="7" value="ou=testChangeDnAttribute,o=eg"/>
     </bean>
 
     <bean id="modification" class="ome.services.ldapsync.TestChangeAttribute">
-      <constructor-arg value="grp1"/>
+      <constructor-arg value="cn=grp1,ou=testChangeDnAttribute,o=eg"/>
     </bean>
 
     <util:map id="good">

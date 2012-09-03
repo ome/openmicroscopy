@@ -41,7 +41,6 @@ import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
 import ome.security.auth.AttributeSet;
-import ome.security.auth.FilteredAttributeNewUserGroupBean;
 import ome.security.auth.GroupAttributeMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
@@ -417,6 +416,12 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         return access;
     }
 
+    static private final Pattern p = Pattern.compile(
+        "^:(ou|" +
+            "attribute|filtered_attribute|" +
+            "dn_attribute|filtered_dn_attribute|" +
+            "query|bean):(.*)$");
+
     public List<Long> loadLdapGroups(String username, DistinguishedName dn) {
         final String grpSpec = config.getNewUserGroup();
         final List<Long> groups = new ArrayList<Long>();
@@ -427,7 +432,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             return groups; // EARLY EXIT!
         }
 
-        final Pattern p = Pattern.compile("^:(ou|attribute|filtered_attribute|query|bean):(.*)$");
         final Matcher m = p.matcher(grpSpec);
         if (!m.matches()) {
             throw new ValidationException(grpSpec + " spec currently not supported.");
@@ -440,9 +444,13 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         if ("ou".equals(type)) {
             bean = new OrgUnitNewUserGroupBean(dn);
         } else if ("filtered_attribute".equals(type)) {
-            bean = new FilteredAttributeNewUserGroupBean(data);
+            bean = new AttributeNewUserGroupBean(data, true, false);
         } else if ("attribute".equals(type)) {
-            bean = new AttributeNewUserGroupBean(data);
+            bean = new AttributeNewUserGroupBean(data, false, false);
+        } else if ("filtered_dn_attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, true, true);
+        } else if ("dn_attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, false, true);
         } else if ("query".equals(type)) {
             bean = new QueryNewUserGroupBean(data);
         } else if ("bean".equals(type)) {

@@ -44,6 +44,15 @@ import ome.system.ServiceFactory;
  */
 public class TestChangeAttribute implements Modification {
 
+    /**
+     * The string value which will be removed.
+     */
+    protected final String toRemove;
+
+    public TestChangeAttribute(String toRemove) {
+        this.toRemove = toRemove;
+    }
+
     public void modify(final Fixture fixture) {
 
         // Need simple role provider in order to create
@@ -77,7 +86,7 @@ public class TestChangeAttribute implements Modification {
         // And remove from the old group
         final ModificationItem[] mods = new ModificationItem[2];
         mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-                new BasicAttribute("roleOccuptant", "grp1"));
+                new BasicAttribute("roleOccupant", toRemove));
         fixture.template.modifyAttributes("cn=test1", mods);
 
 
