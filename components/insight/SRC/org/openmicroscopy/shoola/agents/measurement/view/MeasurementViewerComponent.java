@@ -540,13 +540,11 @@ class MeasurementViewerComponent
 			}
 			if (objects.size() == 0) {
 				model.saveROIToServer(true, close);
-				//model.saveWorkflowToServer(true);
 			} else {
 				model.deleteAllROIs(objects);
 			}
 		} else {
 			model.saveROIToServer(true, close);
-			//model.saveWorkflowToServer(true);
 		}
 		fireStateChange();
 	}

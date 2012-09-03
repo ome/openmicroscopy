@@ -390,10 +390,11 @@ class IntensityResultsView
 		
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
+		ExcelWriter writer = null;
 		try
 		{
 			String filename = file.getAbsolutePath();
-			ExcelWriter writer = new ExcelWriter(filename);
+			writer = new ExcelWriter(filename);
 			writer.openFile();
 			writer.createSheet("Intensity Results");
 			writer.writeTableToSheet(0, 0, resultsModel);
@@ -411,7 +412,8 @@ class IntensityResultsView
 					writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
 				}
 			} catch (Exception e) {
-				//no image available
+				Logger logger = MeasurementAgent.getRegistry().getLogger();
+				logger.error(this, "Cannot write Image: "+e.toString());
 			}
 			writer.close();
 		
@@ -422,6 +424,12 @@ class IntensityResultsView
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save Results", "An error occurred while trying to" +
 				" save the data.\nPlease try again.");
+			file.delete();
+			try {
+				writer.close();
+			} catch (Exception e2) {
+				//ignore: cannot close the writer.
+			}
 			return;
 		}
 		Registry reg = MeasurementAgent.getRegistry();

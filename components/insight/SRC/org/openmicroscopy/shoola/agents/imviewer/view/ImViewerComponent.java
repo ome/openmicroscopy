@@ -212,6 +212,9 @@ class ImViewerComponent
 					view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
 			projDialog.addPropertyChangeListener(controller);
 			projDialog.pack();
+			Dimension minimumSize = new Dimension(projDialog.getWidth(), 
+					projDialog.getHeight());
+			projDialog.setMinimumSize(minimumSize);
 		} else {
 			projDialog.setProjectionInterval(view.getProjectionStartZ()+1, 
 					view.getProjectionEndZ()+1);

@@ -353,18 +353,10 @@ public class PixelsServicesFactory
 	 * */
 	public static void shutDownRenderingControls(Registry context)
 	{
-		if (!(context.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		/*
-		Entry entry;
-		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			((RenderingControlProxy) entry.getValue()).shutDown();
-		}
-		*/
+		//Note that the class should be deleted.
 		singleton.rndSvcProxies.clear();
 		singleton.rndSvcProxiesCount.clear();
+		singleton = null;
 	}
 
 	/**

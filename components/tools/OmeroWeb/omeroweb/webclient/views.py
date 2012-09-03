@@ -309,7 +309,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
-    
+
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
@@ -317,36 +317,42 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
 
-    # get url without request string - used to refresh page after switch user/group etc
-    url = reverse(viewname="load_template", args=[menu])
-
     #tree support
     init = {'initially_open':None, 'initially_select': []}
     first_sel = None
     # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
     path = request.REQUEST.get('path', '')
     i = path.split("|")[-1]
-    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
         init['initially_select'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
         init['initially_open'] = [ init['initially_select'][0] ]
         first_obj, first_id = init['initially_open'][0].split("-",1)
+        # if we're showing a tag, make sure we're on the tags page...
+        if first_obj == "tag" and menu != "usertags":
+            return HttpResponseRedirect(reverse(viewname="load_template", args=['usertags']) + "?show=" + init['initially_select'][0])
         try:
             conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
-            first_sel = conn.getObject(first_obj, long(first_id))
+            if first_obj == "tag":
+                first_sel = conn.getObject("TagAnnotation", long(first_id))
+            else:
+                first_sel = conn.getObject(first_obj, long(first_id))
         except ValueError:
             pass    # invalid id
         if first_obj not in ("project", "screen"):
             # need to see if first item has parents
             if first_sel is not None:
                 for p in first_sel.getAncestry():
-                    init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+                    if first_obj == "tag":  # parents of tags must be tags (no OMERO_CLASS)
+                        init['initially_open'].insert(0, "tag-%s" % p.getId())
+                    else:
+                        init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
                 if init['initially_open'][0].split("-")[0] == 'image':
                     init['initially_open'].insert(0, "orphaned-0")
     # need to be sure that tree will be correct omero.group
@@ -357,6 +363,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == "search" and request.REQUEST.get('search_query'):
         init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
 
+    # get url without request string - used to refresh page after switch user/group etc
+    url = reverse(viewname="load_template", args=[menu])
 
     manager = BaseContainer(conn)
 
@@ -415,7 +423,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
@@ -503,7 +511,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     """ Loads a tree for user to pick target Project, Dataset or Screen """
@@ -519,7 +527,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
@@ -579,7 +587,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
@@ -734,7 +742,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)   # TODO: Remove setGroupContext=True when #9505 is fixed
 @render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
@@ -796,6 +804,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
+    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 
@@ -1045,7 +1054,7 @@ def getIds(request):
     return selected
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
@@ -1071,7 +1080,7 @@ def batch_annotate(request, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """ 
@@ -1137,7 +1146,7 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
@@ -1174,7 +1183,7 @@ def annotate_comment(request, conn=None, **kwargs):
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
@@ -1240,7 +1249,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
@@ -1736,7 +1745,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 ##################################################################
 # Basket
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def basket_action (request, action=None, conn=None, **kwargs):
     """
@@ -1904,7 +1913,7 @@ def help(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
@@ -1928,7 +1937,7 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
@@ -1962,7 +1971,7 @@ def getObjectUrl(conn, obj):
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
-            links = fa.getParentLinks(ptype)
+            links = list(fa.getParentLinks(ptype))
             if len(links) > 0:
                 obj = links[0].parent
                 break
@@ -1984,9 +1993,6 @@ def activities(request, conn=None, **kwargs):
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
-
-    # need to be able to retrieve the results from any group
-    conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     in_progress = 0
     failure = 0
@@ -2373,7 +2379,7 @@ def chgrp(request, conn=None, **kwargs):
     return HttpResponse("OK")
 
 
-@login_required()
+@login_required(setGroupContext=True)
 def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST

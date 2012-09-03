@@ -116,8 +116,12 @@
                 // show a link to the current object
                 $("#show_link_btn").click(function(){
                     $("#link_info_popup").show();
+                {% if webclient_path %}
+                    var lnk = "{{ webclient_path }}";
+                {% else %}
                     var lnk = location.href.substring(0,location.href.length - location.search.length);
                     if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}
+                {% endif %}
                     lnk += "?show={{manager.obj_type}}-{{ manager.obj_id }}";
                     var link_input = $("#link_info_popup input");
                     link_input.val(lnk);
@@ -1181,7 +1185,17 @@
 					</button>
 				</div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
         
-                <h2 class="data_heading_id">Tag ID: <strong>{{ manager.tag.id }}</strong></h2>   
+                <h2 class="data_heading_id">
+                    Tag ID: <strong>{{ manager.tag.id }}</strong>
+                    <!-- open-tag link -->
+                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Dataset">
+                        <span></span>
+                    </button>
+                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                        <input type="text" size="30">
+                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                    </div>
+                </h2>
 
 				<hr/>
 

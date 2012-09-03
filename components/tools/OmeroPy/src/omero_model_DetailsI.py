@@ -19,13 +19,13 @@ class DetailsI(_omero_model.Details):
           self.__client = client
           self.__session = None
           if client:
-              self.__session = client.getSession()
+              self.__session = client.getSession(False)
 
       def getClient(self):
-          return self.__session
+          return self.__client
 
       def getSession(self):
-          return self.__client
+          return self.__session
 
       def getEventContext(self):
           return self._event

@@ -172,7 +172,7 @@ abstract class Entry
     
 	/**
 	 * Convenience method to wrap and re-throw an exception occurred while
-	 * trying to create a tag hanlder. 
+	 * trying to create a tag handler. 
 	 * Wraps the original exception into a {@link ConfigException}, which is
 	 * then re-thrown with an error message.
 	 * 
@@ -215,7 +215,7 @@ abstract class Entry
 			attribute = attrList.item(i);
 			if (NAME.equals(attribute.getNodeName())) 
 				ntp.name = attribute.getNodeValue();
-			else if (TYPE.equals(attribute.getNodeName()))  
+			else if (TYPE.equals(attribute.getNodeName()))
 				ntp.type = attribute.getNodeValue();
 		}
 		//Complain if no name attribute was provided.

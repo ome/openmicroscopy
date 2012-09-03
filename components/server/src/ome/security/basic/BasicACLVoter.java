@@ -10,17 +10,9 @@ package ome.security.basic;
 // Java imports
 
 // Third-party libraries
-import static ome.model.internal.Permissions.Right.ANNOTATE;
-import static ome.model.internal.Permissions.Right.WRITE;
-import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.util.Assert;
-
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
@@ -39,6 +31,11 @@ import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.system.EventContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.util.Assert;
+
 /**
  * 
  * @author Josh Moore, josh.moore at gmx.de
@@ -52,6 +49,21 @@ import ome.system.EventContext;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public class BasicACLVoter implements ACLVoter {
+
+    /**
+     * Simple enum to represent the interpretation of "WRITE" permissions.
+     */
+    private static enum Scope {
+        ANNOTATE(Right.ANNOTATE),
+        DELETE(Right.WRITE),
+        EDIT(Right.WRITE),
+        LINK(Right.WRITE);
+
+        final Right right;
+        Scope(Right right) {
+            this.right = right;
+        }
+    }
 
     private final static Log log = LogFactory.getLog(BasicACLVoter.class);
 
@@ -155,7 +167,7 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
+        if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
         }
@@ -167,7 +179,7 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return allowUpdateOrDelete(c, iObject, trustedDetails, true, WRITE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -176,7 +188,7 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
+        if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject +"-modification violates " +
                     "group-security.");
         }
@@ -186,12 +198,39 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return allowUpdateOrDelete(c, iObject, trustedDetails, false, WRITE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
         throw new SecurityViolation("Deleting " + iObject + " not allowed.");
+    }
+
+    boolean owner(Long o, EventContext c) {
+        return (o != null && o.equals(c.getCurrentUserId()));
+    }
+
+    boolean owner(Details d, EventContext c) {
+        Long o = d.getOwner() == null ? null : d.getOwner().getId();
+        return (o != null && o.equals(c.getCurrentUserId()));
+    }
+
+    boolean member(Long g, EventContext c) {
+        return (g != null && c.getMemberOfGroupsList().contains(g));
+    }
+
+    boolean member(Details d, EventContext c) {
+        Long g = d.getGroup() == null ? null : d.getGroup().getId();
+        return member(g, c);
+    }
+
+    boolean leader(Long g, EventContext c) {
+        return (g != null && c.getLeaderOfGroupsList().contains(g));
+    }
+
+    boolean leader(Details d, EventContext c) {
+        Long g = d.getGroup() == null ? null : d.getGroup().getId();
+        return leader(g, c);
     }
 
     /**
@@ -204,53 +243,62 @@ public class BasicACLVoter implements ACLVoter {
      * @param trustedDetails
      * @param update
      * @param right
-     * @return
+     * @return an int with the bit turned on for each {@link Scope} element
+     *     which should be allowed.
      */
-    private boolean allowUpdateOrDelete(EventContext c, IObject iObject,
-            Details trustedDetails, boolean update, Right right) {
+    private int allowUpdateOrDelete(EventContext c, IObject iObject,
+        Details trustedDetails, Scope...scopes) {
 
-        Long uid = c.getCurrentUserId();
+        int rv = 0;
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
+        final boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
-        boolean sysTypeOrUsrGroup = sysType ||
+        final boolean sysTypeOrUsrGroup = sysType ||
             sysTypes.isInUserGroup(iObject.getDetails());
 
         // needs no details info
         if (tokenHolder.hasPrivilegedToken(iObject)) {
-            return true; // ticket:1794, allow move to "user
-        } else if (update && !sysTypeOrUsrGroup && currentUser.isGraphCritical()) { //ticket:1769
-            return objectBelongsToUser(iObject, uid);
-        } else if (c.isCurrentUserAdmin()) {
-            return true;
+            return 1; // ticket:1794, allow move to "user
+        } else if (!sysTypeOrUsrGroup && currentUser.isGraphCritical(trustedDetails)) { //ticket:1769
+            Boolean belongs = null;
+            final Long uid = c.getCurrentUserId();
+            for (int i = 0; i < scopes.length; i++) {
+                if (scopes[i].equals(Scope.LINK) || scopes[i].equals(Scope.ANNOTATE)) {
+                    if (belongs == null) {
+                        belongs = objectBelongsToUser(iObject, uid);
+                    }
+                    // Cancel processing of this scope. rv is already 0
+                    if (!belongs) {
+                        scopes[i] = null;
+                    }
+                }
+            }
+            // Don't return. Need further processing for delete.
+        }
+
+        if (c.isCurrentUserAdmin()) {
+            for (int i = 0; i < scopes.length; i++) {
+                if (scopes[i] != null) {
+                    rv |= (1<<i);
+                }
+            }
+            return rv; // EARLY EXIT!
         } else if (sysType) {
-            return false;
+            return 0;
         }
 
         // previously we were taking the details directly from iObject
         // iObject, however, is in a critical state. Values such as
         // Permissions, owner, and group may have been changed.
-        Details d = trustedDetails;
+        final Details d = trustedDetails;
 
         // this can now only happen if a table doesn't have permissions
         // and there aren't any of those. so let it be updated.
         if (d == null) {
-            return true;
+            throw new InternalException("trustedDetails are null!");
         }
 
-        // the owner and group information might be null if the type
-        // is intended to be a system-type but isn't marked as one
-        // via SecuritySystem.isSystemType(). A NPE here might imply
-        // that that information is out of sync.
-        Long o = d.getOwner() == null ? null : d.getOwner().getId();
-        Long g = d.getGroup() == null ? null : d.getGroup().getId();
-
-        // needs no permissions info
-        if (g != null && c.getLeaderOfGroupsList().contains(g)) {
-            return true;
-        }
-
-        Permissions p = c.getCurrentGroupPermissions(); // From Group!
+        final Permissions p = c.getCurrentGroupPermissions(); // From Group!
 
         // this should never occur.
         if (p == null) {
@@ -260,25 +308,37 @@ public class BasicACLVoter implements ACLVoter {
                             + "be set to a default value.");
         }
 
-        // standard
-        if (p.isGranted(WORLD, right)) {
-            return true;
-        }
-        if (p.isGranted(USER, right) && o != null
-                && o.equals(c.getCurrentUserId())) {
-            // Using cuId rather than getOwner since postProcess is also
-            // post-login!
-            return true;
-        }
-        // Previously restricted by ticket:1992
-        // As of ticket:8562 this is handled by
-        // the separation of ANNOTATE and WRITE
-        if (p.isGranted(GROUP, right) && g != null
-                && c.getMemberOfGroupsList().contains(g)) {
-            return true;
-        }
+        final boolean owner = owner(d, c);
+        final boolean leader = leader(d, c);
+        final boolean member = member(d, c);
 
-        return false;
+        for (int i = 0; i < scopes.length; i++) {
+            Scope scope = scopes[i];
+            if (scope == null) continue;
+
+            if (leader) {
+                rv |= (1<<i);
+            }
+
+            // standard
+            else if (p.isGranted(WORLD, scope.right)) {
+                rv |= (1<<i);
+            }
+
+            else if (owner && p.isGranted(USER, scope.right)) {
+                // Using cuId rather than getOwner since postProcess is also
+                // post-login!
+                rv |= (1<<i);
+            }
+            // Previously restricted by ticket:1992
+            // As of ticket:8562 this is handled by
+            // the separation of ANNOTATE and WRITE
+            else if (member && p.isGranted(GROUP, scope.right) ) {
+                rv |= (1<<i);
+            }
+        }
+        return rv; // default was off, i.e. false
+
     }
 
     public EventContext getEventContext() {
@@ -294,20 +354,11 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            boolean disallowAnnotate = !allowUpdateOrDelete(c, object, details, true, ANNOTATE);
-            boolean disallowEdit = !allowUpdateOrDelete(c, object, details, true, WRITE);
-
-            boolean[] restrictions = new boolean[4];
-            restrictions[Permissions.ANNOTATERESTRICTION] = disallowAnnotate;
-            restrictions[Permissions.DELETERESTRICTION] = disallowEdit;
-            restrictions[Permissions.EDITRESTRICTION] = disallowEdit;
-            restrictions[Permissions.LINKRESTRICTION] = disallowEdit;
-            if (currentUser.isGraphCritical()) {
-                // If we're in the graph critical situation, then we open back
-                // up the permissions for delete.
-                restrictions[Permissions.DELETERESTRICTION] = false;
-            }
-            p.copyRestrictions(restrictions);
+            final int allow = allowUpdateOrDelete(c, object, details,
+                // This order must match the ordered of restrictions[]
+                // expected by p.copyRestrictions
+                Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
+            p.copyRestrictions(allow);
         }
     }
 
@@ -331,13 +382,6 @@ public class BasicACLVoter implements ACLVoter {
         }
         Long oid = e.getId();
         return uid.equals(oid); // Only allow own objects!
-    }
-
-    private Long group(Details d) {
-        if (d == null || d.getGroup() == null) {
-            return null;
-        }
-        return d.getGroup().getId();
     }
 
 }

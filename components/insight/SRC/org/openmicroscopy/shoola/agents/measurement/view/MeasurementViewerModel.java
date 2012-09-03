@@ -1170,6 +1170,7 @@ class MeasurementViewerModel
 					MeasurementAgent.getRegistry().getImageService();
 				svc.saveROI(getSecurityContext(), getImageID(), exp.getId(),
 						roiList);
+				state = MeasurementViewer.READY;
 				event = null;
 			}
 			checkIfHasROIToDelete();
@@ -1785,7 +1786,6 @@ class MeasurementViewerModel
 	void deleteAllROIs(List<DeletableObject> list)
 	{
 		if (list.size() == 0) return;
-		state = MeasurementViewer.SAVING_ROI;
 		IconManager icons = IconManager.getInstance();
 		DeleteActivityParam p = new DeleteActivityParam(
 				icons.getIcon(IconManager.APPLY_22), list);

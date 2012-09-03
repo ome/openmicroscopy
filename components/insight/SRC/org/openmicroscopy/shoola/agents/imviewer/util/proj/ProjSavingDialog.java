@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -182,9 +183,6 @@ public class ProjSavingDialog
 	/** The selected dataset.*/
 	private DatasetData					selectedDataset;
 	
-	/** The container indicating where to save the projected image.*/
-	private JLabel						containerLabel;
-	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
@@ -192,35 +190,22 @@ public class ProjSavingDialog
 		setModal(true);
 	}
 	
-	/** Displays where to save the image.*/
-	private void setLabelText()
-	{
-		StringBuffer buffer = new StringBuffer();
-		if (parentsBox.getItemCount() > 0) {
-			DataNode node = (DataNode) parentsBox.getSelectedItem();
-			if (!node.isDefaultProject())
-				buffer.append(node.toString()+"/");
-		}
-		if (selectedDataset != null)
-			buffer.append(selectedDataset.getName());
-		containerLabel.setText(buffer.toString());
-	}
-	
 	/** Populates the datasets box depending on the selected project. */
 	private void populateDatasetsBox()
 	{
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getUIDatasetNodes();
-		List l;
+		List<DataNode> l;
 		if (list == null || list.size() == 0) {
-			l = new ArrayList();
+			l = new ArrayList<DataNode>();
 			l.add(new DataNode(DataNode.createDefaultDataset()));
 		} else l = sorter.sort(list);
 		
 		datasetsBox.removeActionListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
-		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		populateAndAddTooltipsToComboBox(l, datasetsBox);
+		
 		if (selectedContainer != null && 
 			selectedContainer instanceof DatasetData) {
 			DatasetData d = (DatasetData) selectedContainer;
@@ -246,7 +231,6 @@ public class ProjSavingDialog
 			}
 		}
 		datasetsBox.addActionListener(datasetsBoxListener);
-		setLabelText();
 	}
 	
 	/**
@@ -261,7 +245,6 @@ public class ProjSavingDialog
 	private void initComponents(String imageName, String type, int maxZ,
 			int startZ, int endZ)
 	{
-		containerLabel = new JLabel();
 		parentsBox = new JComboBox();
 		parentsBoxListener = new ActionListener() {
 			
@@ -277,7 +260,6 @@ public class ProjSavingDialog
 				DataNode node = (DataNode) datasetsBox.getSelectedItem();
 				if (node != null) {
 					selectedDataset = (DatasetData) node.getDataObject();
-					setLabelText();
 				}
 			}
 		};
@@ -465,24 +447,24 @@ public class ProjSavingDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
         				TableLayout.PREFERRED, height, 5,
         				TableLayout.PREFERRED, TableLayout.FILL} }; //rows
         content.setLayout(new TableLayout(tl));
+        
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
         content.add(UIUtilities.setTextFont("Name "), "0, 1, LEFT, CENTER");
         content.add(nameField, "1, 1, FULL, CENTER");
+        
         content.add(new JLabel(), "0, 2, 1, 2");
+        
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, LEFT, CENTER");
-        content.add(containerLabel, "1, 3, LEFT, CENTER");
-        //content.add(UIUtilities.buildComponentPanel(buildControls()), 
-        //		"0, 5, l, c");
-    	content.add(buildControls(), "1, 4, 1, 6");
-        content.add(new JLabel(), "0, 7, 1, 7");
-        content.add(UIUtilities.setTextFont("Parameters "), "0, 8," +
-        		"LEFT, CENTER");
-        content.add(buildParametersPanel(), "1, 8, 1, 9");
+    	content.add(buildControls(), "1, 3, 1, 4");
+        
+    	content.add(new JLabel(), "0, 5, 1, 5");
+        
+        content.add(UIUtilities.setTextFont("Parameters "), "0, 6, LEFT, CENTER");
+        content.add(buildParametersPanel(), "1, 6, 1, 7");
 		return content;
 	}
 	
@@ -525,28 +507,6 @@ public class ProjSavingDialog
 		DatasetData d = new DatasetData();
 		d.setName(name);
 		selectedDataset = d;
-		setLabelText();
-		/*
-		JCheckBox newBox = new JCheckBox(name);
-		newBox.setSelected(true);
-		DatasetData d = new DatasetData();
-		d.setName(name);
-		selectionPane.removeAll();
-		selectionPane.add(newBox);
-		if (selection != null) {
-        	Iterator i = selection.keySet().iterator();
-        	JCheckBox box;
-        	while (i.hasNext()) {
-        		selectionPane.add((JCheckBox) i.next());
-        	}
-        }
-		if (selection == null) 
-			selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		selection.put(newBox, d);
-		selectionPane.revalidate();
-		selectionPane.repaint();
-		newFolderButton.setEnabled(false);
-		*/
 	}
 	
 	/** Closes and disposes. */
@@ -647,6 +607,34 @@ public class ProjSavingDialog
 		zrangeSelection.setInterval(startZ, endZ);
 	}
 	
+	/**
+	 * Takes the dataNdoes and populates the combo box with the values as well
+	 * as adding a tooltip for each item
+	 * 
+	 * @param dataNodes the nodes used to be displayed in the combo box
+	 * @param comboBox the JComboBox that hosts the options
+	 */
+	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
+			JComboBox comboBox) {
+		List<String> tooltips = new ArrayList<String>(dataNodes.size());
+
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+
+		comboBox.setRenderer(renderer);
+
+		for (DataNode projectNode : dataNodes) {
+			comboBox.addItem(projectNode);
+			
+			String projectName = projectNode.getFullName();
+
+			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
+			
+			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
+		}
+
+		renderer.setTooltips(tooltips);
+	}
+	
 	/** 
 	 * Sets the available containers.
 	 * 
@@ -657,12 +645,13 @@ public class ProjSavingDialog
 		if (containers == null || containers.size() == 0) return;
 		parentsBox.removeActionListener(parentsBoxListener);
 		parentsBox.removeAllItems();
-		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox.removeAllItems();
+		
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataObject ho;
 		DataNode n;
+		
 		if (containers != null && containers.size() > 0) {
 			Iterator<DataObject> i = containers.iterator();
 			while (i.hasNext()) {
@@ -676,18 +665,19 @@ public class ProjSavingDialog
 				}
 			}
 		}
-		List sortedList = new ArrayList();
+		
+		List<DataNode> sortedList = new ArrayList<DataNode>();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
 		
 		//check if new top nodes
-		List finalList = new ArrayList();
+		List<DataNode> finalList = new ArrayList<DataNode>();
 		if (datasetsList.size() > 0)
 			finalList.add(new DataNode(datasetsList));
 		finalList.addAll(sortedList);
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
+
+		populateAndAddTooltipsToComboBox(finalList, parentsBox);
 		
 		if (selectedGrandParentContainer != null &&
 				selectedGrandParentContainer instanceof ProjectData) {
@@ -704,35 +694,6 @@ public class ProjSavingDialog
 		parentsBox.addActionListener(parentsBoxListener);
 		populateDatasetsBox();
 		buildLocationPane();
-		
-		/*
-		if (datasets == null) return;
-		List<String> selected = getSelectedDatasets();
-		JCheckBox box;
-		DatasetData d;
-		if (selection == null)
-			selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		else {
-			selection.clear();
-		}
-		if (datasets != null && datasets.size() > 0) {
-			List l = sorter.sort(datasets);
-			Iterator j = l.iterator();
-			while (j.hasNext()) {
-				d = (DatasetData) j.next();
-				box = new JCheckBox(d.getName());
-				selection.put(box, d);
-				box.setSelected(selected.contains(d.getName()));
-			}
-			selectionPane.removeAll();
-			Iterator i = selection.keySet().iterator();
-        	while (i.hasNext()) 
-        		selectionPane.add((JComponent) i.next());
-        	selectionPane.validate();
-        	selectionPane.repaint();
-        	pane.revalidate();
-		}
-		*/
 	}
 	
 	/**
@@ -759,7 +720,6 @@ public class ProjSavingDialog
 				d.setDefaultName("untitled dataset");
 				d.addPropertyChangeListener(
 						CreateFolderDialog.CREATE_FOLDER_PROPERTY, this);
-				d.pack();
 				UIUtilities.centerAndShow(this, d);
 		}
 	}

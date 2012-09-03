@@ -204,8 +204,6 @@ public class OMEWikiComponent
 	/** Installs the default actions.  */
 	private void installDefaultAction()
 	{
-		columns = COLUMNS;
-		wrapWord = true;
 		toolBarActions = new ArrayList<JButton>();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.HYPERLINK));
@@ -213,6 +211,7 @@ public class OMEWikiComponent
 		b.setActionCommand(""+HYPERLINK);
 		b.setToolTipText(OMEWikiConstants.HYPERLINK_TOOLTIP);
 		toolBarActions.add(b);
+		
 		/*
 		b = new JButton(icons.getIcon(IconManager.IMAGE));
 		b.setToolTipText(OMEWikiConstants.IMAGE_TOOLTIP);
@@ -223,10 +222,9 @@ public class OMEWikiComponent
 		b.setToolTipText(OMEWikiConstants.PROTOCOL_TOOLTIP);
 		b.addActionListener(this);
 		b.setActionCommand(""+PROTOCOL);
-		//UIUtilities.unifiedButtonLookAndFeel(b);
-		 *
-		 */
+		UIUtilities.unifiedButtonLookAndFeel(b);
 		toolBarActions.add(b);
+		*/
 	}
 	
 	/**
@@ -239,17 +237,21 @@ public class OMEWikiComponent
 	private void initComponents(Map<String, FormatSelectionAction> formatters,
 								boolean toolbar)
 	{
+		columns = COLUMNS;
+		wrapWord = true;
 		defaultText = "";
 		pane = new OMEEditPane(this, formatters);
-		installDefaultAction();
+		
 		if (toolbar) {
+			installDefaultAction();
 			toolBar = new JToolBar();
 			toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			toolBar.setBorder(null);
 			toolBar.setFloatable(false);
-			Iterator<JButton> b = toolBarActions.iterator();
-			while (b.hasNext()) 
-				toolBar.add(b.next());
+			
+			for (JButton button : toolBarActions) {
+				toolBar.add(button);
+			}
 		}
 		setBackground(UIUtilities.BACKGROUND);
 	}
@@ -257,7 +259,6 @@ public class OMEWikiComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		if (toolBar != null) {
 			JPanel p = new JPanel();
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -307,15 +308,13 @@ public class OMEWikiComponent
 	public OMEWikiComponent(Map<String, FormatSelectionAction> formatters, 
 			boolean toolBar)
 	{
-		Entry entry;
-		Iterator i = DEFAULT_FORMATTERS.entrySet().iterator();
-		String key;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
+		for (Entry<String,FormatSelectionAction> formatterMap : DEFAULT_FORMATTERS.entrySet()) {
+			String key = formatterMap.getKey();
+			
 			if (!formatters.containsKey(key))
-				formatters.put(key, (FormatSelectionAction) entry.getValue());
+				formatters.put(key, formatterMap.getValue());
 		}
+
 		initComponents(formatters, toolBar);
 		buildGUI();
 	}
@@ -521,7 +520,7 @@ public class OMEWikiComponent
 		value = prepare(value, false);
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
-		columns = (int) (1.5*width)/charWidth;
+		columns = (int) (1.5 * width) / charWidth;
 		setText(WordUtils.wrap(value, columns, newLineStr, false));
 	}
 	
@@ -533,9 +532,13 @@ public class OMEWikiComponent
 	{
 		super.setEnabled(enabled);
 		if (pane != null) pane.setEditable(enabled);
-		Iterator<JButton> i = toolBarActions.iterator();
-		while (i.hasNext()) 
-			i.next().setEnabled(enabled);
+		
+		if(toolBarActions != null)
+		{
+			for (JButton toolBarButton : toolBarActions) {
+				toolBarButton.setEnabled(enabled);
+			}
+		}
 	}
 	
 	/**

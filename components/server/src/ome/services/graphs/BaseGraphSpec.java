@@ -333,10 +333,35 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         String rel = em.getRelationship(from, to);
 
         if (rel == null) {
-            throw new GraphException(String.format(
-                    "Null relationship: %s->%s", from, to));
-        }
-        qb.join(fromAlias + "." + rel, toAlias, false, false);
+
+            // Try the reverse first
+            rel = em.getRelationship(to, from);
+
+            if (rel == null) {
+                throw new GraphException(String.format(
+                     "Null relationship: %s->%s", from, to));
+            }
+
+            // If it exists, we do a
+            qb.append(", ");
+            qb.append(to);
+            qb.appendSpace();
+            qb.append(toAlias);
+            qb.appendSpace();
+            qb.where();
+            qb.and(" ");
+            qb.append(toAlias);
+            qb.append(".");
+            qb.append(rel);
+            qb.append(".id = ");
+            qb.append(fromAlias);
+            qb.append(".id");
+            qb.appendSpace();
+
+        } else {
+            qb.join(fromAlias + "." + rel, toAlias, false, false);
+         }
+
     }
 
     @Override
