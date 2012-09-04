@@ -40,7 +40,8 @@
         };
         
         $(document).ready(function(){
-            
+            var $parent_container = $("#content_details");
+
             // Handle zooming of thumbnails with jQuery slider
             var icon_styles = [];
             var li_styles = [];
@@ -78,10 +79,18 @@
                 value: INITIAL_ICON_SIZE,
                 slide: function(event, ui) {
                     setIconSize(ui.value);
+                    $parent_container.data('icon_size', ui.value);   // preserve icon size for new datasets
                 }
             });
             
-            setIconSize(INITIAL_ICON_SIZE);
+            // check if we've previously set icon size - if so, configure UI accordingly
+            var existing_icon_size = $parent_container.data('icon_size');
+            if (existing_icon_size) {
+                setIconSize(existing_icon_size);
+                $("#thumb_size_slider").slider('value', existing_icon_size);
+            } else {
+                setIconSize(INITIAL_ICON_SIZE);
+            }
             
             // when the jstree removes objects from the tree, handle each object...
             $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
@@ -89,19 +98,14 @@
             var datatree = $.jstree._focused();
             
             // double-click handler on image - launches image viewer
-            $("#dataIcons img").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+            $("#dataIcons li").dblclick(function(event) {
+                openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
-            $("#dataIcons img").click(function(event) {
-                handleClickSelection(event);
-            });
-            
-            // handles selection for 'clicks' (not drags) 
-            var handleClickSelection = function(event) {
+            $("#dataIcons li").click(function(event) {
                 var parent_id = '#'+$('#content_details').attr('rel');
-                var select_id = "image-" + $(event.target).attr('id');
+                var select_id = "image-" + $(this).attr('id').split("-")[1];
                 // find the matching child node from the tree
                 var $children = datatree._get_children(parent_id);
                 var toSelect = $children.filter(function(index) {
@@ -117,7 +121,7 @@
                     datatree.select_node(toSelect, true, event);
                     return false;
                 }
-            }
+            });
             
             // plugin to handle drag-select of images
             $("ul#dataIcons").selectable({
@@ -159,7 +163,7 @@
         #thumb_size_slider {
             border: 1px solid #aaa;
             height: 6px;
-            right: 20px;
+            left: 20px;
             position: absolute;
             top: 9px;
             width: 120px;
@@ -172,11 +176,11 @@
         .sizeX, .sizeY {display:none}
     </style>
 
-<div style="position:absolute; top:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
+<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
 </div>
 
-<div style="position:absolute; top:25px; left:0px; bottom:0px; overflow:auto; margin-top:0px">
+<div style="position:absolute; bottom:25px; left:0px; top:0px; overflow:auto; margin-top:0px">
 {% if manager.containers.images %}
 
         
