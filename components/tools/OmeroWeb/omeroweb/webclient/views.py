@@ -1081,6 +1081,7 @@ def batch_annotate(request, conn=None, **kwargs):
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels}
     context['template'] = "webclient/annotations/batch_annotate.html"
+    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 
