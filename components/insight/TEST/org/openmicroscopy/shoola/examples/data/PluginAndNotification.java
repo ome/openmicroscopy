@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since Beta4.4
+ * @since 4.4
  */
 public class PluginAndNotification 
 	implements AgentEventListener

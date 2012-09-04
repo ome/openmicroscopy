@@ -36,9 +36,12 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -70,7 +73,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-
 public final class Container
 {
 
@@ -338,15 +340,6 @@ public final class Container
 		}
 	}
 	
-	/** 
-	 * This method should only be invoked if insight was started in head-less
-	 * mode.
-	 */
-	public void activateUI()
-	{
-		activateAgents();
-	}
-	
 	/**
 	 * Activates all services, all agents and starts interacting with the
 	 * user. 
@@ -444,7 +437,7 @@ public final class Container
         //Initialize services as usual though.
         Initializer initManager = null;
         try {
-            singleton = new Container(home, CONFIG_FILE);
+            singleton = new Container(home, configFile);
             singleton.registry.bind(LookupNames.PLUGIN, plugin);
             initManager = new Initializer(singleton);
             initManager.configure();
@@ -454,7 +447,7 @@ public final class Container
             if (initManager != null) initManager.rollback();
             singleton = null;
             throw new RuntimeException(
-                    "Failed to intialize the Container in test mode.", se);
+                    "Failed to intialize the Container in plugin mode.", se);
         }
         return singleton;
     }
@@ -488,7 +481,7 @@ public final class Container
         //Initialize services as usual though.
         Initializer initManager = null;
         try {
-            singleton = new Container(home, CONFIG_FILE);
+            singleton = new Container(home, configFile);
             if (plugin >= 0)
            		singleton.registry.bind(LookupNames.PLUGIN, plugin);
             singleton.registry.bind(LookupNames.HEADLESS,
@@ -497,11 +490,18 @@ public final class Container
             initManager.configure();
             initManager.doInit();
             //startService() called by Initializer at end of doInit().
+            //Listen to the activate agents event
+            singleton.registry.getEventBus().register(new AgentEventListener() {
+				
+				public void eventFired(AgentEvent e) {
+					singleton.activateAgents();
+				}
+			}, ActivateAgents.class);
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
             singleton = null;
             throw new RuntimeException(
-                    "Failed to intialize the Container in test mode.", se);
+                    "Failed to intialize the Container in headless mode.", se);
         }
         return singleton;
     }

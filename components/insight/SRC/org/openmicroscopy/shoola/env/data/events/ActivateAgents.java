@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.examples.data.LoginHeadless 
+ * org.openmicroscopy.shoola.env.data.events.ActivateAgents 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
@@ -21,51 +21,26 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.examples.data;
-
+package org.openmicroscopy.shoola.env.data.events;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
-import org.openmicroscopy.shoola.env.data.login.LoginService;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Connect to OMERO w/o splash-screen. The credentials might have already 
- * been stored locally.
+ * Activates the agents.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class LoginHeadless {
+public class ActivateAgents 
+	extends RequestEvent
+{
 
-	LoginHeadless()
-	{
-		String homeDir = "";
-		Container container = Container.startupInHeadlessMode(homeDir, null, 1);
-		Registry reg = container.getRegistry();
-		LoginService svc = (LoginService) reg.lookup(LookupNames.LOGIN);
-		UserCredentials uc = new UserCredentials("root", "omero",
-				"localhost", UserCredentials.HIGH);
-		int value = svc.login(uc);
-		if (value == LoginService.CONNECTED) {
-			System.err.println("connected");
-			//For testing purpose. Now start the UI if required.
-			container.getRegistry().getEventBus().post(new ActivateAgents());
-		}
-	}
-	
-	public static void main(String[] args)
-	{
-		new LoginHeadless();
-	}
-	
+	/** Creates a new instance.*/
+	public ActivateAgents() {}
 }
