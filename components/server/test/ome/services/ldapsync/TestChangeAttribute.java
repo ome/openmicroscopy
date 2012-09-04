@@ -58,7 +58,7 @@ public class TestChangeAttribute implements Modification {
         // Need simple role provider in order to create
         // a group without setting the "ldap" flag.
         final RoleProvider simpleRP = fixture.applicationContext.getBean(
-            "simpleRoleProvider", RoleProvider.class);
+            "roleProvider", RoleProvider.class);
 
         final EventContext ec1 = fixture.login("test1", "grp1", "password");
         final long grp1 = ec1.getCurrentGroupId();
