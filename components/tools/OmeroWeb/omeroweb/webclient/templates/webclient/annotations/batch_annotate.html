@@ -194,6 +194,18 @@
                     return false;
                 });
 
+                $(".tooltip_title").tooltip({ 
+                    bodyHandler: function() { 
+                            return $("span.tooltip_html", $(this)).html(); 
+                        },
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: 10, 
+                    left: -100 
+                });
             });
             
     </script>
@@ -210,8 +222,17 @@
     </div>
 
 
-	<h1 style="position: relative">
+	<h1 id="batch_ann_title" style="position: relative">
 	    Batch Annotate:
+	    <span class="tooltip_title">
+	        {{ obj_labels|length }} objects
+	        <span style="width:20px; height:20px; display: inline-block" class="btn_info"> &nbsp </span>
+	        <span class="tooltip_html" style='display:none'>
+                {% for label in obj_labels %}
+                    <div><b>{{ label.type }} {{ label.id}}:</b> {{ label.name|truncateafter:"40" }}</div>
+                {% endfor %}
+            </span>
+        </span>
 	    <!-- multi-object link -->
         <button id="show_link_btn" class="btn silver btn_link" title="Link to the selected Objects">
 			<span></span>
