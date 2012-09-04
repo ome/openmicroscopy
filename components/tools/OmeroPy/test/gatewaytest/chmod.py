@@ -472,7 +472,7 @@ class Test8800 (lib.GTest):
         ctx = {'omero.group':'-1'}
         imgObj = self.gateway.getContainerService().getImages("Image", (imgObj.id.val,), None, ctx)[0]
         after = imgObj.getDetails().getPermissions().canEdit()
-        self.assertNotEqual(before, after, "canEdit() is False with 'omero.group':'-1'")
+        self.assertEqual(before, after, "canEdit() should not be affected by 'omero.group':'-1'")
 
 
 class DefaultSetupTest (lib.GTest):
