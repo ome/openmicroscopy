@@ -198,7 +198,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     private Experimenter mapUserName(String username, PersonContextMapper mapper) {
         Filter filter = config.usernameFilter(username);
-        List<Experimenter> p = ldap.search("", filter.encode(), mapper);
+        List<Experimenter> p = ldap.search("", filter.encode(),
+            mapper.getControls(), mapper);
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
@@ -440,30 +441,38 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         final String type = m.group(1);
         final String data = m.group(2);
         NewUserGroupBean bean = null;
+        AttributeSet attrSet = null;
 
         if ("ou".equals(type)) {
             bean = new OrgUnitNewUserGroupBean(dn);
+            attrSet = getAttributeSet(username, getContextMapper());
         } else if ("filtered_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, true, false);
+            attrSet = getAttributeSet(username, getContextMapper(data));
         } else if ("attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, false, false);
+            attrSet = getAttributeSet(username, getContextMapper(data));
         } else if ("filtered_dn_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, true, true);
+            attrSet = getAttributeSet(username, getContextMapper(data));
         } else if ("dn_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, false, true);
+            attrSet = getAttributeSet(username, getContextMapper(data));
         } else if ("query".equals(type)) {
             bean = new QueryNewUserGroupBean(data);
+            attrSet = getAttributeSet(username, getContextMapper());
         } else if ("bean".equals(type)) {
             bean = appContext.getBean(data, NewUserGroupBean.class);
+            // Likely, this should be added to the API in order to allow bean
+            // implementations to provide an attribute set.
+            attrSet = getAttributeSet(username, getContextMapper());
         }
 
-        final AttributeSet attrSet = getAttributeSet(username);
         groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
         return groups;
     }
 
-    private AttributeSet getAttributeSet(String username) {
-        PersonContextMapper mapper = getContextMapper();
+    private AttributeSet getAttributeSet(String username, PersonContextMapper mapper) {
         Experimenter exp = mapUserName(username, mapper);
         String dn = mapper.getDn(exp);
         AttributeSet attrSet = mapper.getAttributeSet(exp);
