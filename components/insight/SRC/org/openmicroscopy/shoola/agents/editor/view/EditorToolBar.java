@@ -289,8 +289,6 @@ class EditorToolBar
 			a.setPermissions();
 		} else {
 			groupLabel.setText(SAVED);
-			groupButton.removeActionListener(controller);
-			//groupButton.removeMouseListener(a);
 		}
 	}
 	
