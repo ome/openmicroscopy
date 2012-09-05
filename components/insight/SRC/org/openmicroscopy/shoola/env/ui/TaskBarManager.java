@@ -639,8 +639,8 @@ public class TaskBarManager
     }
 
 	/**
-	 * Returns <code>true</code> if the application is used as an 
-	 * <code></code>ImageJ plug-in, <code>false</code> otherwise.
+	 * Returns <code>true</code> if the application is used as 
+	 * plug-in e.g. ImageJ, KNIME, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -649,7 +649,7 @@ public class TaskBarManager
 		Environment env = (Environment) 
 		container.getRegistry().lookup(LookupNames.ENV);
     	if (env == null) return false;
-    	return env.runAsPlugin() == LookupNames.IMAGE_J;
+    	return env.runAsPlugin() >= 0;
 	}
 	
 	/** 
