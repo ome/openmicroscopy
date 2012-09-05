@@ -1,0 +1,167 @@
+## General instructions ##
+
+ * A user in an institution where an OMERO.server instance is already installed and functioning only requires the appropriate client to access OMERO. 
+
+ * The OMERO server and client major versions **must match**, e.g. only 4.4 clients with the 4.4 server. Please upgrade appropriately using the instructions found on the [OMERO upgrade](server/upgrade) page.
+
+ * The tables below summarize the latest downloads (client & server) for each major release of OMERO. Refer to the following sections for more information about each release. 
+
+ * After downloading the relevant files, you may want to take a look at our [Getting Started] (/site/support/omero4/getting-started) page.
+
+## OMERO Client @VERSION@ Downloads ##
+
+ * OMERO.clients is a package including [OMERO.insight](clients/insight), [OMERO.importer](clients/importer) and [OMERO.editor](clients/editor). All clients are completely written in the Java programming language but require version **1.5** or higher.
+
+ * Your installation can also make use of OMERO.web as an alternative client through which you or your users may access their data (see the [install page](server/install_web)). OMERO.web includes Java Webstart for the OMERO.insight client.
+
+ * For the OMERO ImageJ plugin to work, uncompress the download and put the entire folder under the ImageJ/Fiji plugins folder. If you are using ImageJ, you must also have [loci_tools.jar](http://loci.wisc.edu/software/loci_tools.jar) already installed in the `ImageJ/plugins` folder, see [ImageJ](http://rsbweb.nih.gov/ij). Watch the  <a href="http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-4/mov/ImageJ-4.4.mov">ImageJ Plugin Movie</a> for more details. (Note: if you are testing [ImageJ2](http://developer.imagej.net/) then you should NOT add loci_tools.jar) 
+
+ * For the OMERO Matlab plugin to work, follow the instructions indicated [here](http://trac.openmicroscopy.org.uk/ome/wiki/OmeroMatlab).
+
+<div class="alt-table">
+<table>
+<tr>
+ <th colspan="3"> Clients</th>
+ <th colspan="2"> Plugins</th>
+</tr>
+<tr>
+ <th> Mac OS X </th>
+ <th> Linux </th>
+ <th> Windows </th>
+ <th> ImageJ/Fiji </th>
+ <th> Matlab </th>
+</tr>
+<tr>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.mac.zip">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.linux.zip">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.win.zip">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.insight-ij-@VERSION@-ice33-b5.zip">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.matlab-@VERSION@-ice33-b5.zip">Download</a> </td>
+</tr>
+</table>
+</div>
+
+<p>&nbsp;</p>
+
+
+## OMERO Server @VERSION@ Downloads ##
+
+ * OMERO @VERSION@ now supports Ice 3.4 & Ice 3.3, download the server corresponding to your Ice version below. (Note that the client(s) should work with either version of the server.)
+
+ * After downloading the server, you may want to take a look at the installation guide for [Unix based platforms](server/installation), [Microsoft Windows](server/install-windows) or using the [Virtual Appliance](getting-started/demo/virtual_appliance) .
+
+ * If you want to upgrade your server, follow the upgrade [instructions](server/upgrade).
+
+<div class="alt-table">
+<table>
+
+<tr>
+ <th rowspan = "2"> Virtual appliance </th>
+ <th colspan ="2"> Unix/Windows</th>
+ <th rowspan = "2"> API documentation</th>
+</tr>
+<tr>
+ <th> Ice 3.3 </th>
+ <th> Ice 3.4 </th>
+</tr>
+<tr>
+</tr>
+<tr>
+ <td rowspan="2" align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/virtualbox/omero-vm-@VERSION@.ova">Download</a>  </td>
+ <td align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.server-@VERSION@-ice33-b5.zip">Download</a>  </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.server-@VERSION@-ice34-b5.zip">Download</a>  </td>
+ <td rowspan="2" align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.docs-@VERSION@-ice33-b5.zip">Download</a> </td>
+</tr>
+</table>
+</div>
+
+
+<p>&nbsp;</p>
+
+
+## Release Notes for OMERO @VERSION@ (August 2012) ##
+
+Full details of features and what is new can be found in the [security announcement](https://www.openmicroscopy.org/community/viewtopic.php?f=11&t=1458).
+
+Full milestone release notes can be found on the [OMERO Trac site](http://trac.openmicroscopy.org.uk/omero/milestone/OMERO-@VERSION@)
+
+This release includes:
+
+ - OMERO.server (Ice 3.3 & Ice 3.4)
+ - OMERO.clients
+ - OMERO.insight-ij
+ - OMERO.matlab
+
+The git release tag for this version is `v.@VERSION@` (sha1: [63c11deca5](https://github.com/openmicroscopy/openmicroscopy/commit/63c11deca5c647e03808e7d3bc4034bfa9d0ef0f)) and the checksums for each download are indicated in the table below.
+
+<div class="alt-table">
+<table>
+<tr>
+ <th> Checksums</th>
+ <th> MD5</th>
+</tr>
+<tr>
+  <td>OMERO.clients-@VERSION@-ice33-b5.linux.zip</td>
+  <td>25f79b1a1cca1e951b361f961939d4d8</td>
+</tr>
+<tr>
+  <td>OMERO.clients-@VERSION@-ice33-b5.mac.zip</td>
+  <td>e86639dd2412b1c51aa4ade3947bf6ce</td>
+</tr>
+<tr>
+  <td>OMERO.clients-@VERSION@-ice33-b5.win.zip</td>
+  <td>abbefefbccdf10ed7a1a0eba0979b44c</td>
+</tr>
+<tr>
+  <td>OMERO.insight-ij-@VERSION@-ice33-b5.zip</td>
+  <td>02b8c280d0f7a5885d7c837641dceaab</td>
+</tr>
+<tr>
+  <td>OMERO.matlab-@VERSION@-ice33-b5.zip</td>
+  <td>e0b80e0d74ff2f9a417877bd368534b3</td>
+</tr>
+<tr>
+  <td>OMERO.server-@VERSION@-ice33-b5.zip</td>
+  <td>94e94940a8e1f55d3f01077863e79d4e</td>
+</tr>
+<tr>
+  <td>OMERO.server-@VERSION@-ice34-b5.zip</td>
+  <td>4bf6856f46e4a17cf8c25b9165801fad</td>
+<tr>
+  <td>OMERO.docs-@VERSION@-ice33-b5.zip</td>
+  <td>daef46fdd733369e1950dcdd1ba0ea37</td>
+</tr>
+  <td>omero-vm-@VERSION@.ova</td>
+  <td>c15232a6924bb17a61e62b78bea42b9d</td>
+</table>
+</div>
+
+
+<p>&nbsp;</p>
+
+
+## Checking Out Our Code ##
+
+To check out the code, install `git` and run the following command:
+
+    $ git clone --recursive git://github.com/openmicroscopy/openmicroscopy.git
+
+If you are located in Europe, using our mirror may be faster:
+
+    $ git clone --recursive git://git.openmicroscopy.org/ome.git
+
+The source code can also be browsed using the [Gitweb interface](http://git.openmicroscopy.org/) or directly from the [GitHub repository](http://github.com/openmicroscopy/openmicroscopy).
+
+To find out more about using git, you might take a look at [our developer documentation](http://trac.openmicroscopy.org.uk/ome/wiki/WorkingWithOmero/UsingGit).
+
+
+<p>&nbsp;</p>
+
+
+
+## Previous versions ##
+
+Previous versions of the OMERO software can be found on our [Legacy Downloads](legacy_downloads) page.
+
+
+
