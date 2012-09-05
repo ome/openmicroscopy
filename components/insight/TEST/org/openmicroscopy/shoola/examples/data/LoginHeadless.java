@@ -43,9 +43,12 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import pojos.ExperimenterData;
@@ -92,6 +95,7 @@ public class LoginHeadless {
 			ExperimenterData exp = adminSvc.getUserDetails();
 			//All the groups the user is member of 
 			Collection<GroupData> groups = adminSvc.getAvailableUserGroups();
+			System.err.println(groups);
 			//The user is logged into his/her default group. 
 			//Security Context is mainly for now only using the group
 			// idea is to support multi-server.
@@ -106,6 +110,8 @@ public class LoginHeadless {
 			OmeroDataService dataSvc = reg.getDataService();
 			OmeroImageService imgSvc = reg.getImageService();
 			try {
+				
+				//1 Load images knowing image's id.
 				Set images = dataSvc.getImages(ctx, ImageData.class, imageIds,
 						-1);
 				System.err.println("images:"+images.size());
@@ -121,18 +127,35 @@ public class LoginHeadless {
 					pixels.add(img.getDefaultPixels().getId());
 				}
 				
-				//Load thumbnails with maximum size of 96.
+				
+				//2. Load thumbnails with maximum size of 96.
 				//The aspect ratio is respected if the image is not square.
+				/*
 				Map<Long, BufferedImage> thumbnails = 
 					imgSvc.getThumbnailSet(ctx, pixels, 96);
 				System.err.println("thumbnails:"+thumbnails.size());
+				*/
 				
-				
-				//Raw data access.
-				//To get a given plane.
+				//3. Raw data access. To get a given plane.
+				/*
 				int z = 0, t = 0, c = 0;
-				//byte[] plane = imgSvc.getPlane(ctx, pixels.get(0), z, t, c);
-				//System.err.println("plane:"+plane.length);
+				byte[] plane = imgSvc.getPlane(ctx, pixels.get(0), z, t, c);
+				System.err.println("plane:"+plane.length);
+				*/
+				
+				//4. Listen to selection
+				reg.getEventBus().register(new AgentEventListener() {
+					
+					public void eventFired(AgentEvent e) {
+						ViewInPluginEvent evt = (ViewInPluginEvent) e;
+						System.err.println(evt.getPlugin() == LookupNames.KNIME);
+						//Could be image/dataset/project etc.
+						//whatever we decide to turn on. At the moment only
+						//images.
+						System.err.println(evt.getDataObjects());
+						
+					}
+				}, ViewInPluginEvent.class);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
