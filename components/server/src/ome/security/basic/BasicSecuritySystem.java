@@ -296,9 +296,9 @@ public class BasicSecuritySystem implements SecuritySystem,
     // =========================================================================
 
 
-    public boolean isGraphCritical() {
+    public boolean isGraphCritical(Details details) {
         checkReady("isGraphCritical");
-        return cd.isGraphCritical();
+        return cd.isGraphCritical(details);
     }
 
     public void loadEventContext(boolean isReadOnly) {

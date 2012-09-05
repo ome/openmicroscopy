@@ -119,10 +119,13 @@ class ChmodBaseTest (lib.GTest):
             sudo_needed=False, exc_info=False):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
+        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        # Now test if we can actually Edit and 'Hard link' the object
         nameEdited = False
         # for saves, omero group must *not* be -1
-        g = blitzObject._conn.SERVICE_OPTS.getOmeroGroup()
-        blitzObject._conn.SERVICE_OPTS.setOmeroGroup()
+        origGroup = self.gateway.SERVICE_OPTS.getOmeroGroup()   # need to switch back to this after edits
+        gid = blitzObject.details.group.id.val
+        self.gateway.SERVICE_OPTS.setOmeroGroup(gid)
         try:
             blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
@@ -164,7 +167,7 @@ class ChmodBaseTest (lib.GTest):
             if exc_info:
                 traceback.print_exc()
 
-        blitzObject._conn.SERVICE_OPTS.setOmeroGroup(g)
+        self.gateway.SERVICE_OPTS.setOmeroGroup(origGroup)  # revert back
         self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
         self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
@@ -173,6 +176,7 @@ class ChmodBaseTest (lib.GTest):
             sudo_needed=False, exc_info=False):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
+        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
@@ -183,7 +187,6 @@ class ChmodBaseTest (lib.GTest):
         except omero.SecurityViolation:
             if exc_info:
                 traceback.print_exc()
-        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
 
@@ -237,6 +240,7 @@ class CustomUsersTest (ChmodBaseTest):
         ReadOnly('admin', admin=True)
         ReadOnly('leader', groupowner=True)
         dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
+        dbhelpers.PROJECTS['read_only_proj_2'] = dbhelpers.ProjectEntry('read_only_proj_2', 'read_only_owner')
 
         # read-annotate users & data
         def ReadAnn(key, admin=False, groupowner=False):
@@ -276,9 +280,15 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as owner...
         self.doLogin(dbhelpers.USERS['read_only_owner'])
         p = dbhelpers.getProject(self.gateway, 'read_only_proj')
+        p2 = dbhelpers.getProject(self.gateway, 'read_only_proj_2')
         pid = p.id
+        pid2 = p2.id
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+        # Test Bug from #9505 commits: Second Project canEdit() is False
+        pros = self.gateway.getObjects("Project", [pid, pid2])
+        for p in pros:
+            self.assertCanEdit(p, True)
 
         # Login as user...
         self.doLogin(dbhelpers.USERS['read_only_user'])
@@ -326,6 +336,29 @@ class CustomUsersTest (ChmodBaseTest):
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+
+
+    def testGroupMinusOne(self):
+        """ Should be able to Annotate and Edit object retrieved with omero.group:'-1' """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_ann_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_ann_proj')
+        pid = p.id
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        # Need to get object again since p.save() in assertCanEdit() reloads it under different context
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_ann_leader'])
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanAnnotate(p, True)
+
 
     def testReadWrite(self):
         """ In a read-write group, all should be able to Annotate and Edit"""

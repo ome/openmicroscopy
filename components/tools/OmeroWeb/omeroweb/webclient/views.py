@@ -519,7 +519,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
     return context
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
@@ -796,6 +796,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
+    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 

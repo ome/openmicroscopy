@@ -34,12 +34,18 @@
    <!-- OMERO Data Server (OMERO) configuration.
          This entry specifies the hostname and the port to use to connect to 
          OMERO using blitz
-         port using JBoss 1099
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
-      <hostName>localhost</hostName>
+      <!-- The configurable attribute indicates that the user can modify the
+      value from the UI.
+      -->
+      <hostName configurable="true">localhost</hostName>
       <port>4063</port>
       <portSSL>4064</portSSL>
+      <!-- Indicates the data transfer is encrypted (slower).
+      The default value is false
+      -->
+      <encrypted configurable="true">false</encrypted>
     </structuredEntry>
      <!-- the value corresponding to the agent defined as the master
     i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2

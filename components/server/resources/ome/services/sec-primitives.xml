@@ -34,6 +34,7 @@
 
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
     <constructor-arg ref="sessionCache"/>
+    <constructor-arg ref="roles"/>
   </bean>
 
   <alias name="currentDetails" alias="principalHolder"/>
@@ -88,6 +89,7 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg ref="roles"/>
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  

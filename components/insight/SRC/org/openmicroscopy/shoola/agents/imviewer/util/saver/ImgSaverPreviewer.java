@@ -263,6 +263,6 @@ class ImgSaverPreviewer
      * 
      * @return See above.
      */
-    int getType() { return model.getType(); }
-    
+    int getImageType() { return model.getImageType(); }
+
 }
