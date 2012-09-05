@@ -97,8 +97,8 @@
             <mapper type="regexp" from="OMERO.editor-[^-]+(.*).zip"  to="editor-win.zip"/>
         </copy>
     	<copy todir="${target.dir}">
-    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.ij*.zip"/>
-    	    <mapper type="regexp" from="OMERO.ij-[^-]+(.*).zip"  to="insight-ij.zip"/>
+    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-ij*.zip"/>
+    	    <mapper type="regexp" from="OMERO.insight-ij-[^-]+(.*).zip"  to="insight-ij.zip"/>
     	</copy>
     	<copy todir="${target.dir}">
     	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.importer*-win.zip"/>
