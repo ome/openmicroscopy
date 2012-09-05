@@ -545,11 +545,11 @@
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
       
-      get_shape_icon_src = function(type) {
+      get_shape_icon_src = function(type, klass) {
           var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
           if (type in shape_icons) {
-              return '{% static "webgateway/img/" %}' + shape_icons[type];
+              return "<img class='"+ klass +"' src='{% static 'webgateway/img/' %}" + shape_icons[type] + "' />";
           }
           return "";
       }
@@ -569,8 +569,8 @@
           var roiThumbHtml = "<img src='' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
           
           // process the shapes first - note first shape & text
-          var firstShape = null;
-          var firstText = null;
+          var roiIcon = null;
+          var roiText = null;
           var minT = maxT = minZ = maxZ = null;
           var shapesHtml = '<tbody>';
           var shape = null;
@@ -593,7 +593,8 @@
               }
               if (shape['textValue'] != null) {
                   text = shape['textValue']
-                  if (firstText == null) firstText = text;
+                  if (roiText == null) roiText = text;
+                  else if (roiText != text) roiText = "";   // diffent Shape labels -> no Roi label
               } else text = "";
               var indent = " &nbsp&nbsp&nbsp&nbsp";    // hack to add "indent", but not if shape is only-child
               if (shapes.length == 1) {
@@ -604,7 +605,7 @@
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
-              shapesHtml += "<td class='shape_cell icon'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
+              shapesHtml += "<td class='shape_cell icon'>" + indent + get_shape_icon_src(shape['type'], 'shape_icon') + "</td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               var theZ =
                   typeof shape.theZ === "undefined"? NOZT : shape.theZ + 1;
@@ -615,9 +616,10 @@
               shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
-              if (firstShape == null) firstShape = shape['type'];
+              if (roiIcon == null) roiIcon = shape['type'];
+              else if (roiIcon != shape['type']) roiIcon = "";    // mixture of shapes - show no icon
           }
-          if (firstText == null) firstText = "";
+          if (roiText == null) roiText = "";
           shapesHtml += '</tbody>';
           
           // new tbody for each ROI
@@ -625,11 +627,11 @@
           if (zRange != NOZT) zRange = "" + (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || (""));
           var roi_html = "<thead><tr class='roi_row'>";
           roi_html += "<th><img class='expand_arrow' src='{% static "webgateway/img/arrowRight_grey.png" %}' /></th>";
-          roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "<th align='left'> &nbsp"+ get_shape_icon_src(roiIcon, 'roi_icon') + " (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
           roi_html += "<th style='white-space: nowrap'> "+ tRange +" </th>"; // no Z for ROI
           roi_html += "<th style='white-space: nowrap'> "+ zRange +" </th>"; // no T for ROI
-          roi_html += "<th class='shape_text' title=\""+ firstText +"\"><p>"+ truncate_text(firstText) +"</p></th>";
+          roi_html += "<th class='shape_text' title=\""+ roiText +"\"><p>"+ truncate_text(roiText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
