@@ -232,11 +232,14 @@ public class IconManager
     /** The <code>Read Link Group</code> icon. */
     public static final int           READ_WRITE_GROUP = 58;
     
+    /** The <code>KNIME Viewer</code> icon. */
+    public static final int          VIEWER_KNIME = 59;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 58;
+    private static final int          MAX_ID = 59;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -302,6 +305,7 @@ public class IconManager
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
         relPaths[VIEWER_IJ] = "imageJ16.png";
+        relPaths[VIEWER_KNIME] = "knimeIcon16.png";
     }
     
     /** The sole instance. */

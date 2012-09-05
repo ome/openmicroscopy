@@ -100,6 +100,9 @@ public interface TreeViewer
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
 	public static final int		IMAGE_J = LookupNames.IMAGE_J;
 	
+	/** Indicates to run the application as an <code>Knime</code> plugin.*/
+	public static final int		KNIME = LookupNames.KNIME;
+	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;
 	

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.events;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
@@ -54,6 +55,9 @@ public class ViewInPluginEvent
 	
 	/** The security context.*/
 	private SecurityContext ctx;
+	
+	/** The collection of selected objects.*/
+	private Collection<DataObject> objects;
 	
 	/**
 	 * The id of the object.
@@ -109,6 +113,22 @@ public class ViewInPluginEvent
 	 */
 	public DataObject getObject() { return object; }
 	
+	/**
+	 * Sets the collection of selected objects.
+	 * 
+	 * @param objects The objects to view.
+	 */
+	public void setDataObjects(Collection<DataObject> objects)
+	{
+		this.objects = objects;
+	}
+	
+	/**
+	 * Returns the collection of selected objects.
+	 * 
+	 * @param objects The objects to view.
+	 */
+	public Collection<DataObject> getDataObjects() { return objects; }
 	
 	/**
 	 * Returns the data object.

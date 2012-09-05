@@ -99,6 +99,9 @@ public interface DataBrowser
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
 	public static final int		IMAGE_J = LookupNames.IMAGE_J;
 	
+	/** Indicates to run the application as an <code>Knime</code> plugin.*/
+	public static final int		KNIME = LookupNames.KNIME;
+	
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 

@@ -371,6 +371,9 @@ class TreeViewerControl
 	/** Identifies the <code>View In ImageJ</code> in the menu. */
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
+	/** Identifies the <code>View In KNIME</code> in the menu. */
+	static final Integer    VIEW_IN_KNIME = Integer.valueOf(73);
+	
 	/** 
 	 * Identifies the <code>Switch group action</code> in the 
 	 * File menu.
@@ -569,6 +572,8 @@ class TreeViewerControl
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
 		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
+		actionsMap.put(VIEW_IN_KNIME, new ViewInPlugin(model,
+				TreeViewer.KNIME));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));
