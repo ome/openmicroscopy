@@ -371,15 +371,16 @@ class TreeViewerControl
 	/** Identifies the <code>View In ImageJ</code> in the menu. */
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
-	/** Identifies the <code>View In KNIME</code> in the menu. */
-	static final Integer    VIEW_IN_KNIME = Integer.valueOf(73);
-	
 	/** 
 	 * Identifies the <code>Switch group action</code> in the 
 	 * File menu.
 	 */
 	static final Integer    SWITCH_GROUP = Integer.valueOf(73);
 	
+	/** Identifies the <code>View In KNIME</code> in the menu. */
+	static final Integer    VIEW_IN_KNIME = Integer.valueOf(74);
+	
+
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.

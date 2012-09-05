@@ -74,7 +74,8 @@ public class LoginHeadless {
 	LoginHeadless()
 	{
 		String homeDir = "";
-		Container container = Container.startupInHeadlessMode(homeDir, null, 1);
+		Container container = Container.startupInHeadlessMode(homeDir, null, 
+				LookupNames.KNIME);
 		Registry reg = container.getRegistry();
 		LoginService svc = (LoginService) reg.lookup(LookupNames.LOGIN);
 		UserCredentials uc = new UserCredentials("root", "omero",
@@ -130,8 +131,8 @@ public class LoginHeadless {
 				//Raw data access.
 				//To get a given plane.
 				int z = 0, t = 0, c = 0;
-				byte[] plane = imgSvc.getPlane(ctx, pixels.get(0), z, t, c);
-				System.err.println("plane:"+plane.length);
+				//byte[] plane = imgSvc.getPlane(ctx, pixels.get(0), z, t, c);
+				//System.err.println("plane:"+plane.length);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -140,7 +141,7 @@ public class LoginHeadless {
 			//when you done need to exit. so session is closed.
 			ExitApplication a = new ExitApplication(false);
 	    	a.setSecurityContext(new SecurityContext(groupId));
-	        container.getRegistry().getEventBus().post(a);
+	        //container.getRegistry().getEventBus().post(a);
 		}
 	}
 	

@@ -241,7 +241,6 @@ class PopupMenu
 								TreeViewerControl.VIEW_IN_KNIME);
 						viewInPlugin = new JMenuItem(a);
 						initMenuItem(viewInPlugin, a.getActionName());
-						break;
 				}
 				break;
 			case TreeViewer.FULL_POP_UP_MENU:
@@ -255,8 +254,16 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
-				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+				a = null;
+				switch (TreeViewerAgent.runAsPlugin()) {
+					case TreeViewer.IMAGE_J:
+						a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+						break;
+					case TreeViewer.KNIME:
+						a = controller.getAction(
+								TreeViewerControl.VIEW_IN_KNIME);
+				}
+				if (a != null) {
 					viewInPlugin = new JMenuItem(a);
 					initMenuItem(viewInPlugin, a.getActionName());
 				}
