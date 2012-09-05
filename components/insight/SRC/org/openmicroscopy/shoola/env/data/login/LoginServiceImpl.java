@@ -39,6 +39,7 @@ import Ice.DNSException;
 import omero.SecurityViolation;
 
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
@@ -271,6 +272,8 @@ public class LoginServiceImpl
         config.setCredentials(uc);
         int succeeded = attempt();
         state = IDLE;
+        if (succeeded == CONNECTED)
+        	container.getRegistry().bind(LookupNames.USER_CREDENTIALS, uc);
         return succeeded;
     }
 
