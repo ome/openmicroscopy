@@ -28,9 +28,9 @@ $(document).ready(function() {
             var url;
             var well_index = selected[0]["index"] || 0;
             if (selected[0]["share"]) {
-                url = '{% url webindex %}metadata_preview/'+obj_dtype+'/'+obj_id+'/'+selected[0]["share"];
+                url = '{% url webindex %}metadata_preview/'+obj_dtype+'/'+obj_id+'/'+selected[0]["share"] + '/';
             } else {
-                url = '{% url webindex %}metadata_preview/'+obj_dtype+'/'+obj_id;
+                url = '{% url webindex %}metadata_preview/'+obj_dtype+'/'+obj_id + '/';
             }
             if (well_index > 0) {
                 url = url + '?index='+well_index;

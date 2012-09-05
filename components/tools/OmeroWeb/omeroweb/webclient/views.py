@@ -152,6 +152,8 @@ def login(request):
                     if request.session.get('active_group'):
                         if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
                             del request.session['active_group']
+                    if request.session.get('user_id'):  # always want to revert to logged-in user
+                        del request.session['user_id']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
                     if request.REQUEST.get('noredirect'):
