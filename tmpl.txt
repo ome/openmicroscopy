@@ -32,11 +32,11 @@
  <th> Matlab </th>
 </tr>
 <tr>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.mac.zip">Download</a> </td>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.linux.zip">Download</a> </td>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-b5.win.zip">Download</a> </td>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.insight-ij-@VERSION@-ice33-b5.zip">Download</a> </td>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.matlab-@VERSION@-ice33-b5.zip">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@MAC_CLIENTS@">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@LINUX_CLIENTS@">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@WIN_CLIENTS@">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@IJ_CLIENTS@">Download</a> </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@MATLAB_CLIENTS@">Download</a> </td>
 </tr>
 </table>
 </div>
@@ -67,10 +67,10 @@
 <tr>
 </tr>
 <tr>
- <td rowspan="2" align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/virtualbox/omero-vm-@VERSION@.ova">Download</a>  </td>
- <td align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.server-@VERSION@-ice33-b5.zip">Download</a>  </td>
- <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.server-@VERSION@-ice34-b5.zip">Download</a>  </td>
- <td rowspan="2" align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VERSION@/OMERO.docs-@VERSION@-ice33-b5.zip">Download</a> </td>
+ <td rowspan="2" align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@VM@">Download</a>  </td>
+ <td align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@SERVER33@">Download</a>  </td>
+ <td align=center> <a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@SERVER34@">Download</a>  </td>
+ <td rowspan="2" align=center><a href="http://cvs.openmicroscopy.org.uk/snapshots/omero/@DOCS@">Download</a> </td>
 </tr>
 </table>
 </div>
@@ -101,38 +101,38 @@ The git release tag for this version is `v.@VERSION@` (sha1: [63c11deca5](https:
  <th> MD5</th>
 </tr>
 <tr>
-  <td>OMERO.clients-@VERSION@-ice33-b5.linux.zip</td>
-  <td>25f79b1a1cca1e951b361f961939d4d8</td>
+  <td>@LINUX_CLIENTS_BASE@</td>
+  <td>@LINUX_CLIENTS_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.clients-@VERSION@-ice33-b5.mac.zip</td>
-  <td>e86639dd2412b1c51aa4ade3947bf6ce</td>
+  <td>@MAC_CLIENTS_BASE@</td>
+  <td>@MAC_CLIENTS_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.clients-@VERSION@-ice33-b5.win.zip</td>
-  <td>abbefefbccdf10ed7a1a0eba0979b44c</td>
+  <td>@WIN_CLIENTS_BASE@</td>
+  <td>@WIN_CLIENTS_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.insight-ij-@VERSION@-ice33-b5.zip</td>
-  <td>02b8c280d0f7a5885d7c837641dceaab</td>
+  <td>@IJ_CLIENTS_BASE@</td>
+  <td>@IJ_CLIENTS_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.matlab-@VERSION@-ice33-b5.zip</td>
-  <td>e0b80e0d74ff2f9a417877bd368534b3</td>
+  <td>@MATLAB_CLIENTS_BASE@</td>
+  <td>@MATLAB_CLIENTS_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.server-@VERSION@-ice33-b5.zip</td>
-  <td>94e94940a8e1f55d3f01077863e79d4e</td>
+  <td>@SERVER33_BASE@</td>
+  <td>@SERVER33_MD5@</td>
 </tr>
 <tr>
-  <td>OMERO.server-@VERSION@-ice34-b5.zip</td>
-  <td>4bf6856f46e4a17cf8c25b9165801fad</td>
+  <td>@SERVER34_BASE@</td>
+  <td>@SERVER34_MD5@</td>
 <tr>
-  <td>OMERO.docs-@VERSION@-ice33-b5.zip</td>
-  <td>daef46fdd733369e1950dcdd1ba0ea37</td>
+  <td>@DOCS_BASE@</td>
+  <td>@DOCS_MD5@</td>
 </tr>
-  <td>omero-vm-@VERSION@.ova</td>
-  <td>c15232a6924bb17a61e62b78bea42b9d</td>
+  <td>@VM_BASE@</td>
+  <td>@VM_MD5@</td>
 </table>
 </div>
 
