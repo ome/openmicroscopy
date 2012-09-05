@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -97,7 +98,7 @@ public interface TreeViewer
 {
 
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	public static final int		IMAGE_J = LookupNames.IMAGE_J;
 	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;

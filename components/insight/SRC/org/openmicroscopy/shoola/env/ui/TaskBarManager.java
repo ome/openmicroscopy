@@ -406,7 +406,7 @@ public class TaskBarManager
 	{
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
-			case ViewInPluginEvent.IMAGE_J:
+			case LookupNames.IMAGE_J:
 				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}

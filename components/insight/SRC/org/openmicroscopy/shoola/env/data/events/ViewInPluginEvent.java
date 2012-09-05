@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
@@ -45,9 +46,6 @@ public class ViewInPluginEvent
 	extends RequestEvent
 {
 
-	/** Identifies the <code>ImageJ</code> plugin.*/
-	public static final int IMAGE_J = 1;
-	
 	/** The selected plugin.*/
 	private int plugin;
 	

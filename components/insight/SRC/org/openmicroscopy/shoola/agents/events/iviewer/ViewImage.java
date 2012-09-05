@@ -34,6 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
@@ -58,7 +59,7 @@ public class ViewImage
 {
 
 	/** Identifies the <code>ImageJ</code> plugin.*/
-	public static final int IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	public static final int IMAGE_J = LookupNames.IMAGE_J;
 	
 	/** The selected plugin.*/
 	private int plugin;
