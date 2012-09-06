@@ -744,7 +744,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)   # TODO: Remove setGroupContext=True when #9505 is fixed
+@login_required()
 @render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
