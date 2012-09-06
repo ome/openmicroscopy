@@ -125,6 +125,7 @@ public class ShapeRenderer
 			label.setIcon(TEXT);
 		else if (FigureUtil.MASK_TYPE.equals(shape)) 
 			label.setIcon(MASK);
+		else label.setIcon(null);
 	}
 	
 	/**
