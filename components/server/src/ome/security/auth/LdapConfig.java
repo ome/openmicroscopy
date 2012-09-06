@@ -10,8 +10,10 @@ package ome.security.auth;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
@@ -36,47 +38,42 @@ public class LdapConfig {
 
     private final HardcodedFilter groupFilter;
 
+    private final String base;
+
     private final String newUserGroup;
 
     private final boolean enabled;
 
     private final boolean syncOnLogin;
 
+
     /**
-     * Passes all values to
-     * {@link #LdapConfig(boolean, String, String, String, String, String, boolean)}
-     * but sets {@link #syncOnLogin} to false.
-     *
-     * @param enabled
-     * @param newUserGroup
-     * @param userFilter
-     * @param groupFilter
-     * @param userMapping
-     * @param groupMapping
+     * Sets {@link #syncOnLogin} to false and {@link #base} to null.
      */
-    public LdapConfig(boolean enabled, String newUserGroup,
-            String userFilter, String groupFilter,
-            String userMapping, String groupMapping) {
-        this(enabled, newUserGroup, userFilter, groupFilter,
-                userMapping, groupMapping, false);
+    public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
+        String groupFilter, String userMapping, String groupMapping) {
+        this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
+            groupMapping, false, null);
+    }
+
+    /**
+     * Sets {@link #base} to null.
+     */
+    public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
+        String groupFilter, String userMapping, String groupMapping, boolean syncOnLogin) {
+        this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
+            groupMapping, syncOnLogin, null);
     }
 
     /**
      * Base constructor which stores all {@link #parse(String)} and stores all
      * values for later lookup.
-     *
-     * @param enabled
-     * @param newUserGroup
-     * @param userFilter
-     * @param groupFilter
-     * @param userMapping
-     * @param groupMapping
-     * @param syncOnLogin
      */
-    public LdapConfig(boolean enabled, String newUserGroup,
+    public LdapConfig(boolean enabled,
+            String newUserGroup,
             String userFilter, String groupFilter,
             String userMapping, String groupMapping,
-            boolean syncOnLogin) {
+            boolean syncOnLogin, String base) {
         this.enabled = enabled;
         this.newUserGroup = newUserGroup;
         this.userFilter = new HardcodedFilter(userFilter);
@@ -84,6 +81,7 @@ public class LdapConfig {
         this.userMapping = parse(userMapping);
         this.groupMapping = parse(groupMapping);
         this.syncOnLogin = syncOnLogin;
+        this.base = base;
     }
 
     // Helpers
@@ -94,6 +92,34 @@ public class LdapConfig {
         filter.and(getUserFilter());
         filter.and(new EqualsFilter(attributeKey, username));
         return filter;
+    }
+
+    /**
+     * Calculate the relative DN based on the current base. For example,
+     * if the base is "ou=example" and the fullDNString is
+     * "cn=myuser,ou=example", then the returned DN will be "cn=myuser".
+     *
+     * Note: if {@link #base} is null, then this will throw an exception.
+     *
+     * @param full Not null.
+     * @return Never null.
+     */
+    public DistinguishedName relativeDN(String fullDNString) {
+        DistinguishedName full = new DistinguishedName(fullDNString);
+        DistinguishedName base = new DistinguishedName(this.base);
+
+        if (this.base.trim().length() == 0) {
+            return full;
+        } else if (base.equals(full)) {
+            return new DistinguishedName("");
+        } else if (!full.startsWith(base)) {
+            throw new InternalException(String.format(
+                "Full DN (%s) does not start with base DN (%s)",
+                full, base));
+        } else {
+            full.removeFirst(base);
+            return full;
+        }
     }
 
     // Accessors
