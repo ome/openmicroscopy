@@ -58,9 +58,8 @@ class GTest(unittest.TestCase):
         finally:
             gateway.seppuku()
 
-        if not skipTestDB:
-            self.prepTestDB()
-            self.doDisconnect()
+        self.prepTestDB(onlyUsers=skipTestDB)
+        self.doDisconnect()
 
     def doConnect (self):
         if not self._has_connected:
@@ -139,11 +138,14 @@ class GTest(unittest.TestCase):
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
 
+    def getTinyTestImage3 (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'tinyimg3', dataset)
+
     def getBigTestImage (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
 
-    def prepTestDB (self):
-        dbhelpers.bootstrap()
+    def prepTestDB (self, onlyUsers=False):
+        dbhelpers.bootstrap(onlyUsers=onlyUsers)
 
     def waitOnCmd(self, client, handle):
         callback = omero.callbacks.CmdCallbackI(client, handle)

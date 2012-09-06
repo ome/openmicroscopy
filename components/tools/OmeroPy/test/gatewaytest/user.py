@@ -25,22 +25,21 @@ class UserTest (lib.GTest):
 
     def testSaveAs (self):
         for u in (self.AUTHOR, self.ADMIN):
-            if u == self.ADMIN:
-                print "loginAsAdmin"
-            else:
-                print "loginAsAuthor"
             # Test image should be owned by author
             self.loginAsAuthor()
             image = self.getTestImage()
-
+            ownername = image.getOwnerOmeName()
             # Now login as author or admin
             self.doLogin(u)
-            self.assertEqual(image.getOwnerOmeName(), self.AUTHOR.name)
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            image = self.getTestImage()
+            self.assertEqual(ownername, self.AUTHOR.name)
             # Create some object
             param = omero.sys.Parameters()
             param.map = {'ns': omero.rtypes.rstring('weblitz.UserTest.testSaveAs')}
             anns = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
             self.assertEqual(len(anns), 0)
+            self.gateway.SERVICE_OPTS.setOmeroGroup()
             ann = omero.gateway.CommentAnnotationWrapper(conn=self.gateway)
             ann.setNs(param.map['ns'].val)
             ann.setValue('foo')
@@ -61,6 +60,7 @@ class UserTest (lib.GTest):
         self.loginAsUser()
         uid = self.gateway.getUserId()
         self.loginAsAdmin()
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         d = self.getTestDataset()
         did = d.getId()
         g = d.getDetails().getGroup()

@@ -135,7 +135,7 @@ class ServiceOptsDict(dict):
         else:
             try:
                 del self['omero.share']
-            except KeyError:
+            except KeyError: #pragma: no cover
                 logger.debug("Key 'omero.share' not found in %r" % self)
 
     def _testItem(self, item):

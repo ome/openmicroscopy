@@ -122,8 +122,11 @@ class RDefsTest (lib.GTest):
         self.loginAsAuthor()
         i1 = self.getTinyTestImage()
         i1c = i1.getChannels()
+        i1gid = i1.getDetails().getGroup().getId()
+        i1oid = i1.getOwner().getId()
         i2 = self.getTinyTestImage2()
         i2c = i2.getChannels()
+        i2id = i2.getId()
         t = i1c[0].getWindowStart()
         self.assertEqual(t, i2c[0].getWindowStart())
         try:
@@ -153,11 +156,11 @@ class RDefsTest (lib.GTest):
             # Try the propagation as admin
             self.loginAsAdmin()
             rsettings = self.gateway.getRenderingSettingsService()
-            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1.getDetails().getGroup().getId()))
-            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1.getOwner().getId()))
+            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1gid))
+            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1oid))
             rv = rsettings.applySettingsToImages(frompid, list(toids), self.gateway.SERVICE_OPTS)
             err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
-            self.assertEqual(rv[True], [i2.getId()], err)
+            self.assertEqual(rv[True], [i2id], err)
             i2 = self.getTinyTestImage2()
             i2c = i2.getChannels()
             self.assertEqual(i2c[0].getWindowStart(), t)
@@ -178,6 +181,7 @@ class RDefsTest (lib.GTest):
         Test that images belonging to experimenters on collaborative rw group can be
         reset and rdef created by admin and then edited by owner of image.
         """
+        aobj = self.gateway.getUser()._obj
         self.loginAsAdmin()
         self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -185,8 +189,7 @@ class RDefsTest (lib.GTest):
         self.assert_(self.image.resetRDefs())
         self.assert_(self.image.saveDefaults())
         admin = self.gateway.getAdminService()
-        self.loginAsAuthor()
-        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
+        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, aobj)
         self.loginAsAuthor()
         try:
             self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
@@ -195,8 +198,12 @@ class RDefsTest (lib.GTest):
             self.assert_(self.image.resetRDefs())
             self.assert_(self.image.saveDefaults())
         finally:
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            self.image = self.getTestImage()
             admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
-                                  self.gateway._user._obj)
+                                  aobj)
 
         
         
