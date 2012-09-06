@@ -165,11 +165,7 @@ public abstract class Details implements Filterable, Serializable {
         Permissions p = null;
         Permissions copy_p = copy.getPermissions();
         if (copy_p != null) {
-            p = new Permissions().revokeAll(copy_p);
-            p.setDisallowAnnotate(copy_p.isDisallowAnnotate());
-            p.setDisallowDelete(copy_p.isDisallowDelete());
-            p.setDisallowEdit(copy_p.isDisallowEdit());
-            p.setDisallowLink(copy_p.isDisallowLink());
+            p = new Permissions(copy_p);
         }
         setPermissions(p);
     }
@@ -228,8 +224,8 @@ public abstract class Details implements Filterable, Serializable {
                 .getGroup().getId(), false));
         setCreationEvent(copy.getCreationEvent() == null ? null : new Event(
                 copy.getCreationEvent().getId(), false));
-        setPermissions(copy.getPermissions() == null ? null : new Permissions()
-                .revokeAll(copy.getPermissions()));
+        setPermissions(copy.getPermissions() == null ? null :
+                new Permissions(copy.getPermissions()));
         setExternalInfo(copy.getExternalInfo() == null ? null
                 : new ExternalInfo(copy.getExternalInfo().getId(), false));
         setUpdateEvent(copy.getUpdateEvent() == null ? null : new Event(copy
