@@ -215,7 +215,7 @@ class BlitzObjectWrapper (object):
         @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.CHILD_WRAPPER_CLASS is None:
+        if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError('%s has no child wrapper defined' % self.__class__)
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
             # resolve class
@@ -233,7 +233,7 @@ class BlitzObjectWrapper (object):
         @return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.PARENT_WRAPPER_CLASS is None:
+        if self.PARENT_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
         if not isinstance(pwc, ListType):
@@ -1210,6 +1210,9 @@ class NoProxies (object):
     """ A dummy placeholder to indicate that proxies haven't been created """
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
+
+    def values (self):
+        return ()
 
 class _BlitzGateway (object):
     """
