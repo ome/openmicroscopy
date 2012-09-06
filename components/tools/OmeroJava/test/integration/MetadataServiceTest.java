@@ -508,6 +508,8 @@ public class MetadataServiceTest
     	
     	//save the link.
     	iUpdate.saveAndReturnObject(link); 
+    	List<Long> tagsIds = new ArrayList<Long>();
+    	tagsIds.add(orphaned.getId().getValue());
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -526,10 +528,10 @@ public class MetadataServiceTest
 			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				count++;
 			} else {
-				orphan++;
+				if (tagsIds.contains(data.getId())) orphan++;
 			}
 		}
-    	assertTrue(orphan > 0);
+    	assertEquals(orphan, tagsIds.size());
     	assertTrue(count > 0);
     }
     
@@ -1056,4 +1058,73 @@ public class MetadataServiceTest
     	assertEquals(count, 2);
     }
     
+    /**
+     * Tests the retrieval of tag sets with tags with a null ns and other 
+     * with not null ns. The ns is not the tagset namespace
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadTagsNamepaceNullAndNotNull() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotation tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	
+    	//save the link.
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	List<Long> tagsIds = new ArrayList<Long>();
+    	
+    	tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag2"));
+    	TagAnnotation orphaned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	tagsIds.add(orphaned.getId().getValue());
+    	
+    	tag = new TagAnnotationI();
+    	tag.setNs(omero.rtypes.rstring(""));
+    	tag.setTextValue(omero.rtypes.rstring("tag2"));
+    	orphaned = (TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	tagsIds.add(orphaned.getId().getValue());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	TagAnnotationData data;
+    	int count = 0;
+    	int orphan = 0;
+    	String ns;
+    	while (i.hasNext()) {
+			data = new TagAnnotationData((TagAnnotation) i.next());
+			ns = data.getNameSpace();
+			if (ns != null) {
+				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+					if (tagSetReturned.getId().getValue() == data.getId())
+						count++;
+				}
+			}
+			if (tagsIds.contains(data.getId()))
+				orphan++;
+		}
+    	assertEquals(orphan, tagsIds.size());
+    	assertEquals(count, 1);
+    }
 }
