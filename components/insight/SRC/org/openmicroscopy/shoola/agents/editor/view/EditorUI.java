@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
+import pojos.ExperimenterData;
 
 /** 
  * The {@link Editor}'s View.
@@ -353,8 +353,21 @@ class EditorUI
      * 
      * @return See above.
      */
-	SecurityContext geSecurityContext() { return model.getSecurityContext(); }
+	SecurityContext getSecurityContext() { return model.getSecurityContext(); }
     
+	/** 
+	 * Invokes when the editor is started as a standalone application and
+	 * the user saves a file back to the server.
+	 */
+	void onConnected()
+	{ 
+		SecurityContext ctx = getSecurityContext();
+		if (ctx == null) { //not been set yet.
+			ExperimenterData exp = EditorAgent.getUserDetails();
+			model.setSecurityContext(exp.getDefaultGroup().getId());
+		}
+		toolBar.onConnected();
+	}
 	
     /** 
      * Overrides the {@link #setOnScreen() setOnScreen} method. 

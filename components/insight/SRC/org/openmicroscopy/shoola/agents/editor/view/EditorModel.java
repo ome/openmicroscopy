@@ -648,8 +648,12 @@ class EditorModel
 	 */
 	void setSecurityContext(long groupId)
 	{
-		if (ctx.getGroupID() != groupId)
+		if (ctx == null) {
 			ctx = new SecurityContext(groupId);
+		} else {
+			if (ctx.getGroupID() != groupId)
+				ctx = new SecurityContext(groupId);
+		}
 	}
 	
 	/**
