@@ -44,6 +44,7 @@ import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.ObjectNotExistException;
 import Ice.TimeoutException;
 
 import com.sun.opengl.util.texture.TextureData;
@@ -223,7 +224,10 @@ class RenderingControlProxy
 			e instanceof ConnectionLostException ||
 			cause instanceof SessionTimeoutException ||
 			e instanceof SessionTimeoutException || 
-			cause instanceof TimeoutException || e instanceof TimeoutException)
+			cause instanceof TimeoutException ||
+			e instanceof TimeoutException ||
+			cause instanceof ObjectNotExistException ||
+			e instanceof ObjectNotExistException)
 			index = DataServicesFactory.LOST_CONNECTION;
 		else if (cause instanceof CommunicatorDestroyedException ||
 				e instanceof CommunicatorDestroyedException)

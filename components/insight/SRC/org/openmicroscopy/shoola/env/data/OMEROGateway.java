@@ -73,6 +73,7 @@ import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.ObjectNotExistException;
 import Ice.TimeoutException;
 import omero.ResourceError;
 import ome.conditions.SessionTimeoutException;
@@ -912,11 +913,15 @@ class OMEROGateway
 		if (!connected) return false;
 		Throwable cause = e.getCause();
 		int index = -1;
+		e.printStackTrace();
 		if (cause instanceof ConnectionLostException ||
 			e instanceof ConnectionLostException ||
 			cause instanceof SessionTimeoutException ||
 			e instanceof SessionTimeoutException || 
-			cause instanceof TimeoutException || e instanceof TimeoutException)
+			cause instanceof TimeoutException ||
+			e instanceof TimeoutException ||
+			cause instanceof ObjectNotExistException ||
+			e instanceof ObjectNotExistException)
 			index = DataServicesFactory.LOST_CONNECTION;
 		else if (cause instanceof CommunicatorDestroyedException ||
 				e instanceof CommunicatorDestroyedException)
