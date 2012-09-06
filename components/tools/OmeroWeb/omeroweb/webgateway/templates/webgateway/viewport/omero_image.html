@@ -570,7 +570,7 @@
           
           // process the shapes first - note first shape & text
           var roiIcon = null;
-          var roiText = null;
+          var roiText = "";
           var minT = maxT = minZ = maxZ = null;
           var shapesHtml = '<tbody>';
           var shape = null;
@@ -593,8 +593,7 @@
               }
               if (shape['textValue'] != null) {
                   text = shape['textValue']
-                  if (roiText == null) roiText = text;
-                  else if (roiText != text) roiText = "";   // diffent Shape labels -> no Roi label
+                  if (shapes.length == 1) roiText = text;
               } else text = "";
               var indent = " &nbsp&nbsp&nbsp&nbsp";    // hack to add "indent", but not if shape is only-child
               if (shapes.length == 1) {
