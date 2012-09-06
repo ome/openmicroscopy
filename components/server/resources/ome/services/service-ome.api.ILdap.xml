@@ -27,8 +27,7 @@
 			Privileged bean which has several "private" references
 			injected. This is not an example of what should be done.
 		</description>
-		<constructor-arg ref="contextSource"/>
-		<constructor-arg ref="ldapTemplate"/>
+		<constructor-arg ref="ldapData"/>
 		<constructor-arg ref="roles"/>
 		<constructor-arg ref="ldapConfig" />
 		<constructor-arg ref="ldapRoleProvider"/>
@@ -56,8 +55,15 @@
       <constructor-arg index="7" value="${omero.ldap.base}"/>
     </bean>
 
-	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
-		<constructor-arg ref="contextSource" />
+    <alias alias="ldapData" name="${omero.ldap.data_bean}"/>
+
+    <bean id="ldapDataDefault" class="ome.security.auth.LdapData">
+        <constructor-arg ref="ldapConfig"/>
+        <constructor-arg>
+            <bean class="org.springframework.ldap.core.LdapTemplate">
+                <constructor-arg ref="contextSource" />
+            </bean>
+        </constructor-arg>
 	</bean>
 
 	<bean id="contextSource" class="org.springframework.aop.framework.ProxyFactoryBean">

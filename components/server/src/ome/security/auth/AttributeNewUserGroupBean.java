@@ -58,9 +58,8 @@ public class AttributeNewUserGroupBean implements NewUserGroupBean {
         this.dn = dn;
     }
 
-    @SuppressWarnings("unchecked")
     public List<Long> groups(String username, LdapConfig config,
-            LdapOperations ldap, RoleProvider provider, AttributeSet attrSet) {
+            LdapData data, RoleProvider provider, AttributeSet attrSet) {
 
         Set<String> groupNames = attrSet.getAll(grpAttribute);
         if (groupNames == null) {
@@ -68,17 +67,14 @@ public class AttributeNewUserGroupBean implements NewUserGroupBean {
                     + grpAttribute);
         }
 
-        final GroupAttributeMapper mapper = new GroupAttributeMapper(config);
-
-            // If filtered is activated, then load all group names as mapped
+        // If filtered is activated, then load all group names as mapped
         // via the name field.
         //
         // TODO: this should likely be done via either paged queries
         // or once for each target.
         List<String> filteredNames = null;
         if (filtered) {
-            String filter = config.getGroupFilter().encode();
-            filteredNames = (List<String>) ldap.search("", filter, mapper);
+            filteredNames = data.getAllGroupNames(null);
         }
 
         List<Long> groups = new ArrayList<Long>();

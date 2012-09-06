@@ -41,7 +41,7 @@ public class OrgUnitNewUserGroupBean implements NewUserGroupBean {
 
     @SuppressWarnings("unchecked")
     public List<Long> groups(String username, LdapConfig config,
-            LdapOperations ldap, RoleProvider provider,
+            LdapData data, RoleProvider provider,
             final AttributeSet attrSet) {
 
         final List<Long> groups = new ArrayList<Long>();

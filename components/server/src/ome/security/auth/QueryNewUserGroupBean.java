@@ -39,9 +39,8 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
         this.grpQuery = grpQuery;
     }
 
-    @SuppressWarnings("unchecked")
     public List<Long> groups(String username, LdapConfig config,
-            LdapOperations ldap, RoleProvider provider,
+            LdapData data, RoleProvider provider,
             final AttributeSet attrSet) {
 
         PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("@{",
@@ -58,14 +57,10 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
                         return attrSet.getFirst(arg0);
                     }
                 });
-        AndFilter and = new AndFilter();
-        and.and(config.getGroupFilter());
+        
 
-        and.and(new HardcodedFilter(query));
-        List<String> groupNames = (List<String>) ldap.search("", and.encode(),
-            new GroupAttributeMapper(config));
-
-        List<Long> groups = new ArrayList<Long>(groupNames.size());
+        final List<String> groupNames = data.getAllGroupNames(query);
+        final List<Long> groups = new ArrayList<Long>(groupNames.size());
         for (String groupName : groupNames) {
             groups.add(provider.createGroup(groupName, null, false));
         }

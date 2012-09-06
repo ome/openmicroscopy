@@ -11,8 +11,6 @@ import java.util.List;
 
 import ome.security.SecuritySystem;
 
-import org.springframework.ldap.core.LdapOperations;
-
 /**
  * Strategy for finding the appropriate groups for a given user in LDAP.
  *
@@ -30,7 +28,7 @@ public interface NewUserGroupBean {
      * @param userProperties
      */
     List<Long> groups(String username,
-            LdapConfig config, LdapOperations ldap, RoleProvider provider,
+            LdapConfig config, LdapData ldap, RoleProvider provider,
             AttributeSet attrSet);
 
 }

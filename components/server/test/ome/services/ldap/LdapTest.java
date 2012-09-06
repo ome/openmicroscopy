@@ -17,6 +17,7 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
+import ome.security.auth.LdapData;
 import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
@@ -53,6 +54,7 @@ public class LdapTest extends MockObjectTestCase {
         Mock role;
         Mock sql;
         LdapImpl ldap;
+        LdapData data;
         LdapConfig config;
         LdapPasswordProvider provider;
         public LdapTemplate template;
@@ -185,6 +187,7 @@ public class LdapTest extends MockObjectTestCase {
         */
 
         fixture.template = new LdapTemplate(source);
+        fixture.data = new LdapData(fixture.template, fixture.config);
 
         fixture.role = mock(RoleProvider.class);
         RoleProvider provider = (RoleProvider) fixture.role.proxy();
@@ -192,7 +195,7 @@ public class LdapTest extends MockObjectTestCase {
         fixture.sql = mock(SqlAction.class);
         SqlAction sql = (SqlAction) fixture.sql.proxy();
 
-        fixture.ldap = new LdapImpl(source, fixture.template,
+        fixture.ldap = new LdapImpl(fixture.data,
                 new Roles(), fixture.config, provider, sql);
 
         fixture.provider = new LdapPasswordProvider(

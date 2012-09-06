@@ -7,6 +7,8 @@
 
 package ome.security.auth.mappers;
 
+import javax.naming.directory.SearchControls;
+
 import ome.model.IObject;
 import ome.model.meta.Experimenter;
 import ome.security.auth.LdapConfig;
@@ -42,6 +44,29 @@ public class PersonContextMapper extends AbstractContextMapper {
         person.setInstitution(get("institution", ctx));
         person.setEmail(get("email", ctx));
         return person;
+    }
+
+    public SearchControls getControls() {
+        final SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        controls.setReturningObjFlag(true);
+        if (attribute == null) {
+            return controls;
+        }
+
+        final String inst = cfg.getUserAttribute("institution");
+        final String email = cfg.getUserAttribute("email");
+        final String[] attrs = new String[]{
+           "dn",
+           attribute,
+            cfg.getUserAttribute("omeName"),
+            cfg.getUserAttribute("firstName"),
+            cfg.getUserAttribute("lastName"),
+            inst == null ? "dn" : inst,
+            email == null ? "dn" : email
+        };
+        controls.setReturningAttributes(attrs);
+        return controls;
     }
 
 }

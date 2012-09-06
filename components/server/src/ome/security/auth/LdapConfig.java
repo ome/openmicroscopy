@@ -20,8 +20,9 @@ import org.springframework.ldap.filter.Filter;
 import org.springframework.ldap.filter.HardcodedFilter;
 
 /**
- * Static methods for dealing with LDAP (DN) and the "password" table. Used
- * primarily by {@link ome.security.JBossLoginModule}
+ * Configuration options with helper methods. Where possible
+ * use the helper methods like {@link #usernameFilter(String)}
+ * rathar than the getters to ensure consistent usage.
  *
  * @author Aleksandra Tarkowska, A.Tarkowska at dundee.ac.uk
  * @see SecuritySystem
@@ -138,6 +139,10 @@ public class LdapConfig {
 
     public boolean isSyncOnLogin() {
         return syncOnLogin;
+    }
+
+    public String getBase() {
+        return base;
     }
 
     public String getNewUserGroup() {

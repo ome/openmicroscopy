@@ -36,7 +36,7 @@ public class MockedLdapTest extends AbstractManagedContextTest {
         mock = new Mock(LdapOperations.class);
         ops = (LdapOperations) mock.proxy();
 
-        LdapImpl limpl = new LdapImpl(null, null, new Roles(),
+        LdapImpl limpl = new LdapImpl(null, new Roles(),
                 null, null, null);
         ldap = limpl;
 

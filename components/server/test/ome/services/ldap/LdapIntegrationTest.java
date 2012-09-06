@@ -16,6 +16,7 @@ import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
+import ome.security.auth.LdapData;
 import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
@@ -204,10 +205,11 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.applicationContext = this.mCtx;
         fixture.template = (LdapTemplate) mCtx.getBean("ldapTemplate");
         fixture.template.setContextSource(source);
+        fixture.data = new LdapData(fixture.template, fixture.config);
 
         InternalServiceFactory isf = new InternalServiceFactory(mCtx);
         SqlAction sql = (SqlAction) mCtx.getBean("simpleSqlAction");
-        fixture.ldap = new LdapImpl(source, fixture.template, new Roles(),
+        fixture.ldap = new LdapImpl(fixture.data, new Roles(),
                 fixture.config, provider(), sql);
         fixture.ldap.setQueryService((LocalQuery) isf.getQueryService());
         fixture.ldap.setUpdateService((LocalUpdate) isf.getUpdateService());
