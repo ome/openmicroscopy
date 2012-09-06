@@ -16,6 +16,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -42,6 +44,7 @@ import ome.security.auth.AttributeSet;
 import ome.security.auth.GroupAttributeMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
+import ome.security.auth.OrgUnitNewUserGroupBean;
 import ome.security.auth.PersonContextMapper;
 import ome.security.auth.QueryNewUserGroupBean;
 import ome.security.auth.RoleProvider;
@@ -195,7 +198,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     private Experimenter mapUserName(String username, PersonContextMapper mapper) {
         Filter filter = config.usernameFilter(username);
-        List<Experimenter> p = ldap.search("", filter.encode(), mapper);
+        List<Experimenter> p = ldap.search("", filter.encode(),
+            mapper.getControls(), mapper);
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
@@ -413,72 +417,62 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         return access;
     }
 
-    public List<Long> loadLdapGroups(String username, DistinguishedName dn) {
-        String grpSpec = config.getNewUserGroup();
-        List<Long> groups = new ArrayList<Long>();
+    static private final Pattern p = Pattern.compile(
+        "^:(ou|" +
+            "attribute|filtered_attribute|" +
+            "dn_attribute|filtered_dn_attribute|" +
+            "query|bean):(.*)$");
 
-        if (grpSpec.startsWith(":ou:")) {
-            handleGrpSpecOu(dn, groups);
-        } else if (grpSpec.startsWith(":attribute:")) {
-            handleGroupSpecAttr(dn, username, grpSpec, groups);
-        } else if (grpSpec.startsWith(":query:")) {
-            handleGroupSpecQuery(username, grpSpec, groups);
-        } else if (grpSpec.startsWith(":bean:")) {
-            handleGroupSpecBean(username, grpSpec.substring(6), groups);
-        } else if (grpSpec.startsWith(":")) {
-            throw new ValidationException(grpSpec + " spec currently not supported.");
-        } else {
+    public List<Long> loadLdapGroups(String username, DistinguishedName dn) {
+        final String grpSpec = config.getNewUserGroup();
+        final List<Long> groups = new ArrayList<Long>();
+
+        if (!grpSpec.startsWith(":")) {
             // The default case is the original logic: use the spec as name
             groups.add(provider.createGroup(grpSpec, null, false));
+            return groups; // EARLY EXIT!
         }
+
+        final Matcher m = p.matcher(grpSpec);
+        if (!m.matches()) {
+            throw new ValidationException(grpSpec + " spec currently not supported.");
+        }
+
+        final String type = m.group(1);
+        final String data = m.group(2);
+        NewUserGroupBean bean = null;
+        AttributeSet attrSet = null;
+
+        if ("ou".equals(type)) {
+            bean = new OrgUnitNewUserGroupBean(dn);
+            attrSet = getAttributeSet(username, getContextMapper());
+        } else if ("filtered_attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, true, false);
+            attrSet = getAttributeSet(username, getContextMapper(data));
+        } else if ("attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, false, false);
+            attrSet = getAttributeSet(username, getContextMapper(data));
+        } else if ("filtered_dn_attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, true, true);
+            attrSet = getAttributeSet(username, getContextMapper(data));
+        } else if ("dn_attribute".equals(type)) {
+            bean = new AttributeNewUserGroupBean(data, false, true);
+            attrSet = getAttributeSet(username, getContextMapper(data));
+        } else if ("query".equals(type)) {
+            bean = new QueryNewUserGroupBean(data);
+            attrSet = getAttributeSet(username, getContextMapper());
+        } else if ("bean".equals(type)) {
+            bean = appContext.getBean(data, NewUserGroupBean.class);
+            // Likely, this should be added to the API in order to allow bean
+            // implementations to provide an attribute set.
+            attrSet = getAttributeSet(username, getContextMapper());
+        }
+
+        groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
         return groups;
     }
 
-    //
-    // Group specs
-    //
-
-    @SuppressWarnings("unchecked")
-    private void handleGroupSpecAttr(DistinguishedName dn,
-            String username, String grpSpec, List<Long> groups) {
-
-        final AttributeSet attrSet = getAttributeSet(username);
-        AttributeNewUserGroupBean nugb
-            = new AttributeNewUserGroupBean(grpSpec);
-        groups.addAll(nugb.groups(username, config, ldap, provider, attrSet));
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private void handleGrpSpecOu(DistinguishedName dn, List<Long> groups) {
-        List<LdapRdn> names = dn.getNames();
-        for (int i = names.size(); i > 0; i--) {
-            LdapRdn name = names.get(i-1);
-            if ("ou".equals(name.getKey())) {
-                final String grpName = name.getValue("ou");
-                groups.add(provider.createGroup(grpName, null, false));
-                break;
-            }
-        }
-    }
-
-    private void handleGroupSpecQuery(String username, String grpSpec, List<Long> groups) {
-
-        final AttributeSet attrSet = getAttributeSet(username);
-        final QueryNewUserGroupBean nugb =
-            new QueryNewUserGroupBean(grpSpec);
-        groups.addAll(nugb.groups(username, config, ldap, provider, attrSet));
-    }
-
-    private void handleGroupSpecBean(String username, String grpSpec, List<Long> groups) {
-        AttributeSet attrSet = getAttributeSet(username);
-        NewUserGroupBean bean = appContext.getBean(grpSpec, NewUserGroupBean.class);
-        groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
-    }
-
-    @SuppressWarnings("unchecked")
-    private AttributeSet getAttributeSet(String username) {
-        PersonContextMapper mapper = getContextMapper();
+    private AttributeSet getAttributeSet(String username, PersonContextMapper mapper) {
         Experimenter exp = mapUserName(username, mapper);
         String dn = mapper.getDn(exp);
         AttributeSet attrSet = mapper.getAttributeSet(exp);
