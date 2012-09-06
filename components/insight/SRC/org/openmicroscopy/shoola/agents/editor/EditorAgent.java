@@ -239,7 +239,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 					|| FileAnnotationData.COMPANION_FILE_NS.equals(ns)
 					|| EditorUtil.isEditorFile(name))
 				editor = EditorFactory.getEditor(event.getSecurityContext(),
-						data);
+						data.getId());
 			else {
 				UserNotifier un = getRegistry().getUserNotifier();
 				OriginalFile f = (OriginalFile) data.getContent();

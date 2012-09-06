@@ -79,21 +79,6 @@ public class EditorFactory
 	 * Returns the {@link Editor}.
 	 * 
 	 * @param ctx The security context.
-	 * @param fileAnnotation  The annotation hosting the information about
-	 * 						  the file to edit.
-	 * @return See above.
-	 */
-	public static Editor getEditor(SecurityContext ctx, 
-			FileAnnotationData fileAnnotation)
-	{
-		EditorModel model = new EditorModel(ctx, fileAnnotation);
-		return singleton.getEditor(model);
-	}
-	
-	/**
-	 * Returns the {@link Editor}.
-	 * 
-	 * @param ctx The security context.
 	 * @param fileID The id of the file to edit.
 	 * @return See above.
 	 */
