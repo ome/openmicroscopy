@@ -10,7 +10,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import ome.model.meta.Experimenter;
-import ome.services.ldap.LdapTest.Fixture;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
@@ -28,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class TestNoSync implements Modification {
 
-    public void modify(Fixture fixture) {
+    public void modify(SyncFixture fixture) {
 
         final String NEWNAME = "BetterTest";
         final String NEWEMAIL = "new@example.com";
@@ -40,7 +39,7 @@ public class TestNoSync implements Modification {
                 new BasicAttribute("mail", NEWEMAIL));
         mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
                 new BasicAttribute("givenName", NEWNAME));
-        fixture.template.modifyAttributes("cn=test1", mods);
+        fixture.modifyAttributes("cn=test1", mods);
 
         final EventContext ec = fixture.login("test1", "grp", "password");
         final Experimenter e = (Experimenter)

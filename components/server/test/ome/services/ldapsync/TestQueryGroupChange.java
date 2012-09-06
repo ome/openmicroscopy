@@ -10,7 +10,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import ome.conditions.SecurityViolation;
-import ome.services.ldap.LdapTest.Fixture;
 import ome.system.EventContext;
 
 
@@ -40,7 +39,7 @@ givenName: Testy
 sn: Tester
 userPassword: password
      */
-    public void modify(Fixture fixture) {
+    public void modify(SyncFixture fixture) {
 
         /*
         DirContextAdapter ctx = (DirContextAdapter) fixture.template.lookup("cn=grp");
@@ -56,7 +55,7 @@ userPassword: password
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                 new BasicAttribute("member", "cn=test1,ou=testQueryGroup,o=eg"));
-        fixture.template.modifyAttributes("cn=grp", mods);
+        fixture.modifyAttributes("cn=grp", mods);
 
         try {
             EventContext after = fixture.login("test1", "grp", "password");

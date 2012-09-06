@@ -5,7 +5,6 @@
 
 package ome.services.ldapsync;
 
-import ome.services.ldap.LdapTest.Fixture;
 
 /**
  * Modification SPI which will be performed on the contents
@@ -14,5 +13,5 @@ import ome.services.ldap.LdapTest.Fixture;
  */
 public interface Modification {
 
-    void modify(Fixture fixture);
+    void modify(SyncFixture fixture);
 }

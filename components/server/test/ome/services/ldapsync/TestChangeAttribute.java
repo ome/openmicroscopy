@@ -23,17 +23,16 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.auth.RoleProvider;
-import ome.services.ldap.LdapTest.Fixture;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
+
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -53,12 +52,11 @@ public class TestChangeAttribute implements Modification {
         this.toRemove = toRemove;
     }
 
-    public void modify(final Fixture fixture) {
+    public void modify(final SyncFixture fixture) {
 
         // Need simple role provider in order to create
         // a group without setting the "ldap" flag.
-        final RoleProvider simpleRP = fixture.applicationContext.getBean(
-            "roleProvider", RoleProvider.class);
+        final RoleProvider simpleRP = fixture.nonLdapProvider();
 
         final EventContext ec1 = fixture.login("test1", "grp1", "password");
         final long grp1 = ec1.getCurrentGroupId();
@@ -87,7 +85,7 @@ public class TestChangeAttribute implements Modification {
         final ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                 new BasicAttribute("roleOccupant", toRemove));
-        fixture.template.modifyAttributes("cn=test1", mods);
+        fixture.modifyAttributes("cn=test1", mods);
 
 
         // Check that the user is no longer in grp1, but is still in grp3

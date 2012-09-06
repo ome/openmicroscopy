@@ -10,7 +10,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import ome.conditions.SecurityViolation;
-import ome.services.ldap.LdapTest.Fixture;
 import ome.system.EventContext;
 import ome.system.Roles;
 
@@ -25,7 +24,7 @@ import ome.system.Roles;
  */
 public class TestDefaultGroup implements Modification {
 
-    public void modify(Fixture fixture) {
+    public void modify(SyncFixture fixture) {
 
         EventContext before = fixture.login("test1", "grp", "password");
         if (2 != before.getMemberOfGroupsList().size()) {
@@ -35,7 +34,7 @@ public class TestDefaultGroup implements Modification {
         ModificationItem[] remove = new ModificationItem[1];
         remove[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                 new BasicAttribute("member", "cn=test1,ou=testDefaultGroup,o=eg"));
-        fixture.template.modifyAttributes("cn=grp", remove);
+        fixture.modifyAttributes("cn=grp", remove);
 
         try {
             fixture.login("test1", "grp", "password");
@@ -47,7 +46,7 @@ public class TestDefaultGroup implements Modification {
         ModificationItem[] readd = new ModificationItem[1];
         readd[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute("member", "cn=test1,ou=testDefaultGroup,o=eg"));
-        fixture.template.modifyAttributes("cn=grp", readd);
+        fixture.modifyAttributes("cn=grp", readd);
 
         EventContext after = fixture.login("test1", "grp", "password");
         if (2 != after.getMemberOfGroupsList().size()) {

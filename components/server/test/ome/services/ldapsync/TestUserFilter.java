@@ -10,7 +10,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import ome.conditions.SecurityViolation;
-import ome.services.ldap.LdapTest.Fixture;
 import ome.system.EventContext;
 
 
@@ -23,14 +22,14 @@ import ome.system.EventContext;
  */
 public class TestUserFilter implements Modification {
 
-    public void modify(Fixture fixture) {
+    public void modify(SyncFixture fixture) {
 
         EventContext before = fixture.login("test1attr", "Group1", "password");
 
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                 new BasicAttribute("employeeType", "Employee"));
-        fixture.template.modifyAttributes("cn=test1attr", mods);
+        fixture.modifyAttributes("cn=test1attr", mods);
 
         try {
             EventContext after = fixture.login("test1attr", "Group1", "password");
