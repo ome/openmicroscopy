@@ -2024,20 +2024,26 @@ def activities(request, conn=None, **kwargs):
                 try:
                     prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
+                    close_handle = False
+                    try:
+                        # if response is None, then we're still in progress, otherwise...
+                        if rsp is not None:
+                            close_handle = True
+                            new_results.append(cbString)
+                            if isinstance(rsp, omero.cmd.ERR):
+                                request.session['callback'][cbString]['status'] = "failed"
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("chgrp failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
+                            elif isinstance(rsp, omero.cmd.OK):
+                                request.session['callback'][cbString]['status'] = "finished"
+                        else:
+                            in_progress+=1
+                    finally:
+                        prx.close(close_handle)
                 except:
                     logger.info("Activities chgrp handle not found: %s" % cbString)
-                # if response is None, then we're still in progress, otherwise...
-                if rsp is not None:
-                    new_results.append(cbString)
-                    if isinstance(rsp, omero.cmd.ERR):
-                        request.session['callback'][cbString]['status'] = "failed"
-                        rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                        logger.error("chgrp failed with: %s" % rsp_params)
-                        request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
-                    elif isinstance(rsp, omero.cmd.OK):
-                        request.session['callback'][cbString]['status'] = "finished"
-                else:
-                    in_progress+=1
+                    continue
 
         # update delete
         elif job_type == 'delete':
