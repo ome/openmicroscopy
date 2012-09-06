@@ -7200,7 +7200,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             count = self._conn.getQueryService().projection(
                     'select count(*) from Roi as roi ' \
                     'where roi.image.id = :imageId ' \
-                    'and roi.details.owner.id = :ownerId', params)
+                    'and roi.details.owner.id = :ownerId', params, self._conn.SERVICE_OPTS)
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
