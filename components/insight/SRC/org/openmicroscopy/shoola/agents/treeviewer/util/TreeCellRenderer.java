@@ -443,7 +443,14 @@ public class TreeCellRenderer
         		} else icon = FILE_XML_ICON;
         	} else if (data.isMovieFile()) {
         		icon = MOVIE_ICON;
-        	} else icon = FILE_TEXT_ICON; 
+        	} else {
+        		if (filter.accept(data.getFileName())) {
+        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
+        					data.getNameSpace())) {
+        				icon = FILE_PROTOCOL_ICON;
+        			} else icon = FILE_EDITOR_ICON;
+        		} else icon = FILE_TEXT_ICON; 
+        	}
         } else if (usrObject instanceof MultiImageData) {
         	MultiImageData mi = (MultiImageData) usrObject;
         	if (mi.getId() > 0) 
