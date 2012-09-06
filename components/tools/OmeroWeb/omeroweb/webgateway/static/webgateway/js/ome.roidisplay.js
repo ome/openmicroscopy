@@ -345,11 +345,16 @@ $.fn.roi_display = function(options) {
                             }
                             if (shape['type'] != 'Label') {
                                 // these shape attributes are not applied to text
-                                if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                                if (shape['fillColor'] && shape['type'] != 'PolyLine') {
+                                    // don't show fills on PolyLines
+                                    newShape.attr({'fill': shape['fillColor']});
+                                    if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
+                                }
+                                else {
                                     // need *some* fill so that shape is clickable
-                                else newShape.attr({'fill':'#000', 'fill-opacity': 0.1 });
+                                    newShape.attr({'fill':'#000', 'fill-opacity': 0.01 });
+                                }
                                 if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
-                                if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
                                 if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
                                 else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             }
