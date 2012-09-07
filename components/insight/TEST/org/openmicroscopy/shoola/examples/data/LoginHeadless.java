@@ -77,7 +77,7 @@ public class LoginHeadless
 implements AgentEventListener
 {
 
-	LoginHeadless()
+	LoginHeadless(boolean withUI)
 	{
 		String homeDir = "";
 		Container container = Container.startupInHeadlessMode(homeDir, null, 
@@ -90,7 +90,7 @@ implements AgentEventListener
 		if (value == LoginService.CONNECTED) {
 			System.err.println("connected");
 			//For testing purpose. Now start the UI if required.
-			reg.getEventBus().post(new ActivateAgents());
+			if (withUI) reg.getEventBus().post(new ActivateAgents());
 			
 			//List
 			AdminService adminSvc = reg.getAdminService();
@@ -151,12 +151,16 @@ implements AgentEventListener
 			
 			//4. Listen to selection
 			reg.getEventBus().register(this, ViewInPluginEvent.class);
+			
+			//Listen to the disconnect.
+			reg.getEventBus().register(this, ConnectedEvent.class);
+			
+			
 			//when you done need to exit. so session is closed.
+			//This should be used when the UI is not activated. 
 			ExitApplication a = new ExitApplication(false);
 	    	a.setSecurityContext(new SecurityContext(groupId));
-	    	reg.getEventBus().post(a);
-	       
-	    	reg.getEventBus().register(this, ConnectedEvent.class);
+	    	if (!withUI) reg.getEventBus().post(a);
 		}
 	}
 	
@@ -183,7 +187,16 @@ implements AgentEventListener
 	
 	public static void main(String[] args)
 	{
-		new LoginHeadless();
+		boolean ui = false;
+		if (args != null && args.length > 0) {
+			String v = args[0];
+			if (v != null) {
+				v = v.trim().toLowerCase();
+				ui = (v.equals("true") || v.equals("t"));
+			}
+		}
+		
+		new LoginHeadless(ui);
 	}
 	
 }
