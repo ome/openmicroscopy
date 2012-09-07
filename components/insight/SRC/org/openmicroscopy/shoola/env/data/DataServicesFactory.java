@@ -652,27 +652,6 @@ public class DataServicesFactory
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
-		Collection groups = (Collection) 
-		registry.lookup(LookupNames.USER_GROUP_DETAILS);
-		if (groups != null && groups.size() > 0) {
-			ExperimenterData exp = (ExperimenterData) 
-			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-			GroupData group = exp.getDefaultGroup();	
-			Iterator i = groups.iterator();
-			GroupData g;
-			Map<Long, String> names = new LinkedHashMap<Long, String>();
-			while (i.hasNext()) {
-				g = (GroupData) i.next();
-				if (g.getId() != group.getId()) {
-					if (!omeroGateway.isSystemGroup(g.asGroup()))
-						names.put(g.getId(), g.getName());
-				}
-			}
-			if (!omeroGateway.isSystemGroup(group.asGroup()))
-				names.put(group.getId(), group.getName());
-			if (names.size() == 0) names = null;
-			ScreenLogin.registerGroup(names);
-		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 

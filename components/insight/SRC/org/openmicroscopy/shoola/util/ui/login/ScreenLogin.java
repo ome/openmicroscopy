@@ -1290,50 +1290,7 @@ public class ScreenLogin
     		requestFocusOnField();
     	}
     }
-    
-	/**
-	 * Registers the passed groups.
-	 * 
-	 * @param groups The groups to register.
-	 */
-	public static void registerGroup(Map<Long, String> groups)
-	{
-		Preferences prefs = 
-			Preferences.userNodeForPackage(ScreenLogin.class);
-		if (groups == null) {
-			prefs.put(OMERO_USER_GROUP, "");
-			return;
-		}
-		Entry entry;
-		String name;
 
-		Iterator i = groups.entrySet().iterator();
-		int n = groups.size()-1;
-		int index = 0;
-		String list = "";
-		Long id;
-		StringBuffer buffer = new StringBuffer();
-		//need to get the 
-		String value = user.getText()+ServerEditor.SERVER_PORT_SEPARATOR+
-		serverText.getText()+ServerEditor.SERVER_PORT_SEPARATOR;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			id = (Long) entry.getKey();
-			buffer.append(value);
-			buffer.append(""+id);
-			buffer.append(ServerEditor.SERVER_PORT_SEPARATOR);
-			if (entry.getValue() != null)
-				buffer.append((String) entry.getValue());
-			if (index != n) buffer.append(ServerEditor.SERVER_NAME_SEPARATOR);
-			index++;
-		}
-		list = buffer.toString();
-		if (list.length() != 0) {
-			prefs.put(OMERO_USER_GROUP, "");
-			prefs.put(OMERO_USER_GROUP, list);
-		}	
-	}
-	
 	/**
 	 * Reacts to property changes fired by the <code>ScreenDialog</code>
 	 * window.
