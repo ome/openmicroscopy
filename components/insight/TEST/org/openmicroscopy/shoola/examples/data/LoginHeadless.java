@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
@@ -72,7 +73,9 @@ import pojos.ImageData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class LoginHeadless {
+public class LoginHeadless 
+implements AgentEventListener
+{
 
 	LoginHeadless()
 	{
@@ -142,30 +145,40 @@ public class LoginHeadless {
 				byte[] plane = imgSvc.getPlane(ctx, pixels.get(0), z, t, c);
 				System.err.println("plane:"+plane.length);
 				*/
-				
-				//4. Listen to selection
-				reg.getEventBus().register(new AgentEventListener() {
-					
-					public void eventFired(AgentEvent e) {
-						ViewInPluginEvent evt = (ViewInPluginEvent) e;
-						System.err.println(evt.getPlugin() == LookupNames.KNIME);
-						//Could be image/dataset/project etc.
-						//whatever we decide to turn on. At the moment only
-						//images.
-						System.err.println(evt.getDataObjects());
-						
-					}
-				}, ViewInPluginEvent.class);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
-			
+			//4. Listen to selection
+			reg.getEventBus().register(this, ViewInPluginEvent.class);
 			//when you done need to exit. so session is closed.
 			ExitApplication a = new ExitApplication(false);
 	    	a.setSecurityContext(new SecurityContext(groupId));
-	        //container.getRegistry().getEventBus().post(a);
+	    	reg.getEventBus().post(a);
+	       
+	    	reg.getEventBus().register(this, ConnectedEvent.class);
 		}
+	}
+	
+	/**
+	 * Listen to events posted on the event bus.
+	 */
+	public void eventFired(AgentEvent e) {
+		//we are now disconnected
+		if (e instanceof ConnectedEvent) {
+			//Exit in that case, do not do that when really used as a plugin.
+			//valid in the context of that demo.
+			ConnectedEvent evt = (ConnectedEvent) e;
+			if (!evt.isConnected()) System.exit(0);
+		} else if (e instanceof ViewInPluginEvent) {
+			ViewInPluginEvent evt = (ViewInPluginEvent) e;
+			System.err.println(evt.getPlugin() == LookupNames.KNIME);
+			//Could be image/dataset/project etc.
+			//whatever we decide to turn on. At the moment only
+			//images.
+			System.err.println(evt.getDataObjects());
+		}
+		
 	}
 	
 	public static void main(String[] args)
