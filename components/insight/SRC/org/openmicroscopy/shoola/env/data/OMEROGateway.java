@@ -1289,6 +1289,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			SharedResourcesPrx prx = c.getSharedResources();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Shared Resources.");
@@ -1328,6 +1329,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRenderingSettingsPrx prx = c.getRenderingSettingsService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RenderingSettings service.");
@@ -1403,6 +1405,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRepositoryInfoPrx prx = c.getRepositoryService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RepositoryInfo service.");
@@ -1440,6 +1443,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IScriptPrx prx = c.getScriptService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Scripting service.");
@@ -1509,6 +1513,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IContainerPrx prx = c.getPojosService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Container service.");
@@ -1546,6 +1551,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IQueryPrx prx = c.getQueryService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Query service.");
@@ -1583,6 +1589,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IUpdatePrx prx = c.getUpdateService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Update service.");
@@ -1620,6 +1627,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IMetadataPrx prx = c.getMetadataService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Metadata service.");
@@ -1657,6 +1665,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRoiPrx prx = c.getROIService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the ROI service.");
@@ -1694,6 +1703,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IAdminPrx prx = c.getAdminService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Admin service.");
@@ -1752,6 +1762,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			ThumbnailStorePrx prx = c.getThumbnailService(n);
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Delete service.");
@@ -1818,6 +1829,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RawFileStorePrx prx = c.getRawFileService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RawFileStore service.");
@@ -1857,6 +1869,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RenderingEnginePrx prx = c.getRenderingService(pixelsID);
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Rendering Engine. for "+pixelsID);
@@ -1895,6 +1908,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RawPixelsStorePrx prx = c.getPixelsStore();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RawPixelsStore service.");
@@ -1932,6 +1946,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IPixelsPrx prx = c.getPixelsService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Pixels service.");
@@ -1969,6 +1984,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			SearchPrx prx = c.getSearchService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Search service.");
@@ -2006,6 +2022,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IProjectionPrx prx = c.getProjectionService();
+			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Projection service.");
