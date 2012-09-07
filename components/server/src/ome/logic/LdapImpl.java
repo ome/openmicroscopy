@@ -95,20 +95,24 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         this.roles = roles;
         this.config = config;
         this.provider = roleProvider;
-        Log log = getBeanHelper().getLogger();
-        try {
-            int userCount = data.getUserCount();
-            int grpCount = data.getGroupCount();
-            log.info(String.format(
-                "LDAP Connected: Found %s users and %s groups total",
-                userCount, grpCount));
-        } catch (Exception e) {
-            String row = "\n************************************\n";
-            String msg = row + "Failed to connect to LDAP! Refusing to startup.\n";
-            msg += "Please check your configuration\n";
-            msg += row;
-            log.fatal(msg, e);
-            throw new FatalBeanException(msg);
+        if (config.isEnabled()) {
+            Log log = getBeanHelper().getLogger();
+            try {
+                int userCount = data.getUserCount();
+                int grpCount = data.getGroupCount();
+                log.info(String.format(
+                    "LDAP Connected: Found %s users and %s groups total",
+                    userCount, grpCount));
+            } catch (Exception e) {
+                String row = "\n************************************\n";
+                String msg = row + "Failed to connect to LDAP! Refusing to startup.\n";
+                msg += "Please check your configuration\n";
+                msg += row;
+                log.fatal(msg, e);
+                FatalBeanException fbe = new FatalBeanException(msg);
+                fbe.initCause(e);
+                throw fbe;
+            }
         }
     }
 
