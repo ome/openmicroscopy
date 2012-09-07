@@ -36,7 +36,8 @@ for tag in repo.get_tags():
         break
 repl["@SHA1_FULL@"] = tag.commit.sha
 repl["@SHA1_SHORT@"] = tag.commit.sha[0:10]
-
+repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4"
+SNAPSHOT_URL = "http://cvs.openmicroscopy.org.uk/snapshots/omero/"
 
 def get_server_status_code(url):
     """
@@ -94,7 +95,7 @@ def find_pkg(name, path):
     if len(rv) != 1:
         raise Exception("Results!=1 for %s (%s): %s", name, path, rv)
     path = rv[0]
-    repl["@%s@" % name] = path
+    repl["@%s@" % name] = SNAPSHOT_URL + path
     repl["@%s_MD5@" % name] = hashfile(path)
     repl["@%s_BASE@" % name] = os.path.basename(path)
 
