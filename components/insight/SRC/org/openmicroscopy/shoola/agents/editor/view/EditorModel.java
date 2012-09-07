@@ -143,23 +143,7 @@ class EditorModel
 		if (saved) browser.setEdited(false);
 		return saved;
 	}
-	
-	/** 
-	 * Creates a new instance and sets the state to {@link Editor#NEW}.
-	 * 
-	 * @param ctx The security context.
-	 * @param fileAnnotationData  The annotation hosting the file to edit.
-	 */
-	EditorModel(SecurityContext ctx, FileAnnotationData fileAnnotationData)
-	{
-		state = Editor.NEW;
-		if (fileAnnotationData == null)
-			throw new IllegalArgumentException("No file annotation specified.");
-		setFileAnnotationData(fileAnnotationData);
-		this.ctx = ctx;
-		type = Editor.PROTOCOL;
-	}
-	
+
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
@@ -179,7 +163,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Sets to <code>true</code> if the application is used a standalone 
+	 * Sets to <code>true</code> if the application is used a stand-alone 
 	 * application, <code>false</code> otherwise.
 	 * 
 	 * @param master The value to set

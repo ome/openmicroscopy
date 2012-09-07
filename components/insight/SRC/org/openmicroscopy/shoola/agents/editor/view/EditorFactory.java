@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 import pojos.DataObject;
-import pojos.FileAnnotationData;
 
 /** 
  * Factory to create {@link Editor} component.
@@ -75,24 +74,6 @@ public class EditorFactory
 	/** The sole instance. */
 	private static final EditorFactory  singleton = new EditorFactory();
 
-	/**
-	 * Returns the {@link Editor}.
-	 * 
-	 * @param ctx The security context.
-	 * @param fileAnnotation  The annotation hosting the information about
-	 * 						  the file to edit.
-	 * @param master Pass <code>true</code> if the editor is used a
-	 * stand-alone application, <code>false</code> otherwise.
-	 * @return See above.
-	 */
-	public static Editor getEditor(SecurityContext ctx, 
-			FileAnnotationData fileAnnotation, boolean master)
-	{
-		EditorModel model = new EditorModel(ctx, fileAnnotation);
-		model.setMaster(master);
-		return singleton.getEditor(model);
-	}
-	
 	/**
 	 * Returns the {@link Editor}.
 	 * 
