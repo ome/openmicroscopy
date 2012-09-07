@@ -729,16 +729,4 @@ public class DataServicesFactory
 		}
 	}
 
-	/**
-	 * Checks if the session is alive.
-	 * 
-	 * @param context 	The context to make sure that agents do not
-	 * 					access the method.
-	 * @param ctx The security context.
-	 */
-	public static void isSessionAlive(Registry context, SecurityContext ctx)
-	{
-		if (context == registry) omeroGateway.isSessionAlive(ctx);
-	}
-	
 }
