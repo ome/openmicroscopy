@@ -48,7 +48,7 @@
 
  * OMERO @VERSION@ now supports Ice 3.4 & Ice 3.3, download the server corresponding to your Ice version below. (Note that the client(s) should work with either version of the server.)
 
- * After downloading the server, you may want to take a look at the installation guide for [Unix based platforms](@DOC_URL@/sysadmins/unix/server-installation), [Microsoft Windows](@DOC_URL@/sysadmins/windows/server-installation) or using the [Virtual Appliance](@DOC_URL@/users/virtual-appliance.html) .
+ * After downloading the server, you may want to take a look at the installation guide for [Unix based platforms](@DOC_URL@/sysadmins/unix/server-installation.html), [Microsoft Windows](@DOC_URL@/sysadmins/windows/server-installation.html) or using the [Virtual Appliance](@DOC_URL@/users/virtual-appliance.html) .
 
  * If you want to upgrade your server, follow the upgrade [instructions](@DOC_URL@/users/virtual-appliance.html).
 
