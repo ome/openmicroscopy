@@ -128,6 +128,9 @@ class EditorToolBar
 	/** The component used to display the name of the group.*/
 	private JComboBox groupButton;
 	
+	/** Component hosting the various tool bars.*/
+	private JPanel toolBars;
+
 	/** 
 	 * Creates the bar.
 	 * 
@@ -160,7 +163,7 @@ class EditorToolBar
         int index = 0;
         GroupData g;
         int selected = 0;
-        long groupId = view.geSecurityContext().getGroupID();
+        long groupId = view.getSecurityContext().getGroupID();
         while (i.hasNext()) {
         	g = (GroupData) i.next();
         	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
@@ -227,7 +230,7 @@ class EditorToolBar
 	/** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	JPanel toolBars = new JPanel();
+    	toolBars = new JPanel();
     	toolBars.setBorder(null);
         toolBars.setLayout(new BoxLayout(toolBars, BoxLayout.X_AXIS));
         toolBars.add(createBar());
@@ -236,25 +239,6 @@ class EditorToolBar
         	toolBars.add(createManagementBar());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(toolBars);
-    	/*
-        JPanel bars = new JPanel(), outerPanel = new JPanel();
-        bars.setBorder(null);
-        bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-        bars.add(createManagementBar());
-        //bars.add(createEditBar());
-        bars.add(createSearchBar());
-        outerPanel.setBorder(null);
-        outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
-        outerPanel.add(bars);
-        outerPanel.add(Box.createRigidArea(HBOX));
-        outerPanel.add(Box.createRigidArea(HBOX));
-        outerPanel.add(Box.createHorizontalGlue());  
-       
-        
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-       
-        add(UIUtilities.buildComponentPanel(outerPanel));
-         */
     }
 
     /**
@@ -275,6 +259,21 @@ class EditorToolBar
 	}
 	
 	/** 
+	 * Invokes when the editor is started as a standalone application and
+	 * the user saves a file back to the server.
+	 */
+	void onConnected()
+	{
+		if (groupButton != null) return;//already added
+		Collection l = EditorAgent.getAvailableUserGroups();
+		if (l.size() > 1) {
+			toolBars.add(createManagementBar());
+			validate();
+			repaint();
+		}
+	}
+	
+	/** 
 	 * Sets the information about the group depending on the context and if the
 	 * file has been saved or not.
 	 */
@@ -290,8 +289,6 @@ class EditorToolBar
 			a.setPermissions();
 		} else {
 			groupLabel.setText(SAVED);
-			groupButton.removeActionListener(controller);
-			//groupButton.removeMouseListener(a);
 		}
 	}
 	

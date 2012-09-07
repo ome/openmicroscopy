@@ -254,7 +254,6 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet tag =  new TreeImageSet(data);
         formatToolTipFor(tag);
-        
         if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(data.getNameSpace())) {
         	Set tags = data.getTags();
             if (tags != null && tags.size() > 0) {
