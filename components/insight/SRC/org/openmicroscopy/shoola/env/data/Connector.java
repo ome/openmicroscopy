@@ -690,13 +690,13 @@ class Connector
 		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
 			all.toArray(new ServiceInterfacePrx[all.size()]);
 		try {
+			if (importStore != null) importStore.ping();
 			entryEncrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
 		try {
 			if (entryUnencrypted != null)
 				entryUnencrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
-		if (importStore != null) importStore.ping();
 	}
 
 	/**

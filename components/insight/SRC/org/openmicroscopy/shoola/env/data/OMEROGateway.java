@@ -1368,6 +1368,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			OMEROMetadataStoreClient prx = c.getImportStore();
+			prx.ping();//check if still active.
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Import service.");
