@@ -367,8 +367,8 @@ public class DataServicesFactory
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
-			case DESTROYED_CONNECTION:
-			case LOST_CONNECTION:
+			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
+			case ConnectionExceptionHandler.LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
 				connectionDialog = new MessageBox(
@@ -431,7 +431,7 @@ public class DataServicesFactory
 					}
 				}
 				break;
-			case SERVER_OUT_OF_SERVICE:
+			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
