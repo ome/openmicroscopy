@@ -92,15 +92,7 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
-	
-	/** Indicates that the connection has been lost. */
-	public static final int LOST_CONNECTION = 0;
-	
-	/** Indicates that the server is out of service. */
-	public static final int SERVER_OUT_OF_SERVICE = 1;
-	
-	/** Indicates that the server is out of service. */
-	public static final int DESTROYED_CONNECTION = 2;
+
 	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";

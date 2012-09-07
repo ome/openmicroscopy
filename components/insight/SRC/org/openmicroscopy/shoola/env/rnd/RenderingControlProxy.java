@@ -59,6 +59,7 @@ import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -162,6 +163,9 @@ class RenderingControlProxy
     /** The security context associated to that control.*/
     private SecurityContext ctx;
     
+	/** Utility class used to handle connection exceptions.*/
+	private ConnectionExceptionHandler exceptionHandler;
+	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -218,25 +222,7 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	Throwable cause = e.getCause();
-		int index = -1;
-		if (cause instanceof ConnectionLostException ||
-			e instanceof ConnectionLostException ||
-			cause instanceof SessionTimeoutException ||
-			e instanceof SessionTimeoutException || 
-			cause instanceof TimeoutException ||
-			e instanceof TimeoutException ||
-			cause instanceof ObjectNotExistException ||
-			e instanceof ObjectNotExistException)
-			index = DataServicesFactory.LOST_CONNECTION;
-		else if (cause instanceof CommunicatorDestroyedException ||
-				e instanceof CommunicatorDestroyedException)
-			index = DataServicesFactory.DESTROYED_CONNECTION;
-		else if (cause instanceof ConnectionRefusedException || 
-				e instanceof ConnectionRefusedException ||
-				cause instanceof ConnectionTimeoutException || 
-				e instanceof ConnectionTimeoutException) 
-			index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
+    	int index = exceptionHandler.handleConnectionException(e);
 		if (index >= 0) {
 			context.getTaskBar().sessionExpired(index);
 		} else {
@@ -803,6 +789,7 @@ class RenderingControlProxy
             throw new NullPointerException("No registry.");
         if (ctx == null)
             throw new NullPointerException("No security context.");
+        exceptionHandler = new ConnectionExceptionHandler();
         this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;

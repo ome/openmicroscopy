@@ -391,18 +391,6 @@ class OMEROGateway
 	/** The default port to use. */
 	private int port;
 	
-	/** 
-	 * The Blitz client object, this is the entry point to the 
-	 * OMERO Server using a secure connection. 
-	 */
-	//private client secureClient;
-
-	/** 
-	 * The Blitz client object, this is the entry point to the 
-	 * OMERO Server using non secure data transfer
-	 */
-	//private client unsecureClient;
-	
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
@@ -417,6 +405,9 @@ class OMEROGateway
 	
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
+	
+	/** Utility class used to handle connection exceptions.*/
+	private ConnectionExceptionHandler exceptionHandler;
 	
 	/** 
 	 * Checks if the session is still alive.
@@ -909,34 +900,13 @@ class OMEROGateway
 	boolean handleConnectionException(Throwable e)
 	{
 		if (!connected) return false;
-		Throwable cause = e.getCause();
-		int index = -1;
-		if (cause instanceof ConnectionLostException ||
-			e instanceof ConnectionLostException ||
-			cause instanceof SessionTimeoutException ||
-			e instanceof SessionTimeoutException || 
-			cause instanceof TimeoutException ||
-			e instanceof TimeoutException ||
-			cause instanceof ObjectNotExistException ||
-			e instanceof ObjectNotExistException)
-			index = DataServicesFactory.LOST_CONNECTION;
-		else if (cause instanceof CommunicatorDestroyedException ||
-				e instanceof CommunicatorDestroyedException)
-			index = DataServicesFactory.DESTROYED_CONNECTION;
-		else if (cause instanceof ConnectionRefusedException || 
-				e instanceof ConnectionRefusedException ||
-				cause instanceof ConnectionTimeoutException || 
-				e instanceof ConnectionTimeoutException) 
-			index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
-		if (index >= 0) {
-			connected = false;
-			dsFactory.sessionExpiredExit(index, cause);
-			return false;
-		}
-		return true;
+		int index = exceptionHandler.handleConnectionException(e);
+		if (index < 0) return true;
+		connected = false;
+		dsFactory.sessionExpiredExit(index, e.getCause());
+		return false;
 	}
-	
-	
+
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -2251,6 +2221,7 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
+		exceptionHandler = new ConnectionExceptionHandler();
 	}
 	
 	/**
