@@ -36,7 +36,10 @@ for tag in repo.get_tags():
         break
 repl["@SHA1_FULL@"] = tag.commit.sha
 repl["@SHA1_SHORT@"] = tag.commit.sha[0:10]
-repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4"
+if "STAGING" in os.environ:
+    repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4-staging"
+else:
+    repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4"
 SNAPSHOT_URL = "http://cvs.openmicroscopy.org.uk/snapshots/omero/"
 
 def get_server_status_code(url):
