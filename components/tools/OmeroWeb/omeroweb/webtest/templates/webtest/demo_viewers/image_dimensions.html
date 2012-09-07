@@ -81,7 +81,8 @@ form dir {
         </td>
     </tr>
     <tr>
-        <td>
+        <td valign='top'>
+            &nbsp<br/>
             <select name="yDim">
                 <option value="T" {% ifequal yDim "T" %} selected=true {% endifequal %} >Time</option>
                 <option value="Z" {% ifequal yDim "Z" %} selected=true {% endifequal %} >Z</option>
@@ -108,7 +109,7 @@ form dir {
             
             {% if forloop.first %}
             <!-- row name -->
-            <td>{{ yDim }}: </td>
+            <td>{{ yDim }}: {{forloop.parentloop.counter}}</td>
             {% endif %}
             
             <td> 

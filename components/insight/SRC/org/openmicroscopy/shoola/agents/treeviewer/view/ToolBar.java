@@ -55,7 +55,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -65,7 +64,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
@@ -233,15 +231,7 @@ class ToolBar
 		        bar.add(b);
 		}
         
-        b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);
-        
-        TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
-        b = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((ManagerAction) a);
-        //bar.add(b);
+
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
@@ -254,25 +244,10 @@ class ToolBar
 				UIUtilities.unifiedButtonLookAndFeel(comp);
 		        bar.add(comp);
 			}
-        	/*
-        	b = new JButton(controller.getAction(
-            		TreeViewerControl.IMPORT_NO_SELECTION));
-            UIUtilities.unifiedButtonLookAndFeel(b);
-            bar.add(b);
-            */
             bar.add(new JSeparator(JSeparator.VERTICAL));
         }
-        
-        /*
-        b = new JButton(controller.getAction(
-        		TreeViewerControl.EDITOR_NO_SELECTION));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
-        
         fullScreen = new JToggleButton(
         		controller.getAction(TreeViewerControl.FULLSCREEN));
-        //UIUtilities.unifiedButtonLookAndFeel(button);
         fullScreen.setSelected(model.isFullScreen());
         //bar.add(fullScreen);
         if (TreeViewerAgent.isAdministrator()) {
@@ -281,7 +256,8 @@ class ToolBar
             UIUtilities.unifiedButtonLookAndFeel(b);
             bar.add(b);
         }
-        a = controller.getAction(TreeViewerControl.AVAILABLE_SCRIPTS);
+        TreeViewerAction a = controller.getAction(
+        		TreeViewerControl.AVAILABLE_SCRIPTS);
         b = new JButton(a);
         Icon icon  = b.getIcon();
         Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
@@ -329,15 +305,8 @@ class ToolBar
     		public void mousePressed(MouseEvent me)
     		{
     			createSelectionOption(me);
-    			/*
-    			SwitchGroup action = (SwitchGroup)
-    				controller.getAction(TreeViewerControl.SWITCH_GROUP);
-    			action.setPoint(me.getPoint());
-    			action.actionPerformed(new ActionEvent(me.getSource(), 0, ""));
-    			*/
     		}
 		});
-    	//bar.add(menuButton);
     	bar.add(usersButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(groupContext);
@@ -421,7 +390,6 @@ class ToolBar
         bars.setBorder(null);
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
-        //bars.add(createEditBar());
         if (!TreeViewerWin.JXTASKPANE_TYPE.equals(view.getLayoutType())) {
         	bars.add(createSearchBar());
         }
@@ -489,17 +457,14 @@ class ToolBar
     {
     	if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
-        //if (p == null) throw new IllegalArgumentException("No point.");
-        //if (personalMenu == null) {
-        	personalMenu = new JPopupMenu();
-        	personalMenu.setBorder(
-        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<JMenuItem> l = createMenuItem(false);
-        	Iterator<JMenuItem> i = l.iterator();
-        	while (i.hasNext()) {
-				personalMenu.add(i.next());
-			}
-        //}
+        personalMenu = new JPopupMenu();
+        personalMenu.setBorder(
+        		BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        List<JMenuItem> l = createMenuItem(false);
+        Iterator<JMenuItem> i = l.iterator();
+        while (i.hasNext()) {
+        	personalMenu.add(i.next());
+        }
         personalMenu.show(c, p.x, p.y);
     }
     
@@ -695,6 +660,10 @@ class ToolBar
 	/** Sets the permissions level.*/
     void setPermissions()
     {
+    	Browser browser = model.getSelectedBrowser();
+    	if (browser != null &&
+    			browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+    		return;
     	GroupData group = model.getSelectedGroup();
     	if (group == null || groupContext == null) {
     		menuButton.setVisible(false);

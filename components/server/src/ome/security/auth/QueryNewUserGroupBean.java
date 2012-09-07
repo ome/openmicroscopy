@@ -32,10 +32,10 @@ import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
  */
 public class QueryNewUserGroupBean implements NewUserGroupBean {
 
-    private final String grpSpec;
+    private final String grpQuery;
 
-    public QueryNewUserGroupBean(String grpSpec) {
-        this.grpSpec = grpSpec;
+    public QueryNewUserGroupBean(String grpQuery) {
+        this.grpQuery = grpQuery;
     }
 
     @SuppressWarnings("unchecked")
@@ -43,7 +43,6 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
             LdapOperations ldap, RoleProvider provider,
             final AttributeSet attrSet) {
 
-        final String grpQuery = grpSpec.substring(7);
         PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("@{",
                 "}", null, false);
         String query = helper.replacePlaceholders(grpQuery,
@@ -63,7 +62,7 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
 
         and.and(new HardcodedFilter(query));
         List<String> groupNames = (List<String>) ldap.search("", and.encode(),
-                new GroupAttributeMapper(config));
+            new GroupAttributeMapper(config));
 
         List<Long> groups = new ArrayList<Long>(groupNames.size());
         for (String groupName : groupNames) {

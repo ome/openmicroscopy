@@ -69,7 +69,7 @@
   <property name="dist.jar.file" value="omero.insight.jar"/>
    <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
-  <property name="dist.bundle.ij.name" value="OMERO.ij"/>
+  <property name="dist.bundle.ij.name" value="OMERO.insight-ij"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 

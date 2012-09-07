@@ -324,7 +324,7 @@ class EditorComponent
 	 */
 	public void openLocalFile(File file) {
 		
-		EditorAgent.openLocalFile(file);
+		EditorAgent.openLocalFile(file, model.isMaster());
 	}
 
 	/** 
@@ -507,11 +507,12 @@ class EditorComponent
 	{
 		//Need to check if already log in.
 		if (EditorAgent.getRegistry().getTaskBar().login()) {
+			view.onConnected();
 			// make sure the fileName contains no file separators 
 			// else the temporary file of this name will not be created and found
 			int lastSlash = fileName.lastIndexOf(File.separator);
 			fileName = fileName.substring(lastSlash + 1);
-			if (fileName.length() == 0)		
+			if (fileName.length() == 0)
 				fileName = "new_protocol.cpe.xml";
 			
 			model.setFileAnnotationData(null);

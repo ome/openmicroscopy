@@ -9,6 +9,8 @@ package ome.security.auth;
 
 import java.util.Set;
 
+import javax.naming.directory.SearchControls;
+
 import ome.model.meta.Experimenter;
 
 import org.springframework.ldap.core.ContextMapper;
@@ -81,6 +83,29 @@ public class PersonContextMapper implements ContextMapper {
     @SuppressWarnings("unchecked")
     public AttributeSet getAttributeSet(Experimenter person) {
         return (AttributeSet) person.retrieve(LDAP_PROPS);
+    }
+
+    public SearchControls getControls() {
+        final SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        controls.setReturningObjFlag(true);
+        if (attribute == null) {
+            return controls;
+        }
+
+        final String inst = cfg.getUserAttribute("institution");
+        final String email = cfg.getUserAttribute("email");
+        final String[] attrs = new String[]{
+            "dn",
+            attribute,
+            cfg.getUserAttribute("omeName"),
+            cfg.getUserAttribute("firstName"),
+            cfg.getUserAttribute("lastName"),
+            inst == null ? "dn" : inst,
+            email == null ? "dn" : email
+        };
+        controls.setReturningAttributes(attrs);
+        return controls;
     }
 
 

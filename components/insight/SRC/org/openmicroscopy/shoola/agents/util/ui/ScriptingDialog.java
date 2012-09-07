@@ -98,7 +98,10 @@ public class ScriptingDialog
 	
 	/** Message indicating that script can only run on objects.*/
 	public static final String WARNING = 
-		"You can only run script on objects from the same group.";
+		"This script can only run on data from the same group.\n" +
+		"Please perform a separate run of the script for each group,\n" +
+		"selecting only data from a single group to run the script on each " +
+		"time.";
 	
 	/** Bound property indicating to run the script. */
 	public static final String RUN_SELECTED_SCRIPT_PROPERTY = 
@@ -245,7 +248,6 @@ public class ScriptingDialog
 		b.setActionCommand(""+actionID);
 		b.addActionListener(this);
 		b.setOpaque(false);
-		//b.setForeground(UIUtilities.HYPERLINK_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
@@ -254,7 +256,6 @@ public class ScriptingDialog
 	private void close()
 	{
 		setVisible(false);
-		//dispose();
 		firePropertyChange(CLOSE_SCRIPT_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
@@ -281,15 +282,16 @@ public class ScriptingDialog
 	 */
 	private void canRunScript()
 	{
-		Iterator i = components.entrySet().iterator();
-		Entry entry;
+		Iterator<Entry<String, ScriptComponent>> 
+		i = components.entrySet().iterator();
+		Entry<String, ScriptComponent> entry;
 		ScriptComponent c;
 		int required = 0;
 		int valueSet = 0;
 		Object value;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (ScriptComponent) entry.getValue();
+			entry = i.next();
+			c = entry.getValue();
 			if (c.isRequired()) {
 				required++;
 				value = c.getValue();
@@ -308,16 +310,15 @@ public class ScriptingDialog
 	/** Collects the data and fires a property.*/
 	private void runScript()
 	{
-		Entry entry, e;
+		Entry<String, ScriptComponent> entry;
 		ScriptComponent c;
-		Iterator i = componentsAll.entrySet().iterator();
-		Iterator k;
+		Iterator<Entry<String, ScriptComponent>> i =
+			componentsAll.entrySet().iterator();
 		Map<String, ParamData> inputs = script.getInputs();
 		ParamData param;
-		Map<String, Object> values;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (ScriptComponent) entry.getValue();
+			entry = i.next();
+			c = entry.getValue();
 			param = inputs.get(entry.getKey());
 			param.setValueToPass(c.getValue());
 		}
@@ -379,14 +380,14 @@ public class ScriptingDialog
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
 		List <ScriptComponent> results = new ArrayList<ScriptComponent>();
-		Entry entry;
+		Entry<String, ParamData> entry;
 		ParamData param;
 		JComponent comp;
 		ScriptComponent c;
 		String name;
 		Class type;
 		Object defValue ;
-		Iterator i = types.entrySet().iterator();
+		Iterator<Entry<String, ParamData>> i = types.entrySet().iterator();
 		List<Object> values;
 		Number n;
 		String details = "";
@@ -402,9 +403,9 @@ public class ScriptingDialog
 			text = "";
 			columnsSet = false;
 			comp = null;
-			entry = (Entry) i.next();
-			param = (ParamData) entry.getValue();
-			name = (String) entry.getKey();
+			entry = i.next();
+			param = entry.getValue();
+			name = entry.getKey();
 			type = param.getPrototype();
 			values = param.getValues();
 			defValue = param.getDefaultValue();
@@ -705,13 +706,6 @@ public class ScriptingDialog
 		layout.setColumn(columns);
 		p.setLayout(layout);
 		int row = 0;
-		JLabel warning = new JLabel(WARNING);
-		Font font = warning.getFont();
-		warning.setFont(font.deriveFont(font.getStyle(), font.getSize()+2));
-		warning.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-		layout.insertRow(row, TableLayout.PREFERRED);
-		p.add(warning, "0,"+row+", 2, "+row);
-		row++;
 		JComponent area = buildDescriptionPane();
 		JComponent authorsPane = buildScriptDetails();
 		if (area != null) {
@@ -728,15 +722,15 @@ public class ScriptingDialog
 		layout.insertRow(row, 5);
 		
 		row++;
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, ScriptComponent> entry;
+		Iterator<Entry<String, ScriptComponent>> 
+		i = components.entrySet().iterator();
 		ScriptComponent comp;
 		int required = 0;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = (ScriptComponent) entry.getValue();
+			entry = i.next();
+			comp = entry.getValue();
 			layout.insertRow(row, TableLayout.PREFERRED);
-			//p.add(comp.getLabel(), "0,"+row);
 			comp.buildUI();
 			if (comp.isRequired()) required++;
 			p.add(comp, "0,"+row+", 2, "+row);
@@ -746,7 +740,7 @@ public class ScriptingDialog
 		}
 		if (required > 0) {
 			JLabel label = new JLabel(TEXT_END);
-			font = label.getFont();
+			Font font = label.getFont();
 			label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			layout.insertRow(row, TableLayout.PREFERRED);
@@ -763,14 +757,13 @@ public class ScriptingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		String text = TEXT;//+script.getDisplayedName();
+		String text = TEXT;
 		TitlePanel tp = new TitlePanel(TITLE, text, script.getIconLarge());
 		Container c = getContentPane();
 		c.removeAll();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(tp, BorderLayout.NORTH);
 		c.add(buildBody(), BorderLayout.CENTER);
-		//c.add(buildControlPanel(), BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -786,7 +779,6 @@ public class ScriptingDialog
 	{
 		super(parent);
 		this.binaryAvailable = binaryAvailable;
-		//setModal(true);
 		reset(script, refObjects);
 	}
 	

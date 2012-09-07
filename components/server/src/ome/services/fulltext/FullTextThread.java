@@ -123,12 +123,13 @@ public class FullTextThread extends ExecutionThread {
             activeLock.unlock();
         }
 
+        final Map<String, String> callContext = new HashMap<String, String>();
+        callContext.put("omero.group", "-1");
+
         if (waitForLock) {
             DetailsFieldBridge.lock();
             try {
                 DetailsFieldBridge.setFieldBridge(this.bridge);
-                Map<String, String> callContext = new HashMap<String, String>();
-                callContext.put("omero.group", "-1");
                 this.executor.execute(callContext, getPrincipal(), work);
             } finally {
                 DetailsFieldBridge.unlock();
@@ -137,7 +138,7 @@ public class FullTextThread extends ExecutionThread {
             if (DetailsFieldBridge.tryLock()) {
                 try {
                     DetailsFieldBridge.setFieldBridge(this.bridge);
-                    this.executor.execute(getPrincipal(), work);
+                    this.executor.execute(callContext, getPrincipal(), work);
                 } finally {
                     DetailsFieldBridge.unlock();
                 }

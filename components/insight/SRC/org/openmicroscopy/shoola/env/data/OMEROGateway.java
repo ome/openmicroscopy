@@ -5753,8 +5753,7 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		try {
 			IMetadataPrx service = getMetadataService(ctx);
-			List<IObject> list = service.loadTagSets(options);
-			return PojoMapper.asDataObjects(list);
+			return PojoMapper.asDataObjects(service.loadTagSets(options));
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}

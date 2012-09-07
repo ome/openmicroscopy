@@ -215,7 +215,7 @@ class BlitzObjectWrapper (object):
         @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.CHILD_WRAPPER_CLASS is None:
+        if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError('%s has no child wrapper defined' % self.__class__)
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
             # resolve class
@@ -233,7 +233,7 @@ class BlitzObjectWrapper (object):
         @return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.PARENT_WRAPPER_CLASS is None:
+        if self.PARENT_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
         if not isinstance(pwc, ListType):
@@ -1210,6 +1210,9 @@ class NoProxies (object):
     """ A dummy placeholder to indicate that proxies haven't been created """
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
+
+    def values (self):
+        return ()
 
 class _BlitzGateway (object):
     """
@@ -2619,11 +2622,14 @@ class _BlitzGateway (object):
             err_msg = "getAnnotationLinks() does not support type: '%s'. Must be one of: %s" % (parent_type, wrapper_types)
             raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
+        class_string = wrapper().OMERO_CLASS
+        if class_string is None and "annotation" in parent_type.lower(): # E.g. AnnotationWrappers have no OMERO_CLASS
+            class_string = "Annotation"
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
                 "join fetch annLink.details.creationEvent " \
                 "join fetch annLink.child as ann join fetch ann.details.owner join fetch ann.details.creationEvent "\
-                "join fetch annLink.parent as parent" % wrapper().OMERO_CLASS
+                "join fetch annLink.parent as parent" % class_string
 
         q = self.getQueryService()
         if params is None:
@@ -3911,6 +3917,19 @@ class TagAnnotationWrapper (AnnotationWrapper):
             q = self._conn.getQueryService()
             for ann in q.findAllByQuery(sql, params, self._conn.SERVICE_OPTS):
                 yield TagAnnotationWrapper(self._conn, ann)
+
+    def listParents(self, withlinks=True):
+        """
+        We override the listParents() to look for 'Tag-Group' Tags on this Tag
+        """
+        # In this case, the Tag is the 'child' - 'Tag-Group' (parent) has specified ns
+        links = self._conn.getAnnotationLinks("TagAnnotation", ann_ids=[self.getId()])
+        rv = []
+        for l in links:
+            if l.parent.ns.val == omero.constants.metadata.NSINSIGHTTAGSET:
+                rv.append(omero.gateway.TagAnnotationWrapper(self._conn, l.parent, l))
+        return rv
+
     
     def _getQueryString(self):
         """
@@ -6424,8 +6443,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type compression:      Float
         """
         
-        self._pd.z = z is not None and long(z) or self._re.getDefaultZ()
-        self._pd.t = t is not None and long(t) or self._re.getDefaultT()
+        if z is None:
+            z = self._re.getDefaultZ()
+        self._pd.z = long(z)
+        if t is None:
+            t = self._re.getDefaultT()
+        self._pd.t = long(t)
         try:
             if compression is not None:
                 try:
@@ -7186,7 +7209,21 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if isValidType(shape):
                     return True
             return False
-        
+
+        # Optimisation for the most common use case of unfiltered ROI counts
+        # for the current user.
+        if shapeType is None:
+            params = omero.sys.ParametersI()
+            params.addLong('imageId', self.id)
+            params.addLong('ownerId', self._conn._userid)
+            count = self._conn.getQueryService().projection(
+                    'select count(*) from Roi as roi ' \
+                    'where roi.image.id = :imageId ' \
+                    'and roi.details.owner.id = :ownerId', params, self._conn.SERVICE_OPTS)
+            # Projection returns a two dimensional array of RType wrapped
+            # return values so we want the value of row one, column one.
+            return count[0][0].getValue()
+
         roiOptions = omero.api.RoiOptions()
         if eid:
             roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())

@@ -81,6 +81,9 @@ public class EditorAgent implements Agent, AgentEventListener {
 	/** The group id if set. */
 	private long groupId;
 
+	/** Indicate that the editor is used as a stand-alone application.*/
+	private boolean master;
+	
 	/**
 	 * Helper method.
 	 * 
@@ -172,10 +175,11 @@ public class EditorAgent implements Agent, AgentEventListener {
 	 * Static method to open a local file. Creates or recycles an Editor to
 	 * display the file.
 	 * 
-	 * @param file
-	 *            The local file to open.
+	 * @param file The local file to open.
+	 * @param master Pass <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
 	 */
-	public static Editor openLocalFile(File file) {
+	public static Editor openLocalFile(File file, boolean master) {
 
 		if (file == null)
 			return null;
@@ -189,9 +193,12 @@ public class EditorAgent implements Agent, AgentEventListener {
 
 		ExperimenterData exp = getUserDetails();
 		SecurityContext ctx = null;
-		if (exp != null)
+		if (exp != null) {
 			ctx = new SecurityContext(exp.getDefaultGroup().getId());
-		Editor editor = EditorFactory.getEditor(ctx, file);
+			
+		}
+			
+		Editor editor = EditorFactory.getEditor(ctx, file, master);
 
 		// activates the editor
 		// if the editor is 'blank' or has just been created (above),
@@ -226,7 +233,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 		if (data == null) {
 			if (event.getFileAnnotationID() > 0)
 				editor = EditorFactory.getEditor(event.getSecurityContext(),
-						event.getFileAnnotationID());
+						event.getFileAnnotationID(), master);
 		} else {
 			if (data.getId() <= 0)
 				return;
@@ -239,7 +246,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 					|| FileAnnotationData.COMPANION_FILE_NS.equals(ns)
 					|| EditorUtil.isEditorFile(name))
 				editor = EditorFactory.getEditor(event.getSecurityContext(),
-						data);
+						data, master);
 			else {
 				UserNotifier un = getRegistry().getUserNotifier();
 				OriginalFile f = (OriginalFile) data.getContent();
@@ -291,7 +298,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 			if (evt.getType() == ShowEditorEvent.EXPERIMENT)
 				editorType = Editor.EXPERIMENT;
 			editor = EditorFactory.getEditor(evt.getSecurityContext(),
-					evt.getParent(), evt.getName(), editorType);
+					evt.getParent(), evt.getName(), editorType, master);
 		}
 		autosaveRecovery.checkForRecoveredFiles(); // now check
 		if (editor != null)
@@ -336,6 +343,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 
 	/** Registers the agent with the tool bar. */
 	private void register() {
+		groupId = -1;
 		TaskBar tb = registry.getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.EDITOR));
@@ -344,23 +352,17 @@ public class EditorAgent implements Agent, AgentEventListener {
 
 			/** Posts an event to start the agent. */
 			public void actionPerformed(ActionEvent e) {
-				EventBus bus = registry.getEventBus();
 				ExperimenterData exp = (ExperimenterData) registry
 						.lookup(LookupNames.CURRENT_USER_DETAILS);
 				if (exp == null)
 					return;
-				GroupData gp = null;
-				try {
-					gp = exp.getDefaultGroup();
-				} catch (Exception ex) {
-					// No default group
-				}
+				GroupData gp = exp.getDefaultGroup();
 				long id = -1;
-				if (gp != null)
-					id = gp.getId();
-				if (groupId == -1)
-					groupId = id;
-				bus.post(new ShowEditorEvent(new SecurityContext(groupId)));
+				if (gp != null) id = gp.getId();
+				if (groupId == -1) groupId = id;
+				
+				handleShowEditor(new ShowEditorEvent(
+						new SecurityContext(groupId)), false);
 			}
 		};
 		b.addActionListener(l);
@@ -383,6 +385,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 	 * @see Agent#activate(boolean)
 	 */
 	public void activate(boolean master) {
+		this.master = master;
 		if (master)
 			handleShowEditor(null, true);
 	}

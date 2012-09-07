@@ -173,8 +173,10 @@ class OutputServerStrategy
 		if (shape == null)
 			throw new Exception("ROIShape not supported : " + 
 									clientShape.getClass().toString());
-		shape.setT(clientShape.getT());
-		shape.setZ(clientShape.getZ());
+		if (clientShape.getT() >= 0)
+			shape.setT(clientShape.getT());
+		if (clientShape.getZ() >= 0)
+			shape.setZ(clientShape.getZ());
 		shape.setDirty(fig.isDirty());
 		if (!fig.isClientObject())
 			shape.setId(clientShape.getROIShapeID());
@@ -321,8 +323,8 @@ class OutputServerStrategy
 			text = "";
 		TextData data = new TextData(text, x, y); 
 		data.setDirty(fig.isDirty());
-		data.setT(shape.getT());
-		data.setZ(shape.getZ());
+		if (shape.getT() >=0) data.setT(shape.getT());
+		if (shape.getZ() >=0) data.setZ(shape.getZ());
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			data.setTransform(toTransform(t));

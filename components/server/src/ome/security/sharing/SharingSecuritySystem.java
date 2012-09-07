@@ -150,7 +150,7 @@ public class SharingSecuritySystem implements SecuritySystem {
 
     }
 
-    public boolean isGraphCritical() {
+    public boolean isGraphCritical(Details details) {
         // TODO Auto-generated method stub
         return false;
     }

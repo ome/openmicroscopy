@@ -52,8 +52,13 @@ def index(request, conn=None, **kwargs):
     
     imgIds = ",".join([str(img.getId()) for img in images])
     
+    # get a random dataset (making sure we get one that has some images in it)
     all_datasets = list(conn.getObjects("Dataset"))
     dataset = random.choice(all_datasets)
+    attempts = 0
+    while (dataset.countChildren() == 0 and attempts < 10):
+        dataset = random.choice(all_datasets)
+        attempts += 1
 
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
@@ -479,9 +484,9 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     default_yDim = 'Z'
     
-    xDim = request.REQUEST.get('xDim', 'T')
+    xDim = request.REQUEST.get('xDim', 'C')
     if xDim not in dims.keys():
-        xDim = 'T'
+        xDim = 'C'
         
     yDim = request.REQUEST.get('yDim', default_yDim)
     if yDim not in dims.keys():
@@ -489,7 +494,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     xFrames = int(request.REQUEST.get('xFrames', 5))
     xSize = dims[xDim]
-    yFrames = int(request.REQUEST.get('yFrames', 5))
+    yFrames = int(request.REQUEST.get('yFrames', 10))
     ySize = dims[yDim]
     
     xFrames = min(xFrames, xSize)

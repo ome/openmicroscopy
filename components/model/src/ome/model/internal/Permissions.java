@@ -157,6 +157,7 @@ public class Permissions implements Serializable {
                     "Make sure that you have not passed omero.group=-1 for a save without context");
         }
         this.revokeAll(p);
+        copyRestrictions(p.restrictions);
     }
 
     // ~ Fields
@@ -290,6 +291,9 @@ public class Permissions implements Serializable {
         return isDisallow(restrictions, LINKRESTRICTION);
     }
 
+    /**
+     * Produce a copy of restrictions for use elsewhere.
+     */
     public boolean[] copyRestrictions() {
         if (restrictions == null) {
             return null;
@@ -299,13 +303,49 @@ public class Permissions implements Serializable {
         return copy;
     }
 
+    /**
+     * Safely copy the source array. If it is null or contains no "true" values,
+     * then the restrictions field will remain null.
+     */
     public void copyRestrictions(final boolean[] source) {
-        if (source == null) {
+        if (noTrues(source)) {
             this.restrictions = null;
+        } else {
+            if (restrictions == null || source.length != restrictions.length) {
+                restrictions = new boolean[source.length];
+            }
+            System.arraycopy(source, 0, restrictions, 0, source.length);
         }
-        boolean[] copy = new boolean[source.length];
-        System.arraycopy(source, 0, copy, 0, source.length);
-        this.restrictions = copy;
+    }
+
+    /**
+     * Copy restrictions based on the integer returned by BasicACLVoter.
+     */
+    public void copyRestrictions(int allow) {
+        if (allow == 15) { // Would be all false.
+            this.restrictions = null;
+            return;
+        }
+
+        if (restrictions == null) {
+            this.restrictions = new boolean[4]; // All false
+        }
+        this.restrictions[LINKRESTRICTION] |= (0 == (allow & (1 << LINKRESTRICTION)));
+        this.restrictions[EDITRESTRICTION] |= (0 == (allow & (1 << EDITRESTRICTION)));
+        this.restrictions[DELETERESTRICTION] |= (0 == (allow & (1 << DELETERESTRICTION)));
+        this.restrictions[ANNOTATERESTRICTION] |= (0 == (allow & (1 << ANNOTATERESTRICTION)));
+    }
+
+    private static boolean noTrues(boolean[] source) {
+        if (source == null) {
+            return true;
+        }
+        for (int i = 0; i < source.length; i++) {
+            if (source[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // ~ Setters (return this)

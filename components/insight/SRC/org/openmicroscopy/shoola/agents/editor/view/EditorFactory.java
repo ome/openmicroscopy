@@ -81,12 +81,15 @@ public class EditorFactory
 	 * @param ctx The security context.
 	 * @param fileAnnotation  The annotation hosting the information about
 	 * 						  the file to edit.
+	 * @param master Pass <code>true</code> if the editor is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static Editor getEditor(SecurityContext ctx, 
-			FileAnnotationData fileAnnotation)
+			FileAnnotationData fileAnnotation, boolean master)
 	{
 		EditorModel model = new EditorModel(ctx, fileAnnotation);
+		model.setMaster(master);
 		return singleton.getEditor(model);
 	}
 	
@@ -95,11 +98,15 @@ public class EditorFactory
 	 * 
 	 * @param ctx The security context.
 	 * @param fileID The id of the file to edit.
+	 * @param master Pass <code>true</code> if the editor is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static Editor getEditor(SecurityContext ctx, long fileID)
+	public static Editor getEditor(SecurityContext ctx, long fileID,
+			boolean master)
 	{
 		EditorModel model = new EditorModel(ctx, fileID);
+		model.setMaster(master);
 		return singleton.getEditor(model);
 	}
 	
@@ -111,12 +118,15 @@ public class EditorFactory
 	 * @param name	 The name of the editor file.
 	 * @param type	 Either {@link Editor#PROTOCOL} or 
 	 * 				 {@link Editor#EXPERIMENT}.
+	 * @param master Pass <code>true</code> if the editor is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static Editor getEditor(SecurityContext ctx, DataObject parent,
-			String name, int type)
+			String name, int type, boolean master)
 	{
 		EditorModel model = new EditorModel(ctx, parent, name, type);
+		model.setMaster(master);
 		Editor editor = singleton.getEditor(model);
 		if (editor != null) {
 			((EditorComponent) editor).setNewExperiment();
@@ -129,15 +139,19 @@ public class EditorFactory
 	 * Returns the {@link Editor} created to display a particular file. 
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to open in Editor. 
+	 * @param file The file to open in Editor.
+	 * @param master Pass <code>true</code> if the editor is used a
+	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static Editor getEditor(SecurityContext ctx, File file)
+	public static Editor getEditor(SecurityContext ctx, File file,
+			boolean master)
 	{
-		if (file == null) return getEditor(ctx, false);	// just in case. Never used! 
-		
+		// just in case. Never used! 
+		if (file == null) return getEditor(ctx, master);	
+
 		EditorModel model = new EditorModel(ctx, file);
-		
+		model.setMaster(master);
 		// if a "blank" editor is open, with a "blank" model, this is returned
 		// or, if the model matches the model in an existing editor, return this,
 		// or, create a new editor with this new model.
@@ -153,7 +167,7 @@ public class EditorFactory
 	 * it doesn't matter which editor/file you show.
 	 * 
 	 * @param ctx The security context.
-	 * @param master Pass <code>true</code> if the importer is used a
+	 * @param master Pass <code>true</code> if the editor is used a
 	 * stand-alone application, <code>false</code> otherwise.
 	 * @return See above.
 	 */

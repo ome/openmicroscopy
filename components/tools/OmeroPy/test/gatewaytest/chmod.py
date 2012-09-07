@@ -119,7 +119,13 @@ class ChmodBaseTest (lib.GTest):
             sudo_needed=False, exc_info=False):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
+        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        # Now test if we can actually Edit and 'Hard link' the object
         nameEdited = False
+        # for saves, omero group must *not* be -1
+        origGroup = self.gateway.SERVICE_OPTS.getOmeroGroup()   # need to switch back to this after edits
+        gid = blitzObject.details.group.id.val
+        self.gateway.SERVICE_OPTS.setOmeroGroup(gid)
         try:
             blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
@@ -161,6 +167,7 @@ class ChmodBaseTest (lib.GTest):
             if exc_info:
                 traceback.print_exc()
 
+        self.gateway.SERVICE_OPTS.setOmeroGroup(origGroup)  # revert back
         self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
         self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
@@ -169,6 +176,7 @@ class ChmodBaseTest (lib.GTest):
             sudo_needed=False, exc_info=False):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
+        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
@@ -179,7 +187,6 @@ class ChmodBaseTest (lib.GTest):
         except omero.SecurityViolation:
             if exc_info:
                 traceback.print_exc()
-        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
 
@@ -201,13 +208,15 @@ class ChmodGroupTest (ChmodBaseTest):
         # Login as group Admin to get group Id...
         self.doLogin(dbhelpers.USERS['chmod_group_admin'])
         group_Id = self.gateway.getEventContext().groupId
+        group_Name = self.gateway.getEventContext().groupName
         # do we need to log out of group when changing it's permissions??
-        self.tearDown()
-
+        #self.tearDown()
+        self.doDisconnect()
         # let another Admin change group permissions
         self.loginAsAdmin()
+        dbhelpers.UserEntry.check_group_perms(self.gateway, group_Name, READONLY)
         self.doChange(group_Id, READWRITE)
-
+        dbhelpers.UserEntry.check_group_perms(self.gateway, group_Name, READWRITE)
 
 class CustomUsersTest (ChmodBaseTest):
     """
@@ -231,6 +240,7 @@ class CustomUsersTest (ChmodBaseTest):
         ReadOnly('admin', admin=True)
         ReadOnly('leader', groupowner=True)
         dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
+        dbhelpers.PROJECTS['read_only_proj_2'] = dbhelpers.ProjectEntry('read_only_proj_2', 'read_only_owner')
 
         # read-annotate users & data
         def ReadAnn(key, admin=False, groupowner=False):
@@ -270,9 +280,15 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as owner...
         self.doLogin(dbhelpers.USERS['read_only_owner'])
         p = dbhelpers.getProject(self.gateway, 'read_only_proj')
+        p2 = dbhelpers.getProject(self.gateway, 'read_only_proj_2')
         pid = p.id
+        pid2 = p2.id
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+        # Test Bug from #9505 commits: Second Project canEdit() is False
+        pros = self.gateway.getObjects("Project", [pid, pid2])
+        for p in pros:
+            self.assertCanEdit(p, True)
 
         # Login as user...
         self.doLogin(dbhelpers.USERS['read_only_user'])
@@ -321,6 +337,29 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
 
+
+    def testGroupMinusOne(self):
+        """ Should be able to Annotate and Edit object retrieved with omero.group:'-1' """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_ann_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_ann_proj')
+        pid = p.id
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        # Need to get object again since p.save() in assertCanEdit() reloads it under different context
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_ann_leader'])
+        self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanAnnotate(p, True)
+
+
     def testReadWrite(self):
         """ In a read-write group, all should be able to Annotate and Edit"""
         # Login as owner...
@@ -361,7 +400,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.assertNotEqual(None, p, "Member can access Project")
         self.assertEqual(p.canDelete(), True, "Member can delete another user's Project")
         handle = self.gateway.deleteObjects("Project", [pr.id.val])
-        cb = self.waitOnCmd(self.gateway.c, handle)
+        cb = self.gateway._waitOnCmd(handle)
 
         # Must reload project
         p = self.gateway.getObject("Project", pr.id.val)
@@ -433,7 +472,7 @@ class Test8800 (lib.GTest):
         ctx = {'omero.group':'-1'}
         imgObj = self.gateway.getContainerService().getImages("Image", (imgObj.id.val,), None, ctx)[0]
         after = imgObj.getDetails().getPermissions().canEdit()
-        self.assertNotEqual(before, after, "canEdit() is False with 'omero.group':'-1'")
+        self.assertEqual(before, after, "canEdit() should not be affected by 'omero.group':'-1'")
 
 
 class DefaultSetupTest (lib.GTest):
@@ -442,9 +481,11 @@ class DefaultSetupTest (lib.GTest):
         """ This is called at the start of tests """
         super(DefaultSetupTest, self).setUp()
         self.loginAsAuthor()
-        ctx = self.gateway.getEventContext()
+        ctxgroupname = self.gateway.getEventContext().groupName
+        self.loginAsAdmin()
+        dbhelpers.UserEntry.assert_group_perms(self.gateway, ctxgroupname, dbhelpers.DEFAULT_GROUP_PERMS)
+        self.loginAsAuthor()
         self.image = self.getTestImage()
-        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rw----")
 
     def testAuthorCanEdit(self):
         """
@@ -464,8 +505,7 @@ class DefaultSetupTest (lib.GTest):
         self.assertTrue(image.canAnnotate(), "Author can annotate their own image")
         
         # Login as Admin
-        root_client = self.loginAsAdmin()
-        user = self.gateway.getUser()
+        self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         i = self.gateway.getObject("Image", imageId)
         self.assertTrue(i.canEdit(), "Admin can edit Author's image")
@@ -491,7 +531,7 @@ class DefaultSetupTest (lib.GTest):
         self.assertTrue(self.gateway.setGroupForSession(image_gid))      # switch into group
         self.assertEqual(image_gid, self.gateway.getEventContext().groupId, "Confirm in same group as image")
         i = self.gateway.getObject("Image", imageId)
-        self.assertEqual(None, i, \
+        self.assertNotEqual(None, i, \
                 "User cannot access Author's image in Read-only group: %s" % i)
 
 if __name__ == '__main__':

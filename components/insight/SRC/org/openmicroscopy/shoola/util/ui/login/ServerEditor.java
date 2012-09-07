@@ -362,22 +362,8 @@ public class ServerEditor
         emptyMessagePanel = new JPanel();
         emptyMessagePanel.setOpaque(false);
         emptyMessagePanel.setBorder(new PartialLineBorder(Color.BLACK));
-
         emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,
-                                                BoxLayout.X_AXIS));
-        /*
-        JLabel label = new JLabel(icons.getIcon(IconManager.ERROR));
-        emptyMessagePanel.add(label);
-        int w = label.getWidth();
-        label = new JLabel(EMPTY_MSG);
-        int h = label.getFontMetrics(label.getFont()).getHeight();
-        w += getFontMetrics(getFont()).stringWidth(EMPTY_MSG);
-        emptyMessagePanel.add(label);
-        Insets i = emptyMessagePanel.getInsets();
-        h += i.top+i.bottom;
-        //emptyMessagePanel.setBounds(2, TITLE_HEIGHT-h-1, 3*w/2, h);
-         * */
-
+         BoxLayout.X_AXIS));
     }
 
 	/** Requests focus if no server address at initialization time. */
@@ -389,7 +375,6 @@ public class ServerEditor
 		originalRow = -1;
 		if (n == 0) {
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
-			//addButton.setEnabled(false);
 			editButton.setEnabled(false);
 			removeButton.setEnabled(false);
 		} else {
@@ -840,5 +825,12 @@ public class ServerEditor
 			model.fireTableDataChanged();
 		}	
 	}
+	
+	/**
+	 * Returns the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getRowCount() { return table.getRowCount(); }
 	
 }

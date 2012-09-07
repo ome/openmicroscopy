@@ -60,7 +60,7 @@ class ImageTest (lib.GTest):
 
     def testRenderingModels (self):
         # default is color model
-        cimg = self.image.renderJpeg()
+        cimg = self.image.renderJpeg(0,0)
         ifile = StringIO(cimg)
         img = Image.open(ifile)
         extrema = img.getextrema()
@@ -180,6 +180,11 @@ class ImageTest (lib.GTest):
     def testExport (self):
         """ Test exporting the image to ometiff """
         self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # if we pass a bufsize we should get a generator back
+        size, gen = self.image.exportOmeTiff(bufsize=16)
+        self.assert_(hasattr(gen, 'next'))
+        self.assertEqual(len(gen.next()), 16)
+        del gen
         # Now try the same using a different user, admin first
         self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')

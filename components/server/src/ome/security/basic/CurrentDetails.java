@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -44,6 +45,7 @@ import ome.services.sharing.ShareStore;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
 
 /**
@@ -66,6 +68,8 @@ public class CurrentDetails implements PrincipalHolder {
 
     private final SessionCache cache;
 
+    private final Roles roles;
+
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
     /**
@@ -81,10 +85,17 @@ public class CurrentDetails implements PrincipalHolder {
      */
     public CurrentDetails() {
         this.cache = null;
+        this.roles = new Roles();
     }
-    
+
     public CurrentDetails(SessionCache cache) {
         this.cache = cache;
+        this.roles = new Roles();
+    }
+
+    public CurrentDetails(SessionCache cache, Roles roles) {
+        this.cache = cache;
+        this.roles = roles;
     }
 
     private LinkedList<BasicEventContext> list() {
@@ -180,14 +191,23 @@ public class CurrentDetails implements PrincipalHolder {
         return false;
     }
 
-    /**
-     * @see SecuritySystem#isGraphCritical()
-     * @return
-     */
-    public boolean isGraphCritical() {
+    public boolean isGraphCritical(Details details) {
         EventContext ec = getCurrentEventContext();
         long gid = ec.getCurrentGroupId();
         Permissions perms = ec.getCurrentGroupPermissions();
+        if (gid < 0) {
+            try {
+                ExperimenterGroup g = details.getGroup();
+                gid  = g.getId();
+                perms = g.getDetails().getPermissions();
+            } catch (NullPointerException npe) {
+                throw new SecurityViolation("isGraphCriticalCheck: not enough context");
+            }
+            if (gid == roles.getUserGroupId()) {
+                throw new SecurityViolation(
+                    "isGraphCriticalCheck: Current group < 0 while accessing 'user' group!");
+            }
+        }
 
         boolean admin = ec.isCurrentUserAdmin();
         boolean pi = ec.getLeaderOfGroupsList().contains(gid);
@@ -325,7 +345,7 @@ public class CurrentDetails implements PrincipalHolder {
         l.setEntityId(id);
         l.setEvent(c.getEvent());
         Details d = Details.create();
-        d.setPermissions(new Permissions());
+        d.setPermissions(Permissions.WORLD_IMMUTABLE);
         l.getDetails().copy(d);
         list.add(l);
     }
@@ -361,9 +381,7 @@ public class CurrentDetails implements PrincipalHolder {
         d.setGroup(c.getGroup());
         // ticket:1434
         final Permissions groupPerms = c.getCurrentGroupPermissions();
-        final Permissions userUmask = c.getCurrentUmask();
         final Permissions p = new Permissions(groupPerms);
-        p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
     }
@@ -374,9 +392,8 @@ public class CurrentDetails implements PrincipalHolder {
         if (changePerms) {
             // Make the permissions match (#8277)
             final Permissions groupPerms = c.getCurrentGroupPermissions();
-            Permissions copy = new Permissions(Permissions.EMPTY);
             if (groupPerms != Permissions.DUMMY) {
-                copy = new Permissions(groupPerms);
+                details.setPermissions(new Permissions(groupPerms));
             } else {
                 // In the case of the dummy, we will be required to have
                 // the group id already set in the context.
@@ -386,15 +403,26 @@ public class CurrentDetails implements PrincipalHolder {
                     Long gid = details.getGroup().getId();
                     Permissions p = c.getPermissionsForGroup(gid);
                     if (p != null) {
-                        copy = p;
+                        // Ticket:9505. This must be a new copy of the permissions
+                        // in order to prevent the restrictions being modified by
+                        // later objects!
+                        details.setPermissions(new Permissions(p));
+                    } else if (gid.equals(Long.valueOf(roles.getUserGroupId()))) {
+                        details.setPermissions(new Permissions(Permissions.EMPTY));
+                    } else {
+                        throw new InternalException("No permissions: " + details);
                     }
                 }
             }
-            details.setPermissions(copy);
         }
 
     }
 
+    /**
+     * Checks the "groupPermissions" map in {@link BasicEventContext} which has
+     * been filled up by calls to {@link BasicEventContext#setPermissionsForGroup(Long, Permissions)}
+     * during {@link BasicACLVoter#allowLoad(org.hibernate.Session, Class, Details, long)}.
+     */
     public void loadPermissions(org.hibernate.Session session) {
         current().loadPermissions(session);
     }

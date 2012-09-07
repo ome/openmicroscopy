@@ -281,7 +281,10 @@ $.fn.roi_display = function(options) {
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
                     shape = shapes[s];
-                    if ((shape['theT'] == this.theT-1) && (shape['theZ'] == this.theZ-1)) {
+                    if (((shape.theT == this.theT-1)
+                         || typeof shape.theT === "undefined")
+                        && ((shape.theZ == this.theZ-1)
+                            || typeof shape.theZ === "undefined")) {
                         var newShape = draw_shape(shape);
                         var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
@@ -342,9 +345,16 @@ $.fn.roi_display = function(options) {
                             }
                             if (shape['type'] != 'Label') {
                                 // these shape attributes are not applied to text
-                                if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                                if (shape['fillColor'] && shape['type'] != 'PolyLine') {
+                                    // don't show fills on PolyLines
+                                    newShape.attr({'fill': shape['fillColor']});
+                                    if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
+                                }
+                                else {
+                                    // need *some* fill so that shape is clickable
+                                    newShape.attr({'fill':'#000', 'fill-opacity': 0.01 });
+                                }
                                 if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
-                                if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
                                 if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
                                 else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             }
