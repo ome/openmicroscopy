@@ -696,6 +696,7 @@ class Connector
 			if (entryUnencrypted != null)
 				entryUnencrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
+		if (importStore != null) importStore.ping();
 	}
 
 	/**
