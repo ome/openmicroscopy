@@ -40,17 +40,9 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import Ice.CommunicatorDestroyedException;
-import Ice.ConnectionLostException;
-import Ice.ConnectionRefusedException;
-import Ice.ConnectionTimeoutException;
-import Ice.ObjectNotExistException;
-import Ice.TimeoutException;
-
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import ome.conditions.SessionTimeoutException;
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
 import omero.model.Pixels;
@@ -181,33 +173,6 @@ class RenderingControlProxy
     	if (isChannelGreen(channel)) return GREEN_INDEX;
     	return NON_PRIMARY_INDEX;
     }
-    
-    /**
-     * Returns <code>true</code> if the active channels are mapped
-     * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
-     * <code>false</code> otherwise or if the number of active channels is 0
-     * or greater than 3.
-     * 
-     * @param channels The collection of channels to handle.
-     * @return See above.
-     */
-    private boolean isImageRGB(List channels)
-    {
-    	if (channels == null) return false;
-    	int n = channels.size();
-    	if (n == 0 || n > 3) return false;
-    	List<Boolean> rgb = new ArrayList<Boolean>();
-    	int index;
-    	Iterator i;
-    	i = channels.iterator();
-		while (i.hasNext()) {
-			index = (Integer) i.next();
-			if (colourIndex(index).intValue() != NON_PRIMARY_INDEX.intValue()) 
-				rgb.add(true);
-		}
-		return (n == rgb.size());
-    }
-    
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
