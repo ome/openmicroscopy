@@ -29,16 +29,9 @@
     <import file="${up-two}/common.xml"/>
     <import file="${up-two}/python.xml"/>
 
-    <target name="_test">
-        <exec dir="${basedir}/omeroweb" executable="python" failonerror="fals">
-           <env key="PYTHONPATH" value="${dist.dir}/lib/python"/>
-           <arg line="manage.py test"/>
-        </exec>
-    </target>
+    <target name="test" depends="python-test" unless="env.NOPYTHON"/>
 
-    <target name="test" depends="_test"/>
-
-    <target name="integration" depends="_test"/>
+    <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init">
         <if><not><available file="${basedir}/../target/lib/python/django"/></not>

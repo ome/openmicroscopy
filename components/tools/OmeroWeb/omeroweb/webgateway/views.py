@@ -11,6 +11,8 @@
 #
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
+import re
+
 import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
@@ -21,7 +23,8 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
-from omero.rtypes import rlong
+from omero.rtypes import rlong, unwrap
+from marshal import imageMarshal, shapeMarshal
 
 try:
     from hashlib import md5
@@ -1150,132 +1153,6 @@ def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
     rsp = HttpResponse(gif_data, mimetype='image/gif')
     return rsp
  
-def channelMarshal (channel):
-    """
-    return a dict with all there is to know about a channel
-    
-    @param channel:     L{omero.gateway.ChannelWrapper}
-    @return:            Dict
-    """
-    
-    return {'emissionWave': channel.getEmissionWave(),
-            'label': channel.getLabel(),
-            'color': channel.getColor().getHtml(),
-            'window': {'min': channel.getWindowMin(),
-                       'max': channel.getWindowMax(),
-                       'start': channel.getWindowStart(),
-                       'end': channel.getWindowEnd(),},
-            'active': channel.isActive()}
-
-def imageMarshal (image, key=None):
-    """ 
-    return a dict with pretty much everything we know and care about an image,
-    all wrapped in a pretty structure.
-    
-    @param image:   L{omero.gateway.ImageWrapper}
-    @param key:     key of specific attributes to select 
-    @return:        Dict 
-    """
-    
-    image.loadRenderOptions()
-    pr = image.getProject()
-    ds = None
-    try:
-        # Replicating the functionality of the deprecated
-        # ImageWrapper.getDataset() with shares in mind.
-        # -- Tue Sep  6 10:48:47 BST 2011 (See #6660)
-        parents = image.listParents()
-        if parents is not None and len(parents) == 1 \
-           and parents[0].OMERO_CLASS == 'Dataset':
-            ds = parents[0]
-    except omero.SecurityViolation, e:
-        # We're in a share so the Image's parent Dataset cannot be loaded
-        # or some other permissions related issue has tripped us up.
-        logger.warn('Security violation while retrieving Dataset when ' \
-                    'marshaling image metadata: %s' % e.message)
-
-    rv = {
-            'id': image.id,
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
-            }
-    try:
-        reOK = image._prepareRenderingEngine()
-        if not reOK:
-            logger.debug("Failed to prepare Rendering Engine for imageMarshal")
-            return rv
-    except omero.ConcurrencyException, ce:
-        backOff = ce.backOff
-        rv = {
-            'ConcurrencyException': {
-                'backOff': backOff
-            }
-        }
-        return rv
-        
-    #big images
-    tiles = image._re.requiresPixelsPyramid()
-    width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()
-    init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
-    if init_zoom < 0:
-        init_zoom = levels + init_zoom
-
-    try:
-        rv.update({
-            'tiles': tiles,
-            'tile_size': {'width': width,
-                          'height': height},
-            'init_zoom': init_zoom,
-            'levels': levels,
-            'size': {'width': image.getSizeX(),
-                     'height': image.getSizeY(),
-                     'z': image.getSizeZ(),
-                     't': image.getSizeT(),
-                     'c': image.getSizeC(),},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ(),},
-            })
-        try:
-            rv['pixel_range'] = image.getPixelRange()
-            rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
-            rv['split_channel'] = image.splitChannelDims()
-            rv['rdefs'] = {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
-                           'projection': image.getProjection(),
-                           'defaultZ': image._re.getDefaultZ(),
-                           'defaultT': image._re.getDefaultT(),
-                           'invertAxis': image.isInvertedAxis()}
-        except TypeError:
-            # Will happen if an image has bad or missing pixel data
-            logger.error('imageMarshal', exc_info=True)
-            rv['pixel_range'] = (0, 0)
-            rv['channels'] = ()
-            rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color',
-                           'projection': image.getProjection(),
-                           'defaultZ': 0,
-                           'defaultT': 0,
-                           'invertAxis': image.isInvertedAxis()}
-    except AttributeError:
-        rv = None
-        raise
-    if key is not None and rv is not None:
-        for k in key.split('.'):
-            rv = rv.get(k, {})
-        if rv == {}:
-            rv = None
-    return rv
-
 @login_required()
 @jsonp
 def imageData_json (request, conn=None, _internal=False, **kwargs):
@@ -1760,35 +1637,28 @@ def full_viewer (request, iid, conn=None, **kwargs):
         raise Http404
     return HttpResponse(rsp)
 
+
+@login_required()
+def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
+    roiId = int(roiId)
+    shapeId = int(shapeId)
+    shape = conn.getQueryService().findByQuery(
+            'select shape from Roi as roi ' \
+            'join roi.shapes as shape ' \
+            'where roi.id = %d and shape.id = %d' % (roiId, shapeId),
+            None)
+    logger.debug('Shape: %r' % shape)
+    if shape is None:
+        logger.debug('No such shape: %r' % shapeId)
+        raise Http404
+    return HttpResponse(simplejson.dumps(shapeMarshal(shape)),
+            mimetype='application/javascript')
+
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
     """
     Returns json data of the ROIs in the specified image. 
     """
-    def stringToSvg(string):
-        """
-        Method for converting the string returned from omero.model.ShapeI.getPoints()
-        into an SVG for display on web.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
-        To: M 309 427 L 366 503 L 190 491 z
-        """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
-        nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
-        return "M" + nums
-
-    def rgb_int2css(rgbint):
-        """
-        converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
-        """
-        alpha = rgbint // 256 // 256 // 256 % 256
-        alpha = float(alpha) / 256
-        r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
-        return "#%02x%02x%02x" % (r,g,b) , alpha
-            
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
@@ -1800,77 +1670,12 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         # go through all the shapes of the ROI
         shapes = []
         for s in r.copyShapes():
-            shape = {}
             if s is None:   # seems possible in some situations
                 continue
-            shape['id'] = s.getId().getValue()
-            shape['theT'] = s.getTheT().getValue()
-            shape['theZ'] = s.getTheZ().getValue()
-            if type(s) == omero.model.RectI:
-                shape['type'] = 'Rectangle'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-                shape['width'] = s.getWidth().getValue()
-                shape['height'] = s.getHeight().getValue()
-            elif type(s) == omero.model.MaskI:
-                shape['type'] = 'Mask'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-                shape['width'] = s.getWidth().getValue()
-                shape['height'] = s.getHeight().getValue()
-                # TODO: support for mask
-            elif type(s) == omero.model.EllipseI:
-                shape['type'] = 'Ellipse'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-                shape['rx'] = s.getRx().getValue()
-                shape['ry'] = s.getRy().getValue()
-            elif type(s) == omero.model.PolylineI:
-                shape['type'] = 'PolyLine'
-                shape['points'] = stringToSvg(s.getPoints().getValue())
-            elif type(s) == omero.model.LineI:
-                shape['type'] = 'Line'
-                shape['x1'] = s.getX1().getValue()
-                shape['x2'] = s.getX2().getValue()
-                shape['y1'] = s.getY1().getValue()
-                shape['y2'] = s.getY2().getValue()
-            elif type(s) == omero.model.PointI:
-                shape['type'] = 'Point'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-            elif type(s) == omero.model.PolygonI:
-                shape['type'] = 'Polygon'
-                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
-            elif type(s) == omero.model.LabelI:
-                shape['type'] = 'Label'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
-            else:
-                logger.debug("Shape type not supported: %s" % str(type(s)))
-            try:
-                if s.getTextValue() and s.getTextValue().getValue():
-                    shape['textValue'] = s.getTextValue().getValue()
-                    # only populate json with font styles if we have some text
-                    if s.getFontSize() and s.getFontSize().getValue():
-                        shape['fontSize'] = s.getFontSize().getValue()
-                    if s.getFontStyle() and s.getFontStyle().getValue():
-                        shape['fontStyle'] = s.getFontStyle().getValue()
-                    if s.getFontFamily() and s.getFontFamily().getValue():
-                        shape['fontFamily'] = s.getFontFamily().getValue()
-            except AttributeError: pass
-            if s.getTransform():
-                t = s.getTransform().getValue()
-                if t and t != 'none':
-                    shape['transform'] = t
-            if s.getFillColor() and s.getFillColor().getValue():
-                shape['fillColor'], shape['fillAlpha'] = rgb_int2css(s.getFillColor().getValue())
-            if s.getStrokeColor() and s.getStrokeColor().getValue():
-                shape['strokeColor'], shape['strokeAlpha'] = rgb_int2css(s.getStrokeColor().getValue())
-            if s.getStrokeWidth() and s.getStrokeWidth().getValue():
-                shape['strokeWidth'] = s.getStrokeWidth().getValue()
-            shapes.append(shape)
+            shapes.append(shapeMarshal(s))
         # sort shapes by Z, then T. 
-        shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
+        shapes.sort(key=lambda x:
+                "%03d%03d"% (x.get('theZ', -1), x.get('theT', -1)));
         roi['shapes'] = shapes
         rois.append(roi)
         
