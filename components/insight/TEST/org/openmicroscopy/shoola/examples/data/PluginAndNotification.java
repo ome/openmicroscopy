@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.examples.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -51,7 +52,8 @@ public class PluginAndNotification
 		
 		String home = "";
 		//Login in with splash screen
-		Container c = Container.startupInPluginMode(home, null, 1);
+		Container c = Container.startupInPluginMode(home, null,
+				LookupNames.KNIME);
 		//If we arrive here the user clicks on Login/Quit.
 		//Check if connected
 		Registry reg = c.getRegistry();
@@ -72,7 +74,11 @@ public class PluginAndNotification
 	public void eventFired(AgentEvent e) {
 		//we are now disconnected
 		if (e instanceof ConnectedEvent) {
-			System.err.println(e);
+			
+			//Exit in that case, do not do that when really used as a plugin.
+			//valid in the context of that demo.
+			ConnectedEvent evt = (ConnectedEvent) e;
+			if (!evt.isConnected()) System.exit(0);
 		}
 		
 	}
