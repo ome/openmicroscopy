@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env venv/bin/python
 # -*- coding: utf-8 -*-
 
 
@@ -9,6 +9,9 @@ import hashlib
 import httplib
 import urlparse
 import fileinput
+
+# For calculating tags
+import github
 
 
 def usage():
@@ -23,6 +26,16 @@ except:
 
 repl = {"@VERSION@": version,
         "@BUILD@": build}
+
+
+gh = github.Github()
+org = gh.get_organization("openmicroscopy")
+repo = org.get_repo("openmicroscopy")
+for tag in repo.get_tags():
+    if tag.name == ("v.%s" % version):
+        break
+repl["@SHA1_FULL@"] = tag.commit.sha
+repl["@SHA1_SHORT@"] = tag.commit.sha[0:10]
 
 
 def get_server_status_code(url):

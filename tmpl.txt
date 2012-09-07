@@ -92,7 +92,7 @@ This release includes:
  - OMERO.insight-ij
  - OMERO.matlab
 
-The git release tag for this version is `v.@VERSION@` (sha1: [63c11deca5](https://github.com/openmicroscopy/openmicroscopy/commit/63c11deca5c647e03808e7d3bc4034bfa9d0ef0f)) and the checksums for each download are indicated in the table below.
+The git release tag for this version is `v.@VERSION@` (sha1: [@SHA1_SHORT@](https://github.com/openmicroscopy/openmicroscopy/commit/@SHA1_FULL@)) and the checksums for each download are indicated in the table below.
 
 <div class="alt-table">
 <table>
