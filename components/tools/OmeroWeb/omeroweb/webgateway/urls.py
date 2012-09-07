@@ -208,6 +208,13 @@ gets all the ROIs for an Image as json. Image-ID is request: imageId=123
 [{'id':123, 'shapes':[{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10 'height':45} ]
 """
 
+get_shape_json = url( r'^get_shape_json/(?P<roiId>[0-9]+)/(?P<shapeId>[0-9]+)$', 'webgateway.views.get_shape_json', name='webgateway_get_shape_json' )
+"""
+gets a Shape as json. ROI-ID, Shape-ID is request: roiId=123 and shapeId=123
+{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10,
+'height':45}
+"""
+
 full_viewer = url(r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer", name="webgateway_full_viewer")
 """
 Returns html page displaying full image viewer and image details, rendering settings etc. 
@@ -281,6 +288,7 @@ urlpatterns = patterns('',
     wellData_json,
     webgateway_search_json,
     get_rois_json,
+    get_shape_json,
     # image viewer
     full_viewer,
     # rendering def methods

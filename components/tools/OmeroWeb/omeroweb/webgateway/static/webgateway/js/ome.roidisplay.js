@@ -281,7 +281,10 @@ $.fn.roi_display = function(options) {
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
                     shape = shapes[s];
-                    if ((shape['theT'] == this.theT-1) && (shape['theZ'] == this.theZ-1)) {
+                    if (((shape.theT == this.theT-1)
+                         || typeof shape.theT === "undefined")
+                        && ((shape.theZ == this.theZ-1)
+                            || typeof shape.theZ === "undefined")) {
                         var newShape = draw_shape(shape);
                         var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
