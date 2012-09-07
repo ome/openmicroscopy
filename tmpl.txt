@@ -16,7 +16,7 @@
 
  * For the OMERO ImageJ plugin to work, uncompress the download and put the entire folder under the ImageJ/Fiji plugins folder. If you are using ImageJ, you must also have [loci_tools.jar](http://loci.wisc.edu/software/loci_tools.jar) already installed in the `ImageJ/plugins` folder, see [ImageJ](http://rsbweb.nih.gov/ij). Watch the  <a href="http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-4/mov/ImageJ-4.4.mov">ImageJ Plugin Movie</a> for more details. (Note: if you are testing [ImageJ2](http://developer.imagej.net/) then you should NOT add loci_tools.jar) 
 
- * For the OMERO Matlab plugin to work, follow the instructions indicated [here](http://trac.openmicroscopy.org.uk/ome/wiki/OmeroMatlab).
+ * For the OMERO Matlab plugin to work, follow the instructions indicated [here](@DOC_URL@/developers/Matlab).
 
 <div class="alt-table">
 <table>
@@ -50,7 +50,7 @@
 
  * After downloading the server, you may want to take a look at the installation guide for [Unix based platforms](@DOC_URL@/sysadmins/unix/server-installation.html), [Microsoft Windows](@DOC_URL@/sysadmins/windows/server-installation.html) or using the [Virtual Appliance](@DOC_URL@/users/virtual-appliance.html) .
 
- * If you want to upgrade your server, follow the upgrade [instructions](@DOC_URL@/users/virtual-appliance.html).
+ * If you want to upgrade your server, follow the upgrade [instructions](@DOC_URL@/sysadmins/server-upgrade.html).
 
 <div class="alt-table">
 <table>
@@ -79,11 +79,11 @@
 <p>&nbsp;</p>
 
 
-## Release Notes for OMERO @VERSION@ (August 2012) ##
+## Release Notes for OMERO @VERSION@ (@MONTH@ @YEAR@) ##
 
 Full details of features and what is new can be found in the [announcement](REPLACE WITH THE URL OF ANNOUNCEMENT).
 
-Full milestone release notes can be found on the [OMERO Trac site](http://trac.openmicroscopy.org.uk/omero/milestone/OMERO-@VERSION@)
+Full milestone release notes can be found on the [OMERO Trac site](http://trac.openmicroscopy.org.uk/ome/milestone/OMERO-@VERSION@)
 
 This release includes:
 
