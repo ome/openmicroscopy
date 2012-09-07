@@ -706,13 +706,6 @@ public class ScriptingDialog
 		layout.setColumn(columns);
 		p.setLayout(layout);
 		int row = 0;
-		JLabel warning = new JLabel(WARNING);
-		Font font = warning.getFont();
-		warning.setFont(font.deriveFont(font.getStyle(), font.getSize()+2));
-		warning.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-		layout.insertRow(row, TableLayout.PREFERRED);
-		p.add(warning, "0,"+row+", 2, "+row);
-		row++;
 		JComponent area = buildDescriptionPane();
 		JComponent authorsPane = buildScriptDetails();
 		if (area != null) {
@@ -747,7 +740,7 @@ public class ScriptingDialog
 		}
 		if (required > 0) {
 			JLabel label = new JLabel(TEXT_END);
-			font = label.getFont();
+			Font font = label.getFont();
 			label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			layout.insertRow(row, TableLayout.PREFERRED);
