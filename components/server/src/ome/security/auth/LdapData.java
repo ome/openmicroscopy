@@ -24,6 +24,7 @@ import java.util.List;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 
 import ome.conditions.ApiUsageException;
@@ -389,6 +390,24 @@ public class LdapData
     //
     // Helpers
     //
+
+    /**
+     * Perform modifications on an LDAP entity.
+     *
+     * @param string Not null.
+     * @param mods Not null with no null items.
+     */
+    public void modifyAttributes(String string, ModificationItem[] mods)
+    {
+        debug("modifyAttributes(%s)", string);
+        try {
+            ldap.modifyAttributes(string, mods);
+            debug("modifyAttributes: OK");
+        } catch (RuntimeException rt) {
+            debug("modifyAttributes: Exception", rt);
+            throw rt;
+        }
+    }
 
     /**
      * Lookup the {@link AbstractContextMapper#LDAP_DN} field from
