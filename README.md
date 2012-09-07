@@ -1,0 +1,1 @@
+These scripts are used to generate the content at https://www.openmicroscopy.org/site/products/omero4/downloads
