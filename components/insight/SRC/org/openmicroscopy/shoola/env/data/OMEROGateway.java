@@ -899,10 +899,8 @@ class OMEROGateway
 	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
-	 * Methods in this class are required to fill in a meaningful context
-	 * message.
-	 * This method is not supposed to be used in this class' constructor or in
-	 * the login/logout methods.
+	 * Depending on the specified exception, the user will be asked to
+	 * reconnect or to exit the application.
 	 *  
 	 * @param e The exception to handle.
 	 * @return <code>true</code> to continue handling the error,
