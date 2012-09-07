@@ -155,9 +155,6 @@ class RenderingControlProxy
     /** The security context associated to that control.*/
     private SecurityContext ctx;
     
-	/** Utility class used to handle connection exceptions.*/
-	private ConnectionExceptionHandler exceptionHandler;
-	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -187,7 +184,8 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	int index = exceptionHandler.handleConnectionException(e);
+    	ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
+    	int index = handler.handleConnectionException(e);
 		if (index >= 0) {
 			context.getTaskBar().sessionExpired(index);
 		} else {
@@ -754,7 +752,6 @@ class RenderingControlProxy
             throw new NullPointerException("No registry.");
         if (ctx == null)
             throw new NullPointerException("No security context.");
-        exceptionHandler = new ConnectionExceptionHandler();
         this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;

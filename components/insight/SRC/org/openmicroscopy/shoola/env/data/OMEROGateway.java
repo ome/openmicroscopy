@@ -405,10 +405,7 @@ class OMEROGateway
 	
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
-	
-	/** Utility class used to handle connection exceptions.*/
-	private ConnectionExceptionHandler exceptionHandler;
-	
+
 	/** 
 	 * Checks if the session is still alive.
 	 * 
@@ -900,7 +897,8 @@ class OMEROGateway
 	boolean handleConnectionException(Throwable e)
 	{
 		if (!connected) return false;
-		int index = exceptionHandler.handleConnectionException(e);
+		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
+		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
 		connected = false;
 		dsFactory.sessionExpiredExit(index, e.getCause());
@@ -2221,7 +2219,6 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
-		exceptionHandler = new ConnectionExceptionHandler();
 	}
 	
 	/**
