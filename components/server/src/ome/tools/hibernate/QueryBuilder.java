@@ -328,7 +328,9 @@ public class QueryBuilder {
         try {
             q = session.createQuery(queryString());
         } catch (RuntimeException rt) {
-            log.warn("Failed query: " + queryString());
+            // We're logging failed queries because the almost always point
+            // to an internal exception that shouldn't be happening.
+            log.warn("Failed query: " + queryString(), rt);
             throw rt;
         }
 
