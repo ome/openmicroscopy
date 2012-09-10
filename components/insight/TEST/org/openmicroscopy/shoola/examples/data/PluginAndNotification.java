@@ -66,7 +66,6 @@ public class PluginAndNotification
 			exit();
 			return;
 		}
-		System.err.println(c);
 		//If we arrive here the user clicks on Login/Quit.
 		//Check if connected
 		Registry reg = c.getRegistry();

@@ -385,7 +385,6 @@ public final class Container
 		if (value <= 0) System.exit(0);
 		else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
-			System.err.println("container exit");
 			singleton = null;
 		}
 	}
