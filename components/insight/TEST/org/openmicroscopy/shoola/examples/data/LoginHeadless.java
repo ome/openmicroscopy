@@ -189,10 +189,16 @@ implements AgentEventListener
 	{
 		boolean ui = false;
 		if (args != null && args.length > 0) {
-			String v = args[0];
-			if (v != null) {
-				v = v.trim().toLowerCase();
-				ui = (v.equals("true") || v.equals("t"));
+			String v;
+			for (int i = 0; i < args.length; i++) {
+				v = args[i];
+				if (v != null) {
+					v = v.trim().toLowerCase();
+					if (v.equals("true") || v.equals("t")) {
+						ui = true;
+						break;
+					}
+				}
 			}
 		}
 		
