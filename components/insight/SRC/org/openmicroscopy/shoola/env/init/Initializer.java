@@ -182,13 +182,21 @@ public class Initializer
      * Calls the <code>onEnd</code> method of each subscriber in the
      * notification set.
      */
-    private void notifyEnd()
+    public void notifyEnd()
     {
         Iterator<InitializationListener> i = initListeners.iterator();
         while (i.hasNext())
             i.next().onEnd();
+
+		//Allow for referenced objects to be garbage collected (see below).
+		currentTask = null;
+		processingQueue = null;
+		initListeners = null;
+		//Now control goes into container object, so this object won't be
+		//garbage collected until startService() returns, which may be on exit.
+		container.startService();
     }
-    
+
     /**
      * Only for the benefit of subclasses that want to modify the
      * {@link #initList}.
@@ -269,6 +277,7 @@ public class Initializer
 			doneTasks.push(currentTask);  //For later rollback if needed.
 		}
 		
+		/*
 		//Tell all listeners that we're finished.
 		notifyEnd();
 		
@@ -276,10 +285,10 @@ public class Initializer
 		currentTask = null;
 		processingQueue = null;
 		initListeners = null;
-		
 		//Now control goes into container object, so this object won't be
 		//garbage collected until startService() returns, which may be on exit.
 		container.startService();
+		*/
 	}
 	
 	/**

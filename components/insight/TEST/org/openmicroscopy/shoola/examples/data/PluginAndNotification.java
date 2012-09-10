@@ -47,23 +47,34 @@ public class PluginAndNotification
 	implements AgentEventListener
 {
 
+	/** Exits, do what is required in that method.*/
+	private void exit()
+	{
+		System.err.println("Exit");
+		System.exit(0);
+	}
+	
 	PluginAndNotification()
 	{
 		
 		String home = "";
 		//Login in with splash screen
-		Container c = Container.startupInPluginMode(home, null,
-				LookupNames.KNIME);
+		Container c = null;
+		try {
+			c = Container.startupInPluginMode(home, null, LookupNames.KNIME);
+		} catch (Exception e) {
+			exit();
+			return;
+		}
+		System.err.println(c);
 		//If we arrive here the user clicks on Login/Quit.
 		//Check if connected
 		Registry reg = c.getRegistry();
+		reg.getEventBus().register(this, ConnectedEvent.class);
 		if (!reg.getAdminService().isConnected()) {
 			System.err.println("not connected");
 			return;
 		}
-		//Register to connected event to know when we log off.
-		reg.getEventBus().register(this, ConnectedEvent.class);
-		
 	}
 	
 	public static void main(String[] args)
@@ -78,7 +89,7 @@ public class PluginAndNotification
 			//Exit in that case, do not do that when really used as a plugin.
 			//valid in the context of that demo.
 			ConnectedEvent evt = (ConnectedEvent) e;
-			if (!evt.isConnected()) System.exit(0);
+			if (!evt.isConnected()) exit();
 		}
 		
 	}

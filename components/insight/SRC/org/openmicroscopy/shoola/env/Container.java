@@ -125,6 +125,7 @@ public final class Container
 			initManager = new Initializer(singleton);
 			initManager.configure();
 			initManager.doInit();
+			initManager.notifyEnd();
 			
 			//startService() called by Initializer at end of doInit().
 		} catch (StartupException se) {
@@ -190,8 +191,7 @@ public final class Container
 	
 	/** All managed agents. */
 	private Set<Agent>	agentsPool;
-	
-	
+
 	/** 
 	 * Initializes the member fields. 
 	 * <p>The absolute path to the installation directory is obtained from
@@ -384,9 +384,8 @@ public final class Container
 		if (v != null) value = v.intValue();
 		if (value <= 0) System.exit(0);
 		else {
-			//Post an event
-			singleton.getRegistry().getEventBus().post(
-					new ConnectedEvent(false));
+			getRegistry().getEventBus().post(new ConnectedEvent(false));
+			System.err.println("container exit");
 			singleton = null;
 		}
 	}
@@ -412,7 +411,7 @@ public final class Container
      * @return A reference to the newly created singleton Container.
      */
     public static Container startupInPluginMode(String home, String configFile,
-    		int plugin)
+    		final int plugin)
     {
         if (Container.getInstance() != null) {
         	//reconnect.
@@ -439,10 +438,16 @@ public final class Container
         try {
             singleton = new Container(home, configFile);
             singleton.registry.bind(LookupNames.PLUGIN, plugin);
+			
             initManager = new Initializer(singleton);
             initManager.configure();
             initManager.doInit();
-            //startService() called by Initializer at end of doInit().
+            if (singleton == null) { //Quit during the initialization.
+            	throw new RuntimeException(
+                        "Plugin shuts down during initialization.");
+            }
+            initManager.notifyEnd();//wait to collect credentials
+            
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
             singleton = null;
@@ -451,7 +456,7 @@ public final class Container
         }
         return singleton;
     }
-    
+
     /**
      * Entry point to launch the container and bring up the whole client
      * in the same thread as the caller's.
@@ -489,6 +494,7 @@ public final class Container
             initManager = new Initializer(singleton, true);
             initManager.configure();
             initManager.doInit();
+            initManager.notifyEnd();
             //startService() called by Initializer at end of doInit().
             //Listen to the activate agents event
             singleton.registry.getEventBus().register(new AgentEventListener() {
@@ -564,6 +570,7 @@ public final class Container
             initManager = new Initializer(singleton);
             initManager.configure();
             initManager.doInit();
+            initManager.notifyEnd();
             //startService() called by Initializer at end of doInit().
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
