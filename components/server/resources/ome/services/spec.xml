@@ -142,7 +142,7 @@
                 <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
