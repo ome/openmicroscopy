@@ -123,6 +123,11 @@ public class InputDialog
 		textValue.setCaretPosition(originalText.length());
 		textValue.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		textValue.getDocument().addDocumentListener(this);
+		textValue.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+			}
+		});
+		
 		getRootPane().setDefaultButton(save);
 	}
 	
