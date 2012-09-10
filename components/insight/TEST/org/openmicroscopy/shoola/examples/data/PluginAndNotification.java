@@ -61,7 +61,7 @@ public class PluginAndNotification
 		//Login in with splash screen
 		Container c = null;
 		try {
-			c = Container.startupInPluginMode(home, null, LookupNames.KNIME);
+			c = Container.startupInPluginMode(home, null, LookupNames.KNIME, this);
 		} catch (Exception e) {
 			exit();
 			return;
@@ -70,7 +70,6 @@ public class PluginAndNotification
 		//If we arrive here the user clicks on Login/Quit.
 		//Check if connected
 		Registry reg = c.getRegistry();
-		reg.getEventBus().register(this, ConnectedEvent.class);
 		if (!reg.getAdminService().isConnected()) {
 			System.err.println("not connected");
 			return;

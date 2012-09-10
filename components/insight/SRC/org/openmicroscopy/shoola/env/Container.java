@@ -411,7 +411,33 @@ public final class Container
      * @return A reference to the newly created singleton Container.
      */
     public static Container startupInPluginMode(String home, String configFile,
-    		final int plugin)
+    		int plugin)
+    {
+    	return startupInPluginMode(home, configFile, plugin, null);
+    }
+    
+	/**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * 
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @param plugin Pass positive value. See {@link LookupNames} for supported
+     * plug-in. Those plug-in will have an UI entry.
+     * @param listener Listens to <code>ConnectedEvent</code>.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInPluginMode(String home, String configFile,
+    		int plugin, AgentEventListener listener)
     {
         if (Container.getInstance() != null) {
         	//reconnect.
@@ -446,6 +472,9 @@ public final class Container
             	throw new RuntimeException(
                         "Plugin shuts down during initialization.");
             }
+            if (listener != null)
+            	singleton.registry.getEventBus().register(listener,
+            			ConnectedEvent.class);
             initManager.notifyEnd();//wait to collect credentials
             
         } catch (StartupException se) {
