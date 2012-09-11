@@ -93,7 +93,7 @@
             }
             
             // when the jstree removes objects from the tree, handle each object...
-            $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
+            $("#dataTree").bind("delete_node.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
             
             var datatree = $.jstree._focused();
             
