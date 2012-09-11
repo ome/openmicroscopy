@@ -66,7 +66,7 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
 
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector

@@ -117,7 +117,7 @@ class AdminTests (WebAdminTestBase):
         finally:
             c.__del__()
         
-        from omeroweb.webadmin.custom_models import Server
+        from omeroweb.connector import Server
         server_id = Server.find(server_host=omero_host).id
         self.login('root', root_password, server_id)
 

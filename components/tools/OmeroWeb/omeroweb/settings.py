@@ -507,7 +507,7 @@ EMAIL_TEMPLATES = {
 }
 
 # Load server list and freeze 
-from webadmin.custom_models import Server
+from connector import Server
 def load_server_list():
     for s in SERVER_LIST:
         server = (len(s) > 2) and unicode(s[2]) or None

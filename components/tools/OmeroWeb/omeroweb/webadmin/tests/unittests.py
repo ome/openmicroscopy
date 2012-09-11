@@ -27,7 +27,6 @@ import omero
 from django.conf import settings
 from request_factory import fakeRequest
 
-from omeroweb.connector import Connector
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
 from webadmin.webadmin_utils import toBoolean
@@ -36,7 +35,7 @@ from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
 
 from webadmin_test_library import WebTest, WebAdminClientTest
 
-from webadmin.custom_models import Server
+from connector import Server, Connector
 from webadmin.views import getActualPermissions, setActualPermissions, \
                         otherGroupsInitialList, prepare_experimenter, \
                         getSelectedExperimenters, getSelectedGroups, \

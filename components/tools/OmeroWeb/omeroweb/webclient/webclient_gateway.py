@@ -67,7 +67,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 try:
     PAGE = settings.PAGE
