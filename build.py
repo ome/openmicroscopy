@@ -18,13 +18,11 @@ BUILD_PY = "-Dbuild.py=true"
 
 def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         copy = os.environ.copy()
-        shell = (sys.platform == "win32")
         return subprocess.Popen(args,
                 env=copy,
                 stdin=stdin,
                 stdout=stdout,
-                stderr=stderr,
-                shell=shell)
+                stderr=stderr)
 
 
 def execute(args):
@@ -40,7 +38,7 @@ def notification(msg, prio):
     """
 
     # May want to revert this to be OMERO_BUILD_NOTIFICATION, or whatever.
-    if "OMERO_QUIET" in os.environ:
+    if "OMERO_QUIET" in os.environ or sys.platform == "win32":
         return
 
     try:
