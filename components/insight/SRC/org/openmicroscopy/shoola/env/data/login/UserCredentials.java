@@ -20,21 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.login;
 
+//Java imports
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.GroupData;
-
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.GroupData;
 
 /** 
  * Holds the user's credentials for logging onto <i>OMERO</i>.
@@ -141,12 +138,6 @@ public class UserCredentials
     public UserCredentials(String userName, String password, String hostName,
     		int speedLevel)
     {
-    	/*
-        if (userName == null || userName.length() == 0)
-            throw new IllegalArgumentException("Please specify a user name.");
-        if (password == null || password.length() == 0)
-            throw new IllegalArgumentException("Please specify a password.");
-            */
     	checkSpeedLevel(speedLevel);
     	this.speedLevel = speedLevel;
         this.userName = userName;

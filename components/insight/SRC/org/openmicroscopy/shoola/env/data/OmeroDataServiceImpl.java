@@ -260,7 +260,7 @@ class OmeroDataServiceImpl
 		if (nodeType == null)
 			throw new IllegalArgumentException("No type specified.");
 		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(userID));
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		return gateway.getContainerImages(ctx, nodeType, nodeIDs, po);
 	}
 

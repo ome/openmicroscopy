@@ -448,16 +448,32 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
+        JMenu viewMenu;
         switch (TreeViewerAgent.runAsPlugin()) {
 			case TreeViewer.IMAGE_J:
 				a = controller.getAction(TreeViewerControl.VIEW);
 		        item = new JMenuItem(a);
 		        item.setText(a.getActionName());
-				JMenu viewMenu = new JMenu(TreeViewerWin.VIEW_MENU);
+				viewMenu = new JMenu(TreeViewerWin.VIEW_MENU);
 				viewMenu.setIcon(item.getIcon());
 				viewMenu.add(item);
 				menuItems.add(item);
 				a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+		        viewMenu.add(item);
+				menuItems.add(item);
+				menu.add(viewMenu);
+				break;
+			case TreeViewer.KNIME:
+				a = controller.getAction(TreeViewerControl.VIEW);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+				viewMenu = new JMenu(TreeViewerWin.VIEW_MENU);
+				viewMenu.setIcon(item.getIcon());
+				viewMenu.add(item);
+				menuItems.add(item);
+				a = controller.getAction(TreeViewerControl.VIEW_IN_KNIME);
 		        item = new JMenuItem(a);
 		        item.setText(a.getActionName());
 		        viewMenu.add(item);

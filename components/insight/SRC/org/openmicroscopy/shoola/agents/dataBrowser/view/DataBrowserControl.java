@@ -158,6 +158,9 @@ class DataBrowserControl
 	/** Identifies the <code>View in ImageJ action</code>.*/
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(17);
 	
+	/** Identifies the <code>View in KNIME action</code>.*/
+	static final Integer    VIEW_IN_KNIME = Integer.valueOf(18);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -176,6 +179,8 @@ class DataBrowserControl
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
+    	actionsMap.put(VIEW_IN_KNIME, new ViewInPluginAction(model, 
+    			DataBrowser.KNIME));
     	actionsMap.put(VIEW_IN_IJ, new ViewInPluginAction(model, 
     			DataBrowser.IMAGE_J));
     	actionsMap.put(VIEW, new ViewAction(model));

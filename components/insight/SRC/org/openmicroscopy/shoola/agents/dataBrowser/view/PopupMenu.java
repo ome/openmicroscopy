@@ -170,12 +170,22 @@ class PopupMenu
 	private void buildGUI() 
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		JMenu menu;
+		String text = "View";
 		switch (DataBrowserAgent.runAsPlugin()) {
 			case DataBrowser.IMAGE_J:
-				JMenu menu = new JMenu("View");
+				menu = new JMenu(text);
 				menu.setIcon(view.getIcon());
 				menu.add(view);
 				menu.add(controller.getAction(DataBrowserControl.VIEW_IN_IJ));
+				add(menu);
+				break;
+			case DataBrowser.KNIME:
+				menu = new JMenu(text);
+				menu.setIcon(view.getIcon());
+				menu.add(view);
+				menu.add(controller.getAction(
+						DataBrowserControl.VIEW_IN_KNIME));
 				add(menu);
 				break;
 			default:

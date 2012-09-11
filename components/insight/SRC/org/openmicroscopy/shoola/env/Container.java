@@ -36,8 +36,12 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -69,7 +73,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-
 public final class Container
 {
 
@@ -122,6 +125,8 @@ public final class Container
 			initManager = new Initializer(singleton);
 			initManager.configure();
 			initManager.doInit();
+			initManager.notifyEnd();
+			
 			//startService() called by Initializer at end of doInit().
 		} catch (StartupException se) {
 			if (initManager != null) initManager.rollback();
@@ -186,8 +191,7 @@ public final class Container
 	
 	/** All managed agents. */
 	private Set<Agent>	agentsPool;
-	
-	
+
 	/** 
 	 * Initializes the member fields. 
 	 * <p>The absolute path to the installation directory is obtained from
@@ -363,7 +367,6 @@ public final class Container
 		
 		//Agents activation phase.
 		activateAgents();
-		
 		//TODO: activate services (EventBus, what else?).
 			
 		//Get ready to interact with the user.
@@ -380,9 +383,12 @@ public final class Container
 		int value = -1;
 		if (v != null) value = v.intValue();
 		if (value <= 0) System.exit(0);
-		else singleton = null;
+		else {
+			getRegistry().getEventBus().post(new ConnectedEvent(false));
+			singleton = null;
+		}
 	}
-    
+	
     
 	/**
      * Entry point to launch the container and bring up the whole client
@@ -398,10 +404,39 @@ public final class Container
      * 
      * @param home  Path to the installation directory.  If <code>null<code> or
      *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @param plugin Pass positive value. See {@link LookupNames} for supported
+     * plug-in. Those plug-in will have an UI entry.
      * @return A reference to the newly created singleton Container.
      */
     public static Container startupInPluginMode(String home, String configFile,
     		int plugin)
+    {
+    	return startupInPluginMode(home, configFile, plugin, null);
+    }
+    
+	/**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * 
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @param plugin Pass positive value. See {@link LookupNames} for supported
+     * plug-in. Those plug-in will have an UI entry.
+     * @param listener Listens to <code>ConnectedEvent</code>.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInPluginMode(String home, String configFile,
+    		int plugin, AgentEventListener listener)
     {
         if (Container.getInstance() != null) {
         	//reconnect.
@@ -426,19 +461,105 @@ public final class Container
         //Initialize services as usual though.
         Initializer initManager = null;
         try {
-            singleton = new Container(home, CONFIG_FILE);
+            singleton = new Container(home, configFile);
             singleton.registry.bind(LookupNames.PLUGIN, plugin);
+			
             initManager = new Initializer(singleton);
             initManager.configure();
             initManager.doInit();
-            //startService() called by Initializer at end of doInit().
+            if (singleton == null) { //Quit during the initialization.
+            	throw new RuntimeException(
+                        "Plugin shuts down during initialization.");
+            }
+            if (listener != null)
+            	singleton.registry.getEventBus().register(listener,
+            			ConnectedEvent.class);
+            initManager.notifyEnd();//wait to collect credentials
+            
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
             singleton = null;
             throw new RuntimeException(
-                    "Failed to intialize the Container in test mode.", se);
+                    "Failed to intialize the Container in plugin mode.", se);
         }
         return singleton;
+    }
+
+    /**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * 
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @param plugin Pass positive value. See {@link LookupNames} for supported
+     * plug-in. Those plug-in will have an UI entry.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInHeadlessMode(String home,
+    		String configFile, int plugin)
+    {
+    	if (Container.getInstance() != null) {
+        	return Container.getInstance();
+        }
+        
+        //Initialize services as usual though.
+        Initializer initManager = null;
+        try {
+            singleton = new Container(home, configFile);
+            if (plugin >= 0)
+           		singleton.registry.bind(LookupNames.PLUGIN, plugin);
+            singleton.registry.bind(LookupNames.HEADLESS,
+            		Boolean.valueOf(true));
+            initManager = new Initializer(singleton, true);
+            initManager.configure();
+            initManager.doInit();
+            initManager.notifyEnd();
+            //startService() called by Initializer at end of doInit().
+            //Listen to the activate agents event
+            singleton.registry.getEventBus().register(new AgentEventListener() {
+				
+				public void eventFired(AgentEvent e) {
+					singleton.activateAgents();
+				}
+			}, ActivateAgents.class);
+        } catch (StartupException se) {
+            if (initManager != null) initManager.rollback();
+            singleton = null;
+            throw new RuntimeException(
+                    "Failed to intialize the Container in headless mode.", se);
+        }
+        return singleton;
+    }
+    /**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * 
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInHeadlessMode(String home, String configFile
+    		)
+    {
+        return startupInHeadlessMode(home, configFile, -1);
     }
     
 /* 
@@ -477,6 +598,7 @@ public final class Container
             initManager = new Initializer(singleton);
             initManager.configure();
             initManager.doInit();
+            initManager.notifyEnd();
             //startService() called by Initializer at end of doInit().
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
