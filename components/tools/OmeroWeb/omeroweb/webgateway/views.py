@@ -47,10 +47,6 @@ from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
 
 cache = CacheBase()
 
-connectors = {}
-CONNECTOR_POOL_SIZE = 70
-CONNECTOR_POOL_KEEP = 0.75 # keep only SIZE-SIZE*KEEP of the connectors if POOL_SIZE is reached
-
 import logging, os, traceback, time, zipfile, shutil
 
 from omeroweb.decorators import login_required
@@ -162,61 +158,6 @@ class UserProxy (object):
 #    def close (self, c):
 #        self._log('close',c)
 #_session_cb = SessionCB()
-
-def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, anonymous=False, useragent=None):
-    """
-    Attempts to create a L{omero.gateway.BlitzGateway} connection.
-    Tries to join an existing session for the specified user, using sUuid.
-    
-    @param server_id:   Way of referencing the server, used in connection dict keys. Int or String
-    @param sUuid:       Session ID - used for attempts to join sessions etc without password
-    @param username:    User name to log on with
-    @param passwd:      Password
-    @param host:        Host name
-    @param port:        Port number
-    @param retry:       Boolean
-    @param group:       String? TODO: parameter is ignored. 
-    @param try_super:   If True, try to log on as super user, 'system' group
-    @param secure:      If True, use an encrypted connection
-    @param anonymous:   Boolean
-    @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
-    @return:            The connection
-    @rtype:             L{omero.gateway.BlitzGateway}
-    """
-    try:
-        if anonymous:
-            username = settings.PUBLIC_USER
-            passwd = settings.PUBLIC_PASSWORD
-        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous, useragent=useragent)
-        blitzcon.connect(sUuid=sUuid)
-        blitzcon.server_id = server_id
-        blitzcon.user = UserProxy(blitzcon)
-        if blitzcon._anonymous and hasattr(blitzcon.c, 'onEventLogs'):
-            logger.debug('Connecting weblitz_cache to eventslog')
-            def eventlistener (e):
-                return webgateway_cache.eventListener(server_id, e)
-            blitzcon.c.onEventLogs(eventlistener)
-        return blitzcon
-    except:
-        logger.debug(traceback.format_exc())
-        if not retry:
-            return None
-        logger.error("Critical error during connect, retrying after _purge")
-        logger.debug(traceback.format_exc())
-        _purge(force=True)
-        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super, anonymous=anonymous, useragent=useragent)
-
-def _purge (force=False):
-    if force or len(connectors) > CONNECTOR_POOL_SIZE:
-        keys = connectors.keys()
-        for i in range(int(len(connectors)*CONNECTOR_POOL_KEEP)):
-            try:
-                c = connectors.pop(keys[i])
-                c.seppuku(softclose=True)
-            except:
-                logger.debug(traceback.format_exc())
-        logger.info('reached connector_pool_size (%d), size after purge: (%d)' %
-                    (CONNECTOR_POOL_SIZE, len(connectors)))
 
 def _split_channel_info (rchannels):
     """

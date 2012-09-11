@@ -19,11 +19,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import re
 import logging
 
 from django.utils.encoding import smart_unicode, force_unicode
 
 from omero import client_wrapper
+from omero_version import omero_version
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +122,8 @@ class Connector(object):
     and its status with respect to OMERO.web.
     """
 
+    SERVER_VERSION_RE = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
+
     def __init__(self, server_id, is_secure):
         self.server_id = server_id
         self.is_secure = is_secure
@@ -166,6 +170,19 @@ class Connector(object):
             logger.debug('Cannot create a new connection.', exc_info=True)
         return None
 
+    def create_guest_connection(self, useragent, is_public=False):
+        connection = None
+        guest = 'guest'
+        try:
+            connection = self.create_gateway(useragent, guest, guest)
+            if connection.connect():
+                logger.debug('Successfully created a guest connection.')
+            else:
+                logger.warn('Cannot create a guest connection.')
+        except:
+            logger.error('Cannot create a guest connection.', exc_info=True)
+        return connection
+
     def join_connection(self, useragent):
         try:
             connection = self.create_gateway(useragent)
@@ -179,3 +196,32 @@ class Connector(object):
             logger.debug('Cannot create a new connection.', exc_info=True)
         return None
 
+    def is_server_up(self, useragent):
+        connection = self.create_guest_connection(useragent)
+        if connection is None:
+            return False
+        try:
+            connection.getServerVersion()
+            return True
+        except:
+            logger.error('Cannot request server version.', exc_info=True)
+        return False
+
+    def check_version(self, useragent):
+        connection = self.create_guest_connection(useragent)
+        if connection is None:
+            return False
+        try:
+            server_version = connection.getServerVersion()
+            server_version = self.SERVER_VERSION_RE.match(server_version)
+            server_version = server_version.group(1).split('.')
+
+            client_version = self.SERVER_VERSION_RE.match(omero_version)
+            client_version = client_version.group(1).split('.')
+            logger.info("Client version: '%s'; Server version: '%s'" % \
+                    (client_version, server_version))
+            return server_version == client_version
+        except:
+            logger.error('Cannot compare server to client version.',
+                    exc_info=True)
+        return False

@@ -64,7 +64,7 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
-from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
+from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.connector import Server
 
