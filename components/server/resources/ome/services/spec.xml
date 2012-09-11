@@ -129,6 +129,21 @@
 
     </bean>
 
+    <bean parent="delSpec" name="/LightSource" class="ome.services.graphs.LightSourceGraphSpec">
+        <description>
+        Delete a single light-source.
+        </description>
+        <constructor-arg>
+          <list>
+            <value>/Arc</value>
+            <value>/Filament</value>
+            <value>/Laser</value>
+            <value>/LightEmittingDiode</value>
+            <value>/LightSource</value>
+          </list>
+        </constructor-arg>
+    </bean>
+
     <bean parent="delSpec" name="/Image/Pixels/Channel">
         <description>
         Deletes a Channel
@@ -142,7 +157,7 @@
                 <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value>
+                <value>/LightSource;SOFT;/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
                 <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
@@ -163,7 +178,7 @@
                 <value>/Instrument/Dichroic</value>
                 <value>/Instrument/Filter</value>
                 <!-- value>/Instrument/FilterSet</value -->
-                <value>/Instrument/LightSource</value>
+                <value>/LightSource;SOFT;/Instrument</value>
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>
                 <value>/Instrument/FilterSet</value>

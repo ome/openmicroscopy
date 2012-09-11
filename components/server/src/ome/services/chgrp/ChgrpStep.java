@@ -146,7 +146,7 @@ public class ChgrpStep extends GraphStep {
     private QueryBuilder queryBuilder(GraphOpts opts) {
         final QueryBuilder qb = new QueryBuilder();
         qb.update(table);
-        qb.append("set group_id = :grp ");
+        qb.append("set details.group.id = :grp ");
         qb.where();
         qb.and("id = :id");
         if (!opts.isForce()) {
