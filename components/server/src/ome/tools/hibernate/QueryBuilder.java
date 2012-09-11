@@ -389,14 +389,14 @@ public class QueryBuilder {
     // Used in case the standard workflow is not optimal
 
     public void update(String table) {
-        _type("update");
+        _type("update from");
         select.append(table);
         appendSpace();
         skipFrom();
     }
 
     public void delete(String table) {
-        _type("delete");
+        _type("delete from");
         select.append(table);
         appendSpace();
         skipFrom();
