@@ -373,8 +373,6 @@ class UserProxyTest (WGTest):
         int(user.getId())
         self.assertEqual(user.getName(), self.AUTHOR.name)
         self.assertEqual(user.getFirstName(), self.AUTHOR.firstname)
-        views._purge(True)
-
 
 class ZZ_TDTest(WGTest):
     def setUp (self):

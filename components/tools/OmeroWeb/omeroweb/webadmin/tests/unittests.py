@@ -74,7 +74,7 @@ class ServerModelTest (unittest.TestCase):
         self.assertEquals(s1.port, 4064)
         self.assertEquals(s1.server, u'omero1')
         
-        s2 = Server.find('example2.com')
+        s2 = Server.find('example2.com')[0]
         self.assertEquals(s2.host, u'example2.com')
         self.assertEquals(s2.port, 4064)
         self.assertEquals(s2.server, u'omero2')
@@ -249,17 +249,19 @@ class WebAdminConfigTest(unittest.TestCase):
             self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
             self.omero_host = c.ic.getProperties().getProperty('omero.host')
             self.omero_port = c.ic.getProperties().getProperty('omero.port')
+            Server.reset()
+            Server(host=self.omero_host, port=self.omero_port)
         finally:
             c.__del__()
     
     def test_isServerOn(self):
-        from omeroweb.webadmin.webadmin_utils import _isServerOn
-        if not _isServerOn(self.omero_host, self.omero_port):
+        connector = Connector(1, True)
+        if not connector.is_server_up('omero-webadmin-test'):
             self.fail('Server is offline')
             
     def test_checkVersion(self):
-        from omeroweb.webadmin.webadmin_utils import _checkVersion
-        if not _checkVersion(self.omero_host, self.omero_port):
+        connector = Connector(1, True)
+        if not connector.check_version('omero-webadmin-test'):
             self.fail('Client version does not match server')
     
 # Testing controllers, and forms

@@ -48,8 +48,8 @@ class WebTest(unittest.TestCase):
             Server.freeze()
             blitz = Server.find(server=omero_host)
         
-        if blitz is not None:
-            self.server_id = blitz.id
+        if len(blitz):
+            self.server_id = blitz[0].id
             connector = Connector(self.server_id, True)
             self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password)
 
