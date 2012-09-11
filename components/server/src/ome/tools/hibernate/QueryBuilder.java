@@ -82,13 +82,34 @@ public class QueryBuilder {
      */
     private String filterTarget;
 
+    /**
+     * @see #setSqlQuery(boolean)
+     */
+    private boolean sqlQuery = false;
+
     public QueryBuilder() {
         // no-op
+    }
+
+    /**
+     * @param sqlQuery
+     * @see #setSqlQuery(boolean)
+     */
+    public QueryBuilder(boolean sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 
     public QueryBuilder(int size) {
         // ignore size for the moment
         this();
+    }
+
+    /**
+     * Whether {@link Session#createSQLQuery(String)} should be used or not during
+     * {@link #__query(Session, boolean)}
+     */
+    public void setSqlQuery(boolean sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 
     /**
@@ -326,7 +347,11 @@ public class QueryBuilder {
 
         Query q = null;
         try {
-            q = session.createQuery(queryString());
+            if (sqlQuery) {
+                q = session.createSQLQuery(queryString());
+            } else {
+                q = session.createQuery(queryString());
+            }
         } catch (RuntimeException rt) {
             // We're logging failed queries because the almost always point
             // to an internal exception that shouldn't be happening.

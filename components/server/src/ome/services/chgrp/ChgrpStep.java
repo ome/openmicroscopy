@@ -79,7 +79,7 @@ public class ChgrpStep extends GraphStep {
             }
         }
 
-        final QueryBuilder qb = queryBuilder(opts);
+        final QueryBuilder qb = spec.chgrpQuery(ec, table, opts);
         qb.param("id", id);
         qb.param("grp", grp);
         Query q = qb.query(session);
@@ -141,18 +141,6 @@ public class ChgrpStep extends GraphStep {
             cb.addGraphIds(this);
         }
         logResults(count);
-    }
-
-    private QueryBuilder queryBuilder(GraphOpts opts) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.update(table);
-        qb.append("set details.group.id = :grp ");
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(ec, qb);
-        }
-        return qb;
     }
 
     private Long findImproperIncomingLinks(Session session, String[] lock) {

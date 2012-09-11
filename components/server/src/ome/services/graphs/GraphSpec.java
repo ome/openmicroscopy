@@ -175,6 +175,16 @@ public interface GraphSpec {
             throws GraphException;
 
     /**
+     * Return a {@link QueryBuilder} which has been properly initialized to take the parameters "id"
+     * and "grp" and then have {@link QueryBuilder#query(Session)} called.
+     */
+    QueryBuilder chgrpQuery(EventContext ec, String table, GraphOpts opts);
+
+    QueryBuilder chmodQuery(EventContext ec, String table, GraphOpts opts);
+
+    QueryBuilder deleteQuery(EventContext ec, String table, GraphOpts opts);
+
+    /**
      * Returns an iterator over all subspecs and their subspecs, depth-first.
      */
     Iterator<GraphSpec> walk();
