@@ -155,18 +155,18 @@
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
                 <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
                 <value>/LightSource;SOFT;/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value>
             </list>
         </constructor-arg>
     </bean>
