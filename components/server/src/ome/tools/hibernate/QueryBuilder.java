@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.AopProxy;
 
 /**
  * Very thin wrapper around a {@link StringBuilder} to generate HQL queries.
@@ -347,7 +349,23 @@ public class QueryBuilder {
 
         Query q = null;
         try {
+            final String s = queryString();
             if (sqlQuery) {
+                // ticket:9435 - in order to allow updates with raw
+                // SQL we will unwrap the session. This is the only
+                // location that is doing such unwrapping.
+                if (s.startsWith("update")) {
+                    if (session instanceof Advised) {
+                        Advised proxy = (Advised) session;
+                        try {
+                            session = (Session) proxy.getTargetSource().getTarget();
+                        } catch (Exception e) {
+                            RuntimeException rt = new RuntimeException(e);
+                            rt.initCause(e);
+                            throw rt;
+                        }
+                    }
+                }
                 q = session.createSQLQuery(queryString());
             } else {
                 q = session.createQuery(queryString());
@@ -414,14 +432,14 @@ public class QueryBuilder {
     // Used in case the standard workflow is not optimal
 
     public void update(String table) {
-        _type("update from");
+        _type("update");
         select.append(table);
         appendSpace();
         skipFrom();
     }
 
     public void delete(String table) {
-        _type("delete from");
+        _type("delete");
         select.append(table);
         appendSpace();
         skipFrom();

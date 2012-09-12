@@ -357,12 +357,20 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         // leadership of the group.
         if (!p.isGranted(Role.GROUP, Right.WRITE)) {
             if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                qb.and("details.group.id = :gid");
+                if (sqlQuery) {
+                    qb.and("group_id = :gid");
+                } else {
+                    qb.and("details.group.id = :gid");
+                }
                 qb.param("gid", ec.getCurrentGroupId());
             } else {
                 // This is only a regular user, then the object must belong to
                 // him/her
-                qb.and("details.owner.id = :oid");
+                if (sqlQuery) {
+                    qb.and("owner_id = :oid");
+                } else {
+                    qb.and("details.owner.id = :oid");
+                }
                 qb.param("oid", ec.getCurrentUserId());
             }
         }

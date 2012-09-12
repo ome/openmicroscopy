@@ -28,6 +28,7 @@ import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightEmittingDiode;
 import ome.model.acquisition.LightSource;
 import ome.model.annotations.Annotation;
+import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -76,6 +77,20 @@ public class LightSourceGraphSpec extends AbstractHierarchyGraphSpec {
         rv.add(LightEmittingDiode.class);
         rv.add(LightSource.class);
         return rv;
+    }
+
+    @Override
+    public QueryBuilder chgrpQuery(EventContext ec, String table, GraphOpts opts) {
+        // Copied from BaseGraphSpec
+        final QueryBuilder qb = new QueryBuilder(true); // SQL QUERY #9435
+        qb.update("lightsource");
+        qb.append("set group_id = :grp ");
+        qb.where();
+        qb.and("id = :id");
+        if (!opts.isForce()) {
+            permissionsClause(ec, qb, true);
+        }
+        return qb;
     }
 
     protected void handleOptions(final int i, final String[] parts) {
