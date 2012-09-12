@@ -34,6 +34,7 @@ import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
+import Ice.DNSException;
 import Ice.ObjectNotExistException;
 import Ice.TimeoutException;
 import Ice.UnknownException;
@@ -96,7 +97,9 @@ public class ConnectionExceptionHandler
 			e instanceof ObjectNotExistException)
 			index = LOST_CONNECTION;
 		else if (cause instanceof CommunicatorDestroyedException ||
-				e instanceof CommunicatorDestroyedException)
+				e instanceof CommunicatorDestroyedException ||
+				cause instanceof DNSException ||
+				e instanceof DNSException)
 			index = DESTROYED_CONNECTION;
 		else if (cause instanceof ConnectionRefusedException || 
 				e instanceof ConnectionRefusedException ||
