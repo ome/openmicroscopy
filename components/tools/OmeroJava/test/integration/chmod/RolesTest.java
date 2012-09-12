@@ -224,7 +224,7 @@ public class RolesTest
     	d = (Dataset) datasets.get(0);
     	perms = d.getDetails().getPermissions();
     	
-    	assertFalse(perms.canEdit());
+    	assertTrue(perms.canEdit());
     	assertFalse(perms.canAnnotate());
     	assertTrue(perms.canDelete());
     	assertFalse(perms.canLink());
@@ -267,14 +267,8 @@ public class RolesTest
     	
     	
     	//Try to edit i.e. canEdit
-		try {
-
-			d.setName(rstring("newNAme"));
-			iUpdate.saveAndReturnObject(d);
-			fail("Group owner should not be allowed to edit a dataset.");
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
     }
     
     /**
@@ -326,7 +320,7 @@ public class RolesTest
 
     	assertFalse(perms.canAnnotate());
     	assertTrue(perms.canDelete());
-    	assertFalse(perms.canEdit());
+    	assertTrue(perms.canEdit());
     	assertFalse(perms.canLink());
     	
     	//Create a link canLink
@@ -365,13 +359,8 @@ public class RolesTest
     	
     	
     	//Try to edit i.e. canEdit
-		try {
-			d.setName(rstring("newNAme"));
-			iUpdate.saveAndReturnObject(d);
-			fail("Admin should not be allowed to edit a dataset.");
-		} catch (Exception e) {
-			
-		}
+		d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
     }
     
     //Group RWR---
@@ -1017,7 +1006,7 @@ public class RolesTest
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
     	l.link(new DatasetI(id, false), img);
-    	iUpdate.saveAndReturnObject(l);
+    	iUpdate.saveAndReturnObject(l); // The dataset's been deleted??
     	
     	//Try to create the annotation  i.e. canAnnotate
     	annotation = new CommentAnnotationI();
