@@ -53,6 +53,7 @@ public class AnnotationMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
@@ -93,6 +94,7 @@ public class AnnotationMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
@@ -133,6 +135,7 @@ public class AnnotationMoveTest
 	String perms = "rwrw--";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
@@ -227,7 +230,7 @@ public class AnnotationMoveTest
 	loginUser(g);
 	param = new ParametersI();
 	param.addIds(annotationIdsUser2);
-	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+	assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
 
     /**
@@ -294,7 +297,7 @@ public class AnnotationMoveTest
 	//RWR---
 	param = new ParametersI();
 	param.addIds(annotationIdsUser2);
-	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+	assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
 
     /**
@@ -426,7 +429,8 @@ public class AnnotationMoveTest
 	// is not a member of the destination group
 	param = new ParametersI();
 	param.addIds(annotationIdsUser2);
-	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+	assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+	// NB: can't both be null in old and the new group?!
     }
 
 
@@ -442,6 +446,7 @@ public class AnnotationMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image img1 = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.createImage());
@@ -483,7 +488,7 @@ public class AnnotationMoveTest
 	sb.append("where i.parent.id = :id");
 	List<IObject> results = iQuery.findAllByQuery(sb.toString(), param);
 
-	assertTrue(results.size() > 0);
+	assertTrue("#9496? anns", results.size() > 0);
 	Iterator<IObject> j = results.iterator();
 	while (j.hasNext()) {
 			link = (ImageAnnotationLink) j.next();

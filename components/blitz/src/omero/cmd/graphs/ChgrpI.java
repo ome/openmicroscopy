@@ -107,6 +107,10 @@ public class ChgrpI extends Chgrp implements IRequest {
             // can check ownership, etc.
 
             final IObject obj = this.spec.load(helper.getSession());
+            if (obj == null) {
+                throw helper.cancel(new ERR(), null, "no-object");
+            }
+
             helper.info("chgrp of %s to %s", obj, grp);
 
             if (!admin) {
