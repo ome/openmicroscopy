@@ -35,14 +35,40 @@
  * - pid: Plate ID (int)
  * - field: 0 based field index (int)
  *
- * plate.setFocus(elm, evt)
- * plate.rmFocus(elm, evt)
+ * plate.setFocus(elm)
+ * - adds the pv-focus css class to the thumb pointed to by the elm jQuery object
+ *   removing it from any other thumbnail eventually focused on this plate
+ * - elm is the jQuery object for the thumb to be focused
+ * 
+ * plate.rmFocus(elm)
+ * - removes the pv-focus css class to the thumb pointed to by the elm jQuery object
+ *   or from any thumbnail in this plate if elm is null or undefined
+ * - elm is the optional jQuery object for the thumb to loose focused
  *
  * - Events -
  * 
- * thumbClick
- * thumbLoad
- * thumbNew
+ * thumbClick(ev, welldata, thumb)
+ * - triggered when there's a mouse click on a thumb.
+ * - welldata holds a dictionary holding metadata for the clicked well
+ * - thumb is the DOM object for the thumb image
+ *
+ * thumbLoad(ev, container, thumb)
+ * - triggered after each thumbnail image is loaded by the browser
+ * - container is the jQuery object of the well container
+ * - thumb is the jQuery object for the thumb image
+ *
+ * thumbNew(ev, welldata, thumb)
+ * - triggered when a new thumb is prepared for loading.
+ * - welldata holds a dictionary holding metadata for the well
+ *   - if you extend of alter welldata in this event handler, the changes will be kept
+ *     for thumbClick
+ * - thumb is the jQuery object for the thumb image
+ *
+ * - jQuery obj data attributes -
+ * 
+ * noFocus
+ * - if true, prevents css pv-focus class to be added on setFocus
+ *
  */
 
 
