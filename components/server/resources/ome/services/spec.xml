@@ -15,8 +15,8 @@
 
     <description>
 
-    Describes delete specifications which map a single string to a graph of
-    objects which will be deleted. Each specification takes some number of parameters
+    Describes graph specifications which map a single string to a graph of
+    objects which will be processed. Each specification takes some number of parameters
     which describe which roots of the graph will be chosen.
 
     </description>
@@ -28,8 +28,8 @@
 
     <bean id="delSpec"  abstract="true" class="ome.services.graphs.BaseGraphSpec" singleton="false">
         <description>
-        Delete specification which takes a single id as the identifier for where
-        the graph of objects to be deleted starts.
+        Graph specification which takes a single id as the identifier for where
+        the graph of objects to be processed starts.
         </description>
         <!-- EventContext will need to be set by callers. -->
         <property name="extendedMetadata" ref="extendedMetadata"/>
@@ -102,7 +102,7 @@
 
     <bean parent="delSpec" name="/Roi">
         <description>
-        Deletes a Region of interest, its shapes, and any attached annotations.
+        Describes a Region of interest, its shapes, and any attached annotations.
         </description>
         <constructor-arg>
             <list>
@@ -116,7 +116,7 @@
 
     <bean parent="delSpec" name="/Image/Pixels/RenderingDef">
         <description>
-        Deletes a rendering def based on the image id from where it comes.
+        Describes a rendering def based on the image id from where it comes.
         </description>
         <constructor-arg>
             <list>
@@ -131,7 +131,7 @@
 
     <bean parent="delSpec" name="/LightSource" class="ome.services.graphs.LightSourceGraphSpec">
         <description>
-        Delete a single light-source.
+        Describes a single light-source.
         </description>
         <constructor-arg>
           <list>
@@ -146,7 +146,7 @@
 
     <bean parent="delSpec" name="/Image/Pixels/Channel">
         <description>
-        Deletes a Channel
+        Describes a Channel
         </description>
         <constructor-arg>
             <list>
@@ -359,7 +359,7 @@
         </constructor-arg>
     </bean>
 
-    <!-- Adding annotation link delete support. Could be more generic #7301 -->
+    <!-- Adding annotation link support. Could be more generic #7301 -->
     <bean parent="delSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
