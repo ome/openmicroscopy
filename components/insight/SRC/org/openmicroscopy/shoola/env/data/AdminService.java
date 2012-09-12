@@ -448,4 +448,18 @@ public interface AdminService
 			List<ExperimenterData> experimenters)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Helper method returning the current user's details.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getUserDetails();
+	
+	/**
+	 * Returns the groups the logged in user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<GroupData> getAvailableUserGroups();
+
 }

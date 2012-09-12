@@ -59,6 +59,13 @@ public class ViewInPlugin
     private static final String DESCRIPTION_IJ = "View the selected image " +
     		"in ImageJ.";
     
+    /** Name of the action. */
+    private static final String NAME_KNIME = "View in KNIME...";
+
+    /** Description of the action. */
+    private static final String DESCRIPTION_KNIME = "View the selected " +
+    		"image(s) in KNIME.";
+    
     /** Indicate the plugin to open.*/
     private int plugin;
     
@@ -99,6 +106,12 @@ public class ViewInPlugin
 		        putValue(Action.SMALL_ICON, 
 		        		icons.getIcon(IconManager.VIEWER_IJ));
 				break;
+			case TreeViewer.KNIME:
+				name = NAME_KNIME;
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_KNIME));
+		        putValue(Action.SMALL_ICON, 
+		        		icons.getIcon(IconManager.VIEWER_KNIME));
 		}
     }
     

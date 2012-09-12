@@ -84,7 +84,6 @@ public class Initializer
         //(b/c it creates and fills up the container's config).
     	
         initList.add(ContainerConfigInit.class);
-
         initList.add(SplashScreenInit.class);
         initList.add(LoggerInit.class);
         initList.add(CacheInit.class);
@@ -183,13 +182,21 @@ public class Initializer
      * Calls the <code>onEnd</code> method of each subscriber in the
      * notification set.
      */
-    private void notifyEnd()
+    public void notifyEnd()
     {
         Iterator<InitializationListener> i = initListeners.iterator();
         while (i.hasNext())
             i.next().onEnd();
+
+		//Allow for referenced objects to be garbage collected (see below).
+		currentTask = null;
+		processingQueue = null;
+		initListeners = null;
+		//Now control goes into container object, so this object won't be
+		//garbage collected until startService() returns, which may be on exit.
+		container.startService();
     }
-    
+
     /**
      * Only for the benefit of subclasses that want to modify the
      * {@link #initList}.
@@ -197,7 +204,7 @@ public class Initializer
      */
     protected Initializer() {}
     
-	/**
+    /**
 	 * Creates a new instance.
 	 * The {@link Container} is the only class that can possibly create this
 	 * object. In fact, the {@link Container} is the only class to have
@@ -207,10 +214,24 @@ public class Initializer
 	 */
 	public Initializer(Container c)
 	{
+		this(c, false);
+	}
+	/**
+	 * Creates a new instance.
+	 * The {@link Container} is the only class that can possibly create this
+	 * object. In fact, the {@link Container} is the only class to have
+	 * a reference to the singleton {@link Container}.
+	 * 
+	 * @param c	A reference to the singleton {@link Container}.
+	 * @param headless Flag indicating to start the application head-less or not.
+	 */
+	public Initializer(Container c, boolean headless)
+	{
 		if (c == null) throw new NullPointerException();
 		processingQueue = new ArrayList<InitializationTask>();
 		doneTasks = new Stack<InitializationTask>(); 
 		initListeners = new HashSet<InitializationListener>();
+		if (headless) initList.remove(SplashScreenInit.class);
 		container = c;
 	}
 	
@@ -228,7 +249,7 @@ public class Initializer
 		InitializationTask task;
         Iterator<Class<?>> type = initList.iterator();
         while (type.hasNext()) {
-            task = createInitTask(type.next(), container,this); 
+            task = createInitTask(type.next(), container, this); 
             task.configure();
             processingQueue.add(task);
         }
@@ -256,6 +277,7 @@ public class Initializer
 			doneTasks.push(currentTask);  //For later rollback if needed.
 		}
 		
+		/*
 		//Tell all listeners that we're finished.
 		notifyEnd();
 		
@@ -263,10 +285,10 @@ public class Initializer
 		currentTask = null;
 		processingQueue = null;
 		initListeners = null;
-		
 		//Now control goes into container object, so this object won't be
 		//garbage collected until startService() returns, which may be on exit.
 		container.startService();
+		*/
 	}
 	
 	/**

@@ -57,11 +57,13 @@ import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -527,17 +529,21 @@ public class DataServicesFactory
         ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
         		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
         		uc.getGroup());
+        //Post an event to indicate that the user is connected.
+        EventBus bus = container.getRegistry().getEventBus();
+        bus.post(new ConnectedEvent());
+        //Post an event to notify 
         compatible = true;
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
         msg.println("Server version: "+version);
         msg.println("Client version: "+clientVersion);
-        Entry entry;
-        Iterator k = info.entrySet().iterator();
+        Entry<String, String> entry;
+        Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
-        	entry = (Entry) k.next();
-        	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
+        	entry = k.next();
+        	msg.println(entry.getKey()+": "+entry.getValue());
 		}
         registry.getLogger().info(this, msg);
         
@@ -646,27 +652,6 @@ public class DataServicesFactory
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
-		Collection groups = (Collection) 
-		registry.lookup(LookupNames.USER_GROUP_DETAILS);
-		if (groups != null && groups.size() > 0) {
-			ExperimenterData exp = (ExperimenterData) 
-			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-			GroupData group = exp.getDefaultGroup();	
-			Iterator i = groups.iterator();
-			GroupData g;
-			Map<Long, String> names = new LinkedHashMap<Long, String>();
-			while (i.hasNext()) {
-				g = (GroupData) i.next();
-				if (g.getId() != group.getId()) {
-					if (!omeroGateway.isSystemGroup(g.asGroup()))
-						names.put(g.getId(), g.getName());
-				}
-			}
-			if (!omeroGateway.isSystemGroup(group.asGroup()))
-				names.put(group.getId(), group.getName());
-			if (names.size() == 0) names = null;
-			ScreenLogin.registerGroup(names);
-		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 

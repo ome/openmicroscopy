@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.env.data.events;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
@@ -45,9 +47,6 @@ public class ViewInPluginEvent
 	extends RequestEvent
 {
 
-	/** Identifies the <code>ImageJ</code> plugin.*/
-	public static final int IMAGE_J = 1;
-	
 	/** The selected plugin.*/
 	private int plugin;
 	
@@ -56,6 +55,9 @@ public class ViewInPluginEvent
 	
 	/** The security context.*/
 	private SecurityContext ctx;
+	
+	/** The collection of selected objects.*/
+	private Collection<DataObject> objects;
 	
 	/**
 	 * The id of the object.
@@ -111,6 +113,22 @@ public class ViewInPluginEvent
 	 */
 	public DataObject getObject() { return object; }
 	
+	/**
+	 * Sets the collection of selected objects.
+	 * 
+	 * @param objects The objects to view.
+	 */
+	public void setDataObjects(Collection<DataObject> objects)
+	{
+		this.objects = objects;
+	}
+	
+	/**
+	 * Returns the collection of selected objects.
+	 * 
+	 * @param objects The objects to view.
+	 */
+	public Collection<DataObject> getDataObjects() { return objects; }
 	
 	/**
 	 * Returns the data object.
