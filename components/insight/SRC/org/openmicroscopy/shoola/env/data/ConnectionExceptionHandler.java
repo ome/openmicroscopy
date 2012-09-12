@@ -36,6 +36,7 @@ import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
 import Ice.ObjectNotExistException;
 import Ice.TimeoutException;
+import Ice.UnknownException;
 
 /** 
  * Handles the connection exceptions
@@ -56,6 +57,24 @@ public class ConnectionExceptionHandler
 	/** Indicates that the server is out of service. */
 	public static final int DESTROYED_CONNECTION = 2;
 	
+	/** String identifying the connection refused exception.*/
+	private static final String REFUSED = "Ice::ConnectionRefusedException";
+	
+	/**
+	 * Handles the <code>Ice.UnknownException</code>.
+	 * Returns the index depending on the unknown message.
+	 * 
+	 * @param e The exception to handle.
+	 * @return See above.
+	 */
+	private int handleIceUnknownException(Throwable e)
+	{
+		int index = -1;
+		UnknownException ex = (UnknownException) e;
+		if (ex.unknown.contains(REFUSED))
+			index = SERVER_OUT_OF_SERVICE;
+		return index;
+	}
 	
 	/**
 	 * Returns one of the constants defined by this class or <code>-1</code>.
@@ -84,6 +103,10 @@ public class ConnectionExceptionHandler
 				cause instanceof ConnectionTimeoutException || 
 				e instanceof ConnectionTimeoutException) 
 			index = SERVER_OUT_OF_SERVICE;
+		else if (cause instanceof UnknownException)
+			index = handleIceUnknownException(cause);
+		else if (e instanceof UnknownException)
+			index = handleIceUnknownException(e);
 		return index;
 	}
 	
