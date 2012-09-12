@@ -1327,6 +1327,16 @@ class _BlitzGateway (object):
         return self._defaultOmeroUser
 
     def getMaxPlaneSize (self):
+        """
+        Returns the maximum plane size the server will allow for an image to not be considered big
+        i.e. width or height larger than this will trigger image pyramids to be calculated.
+
+        This is useful for the client to filter images based on them needing pyramids or not, without
+        the full rendering engine overhead.
+
+        @return: tuple holding (max_plane_width, max_plane_height) as set on the server
+        @rtype:  Tuple
+        """
         if self._maxPlaneSize is None:
             c = self.getConfigService()
             self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
