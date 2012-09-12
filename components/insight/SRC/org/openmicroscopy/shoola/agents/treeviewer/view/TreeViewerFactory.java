@@ -265,7 +265,7 @@ public class TreeViewerFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
-		Iterator v = singleton.viewers.iterator();
+		Iterator<TreeViewer> v = singleton.viewers.iterator();
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
@@ -275,15 +275,19 @@ public class TreeViewerFactory
 	
 	/**
 	 * Notifies the model that the user is reconnected.
+	 * 
+	 * @return Returns <code>true</code> if some viewers are already stored, 
+	 *         <code>false</code> otherwise.
 	 */
-	public static void onReconnected()
+	public static boolean onReconnected()
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<TreeViewer> v = singleton.viewers.iterator();
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
 			comp.onReconnected();
 		}
+		return singleton.viewers.size() > 0;
 	}
 	
 	/**
