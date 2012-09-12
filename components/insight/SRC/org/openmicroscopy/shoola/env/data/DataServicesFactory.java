@@ -307,7 +307,7 @@ public class DataServicesFactory
 			//Notify user that it is not possible to parse
 			String message = "An error occurred while checking " +
 					"the compatibility between client and server." +
-					"\nDo you want " +
+					"\nDo you " +
 					"still want to connect (further errors migh occur)?";
 			JFrame f = new JFrame();
 			f.setIconImage(IconManager.getOMEImageIcon());
