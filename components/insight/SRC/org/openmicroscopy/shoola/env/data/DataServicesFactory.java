@@ -274,13 +274,15 @@ public class DataServicesFactory
 	
     /**
      * Returns <code>true</code> if the server and the client are compatible,
-     * <code>false</code> otherwise.
+     * <code>false</code> otherwise. Return <code>null</code> if an error
+     * occurred while comparing the versions and the user does not want to
+     * connect.
      * 
      * @param server The version of the server.
      * @param client The version of the client.
      * @return See above.
      */
-    private boolean checkClientServerCompatibility(String server, String client)
+    private Boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
     	if (client.startsWith("@")) return true;
@@ -299,7 +301,7 @@ public class DataServicesFactory
         	if (s1 < c1) return false;
         	if (s2 < c2) return false;
 		} catch (Exception e) {
-			//Register error
+			//Record error
 			LogMessage msg = new LogMessage();
 			msg.print("Client server compatibility");
 			msg.print(e);
@@ -308,12 +310,15 @@ public class DataServicesFactory
 			String message = "An error occurred while checking " +
 					"the compatibility between client and server." +
 					"\nDo you " +
-					"still want to connect (further errors migh occur)?";
+					"still want to connect (further errors might occur)?";
 			JFrame f = new JFrame();
 			f.setIconImage(IconManager.getOMEImageIcon());
 			MessageBox box = new MessageBox(f, "Version Check", message);
 			box.setAlwaysOnTop(true);
-			return (box.centerMsgBox() == MessageBox.YES_OPTION);
+			if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+				return true;
+			}
+			return null;
 		}
     	
     	return true;
@@ -539,7 +544,13 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        if (!checkClientServerCompatibility(version, clientVersion)) {
+        Boolean check = checkClientServerCompatibility(version, clientVersion);
+        if (check == null) {
+        	compatible = false;
+        	omeroGateway.logout();
+        	return;
+        }
+        if (!check.booleanValue()) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
