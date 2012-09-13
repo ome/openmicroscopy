@@ -336,7 +336,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    user_id = conn.getEventContext().userId
+    user_id = conn.getUserId()
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
         prevent_cache = False
