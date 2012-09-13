@@ -1694,9 +1694,10 @@ class OMEROGateway
 	 */
 	private ThumbnailStorePrx getThumbnailService(SecurityContext ctx, int n)
 		throws DSAccessException, DSOutOfServiceException
-	{ 
+	{
+		Connector c = null;
 		try {
-			Connector c = getConnector(ctx);
+			c = getConnector(ctx);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1704,12 +1705,20 @@ class OMEROGateway
 			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
-						"Cannot access the Delete service.");
+						"Cannot access the Thumbnail service.");
 			return prx;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Thumbnail service.");
 		}
-		return null;
+		//nothing thrown b/c of connection error.
+		//reload
+		try {
+			if (c == null) c = getConnector(ctx);
+			return c.getThumbnailService(n);
+		} catch (Throwable ex) {
+			throw new DSOutOfServiceException(
+					"Cannot access the Thumbnail service.");
+		}
 	}
 
 	/**
