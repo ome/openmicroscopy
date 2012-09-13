@@ -887,6 +887,21 @@ class WebGatewayTempFile (object):
             return None, None, None
         dn, stamp = self.newdir(key)
         name = name.replace('/','_').replace('#','_').decode('utf8').encode('ascii', 'ignore')
+        if len(name)>255:
+            # Try to be smart about trimming and keep up to two levels of extension (ex: .ome.tiff)
+            # We do limit the extension to 16 chars just to keep things sane
+            fname, fext = os.path.splitext(name)
+            if fext:
+                if len(fext) <= 16:
+                    fname, fext2 = os.path.splitext(fname)
+                    if len(fext+fext2) <= 16:
+                        fext = fext2 + fext
+                    else:
+                        fname += fext2
+                else:
+                    fname = name
+                    fext = ''
+            name = fname[:-len(name)+255] + fext
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
         lf = os.path.join(dn, '.lock')

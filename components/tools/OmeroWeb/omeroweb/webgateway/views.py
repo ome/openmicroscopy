@@ -876,7 +876,9 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     if len(imgs) == 1:
         obj = imgs[0]
         key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
-        fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', key=key)
+        fnamemax = 255 - len(str(obj.getId())) - 10 # total name len <= 255, 9 is for .ome.tiff
+        objname = obj.getName()[:fnamemax]
+        fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+ objname + '.ome.tiff', key=key)
         if fobj is True:
             # already exists
             return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
@@ -893,7 +895,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
             rsp = HttpResponse(tiff_data, mimetype='image/tiff')
-            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
+            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+objname)
             rsp['Content-Length'] = len(tiff_data)
             return rsp
         else:
@@ -918,7 +920,11 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
                     if tiff_data is None:
                         continue
                     webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
-                zobj.writestr(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', tiff_data)
+                # While ZIP itself doesn't have the 255 char limit for filenames, the FS where these
+                # get unarchived might, so trim names
+                fnamemax = 255 - len(str(obj.getId())) - 10 # total name len <= 255, 9 is for .ome.tiff
+                objname = obj.getName()[:fnamemax]
+                zobj.writestr(str(obj.getId()) + '-'+objname + '.ome.tiff', tiff_data)
             zobj.close()
             if fpath is None:
                 zip_data = fobj.getvalue()
