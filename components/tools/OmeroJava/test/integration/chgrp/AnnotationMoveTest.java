@@ -198,6 +198,7 @@ public class AnnotationMoveTest
 
 	//Create a private group with the 2 users.
 	ExperimenterGroup g = newGroupAddUser(permsDestination, users);
+	iAdmin.getEventContext(); // Refresh
 
 	//reconnect as user1
 	init(clientUser1);
