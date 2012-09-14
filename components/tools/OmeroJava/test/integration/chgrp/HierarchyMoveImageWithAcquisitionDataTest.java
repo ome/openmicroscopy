@@ -28,22 +28,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
-
 import ome.xml.model.OME;
 import omero.ServerError;
 import omero.cmd.Chgrp;
-import omero.model.Arc;
-import omero.model.Experiment;
 import omero.model.ExperimenterGroup;
-import omero.model.Filament;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+
 import spec.XMLMockObjects;
 import spec.XMLWriter;
 
@@ -58,7 +56,22 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         AbstractServerTest {
 
     /** The collection of files that have to be deleted. */
-    private List<File> files;
+    private List<File> files = new ArrayList<File>();
+
+    /**
+     * Overridden to delete the files.
+     * 
+     * @see AbstractServerTest#tearDown()
+     */
+    @Override
+    @AfterClass
+    public void tearDown() throws Exception {
+        for (File file : files) {
+            file.delete();
+        }
+
+        files.clear();
+    }
 
     private Pixels createImageWithAcquisitionData() throws Exception {
         File f = File.createTempFile("testImportImageWithAcquisitionData", "."
@@ -93,13 +106,14 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Test moving data as the data owner from a private to a private group
+     * 
      * @throws Exception
      */
     @Test
     public void moveImageRWtoRW() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rw----");
     }
-    
+
     /**
      * Performs the changing of group for an image with an ROI owned by the same
      * user
@@ -113,7 +127,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
             throws Exception {
 
         XMLMockObjects mockObjects = new XMLMockObjects();
-        
+
         long userId = iAdmin.getEventContext().userId;
 
         ExperimenterGroup sourceGroup = createGroupWithMember(userId,
@@ -121,7 +135,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         ExperimenterGroup targetGroup = createGroupWithMember(userId,
                 targetGroupPermissions);
-        
+
         long targetGroupId = targetGroup.getId().getValue();
 
         // force a refresh of the user's group membership
@@ -129,12 +143,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         Pixels pixels = createImageWithAcquisitionData();
         Image sourceImage = pixels.getImage();
-        
+
         Image savedImage = (Image) iUpdate.saveAndReturnObject(sourceImage);
         long originalImageId = savedImage.getId().getValue();
         List<Long> imageIds = new ArrayList<Long>(1);
         imageIds.add(originalImageId);
-        
+
         // make sure we are in the source group
         loginUser(sourceGroup);
 
@@ -149,28 +163,30 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         // Move the user into the target group!
         loginUser(targetGroup);
-        
+
         // get the acquisition data
-        
+
         // check it's correct
-        ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) 
-                mockObjects.createLightSource(ome.xml.model.Laser.class.getName(), 0);
-        
+        ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) mockObjects
+                .createLightSource(ome.xml.model.Laser.class.getName(), 0);
+
         Image returnedTargetImage = getImageWithId(originalImageId);
         assertNotNull(returnedTargetImage);
-        
-        long instrumentId = returnedTargetImage.getInstrument().getId().getValue();
-        
-        Instrument instrument = factory.getMetadataService().loadInstrument(instrumentId);
-        
+
+        long instrumentId = returnedTargetImage.getInstrument().getId()
+                .getValue();
+
+        Instrument instrument = factory.getMetadataService().loadInstrument(
+                instrumentId);
+
         List<LightSource> lights = instrument.copyLightSource();
-        
+
         for (LightSource lightSource : lights) {
             if (lightSource instanceof Laser)
                 validateLaser((Laser) lightSource, xmlLaser);
         }
     }
-    
+
     /**
      * Creates a new group for the user with the permissions detailed
      * 
