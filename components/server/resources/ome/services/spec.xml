@@ -163,8 +163,10 @@
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter/TransmittanceRange;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter/TransmittanceRange;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value>
             </list>
@@ -176,8 +178,8 @@
             <list>
                 <value>/Instrument/Detector</value>
                 <value>/Instrument/Dichroic</value>
+                <value>/Instrument/Filter/TransmittanceRange</value>
                 <value>/Instrument/Filter</value>
-                <!-- value>/Instrument/FilterSet</value -->
                 <value>/LightSource;SOFT;/Instrument</value>
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>
