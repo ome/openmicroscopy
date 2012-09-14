@@ -250,11 +250,15 @@ public class BlobShareStore extends ShareStore implements
         ShareData data = get(sessionId);
         if (data == null) {
             return false;
-        } else {
-            List<Long> ids = data.objectMap.get(kls.getName());
-            if (ids != null && ids.contains(objId)) {
-                return true;
-            }
+        }
+
+        return doContains(data, kls, objId);
+    }
+
+    protected <T extends IObject> boolean doContains(ShareData data, Class<T> kls, long objId) {
+        List<Long> ids = data.objectMap.get(kls.getName());
+        if (ids != null && ids.contains(objId)) {
+            return true;
         }
 
         // ticket:2249 - Implementing logic similar to the query
@@ -344,8 +348,18 @@ public class BlobShareStore extends ShareStore implements
         			obToImageCache);
         } else if (DetectorSettings.class.isAssignableFrom(kls)) {
         	DetectorSettings obj = (DetectorSettings) s.get(DetectorSettings.class, objId);
-        	return imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
-        			obToImageCache);
+        	if (imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
+        			obToImageCache)) {
+        		return true;
+        	} else {
+        		List<LogicalChannel> lcs = s.createQuery(
+        				"select l from LogicalChannel l where l.detectorSettings.id = " + obj.getId()).list();
+        		for (LogicalChannel lc : lcs) {
+        			if (doContains(data, LogicalChannel.class, lc.getId())) {
+        				return true;
+        			}
+        		}
+        	}
         }
         
         return false;
