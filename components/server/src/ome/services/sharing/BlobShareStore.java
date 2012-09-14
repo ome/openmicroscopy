@@ -209,11 +209,10 @@ public class BlobShareStore extends ShareStore implements
     }
     
     boolean imagesContainsInstrument(Session s, List<Long> images, Instrument instr, Map<Long, Long> cache) {
+        if (instr == null) {
+            return false;
+        }
         Long instrID = instr.getId();
-        return imagesContainsInstrument(s, images, instrID, cache);
-    }
-    
-    boolean imagesContainsInstrument(Session s, List<Long> images, long instrID, Map<Long, Long> cache) {
         Long imgID;
         if (cache.containsKey(instrID)) {
             imgID = cache.get(instrID);
