@@ -114,7 +114,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image/Pixels/RenderingDef">
+    <bean parent="delSpec" name="/Image/Pixels/RenderingDef" class="ome.services.graphs.RenderingDefGraphSpec">
         <description>
         Describes a rendering def based on the image id from where it comes.
         </description>

@@ -85,7 +85,7 @@ public class QueryBuilder {
     private String filterTarget;
 
     /**
-     * @see #setSqlQuery(boolean)
+     * @see {@link QueryBuilder#QueryBuilder(boolean)}
      */
     private boolean sqlQuery = false;
 
@@ -94,8 +94,10 @@ public class QueryBuilder {
     }
 
     /**
+     * Whether {@link Session#createSQLQuery(String)} should be used or not during
+     * {@link #__query(Session, boolean)}
+     *
      * @param sqlQuery
-     * @see #setSqlQuery(boolean)
      */
     public QueryBuilder(boolean sqlQuery) {
         this.sqlQuery = sqlQuery;
@@ -104,14 +106,6 @@ public class QueryBuilder {
     public QueryBuilder(int size) {
         // ignore size for the moment
         this();
-    }
-
-    /**
-     * Whether {@link Session#createSQLQuery(String)} should be used or not during
-     * {@link #__query(Session, boolean)}
-     */
-    public void setSqlQuery(boolean sqlQuery) {
-        this.sqlQuery = sqlQuery;
     }
 
     /**
@@ -354,7 +348,8 @@ public class QueryBuilder {
                 // ticket:9435 - in order to allow updates with raw
                 // SQL we will unwrap the session. This is the only
                 // location that is doing such unwrapping.
-                if (s.startsWith("update")) {
+                // Also see ticket:9496 about deleting rdefs.
+                if (s.startsWith("update") || s.startsWith("delete")) {
                     if (session instanceof Advised) {
                         Advised proxy = (Advised) session;
                         try {
@@ -439,7 +434,11 @@ public class QueryBuilder {
     }
 
     public void delete(String table) {
-        _type("delete");
+        if (sqlQuery) {
+            _type("delete from ");
+        } else {
+            _type("delete");
+        }
         select.append(table);
         appendSpace();
         skipFrom();
