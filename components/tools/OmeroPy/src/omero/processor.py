@@ -786,9 +786,12 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             servants = list(self.ctx.servant_map.values())
             rv = []
+
             for x in servants:
-                if hasattr(x, "properties"):
-                    rv.append(long(x))
+                try:
+                    rv.append(long(x.properties["omero.job"]))
+                except:
+                    pass
             cb.responseRunning(rv)
         except exceptions.Exception, e:
             self.logger.warn("callback failed on requestRunning: %s Exception:%s", cb, e)
