@@ -217,6 +217,10 @@ public class OptionsDialog
      */
     private void buildGUI(String message, Icon icon)
     {
+    	JXHeader header = new JXHeader();
+    	header.setBackgroundPainter(
+    			new RectanglePainter(getBackground(), null));
+    	header.setDescription(message);
     	mainPanel.setOpaque(false);
     	mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     	double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
@@ -224,16 +228,9 @@ public class OptionsDialog
     			TableLayout.PREFERRED}};
     	mainPanel.setLayout(new TableLayout(size));
     	mainPanel.add(new JLabel(icon), "0, 0");
-    	mainPanel.add(new JLabel(message), "2, 0");
+    	mainPanel.add(header, "2, 0");
     	mainPanel.add(body, "0, 1, 2, 1");
     	mainPanel.add(buildControlPanel(), "0, 2, 2, 2");
-    	/*
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		mainPanel.add(buildCommentPanel(message, icon));
-		mainPanel.add(body);
-		mainPanel.add(buildControlPanel());
-		*/
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     
