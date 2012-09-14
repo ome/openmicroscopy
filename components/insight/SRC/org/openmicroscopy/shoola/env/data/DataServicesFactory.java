@@ -274,13 +274,15 @@ public class DataServicesFactory
 	
     /**
      * Returns <code>true</code> if the server and the client are compatible,
-     * <code>false</code> otherwise.
+     * <code>false</code> otherwise. Return <code>null</code> if an error
+     * occurred while comparing the versions and the user does not want to
+     * connect.
      * 
      * @param server The version of the server.
      * @param client The version of the client.
      * @return See above.
      */
-    private boolean checkClientServerCompatibility(String server, String client)
+    private Boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
     	if (client.startsWith("@")) return true;
@@ -291,12 +293,34 @@ public class DataServicesFactory
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
     	if (values.length < 2 || valuesClient.length < 2) return false;
-    	int s1 = Integer.parseInt(values[0]);
-    	int s2 = Integer.parseInt(values[1]);
-    	int c1 = Integer.parseInt(valuesClient[0]);
-    	int c2 = Integer.parseInt(valuesClient[1]);
-    	if (s1 < c1) return false;
-    	if (s2 < c2) return false;
+    	try {
+    		int s1 = Integer.parseInt(values[0]);
+        	int s2 = Integer.parseInt(values[1]);
+        	int c1 = Integer.parseInt(valuesClient[0]);
+        	int c2 = Integer.parseInt(valuesClient[1]);
+        	if (s1 < c1) return false;
+        	if (s2 < c2) return false;
+		} catch (Exception e) {
+			//Record error
+			LogMessage msg = new LogMessage();
+			msg.print("Client server compatibility");
+			msg.print(e);
+			registry.getLogger().debug(this, msg);
+			//Notify user that it is not possible to parse
+			String message = "An error occurred while checking " +
+					"the compatibility between client and server." +
+					"\nDo you " +
+					"still want to connect (further errors might occur)?";
+			JFrame f = new JFrame();
+			f.setIconImage(IconManager.getOMEImageIcon());
+			MessageBox box = new MessageBox(f, "Version Check", message);
+			box.setAlwaysOnTop(true);
+			if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+				return true;
+			}
+			return null;
+		}
+    	
     	return true;
     }
     
@@ -311,13 +335,14 @@ public class DataServicesFactory
     		String serverVersion, String hostname)
     {
     	UserNotifier un = registry.getUserNotifier();
-    	String message = "The client version ("+clientVersion+") is not " +
-    			"compatible with the following server:"+hostname;
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append("The client version ("+clientVersion+") is not " +
+    			"compatible with the server:\n"+hostname);
     	if (serverVersion != null) {
-    		message += " version:"+serverVersion;
+    		buffer.append(" version:"+serverVersion);
     	}
-    	message += ".";
-    	un.notifyInfo("Client Server not compatible", message);
+    	buffer.append(".");
+    	un.notifyInfo("Client Server not compatible", buffer.toString());
     }
     
     /**
@@ -519,7 +544,13 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        if (!checkClientServerCompatibility(version, clientVersion)) {
+        Boolean check = checkClientServerCompatibility(version, clientVersion);
+        if (check == null) {
+        	compatible = false;
+        	omeroGateway.logout();
+        	return;
+        }
+        if (!check.booleanValue()) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
