@@ -87,6 +87,13 @@ class ShapeMarshalTest(unittest.TestCase):
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
         self.assertEquals('M 1 2 L 2 3 L 4 5 z' , marshaled['points'])
 
+    def testShapeUnrecognisedRoiShapePointsString(self):
+        shape = omero.model.PolygonI()
+        shape.id = rlong(self.DEFAULT_ID)
+        shape.points = rstring('')
+        marshaled = shapeMarshal(shape)
+        self.assertEquals(' z', marshaled['points'])
+    
 if __name__ == '__main__':
     unittest.main()
 

@@ -21,6 +21,9 @@
 import omero
 import time
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from omero.rtypes import unwrap
