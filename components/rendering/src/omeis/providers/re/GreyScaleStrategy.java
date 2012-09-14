@@ -59,9 +59,15 @@ class GreyScaleStrategy extends RenderingStrategy {
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        findFirstActiveChannelBinding();
-        PixelBuffer pixels = renderer.getPixels();
+        // Initialize sizeX1 and sizeX2 according to the plane definition and
+        // create the RGB buffer.
         Pixels metadata = renderer.getMetadata();
+        initAxesSize(planeDef, metadata);
+        if (!findFirstActiveChannelBinding())
+        {
+            return getRgbBuffer();
+        }
+        PixelBuffer pixels = renderer.getPixels();
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
@@ -73,9 +79,6 @@ class GreyScaleStrategy extends RenderingStrategy {
         	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
         performanceStats.endIO(channel);
 
-        // Initialize sizeX1 and sizeX2 according to the plane definition and
-        // create the RGB buffer.
-        initAxesSize(planeDef, metadata);
         RGBBuffer buf = getRgbBuffer();
         
         byte value;
@@ -128,9 +131,15 @@ class GreyScaleStrategy extends RenderingStrategy {
 	        throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        findFirstActiveChannelBinding();
-        PixelBuffer pixels = renderer.getPixels();
+        // Initialize sizeX1 and sizeX2 according to the plane definition and
+        // create the RGB buffer.
         Pixels metadata = renderer.getMetadata();
+        initAxesSize(planeDef, metadata);
+        if (!findFirstActiveChannelBinding())
+        {
+            return getIntBuffer();
+        }
+        PixelBuffer pixels = renderer.getPixels();
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
@@ -157,10 +166,6 @@ class GreyScaleStrategy extends RenderingStrategy {
             }
 		}
        
-	
-	    // Initialize sizeX1 and sizeX2 according to the plane definition and
-	    // create the RGB buffer.
-	    initAxesSize(planeDef, metadata);
 	    RGBIntBuffer dataBuf = getIntBuffer();
 	    
         int alpha = channelBinding.getAlpha();
@@ -204,9 +209,15 @@ class GreyScaleStrategy extends RenderingStrategy {
 	        throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        findFirstActiveChannelBinding();
-        PixelBuffer pixels = renderer.getPixels();
+        // Initialize sizeX1 and sizeX2 according to the plane definition and
+        // create the RGB buffer.
         Pixels metadata = renderer.getMetadata();
+        initAxesSize(planeDef, metadata);
+        if (!findFirstActiveChannelBinding())
+        {
+            return getRGBAIntBuffer();
+        }
+        PixelBuffer pixels = renderer.getPixels();
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
@@ -218,9 +229,6 @@ class GreyScaleStrategy extends RenderingStrategy {
         	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
         performanceStats.endIO(channel);
 	
-	    // Initialize sizeX1 and sizeX2 according to the plane definition and
-	    // create the RGB buffer.
-	    initAxesSize(planeDef, metadata);
 	    RGBAIntBuffer dataBuf = getRGBAIntBuffer();
 	    
         int alpha = channelBinding.getAlpha();
@@ -258,8 +266,11 @@ class GreyScaleStrategy extends RenderingStrategy {
 	/**
 	 * Initializes the first active channel binding for the current rendering
 	 * context.
+	 *
+	 * @return <code>true</code> when an active channel binding can be
+	 * located and <code>false</code> otherwise.
 	 */
-	private void findFirstActiveChannelBinding()
+	private boolean findFirstActiveChannelBinding()
 	{
 		ChannelBinding[] channelBindings = renderer.getChannelBindings();
 		for (int i = 0; i < channelBindings.length; i++)
@@ -268,10 +279,10 @@ class GreyScaleStrategy extends RenderingStrategy {
 			{
 				channel = i;
 				channelBinding = channelBindings[i];
-				return;
+				return true;
 			}
 		}
-		throw new IllegalArgumentException("No active channel bindings found.");
+		return false;
 	}
 
     /**
