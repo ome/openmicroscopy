@@ -468,13 +468,10 @@ public class TaskBarManager
 		IconManager icons = IconManager.getInstance(container.getRegistry());
 		Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
 		CheckoutBox msg = new CheckoutBox(view, LOGOUT_TITLE, 
-				LOGOUT_TEXT, 
-				icons.getIcon(IconManager.QUESTION), instances);
+				LOGOUT_TEXT, icons.getIcon(IconManager.QUESTION), instances);
 		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
-			if (map == null || map.size() == 0) {
-				logOut();
-			} else {
+			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
 				Iterator i = map.entrySet().iterator();
 				Entry entry;
@@ -487,8 +484,8 @@ public class TaskBarManager
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
-				logOut();
 			}
+			logOut();
 		}
 	}
 	
