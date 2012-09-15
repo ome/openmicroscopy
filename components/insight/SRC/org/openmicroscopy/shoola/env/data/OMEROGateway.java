@@ -102,7 +102,6 @@ import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
 import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
-import omero.api.IDeletePrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IProjectionPrx;
@@ -871,7 +870,7 @@ class OMEROGateway
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
 		connected = false;
-		dsFactory.sessionExpiredExit(index, e.getCause());
+		dsFactory.sessionExpiredExit(index, e);
 		return false;
 	}
 
