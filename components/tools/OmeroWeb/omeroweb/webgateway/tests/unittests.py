@@ -261,7 +261,6 @@ class WebGatewayCacheTempFileTest(unittest.TestCase):
             fobj.close()
             self.assertEqual(fpath[-5:], 'aaaaa')
         except:
-            raise
             self.fail('WebGatewayTempFile.new not handling long file names properly')
         
 
