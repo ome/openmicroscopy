@@ -456,6 +456,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 institution = form.cleaned_data['institution']
                 admin = toBoolean(form.cleaned_data['administrator'])
                 active = toBoolean(form.cleaned_data['active'])
+                if experimenter.getId() == conn.getUserId():
+                    active = True   # don't allow user to disable themselves!
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
 
