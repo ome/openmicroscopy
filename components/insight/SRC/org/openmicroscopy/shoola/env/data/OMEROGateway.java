@@ -381,9 +381,15 @@ class OMEROGateway
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>.*/
 	private boolean connected;
 
+	/**
+	 * Flag used during reconnecting process if a connection failure
+	 * occurred.
+	 */
+	private boolean reconnecting;
+	
 	/** 
 	 * Used whenever a broken link is detected to get the Login Service and
-	 * try re-establishing a valid link to <i>OMERO</i>. 
+	 * try re-establishing a valid link to <i>OMERO</i>.
 	 */
 	private DataServicesFactory dsFactory;
 	
@@ -863,13 +869,16 @@ class OMEROGateway
 	 * @return <code>true</code> to continue handling the error,
 	 * <code>false</code> otherwise.
 	 */
-	boolean handleConnectionException(Throwable e)
+	synchronized boolean handleConnectionException(Throwable e)
 	{
+		if (reconnecting) {
+			reconnecting = false;
+			return false;
+		}
 		if (!connected) return false;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
-		connected = false;
 		dsFactory.sessionExpiredExit(index, e);
 		return false;
 	}
@@ -2683,6 +2692,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			connected = false;
 		}
+		reconnecting = true;
 		return connected;
 	}
 	
