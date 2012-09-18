@@ -40,6 +40,11 @@ if "STAGING" in os.environ:
     repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4-staging"
 else:
     repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4"
+
+if "SNAPSHOT_PATH" in os.environ:
+    SNAPSHOT_PATH =  os.environ.get(SNAPSHOT_PATH)
+else:
+    SNAPSHOT_PATH = "/var/www/cvs.openmicroscopy.org.uk/snapshots/omero/"
 SNAPSHOT_URL = "http://cvs.openmicroscopy.org.uk/snapshots/omero/"
 
 def get_server_status_code(url):
@@ -94,10 +99,10 @@ def repl_all(line, check_http=False):
 
 def find_pkg(name, path):
     path = repl_all(path)
-    rv = glob.glob(path)
+    rv = glob.glob(SNAPSHOT_PATH + path)
     if len(rv) != 1:
         raise Exception("Results!=1 for %s (%s): %s", name, path, rv)
-    path = rv[0]
+    path = rv[0][len(SNAPSHOT_PATH):]
     repl["@%s@" % name] = SNAPSHOT_URL + path
     repl["@%s_MD5@" % name] = hashfile(path)
     repl["@%s_BASE@" % name] = os.path.basename(path)
