@@ -42,7 +42,7 @@ href="http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-4/mov/ImageJ-4.4
 loci_tools.jar) 
 
  * For the OMERO Matlab plugin to work, follow the instructions indicated 
-[here](@DOC_URL@/developers/Matlab).
+[here](@DOC_URL@/developers/Matlab.html).
 
 <div class="alt-table">
 <table>
