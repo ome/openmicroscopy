@@ -13,8 +13,8 @@ upgrade](@DOC_URL@/sysadmins/server-upgrade.html) page.
 major release of OMERO. Refer to the following sections for more information 
 about each release.
 
- * After downloading the relevant files, you may want to take a look at our 
-[Getting Started] (@DOC_URL@/users/clients-overview.html) page.
+ * After downloading the relevant files, you may want to take a look at our OMERO @VERSION@ documentation [online documentation](@DOC_URL@) page or
+[PDF documentation](@DOC@).
 
 ## OMERO Client @VERSION@ Downloads ##
 

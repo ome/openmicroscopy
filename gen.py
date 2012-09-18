@@ -111,6 +111,7 @@ find_pkg("SERVER33", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("SERVER34", "@VERSION@/OMERO.server-@VERSION@-ice34-@BUILD@.zip")
 find_pkg("DOCS", "@VERSION@/OMERO.docs-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("VM", "virtualbox/omero-vm-@VERSION@.ova")
+find_pkg("DOC", "@VERSION@/OMERO-@VERSION@.pdf")
 
 
 for line in fileinput.input(["tmpl.txt"]):
