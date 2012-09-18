@@ -102,8 +102,8 @@ def find_pkg(name, path):
     rv = glob.glob(SNAPSHOT_PATH + path)
     if len(rv) != 1:
         raise Exception("Results!=1 for %s (%s): %s", name, path, rv)
-    path = rv[0][len(SNAPSHOT_PATH):]
-    repl["@%s@" % name] = SNAPSHOT_URL + path
+    path = rv[0]
+    repl["@%s@" % name] = SNAPSHOT_URL + path[len(SNAPSHOT_PATH):]
     repl["@%s_MD5@" % name] = hashfile(path)
     repl["@%s_BASE@" % name] = os.path.basename(path)
 
