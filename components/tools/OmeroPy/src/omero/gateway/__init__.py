@@ -5724,8 +5724,16 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def simpleMarshal (self, xtra=None, parents=False):
         """
-        Creates a dict representation of the Image, including author and date info. 
-        
+        Creates a dict representation of the Image, including author and date info.
+
+        @param xtra: controls the optional parts of simpleMarshal;
+                     - thumbUrlPrefix - allows customizing the thumb URL by
+                     either a static string prefix or a callable function
+                     that will take a single ImgId int argument and return the
+                     customized URL string
+                     - tiled - if passed and value evaluates to true, add
+                     information on wether this image is tiled on this server.
+        @type: Dict
         @return:    Dict
         @rtype:     Dict
         """
@@ -5739,6 +5747,16 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
                 else:
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
+            if xtra.get('tiled', False):
+                # Since we need to calculate sizes, store them too in the marshalled value
+                maxplanesize = self._conn.getMaxPlaneSize()
+                rv['size'] = {'width': self.getSizeX(),
+                             'height': self.getSizeY(),
+                              }
+                rv['tiled'] = (maxplanesize[0] <= rv['size']['width']) or \
+                              (maxplanesize[1] <= rv['size']['height'])
+
+                
         return rv
 
     def getStageLabel (self):

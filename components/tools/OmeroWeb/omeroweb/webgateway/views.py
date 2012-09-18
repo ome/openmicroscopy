@@ -1263,7 +1263,8 @@ def listImages_json (request, did, conn=None, **kwargs):
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix),
+            'tiled': request.REQUEST.get('tiled', False),}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @login_required()

@@ -365,6 +365,21 @@ class JsonTest (WGTest):
         self.assert_('"split_channel":' in v)
         self.assert_('"pixel_range": [-32768, 32767]' in v)
 
+    def testListChildren (self):
+        self.loginAsAuthor()
+        img = self.getTestImage()
+        did = img.getParent().getId()
+        r = fakeRequest()
+        v = views.listImages_json(r, did=did, server_id=1, conn=self.gateway, _internal=True)
+        self.assert_(type(v) == type(''))
+        self.assert_('"id": %d,' % img.getId() in v)
+        self.assert_('"tiled: "' not in v)
+        r.setQuery(tiled='1')
+        v = views.listImages_json(r, did=did, server_id=1, conn=self.gateway, _internal=True)
+        self.assert_(type(v) == type(''))
+        self.assert_('"id": %d,' % img.getId() in v)
+        self.assert_('"tiled": false' in v)
+
 class UserProxyTest (WGTest):
     def test (self):
         self.loginAsAuthor()
