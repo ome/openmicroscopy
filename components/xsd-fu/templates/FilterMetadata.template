@@ -135,7 +135,7 @@
 
 package ome.xml.meta;
 
-import loci.common.DataTools;
+import ome.scifio.common.DataTools;
 
 import ome.xml.model.*;
 import ome.xml.model.enums.*;
