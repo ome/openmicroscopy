@@ -53,6 +53,7 @@ public class ProcessReport {
 	{
 		if (error == null)
 			throw new IllegalArgumentException("No error to handle");
+		this.error = error;
 	}
 	
 	/** 
