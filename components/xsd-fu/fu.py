@@ -194,20 +194,38 @@ CLASS_TEMPLATE = "templates/Pojo.template"
 # The default template for MetadataStore processing.
 METADATA_STORE_TEMPLATE = "templates/MetadataStore.template"
 
+# The default template for MetadataStore processing.
+METADATA_STORE_DELEGATOR_TEMPLATE = "templates/MetadataStoreDelegator.template"
+
 # The default template for MetadataRetrieve processing.
 METADATA_RETRIEVE_TEMPLATE = "templates/MetadataRetrieve.template"
+
+# The default template for MetadataRetrieve processing.
+METADATA_RETRIEVE_DELEGATOR_TEMPLATE = "templates/MetadataRetrieveDelegator.template"
 
 # The default template for AggregateMetadata processing.
 METADATA_AGGREGATE_TEMPLATE = "templates/AggregateMetadata.template"
 
+# The default template for AggregateMetadataDelegator processing.
+METADATA_AGGREGATE_DELEGATOR_TEMPLATE = "templates/AggregateMetadataDelegator.template"
+
 # The default template for OME XML metadata processing.
 OMEXML_METADATA_TEMPLATE = "templates/OMEXMLMetadataImpl.template"
+
+# The default template for OME XML metadata processing.
+OMEXML_METADATA_DELEGATOR_TEMPLATE = "templates/OMEXMLMetadataImplDelegator.template"
 
 # The default template for DummyMetadata processing.
 DUMMY_METADATA_TEMPLATE = "templates/DummyMetadata.template"
 
+# The default template for DummyMetadata processing.
+DUMMY_METADATA_DELEGATOR_TEMPLATE = "templates/DummyMetadataDelegator.template"
+
 # The default template for FilterMetadata processing.
 FILTER_METADATA_TEMPLATE = "templates/FilterMetadata.template"
+
+# The default template for FilterMetadata processing.
+FILTER_METADATA_DELEGATOR_TEMPLATE = "templates/FilterMetadataDelegator.template"
 
 # The default template for OMERO metadata processing.
 OMERO_METADATA_TEMPLATE = "templates/OmeroMetadata.template"
