@@ -15,6 +15,7 @@ echo Building $OMERO_BRANCH
 ./build.py clean
 ./build.py build-default test-compile release-src release-webstart release-zip release-clients
 ./build.py release-docs
+./build.py sphinx
 
 # Log information
 echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
