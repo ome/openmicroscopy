@@ -171,7 +171,7 @@ class InputServerStrategy
 		if (edit) {
 			edit = roi.getOwner().getId() == userID;
 		}
-		ROI newROI = component.createROI(id, id <= 0, roi.canEdit(),
+		ROI newROI = component.createROI(id, id <= 0, edit,
 				roi.canDelete(), roi.canAnnotate());
 		newROI.setOwnerID(roi.getOwner().getId());
 		
