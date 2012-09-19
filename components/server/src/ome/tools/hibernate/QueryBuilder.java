@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.AopProxy;
 
 /**
  * Very thin wrapper around a {@link StringBuilder} to generate HQL queries.
@@ -82,8 +84,23 @@ public class QueryBuilder {
      */
     private String filterTarget;
 
+    /**
+     * @see {@link QueryBuilder#QueryBuilder(boolean)}
+     */
+    private boolean sqlQuery = false;
+
     public QueryBuilder() {
         // no-op
+    }
+
+    /**
+     * Whether {@link Session#createSQLQuery(String)} should be used or not during
+     * {@link #__query(Session, boolean)}
+     *
+     * @param sqlQuery
+     */
+    public QueryBuilder(boolean sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 
     public QueryBuilder(int size) {
@@ -326,9 +343,32 @@ public class QueryBuilder {
 
         Query q = null;
         try {
-            q = session.createQuery(queryString());
+            final String s = queryString();
+            if (sqlQuery) {
+                // ticket:9435 - in order to allow updates with raw
+                // SQL we will unwrap the session. This is the only
+                // location that is doing such unwrapping.
+                // Also see ticket:9496 about deleting rdefs.
+                if (s.startsWith("update") || s.startsWith("delete")) {
+                    if (session instanceof Advised) {
+                        Advised proxy = (Advised) session;
+                        try {
+                            session = (Session) proxy.getTargetSource().getTarget();
+                        } catch (Exception e) {
+                            RuntimeException rt = new RuntimeException(e);
+                            rt.initCause(e);
+                            throw rt;
+                        }
+                    }
+                }
+                q = session.createSQLQuery(queryString());
+            } else {
+                q = session.createQuery(queryString());
+            }
         } catch (RuntimeException rt) {
-            log.warn("Failed query: " + queryString());
+            // We're logging failed queries because the almost always point
+            // to an internal exception that shouldn't be happening.
+            log.warn("Failed query: " + queryString(), rt);
             throw rt;
         }
 
@@ -394,7 +434,11 @@ public class QueryBuilder {
     }
 
     public void delete(String table) {
-        _type("delete");
+        if (sqlQuery) {
+            _type("delete from ");
+        } else {
+            _type("delete");
+        }
         select.append(table);
         appendSpace();
         skipFrom();
