@@ -546,6 +546,14 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
+
+        <gitdescribe select="\2"> </gitdescribe>
+
+        <exec executable="make" failonerror="true" dir="${sphinx.dir}">
+            <env key="OMERO_RELEASE" value="${version.describe}"/>
+            <arg line="clean html latexpdf"/>
+        </exec>
+        <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
     </target>
 
     <target name="release-slice2html" description="The Ice API Documentation">
@@ -933,15 +941,4 @@ omero.version=${omero.version}
             javadoc.maxmem=${javadoc.maxmem}
         </echo>
     </target>
-
-    <target name="sphinx">
-        <gitdescribe select="\2">
-        </gitdescribe>
-
-        <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="OMERO_RELEASE" value="${version.describe}"/>
-            <arg line="clean html latexpdf"/>
-        </exec>
-    </target>
-
 </project>
