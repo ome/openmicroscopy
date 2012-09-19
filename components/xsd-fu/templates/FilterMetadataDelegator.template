@@ -16,28 +16,19 @@
 {% when len(indexes) > 0 and prop.maxOccurs > 1 %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName}, ${indexes_string(indexes)}, ${index_string(prop.name)})
 	{
-{% if prop.javaType == "String" %}\
-		${prop.javaArgumentName} = filter? DataTools.sanitize(${prop.javaArgumentName}) : ${prop.javaArgumentName};
-{% end %}\
-		store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
+		meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
 	}
 {% end %}\
 {% when len(indexes) > 0 %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName}, ${indexes_string(indexes)})
 	{
-{% if prop.javaType == "String" %}\
-		${prop.javaArgumentName} = filter? DataTools.sanitize(${prop.javaArgumentName}) : ${prop.javaArgumentName};
-{% end %}\
-		store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)});
+		meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)});
 	}
 {% end %}\
 {% otherwise %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName})
 	{
-{% if prop.javaType == "String" %}\
-		${prop.javaArgumentName} = filter? DataTools.sanitize(${prop.javaArgumentName}) : ${prop.javaArgumentName};
-{% end %}\
-		store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName});
+		meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName});
 	}
 {% end %}\
 {% end %}\
@@ -96,33 +87,41 @@
 //
 
 /*
- * loci.formats.meta.FilterMetadata
+ * #%L
+ * OME-XML Java library for working with OME-XML metadata structures.
+ * %%
+ * Copyright (C) 2006 - 2012 Open Microscopy Environment:
+ *   - Massachusetts Institute of Technology
+ *   - National Institutes of Health
+ *   - University of Dundee
+ *   - Board of Regents of the University of Wisconsin-Madison
+ *   - Glencoe Software, Inc.
+ * %%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *-----------------------------------------------------------------------------
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *  Copyright (C) 2005-@year@ Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee,
- *      University of Wisconsin-Madison
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
- *
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *-----------------------------------------------------------------------------
+ * The views and conclusions contained in the software and documentation are
+ * those of the authors and should not be interpreted as representing official
+ * policies, either expressed or implied, of any organization.
+ * #L%
  */
 
 /*-----------------------------------------------------------------------------
@@ -135,15 +134,14 @@
 
 package loci.formats.meta;
 
-import loci.common.DataTools;
+import ome.scifio.common.DataTools;
 
+import ome.xml.model.*;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 
 /**
- * An implementation of {@link MetadataStore} that removes unprintable
- * characters from metadata values before storing them in a delegate
- * MetadataStore.
+ * A legacy delegator class for ome.xml.meta.FilterMetadata
  *
  * <dl><dt><b>Source code:</b></dt>
  * <dd><a href="http://trac.openmicroscopy.org.uk/ome/browser/bioformats.git/components/bio-formats/src/loci/formats/meta/FilterMetadata.java">Trac</a>,
@@ -151,20 +149,19 @@ import ome.xml.model.primitives.*;
  *
  * @author Melissa Linkert melissa at glencoesoftware.com
  * @author Curtis Rueden ctrueden at wisc.edu
+ * @author Mark Hiner hiner at wisc.edu
  */
 public class FilterMetadata implements MetadataStore
 {
 	// -- Fields --
 
-	private MetadataStore store;
-	private boolean filter;
+	private ome.xml.meta.FilterMetadata meta;
 
 	// -- Constructor --
 
 	public FilterMetadata(MetadataStore store, boolean filter)
 	{
-		this.store = store;
-		this.filter = filter;
+		meta = new ome.xml.meta.FilterMetadata(store, filter);
 	}
 
 	// -- MetadataStore API methods --
@@ -172,25 +169,25 @@ public class FilterMetadata implements MetadataStore
 	/* @see MetadataStore#createRoot() */
 	public void createRoot()
 	{
-		store.createRoot();
+		meta.createRoot();
 	}
 
 	/* @see MetadataStore#getRoot() */
 	public Object getRoot()
 	{
-		return store.getRoot();
+		return meta.getRoot();
 	}
 
 	/* @see MetadataStore#setRoot(Object) */
 	public void setRoot(Object root)
 	{
-		store.setRoot(root);
+		meta.setRoot(root);
 	}
 
 	/* @see MetadataStore#setUUID(String) */
 	public void setUUID(String uuid)
 	{
-		store.setUUID(uuid);
+		meta.setUUID(uuid);
 	}
 
 	// -- AggregateMetadata API methods --
@@ -199,12 +196,12 @@ public class FilterMetadata implements MetadataStore
 
 	public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex, int binDataIndex)
 	{
-		store.setPixelsBinDataBigEndian(bigEndian, imageIndex, binDataIndex);
+		meta.setPixelsBinDataBigEndian(bigEndian, imageIndex, binDataIndex);
 	}
 
 	public void setMaskBinData(byte[] binData, int ROIIndex, int shapeIndex)
 	{
-		store.setMaskBinData(binData, ROIIndex, shapeIndex);
+		meta.setMaskBinData(binData, ROIIndex, shapeIndex);
 	}
 
 	// -- Entity storage (code generated definitions) --
@@ -216,10 +213,7 @@ public class FilterMetadata implements MetadataStore
 	// ${repr(indexes[o.name])}
 	public void set${o.name}Value(${o.javaType} value, ${indexes_string(indexes[o.name].items()[0][1])})
 	{
-{% if o.javaType == "String" %}\
-		value = filter? DataTools.sanitize(value) : value;
-{% end %}\
-		store.set${o.name}Value(value, ${indexes_name_string(indexes[o.name].items()[0][1])});
+		meta.set${o.name}Value(value, ${indexes_name_string(indexes[o.name].items()[0][1])});
 	}
 
 {% end %}\
@@ -245,14 +239,16 @@ public class FilterMetadata implements MetadataStore
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${setter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\

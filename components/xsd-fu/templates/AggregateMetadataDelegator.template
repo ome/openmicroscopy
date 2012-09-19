@@ -14,17 +14,7 @@
 {% def counter(parent, obj, indexes) %}\
 	public int get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}Count(${indexes_string(indexes[:-1])})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				int result = retrieve.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}Count(${indexes_name_string(indexes[:-1])});
-				if (result >= 0) return result;
-			}
-		}
-		return -1;
+    return meta.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}Count(${indexes_name_string(indexes[:-1])});
 	}
 {% end %}\
 \
@@ -33,49 +23,19 @@
 {% when len(indexes) > 0 and prop.maxOccurs > 1 %}\
 	public ${prop.metadataStoreType} get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_string(indexes)}, ${index_string(prop.name)})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				${prop.metadataStoreType} result = retrieve.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
-				if (result != null) return result;
-			}
-		}
-		return null;
+    return meta.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
 	}
 {% end %}\
 {% when len(indexes) > 0 %}\
 	public ${prop.metadataStoreType} get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_string(indexes)})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				${prop.metadataStoreType} result = retrieve.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_name_string(indexes)});
-				if (result != null) return result;
-			}
-		}
-		return null;
+    return meta.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${indexes_name_string(indexes)});
 	}
 {% end %}\
 {% otherwise %}\
 	public ${prop.metadataStoreType} get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${index_string(prop.name)})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				${prop.metadataStoreType} result = retrieve.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${index_name_string(prop.name)});
-				if (result != null) return result;
-			}
-		}
-		return null;
+    return meta.get{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${index_name_string(prop.name)});
 	}
 {% end %}\
 {% end %}\
@@ -86,43 +46,19 @@
 {% when len(indexes) > 0 and prop.maxOccurs > 1 %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName}, ${indexes_string(indexes)}, ${index_string(prop.name)})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				MetadataStore store = (MetadataStore) o;
-				store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
-			}
-		}
+    meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)}, ${index_name_string(prop.name)});
 	}
 {% end %}\
 {% when len(indexes) > 0 %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName}, ${indexes_string(indexes)})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				MetadataStore store = (MetadataStore) o;
-				store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)});
-			}
-		}
+    meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName}, ${indexes_name_string(indexes)});
 	}
 {% end %}\
 {% otherwise %}\
 	public void set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.metadataStoreType} ${prop.javaArgumentName})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				MetadataStore store = (MetadataStore) o;
-				store.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName});
-			}
-		}
+    meta.set{% if is_multi_path[o.name] %}${parent}{% end %}${obj.name}${prop.name}(${prop.javaArgumentName});
 	}
 {% end %}\
 {% end %}\
@@ -181,33 +117,41 @@
 //
 
 /*
- * loci.formats.meta.AggregateMetadata
+ * #%L
+ * OME-XML Java library for working with OME-XML metadata structures.
+ * %%
+ * Copyright (C) 2006 - 2012 Open Microscopy Environment:
+ *   - Massachusetts Institute of Technology
+ *   - National Institutes of Health
+ *   - University of Dundee
+ *   - Board of Regents of the University of Wisconsin-Madison
+ *   - Glencoe Software, Inc.
+ * %%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *-----------------------------------------------------------------------------
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *  Copyright (C) 2005-@year@ Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee,
- *      University of Wisconsin-Madison
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
- *
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *-----------------------------------------------------------------------------
+ * The views and conclusions contained in the software and documentation are
+ * those of the authors and should not be interpreted as representing official
+ * policies, either expressed or implied, of any organization.
+ * #L%
  */
 
 /*-----------------------------------------------------------------------------
@@ -223,12 +167,12 @@ package loci.formats.meta;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.xml.model.*;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 
 /**
- * A metadata store which delegates the actual storage to one or more <i>sub</i>
- * metadata stores.
+ * A legacy delegator class for ome.xml.meta.AggregateMetadata.
  *
  * <dl><dt><b>Source code:</b></dt>
  * <dd><a href="http://trac.openmicroscopy.org.uk/ome/browser/bioformats.git/components/bio-formats/src/loci/formats/meta/AggregateMetadata.java">Trac</a>,
@@ -236,13 +180,14 @@ import ome.xml.model.primitives.*;
  *
  * @author Chris Allan callan at blackcat.ca
  * @author Curtis Rueden ctrueden at wisc.edu
+ * @author Mark Hiner hiner at wisc.edu
  */
 public class AggregateMetadata implements IMetadata
 {
 	// -- Fields --
 
-	/** The active metadata store delegates. */
-	private List delegates;
+	/** Functional AggregateMetadata for delegation. */
+  private ome.xml.meta.AggregateMetadata meta;
 
 	// -- Constructor --
 
@@ -253,7 +198,7 @@ public class AggregateMetadata implements IMetadata
 	 */
 	public AggregateMetadata(List delegates)
 	{
-		this.delegates = delegates;
+		meta = new ome.xml.meta.AggregateMetadata(delegates);
 	}
 
 	// -- MetadataStore API methods --
@@ -261,14 +206,7 @@ public class AggregateMetadata implements IMetadata
 	/* @see MetadataStore#createRoot() */
 	public void createRoot()
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				((MetadataStore) o).createRoot();
-			}
-		}
+		meta.createRoot();
 	}
 
 	/**
@@ -297,34 +235,61 @@ public class AggregateMetadata implements IMetadata
 
 	// -- Entity counting (manual definitions) --
 
+  public int getBooleanAnnotationAnnotationCount(int booleanAnnotationIndex) {
+    return meta.getBooleanAnnotationAnnotationCount(booleanAnnotationIndex);
+  }
+
+  public int getCommentAnnotationAnnotationCount(int commentAnnotationIndex) {
+    return meta.getCommentAnnotationAnnotationCount(commentAnnotationIndex);
+  }
+
+  public int getDoubleAnnotationAnnotationCount(int doubleAnnotationIndex) {
+    return meta.getDoubleAnnotationAnnotationCount(doubleAnnotationIndex);
+  }
+
+  public int getFileAnnotationAnnotationCount(int fileAnnotationIndex) {
+    return meta.getFileAnnotationAnnotationCount(fileAnnotationIndex);
+  }
+
+  public int getListAnnotationAnnotationCount(int listAnnotationIndex) {
+    return meta.getListAnnotationAnnotationCount(listAnnotationIndex);
+  }
+
+  public int getLongAnnotationAnnotationCount(int longAnnotationIndex) {
+    return meta.getLongAnnotationAnnotationCount(longAnnotationIndex);
+  }
+
+  public int getTagAnnotationAnnotationCount(int tagAnnotationIndex) {
+    return meta.getTagAnnotationAnnotationCount(tagAnnotationIndex);
+  }
+
+  public int getTermAnnotationAnnotationCount(int termAnnotationIndex) {
+    return meta.getTermAnnotationAnnotationCount(termAnnotationIndex);
+  }
+
+  public int getTimestampAnnotationAnnotationCount(int timestampAnnotationIndex)
+  {
+    return meta.getTimestampAnnotationAnnotationCount(timestampAnnotationIndex);
+  }
+
+  public int getXMLAnnotationAnnotationCount(int xmlAnnotationIndex) {
+    return meta.getXMLAnnotationAnnotationCount(xmlAnnotationIndex);
+  }
+
 	public int getPixelsBinDataCount(int imageIndex)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				int result = retrieve.getPixelsBinDataCount(imageIndex);
-				if (result >= 0) return result;
-			}
-		}
-		return -1;
+		return meta.getPixelsBinDataCount(imageIndex);
 	}
 
 	public String getLightSourceType(int instrumentIndex, int lightSourceIndex)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				return retrieve.getLightSourceType(instrumentIndex, lightSourceIndex);
-			}
-		}
-		return null;
+		return meta.getLightSourceType(instrumentIndex, lightSourceIndex);
 	}
+
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    return meta.getShapeType(roiIndex, shapeIndex);
+  }
 
 	// -- Entity counting (code generated definitions) --
 
@@ -335,31 +300,12 @@ public class AggregateMetadata implements IMetadata
 	// ${repr(indexes[o.name])}
 	public void set${o.name}Value(${o.javaType} value, ${indexes_string(indexes[o.name].items()[0][1])})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				((MetadataStore) o).set${o.name}Value(value, ${indexes_name_string(indexes[o.name].items()[0][1])});
-			}
-		}
+		meta.set${o.name}Value(value, ${indexes_name_string(indexes[o.name].items()[0][1])});
 	}
 
 	public ${o.javaType} get${o.name}Value(${indexes_string(indexes[o.name].items()[0][1])})
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				${o.javaType} result = ((MetadataRetrieve) o).get${o.name}Value(${indexes_name_string(indexes[o.name].items()[0][1])});
-				if (result != null)
-				{
-					return result;
-				}
-			}
-		}
-		return null;
+    return meta.get${o.name}Value(${indexes_name_string(indexes[o.name].items()[0][1])});
 	}
 
 {% end %}\
@@ -380,17 +326,7 @@ ${counter(k, o, v)}\
 
 	public Boolean getPixelsBinDataBigEndian(int imageIndex, int binDataIndex)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				Boolean result = retrieve.getPixelsBinDataBigEndian(imageIndex, binDataIndex);
-				if (result != null) return result;
-			}
-		}
-		return null;
+		return meta.getPixelsBinDataBigEndian(imageIndex, binDataIndex);
 	}
 
 	// -- Entity retrieval (code generated definitions) --
@@ -398,17 +334,7 @@ ${counter(k, o, v)}\
 	/** Gets the UUID associated with this collection of metadata. */
 	public String getUUID()
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataRetrieve)
-			{
-				MetadataRetrieve retrieve = (MetadataRetrieve) o;
-				String result = retrieve.getUUID();
-				if (result != null) return result;
-			}
-		}
-		return null;
+		return meta.getUUID();
 	}
 
 {% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\
@@ -436,14 +362,16 @@ ${counter(k, o, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${getter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
@@ -477,44 +405,21 @@ ${getter(k, o, prop, v)}\
 
 	public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex, int binDataIndex)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				MetadataStore store = (MetadataStore) o;
-				store.setPixelsBinDataBigEndian(bigEndian, imageIndex, binDataIndex);
-			}
-		}
+		meta.setPixelsBinDataBigEndian(bigEndian, imageIndex, binDataIndex);
 	}
 
 	public void setMaskBinData(byte[] binData, int ROIIndex, int shapeIndex)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				MetadataStore store = (MetadataStore) o;
-				store.setMaskBinData(binData, ROIIndex, shapeIndex);
-			}
-		}
+		meta.setMaskBinData(binData, ROIIndex, shapeIndex);
 	}
-
-	// -- Entity storage (code generated definitions) --
 
 	/** Sets the UUID associated with this collection of metadata. */
 	public void setUUID(String uuid)
 	{
-		for (Iterator iter = delegates.iterator(); iter.hasNext();)
-		{
-			Object o = iter.next();
-			if (o instanceof MetadataStore)
-			{
-				((MetadataStore) o).setUUID(uuid);
-			}
-		}
+		meta.setUUID(uuid);
 	}
+
+	// -- Entity storage (code generated definitions) --
 
 {% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
@@ -540,14 +445,16 @@ ${getter(k, o, prop, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}
 	// ${prop.name} accessor from parent ${k}
 ${setter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
