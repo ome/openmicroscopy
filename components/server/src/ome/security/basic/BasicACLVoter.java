@@ -115,14 +115,16 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
+        boolean rv = false;
         if (d == null ||
                 sysTypes.isSystemType(klass) ||
                 sysTypes.isInSystemGroup(d) ||
                 sysTypes.isInUserGroup(d)) {
-            return true;
+            rv = true;
         }
-
-        boolean rv = securityFilter.passesFilter(session, d, currentUser.current());
+        else {
+            rv = securityFilter.passesFilter(session, d, currentUser.current());
+        }
 
         // Misusing this location to store the loaded objects perms for later.
         if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
@@ -130,10 +132,19 @@ public class BasicACLVoter implements ACLVoter {
             // cache it's permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
+            if (g == null) {
+                log.warn(String.format("Group null while loading %s:%s",
+                        klass.getName(), id));
+            }
             if (g != null) { // Null for system types
                 Long gid = g.getId();
                 Permissions p = g.getDetails().getPermissions();
-                this.currentUser.current().setPermissionsForGroup(gid, p);
+                if (p == null) {
+                    log.warn(String.format("Permissions null for group %s " +
+                            "while loading %s:%s", gid, klass.getName(), id));
+                } else {
+                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                }
             }
         }
 
