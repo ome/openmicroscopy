@@ -304,7 +304,7 @@ class Connector
 	 */
 	IContainerPrx getPojosService()
 		throws Throwable
-	{ 
+	{
 		if (pojosService == null) {
 			if (entryUnencrypted != null)
 				pojosService = entryUnencrypted.getContainerService();
@@ -690,6 +690,7 @@ class Connector
 		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
 			all.toArray(new ServiceInterfacePrx[all.size()]);
 		try {
+			if (importStore != null) importStore.ping();
 			entryEncrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
 		try {
