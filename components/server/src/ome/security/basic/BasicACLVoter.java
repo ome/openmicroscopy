@@ -115,10 +115,17 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
+        if (d == null || sysTypes.isSystemType(klass)) {
+            // Here we're returning true because there
+            // will be no group value that we can use
+            // to store any permissions and don't want
+            // WARNS in the log.
+
+            return true; // EARLY EXIT!
+        }
+
         boolean rv = false;
-        if (d == null ||
-                sysTypes.isSystemType(klass) ||
-                sysTypes.isInSystemGroup(d) ||
+        if (sysTypes.isInSystemGroup(d) ||
                 sysTypes.isInUserGroup(d)) {
             rv = true;
         }
