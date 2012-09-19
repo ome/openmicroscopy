@@ -94,15 +94,7 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
-	
-	/** Indicates that the connection has been lost. */
-	public static final int LOST_CONNECTION = 0;
-	
-	/** Indicates that the server is out of service. */
-	public static final int SERVER_OUT_OF_SERVICE = 1;
-	
-	/** Indicates that the server is out of service. */
-	public static final int DESTROYED_CONNECTION = 2;
+
 	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
@@ -402,8 +394,8 @@ public class DataServicesFactory
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
-			case DESTROYED_CONNECTION:
-			case LOST_CONNECTION:
+			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
+			case ConnectionExceptionHandler.LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
 				connectionDialog = new MessageBox(
@@ -466,7 +458,7 @@ public class DataServicesFactory
 					}
 				}
 				break;
-			case SERVER_OUT_OF_SERVICE:
+			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
@@ -753,16 +745,4 @@ public class DataServicesFactory
 		}
 	}
 
-	/**
-	 * Checks if the session is alive.
-	 * 
-	 * @param context 	The context to make sure that agents do not
-	 * 					access the method.
-	 * @param ctx The security context.
-	 */
-	public static void isSessionAlive(Registry context, SecurityContext ctx)
-	{
-		if (context == registry) omeroGateway.isSessionAlive(ctx);
-	}
-	
 }
