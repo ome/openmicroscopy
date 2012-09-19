@@ -393,7 +393,14 @@ public class BasicACLVoter implements ACLVoter {
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
-            p.copyRestrictions(allow);
+
+            // #9635 - This is not the most efficient solution
+            // But since it's unclear why Permission objects
+            // are currently being shared, the safest solution
+            // is to always produce a copy.
+            Permissions copy = new Permissions(p);
+            copy.copyRestrictions(allow);
+            details.setPermissions(copy); // #9635
         }
     }
 
