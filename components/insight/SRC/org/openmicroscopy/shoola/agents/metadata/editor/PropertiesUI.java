@@ -66,7 +66,6 @@ import javax.swing.text.Document;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.apache.commons.lang.SystemUtils;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -1118,8 +1117,7 @@ class PropertiesUI
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
 		
-        if ((refObject instanceof WellSampleData) ||
-        		(refObject instanceof PlateAcquisitionData)) b = false;
+        if (refObject instanceof WellSampleData) b = false;
         
         namePane.setEnabled(b);
         //descriptionPane.setEnabled(b);
@@ -1209,6 +1207,9 @@ class PropertiesUI
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 			//if (f.isImage()) f.setDescription(desc);
+		} else if (object instanceof PlateAcquisitionData) {
+			PlateAcquisitionData pa = (PlateAcquisitionData) object;
+			if (name.length() > 0) pa.setName(name);
 		}
 	}
 	
