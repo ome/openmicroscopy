@@ -1197,7 +1197,7 @@ class MeasurementViewerModel
 	{
 		try {
 			long userID = getCurrentUser().getId();
-			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE,
+			return roiComponent.saveROI(getImage(), ROIComponent.EDIT,
 					userID);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();

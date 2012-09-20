@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 import omero.ServerError;
 import omero.client;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
@@ -56,9 +57,6 @@ public class RequestCallback
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
-	/** List handling the reports. */
-	private Response response;
-	
 	/** Flag indicating that the operation has finished. */
 	private boolean finished;
 	
@@ -72,6 +70,7 @@ public class RequestCallback
 	 */
 	private Object handleResponse()
 	{
+		Response response = getResponse();
 		if (response == null) return Boolean.valueOf(false);
 		if (response instanceof OK) return Boolean.valueOf(true);
 		else if (response instanceof ERR)
@@ -91,7 +90,6 @@ public class RequestCallback
 		throws ServerError
 	{
 		super(client, process);
-		response = null;
 	}
 	
 	/**
@@ -119,7 +117,6 @@ public class RequestCallback
 	{
 		super.onFinished(rsp, status, c);
 		finished = true;
-		response = rsp;
 		if (adapter != null) {
 			submitted = true;
 			Object ho = handleResponse();

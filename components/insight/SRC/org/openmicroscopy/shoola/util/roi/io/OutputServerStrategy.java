@@ -112,6 +112,14 @@ class OutputServerStrategy
 						ROIList.add(createServerROI(roi, image));
 				}
 				break;
+			case ROIComponent.EDIT:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canEdit())
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;
 			case ROIComponent.DELETE:
 				while (i.hasNext())
 				{
