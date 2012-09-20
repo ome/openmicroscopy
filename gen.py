@@ -42,7 +42,7 @@ else:
     repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/omero4"
 
 if "SNAPSHOT_PATH" in os.environ:
-    SNAPSHOT_PATH =  os.environ.get(SNAPSHOT_PATH)
+    SNAPSHOT_PATH =  os.environ.get('SNAPSHOT_PATH')
 else:
     SNAPSHOT_PATH = "/var/www/cvs.openmicroscopy.org.uk/snapshots/omero/"
 SNAPSHOT_URL = "http://cvs.openmicroscopy.org.uk/snapshots/omero/"
