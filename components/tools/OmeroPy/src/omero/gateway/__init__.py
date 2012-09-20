@@ -7233,7 +7233,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if shapeType is None:
             params = omero.sys.ParametersI()
             params.addLong('imageId', self.id)
-            params.addLong('ownerId', self._conn._userid)
+            params.addLong('ownerId', self._conn.getUserId())
             count = self._conn.getQueryService().projection(
                     'select count(*) from Roi as roi ' \
                     'where roi.image.id = :imageId ' \
