@@ -28,7 +28,7 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.custom_forms import NonASCIIForm
 
