@@ -166,7 +166,13 @@ webgateway_listimages_json = url(r'^dataset/(?P<did>[^/]+)/children/$', 'webgate
 json method: returns list of Images belonging to specified Dataset. See L{views.listImages_json}. Returns E.g list of 
 {"description": "", "author": "Will Moore", "date": 1291325060.0, "thumb_url": "/webgateway/render_thumbnail/4701/", "type": "Image", "id": 4701, "name": "spim.png"}
     - webgateway/dataset/<did>/children params are:
-    - did:  Dataset ID
+      - did:  Dataset ID
+    - request variables:
+      - thumbUrlPrefix: view key whose reverse url is to be used as prefix for thumb_url instead of default
+                        webgateway.views.render_thumbnail
+      - tiled: if set with anything other than an empty string will add information on whether each image
+               is tiled on this server
+    
 """
 
 webgateway_listwellimages_json = url(r'^well/(?P<did>[^/]+)/children/$', 'webgateway.views.listWellImages_json', name="webgateway_listwellimages_json")
