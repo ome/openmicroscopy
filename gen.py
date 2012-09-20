@@ -94,22 +94,22 @@ def repl_all(line, check_http=False):
                 part = part[6:]
                 part = part[0: part.find('"')]
                 if not check_url(part):
-                    raise Exception("Found bad URL: %s", part)
+                    raise Exception("Found bad URL: %s" % part)
     return line
 
 def find_pkg(name, path):
     path = repl_all(path)
     rv = glob.glob(SNAPSHOT_PATH + path)
     if len(rv) != 1:
-        raise Exception("Results!=1 for %s (%s): %s", name, path, rv)
+        raise Exception("Results!=1 for %s (%s): %s" % (name, path, rv))
     path = rv[0]
     repl["@%s@" % name] = SNAPSHOT_URL + path[len(SNAPSHOT_PATH):]
     repl["@%s_MD5@" % name] = hashfile(path)
     repl["@%s_BASE@" % name] = os.path.basename(path)
 
-find_pkg("LINUX_CLIENTS", "@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-@BUILD@.mac.zip")
-find_pkg("MAC_CLIENTS", "@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-@BUILD@.linux.zip")
-find_pkg("WIN_CLIENTS", "@VERSION@/pkg/OMERO.clients-@VERSION@-ice33-@BUILD@.win.zip")
+find_pkg("LINUX_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.mac.zip")
+find_pkg("MAC_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.linux.zip")
+find_pkg("WIN_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.win.zip")
 find_pkg("IJ_CLIENTS", "@VERSION@/OMERO.insight-ij-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("MATLAB_CLIENTS", "@VERSION@/OMERO.matlab-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("SERVER33", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
