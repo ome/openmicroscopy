@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -180,11 +179,15 @@ public class ImporterAgent
 						t = browserType;
 					else t = getDefaultBrowser();
 			}
-    		//
-    		//objects = evt.getObjects();
-    		Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
-        	List<TreeImageDisplay> l = null;
-        	if (data != null) l = data.get(getUserDetails().getId());
+    		
+    		List<TreeImageDisplay> l = null;
+    		//Require if the ExperimenterLoadedDataEvent is posted after
+    		//LoadImporter event.
+    		if (objects != null) {
+    			Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+            	if (data != null) l = data.get(getUserDetails().getId());
+    		}
+    		
     		importer.activate(t, evt.getSelectedContainer(), l);
     	}
     }
