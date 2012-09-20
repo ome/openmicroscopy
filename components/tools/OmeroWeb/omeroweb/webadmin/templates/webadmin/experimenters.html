@@ -76,9 +76,9 @@
 <div id="admin_tabs">
 
     <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a href="#experimenters_content" title="Edit Users">{% trans "Users" %}</a></li>
-        <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
-        <li id="drivespace_tab"><a href="{% url wastats %}" title="Statistics">{% trans "Statistics" %}</a></li>
+        <li id="experimenters_tab"><a href="#experimenters_content" title="{% trans "Edit Users" %}">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="{% url wagroups %}" title="{% trans "Edit Groups" %}">{% trans "Groups" %}</a></li>
+        <li id="drivespace_tab"><a href="{% url wastats %}" title="{% trans "Statistics" %}">{% trans "Statistics" %}</a></li>
     </ul>
 
     <div id="experimenters_content">
@@ -88,9 +88,9 @@
     <div class="one_column_header">
         <form class="search filtersearch" id="filtersearch" action="#">
             <input type="text" id="id_search">
-            <input type="submit" value="Go" /> 
+            <input type="submit" value="{% trans "Go" %}" /> 
             <span class="loading">
-                <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+                <img class="loader" alt="{% trans "Loading" %}" src="{% static "webgateway/img/spinner.gif" %}">
             </span>
         </form>
         
@@ -120,14 +120,14 @@
                 <td>{{ experimenter.omeName }}</td>
                 <td>{{ experimenter.institution|default:"-"|truncatewords:"3" }}</td>
                 <td>
-                      {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
-                      {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
-                      {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
-                      {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
+                      {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="{% trans "admin" %}" title="{% trans "admin" %}"> {% endif %}
+                      {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="{% trans "guest" %}" title="{% trans "guest" %}"> {% endif %}
+                      {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="{% trans "ldap" %}" title="{% trans "ldap" %}"> {% endif %}
+                      {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="{% trans "active" %}" title="{% trans "active" %}">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
                 </td>
                 <td>
                     {% if experimenter.isEditable %}
-                    <a href="{% url wamanageexperimenterid "edit" experimenter.id %}" title="Edit User" class="btn silver btn_edit">
+                    <a href="{% url wamanageexperimenterid "edit" experimenter.id %}" title="{% trans "Edit User" %}" class="btn silver btn_edit">
                         <span></span>
                     </a>
                     {% endif %}
@@ -149,11 +149,11 @@
 {% block metadata_details %}
 
     <div>
-        <img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; 
-        <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; 
-        <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; 
-        <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; 
-        <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active;
+        <img src="{% static "webadmin/image/admin.png" %}" alt="{% trans "admin" %}" title="{% trans "admin" %}"> - {% trans "Admin" %}; 
+        <img src="{% static "webadmin/image/guest.png" %}" alt="{% trans "guest" %}" title="{% trans "guest" %}"> - {% trans "Guest" %}; 
+        <img src="{% static "webadmin/image/ldap.png" %}" alt="{% trans "ldap" %}" title="{% trans "ldap" %}"> - {% trans "ldap" %}; 
+        <img src="{% static "webadmin/image/active.png" %}" alt="{% trans "active" %}" title="{% trans "active" %}"> - {% trans "active" %}; 
+        <img src="{% static "webadmin/image/notactive.png" %}" alt="{% trans "notactive" %}" title="{% trans "notactive" %}"> - {% trans "not active" %};
     <div>
         
 {% endblock %}

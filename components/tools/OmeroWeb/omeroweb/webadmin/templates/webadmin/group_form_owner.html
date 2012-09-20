@@ -93,15 +93,15 @@
 	
 <h1>{% trans "Edit group" %}</h1>
 
-<h1><a href="{% url wamyaccount "edit" %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
+<h1><a href="{% url wamyaccount "edit" %}" style="position:relative; top:-38px; float:right" title="{% trans "Go Back to Groups" %}">{% trans "Cancel" %}</a></h1>
 
 	<dl>
 		
-	    <dt><strong>Name</strong></dt> 
+	    <dt><strong>{% trans "Name" %}</strong></dt> 
 		<dd>{{ group.name }}</dd>
 	    
-		<dt><strong>Description</strong></dt> 
-		<dd>{{ group.description|default:"no description" }}</dd>
+		<dt><strong>{% trans "Description" %}</strong></dt> 
+		<dd>{{ group.description|default:_("no description") }}</dd>
 		
 	</dl>
 	
@@ -131,11 +131,13 @@
     </form>
 
     <p>
+        {% blocktrans %}
         Full details on various Permissions levels can be found on the 
         <a href="http://www.openmicroscopy.org/site/support/omero4/server/permissions/" target="new">
             OMERO Permissions
         </a>
         page.
+        {% endblocktrans %}
     </p>
 </div>
 {% endblock %}

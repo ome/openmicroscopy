@@ -195,7 +195,7 @@
     <h1>{% trans "New User" %}</h1>
     {% endif %}
 
-    <h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
+    <h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="{% trans "Go Back to Users" %}">{% trans "Cancel" %}</a></h1>
 
 
 
@@ -204,12 +204,12 @@
     <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form settings_form">
 
         {% if ldapAuth %}
-        <label>LDAP:</label> {{ ldapAuth }}
+        <label>{% trans "LDAP" %}:</label> {{ ldapAuth }}
         {% else %}
 
-        <label>Password</label>
+        <label>{% trans "Password" %}</label>
             <a class="btn btn_text silver" id="change_password">
-                <span>Change User's Password</span>
+                <span>{% trans "Change User's Password" %}</span>
             </a>
         <span id="password_change_message"></span>
         {% endif %}
@@ -256,14 +256,14 @@
 
     {% if eid %}
     <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
-    <div id="password_change_dialog" title="Change Password">
+    <div id="password_change_dialog" title="{% trans "Change Password" %}">
 
     <form id="change_password_form" action="{% url wamanagechangepasswordid eid %}" method="POST">
 
         <table>
             <tbody>
                 <tr>
-                    <td class="form"><label for="id_old_password">Admin Password</label></td>
+                    <td class="form"><label for="id_old_password">{% trans "Admin Password" %}</label></td>
                     <td class="input">{{ password_form.old_password }}</td>
                 </tr>
                 <tr>

@@ -310,20 +310,20 @@ def forgotten_password(request, **kwargs):
             try:
                 conn = getGuestConnection(blitz.host, blitz.port)
                 if not conn.isForgottenPasswordSet():
-                    error = "This server cannot reset password. Please contact your administrator."
+                    error = _("This server cannot reset password. Please contact your administrator.")
                     conn = None
             except Exception, x:
                 logger.error(traceback.format_exc())
-                error = "Internal server error, please contact administrator."
+                error = _("Internal server error, please contact administrator.")
         
             if conn is not None:
                 try:
                     conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
-                    error = "Password was reseted. Check you mailbox."
+                    error = _("Password was reseted. Check you mailbox.")
                     form = None
                 except Exception, x:
                     logger.error(traceback.format_exc())
-                    error = "Internal server error, please contact administrator."
+                    error = _("Internal server error, please contact administrator.")
     else:
         form = ForgottonPasswordForm()
     
