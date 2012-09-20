@@ -76,6 +76,7 @@ class TestRois(lib.ITest):
         roi3.addShape(omero.model.EllipseI())
         roi3.setImage(img)
         roi3  = member.sf.getUpdateService().saveAndReturnObject(roi3)
+        self.assertEqual(wrapper.getROICount(),3)
         self.assertEqual(wrapper.getROICount("Ellipse"),2)
         self.assertEqual(wrapper.getROICount("Ellipse",None),2)
         self.assertEqual(wrapper.getROICount("Ellipse",1),1)
@@ -86,6 +87,7 @@ class TestRois(lib.ITest):
         # Member gateway
         conn = BlitzGateway(client_obj = member)
         wrapper = ImageWrapper(conn, img)            
+        self.assertEqual(wrapper.getROICount(),3)
         self.assertEqual(wrapper.getROICount("Ellipse"),2)
         self.assertEqual(wrapper.getROICount("Ellipse",None),2)
         self.assertEqual(wrapper.getROICount("Ellipse",1),1)
