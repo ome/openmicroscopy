@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
