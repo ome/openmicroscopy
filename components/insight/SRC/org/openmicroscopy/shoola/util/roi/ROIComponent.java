@@ -96,6 +96,9 @@ public class ROIComponent
 	/** Flag indicating to check if the roi can be deleted.*/
 	public static final int ALL = 4;
 	
+	/** Flag indicating to check if the roi can be edited.*/
+	public static final int EDIT = 5;
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 
