@@ -13,6 +13,10 @@ Regular usage steps consist of:
   * Move the contents of OMERO-trunk-ice34 to
     OMERO-trunk/
 
+  * Rename the OVA to include the version number
+    (e.g. 4.4.4) and be sure to modify the MD5
+    file to use the new name.
+
   * Symlink OMERO-trunk/<BUILDNUMBER> to
     omero/4.4.4
 
