@@ -60,7 +60,20 @@
         </if>
     </target>
 
-    <target name="tools-build" depends="tools-init"/>
+    <target name="localization-webadmin">
+        <exec executable="python" failonerror="@{failonerror}" dir="${basedir}/omeroweb/webadmin">
+            <env key="PYTHONPATH" path="${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <arg line="${basedir}/../target/lib/python/django/bin/django-admin.py makemessages -l en"/>
+        </exec>
+        <exec executable="python" failonerror="@{failonerror}" dir="${basedir}/omeroweb/webadmin">
+            <env key="PYTHONPATH" path="${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <arg line="${basedir}/../target/lib/python/django/bin/django-admin.py compilemessages"/>
+        </exec>
+    </target>
+
+    <target name="localization" depends="tools-init,localization-webadmin" unless="env.NOPYTHON"/>
+
+    <target name="tools-build" depends="tools-init,localization"/>
 
     <target name="tools-dist" depends="tools-build" description="Copies files into target">
         <copy todir="${basedir}/../target/lib/python/omeroweb">
@@ -78,6 +91,7 @@
         <delete dir="${basedir}/omeroweb/log"/>
         <delete>
             <fileset dir="${basedir}" includes="**/*.pyc"/>
+            <fileset dir="${basedir}" includes="**/*.mo"/>
         </delete>
     </target>
 
