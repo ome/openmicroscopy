@@ -1276,16 +1276,26 @@ class CmdControl(BaseControl):
             if cb is not None:
                 cb.close(True) # Close handle
 
-    def print_report(self, req, rsp, status, detailed):
-        import omero
-        type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-        self.ctx.out(("%s %s %s... " % (type, req.type, req.id)), newline = False)
-        if isinstance(rsp, omero.cmd.ERR):
-            self.ctx.out("failed: '%s'" % rsp.name)
+    def get_error(self, rsp):
+        if not isinstance(rsp, omero.cmd.ERR):
+            return None
+        else:
+            sb = "failed: '%s'\n" % rsp.name
             if rsp.parameters:
                 for k in sorted(rsp.parameters):
                     v = rsp.parameters.get(k, "")
-                    self.ctx.out("\t%s=%s" % (k, v))
+                    sb += "\t%s=%s\n" % (k, v)
+            return sb
+
+    def print_report(self, req, rsp, status, detailed):
+        ### Note: this should be in the GraphControl subclass
+        ### due to the use of req.type
+        import omero
+        type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+        self.ctx.out(("%s %s %s... " % (type, req.type, req.id)), newline = False)
+        err = self.get_error(rsp)
+        if err:
+            self.ctx.err(err)
         else:
             self.ctx.out("ok")
 
@@ -1375,14 +1385,20 @@ class GraphControl(CmdControl):
         import omero
         client = self.ctx.conn(args)
         cb = None
+        req = omero.cmd.GraphSpecList()
         try:
             try:
-                speclist, status, cb = self.response(client, omero.cmd.GraphSpecList())
+                speclist, status, cb = self.response(client, req)
             except omero.LockTimeout, lt:
                 self.ctx.die(446, "LockTimeout: %s" % lt.message)
         finally:
             if cb is not None:
                 cb.close(True) # Close handle
+
+        ### Could be put in positive_response helper
+        err = self.get_error(speclist)
+        if err:
+            self.ctx.die(367, err)
 
         specs = speclist.list
         specmap = dict()

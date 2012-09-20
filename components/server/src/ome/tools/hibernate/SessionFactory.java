@@ -91,6 +91,8 @@ public class SessionFactory implements MethodInterceptor {
 
     /**
      * Wraps all invocations to Session to prevent certain usages.
+     * Note: {@link QueryBuilder} may unwrap the session in certain
+     * cases.
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
 

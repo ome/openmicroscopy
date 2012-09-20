@@ -15,7 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import ome.conditions.InternalException;
 import ome.model.IObject;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
@@ -292,6 +296,84 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         }
         return rv;
 
+    }
+
+    public QueryBuilder chgrpQuery(EventContext ec, String table, GraphOpts opts) {
+        final QueryBuilder qb = new QueryBuilder();
+        qb.update(table);
+        qb.append("set details.group.id = :grp ");
+        qb.where();
+        qb.and("id = :id");
+        if (!opts.isForce()) {
+            permissionsClause(ec, qb, false);
+        }
+        return qb;
+    }
+
+    public QueryBuilder chmodQuery(EventContext ec, String table, GraphOpts opts) {
+            final QueryBuilder qb = new QueryBuilder();
+            qb.update(table);
+            qb.append("set owner_id = :usr   ");
+            qb.where();
+            qb.and("id = :id");
+            if (!opts.isForce()) {
+                permissionsClause(ec, qb, false);
+            }
+            return qb;
+    }
+
+    public QueryBuilder deleteQuery(EventContext ec, String table, GraphOpts opts) {
+        final QueryBuilder qb = new QueryBuilder();
+        qb.delete(table);
+        qb.where();
+        qb.and("id = :id");
+        if (!opts.isForce()) {
+            permissionsClause(ec, qb, false);
+        }
+        return qb;
+    }
+
+    /**
+     * Appends a clause to the {@link QueryBuilder} based on the current user.
+     *
+     * If the user is an admin like root, then nothing is appended, and any
+     * action is permissible. If the user is a leader of the current group, then
+     * the object must be in the current group. Otherwise, the object must
+     * belong to the current user.
+     */
+    public void permissionsClause(EventContext ec, QueryBuilder qb, boolean sqlQuery) {
+
+        if (ec.isCurrentUserAdmin()) {
+            return; // EARLY EXIT
+        }
+
+        final Permissions p = ec.getCurrentGroupPermissions();
+        if (p == Permissions.DUMMY) {
+            throw new InternalException("EventContext has DUMMY permissions");
+        }
+
+        // If this is less than a rwrw group and the user is not an admin,
+        // then we want we require either ownership of the object or
+        // leadership of the group.
+        if (!p.isGranted(Role.GROUP, Right.WRITE)) {
+            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                if (sqlQuery) {
+                    qb.and("group_id = :gid");
+                } else {
+                    qb.and("details.group.id = :gid");
+                }
+                qb.param("gid", ec.getCurrentGroupId());
+            } else {
+                // This is only a regular user, then the object must belong to
+                // him/her
+                if (sqlQuery) {
+                    qb.and("owner_id = :oid");
+                } else {
+                    qb.and("details.owner.id = :oid");
+                }
+                qb.param("oid", ec.getCurrentUserId());
+            }
+        }
     }
 
     private String logmsg(GraphEntry subpath, List<List<Long>> results) {

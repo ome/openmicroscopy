@@ -264,7 +264,7 @@ public class Permissions implements Serializable {
     }
 
     public static boolean isDisallow(final boolean[] restrictions, final int restriction) {
-        if (restrictions != null && restrictions.length >= restriction) {
+        if (restrictions != null && restrictions.length > restriction) {
             return restrictions[restriction];
         }
         return false;

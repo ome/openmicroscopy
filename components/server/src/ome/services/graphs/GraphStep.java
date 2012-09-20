@@ -197,41 +197,6 @@ public abstract class GraphStep {
     public abstract void action(Callback cb, Session session, SqlAction sql,
             GraphOpts opts) throws GraphException;
 
-    /**
-     * Appends a clause to the {@link QueryBuilder} based on the current user.
-     *
-     * If the user is an admin like root, then nothing is appended, and any
-     * action is permissible. If the user is a leader of the current group, then
-     * the object must be in the current group. Otherwise, the object must
-     * belong to the current user.
-     */
-    public static void permissionsClause(EventContext ec, QueryBuilder qb) {
-
-        if (ec.isCurrentUserAdmin()) {
-            return; // EARLY EXIT
-        }
-
-        final Permissions p = ec.getCurrentGroupPermissions();
-        if (p == Permissions.DUMMY) {
-            throw new InternalException("EventContext has DUMMY permissions");
-        }
-
-        // If this is less than a rwrw group and the user is not an admin,
-        // then we want we require either ownership of the object or
-        // leadership of the group.
-        if (!p.isGranted(Role.GROUP, Right.WRITE)) {
-            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                qb.and("details.group.id = :gid");
-                qb.param("gid", ec.getCurrentGroupId());
-            } else {
-                // This is only a regular user, then the object must belong to
-                // him/her
-                qb.and("details.owner.id = :oid");
-                qb.param("oid", ec.getCurrentUserId());
-            }
-        }
-    }
-
 
     protected void logPhase(String phase) {
         log.debug(String.format("%s %s from %s: root=%s", phase, id,
@@ -394,7 +359,7 @@ public abstract class GraphStep {
                 qb.and("child.id in (:ids)");
                 qb.paramList("ids", ids);
                 // ticket:2962
-                GraphStep.permissionsClause(ec, qb);
+                aspec.permissionsClause(ec, qb, false);
 
                 Query q = qb.query(session);
                 int count = q.executeUpdate();
