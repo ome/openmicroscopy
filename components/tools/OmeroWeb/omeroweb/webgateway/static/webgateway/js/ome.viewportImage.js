@@ -390,7 +390,6 @@ $.fn.viewportImage = function(options) {
     }
     
     this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy) {
-        
         InfoControl.prototype.viewerZoomed = function(e) {
             var sz = this.viewer.imageSize();
             if (this.dom_info) 
@@ -500,7 +499,11 @@ $.fn.viewportImage = function(options) {
         cur_zoom = viewerBean.zoomLevel;
     }
     
-    
+    this.destroyTiles = function () {
+        jQuery('#weblitz-viewport-tiles').remove();
+        viewerBean = null;
+    }
+
     this.refresh = function () {
         
       imagewidth = image.width();
