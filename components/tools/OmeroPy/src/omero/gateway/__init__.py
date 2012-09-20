@@ -5732,7 +5732,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                      that will take a single ImgId int argument and return the
                      customized URL string
                      - tiled - if passed and value evaluates to true, add
-                     information on wether this image is tiled on this server.
+                     information on whether this image is tiled on this server.
         @type: Dict
         @return:    Dict
         @rtype:     Dict
@@ -5748,13 +5748,12 @@ class _ImageWrapper (BlitzObjectWrapper):
                 else:
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
             if xtra.get('tiled', False):
-                # Since we need to calculate sizes, store them too in the marshalled value
+                # Since we need to calculate sizes, store them too in the marshaled value
                 maxplanesize = self._conn.getMaxPlaneSize()
                 rv['size'] = {'width': self.getSizeX(),
                              'height': self.getSizeY(),
                               }
-                rv['tiled'] = (maxplanesize[0] <= rv['size']['width']) or \
-                              (maxplanesize[1] <= rv['size']['height'])
+                rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
 
                 
         return rv

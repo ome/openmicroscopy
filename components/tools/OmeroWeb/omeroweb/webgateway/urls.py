@@ -170,7 +170,7 @@ json method: returns list of Images belonging to specified Dataset. See L{views.
     - request variables:
       - thumbUrlPrefix: view key whose reverse url is to be used as prefix for thumb_url instead of default
                         webgateway.views.render_thumbnail
-      - tiled: if set with anything other than an empty string will add information on wether each image
+      - tiled: if set with anything other than an empty string will add information on whether each image
                is tiled on this server
     
 """
