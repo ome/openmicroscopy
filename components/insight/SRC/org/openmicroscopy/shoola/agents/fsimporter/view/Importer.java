@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -263,10 +264,9 @@ public interface Importer
 	/**
 	 * Creates the data object.
 	 * 
-	 * @param child The data object to create.
-	 * @param parent The parent of the object or <code>null</code>.
+	 * @param data The object hosting information about the object to create.
 	 */
-	public void createDataObject(DataObject child, DataObject parent);
+	public void createDataObject(ObjectToCreate data);
 	
 	/**
 	 * Returns <code>true</code> if there are data to import,
