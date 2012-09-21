@@ -115,25 +115,43 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
-        if (d == null ||
-                sysTypes.isSystemType(klass) ||
-                sysTypes.isInSystemGroup(d) ||
-                sysTypes.isInUserGroup(d)) {
-            return true;
+        if (d == null || sysTypes.isSystemType(klass)) {
+            // Here we're returning true because there
+            // will be no group value that we can use
+            // to store any permissions and don't want
+            // WARNS in the log.
+
+            return true; // EARLY EXIT!
         }
 
-        boolean rv = securityFilter.passesFilter(session, d, currentUser.current());
+        boolean rv = false;
+        if (sysTypes.isInSystemGroup(d) ||
+                sysTypes.isInUserGroup(d)) {
+            rv = true;
+        }
+        else {
+            rv = securityFilter.passesFilter(session, d, currentUser.current());
+        }
 
         // Misusing this location to store the loaded objects perms for later.
-        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
+        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
             // cache it's permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
+            if (g == null) {
+                log.warn(String.format("Group null while loading %s:%s",
+                        klass.getName(), id));
+            }
             if (g != null) { // Null for system types
                 Long gid = g.getId();
                 Permissions p = g.getDetails().getPermissions();
-                this.currentUser.current().setPermissionsForGroup(gid, p);
+                if (p == null) {
+                    log.warn(String.format("Permissions null for group %s " +
+                            "while loading %s:%s", gid, klass.getName(), id));
+                } else {
+                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                }
             }
         }
 
@@ -375,7 +393,14 @@ public class BasicACLVoter implements ACLVoter {
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
-            p.copyRestrictions(allow);
+
+            // #9635 - This is not the most efficient solution
+            // But since it's unclear why Permission objects
+            // are currently being shared, the safest solution
+            // is to always produce a copy.
+            Permissions copy = new Permissions(p);
+            copy.copyRestrictions(allow);
+            details.setPermissions(copy); // #9635
         }
     }
 
