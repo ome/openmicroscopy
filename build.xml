@@ -554,6 +554,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg line="clean html latexpdf"/>
         </exec>
         <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
+        <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
+            <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
+        </zip>
     </target>
 
     <target name="release-slice2html" description="The Ice API Documentation">
