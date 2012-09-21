@@ -78,6 +78,8 @@ installed $OMERO_ALT/$ICE_VERSION || bin/brew install $OMERO_ALT/$ICE_VERSION
 installed libjpeg || bin/brew install libjpeg
 # Requirements for scipy ============================================
 installed gfortran || bin/brew install gfortran
+# Requirements for i18n ===========================================
+installed gettext || (bin/brew install gettext && bin/brew link gettext)
 
 if ! $WITHOUT_MPLAYER; then
     installed mplayer || bin/brew install mplayer
