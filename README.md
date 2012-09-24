@@ -10,15 +10,17 @@ Regular usage steps consist of:
     This will transfer the files under
     omero/releases/OMERO-trunk*/<BUILDNUMBER>
 
-  * Move the contents of OMERO-trunk-ice34 to
-    OMERO-trunk/
+  * Create a directory as an omedev with the
+    Release number and chmod
 
-  * Rename the OVA to include the version number
-    (e.g. 4.4.4) and be sure to modify the MD5
-    file to use the new name.
+  * Run prep.sh as hudson. This:
 
-  * Symlink OMERO-trunk/<BUILDNUMBER> to
-    omero/4.4.4
+    * Rename the OVA to include the version number
+        (e.g. 4.4.4) and be sure to modify the MD5
+        file to use the new name.
+
+    * Symlink OMERO-trunk/<BUILDNUMBER> to
+        omero/4.4.4
 
   * Run gen.py 4.4.4 <BUILDNUMBER> and save
     the output as the download page on plone

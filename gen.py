@@ -7,8 +7,11 @@ import sys
 import glob
 import hashlib
 import httplib
+import datetime
 import urlparse
 import fileinput
+
+
 
 # For calculating tags
 import github
@@ -25,7 +28,8 @@ except:
     usage()
 
 repl = {"@VERSION@": version,
-        "@BUILD@": build}
+        "@BUILD@": build,
+        "@MONTHYEAR@": datetime.datetime.now().strftime("%b %Y")}
 
 
 gh = github.Github()
@@ -107,13 +111,13 @@ def find_pkg(name, path):
     repl["@%s_MD5@" % name] = hashfile(path)
     repl["@%s_BASE@" % name] = os.path.basename(path)
 
-find_pkg("LINUX_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.mac.zip")
-find_pkg("MAC_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.linux.zip")
+find_pkg("LINUX_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.linux.zip")
+find_pkg("MAC_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.mac.zip")
 find_pkg("WIN_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.win.zip")
 find_pkg("IJ_CLIENTS", "@VERSION@/OMERO.insight-ij-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("MATLAB_CLIENTS", "@VERSION@/OMERO.matlab-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("SERVER33", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
-find_pkg("SERVER34", "@VERSION@/OMERO.server-@VERSION@-ice34-@BUILD@.zip")
+find_pkg("SERVER34", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("DOCS", "@VERSION@/OMERO.docs-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("VM", "virtualbox/omero-vm-@VERSION@.ova")
 find_pkg("DOC", "@VERSION@/OMERO-@VERSION@.pdf")

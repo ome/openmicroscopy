@@ -112,7 +112,7 @@ Windows](@DOC_URL@/sysadmins/windows/server-installation.html) or using the
 <p>&nbsp;</p>
 
 
-## Release Notes for OMERO @VERSION@ (@MONTH@ @YEAR@) ##
+## Release Notes for OMERO @VERSION@ (@MONTHYEAR@) ##
 
 Full details of features and what is new can be found in the 
 [announcement](REPLACE WITH THE URL OF ANNOUNCEMENT).
