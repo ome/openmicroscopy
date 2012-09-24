@@ -16,7 +16,7 @@ about each release.
  * After downloading the relevant files, you may want to take a look at our OMERO @VERSION@ documentation [online documentation](@DOC_URL@) page or
 [PDF documentation](@DOC@).
 
-## OMERO Client @VERSION@ Downloads ##
+## OMERO client @VERSION@ downloads ##
 
  * OMERO.clients is a package including 
 [OMERO.insight](@DOC_URL@/users/clients-overview.html#omero-insight), 
@@ -70,7 +70,7 @@ loci_tools.jar)
 <p>&nbsp;</p>
 
 
-## OMERO Server @VERSION@ Downloads ##
+## OMERO server @VERSION@ downloads ##
 
  * OMERO @VERSION@ now supports Ice 3.4 & Ice 3.3, download the server 
 corresponding to your Ice version below. (Note that the client(s) should work 
@@ -112,7 +112,7 @@ Windows](@DOC_URL@/sysadmins/windows/server-installation.html) or using the
 <p>&nbsp;</p>
 
 
-## Release Notes for OMERO @VERSION@ (@MONTHYEAR@) ##
+## Release notes for OMERO @VERSION@ (@MONTHYEAR@) ##
 
 Full details of features and what is new can be found in the 
 [announcement](REPLACE WITH THE URL OF ANNOUNCEMENT).
@@ -175,7 +175,7 @@ The git release tag for this version is `v.@VERSION@` (sha1:
 <p>&nbsp;</p>
 
 
-## Checking Out Our Code ##
+## Checking out the code ##
 
 To check out the code, install `git` and run the following command:
 
