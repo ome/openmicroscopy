@@ -129,7 +129,7 @@ More information is available at:
                 gid = g.id.val
             return gid, g
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % gid)
+            self.ctx.die(503, "Unknown group: %s" % id_or_name)
 
     def find_user(self, admin, id_or_name):
         import omero
@@ -142,7 +142,7 @@ More information is available at:
                 uid = u.id.val
             return uid, u
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown experimenter: %s" % uid)
+            self.ctx.die(503, "Unknown experimenter: %s" % id_or_name)
 
     def perms(self, args):
 
