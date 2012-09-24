@@ -7220,15 +7220,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
 
-    def getROICount(self, shapeType=None, eid=None):
+    def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
         Count number of ROIs associated to an image
-        
-        @param shapeType:   Filter by shape type ("Rect",...).
-        @param eid:         Filter by owner ID.
-        @return:            Number of ROIs found
+
+        @param shapeType: Filter by shape type ("Rect",...).
+        @param filterByCurrentUser: Whether or not to filter the count by the
+        currently logged in user.
+        @return: Number of ROIs found for the currently logged in user if
+        C{filterByCurrentUser} is C{True}, otherwise the total number found.
         """
-        
+
         # Create ROI shape validator (return True if at least one shape is found)
         def isValidType(shape):
             if not shapeType:
@@ -7252,17 +7254,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         if shapeType is None:
             params = omero.sys.ParametersI()
             params.addLong('imageId', self.id)
-            params.addLong('ownerId', self._conn._userid)
+            query = 'select count(*) from Roi as roi ' \
+                    'where roi.image.id = :imageId'
+            if filterByCurrentUser:
+                query += ' and roi.details.owner.id = :ownerId'
+                params.addLong('ownerId', self._conn.getUserId())
             count = self._conn.getQueryService().projection(
-                    'select count(*) from Roi as roi ' \
-                    'where roi.image.id = :imageId ' \
-                    'and roi.details.owner.id = :ownerId', params, self._conn.SERVICE_OPTS)
+                    query, params, self._conn.SERVICE_OPTS)
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
 
         roiOptions = omero.api.RoiOptions()
-        if eid:
+        if filterByCurrentUser:
             roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
         
         result = self._conn.getRoiService().findByImage(self.id, roiOptions)
