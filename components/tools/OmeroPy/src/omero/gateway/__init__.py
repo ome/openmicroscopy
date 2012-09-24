@@ -5753,8 +5753,10 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rv['size'] = {'width': self.getSizeX(),
                              'height': self.getSizeY(),
                               }
-                rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
-
+                if rv['size']['height'] and rv['size']['width']:
+                    rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
+                else:
+                    rv['tiles'] = False
                 
         return rv
 
