@@ -175,6 +175,29 @@ public class PublicRepositoryI extends _RepositoryDisp {
        return (OriginalFileI) new IceMapper().map(oFile);
     }
 
+    public List<String> list(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        List<String> contents = new ArrayList<String>();
+        for (String child : file.list()) {
+            contents.add(child);
+        }
+        return contents;
+    }
+
+    public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        List<OriginalFile> contents = new ArrayList<OriginalFile>();
+        for (File child : file.listFiles()) {
+            OriginalFile originalFile = new OriginalFileI();
+            originalFile.setName(rstring(child.getName()));
+            originalFile.setPath(rstring(path));
+            originalFile.setSize(rlong(child.length()));
+            originalFile.setMtime(rtime(child.lastModified()));
+            contents.add(originalFile);
+        }
+        return contents;
+    }
+
     /**
      * Register an OriginalFile using its path
      *
