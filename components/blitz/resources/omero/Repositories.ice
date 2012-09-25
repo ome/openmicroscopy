@@ -60,6 +60,22 @@ module omero {
             string mimetype(string path) throws ServerError;
 
             /**
+             * Returns a set of strings naming the files and directories in
+             * the directory denoted by an abstract pathname.
+             **/
+            omero::api::StringSet list(string path) throws ServerError;
+
+            /**
+             * Returns an array of abstract pathanam objects denoting the
+             * files in the directory denoted by an abstract pathname.  It
+             * is expected that at a minimum the "name", "path", "size" and
+             * "mtime" attributes will be present for each
+             * [omero::model::OriginalFile] instance.
+             **/
+            omero::api::OriginalFileList listFiles(string path)
+                    throws ServerError;
+
+            /**
              * Create an OriginalFile in the database for the given path.
              *
              **/
