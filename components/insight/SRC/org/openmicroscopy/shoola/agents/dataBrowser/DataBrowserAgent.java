@@ -120,11 +120,7 @@ public class DataBrowserAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (env == null) return -1;
-    	switch (env.runAsPlugin()) {
-			case LookupNames.IMAGE_J:
-				return DataBrowser.IMAGE_J;
-		}
-    	return -1;
+    	return env.runAsPlugin();
     }
     
     /**

@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
@@ -21,6 +22,7 @@ import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
@@ -54,6 +56,7 @@ public class LdapTest extends MockObjectTestCase {
         LdapConfig config;
         LdapPasswordProvider provider;
         public LdapTemplate template;
+        public OmeroContext applicationContext;
 
         public void createUserWithGroup(LdapTest t, final String dn, String group) {
             role.expects(atLeastOnce()).method("createGroup")
@@ -149,7 +152,7 @@ public class LdapTest extends MockObjectTestCase {
     protected Fixture createFixture(File ctxFile) throws Exception {
 
         Fixture fixture = new Fixture();
-        fixture.ctx =new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
+        fixture.ctx = new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
         fixture.config = (LdapConfig) fixture.ctx.getBean("config");
 
         Map<String, LdapContextSource> sources =
@@ -234,15 +237,24 @@ public class LdapTest extends MockObjectTestCase {
                 assertNotNull(dn);
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
                 assertTrue(fixture.createUserFromLdap(user, "password"));
+                fixture.login(user, users.get(user).get(0), "password");
                 // Parsing afterwards to force an explosion to reproduce #2557
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
+                fail("user didn't fail");
             } catch (ValidationException e) {
-                throw e; // This means that we couldn't insert.
-                // See the thread on case-senitivty in #2557
+                if (e.getMessage().equals("No group found for: cn=user,ou=attributeFilter")) {
+                    // good. This is the expected result for #8357
+                } else {
+                    throw e; // This means that we couldn't insert.
+                    // See the thread on case-senitivty in #2557
+                }
             } catch (ApiUsageException e) {
                 // if not a ValidationException, but otherwise an ApiUsageException,
                 // then this will be the "Cannot find unique DN" which we are
                 // looking for.
+            } catch (SecurityViolation sv) {
+                // e.g. User 466 is not a member of group 54 and cannot login
+                // also good.
             }
         }
     }

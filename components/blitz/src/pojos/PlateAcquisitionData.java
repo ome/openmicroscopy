@@ -51,11 +51,11 @@ public class PlateAcquisitionData
 	extends DataObject
 {
 
+	/** The default text used when displaying the label.*/
+	private static final String DEFAULT_TEXT = "Run ";
+	
 	/** The Id of the plate this plate acquisition is for. */
 	private long refPlateId;
-
-	/** The label associated to the plate acquisition. */
-	private String label;
 	
 	/** Creates a new instance. */
 	public PlateAcquisitionData()
@@ -77,7 +77,6 @@ public class PlateAcquisitionData
 			throw new IllegalArgumentException("Object cannot null.");
 		setValue(value);
 		refPlateId = -1L;
-		label = null;
 	}
 
 	/**
@@ -183,12 +182,8 @@ public class PlateAcquisitionData
 	 */
 	public String getLabel()
 	{
-		if (label != null) return label;
 		String name = getName();
-		if (name != null && name.length() > 0) {
-			label = name;
-			return label;
-		}
+		if (name != null && name.length() > 0) return name;
 		Timestamp time = getStartTime();
 		String start = "";
 		String end = "";
@@ -218,7 +213,7 @@ public class PlateAcquisitionData
     	}
     	String value = "";
     	if (start.length() == 0 && end.length() == 0)
-    		return "Run "+getId();
+    		return DEFAULT_TEXT+getId();
     	if (date.length() == 0 && end.length() != 0)
     		return dateEnd+" "+end;
     	if (dateEnd.length() == 0) {
@@ -227,9 +222,8 @@ public class PlateAcquisitionData
     	} else {
     		value = date+" "+start+" - "+dateEnd+" "+end;
     	}
-    	if (value.length() > 0) label = value;
-    	else label = "Run "+getId();
-		return label;
+    	if (value.length() > 0) return value;
+    	return DEFAULT_TEXT+getId();
 	}
 
 	/**

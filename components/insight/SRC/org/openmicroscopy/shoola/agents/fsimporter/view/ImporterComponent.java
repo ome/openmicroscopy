@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -632,13 +633,13 @@ class ImporterComponent
 
 	/**
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#createDataObject(DataObject, DataObject)
+	 * @see Importer#createDataObject(ObjectToCreate)
 	 */
-	public void createDataObject(DataObject child, DataObject parent)
+	public void createDataObject(ObjectToCreate data)
 	{
-		if (child == null)
+		if (data == null)
 			throw new IllegalArgumentException("No object to create.");
-		model.fireDataCreation(child, parent);
+		model.fireDataCreation(data);
 		fireStateChange();
 	}
 	

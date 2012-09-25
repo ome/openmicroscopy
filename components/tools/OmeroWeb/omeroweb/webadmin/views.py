@@ -64,9 +64,9 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
-from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
+from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
@@ -456,6 +456,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 institution = form.cleaned_data['institution']
                 admin = toBoolean(form.cleaned_data['administrator'])
                 active = toBoolean(form.cleaned_data['active'])
+                if experimenter.getId() == conn.getUserId():
+                    active = True   # don't allow user to disable themselves!
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
 

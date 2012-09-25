@@ -26,18 +26,18 @@ class ConnectionMethodsTest (lib.GTest):
         #120 amongst other things trying to getSession() twice for the same session dies. Also in separate processes.
         # we mimic this by calling setGroupForSession, which calls sessionservice.getSession, 2 times on cloned connections
         self.loginAsAuthor()
-        self.assertNotEqual(self.gateway._session, None)
+        self.assertNotEqual(self.gateway.getSession(), None)
         c2 = self.gateway.clone()
         self.assert_(c2.connect(sUuid=self.gateway._sessionUuid))
-        self.assertNotEqual(c2._session, None)
+        self.assertNotEqual(c2.getSession(), None)
         a = c2.getAdminService()
-        g = omero.gateway.ExperimenterGroupWrapper(c2, a.containedGroups(c2._userid)[-1])
+        g = omero.gateway.ExperimenterGroupWrapper(c2, a.containedGroups(c2.getUserId())[-1])
         c2.setGroupForSession(g)
         c3 = self.gateway.clone()
         self.assert_(c3.connect(sUuid=self.gateway._sessionUuid))
-        self.assertNotEqual(c3._session, None)
+        self.assertNotEqual(c3.getSession(), None)
         a = c3.getAdminService()
-        g = omero.gateway.ExperimenterGroupWrapper(c3, a.containedGroups(c3._userid)[1])
+        g = omero.gateway.ExperimenterGroupWrapper(c3, a.containedGroups(c3.getUserId())[1])
         c3.setGroupForSession(g)
 
     def testSeppuku (self):

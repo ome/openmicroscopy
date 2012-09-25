@@ -11,13 +11,20 @@ import omero, omero.gateway
 import integration.library as lib
 import unittest
 from omero.rtypes import *
-from omero.cmd import Chgrp
+from omero.cmd import Chgrp, DoAll
+from omero.api import Save
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
 COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
+
+    def doAllChgrp(self, requests, client):
+        
+        da = DoAll()
+        da.requests = requests
+        rsp = self.doSubmit(da, client)
 
     def testChgrpImportedImage(self):
         """
@@ -60,23 +67,49 @@ class TestChgrp(lib.ITest):
         client.sf.getAdminService().getEventContext() # Reset session
         update = client.sf.getUpdateService()
         query = client.sf.getQueryService()
+        admin = client.sf.getAdminService()
+        first_gid = admin.getEventContext().groupId
+        
+        # Create a dataset in the 'first group'
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpImage_target")
+        ds = update.saveAndReturnObject(ds)
+        ds_id = ds.id.val
 
-        # Data Setup (image in the current group)
+        # Change our context to new group and create image 
+        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
+        self.set_context(client, gid)
+        update = client.sf.getUpdateService()   # do we need to get this again?
         img = self.new_image()
         img = update.saveAndReturnObject(img)
 
         # Move image to new group
-        chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None, grp=gid)
-        self.doSubmit(chgrp, client)
+        chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None, grp=first_gid)
 
-        # Change our context to new group...
-        admin = client.sf.getAdminService()
-        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
-        self.set_context(client, gid)
+        # Link to Save
+        link = omero.model.DatasetImageLinkI()
+        link.child = omero.model.ImageI(img.id.val, False)
+        link.parent = omero.model.DatasetI(ds_id, False)
+        save = Save()
+        save.obj = link
+        requests = [chgrp, save]        # we're going to chgrp THEN save DIlink
+
+        # Change our context to original group...
+        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(first_gid, False))
+        self.set_context(client, first_gid)
+
+        # We have to be in destination group for link Save to work
+        self.doAllChgrp(requests, client)
+
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
-        self.assertEqual(img.details.group.id.val, gid)
-
+        self.assertEqual(img.details.group.id.val, first_gid)
+        # check Dataset
+        query = "select link from DatasetImageLink link where link.child.id=%s" % img.id.val
+        l = client.sf.getQueryService().findByQuery(query, None)
+        self.assertTrue(l is not None, "New DatasetImageLink on image not found")
+        self.assertEqual(l.details.group.id.val, first_gid, "Link Created in same group as Image target")
+        
 
     def testChgrpPDI(self):
         """

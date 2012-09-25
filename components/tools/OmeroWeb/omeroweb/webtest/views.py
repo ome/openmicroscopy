@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
@@ -52,8 +52,13 @@ def index(request, conn=None, **kwargs):
     
     imgIds = ",".join([str(img.getId()) for img in images])
     
+    # get a random dataset (making sure we get one that has some images in it)
     all_datasets = list(conn.getObjects("Dataset"))
     dataset = random.choice(all_datasets)
+    attempts = 0
+    while (dataset.countChildren() == 0 and attempts < 10):
+        dataset = random.choice(all_datasets)
+        attempts += 1
 
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
@@ -479,9 +484,9 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     default_yDim = 'Z'
     
-    xDim = request.REQUEST.get('xDim', 'T')
+    xDim = request.REQUEST.get('xDim', 'C')
     if xDim not in dims.keys():
-        xDim = 'T'
+        xDim = 'C'
         
     yDim = request.REQUEST.get('yDim', default_yDim)
     if yDim not in dims.keys():
@@ -489,7 +494,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     
     xFrames = int(request.REQUEST.get('xFrames', 5))
     xSize = dims[xDim]
-    yFrames = int(request.REQUEST.get('yFrames', 5))
+    yFrames = int(request.REQUEST.get('yFrames', 10))
     ySize = dims[yDim]
     
     xFrames = min(xFrames, xSize)
@@ -552,3 +557,12 @@ def image_viewer (request, iid=None, conn=None, **kwargs):
     template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
     
     return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)
+
+@login_required()
+def stack_preview (request, imageId, conn=None, **kwargs):
+    """ Shows a subset of Z-planes for an image """
+    image = conn.getObject("Image", imageId)
+    image_name = image.getName()
+    sizeZ = image.getSizeZ()
+    z_indexes = [0, int(sizeZ*0.25), int(sizeZ*0.5), int(sizeZ*0.75), sizeZ-1]
+    return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})

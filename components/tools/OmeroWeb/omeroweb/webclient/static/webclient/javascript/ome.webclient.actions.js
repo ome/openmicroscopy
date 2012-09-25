@@ -66,20 +66,16 @@ var handle_tree_selection = function(data) {
         .trigger("selection_change.ome");
 }
 
-var deselect_timeout = false;
+var select_timeout;
 // called on selection and deselection changes in jstree
 var tree_selection_changed = function(data, evt) {
-    
     // handle case of deselection immediately followed by selection - Only fire on selection
-    if (typeof evt != 'undefined' && evt.type == "deselect_node") {
-        deselect_timeout = true;
-        setTimeout(function() {
-            if (deselect_timeout) handle_tree_selection(data);
-        }, 20);
-    } else {
-        deselect_timeout = false;
-        handle_tree_selection(data);
+    if (typeof select_timeout != 'undefined') {
+        clearTimeout(select_timeout);
     }
+    select_timeout = setTimeout(function() {
+        handle_tree_selection(data);
+    }, 10);
 }
 
 // called when we change the index of a plate or acquisition

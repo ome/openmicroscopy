@@ -365,10 +365,10 @@ public class TaskBarManager
 	/**
 	 * Views the image as an <code>ImageJ</code>.
 	 * 
-	 * @param image The image to view.
+	 * @param id The image's id to view.
 	 * @param ctx The security context.
 	 */
-	private void runAsImageJ(ImageData image, SecurityContext ctx)
+	private void runAsImageJ(long id, SecurityContext ctx)
 	{
 		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
 				LookupNames.USER_CREDENTIALS);
@@ -385,7 +385,7 @@ public class TaskBarManager
 			buffer.append("\ngroupID=");
 			buffer.append(ctx.getGroupID());
 			buffer.append("\niid=");
-			buffer.append(image.getId());
+			buffer.append(id);
 			buffer.append("]");
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
 		} catch (Exception e) {
@@ -406,9 +406,8 @@ public class TaskBarManager
 	{
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
-			case ViewInPluginEvent.IMAGE_J:
-				runAsImageJ((ImageData) evt.getObject(),
-						evt.getSecurityContext());
+			case LookupNames.IMAGE_J:
+				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}
 	}
@@ -469,13 +468,10 @@ public class TaskBarManager
 		IconManager icons = IconManager.getInstance(container.getRegistry());
 		Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
 		CheckoutBox msg = new CheckoutBox(view, LOGOUT_TITLE, 
-				LOGOUT_TEXT, 
-				icons.getIcon(IconManager.QUESTION), instances);
+				LOGOUT_TEXT, icons.getIcon(IconManager.QUESTION), instances);
 		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
-			if (map == null || map.size() == 0) {
-				logOut();
-			} else {
+			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
 				Iterator i = map.entrySet().iterator();
 				Entry entry;
@@ -488,8 +484,8 @@ public class TaskBarManager
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
-				logOut();
 			}
+			logOut();
 		}
 	}
 	
@@ -640,8 +636,8 @@ public class TaskBarManager
     }
 
 	/**
-	 * Returns <code>true</code> if the application is used as an 
-	 * <code></code>ImageJ plug-in, <code>false</code> otherwise.
+	 * Returns <code>true</code> if the application is used as 
+	 * plug-in e.g. ImageJ, KNIME, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -650,7 +646,7 @@ public class TaskBarManager
 		Environment env = (Environment) 
 		container.getRegistry().lookup(LookupNames.ENV);
     	if (env == null) return false;
-    	return env.runAsPlugin() == LookupNames.IMAGE_J;
+    	return env.runAsPlugin() >= 0;
 	}
 	
 	/** 
@@ -985,11 +981,11 @@ public class TaskBarManager
 		    	String v = "";
 		    	if (version != null && version instanceof String)
 		    		v = (String) version;
-		    	OMEROInfo omeroInfo = 
+		    	OMEROInfo info = 
 		    		(OMEROInfo) container.getRegistry().lookup(
 		    				LookupNames.OMERODS);
 		        
-		    	String port = ""+omeroInfo.getPortSSL();
+		    	String port = ""+info.getPortSSL();
 		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
@@ -997,7 +993,11 @@ public class TaskBarManager
 
 		    	login = new ScreenLoginDialog(Container.TITLE,
 		    		getSplashScreen(Factory.createIcon(n, f)), img, v, port);
-		    	//login.setModal(true);
+		    	login.setEncryptionConfiguration(info.isEncrypted(),
+		    			info.isEncryptedConfigurable());
+		    	login.setHostNameConfiguration(info.getHostName(),
+		    			info.isHostNameConfigurable());
+		    	login.setModal(true);
 		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
 				login.addPropertyChangeListener(this);
@@ -1009,6 +1009,18 @@ public class TaskBarManager
 			// TODO: handle exception
 		}
 		return success;
+	}
+	
+	/**
+	 * Returns the relative path to the <code>Libs</code> directory.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	String getLibFileRelative(String file)
+	{
+		if (file == null) return "";
+		return container.getFileRelative(Container.LIBS_DIR, file);
 	}
 	
 	/**

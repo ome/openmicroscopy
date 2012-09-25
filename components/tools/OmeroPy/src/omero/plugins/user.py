@@ -122,22 +122,39 @@ class UserControl(BaseControl):
 
     def list(self, args):
         c = self.ctx.conn(args)
-        users = c.sf.getAdminService().lookupExperimenters()
+        a = c.sf.getAdminService()
+        users = a.lookupExperimenters()
+        roles = a.getSecurityRoles()
+        user_group = roles.userGroupId
+        sys_group = roles.systemGroupId
+
         from omero.util.text import TableBuilder
-        tb = TableBuilder("id", "omeName", "firstName", "lastName", "email", "member of", "leader of")
+        tb = TableBuilder("id", "omeName", "firstName", "lastName", "email", \
+            "active", "admin", "member of", "leader of")
+
+        users.sort(lambda a,b: cmp(a.id.val, b.id.val))
         for user in users:
             row = [user.id.val, user.omeName.val, user.firstName.val, user.lastName.val]
             row.append(user.email and user.email.val or "")
+            active = ""
+            admin = ""
             member_of = []
             leader_of = []
             for x in user.copyGroupExperimenterMap():
                 if not x:
                     continue
-                gid = str(x.parent.id.val)
-                if x.owner.val:
-                    leader_of.append(gid)
+                gid = x.parent.id.val
+                if user_group == gid:
+                    active = "Yes"
+                elif sys_group == gid:
+                    admin = "Yes"
+                elif x.owner.val:
+                    leader_of.append(str(gid))
                 else:
-                    member_of.append(gid)
+                    member_of.append(str(gid))
+
+            row.append(active)
+            row.append(admin)
 
             if member_of:
                 row.append(",".join(member_of))

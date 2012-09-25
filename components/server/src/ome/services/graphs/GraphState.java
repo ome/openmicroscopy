@@ -29,6 +29,8 @@ import ome.util.SqlAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.hibernate.engine.LoadQueryInfluencers;
+import org.hibernate.engine.SessionImplementor;
 import org.hibernate.exception.ConstraintViolationException;
 
 /**
@@ -110,7 +112,20 @@ public class GraphState implements GraphStep.Callback {
 
         final List<GraphStep> steps = new ArrayList<GraphStep>();
         final GraphTables tables = new GraphTables();
-        descend(session, steps, spec, tables);
+
+        final LoadQueryInfluencers infl = ((SessionImplementor) session).getLoadQueryInfluencers();
+        @SuppressWarnings("unchecked")
+        final Set<String> names = infl.getEnabledFilterNames();
+        try {
+            for (String name: names) {
+                session.disableFilter(name);
+            }
+            descend(session, steps, spec, tables);
+        } finally {
+            for (String name: names) {
+                session.enableFilter(name);
+            }
+        }
 
         final LinkedList<GraphStep> stack = new LinkedList<GraphStep>();
         parse(factory, steps, spec, tables, stack, null);

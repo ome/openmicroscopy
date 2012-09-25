@@ -135,12 +135,12 @@ class UserEntry (object):
         a = client.getAdminService()
         try:
             if isinstance(group, StringTypes):
-                g = a.lookupGroup(groupname)
+                g = a.lookupGroup(group)
             else:
                 g = group
             UserEntry.check_group_perms(client, g, groupperms)
         except BadGroupPermissionsException:
-            a.changePermissions(g._obj, omero.model.PermissionsI(groupperms))
+            a.changePermissions(g, omero.model.PermissionsI(groupperms))
        
 
     @staticmethod
@@ -204,13 +204,13 @@ class UserEntry (object):
         a = client.getAdminService()
         admin_gateway = None
         try:
-            if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
+            if not 'system' in [x.name.val for x in a.containedGroups(client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
             else:
                 admin = client
             g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
-            a.addGroups(a.getExperimenter(client._userid), (g,))
+            a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
             # Always clean up the results of login
             if admin_gateway:
@@ -222,7 +222,7 @@ class UserEntry (object):
             groupperms = DEFAULT_GROUP_PERMS
             
         a = client.getAdminService()
-        if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
+        if not groupname in [x.name.val for x in a.containedGroups(client.getUserId())]:
             UserEntry.addGroupToUser(client, groupname, groupperms)
             # Must reconnect to read new groupexperimentermap
             t = client.clone()
@@ -454,23 +454,27 @@ def getDataset (client, alias, forceproj=None):
 def getImage (client, alias, forceds=None):
     return IMAGES[alias].get(client, forceds)
 
-def bootstrap ():
+def bootstrap (onlyUsers=False):
     # Create users
     client = loginAsRoot()
-    for k, u in USERS.items():
-        if not u.create(client, ROOT.passwd):
-            u.changePassword(client, u.passwd, ROOT.passwd)
-    for k, p in PROJECTS.items():
-        p = p.create()
-        p._conn.seppuku()
-        #print p.get(client).getDetails().getPermissions().isUserWrite()
-    for k, d in DATASETS.items():
-        d = d.create()
-        d._conn.seppuku()
-    for k, i in IMAGES.items():
-        i = i.create()
-        i._conn.seppuku()
-    client.seppuku()
+    try:
+        for k, u in USERS.items():
+            if not u.create(client, ROOT.passwd):
+                u.changePassword(client, u.passwd, ROOT.passwd)
+        if onlyUsers:
+            return
+        for k, p in PROJECTS.items():
+            p = p.create()
+            p._conn.seppuku()
+            #print p.get(client).getDetails().getPermissions().isUserWrite()
+        for k, d in DATASETS.items():
+            d = d.create()
+            d._conn.seppuku()
+        for k, i in IMAGES.items():
+            i = i.create()
+            i._conn.seppuku()
+    finally:
+        client.seppuku()
 
 def cleanup ():
     for k, p in PROJECTS.items():
@@ -478,7 +482,11 @@ def cleanup ():
         p = p.get()
         if p is not None:
             client = p._conn
-            client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            handle = client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            try:
+                client._waitOnCmd(handle)
+            finally:
+                handle.close()
     client.seppuku()
     client = loginAsRoot()
     admin = client.getAdminService()

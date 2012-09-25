@@ -157,13 +157,17 @@ class SplashScreenManager
     	String v = "";
     	if (version != null && version instanceof String)
     		v = (String) version;
-    	OMEROInfo omeroInfo = 
+    	OMEROInfo info = 
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
-    	String port = ""+omeroInfo.getPortSSL();
+    	String port = ""+info.getPortSSL();
     	
     	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port, 
-    			omeroInfo.getHostName(), connectToServer());
+    			info.getHostName(), connectToServer());
+    	view.setEncryptionConfiguration(info.isEncrypted(),
+    			info.isEncryptedConfigurable());
+    	view.setHostNameConfiguration(info.getHostName(),
+    			info.isHostNameConfigurable());
 		view.showConnectionSpeed(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = view.getPreferredSize();
@@ -236,6 +240,8 @@ class SplashScreenManager
 		view.setVisible(true);
 		view.setStatusVisible(true);
 		isOpen = true;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -250,6 +256,8 @@ class SplashScreenManager
 		view.dispose();
 		view = null;
 		isOpen = false;
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+				Boolean.valueOf(false));
 	}
 
 	/**
@@ -337,8 +345,8 @@ class SplashScreenManager
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 			if (userCredentials != null  && lc != null) login(lc);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
-			 container.exit();
-		     component.close();
+			container.exit();
+			component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
 				ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
 			updateView();

@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -48,9 +49,6 @@ import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -163,12 +161,6 @@ class FileSelectionTable
 	/** The group where the files will be imported.*/
 	private static final String GROUP_TEXT = "Group";
 	
-	/** 
-	 * The text displayed where to import the data to if importing
-	 * to Screen.
-	 */
-	private static final String CONTAINER_SCREEN_TEXT = "Screen";
-	
 	static {
 		int n = 6;
 		COLUMNS = new Vector<String>(n);
@@ -199,9 +191,10 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = COLUMNS_TOOLTIP[SIZE_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] =
 			COLUMNS_TOOLTIP[CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] = 
+		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] =
 			COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] = COLUMNS_TOOLTIP[ARCHIVED_INDEX];
+		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] =
+			COLUMNS_TOOLTIP[ARCHIVED_INDEX];
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -214,7 +207,7 @@ class FileSelectionTable
 	private JButton 			removeAllButton;
 
 	/** The table displaying the collection to files to import. */
-	private JXTable				table;
+	private JTable				table;
 	
 	/** Reference to the model. */
 	private ImportDialog 		model;
@@ -252,7 +245,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setResizable(false);
 			tc = tcm.getColumn(ARCHIVED_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
@@ -263,7 +255,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setResizable(false);
 			tc = tcm.getColumn(ARCHIVED_INDEX-1);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
@@ -275,7 +266,6 @@ class FileSelectionTable
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		//renderer = new MultiLineHeader();
 		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
 				new MultilineHeaderSelectionRenderer());
 
@@ -287,7 +277,6 @@ class FileSelectionTable
 			tc = tcm.getColumn(GROUP_INDEX);
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
@@ -295,16 +284,8 @@ class FileSelectionTable
 			tcm.getColumn(ARCHIVED_INDEX-1).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
-			//tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		}
-		/*
-		String text = CONTAINER_PROJECT_TEXT;
-		if (model.getType() == Importer.SCREEN_TYPE)
-			text = CONTAINER_SCREEN_TEXT;
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setHeaderValue(text);
-		*/
 		table.getTableHeader().resizeAndRepaint();
 		table.getTableHeader().setReorderingAllowed(false);
 	}
@@ -336,12 +317,8 @@ class FileSelectionTable
 		if (b != null) archivedTunable = b.booleanValue();
 		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
 		else selectedColumns = COLUMNS;
-		//if (model.useFolderAsContainer()) {
-			
-		//} else {
-		//	selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
-		//}
-		table = new JXTable(new FileTableModel(selectedColumns));
+		
+		table = new JTable(new FileTableModel(selectedColumns));
 		table.getTableHeader().setReorderingAllowed(false);
 		keyListener = new KeyAdapter() {
 			
@@ -358,16 +335,9 @@ class FileSelectionTable
 			}
 		};
 		table.addKeyListener(keyListener);
-		
-		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
-				UIUtilities.BACKGROUND_COLOUR_ODD);
-		table.addHighlighter(h);
-		
 
 		archivedBox = new JCheckBox();
 		archivedBox.setBackground(UIUtilities.BACKGROUND);
-		//archivedBox.setHorizontalTextPosition(SwingConstants.LEFT);
 		archivedBox.setSelected(archived);
 		archivedBox.setEnabled(archivedTunable);
     	if (archivedTunable) {
@@ -411,7 +381,6 @@ class FileSelectionTable
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		int rowCount = dtm.getRowCount();
 		Vector v = dtm.getDataVector();
 		List<Object> indexes = new ArrayList<Object>();
 		for (int i = 0; i < table.getRowCount(); i++) {
@@ -430,6 +399,29 @@ class FileSelectionTable
 		model.onSelectionChanged();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the file can be added to the queue again,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param queue The list of files already in the queue.
+	 * @param f The file to check.
+	 * @param gID The id of the group to import the image into.
+	 * @return See above.
+	 */
+	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID)
+	{
+		if (f == null) return false;
+		if (queue == null) return true;
+		Iterator<FileElement> i = queue.iterator();
+		FileElement fe;
+		String name = f.getAbsolutePath();
+		while (i.hasNext()) {
+			fe = i.next();
+			if (fe.getFile().getAbsolutePath().equals(name) &&
+				fe.getGroup().getId() == gID) return false;
+		}
+		return true;
+	}
 	/**
 	 * Sets the enabled flag of the buttons.
 	 * 
@@ -575,16 +567,15 @@ class FileSelectionTable
 	void addFiles(List<File> files, boolean fad, GroupData group)
 	{
 		if (files == null || files.size() == 0) return;
-		addButton.setEnabled(false);
 		enabledControl(true);
 		File f;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		//Check if the file has already 
-		List<String> inQueue = new ArrayList<String>();
+		List<FileElement> inQueue = new ArrayList<FileElement>();
 		FileElement element;
 		for (int i = 0; i < table.getRowCount(); i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			inQueue.add(element.getFile().getAbsolutePath());
+			inQueue.add(element);
 		}
 		Iterator<File> i = files.iterator();
 		boolean multi = !model.isSingleGroup();
@@ -594,9 +585,10 @@ class FileSelectionTable
 		String value = null;
 		boolean v = false;
 		boolean a = archivedBox.isSelected();
+		long gID = group.getId();
 		while (i.hasNext()) {
 			f = i.next();
-			if (!inQueue.contains(f.getAbsolutePath())) {
+			if (allowAddToQueue(inQueue, f, gID)) {
 				element = new FileElement(f, model.getType(), group);
 				element.setName(f.getName());
 				value = null;
@@ -773,7 +765,7 @@ class FileSelectionTable
 						return archivedTunable;
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;
-					return false;//f.isDirectory();
+					return false;
 				case ARCHIVED_INDEX: {
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;

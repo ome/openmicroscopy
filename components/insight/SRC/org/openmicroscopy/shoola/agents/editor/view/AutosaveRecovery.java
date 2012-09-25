@@ -83,7 +83,7 @@ public class AutosaveRecovery {
 		 * the file from the auto-save folder. 
 		 */
 		public void run() {
-			Editor e = EditorAgent.openLocalFile(file);
+			Editor e = EditorAgent.openLocalFile(file, false);
 			if (e != null) {
 				e.setEdited(true);	// so that save button active etc. 
 			}

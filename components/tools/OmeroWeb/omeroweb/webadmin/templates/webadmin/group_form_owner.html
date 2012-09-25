@@ -66,9 +66,19 @@
                 
                 highlightCurrent();
                 
+                // Disable "Private" perms, unless we're already 'Private' or 'Admin'
                 {% if gid %}
                 {% ifnotequal permissions 0 %}
-                    $('#id_permissions_0').attr('disabled', true);
+                    {% if not ome.eventContext.isAdmin %}
+                        $('#id_permissions_0').attr({
+                            'disabled': true,
+                            'title':"Cannot change group to 'Private'"});
+                    {% endif %}
+                    
+                    $('#id_permissions_0').click(function(){
+                        confirm_dialog("Changing group to Private will remove any Annotations etc added under Read-Annotate permissions",
+                            null, "WARNING", ['OK'], null, 180);
+                    });
                 {% endifnotequal %}
                 {% endif %}
 
@@ -119,14 +129,13 @@
         </div>
         
     </form>
-    
+
+    <p>
+        Full details on various Permissions levels can be found on the 
+        <a href="http://www.openmicroscopy.org/site/support/omero4/server/permissions/" target="new">
+            OMERO Permissions
+        </a>
+        page.
+    </p>
 </div>
-{% endblock %}
-
-{% block metadata_details %}
-    <p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
-
-    <p>{% trans "<strong>Read-Only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
-
-    <p>{% trans "<strong>Read-Annotate (rwra--)</strong>: Users in a Read-Annotate group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
 {% endblock %}

@@ -1117,8 +1117,7 @@ class PropertiesUI
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
 		
-        if ((refObject instanceof WellSampleData) ||
-        		(refObject instanceof PlateAcquisitionData)) b = false;
+        if (refObject instanceof WellSampleData) b = false;
         
         namePane.setEnabled(b);
         //descriptionPane.setEnabled(b);
@@ -1208,6 +1207,9 @@ class PropertiesUI
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 			//if (f.isImage()) f.setDescription(desc);
+		} else if (object instanceof PlateAcquisitionData) {
+			PlateAcquisitionData pa = (PlateAcquisitionData) object;
+			if (name.length() > 0) pa.setName(name);
 		}
 	}
 	
@@ -1253,27 +1255,37 @@ class PropertiesUI
 	 */
 	void setExtentWidth(int width)
 	{
-		width = width-10;
+		/*
+		int diff = 10;
+		int newWidth = width-diff;
+		
 		if (this.width != 0 && 
-				(this.width-10 <= width && width <= this.width+10)) return;
-		this.width = width;
+				(this.width-diff <= newWidth && newWidth <= this.width+diff)) return;
+		
+		this.width = newWidth;
+		
 		if (descriptionPanel != null) {
+			Dimension viewportSize = new Dimension(width, HEIGHT);
+			pane.getViewport().setPreferredSize(viewportSize);
+			
+			Dimension paneSize = pane.getSize();
+			int h = paneSize.height;
+			if (h < HEIGHT) h = HEIGHT;
+			
 			String newLineStr = null;
 			if (pane.getVerticalScrollBar().isVisible())
 				newLineStr = "\n";
-			//if (this.width < size.width) this.width = size.width;
-			Dimension d = new Dimension(this.width, HEIGHT);
-			pane.getViewport().setPreferredSize(d);
-			d = pane.getSize();
-			int h = d.height;
-			if (h < HEIGHT) h = HEIGHT;
-			d = new Dimension(this.width, h);
-			descriptionPane.setSize(d);
-			descriptionPane.setPreferredSize(d);
-			descriptionPane.wrapText(this.width, newLineStr);
-			descriptionPanel.setSize(d);
-			descriptionPanel.setPreferredSize(d);
+		
+			Dimension descriptionSize = new Dimension(this.width, HEIGHT);
+			
+			descriptionPane.setSize(descriptionSize);
+			descriptionPane.setPreferredSize(descriptionSize);
+		    descriptionPane.wrapText(this.width, newLineStr);
+		    
+			descriptionPanel.setSize(descriptionSize);
+			descriptionPanel.setPreferredSize(descriptionSize);
 		}
+		*/
 	}
 	
 	/**
@@ -1510,9 +1522,13 @@ class PropertiesUI
 			long id = object.getId();
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
-					if (id > 0) 
-						bus.post(new ViewImage(model.getSecurityContext(),
-								new ViewImageObject(id), null));
+					if (id > 0) {
+						ViewImage event = new ViewImage(
+								model.getSecurityContext(),
+								new ViewImageObject(id), null);
+						event.setPlugin(MetadataViewerAgent.runAsPlugin());
+						bus.post(event);
+					}
 					break;
 				case WikiDataObject.PROTOCOL:
 					bus.post(new EditFileEvent(model.getSecurityContext(),

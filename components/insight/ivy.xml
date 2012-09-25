@@ -53,7 +53,6 @@
     <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="insight" name="jogl" rev="${versions.jogl}"/>
-    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
     <dependency org="insight" name="ols-client" rev="${versions.ols-client}"/>
     <dependency org="insight" name="physics" rev="${versions.physics}"/>
     <dependency org="insight" name="poi" rev="${versions.poi}"/>
@@ -66,6 +65,7 @@
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="insight" name="jna" rev="${versions.jna}"/>
     <dependency org="insight" name="platform" rev="${versions.platform}"/>
+    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
     <!-- Required for annotations in Permissions.java -->
     <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 

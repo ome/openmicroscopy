@@ -40,11 +40,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
-import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -368,15 +367,14 @@ class ImporterModel
 	/**
 	 * Creates a new data object.
 	 * 
-	 * @param child The object to create.
-	 * @param parent The parent of the object or <code>null</code>.
+	 * @param data The object hosting information about the object to create.
 	 */
-	void fireDataCreation(DataObject child, DataObject parent)
+	void fireDataCreation(ObjectToCreate data)
 	{
+		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx, 
-				child, parent);
+				data.getChild(), data.getParent());
 		loader.load();
-		//state = Importer.CREATING_CONTAINER;
 	}
 	
     /**

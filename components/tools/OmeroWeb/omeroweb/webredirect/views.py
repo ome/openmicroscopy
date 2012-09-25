@@ -37,8 +37,8 @@ import traceback
 logger = logging.getLogger(__name__)
 
 def index(request, **kwargs):
-    if request.REQUEST.get('path', None) is not None:
-        url = "?".join([reverse(viewname="load_template", args=["userdata"]),"path="+request.REQUEST.get('path')])
+    if request.REQUEST.get('show', None) is not None:
+        url = "?".join([reverse(viewname="webindex"),"show="+request.REQUEST.get('show')])
         return HttpResponseRedirect(url)
     else:
         return handlerInternalError(request, "Path was not recognized. URL should follow the pattern: %s%s" % (request.build_absolute_uri(reverse(viewname="webredirect")),("?path=server=1|project=1|dataset=2|image=3:selected")))

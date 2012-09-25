@@ -147,7 +147,10 @@ PanoJS.USE_SLIDE = true;
 
 // dima
 if (!PanoJS.STATIC_BASE_URL) PanoJS.STATIC_BASE_URL = '';
-PanoJS.CREATE_CONTROLS = true;
+PanoJS.CREATE_CONTROL_ZOOMIN = true;
+PanoJS.CREATE_CONTROL_ZOOM11 = true;
+PanoJS.CREATE_CONTROL_ZOOMOUT = true;
+PanoJS.CREATE_CONTROL_MAXIMIZE = true;
 PanoJS.CREATE_INFO_CONTROLS = true;
 PanoJS.CREATE_OSD_CONTROLS = true;
 PanoJS.CREATE_THUMBNAIL_CONTROLS = (isClientPhone() ? false : true);
@@ -241,7 +244,10 @@ PanoJS.prototype.init = function() {
 
 
     // set event handlers for controls buttons
-    if (PanoJS.CREATE_CONTROLS && !this.controls)
+    if ((PanoJS.CREATE_CONTROL_ZOOMIN
+         || PanoJS.CREATE_CONTROL_ZOOM11
+         || PanoJS.CREATE_CONTROL_ZOOMOUT
+         || PanoJS.CREATE_CONTROL_MAXIMIZE) && !this.controls)
       this.controls = new PanoControls(this);
          
     if (PanoJS.CREATE_INFO_CONTROLS && !this.info_control) {

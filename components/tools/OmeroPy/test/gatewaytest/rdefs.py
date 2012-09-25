@@ -72,16 +72,12 @@ class RDefsTest (lib.GTest):
         self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
         self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
         self.assertEqual(self.channels[0].getWindowMin(), c0wmin)
-        ## Check that only author (or admin) can change defaults
-        #self.doLogin(GUEST)
-        #self.image = self.getTestImage(self.gateway, public=True)
-        #self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'F0F000', u'000F0F'])
-        #self.assert_(not self.image.saveDefaults(), 'saveDefaults should have failed!')
-        ## Verify we are still in the original state
-        #self.channels = self.image.getChannels()
-        #self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
-        #self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
-        #self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
+        # Check we can set any channel(s) independently - #8670
+        self.image.setActiveChannels([2],[[409.0, 5015.0]],[u'F0F0F0'])
+        self.assertEqual(self.channels[1].getColor().getHtml(), 'F0F0F0', "Channel 2 colour should be changed")
+        self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color, "Channel 1 colour should NOT be changed")
+        self.assertEqual(self.channels[0].isActive(), False, "Channel 1 should be Inactive")
+        self.assertEqual(self.channels[1].isActive(), True, "Channel 2 should be Active")
 
     def testCustomized (self):
         self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'FF0000', u'0000FF'])
@@ -126,8 +122,11 @@ class RDefsTest (lib.GTest):
         self.loginAsAuthor()
         i1 = self.getTinyTestImage()
         i1c = i1.getChannels()
+        i1gid = i1.getDetails().getGroup().getId()
+        i1oid = i1.getOwner().getId()
         i2 = self.getTinyTestImage2()
         i2c = i2.getChannels()
+        i2id = i2.getId()
         t = i1c[0].getWindowStart()
         self.assertEqual(t, i2c[0].getWindowStart())
         try:
@@ -157,11 +156,11 @@ class RDefsTest (lib.GTest):
             # Try the propagation as admin
             self.loginAsAdmin()
             rsettings = self.gateway.getRenderingSettingsService()
-            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1.getDetails().getGroup().getId()))
-            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1.getOwner().getId()))
+            self.gateway.SERVICE_OPTS.setOmeroGroup(str(i1gid))
+            self.gateway.SERVICE_OPTS.setOmeroUser(str(i1oid))
             rv = rsettings.applySettingsToImages(frompid, list(toids), self.gateway.SERVICE_OPTS)
             err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
-            self.assertEqual(rv[True], [i2.getId()], err)
+            self.assertEqual(rv[True], [i2id], err)
             i2 = self.getTinyTestImage2()
             i2c = i2.getChannels()
             self.assertEqual(i2c[0].getWindowStart(), t)
@@ -182,6 +181,7 @@ class RDefsTest (lib.GTest):
         Test that images belonging to experimenters on collaborative rw group can be
         reset and rdef created by admin and then edited by owner of image.
         """
+        aobj = self.gateway.getUser()._obj
         self.loginAsAdmin()
         self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -189,8 +189,7 @@ class RDefsTest (lib.GTest):
         self.assert_(self.image.resetRDefs())
         self.assert_(self.image.saveDefaults())
         admin = self.gateway.getAdminService()
-        self.loginAsAuthor()
-        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
+        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, aobj)
         self.loginAsAuthor()
         try:
             self.gateway.CONFIG.IMG_RDEFNS = 'omeropy.gatewaytest.img_rdefns'
@@ -199,8 +198,12 @@ class RDefsTest (lib.GTest):
             self.assert_(self.image.resetRDefs())
             self.assert_(self.image.saveDefaults())
         finally:
+            self.loginAsAdmin()
+            admin = self.gateway.getAdminService()
+            self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+            self.image = self.getTestImage()
             admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
-                                  self.gateway._user._obj)
+                                  aobj)
 
         
         

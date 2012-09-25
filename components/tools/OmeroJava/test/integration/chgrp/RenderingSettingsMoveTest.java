@@ -54,6 +54,7 @@ public class RenderingSettingsMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	iAdmin.getEventContext(); // Refresh
 
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
@@ -216,7 +217,7 @@ public class RenderingSettingsMoveTest
 			param.addId(o.getId().getValue());
 			sql = "select rdef from RenderingDef as rdef " +
 			"where rdef.id = :id";
-			assertNull(iQuery.findByQuery(sql, param));
+			assertNull("#9496? rdefs", iQuery.findByQuery(sql, param));
 		}
     }
 

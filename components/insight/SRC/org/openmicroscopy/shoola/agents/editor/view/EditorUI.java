@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
+
 /** 
  * The {@link Editor}'s View.
  *
@@ -346,6 +348,27 @@ class EditorUI
 	 */
 	void setGroupInformation() { toolBar.setGroupInformation(); }
 	
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+	SecurityContext getSecurityContext() { return model.getSecurityContext(); }
+    
+	/** 
+	 * Invokes when the editor is started as a standalone application and
+	 * the user saves a file back to the server.
+	 */
+	void onConnected()
+	{ 
+		SecurityContext ctx = getSecurityContext();
+		if (ctx == null) { //not been set yet.
+			ExperimenterData exp = EditorAgent.getUserDetails();
+			model.setSecurityContext(exp.getDefaultGroup().getId());
+		}
+		toolBar.onConnected();
+	}
+	
     /** 
      * Overrides the {@link #setOnScreen() setOnScreen} method. 
      * Does not make the window visible, since this only occurs after 
@@ -371,5 +394,5 @@ class EditorUI
     	y = y + offset;
     	setLocation(x, y);
     }
-    
+
 }

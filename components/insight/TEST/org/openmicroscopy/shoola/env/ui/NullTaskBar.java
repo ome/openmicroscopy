@@ -123,4 +123,9 @@ public class NullTaskBar
 	 */
 	public JMenu getMenu(int menuID) { return null; }
 
+	public String getLibFileRelative(String file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

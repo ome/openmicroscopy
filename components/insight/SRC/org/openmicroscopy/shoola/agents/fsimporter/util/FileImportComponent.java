@@ -430,25 +430,30 @@ public class FileImportComponent
 			public void mousePressed(MouseEvent e)
 			{ 
 				if (e.getClickCount() == 1) {
+					ViewImage evt;
+					int plugin = ImporterAgent.runAsPlugin();
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data.getImage() != null) {
-							bus.post(new ViewImage(
+							evt = new ViewImage(
 									new SecurityContext(group.getId()),
 									new ViewImageObject(
-									data.getImage()), null));
+									data.getImage()), null);
+							evt.setPlugin(plugin);
+							bus.post(evt);
 						}
 					} else if (image instanceof ImageData) {
 						ImageData data = (ImageData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data != null) {
-							bus.post(new ViewImage(
+							evt = new ViewImage(
 									new SecurityContext(group.getId()),
-									new ViewImageObject(
-									data), null));
+									new ViewImageObject(data), null);
+							evt.setPlugin(plugin);
+							bus.post(evt);
 						}
 					} else if (image instanceof PlateData) {
 						firePropertyChange(BROWSE_PROPERTY, null, image);
@@ -851,8 +856,10 @@ public class FileImportComponent
 				imageLabel.setData(img);
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				//resultLabel.setEnabled(false);
+				if (browsable)
+					resultLabel.setToolTipText(
+							ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
+				else imageLabel.setToolTipText("");
 				resultLabel.setVisible(true);
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
@@ -879,13 +886,16 @@ public class FileImportComponent
 				addMouseListener(adapter);
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
+				if (browsable)
+					resultLabel.setToolTipText(
+							ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
+				else imageLabel.setToolTipText("");
 				resultLabel.setVisible(false);
 				if (thumbnail.requirePyramid() != null 
 						&& thumbnail.requirePyramid().booleanValue()) {
 						imageLabel.setToolTipText(PYRAMID_TEXT);
 						resultLabel.setVisible(true);
-						resultLabel.addMouseListener(adapter);	
+						resultLabel.addMouseListener(adapter);
 				}
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
@@ -907,17 +917,6 @@ public class FileImportComponent
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
 				groupLabel.setVisible(!singleGroup);
-				/*
-				errorButton.setToolTipText(
-						UIUtilities.formatExceptionForToolTip(
-								thumbnail.getError()));
-				exception = thumbnail.getError();
-				errorButton.setVisible(true);
-				errorBox.setVisible(true);
-				errorBox.addChangeListener(this);
-				deleteButton.setVisible(true);
-				deleteButton.addActionListener(this);
-				*/
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
@@ -985,15 +984,6 @@ public class FileImportComponent
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
 				}
-				/*
-				if (file.isDirectory()) {
-					statusLabel.setVisible(false);
-					setStatusText(FILE_NOT_VALID_TEXT);
-				}
-				else {
-					statusLabel.setVisible(false);
-					setStatusText(FILE_NOT_VALID_TEXT);
-				}*/
 			} else resultLabel.setText("");
 		} else {
 			if (!status) {

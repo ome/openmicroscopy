@@ -97,6 +97,7 @@
     <script type="text/javascript">
 
         $(document).ready(function() {
+            setupAjaxError("{% url fsend %}");      // just in case!
 
             $('#script_form').ajaxForm({
                 success: function(data) {

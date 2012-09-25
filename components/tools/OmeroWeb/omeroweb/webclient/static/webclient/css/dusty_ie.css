@@ -248,7 +248,15 @@
 			.btn_group {background: transparent  url('../../webgateway/img/icon_add_group.png') center center no-repeat;}
 			.btn_delete {background: transparent  url('../../webgateway/img/icon_delete.png') center center no-repeat;}
 			.btn_edit {background: transparent url('../../webgateway/img/icon_edit.png') center center no-repeat;}
-			
+			.btn_link {background: transparent url('../../webgateway/img/icon_link.png') center center no-repeat; 
+        	    float:right;
+        	    position: relative}
+
+        	.btn_link span {
+        	    width:29px;
+        	    height:18px;
+        	    display:block;
+        	}
 			
 			
 			
@@ -613,7 +621,16 @@
             border:solid 1px rgba(0,0,0,.6);
             border-top:solid 1px rgba(0,0,0,.6);
         }
-		
+	
+	    /* same as .filtersearch label for top search field */
+    	.inline_label {
+    	    position:absolute;
+            z-index:50;
+            font-size:1.3em;
+            font-weight:lighter;
+            top:5px;
+            left:8px;
+    	}	
 
 
 
