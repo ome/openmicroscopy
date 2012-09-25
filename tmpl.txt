@@ -27,9 +27,9 @@ version **1.5** or higher.
 
  * Your installation can also make use of OMERO.web as an alternative client 
 through which you or your users may access their data (see OMERO.web 
-deployment for [Unix based  
-platforms](@DOC_URL@/sysadmins/unix/install-web.html) or [Microsoft 
-Windows](@DOC_URL@/sysadmins/windows/install-web.html). OMERO.web includes Java Webstart for the OMERO.insight client.
+deployment for [Unix based platforms](@DOC_URL@/sysadmins/unix/install-web.html)
+or [Microsoft Windows](@DOC_URL@/sysadmins/windows/install-web.html).
+OMERO.web includes Java Webstart for the OMERO.insight client.
 
  * For the OMERO ImageJ plugin to work, uncompress the download and put the 
 entire folder under the ImageJ/Fiji plugins folder. If you are using ImageJ, 
