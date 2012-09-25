@@ -567,6 +567,7 @@ class Client(RequestFactory):
         
         connector = Connector(request.REQUEST.get('server'), True)
         conn = connector.create_connection('TEST.webadmin', login, password)
+
         if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()
             return True

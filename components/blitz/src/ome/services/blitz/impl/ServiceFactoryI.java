@@ -637,6 +637,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         if (obj instanceof AbstractAmdServant) {
             AbstractAmdServant amd = (AbstractAmdServant) obj;
             amd.applyHardWiredInterceptors(cptors, initializer);
+            amd.setHolder(holder);
         }
 
     }

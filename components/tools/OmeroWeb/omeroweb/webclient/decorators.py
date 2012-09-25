@@ -33,9 +33,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 from omeroweb.webclient.webclient_http import HttpLoginRedirect
-from omeroweb.webclient.webclient_utils import string_to_dict
 
 logger = logging.getLogger('omeroweb.webclient.decorators')
 
@@ -44,26 +43,34 @@ class login_required(omeroweb.decorators.login_required):
     webclient specific extension of the OMERO.web login_required() decorator.
     """
 
-    def __init__(self, ignore_login_fail=False, **kwargs):
+    def __init__(self, ignore_login_fail=False, setGroupContext=False, login_redirect=None, **kwargs):
         """
         Initialises the decorator.
         """
         super(login_required, self).__init__(**kwargs)
         self.ignore_login_fail = ignore_login_fail
+        self.setGroupContext = setGroupContext
+        self.login_redirect = login_redirect
 
     def on_logged_in(self, request, conn):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
-        if request.session.get('active_group'):
-            conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
-        else:
-            conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
+        if self.setGroupContext:
+            if request.session.get('active_group'):
+                conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
+            else:
+                conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
         """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
         if self.ignore_login_fail:
             return HttpResponse("Connection Failed")
+        if self.login_redirect is not None:
+            try:
+                url = reverse(self.login_redirect)
+            except:
+                pass
         return super(login_required, self).on_not_logged_in(request, url, error)
 
     def prepare_session(self, request):
@@ -78,8 +85,8 @@ class login_required(omeroweb.decorators.login_required):
         if request.session.get('imageInBasket') is None:
             request.session['imageInBasket'] = set()
             changes = True
-        if request.session.get('basekt_counter') is None:
-            request.session['basekt_counter'] = 0
+        if request.session.get('basket_counter') is None:
+            request.session['basket_counter'] = 0
             changes = True
         if request.session.get('user_id') is None:
             request.session['user_id'] = 0

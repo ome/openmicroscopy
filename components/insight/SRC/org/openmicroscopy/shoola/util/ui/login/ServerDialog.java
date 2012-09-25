@@ -105,10 +105,10 @@ class ServerDialog
 	private static final Dimension		WINDOW_DIM = new Dimension(400, 450);
 	
 	/** The window's title. */
-	private static final String			TITLE = "Servers";
+	private static final String TITLE = "Servers";
 	
 	/** The textual description of the window. */
-	private static final String 		TEXT = "Enter a new server or \n" +
+	private static final String TEXT = "Enter a new server or \n" +
 										"select an existing one.";
 	
     /** 
@@ -150,7 +150,7 @@ class ServerDialog
 	/** Closes and disposes. */
 	private void close()
 	{
-		editor.stopEdition();
+		if (editor != null) editor.stopEdition();
 		setVisible(false);
 		dispose();
 	}
@@ -176,15 +176,20 @@ class ServerDialog
         	public void windowClosing(WindowEvent e) { close(); }
         	public void windowOpened(WindowEvent e)
         	{ 
-        		editor.setFocus(server); 
+        		if (editor != null) editor.setFocus(server);
         	} 
         });
 	}
 	
-	/** Initializes the UI components. */
-	private void initComponents()
+	/** 
+	 * Initializes the UI components.
+	 * 
+	 * @param title Pass <code>true</code> to display the title, 
+	 * <code>false</code> otherwise.
+	 */
+	private void initComponents(boolean title)
 	{
-		editor.addPropertyChangeListener(this);
+		if (editor != null) editor.addPropertyChangeListener(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the window.");
 		finishButton =  new JButton("Apply");
@@ -192,10 +197,11 @@ class ServerDialog
 		getRootPane().setDefaultButton(finishButton);
 		//layer hosting title and empty message
 		IconManager icons = IconManager.getInstance();
-		titleLayer = new JLayeredPane();
-		titlePanel = new TitlePanel(TITLE, TEXT, 
-									icons.getIcon(IconManager.CONFIG_48));
-		//titleLayer.add(titlePanel, new Integer(0));
+		if (title) {
+			titleLayer = new JLayeredPane();
+			titlePanel = new TitlePanel(TITLE, TEXT, icons.getIcon(
+					IconManager.CONFIG_48));
+		}
 	}
 	
 	/**
@@ -225,12 +231,10 @@ class ServerDialog
 	{
 		JPanel mainPanel;
 		if (index == -1) mainPanel = editor;
-		else mainPanel = buildConnectionSpeed(index);
-		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        //mainPanel.add(editor);
+		else mainPanel = buildConnectionSpeed(index, editor);
         Container c = getContentPane();
-        //setLayout(new BorderLayout(0, 0));
-        c.add(titlePanel, BorderLayout.NORTH);
+        if (titlePanel != null)
+        	c.add(titlePanel, BorderLayout.NORTH);
         c.add(mainPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
@@ -260,9 +264,10 @@ class ServerDialog
 	 * Adds the connection speed options to the display. 
 	 * 
 	 * @param index The default index.
+	 * @param comp The component to add to the display.
 	 * @return See above.
 	 */
-	private JPanel buildConnectionSpeed(int index)
+	private JPanel buildConnectionSpeed(int index, JComponent comp)
 	{
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
@@ -288,9 +293,10 @@ class ServerDialog
 		button.addActionListener(this);
 		buttonsGroup.add(button);
 		p.add(button);
+		if (comp == null) return p;
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		content.add(editor);
+		content.add(comp);
 		p = UIUtilities.buildComponentPanel(p);
 		content.add(p);
 		return content;
@@ -315,23 +321,28 @@ class ServerDialog
 			case LOW_SPEED:
 				factor = LoginCredentials.LOW;
 		}
-		int original = editor.getOriginalRow();
-		if (original == -1)
-			finishButton.setEnabled(true);
-		else {
-			if (editor.isOriginal(server))
-				finishButton.setEnabled(originalIndexSpeed != factor);
-			else finishButton.setEnabled(true);
-		}
+		if (editor != null) {
+			int original = editor.getOriginalRow();
+			if (original == -1)
+				finishButton.setEnabled(true);
+			else {
+				if (editor.isOriginal(server))
+					finishButton.setEnabled(originalIndexSpeed != factor);
+				else finishButton.setEnabled(true);
+			}
+		} else finishButton.setEnabled(originalIndexSpeed != factor);
 	}
 	
 	/** Fires a property indicating that a new server is selected. */
 	private void apply()
 	{
 		//Check list of servers and remove empty from list
-		editor.stopEdition();
-		String server = editor.getSelectedServer();
-		editor.onApply();
+		String server = null;
+		if (editor != null) {
+			editor.stopEdition();
+			server = editor.getSelectedServer();
+			editor.onApply();
+		}
 		if (server != null && server.length() > 0) {
 			String port = editor.getSelectedPort();
 			editor.handleServers(server, editor.getSelectedPort());
@@ -380,10 +391,30 @@ class ServerDialog
 		originalIndexSpeed = index;
 		this.editor = editor;
 		setProperties();
-		initComponents();
+		initComponents(true);
 		initListeners();
 		buildGUI(index);
 		setSize(WINDOW_DIM);
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param frame The parent frame.
+	 * @param index The speed of the connection.
+	 */
+	ServerDialog(JFrame frame, int index)
+	{ 
+		super(frame);
+		originalIndexSpeed = index;
+		setProperties();
+		initComponents(false);
+		initListeners();
+		setTitle("");
+		Container c = getContentPane();
+        c.add(buildConnectionSpeed(index, null), BorderLayout.CENTER);
+        c.add(buildToolBar(), BorderLayout.SOUTH);
+		pack();
 	}
 	
 	/** 

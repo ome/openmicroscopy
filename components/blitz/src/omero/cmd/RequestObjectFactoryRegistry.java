@@ -130,12 +130,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DeleteI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                            new String[]{"classpath:ome/services/spec.xml"}, ctx);
-                        DeleteStepFactory dsf = new DeleteStepFactory(ctx);
-                        AbstractFileSystemService afs =
-                            ctx.getBean("/OMERO/Files", AbstractFileSystemService.class);
-                        Deletion d = new Deletion(specs, dsf, afs);
+                        Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
                         return new DeleteI(d);
                     }
                 });

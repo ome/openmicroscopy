@@ -186,6 +186,32 @@ public class ScreenLoginDialog
 	}
 
 	/**
+     * Sets the encryption parameters.
+     * 
+     * @param encrypted Pass <code>true</code> to encrypt the data transfer,
+     * 					<code>false</code> otherwise.
+     * @param configurable Pass <code>true</code> to allow the user to interact
+     * with the encryption controls, <code>false</code> otherwise.
+     */
+    public void setEncryptionConfiguration(boolean encrypted,
+    		boolean configurable)
+    {
+    	view.setEncryptionConfiguration(encrypted, configurable);
+    }
+    
+    /**
+     * Indicates if the user can modify or not the host name from the UI.
+     * 
+     * @param hostName The hostname.
+     * @param configurable Pass <code>true</code> to allow to change the 
+     * host name, <code>false</code> otherwise.
+     */
+    public void setHostNameConfiguration(String hostName, boolean configurable)
+    {
+    	view.setHostNameConfiguration(hostName, configurable);
+    }
+    
+	/**
 	 * Forwards property fired by the view.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

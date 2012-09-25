@@ -63,6 +63,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+    url( r'^load_chgrp_target/(?P<group_id>[0-9]+)/(?P<target_type>((?i)project|dataset|screen))/$', views.load_chgrp_target, name="load_chgrp_target"),
     
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
@@ -86,7 +87,7 @@ urlpatterns = patterns('django.views.generic.simple',
     #image webgateway extention
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', webgateway.render_birds_eye_view, name="web_render_birds_eye_view"),
-    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image, name="web_render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', webgateway.render_image, name="web_render_image"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', webgateway.imageData_json, name="web_imageData_json"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', webgateway.render_row_plot, name="web_render_row_plot"),

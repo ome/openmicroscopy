@@ -167,6 +167,20 @@ class ImageTest (lib.GTest):
         self.assertEqual(m['author'], self.AUTHOR.fullname())
         self.assert_('parents' not in m)
         self.assert_('date' in m)
+        self.assert_('tiled' not in m)
+        self.assert_('size' not in m)
+        m = self.image.simpleMarshal(xtra={'tiled':True})
+        self.assertEqual(m['name'], self.image.getName())
+        self.assertEqual(m['description'], self.image.getDescription())
+        self.assertEqual(m['id'], self.image.getId())
+        self.assertEqual(m['type'], self.image.OMERO_CLASS)
+        self.assertEqual(m['author'], self.AUTHOR.fullname())
+        self.assertEqual(m['tiled'], False)
+        self.assertEqual(m['size'], {'width': self.image.getSizeX(), 'height': self.image.getSizeY()})
+        self.assert_('parents' not in m)
+        self.assert_('date' in m)
+        m = self.image.simpleMarshal(xtra={'tiled':False})
+        self.assert_('tiled' not in m)
         parents = map(lambda x: x.simpleMarshal(), self.image.getAncestry())
         m = self.image.simpleMarshal(parents=True)
         self.assertEqual(m['name'], self.image.getName())
@@ -180,6 +194,11 @@ class ImageTest (lib.GTest):
     def testExport (self):
         """ Test exporting the image to ometiff """
         self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # if we pass a bufsize we should get a generator back
+        size, gen = self.image.exportOmeTiff(bufsize=16)
+        self.assert_(hasattr(gen, 'next'))
+        self.assertEqual(len(gen.next()), 16)
+        del gen
         # Now try the same using a different user, admin first
         self.loginAsAdmin()
         self.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -189,7 +208,7 @@ class ImageTest (lib.GTest):
         # what about a regular user?
         g = image.getDetails().getGroup()._obj
         self.loginAsUser()
-        uid = self.gateway._userid
+        uid = self.gateway.getUserId()
         self.loginAsAdmin()
         admin = self.gateway.getAdminService()
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g])

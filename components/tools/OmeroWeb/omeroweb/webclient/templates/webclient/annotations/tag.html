@@ -32,7 +32,7 @@
 <span class="tag_annotation_wrapper">
 	
 		<div class="tag">
-	        <a class='tooltip tag_inner' href="{% url load_template "usertags" %}?path=tag={{ tag.id }}{% if not tag.isOwned %}&experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a>
+	        <a class='tooltip tag_inner' href="{% url load_template 'usertags' %}?show=tag-{{ tag.id }}{% if not tag.isOwned %}&experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a>
 		
 			{% if tag.link.canDelete %}
 	        <span class='removeTag' id="{{ tag.id }}-tag" title="Remove Tag"> x </span>

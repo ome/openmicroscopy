@@ -60,6 +60,13 @@ public class ViewInPluginAction
     private static final String DESCRIPTION_IJ = "View the selected image " +
     		"in ImageJ.";
     
+    /** Name of the action. */
+    private static final String NAME_KNIME = "View in KNIME...";
+
+    /** Description of the action. */
+    private static final String DESCRIPTION_KNIME = "View the selected " +
+    		"image(s) in KNIME.";
+    
     /** Indicate the plugin to open.*/
     private int plugin;
     /**
@@ -95,6 +102,12 @@ public class ViewInPluginAction
 		        putValue(Action.SMALL_ICON, 
 		        		icons.getIcon(IconManager.VIEWER_IJ));
 				break;
+			case DataBrowser.KNIME:
+				putValue(Action.NAME, NAME_KNIME);
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_KNIME));
+		        putValue(Action.SMALL_ICON, 
+		        		icons.getIcon(IconManager.VIEWER_KNIME));
 		}
 	}
 	
@@ -109,16 +122,15 @@ public class ViewInPluginAction
     	ImageDisplay node = browser.getLastSelectedDisplay();
     	if (node == null) return;
     	Object object = node.getHierarchyObject();
-    	switch (DataBrowserAgent.runAsPlugin()) {
-			case DataBrowser.IMAGE_J:
-				if (object instanceof ImageData) {
-					ViewInPluginEvent event = new ViewInPluginEvent(
-						model.getSecurityContext(),
-						(DataObject) object, plugin);
-					DataBrowserAgent.getRegistry().getEventBus().post(event);
-				}
-				break;
-		}
+    	if (DataBrowserAgent.runAsPlugin() >= 0) {
+    		if (object instanceof ImageData) {
+				ViewInPluginEvent event = new ViewInPluginEvent(
+					model.getSecurityContext(),
+					(DataObject) object, plugin);
+				event.setDataObjects(browser.getSelectedDataObjects());
+				DataBrowserAgent.getRegistry().getEventBus().post(event);
+			}
+    	}
     }
 
 }

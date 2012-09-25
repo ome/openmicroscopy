@@ -95,7 +95,7 @@ public class DataServicesTestsInit
         try {
             //Rebind OMERO config entries with test entries
             OMEROInfo omeroAddr = new OMEROInfo(Env.getOmeroPort(),
-            		Env.getOmeroPortSSL(), Env.getOmeroHost());
+            		Env.getOmeroPortSSL(), Env.getOmeroHost(), "false");
             reg.bind(LookupNames.OMERODS, omeroAddr);
             //Create services.
             DataServicesFactory factory = 

@@ -149,7 +149,7 @@ public class WritePermissionsTest extends MockObjectTestCase {
         }
 
         void assertPerms(String type, boolean expected, boolean found) {
-            String msg = String.format("%s: disallow%s broken!", name, type);
+            String msg = String.format("%s: allow%s broken!", name, type);
             assertEquals(msg, expected, found);
         }
     }

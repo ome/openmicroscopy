@@ -244,11 +244,7 @@ public class TreeViewerAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (env == null) return -1;
-    	switch (env.runAsPlugin()) {
-			case LookupNames.IMAGE_J:
-				return TreeViewer.IMAGE_J;
-		}
-    	return -1;
+    	return env.runAsPlugin();
     }
     
     /** 
@@ -443,7 +439,8 @@ public class TreeViewerAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
-    	TreeViewerFactory.onReconnected();
+    	//First check that the need to re-activate.
+    	if (TreeViewerFactory.onReconnected()) return;
     }
     
     /**

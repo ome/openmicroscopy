@@ -13,6 +13,9 @@ urlpatterns = patterns('django.views.generic.simple',
     # 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb
     url( r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset, name="webtest_dataset" ),
 
+    # Another simple example - shows a stack preview for an image with multiple Z sections
+    url( r'^stack_preview/(?P<imageId>[0-9]+)/$', views.stack_preview, name="webtest_stack_preview" ),
+
     # Displays images (one per row) one channel per column in a grid. Params are passed in request, E.g. imageIds
     url( r'^split_view_figure/$', views.split_view_figure, name="webtest_split_view_figure"),
     url( r'^split_view_figure_plugin/$', views.split_view_figure, 

@@ -536,6 +536,15 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+          else if (targetObject instanceof Annotation)
+          {
+            if (referenceObject instanceof Annotation)
+            {
+              handleReference((Annotation) targetObject,
+                (Annotation) referenceObject);
+              continue;
+            }
+          }
 
     			throw new ApiUsageException(String.format(
     					"Missing reference handler for %s(%s) --> %s(%s) reference.",
@@ -1432,6 +1441,18 @@ public class OMEROMetadataStore
     {
         target.setFile(reference);
     }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Annotation target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
     /**
      * Retrieves an object from the internal object graph by LSID.
      * @param lsid LSID of the object.

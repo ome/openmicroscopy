@@ -63,12 +63,6 @@ public class ROITableModel
 
 	/** Type Column no for the wizard. */
 	public static final int				SHAPE_COLUMN = 3;
-
-	/** Identifies the name space column. */
-	//public static final int 			NAMESPACE_COLUMN = 4;
-	
-	/** Identifies the keywords column. */
-	//public static final int 			KEYWORDS_COLUMN = 5;
 	
 	/** Annotation Column no for the wizard. */
 	public static final int				ANNOTATION_COLUMN = 4;
@@ -170,10 +164,6 @@ public class ROITableModel
 				return Integer.class;
 			case SHAPE_COLUMN+1:
 				return ShapeType.class;
-			//case NAMESPACE_COLUMN+1:
-				//return String.class;
-			//case KEYWORDS_COLUMN+1:
-				//return String.class;
 			case ANNOTATION_COLUMN+1:
 				return String.class;
 			case VISIBLE_COLUMN+1:
@@ -184,6 +174,3 @@ public class ROITableModel
 	}
 
 }
-	
-
-

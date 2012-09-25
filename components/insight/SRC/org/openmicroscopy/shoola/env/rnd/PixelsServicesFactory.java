@@ -210,7 +210,7 @@ public class PixelsServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (PixelsServicesFactory.singleton == null)  {
+		if (singleton == null)  {
 			registry = c.getRegistry();
 			singleton = new PixelsServicesFactory();
 			//Retrieve the maximum heap size.
@@ -232,7 +232,7 @@ public class PixelsServicesFactory
 	 * 						cannot call the method. 
 	 * 						It must be a reference to the
 	 *                  	container's registry.
-	 * @param re        	The {@link RenderingEngine rendering service}.        
+	 * @param re        	The {@link RenderingEngine rendering service}.
 	 * @param pixels   		The pixels set.
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
@@ -353,16 +353,7 @@ public class PixelsServicesFactory
 	 * */
 	public static void shutDownRenderingControls(Registry context)
 	{
-		if (!(context.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		/*
-		Entry entry;
-		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			((RenderingControlProxy) entry.getValue()).shutDown();
-		}
-		*/
+		//Note that the class should be deleted.
 		singleton.rndSvcProxies.clear();
 		singleton.rndSvcProxiesCount.clear();
 	}

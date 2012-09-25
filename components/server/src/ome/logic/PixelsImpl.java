@@ -132,7 +132,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         {
             final EventContext ec = this.sec.getEventContext(false);
             final Pixels pixelsObj = this.iQuery.get(Pixels.class, pixId);
-            final boolean isGraphCritical = this.sec.isGraphCritical();
+            final boolean isGraphCritical = this.sec.isGraphCritical(pixelsObj.getDetails());
             long pixOwner = pixelsObj.getDetails().getOwner().getId();
             long currentUser = ec.getCurrentUserId();
             if (currentUser != pixOwner) {

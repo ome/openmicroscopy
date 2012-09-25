@@ -571,6 +571,8 @@ class OmeroImageServiceImpl
 			RenderingEnginePrx re = gateway.createRenderingEngine(ctx,
 					pixelsID);
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
+			if (pixels == null) return null;
+				
 			List<RndProxyDef> defs = gateway.getRenderingSettingsFor(
 					ctx, pixelsID, exp.getId());
 			Collection l = pixels.copyChannels();

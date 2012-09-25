@@ -64,7 +64,7 @@ public class DeleteStep extends GraphStep {
         }
 
         final QueryBuilder nullOp = optionalNullBuilder();
-        final QueryBuilder qb = queryBuilder(opts);
+        final QueryBuilder qb = spec.deleteQuery(ec, table, opts);
 
         // Phase 2: NULL
         optionallyNullField(session, nullOp, id);
@@ -111,17 +111,6 @@ public class DeleteStep extends GraphStep {
                 log.debug("Nulled " + updated + " Pixels.relatedTo fields");
             }
         }
-    }
-
-    private QueryBuilder queryBuilder(GraphOpts opts) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(table);
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(ec, qb);
-        }
-        return qb;
     }
 
     @Override

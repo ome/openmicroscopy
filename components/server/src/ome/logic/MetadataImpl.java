@@ -756,9 +756,11 @@ public class MetadataImpl
 			
 			sb = new StringBuilder();
 			param = new Parameters();
+			param.addString("include", NS_INSIGHT_TAG_SET);
 			sb.append("select ann from TagAnnotation as ann");
-			//sb.append(" where ann member of "+TAG_TYPE);
-			sb.append(" where ann.ns is null");
+			//sb.append(" where ann.ns is null");
+			sb.append(" where ((ann.ns is null) or " +
+					"(ann.ns is not null and ann.ns != :include)) ");
 			if (children.size() > 0) {
 				sb.append(" and ann.id not in (:ids)");
 				param.addList("ids", children);

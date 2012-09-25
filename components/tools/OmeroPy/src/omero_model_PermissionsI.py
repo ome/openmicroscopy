@@ -106,7 +106,7 @@ class PermissionsI(_omero_model.Permissions):
 
       def isDisallow(self, restriction, current=None):
           rs = self._restrictions
-          if rs is not None and len(rs) >= restriction:
+          if rs is not None and len(rs) > restriction:
                 return rs[restriction]
           return False
 

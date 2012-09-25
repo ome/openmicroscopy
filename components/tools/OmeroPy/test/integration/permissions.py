@@ -652,6 +652,15 @@ class TestPermissions(lib.ITest):
         qb.get("TagAnnotation", tid, specific) # Not currently in gid
         qb.get("TagAnnotation", tid, negone)
 
+    # Reading with an admin user
+    # ==============================================
+
+    def testAdminCanQueryWithGroupMinusOneTicket9632(self):
+        q = self.root.sf.getQueryService()
+        ctx = self.root.ic.getImplicitContext().getContext()
+        ctx["omero.group"] = "-1"
+        q.findAllByQuery('select p from Project as p', None, ctx)
+
     # Use of omero.user
     # ==============================================
 

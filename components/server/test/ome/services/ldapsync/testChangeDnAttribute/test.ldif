@@ -1,0 +1,25 @@
+dn: ou=testChangeDnAttribute,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: testChangeDnAttribute
+
+dn: cn=grp1,ou=testChangeDnAttribute,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp1
+
+dn: cn=grp2,ou=testChangeDnAttribute,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp2
+
+dn: cn=test1,ou=testChangeDnAttribute,o=eg
+objectClass: person
+cn: test1
+givenName: Testy
+sn: Tester
+mail: test1@test.com
+userPassword: password
+roleOccupant: cn=grp1,ou=testChangeDnAttribute,o=eg
+roleOccupant: cn=grp2,ou=testChangeDnAttribute,o=eg
+# Difference to testChangeAttribute is that roleOccupant is a DN

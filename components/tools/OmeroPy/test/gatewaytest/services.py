@@ -23,14 +23,14 @@ class ServicesTest (lib.GTest):
     def setUp (self):
         super(ServicesTest, self).setUp()
         self.loginAsAuthor()
+        ctxgroupname = self.gateway.getEventContext().groupName
+        self.loginAsAdmin()
+        dbhelpers.UserEntry.assert_group_perms(self.gateway, ctxgroupname, dbhelpers.DEFAULT_GROUP_PERMS)
+        self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
         self.assertNotEqual(self.TESTIMG, None, 'No test image found on database')
 
     def testDeleteServiceAuthor (self):
-
-        ctx = self.gateway.getEventContext()
-        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rwrw--")
-
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
         # Create new, link and check
@@ -46,10 +46,6 @@ class ServicesTest (lib.GTest):
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
 
     def testDeleteServiceAdmin (self):
-
-        ctx = self.gateway.getEventContext()
-        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rwrw--")
-
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
         # Create new as author, link and check
@@ -136,6 +132,8 @@ class TablesTest (lib.GTest):
         file_annotation.setFile(original_file)
         pr.linkAnnotation(file_annotation)
         # table created, can we read it back?
+        pr = self.getTestProject()
+        self.assertNotEqual(pr, None)
         file_annotation = pr.getAnnotation(ns='openmicroscopy.org/omero/bulk_annotations')
         self.assertNotEqual(file_annotation, None)
         table = sr.openTable(file_annotation._obj.file)

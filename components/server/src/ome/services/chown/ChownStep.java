@@ -80,7 +80,7 @@ public class ChownStep extends GraphStep {
             }
         }
 
-        final QueryBuilder qb = queryBuilder(opts);
+        final QueryBuilder qb = spec.chmodQuery(ec, table, opts);
         qb.param("id", id);
         qb.param("usr", usr);
         Query q = qb.query(session);
@@ -130,18 +130,6 @@ public class ChownStep extends GraphStep {
             cb.addGraphIds(this);
         }
         logResults(count);
-    }
-
-    private QueryBuilder queryBuilder(GraphOpts opts) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.update(table);
-        qb.append("set owner_id = :usr   ");
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(ec, qb);
-        }
-        return qb;
     }
 
     private Long findImproperIncomingLinks(Session session, String[] lock) {

@@ -304,7 +304,7 @@ class Connector
 	 */
 	IContainerPrx getPojosService()
 		throws Throwable
-	{ 
+	{
 		if (pojosService == null) {
 			if (entryUnencrypted != null)
 				pojosService = entryUnencrypted.getContainerService();

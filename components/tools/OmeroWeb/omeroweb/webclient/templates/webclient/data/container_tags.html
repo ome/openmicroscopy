@@ -280,7 +280,7 @@
                             "select_limit" : 1,
                             "select_multiple_modifier" : false,
                             "select_range_modifier" : false,
-                            "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
+                            "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
                         },
                         // the core plugin - not many options here
                         "core" : { 

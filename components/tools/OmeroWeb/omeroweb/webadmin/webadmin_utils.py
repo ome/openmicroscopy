@@ -4,53 +4,8 @@ import re
 from omero_version import omero_version
 
 from webclient.webclient_gateway import OmeroWebGateway
-from omeroweb.webgateway.views import _createConnection
 
 logger = logging.getLogger(__name__)
-
-def getGuestConnection(host, port):
-    conn = None
-    guest = "guest"
-    try:
-        # do not store connection on connectors
-        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
-        if conn is not None:
-            logger.info("Have connection as Guest")
-        else:
-            logger.info("Open connection is not available")
-    except Exception, x:
-        logger.error(traceback.format_exc())
-    return conn
-
-def _checkVersion(host, port):
-    rv = False
-    conn = getGuestConnection(host, port)
-    if conn is not None:
-        try:
-            agent = conn.getServerVersion()
-            regex = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
-
-            agent_cleaned = regex.match(agent).group(1)
-            agent_split = agent_cleaned.split(".")
-
-            local_cleaned = regex.match(omero_version).group(1)
-            local_split = local_cleaned.split(".")
-
-            rv = (agent_split == local_split)
-            logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-    return rv
-
-def _isServerOn(host, port):
-    conn = getGuestConnection(host, port)
-    if conn is not None:
-        try:
-            conn.getServerVersion()
-            return True
-        except Exception, x:
-            logger.error(traceback.format_exc())
-    return False
 
 def upgradeCheck():
     # upgrade check:

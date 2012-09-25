@@ -50,7 +50,7 @@ public class HierarchyMoveAndPermissionsTest
      * image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageRW()
 	throws Exception
     {
@@ -66,7 +66,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
-
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -90,7 +90,7 @@ public class HierarchyMoveAndPermissionsTest
      * image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageRWR()
 	throws Exception
     {
@@ -106,7 +106,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
-
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -128,7 +128,7 @@ public class HierarchyMoveAndPermissionsTest
      * Test to move an image w/o pixels between <code>RWRW--</code> groups.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageRWRW()
 	throws Exception
     {
@@ -144,7 +144,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
-
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -167,7 +167,7 @@ public class HierarchyMoveAndPermissionsTest
      * source group is NOT an owner or member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerDestination()
         throws Exception
     {
@@ -183,6 +183,7 @@ public class HierarchyMoveAndPermissionsTest
 
         //Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
+        iAdmin.getEventContext(); // Refresh
 
         doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
                 null, g.getId().getValue()));
@@ -206,7 +207,7 @@ public class HierarchyMoveAndPermissionsTest
      * source group is NOT an owner but IS a member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerButMemberDestination()
         throws Exception
     {
@@ -222,6 +223,7 @@ public class HierarchyMoveAndPermissionsTest
 
         //Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, oldGroupOwner.userId, false);
+        iAdmin.getEventContext(); // Refresh
 
         doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
                 null, g.getId().getValue()));
@@ -245,7 +247,7 @@ public class HierarchyMoveAndPermissionsTest
      * source <code>RW----</code>, destination <code>RWR---</code>
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageRWToRWR()
 	throws Exception
     {
@@ -261,6 +263,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser("rwr---", ctx.userId, true);
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -284,7 +287,7 @@ public class HierarchyMoveAndPermissionsTest
      * source <code>RWR---</code>, destination <code>RW----</code>
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageRWRToRW()
 	throws Exception
     {
@@ -300,6 +303,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser("rw----", ctx.userId, true);
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -323,7 +327,7 @@ public class HierarchyMoveAndPermissionsTest
      * not owner of the groups.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerOfGroupsRWRW()
 	throws Exception
     {
@@ -339,6 +343,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -362,7 +367,7 @@ public class HierarchyMoveAndPermissionsTest
      * Only owner of the destination group
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveBasicImageOwnerOfDestinationOnlyRWRW()
 	throws Exception
     {
@@ -378,6 +383,7 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and make owner of first group an owner.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
+	iAdmin.getEventContext(); // Refresh
 
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -469,6 +475,8 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and user1 to that group.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
+	iAdmin.getEventContext(); // Refresh
+
 	//loginUser(ctx);
 	//Now try to move the dataset.
 	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
@@ -486,7 +494,7 @@ public class HierarchyMoveAndPermissionsTest
 	param = new ParametersI();
 	param.addId(imageId);
 	//image should not have been moved.
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
+	assertNotNull("#9496? anns", iQuery.findByQuery(sb.toString(), param));
 
 	//destination group
 	EventContext ec = loginUser(g);	//log into second group
@@ -507,7 +515,7 @@ public class HierarchyMoveAndPermissionsTest
      * a member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRWRW()
 	throws Exception
     {
@@ -533,6 +541,8 @@ public class HierarchyMoveAndPermissionsTest
 
 	//Create a new group and user1 to that group.
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
+	iAdmin.getEventContext(); // Refresh
+
 	//loginUser(ctx);
 	//Now try to move the dataset.
 	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
@@ -584,6 +594,7 @@ public class HierarchyMoveAndPermissionsTest
 
         //new user
 	EventContext ctx2 = newUserInGroup(ctx);
+	iAdmin.getEventContext(); // Refresh
 
 	Image image = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.simpleImage(10));
@@ -603,6 +614,8 @@ public class HierarchyMoveAndPermissionsTest
 	users.add(ctx2.userId);
 	//Create a new group and user1 and user2 to that group.
 	ExperimenterGroup g = newGroupAddUser(perms, users, false);
+	iAdmin.getEventContext(); // Refresh
+
 	//loginUser(ctx);
 	//Now try to move the dataset.
 	doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id,
@@ -620,7 +633,7 @@ public class HierarchyMoveAndPermissionsTest
 	param = new ParametersI();
 	param.addId(imageId);
 	//image should not have been moved.
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
+	assertNotNull("#9496? anns", iQuery.findByQuery(sb.toString(), param));
 
 	//destination group
 	EventContext ec = loginUser(g);	//log into second group
@@ -728,11 +741,11 @@ public class HierarchyMoveAndPermissionsTest
      * owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // Owners can no longer chgrp
     public void testMoveImageOwnedByOtherRWRWToRWRW()
 	throws Exception
     {
-	String perms = "rw----";
+	String perms = "rwrw--";
 	//group and group owner.
 	EventContext ctx1 = newUserAndGroup(perms, false);
 	EventContext ctx2 = newUserInGroup();
@@ -744,14 +757,14 @@ public class HierarchyMoveAndPermissionsTest
 	long id = img.getId().getValue();
 	disconnect();
 
-	disconnect();
-	ctx2 = init(ctx2);
 
 	List<Long> users = new ArrayList<Long>();
 	users.add(ctx1.userId);
 	users.add(ctx2.userId);
 	ExperimenterGroup g = newGroupAddUser("rwrw--", users, false);
+
 	//user2 tries to move it.
+	ctx2 = init(ctx2);
 	doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
 		//Now check that the image is no longer in group

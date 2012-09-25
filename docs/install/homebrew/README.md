@@ -50,7 +50,7 @@ You also need Java which comes as standard on OS X.
 Follow the instructions for installing Homebrew available [[here](https://github.com/mxcl/homebrew/wiki/installation)].
 All requirements for OMERO will be installed in this location (e.g. /usr/local). For example:
 
-    $ ruby -e "$(curl -fsSLk https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+    $ ruby <(curl -fsSkL raw.github.com/mxcl/homebrew/go)
     $ brew install git
 
 If you are having issues with curl, see the the "curl" section under "Common issues".

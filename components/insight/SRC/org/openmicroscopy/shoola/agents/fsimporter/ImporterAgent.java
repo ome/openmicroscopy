@@ -128,6 +128,18 @@ public class ImporterAgent
 	}
     
 	/**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	return env.runAsPlugin();
+    }
+    
+	/**
 	 * Returns the default value from the configuration file.
 	 * 
 	 * @return See above.
@@ -167,11 +179,15 @@ public class ImporterAgent
 						t = browserType;
 					else t = getDefaultBrowser();
 			}
-    		//
-    		//objects = evt.getObjects();
-    		Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
-        	List<TreeImageDisplay> l = null;
-        	if (data != null) l = data.get(getUserDetails().getId());
+    		
+    		List<TreeImageDisplay> l = null;
+    		//Require if the ExperimenterLoadedDataEvent is posted after
+    		//LoadImporter event.
+    		if (objects != null) {
+    			Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+            	if (data != null) l = data.get(getUserDetails().getId());
+    		}
+    		
     		importer.activate(t, evt.getSelectedContainer(), l);
     	}
     }

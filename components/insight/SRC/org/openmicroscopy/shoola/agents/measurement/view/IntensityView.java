@@ -36,6 +36,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,6 +129,9 @@ class IntensityView
 	/** The initial size of the intensity table dialog. */
 	private Dimension intensityTableSize = new Dimension(300, 300);
 
+	/** The default preview of the sheet displaying the channel's name.*/
+	private static final String CHANNEL_SHEET = "Channel name ";
+	
 	/** The state of the Intensity View. */
 	static enum State 
 	{
@@ -814,10 +818,10 @@ class IntensityView
 			
 			return;
 		}
-				
+		ExcelWriter writer = null;
 		try
 		{
-			ExcelWriter writer = new ExcelWriter(file.getAbsolutePath());
+			writer = new ExcelWriter(file.getAbsolutePath());
 			writer.openFile();
 			writer.createSheet("Channel Summary");
 			Iterator<Coord3D> coordMapIterator = shapeMap.keySet().iterator();
@@ -839,11 +843,14 @@ class IntensityView
 				try {
 					writer.addImageToWorkbook("ThumbnailImage", image); 
 				} catch (Exception e) {
-					//TODO
+					Logger logger = MeasurementAgent.getRegistry().getLogger();
+					logger.error(this, "Cannot write Image: "+e.toString());
 				}
 				int col = writer.getMaxColumn(0);
 				writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
 			}
+			String name;
+			String sheet;
 			if (channelSummarySelected(channels) && channels.size() != 1)
 				while (coordMapIterator.hasNext())
 				{
@@ -856,11 +863,13 @@ class IntensityView
 						if (!nameMap.containsKey(channelName.get(channel)))
 							continue;
 						int rowIndex = 0;
-						
-						writer.createSheet("Channel Number "+
-								channelName.get(channel));
+						name = channelName.get(channel);
+						sheet = CHANNEL_SHEET+name;
+						//First check if the sheet already exists.
+						if (writer.setCurrentSheet(sheet) == null)
+							writer.createSheet(sheet);
 						writeHeader(writer, rowIndex, currentCoord);
-						channel = nameMap.get(channelName.get(channel));
+						channel = nameMap.get(name);
 						writeData(writer, rowIndex, currentCoord, 
 								channel.intValue());
 					}
@@ -880,6 +889,14 @@ class IntensityView
 						"than a comma.";
 			} 
 			un.notifyInfo("Save Results", message);
+			//delete the file
+			file.delete();
+			try {
+				writer.close();
+			} catch (Exception e2) {
+				//ignore: cannot close the writer.
+			}
+			
 			return;
 		}
 		
@@ -922,17 +939,18 @@ class IntensityView
 		Coord3D end = shapeMap.lastKey();
 		Coord3D coord;
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
-		for (Integer c : channels)
-		{
-			for (int z = start.getZSection() ; z <= end.getZSection(); z++)
-				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); 
-					t++)
-				{
-					coord = new Coord3D(z, t);
-					populateData(coord, c);
-					outputSummaryRow(writer, rowIndex, c, z, t);
-					rowIndex++;
-				}
+		Set<Coord3D> keys;
+		Iterator<Coord3D> i;
+		for (Integer c : channels) {
+			keys = shapeMap.keySet();
+			i = keys.iterator();
+			while (i.hasNext()) {
+				coord = (Coord3D) i.next();
+				populateData(coord, c);
+				outputSummaryRow(writer, rowIndex, c, coord.getZSection(),
+						coord.getTimePoint());
+				rowIndex++;
+			}
 		}
 	}
 
@@ -952,8 +970,8 @@ class IntensityView
 	{
 		String name = channelName.get(channel);
 		writer.writeElement(rowIndex, 0, name);
-		writer.writeElement(rowIndex, 1, z+"");
-		writer.writeElement(rowIndex, 2, t+"");
+		writer.writeElement(rowIndex, 1, ""+(z+1));
+		writer.writeElement(rowIndex, 2, ""+(t+1));
 		int col;
 		String v;
 		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)

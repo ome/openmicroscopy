@@ -15,8 +15,8 @@
 
     <description>
 
-    Describes delete specifications which map a single string to a graph of
-    objects which will be deleted. Each specification takes some number of parameters
+    Describes graph specifications which map a single string to a graph of
+    objects which will be processed. Each specification takes some number of parameters
     which describe which roots of the graph will be chosen.
 
     </description>
@@ -28,8 +28,8 @@
 
     <bean id="delSpec"  abstract="true" class="ome.services.graphs.BaseGraphSpec" singleton="false">
         <description>
-        Delete specification which takes a single id as the identifier for where
-        the graph of objects to be deleted starts.
+        Graph specification which takes a single id as the identifier for where
+        the graph of objects to be processed starts.
         </description>
         <!-- EventContext will need to be set by callers. -->
         <property name="extendedMetadata" ref="extendedMetadata"/>
@@ -37,27 +37,15 @@
 
    <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
-        <description>
-        Lists all abstract and concrete annotation types as steps with their
-        default operations.
-
-        This list is checked at startup to make sure that no values have been
-        omitted.
-        In the implementation, the type hierarchy is used to apply user options
-        to the given type and all sub-types.
-
-        For example, if /BasicAnnotation=KEEP is applied,
-        then boolean, double, long, term, and timestamp
-        annotations will all be marked KEEP.
-
-        Order represents the hierarchy, from bottom to type.
-        </description>
+    <bean name="fileNamespaces" class="java.util.HashMap">
         <constructor-arg>
             <map>
                 <entry key="/FileAnnotation" value="openmicroscopy.org/omero/import/companionFile,openmicroscopy.org/omero/measurement"/>
             </map>
         </constructor-arg>
+    </bean>
+
+    <bean name="annotationList" class="java.util.ArrayList">
         <constructor-arg>
             <list>
                <value>/Annotation/AnnotationAnnotationLink;FORCE</value>
@@ -82,10 +70,39 @@
             </list>
         </constructor-arg>
     </bean>
+    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
+        <description>
+        Lists all abstract and concrete annotation types as steps with their
+        default operations.
+
+        This list is checked at startup to make sure that no values have been
+        omitted.
+        In the implementation, the type hierarchy is used to apply user options
+        to the given type and all sub-types.
+
+        For example, if /BasicAnnotation=KEEP is applied,
+        then boolean, double, long, term, and timestamp
+        annotations will all be marked KEEP.
+
+        Order represents the hierarchy, from bottom to type.
+        </description>
+        <constructor-arg ref="fileNamespaces"/>
+        <constructor-arg ref="annotationList"/>
+    </bean>
+
+    <bean parent="delSpec" name="/FileAnnotation+special" class="ome.services.graphs.AnnotationGraphSpec">
+        <description>
+        More specific version of /Annotation which
+        Primarily necessary since for /OriginalFile there are two links to
+        Annotations which overwrite one another.
+        </description>
+        <constructor-arg ref="fileNamespaces"/>
+        <constructor-arg ref="annotationList"/><!-- optimally just FA -->
+    </bean>
 
     <bean parent="delSpec" name="/Roi">
         <description>
-        Deletes a Region of interest, its shapes, and any attached annotations.
+        Describes a Region of interest, its shapes, and any attached annotations.
         </description>
         <constructor-arg>
             <list>
@@ -97,9 +114,9 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image/Pixels/RenderingDef">
+    <bean parent="delSpec" name="/Image/Pixels/RenderingDef" class="ome.services.graphs.RenderingDefGraphSpec">
         <description>
-        Deletes a rendering def based on the image id from where it comes.
+        Describes a rendering def based on the image id from where it comes.
         </description>
         <constructor-arg>
             <list>
@@ -112,9 +129,24 @@
 
     </bean>
 
+    <bean parent="delSpec" name="/LightSource" class="ome.services.graphs.LightSourceGraphSpec">
+        <description>
+        Describes a single light-source.
+        </description>
+        <constructor-arg>
+          <list>
+            <value>/Arc</value>
+            <value>/Filament</value>
+            <value>/Laser</value>
+            <value>/LightEmittingDiode</value>
+            <value>/LightSource</value>
+          </list>
+        </constructor-arg>
+    </bean>
+
     <bean parent="delSpec" name="/Image/Pixels/Channel">
         <description>
-        Deletes a Channel
+        Describes a Channel
         </description>
         <constructor-arg>
             <list>
@@ -123,18 +155,20 @@
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
                 <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value -->
+                <value>/LightSource;SOFT;/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter/TransmittanceRange;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter/TransmittanceRange;SOFT</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value>
             </list>
         </constructor-arg>
     </bean>
@@ -144,9 +178,9 @@
             <list>
                 <value>/Instrument/Detector</value>
                 <value>/Instrument/Dichroic</value>
+                <value>/Instrument/Filter/TransmittanceRange</value>
                 <value>/Instrument/Filter</value>
-                <!-- value>/Instrument/FilterSet</value -->
-                <value>/Instrument/LightSource</value>
+                <value>/LightSource;SOFT;/Instrument</value>
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>
                 <value>/Instrument/FilterSet</value>
@@ -317,14 +351,17 @@
         <constructor-arg>
             <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
+                <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
+                <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
+                <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
                 <value>/OriginalFile</value>
             </list>
         </constructor-arg>
     </bean>
 
-    <!-- Adding annotation link delete support. Could be more generic #7301 -->
+    <!-- Adding annotation link support. Could be more generic #7301 -->
     <bean parent="delSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
