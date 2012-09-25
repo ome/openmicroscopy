@@ -117,7 +117,7 @@ find_pkg("WIN_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.win.zip
 find_pkg("IJ_CLIENTS", "@VERSION@/OMERO.insight-ij-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("MATLAB_CLIENTS", "@VERSION@/OMERO.matlab-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("SERVER33", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
-find_pkg("SERVER34", "@VERSION@/OMERO.server-@VERSION@-ice33-@BUILD@.zip")
+find_pkg("SERVER34", "@VERSION@/OMERO.server-@VERSION@-ice34-@BUILD@.zip")
 find_pkg("DOCS", "@VERSION@/OMERO.docs-@VERSION@-ice33-@BUILD@.zip")
 find_pkg("VM", "virtualbox/omero-vm-@VERSION@.ova")
 find_pkg("DOC", "@VERSION@/OMERO-@VERSION@.pdf")
