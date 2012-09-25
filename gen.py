@@ -107,8 +107,13 @@ def find_pkg(name, path):
     if len(rv) != 1:
         raise Exception("Results!=1 for %s (%s): %s" % (name, path, rv))
     path = rv[0]
+    bnum = build.startswith("b") and build[1:] or build
+    hash = hashfile(path)
+    furl = "http://hudson.openmicroscopy.org.uk/fingerprint/%s/api/xml" % hash
+    if not check_url(furl):
+        raise Exception("Error accessing %s for %s" % (furl, path))
     repl["@%s@" % name] = SNAPSHOT_URL + path[len(SNAPSHOT_PATH):]
-    repl["@%s_MD5@" % name] = hashfile(path)
+    repl["@%s_MD5@" % name] = hash
     repl["@%s_BASE@" % name] = os.path.basename(path)
 
 find_pkg("LINUX_CLIENTS", "@VERSION@/OMERO.clients-@VERSION@-ice33-@BUILD@.linux.zip")
