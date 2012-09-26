@@ -423,10 +423,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			long start = System.currentTimeMillis();
 			c.ping();
-			System.err.println("alive:"+(System.currentTimeMillis()-start));
-			
 		} catch (Exception e) {
 			handleConnectionException(e);
 		}
