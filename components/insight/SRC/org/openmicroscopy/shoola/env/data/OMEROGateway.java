@@ -1253,7 +1253,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			SharedResourcesPrx prx = c.getSharedResources();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Shared Resources.");
@@ -1262,15 +1261,7 @@ class OMEROGateway
 			handleException(e, "Cannot access the Shared Resources.");
 			//nothing 
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getSharedResources();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the Shared Resources: ");
-		}
+		return null;
 	}
 	
 	/**
@@ -1293,7 +1284,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRenderingSettingsPrx prx = c.getRenderingSettingsService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RenderingSettings service.");
@@ -1301,16 +1291,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the RenderingSettings service.");
 		}
-		
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getRenderingSettingsService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the RenderingSettings service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1332,7 +1313,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			OMEROMetadataStoreClient prx = c.getImportStore();
-			prx.ping();//check if still active.
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Import service.");
@@ -1340,15 +1320,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Import service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getImportStore();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Import service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1370,7 +1342,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRepositoryInfoPrx prx = c.getRepositoryService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RepositoryInfo service.");
@@ -1378,15 +1349,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the RepositoryInfo service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getRepositoryService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the RepositoryInfo service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1478,9 +1441,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IContainerPrx prx = c.getPojosService();
-			long start = System.currentTimeMillis();
-			prx.ice_ping();
-			System.err.println(System.currentTimeMillis()-start);
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Container service.");
@@ -1489,16 +1449,6 @@ class OMEROGateway
 			handleException(e, "Cannot access the Container service.");
 		}
 		return null;
-		/*
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getPojosService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Container service.");
-		}*/
 	}
 
 	/**
@@ -1558,7 +1508,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IUpdatePrx prx = c.getUpdateService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Update service.");
@@ -1566,15 +1515,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Update service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getUpdateService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Update service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1596,7 +1537,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IMetadataPrx prx = c.getMetadataService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Metadata service.");
@@ -1604,15 +1544,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Metadata service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getMetadataService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the Metadata service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1634,7 +1566,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IRoiPrx prx = c.getROIService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the ROI service.");
@@ -1642,15 +1573,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access th ROI service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getROIService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the ROI service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1672,7 +1595,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IAdminPrx prx = c.getAdminService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Admin service.");
@@ -1680,15 +1602,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Admin service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getAdminService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the Admin service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1732,7 +1646,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			ThumbnailStorePrx prx = c.getThumbnailService(n);
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Thumbnail service.");
@@ -1740,15 +1653,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Thumbnail service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getThumbnailService(n);
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Thumbnail service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1777,15 +1682,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Exporter service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getExporterService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the Exporter service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1807,7 +1704,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RawFileStorePrx prx = c.getRawFileService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RawFileStore service.");
@@ -1815,15 +1711,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the RawFileStore service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getRawFileService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-			"Cannot access the RawFileStore service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1847,7 +1735,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RenderingEnginePrx prx = c.getRenderingService(pixelsID);
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Rendering Engine. for "+pixelsID);
@@ -1856,15 +1743,7 @@ class OMEROGateway
 			handleException(e, "Cannot access the Rendering Engine for "
 					+pixelsID);
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getRenderingService(pixelsID);
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Rendering Engine for "+pixelsID);
-		}
+		return null;
 	}
 
 	/**
@@ -1924,7 +1803,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IPixelsPrx prx = c.getPixelsService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Pixels service.");
@@ -1932,15 +1810,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Pixels service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getPixelsService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Pixels service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1962,7 +1832,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			SearchPrx prx = c.getSearchService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Search service.");
@@ -1970,15 +1839,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Search service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getSearchService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Search service.");
-		}
+		return null;
 	}
 	
 	/**
