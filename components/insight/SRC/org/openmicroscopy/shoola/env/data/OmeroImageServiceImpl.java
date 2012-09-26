@@ -176,6 +176,7 @@ class OmeroImageServiceImpl
 		boolean toClose = false;
 		int n = files.size()-1;
 		int index = 0;
+		ImportCandidates ic;
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
@@ -198,8 +199,10 @@ class OmeroImageServiceImpl
 			if (!label.isMarkedAsCancel()) {
 				try {
 					if (ioContainer == null) label.setNoContainer();
+					ic = gateway.getImportCandidates(ctx, object, file, status);
 					result = gateway.importImage(ctx, object, ioContainer, file,
-							label, archived, toClose);
+							label, ic.getUsedFiles(file.getAbsolutePath()),
+							toClose);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1212,7 +1215,7 @@ class OmeroImageServiceImpl
 					if (ioContainer == null)
 						status.setNoContainer();
 					result = gateway.importImage(ctx, object, ioContainer, f,
-							status, archived, close);
+							status, ic.getUsedFiles(value), close);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1248,7 +1251,7 @@ class OmeroImageServiceImpl
 				if (ioContainer == null)
 					status.setNoContainer();
 				result = gateway.importImage(ctx, object, ioContainer, file,
-					status, archived, close);
+					status, ic.getUsedFiles(file.getAbsolutePath()), close);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
