@@ -142,6 +142,8 @@ public class ImportLibrary implements IObservable
             fsLiteReaders.add(loci.formats.in.JPEG2000Reader.class.getName());
             fsLiteReaders.add(loci.formats.in.JPEGReader.class.getName());
             fsLiteReaders.add(loci.formats.in.LeicaSCNReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.TrestleReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.CellSensReader.class.getName());
             fsLiteReaders.add(loci.formats.in.TiffDelegateReader.class.getName());
         }
         else
