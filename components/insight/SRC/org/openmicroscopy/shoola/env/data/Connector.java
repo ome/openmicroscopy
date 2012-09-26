@@ -678,6 +678,7 @@ class Connector
 		}
 	}
 	
+	/** Keeps services alive.*/
 	void ping()
 		throws Exception
 	{
