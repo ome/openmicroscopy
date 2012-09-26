@@ -1245,6 +1245,7 @@ class OmeroImageServiceImpl
 			} else { //single file let's try to import it.
 				if (ioContainer == null)
 					status.setNoContainer();
+				ic = gateway.getImportCandidates(ctx, object, file, status);
 				result = gateway.importImage(ctx, object, ioContainer, file,
 					status, ic.getUsedFiles(file.getAbsolutePath()), close);
 				if (result instanceof ImageData) {
