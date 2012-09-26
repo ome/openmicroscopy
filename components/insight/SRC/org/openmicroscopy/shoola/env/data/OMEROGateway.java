@@ -68,15 +68,7 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import Ice.CommunicatorDestroyedException;
-import Ice.ConnectionLostException;
-import Ice.ConnectionRefusedException;
-import Ice.ConnectionTimeoutException;
-import Ice.ObjectNotExistException;
-import Ice.TimeoutException;
 import omero.ResourceError;
-import ome.conditions.SessionTimeoutException;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
