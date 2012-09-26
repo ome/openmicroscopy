@@ -14,10 +14,11 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 import re
+import tempfile
 
 import omero
 import omero.clients
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
@@ -27,9 +28,11 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
+import django.views.generic
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
+import omero_ext.uuid as uuid
 
 try:
     from hashlib import md5
@@ -39,7 +42,7 @@ except:
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
-from omero.gateway import timeit, TimeIt
+from omero.gateway import timeit, TimeIt, OriginalFileWrapper
 
 import Ice
 import glob
@@ -59,6 +62,9 @@ from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
+import sys
+logger.addHandler(logging.StreamHandler(sys.stdout))
+logger.setLevel(logging.DEBUG)
 
 try:
     from PIL import Image
@@ -1933,3 +1939,355 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     # one (= the one with the highest identifier)
     fileId = max(annotation['file'] for annotation in a['data'])
     return _table_query(request, fileId, conn, **kwargs)
+
+
+@login_required()
+@jsonp
+def repositories(request, conn=None, **kwargs):
+    """
+    Returns a list of repositories and their indices
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    result = []
+    for index, description in enumerate(repositories.descriptions):
+        result.append(dict(index=index,
+                           repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal()))
+    return result
+
+
+@login_required()
+@jsonp
+def repository(request, index, conn=None, **kwargs):
+    """
+    Returns a repository and its root property
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    return dict(repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal(),
+                root=unwrap(repository.root().path))
+
+
+@login_required()
+@jsonp
+def repository_list(request, index, filepath=None, conn=None, **kwargs):
+    """
+    Returns a list of files in a repository.  If filepath is not specified,
+    returns files at the top level of the repository, otherwise files within
+    the specified filepath
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    root = os.path.join(unwrap(repository.root().path), name)
+    if filepath:
+        root = os.path.join(root, filepath)
+    result = repository.list(root)
+    return dict(result=result)
+
+
+@login_required()
+@jsonp
+def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
+    """
+    Returns a list of files and some of their metadata in a repository.
+    If filepath is not specified, returns files at the top level of the
+    repository, otherwise files within the specified filepath
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    root = os.path.join(unwrap(repository.root().path), name)
+    if filepath:
+        root = os.path.join(root, filepath)
+    result = map(lambda f: OriginalFileWrapper(conn=conn, obj=f).simpleMarshal(),
+                 repository.listFiles(root))
+    return dict(result=result)
+
+
+@login_required()
+@jsonp
+def repository_root(request, index, conn=None, **kwargs):
+    """
+    Returns the root and name property of a repository
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    return dict(root=unwrap(repository.root().path),
+                name=OriginalFileWrapper(conn=conn, obj=description).getName())
+
+
+@login_required()
+def repository_download(request, index, filepath, conn=None, **kwargs):
+    """
+    Downloads a file from a repository.  Supports the HTTP_RANGE header to
+    perform partial downloads or download continuation
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    sourcefile = repository.file(fullpath, 'r')
+
+    def chunk_copy_from_repo(source, target, start, end):
+        chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+        position = start
+        to_read = end - start + 1
+        while True:
+            chunk = source.read(position, min(chunk_size, to_read))
+            if not chunk:
+                break
+            to_read -= len(chunk)
+            position += len(chunk)
+            target.write(chunk)
+
+    def parse_range(request, size):
+        # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+        m = re.match(r"^bytes=(\d*)-(\d*)$", request.META.get('HTTP_RANGE', ''))
+        if not m:
+            return 200, 0, size - 1
+        try:
+            start = int(m.group(1) or 0)
+            end = int(m.group(2) or (size - 1))
+            if start == 0 and end == size - 1:
+                return 200, start, end
+            if start <= end:
+                if end >= size:
+                    return 416, start, end
+                else:
+                    return 206, start, end
+        except ValueError:
+            pass
+        return 416, 0, size - 1
+
+    filesize = sourcefile.size()
+
+    code, start, end = parse_range(request, filesize)
+    response = HttpResponse(status=code, content_type='application/octet-stream')
+    if code < 400:
+        response['Content-Length'] = end - start + 1
+        chunk_copy_from_repo(sourcefile, response, start, end)
+
+    return response
+
+
+
+def chunk_copy(source, target, start=None, end=None):
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    if start > 0:
+        source.seek(start)
+    to_read = (end - (start or 0) + 1) if end else None
+    while True:
+        chunk = source.read(min(chunk_size, to_read) if to_read > -1 else chunk_size)
+        if not chunk:
+            break
+        if to_read:
+            to_read -= len(chunk)
+        target.write(chunk)
+
+
+def touch(fname, times=None):
+    with file(fname, 'a'):
+        os.utime(fname, times)
+
+def get_temp_path(uploadId=None):
+    temp_dir = getattr(settings, 'MPU_TEMP_DIR', tempfile.gettempdir())
+    if not uploadId:
+        return os.path.join(temp_dir, 'mpu_uploads')
+    else:
+        return os.path.join(temp_dir, 'mpu_uploads', uploadId)
+
+def _delete_upload(objectname):
+    shutil.rmtree(os.path.dirname(objectname), ignore_errors=True)
+
+
+class login_required_no_redirect(login_required):
+
+    def on_not_logged_in(self, request, url, error=None):
+        """Called whenever the user is not logged in."""
+
+        logger.debug("webapi: Could not log in - always 403")
+
+        return HttpResponseForbidden()
+
+
+# Use these utility decorators to use any decorator designed for classic views
+# on class-based view methods.
+# Example:
+#
+# class ViewClass(django.views.generic.View):
+#     @cloak_self
+#     @login_required()
+#     @uncloak_self
+#     def protected_view(self, request, *args, **kwargs):
+#         ...
+
+def cloak_self(function):
+    def decorated(self, *args, **kwargs):
+        kwargs['__self__'] = self
+        return function(*args, **kwargs)
+    return decorated
+
+def uncloak_self(function):
+    def decorated(*args, **kwargs):
+        self = kwargs.pop('__self__', None)
+        return function(self, *args, **kwargs)
+    return decorated
+
+
+def process_request(require_uploadId):
+    def decorate_method(method):
+        @cloak_self
+        @login_required_no_redirect()
+        @jsonp
+        @uncloak_self
+        def decorated(self, request, index, filepath, conn, **kwargs):
+
+            sr = conn.getSharedResources()
+            repositories = sr.repositories()
+            repository = repositories.proxies[int(index)]
+            description = repositories.descriptions[int(index)]
+            name = OriginalFileWrapper(conn=conn, obj=description).getName()
+            fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+
+            objectname = os.path.basename(fullpath)
+            uploadId = request.GET.get('uploadId')
+            if uploadId:
+                path = get_temp_path(uploadId)
+                objectname = os.path.join(path, objectname)
+                if not os.path.exists(objectname):
+                    return HttpResponseForbidden()
+                touch(os.path.join(path, objectname))
+            elif require_uploadId:
+                return HttpResponseForbidden()
+            try:
+                rdict = {'bad': 'false'}
+                rdict.update(method(self, request, objectname, conn,
+                                    fullpath=fullpath, repository=repository,
+                                    **kwargs))
+            except Exception, ex:
+                logger.error(traceback.format_exc())
+                rdict = {'bad': 'true', 'errs': str(ex)}
+            return rdict
+        return decorated
+    return decorate_method
+
+
+class repository_upload(django.views.generic.View):
+    """
+    Upload a file into a repository using multi-part upload.  Modeled on
+    the Amazon S3 MPU calls.
+
+    POST /filepath?uploads - Initiates the upload and returns an uploadId
+    PUT /filepath?uploadId=X&partNumber=Y - uploads a file part
+    GET /filepath?uploadId=X - returns a list of already uploaded parts
+    POST /filepath?uploadId=X - assembles file parts and submits to repository
+    DELETE /filepath?uploadId=X - abort upload process
+    """
+
+    @process_request(require_uploadId=True)
+    def get(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        if objectname:
+            rdict['parts'] = self._get_parts(objectname)
+        return rdict
+
+    @process_request(require_uploadId=False)
+    def post(self, request, objectname, conn, fullpath, repository, **kwargs):
+        rdict = {}
+        if request.GET.has_key('uploads'):
+            rdict['uploadId'] = self._initiate_upload(objectname)
+        else:
+            self._complete_upload(objectname, fullpath, repository)
+        return rdict
+
+    @process_request(require_uploadId=True)
+    def put(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        try:
+            partNumber = int(request.GET.get('partNumber'))
+        except ValueError:
+            partNumber = 0
+        if partNumber < 1 or partNumber > 10000:
+            raise ValueError('Part number must be between 1 and 10000')
+        with file('%s.%05d' % (objectname, partNumber), 'wb') as part:
+            chunk_copy(request, part)
+        return rdict
+
+    @process_request(require_uploadId=True)
+    def delete(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        self._delete_upload(objectname)
+        return rdict
+
+    def _initiate_upload(self, objectname):
+        uploadId = str(uuid.uuid4())
+        path = get_temp_path(uploadId)
+        os.makedirs(path)
+        touch(os.path.join(path, objectname))
+        return uploadId
+
+    def _get_parts(self, objectname):
+        filename = os.path.basename(objectname) + '.'
+        return sorted(part for part in os.listdir(os.path.dirname(objectname))
+                      if part.startswith(filename))
+
+    def _complete_upload(self, objectname, fullpath, repository):
+        parts = self._get_parts(objectname)
+        if len(parts) < 1 or len(parts) != int(parts[-1][-5:]):
+            raise Exception("Missing parts in multi-part upload")
+
+        def chunk_copy_to_repo(source, target, position):
+            chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+            while True:
+                chunk = source.read(chunk_size)
+                if not chunk:
+                    break
+                target.write(chunk, position, len(chunk))
+                position += len(chunk)
+            return position
+
+        targetfile = repository.file(fullpath, 'rw')
+        targetfile.truncate(0)
+        position = 0
+        for part in parts:
+            with file(os.path.join(os.path.dirname(objectname), part)) as source:
+                position = chunk_copy_to_repo(source, targetfile, position)
+
+        _delete_upload(objectname)
+
+
+@login_required()
+@jsonp
+def clean_incomplete_mpus(request, conn, **kwargs):
+    """
+    Remove incomplete multi-part uploads that have not been active in a
+    certain timeout period.  Returns a list of all uploads before any
+    are removed.
+    """
+    now = time.time()
+    rdict = dict()
+    path = get_temp_path()
+    for upload in os.listdir(path):
+        p = os.path.join(path, upload)
+        last_change = None
+        master = None
+        if os.path.isdir(p):
+            files = sorted(os.listdir(p), key=len)
+            if files:
+                master = os.path.join(p, files[0])
+                last_change = now - os.path.getatime(master)
+        rdict[upload] = last_change
+        if last_change > getattr(settings, 'MPU_TIMEOUT', 60 * 60):
+            _delete_upload(master)
+    return rdict

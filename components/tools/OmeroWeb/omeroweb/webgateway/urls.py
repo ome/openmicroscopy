@@ -14,6 +14,8 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls.defaults import *
+from views import repository_upload
+
 
 webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
 """
@@ -35,6 +37,60 @@ object_table_query = url(r'^table/(?P<objtype>[\w.]+)/(?P<objid>\d+)/query/$', '
 """
 Query bulk annotations table attached to an object specified by
 object type and identifier, optionally traversing object model graph.
+"""
+
+repositories = (r'^repositories/$', 'webgateway.views.repositories')
+"""
+json method: Returns a list of repositories and their indices
+"""
+
+repository = (r'^repositories/(?P<index>\d+)/$', 'webgateway.views.repository')
+"""
+json method: Returns a repository and its root property
+"""
+
+repository_list = (r'^repositories/(?P<index>\d+)/list/(?P<filepath>.+)?$', 'webgateway.views.repository_list')
+"""
+json method: Returns a list of files in a repository.  If filepath is not specified,
+returns files at the top level of the repository, otherwise files within
+the specified filepath
+"""
+
+repository_listfiles = (r'^repositories/(?P<index>\d+)/listfiles/(?P<filepath>.+)?$', 'webgateway.views.repository_listfiles')
+"""
+json method: Returns a list of files and some of their metadata in a repository.
+If filepath is not specified, returns files at the top level of the
+repository, otherwise files within the specified filepath
+"""
+
+repository_root = (r'^repositories/(?P<index>\d+)/root/$', 'webgateway.views.repository_root')
+"""
+json method: Returns the root and name property of a repository
+"""
+
+repository_download = (r'^repositories/(?P<index>\d+)/download/(?P<filepath>.+)$', 'webgateway.views.repository_download')
+"""
+Downloads a file from a repository.  Supports the HTTP_RANGE header to
+perform partial downloads or download continuation
+"""
+
+repository_upload = (r'^repositories/(?P<index>\d+)/upload/(?P<filepath>.+)$', repository_upload.as_view())
+"""
+json method: Upload a file into a repository using multi-part upload.  Modeled on
+the Amazon S3 MPU calls.
+
+POST /filepath?uploads - Initiates the upload and returns an uploadId
+PUT /filepath?uploadId=X&partNumber=Y - uploads a file part
+GET /filepath?uploadId=X - returns a list of already uploaded parts
+POST /filepath?uploadId=X - assembles file parts and submits to repository
+DELETE /filepath?uploadId=X - abort upload process
+"""
+
+repository_clean_mpus = (r'^repositories/clean_mpus/$', 'webgateway.views.clean_incomplete_mpus')
+"""
+json method: Remove incomplete multi-part uploads that have not been active in a
+certain timeout period.  Returns a list of all uploads before any
+are removed.
 """
 
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 'webgateway.views.render_image')
@@ -286,6 +342,7 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
+
 archived_files = url( r'^archived_files/download/(?P<iid>[0-9]+)/$', 'webgateway.views.archived_files', name="archived_files" )
 """
 This url will download the Original Image File(s) archived at import time. If it's a single file, this will be
@@ -296,6 +353,14 @@ original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgatewa
 """ Get a json array of path/name strings for original files for the Image"""
 
 urlpatterns = patterns('',
+    repositories,
+    repository,
+    repository_list,
+    repository_listfiles,
+    repository_root,
+    repository_download,
+    repository_upload,
+    repository_clean_mpus,
     webgateway,
     render_image,
     render_image_region,
