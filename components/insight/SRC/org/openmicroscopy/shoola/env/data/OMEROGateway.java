@@ -410,6 +410,27 @@ class OMEROGateway
 	
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
+
+	/** 
+	 * Checks if the session is still alive.
+	 * 
+	 * @param ctx The security context.
+	 */
+	synchronized void isSessionAlive(SecurityContext ctx)
+	{
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null)
+				throw new DSOutOfServiceException(
+						"Cannot access the connector.");
+			long start = System.currentTimeMillis();
+			c.ping();
+			System.err.println("alive:"+(System.currentTimeMillis()-start));
+			
+		} catch (Exception e) {
+			handleConnectionException(e);
+		}
+	}
 	
 	/**
 	 * Returns <code>true</code> if the server is running.
@@ -1467,7 +1488,9 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IContainerPrx prx = c.getPojosService();
+			long start = System.currentTimeMillis();
 			prx.ice_ping();
+			System.err.println(System.currentTimeMillis()-start);
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Container service.");
@@ -1475,6 +1498,8 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Container service.");
 		}
+		return null;
+		/*
 		//nothing thrown b/c of connection error.
 		//reload
 		try {
@@ -1483,7 +1508,7 @@ class OMEROGateway
 		} catch (Throwable ex) {
 			throw new DSOutOfServiceException(
 					"Cannot access the Container service.");
-		}
+		}*/
 	}
 
 	/**
