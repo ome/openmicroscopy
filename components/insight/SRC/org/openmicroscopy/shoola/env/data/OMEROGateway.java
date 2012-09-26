@@ -1267,7 +1267,6 @@ class OMEROGateway
 			return prx;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Shared Resources.");
-			//nothing 
 		}
 		return null;
 	}
@@ -1379,7 +1378,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IScriptPrx prx = c.getScriptService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Scripting service.");
@@ -1387,15 +1385,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Scripting service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getScriptService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Scripting service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1478,7 +1468,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IQueryPrx prx = c.getQueryService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Query service.");
@@ -1486,15 +1475,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Query service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getQueryService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Query service.");
-		}
+		return null;
 	}
 	
 	/**
@@ -1773,7 +1754,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			RawPixelsStorePrx prx = c.getPixelsStore();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the RawPixelsStore service.");
@@ -1781,15 +1761,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the RawPixelsStore service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getPixelsStore();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the RawPixelsStore service.");
-		}
+		return null;
 	}
 
 	/**
@@ -1869,7 +1841,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			IProjectionPrx prx = c.getProjectionService();
-			prx.ice_ping();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Projection service.");
@@ -1877,15 +1848,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Projection service.");
 		}
-		//nothing thrown b/c of connection error.
-		//reload
-		try {
-			if (c == null) c = getConnector(ctx);
-			return c.getProjectionService();
-		} catch (Throwable ex) {
-			throw new DSOutOfServiceException(
-					"Cannot access the Projection service.");
-		}
+		return null;
 	}
 	
 	/**
