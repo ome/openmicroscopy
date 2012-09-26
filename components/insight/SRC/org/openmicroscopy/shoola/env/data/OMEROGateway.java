@@ -438,13 +438,7 @@ class OMEROGateway
 	boolean isServerRunning(SecurityContext ctx)
 	{
 		if (!connected) return false;
-		try {
-			Connector c = getConnector(ctx);
-			if (c == null) return false;
-			c.getAdminService().getEventContext();
-		} catch (Throwable e) {
-			return false;
-		}
+		isSessionAlive(ctx);
 		return true;
 	}
 	
