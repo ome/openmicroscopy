@@ -678,6 +678,12 @@ class Connector
 		}
 	}
 	
+	void ping()
+		throws Exception
+	{
+		entryEncrypted.keepAlive(null);
+	}
+	
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
