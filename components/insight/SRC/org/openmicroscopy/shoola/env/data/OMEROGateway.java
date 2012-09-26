@@ -887,7 +887,7 @@ class OMEROGateway
 	 * @return <code>true</code> to continue handling the error,
 	 * <code>false</code> otherwise.
 	 */
-	synchronized boolean handleConnectionException(Throwable e)
+	boolean handleConnectionException(Throwable e)
 	{
 		if (reconnecting) {
 			reconnecting = false;
