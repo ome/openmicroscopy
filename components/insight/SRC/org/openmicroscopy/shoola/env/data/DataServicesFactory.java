@@ -157,7 +157,7 @@ public class DataServicesFactory
 	
     /** The fs properties. */
     private Properties 					fsConfig;
-    
+
     /**
 	 * Reads in the specified file as a property object.
 	 * 
@@ -396,6 +396,7 @@ public class DataServicesFactory
 		switch (index) {
 			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
 			case ConnectionExceptionHandler.LOST_CONNECTION:
+				/*
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
 				connectionDialog = new MessageBox(
@@ -407,6 +408,7 @@ public class DataServicesFactory
 					connectionDialog = null;
 					exitApplication(true, true);
 				} else if (v == MessageBox.YES_OPTION) {
+				 */
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
 					Map<SecurityContext, Set<Long>> l =
@@ -445,7 +447,7 @@ public class DataServicesFactory
 							}
 						}
 						message = "You are reconnected to the server.";
-						un.notifyInfo("Reconnection Success", message);
+						//un.notifyInfo("Reconnection Success", message);
 						if (failure.size() > 0) {
 							//notify user.
 							registry.getEventBus().post(
@@ -456,7 +458,7 @@ public class DataServicesFactory
 								"reconnect.\nThe application will now exit.";
 						showNotificationDialog("Reconnection Failure", message);
 					}
-				}
+				//}
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
