@@ -688,6 +688,14 @@ class Connector
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
+		try {
+			entryEncrypted.keepAllAlive(null);
+		} catch (Exception e) {}
+		try {
+			if (entryUnencrypted != null)
+				entryUnencrypted.keepAllAlive(null);
+		} catch (Exception e) {}
+		/*
 		Collection<ServiceInterfacePrx> 
 		all = new HashSet<ServiceInterfacePrx>();
 
@@ -703,6 +711,7 @@ class Connector
 			if (entryUnencrypted != null)
 				entryUnencrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
+		*/
 	}
 
 	/**
