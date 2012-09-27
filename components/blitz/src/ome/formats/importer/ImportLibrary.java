@@ -488,7 +488,7 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
-        byte[] buf = new byte[1048576];  // 1 MB buffer
+        byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
         List<String> srcFiles = Arrays.asList(usedFiles);
         List<String> destFiles = repo.getCurrentRepoDir(srcFiles);
         int fileTotal = srcFiles.size();
@@ -764,8 +764,6 @@ public class ImportLibrary implements IObservable
                     }
                 }
             }
-
-            List<File> fileNameList = new ArrayList<File>();
 
             // As we're in metadata only mode  on we need to
             // tell the server which Pixels set matches up to which series.
