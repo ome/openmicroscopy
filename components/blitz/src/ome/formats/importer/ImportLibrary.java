@@ -89,6 +89,12 @@ public class ImportLibrary implements IObservable
 {
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
+    /** The class used to identify the dataset target.*/
+    private static final String DATASET_CLASS = "omero.model.Dataset";
+    
+    /** The class used to identify the screen target.*/
+    private static final String SCREEN_CLASS = "omero.model.Screen";
+    
     /** Default arraybuf size for planar data transfer. (1MB) */
     public static final int DEFAULT_ARRAYBUF_SIZE = 1048576;
 
@@ -266,6 +272,9 @@ public class ImportLibrary implements IObservable
 
     /**
      * Primary user method for importing a number
+     * 
+     * @param config The configuration information.
+     * @param candidates Hosts information about the files to import.
      */
     public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
@@ -274,12 +283,12 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                if (config.targetClass.get() == "omero.model.Dataset")
+                if (DATASET_CLASS.equals(config.targetClass.get()))
                 {
                     ic.setTarget(store.getTarget(
                             Dataset.class, config.targetId.get()));
                 }
-                else if (config.targetClass.get() == "omero.model.Screen")
+                else if (SCREEN_CLASS.equals(config.targetClass.get()))
                 {
                     ic.setTarget(store.getTarget(
                             Screen.class, config.targetId.get()));
