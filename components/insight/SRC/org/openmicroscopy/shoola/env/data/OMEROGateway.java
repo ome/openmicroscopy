@@ -6379,16 +6379,15 @@ class OMEROGateway
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
 	 * @param name		The name to give to the imported image.
-	 * @param archived  Pass <code>true</code> if the image has to be archived,
-	 * 					<code>false</code> otherwise.
-     * @param Pass <code>true</code> to close the import,
+	 * @param usedFiles The files returned composing the import.
+     * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(SecurityContext ctx, ImportableObject object,
-			IObject container, File file, StatusLabel status, boolean archived,
-			boolean close)
+			IObject container, File file, StatusLabel status,
+			String[] usedFiles, boolean close)
 		throws ImportException
 	{
 		
@@ -6399,14 +6398,14 @@ class OMEROGateway
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					archived, object.getPixelsSize(), null, null, null);
+					false, object.getPixelsSize(), null, usedFiles, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
 			}
-			
+			library.uploadFilesToRepository(ic);
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;

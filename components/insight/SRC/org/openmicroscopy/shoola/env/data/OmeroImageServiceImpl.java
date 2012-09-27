@@ -146,8 +146,6 @@ class OmeroImageServiceImpl
 	 * @param candidates The file to import.
 	 * @param status The original status.
 	 * @param object The object hosting information about the import.
-	 * @param archived Pass <code>true</code> if the original file had to be
-	 * 					archived, <code>false</code> otherwise.
 	 * @param ioList The containers where to import the files.
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
@@ -155,7 +153,7 @@ class OmeroImageServiceImpl
 	 */
 	private Boolean importCandidates(SecurityContext ctx,
 		Map<File, StatusLabel> files, StatusLabel status,
-		ImportableObject object, boolean archived, IObject ioContainer,
+		ImportableObject object, IObject ioContainer,
 		List<Annotation> list, long userID, boolean close, boolean hcs)
 	{
 		if (status.isMarkedAsCancel()) {
@@ -176,12 +174,12 @@ class OmeroImageServiceImpl
 		boolean toClose = false;
 		int n = files.size()-1;
 		int index = 0;
+		ImportCandidates ic;
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
 			if (hcs) {
 			//if (ImportableObject.isHCSFile(file) || hcs) {
-				archived = false;
 				if (!file.getName().endsWith(
 						ImportableObject.DAT_EXTENSION)) {
 					if (ioContainer != null && 
@@ -198,8 +196,10 @@ class OmeroImageServiceImpl
 			if (!label.isMarkedAsCancel()) {
 				try {
 					if (ioContainer == null) label.setNoContainer();
+					ic = gateway.getImportCandidates(ctx, object, file, status);
 					result = gateway.importImage(ctx, object, ioContainer, file,
-							label, archived, toClose);
+							label, ic.getUsedFiles(file.getAbsolutePath()),
+							toClose);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1093,7 +1093,6 @@ class OmeroImageServiceImpl
 		DataObject folder = null;
 		boolean hcsFile;
 		boolean hcs;
-		boolean archived = importable.isArchived();
 		if (file.isFile()) {
 			hcsFile = ImportableObject.isHCSFile(file);
 			//Create the container if required.
@@ -1131,7 +1130,6 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (hcsFile) {
-				archived = false;
 				dataset = null;
 				if (!(container instanceof ScreenData))
 					container = null;
@@ -1212,7 +1210,7 @@ class OmeroImageServiceImpl
 					if (ioContainer == null)
 						status.setNoContainer();
 					result = gateway.importImage(ctx, object, ioContainer, f,
-							status, archived, close);
+							status, ic.getUsedFiles(value), close);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1239,7 +1237,7 @@ class OmeroImageServiceImpl
 						files.put(new File(i.next()), new StatusLabel());
 					status.setFiles(files);
 					Boolean v = importCandidates(ctx, files, status, object,
-							archived, ioContainer, list, userID, close, hcs);
+							ioContainer, list, userID, close, hcs);
 					if (v != null) {
 						return v.booleanValue();
 					}
@@ -1247,8 +1245,9 @@ class OmeroImageServiceImpl
 			} else { //single file let's try to import it.
 				if (ioContainer == null)
 					status.setNoContainer();
+				ic = gateway.getImportCandidates(ctx, object, file, status);
 				result = gateway.importImage(ctx, object, ioContainer, file,
-					status, archived, close);
+					status, ic.getUsedFiles(file.getAbsolutePath()), close);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -1322,7 +1321,7 @@ class OmeroImageServiceImpl
 					}
 				} else ioContainer = container.asIObject();
 			}
-			importCandidates(ctx, hcsFiles, status, object, archived,
+			importCandidates(ctx, hcsFiles, status, object,
 					ioContainer, list, userID, close, hcs);
 		}
 		if (otherFiles.size() > 0) {
@@ -1396,8 +1395,7 @@ class OmeroImageServiceImpl
 			}
 			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-				importable.isArchived(), ioContainer, list, userID, close,
-				false);
+				ioContainer, list, userID, close, false);
 		}
 		return Boolean.valueOf(true);
 	}
