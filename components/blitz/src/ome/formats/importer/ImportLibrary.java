@@ -306,6 +306,7 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws Exception
     {
+    	if (repo == null) return new ArrayList<Pixels>();
         RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
         List<Pixels> pixList = repo.importMetadata(repoIc);
         notifyObservers(new ImportEvent.IMPORT_DONE(
@@ -446,12 +447,14 @@ public class ImportLibrary implements IObservable
 
     /**
      * Delete files from the managed repository.
-     * @param container The current import container containg usedFiles to be deleted.
+     * @param container The current import container containing usedFiles to be
+     * deleted.
      * @return List of files that could not be deleted.
      */
     public List<String> deleteFilesFromRepository(ImportContainer container)
             throws ServerError
     {
+    	if (repo == null) return new ArrayList<String>();
         List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
         return undeleted;
     }
@@ -464,6 +467,7 @@ public class ImportLibrary implements IObservable
     public ImportContainer uploadFilesToRepository(ImportContainer container)
             throws ServerError
     {
+    	if (repo == null) return container;
         ServiceFactoryPrx sf = store.getServiceFactory();
         RawFileStorePrx rawFileStore = sf.createRawFileStore();
         String[] usedFiles = container.getUsedFiles();
