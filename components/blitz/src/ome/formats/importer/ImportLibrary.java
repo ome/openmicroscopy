@@ -83,6 +83,12 @@ public class ImportLibrary implements IObservable
 {
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
+    /** The class used to identify the dataset target.*/
+    private static final String DATASET_CLASS = "omero.model.Dataset";
+    
+    /** The class used to identify the screen target.*/
+    private static final String SCREEN_CLASS = "omero.model.Screen";
+    
     /** Default arraybuf size for planar data transfer. (1MB) */
     public static final int DEFAULT_ARRAYBUF_SIZE = 1048576;
 
@@ -263,6 +269,9 @@ public class ImportLibrary implements IObservable
 
     /**
      * Primary user method for importing a number
+     * 
+     * @param config The configuration information.
+     * @param candidates Hosts information about the files to import.
      */
     public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
@@ -271,12 +280,12 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                if (config.targetClass.get() == "omero.model.Dataset")
+                if (DATASET_CLASS.equals(config.targetClass.get()))
                 {
                     ic.setTarget(store.getTarget(
                             Dataset.class, config.targetId.get()));
                 }
-                else if (config.targetClass.get() == "omero.model.Screen")
+                else if (SCREEN_CLASS.equals(config.targetClass.get()))
                 {
                     ic.setTarget(store.getTarget(
                             Screen.class, config.targetId.get()));
@@ -306,6 +315,7 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws Exception
     {
+    	if (repo == null) return new ArrayList<Pixels>();
         RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
         List<Pixels> pixList = repo.importMetadata(repoIc);
         notifyObservers(new ImportEvent.IMPORT_DONE(
@@ -446,12 +456,14 @@ public class ImportLibrary implements IObservable
 
     /**
      * Delete files from the managed repository.
-     * @param container The current import container containg usedFiles to be deleted.
+     * @param container The current import container containing usedFiles to be
+     * deleted.
      * @return List of files that could not be deleted.
      */
     public List<String> deleteFilesFromRepository(ImportContainer container)
             throws ServerError
     {
+    	if (repo == null) return new ArrayList<String>();
         List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
         return undeleted;
     }
@@ -464,6 +476,7 @@ public class ImportLibrary implements IObservable
     public ImportContainer uploadFilesToRepository(ImportContainer container)
             throws ServerError
     {
+    	if (repo == null) return container;
         ServiceFactoryPrx sf = store.getServiceFactory();
         RawFileStorePrx rawFileStore = sf.createRawFileStore();
         String[] usedFiles = container.getUsedFiles();
@@ -475,7 +488,7 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
-        byte[] buf = new byte[1048576];  // 1 MB buffer
+        byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
         List<String> srcFiles = Arrays.asList(usedFiles);
         List<String> destFiles = repo.getCurrentRepoDir(srcFiles);
         int fileTotal = srcFiles.size();
@@ -751,8 +764,6 @@ public class ImportLibrary implements IObservable
                     }
                 }
             }
-
-            List<File> fileNameList = new ArrayList<File>();
 
             // As we're in metadata only mode  on we need to
             // tell the server which Pixels set matches up to which series.
