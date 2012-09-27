@@ -6390,23 +6390,28 @@ class OMEROGateway
 			String[] usedFiles, boolean close)
 		throws ImportException
 	{
-		
+		ImportCandidates c = getImportCandidates(ctx, object, file, status);
 		OMEROMetadataStoreClient omsc = null;
 		try {
 			omsc = getImportStore(ctx);
+			ImportConfig config = new ImportConfig();
 			ImportLibrary library = new ImportLibrary(omsc,
-					new OMEROWrapper(new ImportConfig()));
+					new OMEROWrapper(config));
 			library.addObserver(status);
+			/*
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					false, object.getPixelsSize(), null, usedFiles, null);
+			*/
+			ImportContainer ic = c.getContainers().get(0);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
 			}
-			library.uploadFilesToRepository(ic);
-			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+			ic = library.uploadFilesToRepository(ic);
+			//library.importCandidates(new ImportConfig(), c);
+			List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);//library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
 			Image image;
