@@ -136,7 +136,7 @@ public class ImportLibraryTest
      */
     @Test
 	public void testImportImage()
-		throws Exception
+		throws Throwable
 	{
     	File f = File.createTempFile("testImportImage"
 				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
@@ -147,7 +147,29 @@ public class ImportLibraryTest
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
 		ic = library.uploadFilesToRepository(ic);
-		//library.importCandidates(new ImportConfig(), c);
+		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+		assertNotNull(pixels);
+		assertEquals(pixels.size(), 1);
+	}
+    
+    /**
+     * Tests the <code>testImportMetadataOnly</code> method using an import 
+     * container returned by the import candidates method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataOnly()
+		throws Exception
+	{
+    	File f = File.createTempFile("testImportMetadataOnly"
+				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
+		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+		files.add(f);
+    	ImportConfig config = new ImportConfig();
+		ImportLibrary library = new ImportLibrary(importer,
+				new OMEROWrapper(config));
+		ImportContainer ic = getCandidates(f).getContainers().get(0);
+		ic = library.uploadFilesToRepository(ic);
 		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertEquals(pixels.size(), 1);
@@ -159,10 +181,23 @@ public class ImportLibraryTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-	public void testImportMetadataOnly()
-		throws Exception
+	public void testImportImageCreateImportContainer()
+		throws Throwable
 	{
-    	
+    	File f = File.createTempFile("testImportImage"
+				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
+		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+		files.add(f);
+    	ImportConfig config = new ImportConfig();
+		ImportLibrary library = new ImportLibrary(importer,
+				new OMEROWrapper(config));
+		ImportContainer ic = getCandidates(f).getContainers().get(0);
+		ic = new ImportContainer(f, -1L, null, 
+				false, null, null, ic.getUsedFiles(), null);
+		ic = library.uploadFilesToRepository(ic);
+		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+		assertNotNull(pixels);
+		assertEquals(pixels.size(), 1);
 	}
     
 }
