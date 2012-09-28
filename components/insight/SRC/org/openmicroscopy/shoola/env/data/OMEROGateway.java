@@ -6386,11 +6386,10 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(SecurityContext ctx, ImportableObject object,
-			IObject container, File file, StatusLabel status,
-			String[] usedFiles, boolean close)
+			IObject container, ImportContainer ic, StatusLabel status,
+			boolean close, boolean hcs)
 		throws ImportException
 	{
-		ImportCandidates c = getImportCandidates(ctx, object, file, status);
 		OMEROMetadataStoreClient omsc = null;
 		try {
 			omsc = getImportStore(ctx);
@@ -6401,14 +6400,16 @@ class OMEROGateway
 			/*
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					false, object.getPixelsSize(), null, usedFiles, null);
-			*/
-			ImportContainer ic = c.getContainers().get(0);
+					*/
+			ic.setTarget(container);
+			ic.setUserPixels(object.getPixelsSize());
 			ic.setUseMetadataFile(true);
+			/*
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
-			}
+			}*/
 			ic = library.uploadFilesToRepository(ic);
 			//library.importCandidates(new ImportConfig(), c);
 			List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);//library.importImage(ic, 0, 0, 1);
@@ -6426,7 +6427,7 @@ class OMEROGateway
 				//if (isLargeImage(p)) {
 					//return new ThumbnailData(getImage(id, params), true);
 				//}
-				if (ImportableObject.isHCSFile(file)) {
+				if (hcs) {
 					PlateData plate = getImportedPlate(ctx, id);
 					if (plate != null) return plate;
 					return getImage(ctx, id, params);
