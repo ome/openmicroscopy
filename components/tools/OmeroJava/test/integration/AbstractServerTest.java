@@ -18,8 +18,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.ApiUsageException;
@@ -103,6 +107,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import spec.AbstractTest;
+
 //Application-internal dependencies
 
 /**
@@ -203,7 +208,6 @@ public class AbstractServerTest
         client.createSession("root", rootpass);
         return client;
     }
-
 
     /**
      * Initializes the various services.
@@ -927,14 +931,26 @@ public class AbstractServerTest
 			File file, String format, boolean metadata, IObject target)
 		throws Throwable
 	{
-		ImportLibrary library = new ImportLibrary(importer, 
-				new OMEROWrapper(new ImportConfig()));
+		String[] paths = new String[1];
+		paths[0] = file.getAbsolutePath();
+		ImportConfig config = new ImportConfig();
+		OMEROWrapper reader = new OMEROWrapper(config);
+		IObserver o = new IObserver() {
+	        public void update(IObservable importLibrary, ImportEvent event) {
+	            
+	        }
+	    };
+		ImportCandidates candidates = new ImportCandidates(reader, paths, o);
+		
+		ImportLibrary library = new ImportLibrary(importer, reader);
 		library.setMetadataOnly(metadata);
-		ImportContainer container = new ImportContainer(
-                file, null, target, false, null, null, null, null);
-		container.setUseMetadataFile(true);
-		container.setCustomImageName(format);
-		List<Pixels> pixels = library.importImage(container, 0, 0, 1);
+		ImportContainer ic = candidates.getContainers().get(0);
+		//new ImportContainer(
+        //        file, null, target, false, null, null, null, null);
+		ic.setUseMetadataFile(true);
+		ic.setCustomImageName(format);
+		ic = library.uploadFilesToRepository(ic);
+		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);//library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
 		return pixels;
