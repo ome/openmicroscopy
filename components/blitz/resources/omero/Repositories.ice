@@ -21,7 +21,11 @@ module omero {
     // See README.ice for a description of this module.
     //
     module grid {
-        
+
+        /**
+         * Information passed back and forth during import.
+         * Needs to be reviewed.
+         **/
         class RepositoryImportContainer
         {
             string file;
@@ -47,11 +51,21 @@ module omero {
          **/
         ["ami"] interface Repository {
 
+            //
+            // Repository-level methods not requiring any particular
+            // security method.
+            //
+
             /**
              * Return the OriginalFile descriptor for this Repository. It will have
              * the path "/"
              **/
             omero::model::OriginalFile root() throws ServerError;
+
+            //
+            // Path-based methods which require a look-up in the
+            // OriginalFile table.
+            //
 
             /**
              * Returns the best-guess mimetype for the given path.
@@ -104,21 +118,23 @@ module omero {
             omero::api::RawFileStore* file(string path, string mode) throws ServerError;
 
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
+
             omero::api::RenderingEngine* render(string path) throws ServerError;
+
             omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
-            
+
             omero::api::RawFileStore* fileById(long id) throws ServerError;
-            
+
             /**
              * Returns true if the file or path exists within the repository
              **/
             bool fileExists(string path) throws ServerError;
-            
+
             ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
             void makeDir(string path) throws ServerError;
             void rename(string path) throws ServerError;
             void delete(string path) throws ServerError;
-            void transfer(string srcPath, Repository* target, string targetPath) 
+            void transfer(string srcPath, Repository* target, string targetPath)
                     throws ServerError;
 
             omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
@@ -137,21 +153,21 @@ module omero {
             //
             // Provides all the stateful services dealing with binary data
             //
-            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file) 
+            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file) 
+            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file) 
+            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file) 
+            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file)
                     throws ServerError;
 
             // Other repository methods
             omero::model::OriginalFile getDescription() throws ServerError;
             // If this returns null, user will have to wait
-            Repository* getProxy() throws ServerError;  
+            Repository* getProxy() throws ServerError;
 
-            string getFilePath(omero::model::OriginalFile file) 
+            string getFilePath(omero::model::OriginalFile file)
                     throws ServerError;
 
         };
@@ -161,15 +177,16 @@ module omero {
 
         /**
          * Return value for [omero::grid::SharedResources].acquireRepositories()
+         * The descriptions and proxies arrays will have the same size and each
+         * index in descriptions (non-null) will match a possibly null proxy, if
+         * the given repository is not currently accessible.
          */
         struct RepositoryMap {
             omero::api::OriginalFileList descriptions;
             RepositoryProxyList proxies;
         };
 
-
-};
-
+    };
 
 };
 

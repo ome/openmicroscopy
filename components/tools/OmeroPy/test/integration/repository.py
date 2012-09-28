@@ -21,8 +21,9 @@ class TestRepository(lib.ITest):
 
         write_start = time.time()
 
-        repoMap = self.client.sf.acquireRepositories()
-        self.assert_( len(repoMap) > 1 )
+        repoMap = self.client.sf.sharedResources().repositories()
+        self.assert_( len(repoMap.descriptions) > 1 )
+        self.assert_( len(repoMap.proxies) > 1 )
 
         repoPrx = repoMap.values()[0]
         self.assert_( repoPrx ) # Could be None
@@ -88,6 +89,25 @@ class TestRepository(lib.ITest):
         rawFileStore.close()
         repoPrx.rename(remote_file, remote_file + ".old")
         repoPrx.delete(remote_file + ".old")
+
+    def testAllMethods(self):
+        path = self.root.sf.getConfigService().getConfigValue("omero.data.dir")
+        repoMap = self.client.sf.sharedResources().repositories()
+        for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
+            self.assertRepo(path, obj, prx)
+
+    def assertRepo(self, path, obj, prx):
+        print path
+        root = prx.root()
+        for x in ("id", "path", "name"):
+            a = getattr(obj, x)
+            b = getattr(root, x)
+            if a is None:
+                self.assertEquals(a, b)
+            else:
+                self.assertEquals(a.val, b.val)
+        print prx.list(root.path.val + root.name.val + "/omero")
+
 
 
 if __name__ == '__main__':
