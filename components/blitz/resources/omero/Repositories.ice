@@ -137,11 +137,26 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath)
                     throws ServerError;
 
+            omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
+
+        };
+
+        /**
+         * FS-enabled repository which can convert uploaded files
+         * into Images by using Bio-Formats to import them.
+         **/
+        ["ami"] interface ManagedRepository extends Repository {
+
+            /**
+             *
+             **/
             omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
 
+            /**
+             *
+             **/
             omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
 
-            omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
 
         };
 

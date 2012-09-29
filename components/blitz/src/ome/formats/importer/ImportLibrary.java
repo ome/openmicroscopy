@@ -48,6 +48,8 @@ import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
@@ -98,7 +100,7 @@ public class ImportLibrary implements IObservable
 
     private final OMEROWrapper reader;
 
-    private final RepositoryPrx repo;
+    private final ManagedRepositoryPrx repo;
 
     private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
 
@@ -802,23 +804,25 @@ public class ImportLibrary implements IObservable
     // =========================================================================
 
     /**
-     * Retrieves the legacy repository (the one that is backed by the OMERO
-     * binary repository) from the list of current active repositories.
+     * Retrieves the first managed repository from the list of current active
+     * repositories.
      * @return Active proxy for the legacy repository.
      */
-    private RepositoryPrx getLegacyRepository()
+    private ManagedRepositoryPrx getLegacyRepository()
     {
         try
         {
+            ManagedRepositoryPrx rv = null;
             ServiceFactoryPrx sf = store.getServiceFactory();
             RepositoryMap map = sf.sharedResources().repositories();
             for (int i = 0; i < map.proxies.size(); i++)
             {
                 RepositoryPrx proxy = map.proxies.get(i);
-                String repo = proxy.toString();
-                if (!repo.startsWith("PublicRepository-ScriptRepo"))
-                {
-                    return proxy;
+                if (proxy != null) {
+                    rv = ManagedRepositoryPrxHelper.checkedCast(proxy);
+                    if (rv != null) {
+                        return rv;
+                    }
                 }
             }
             return null;

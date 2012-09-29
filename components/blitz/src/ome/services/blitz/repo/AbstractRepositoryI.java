@@ -8,6 +8,9 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -293,20 +296,29 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
 
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
+                        .getDir()), r.getId(), ex, sql, p);
+                ManagedRepositoryI mr = null;
+                if (template != null) {
+                    mr = new ManagedRepositoryI(new File(fileMaker
                         .getDir()), template, r.getId(), ex, sql, p);
+                }
 
-                Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
-                Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
+                LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
+                objs.add(addOrReplace("InternalRepository-", repo));
+                objs.add(addOrReplace("PublicRepository-", pr));
+                proxy = RepositoryPrxHelper.uncheckedCast(objs.getLast());
+                if (mr != null) {
+                    objs.add(addOrReplace("ManagedRepository-", pr));
+                }
 
                 //
                 // Activation & Registration
                 //
                 oa.activate(); // Must happen before the registry tries to connect
 
-                reg.addObject(internalObj);
-                reg.addObject(externalObj);
-
-                proxy = RepositoryPrxHelper.uncheckedCast(externalObj);
+                for (Ice.ObjectPrx prx : objs) {
+                    reg.addObject(prx);
+                }
 
                 log.info("Repository now active");
                 return r;
