@@ -73,11 +73,26 @@ public class ManagedRepositoryI extends PublicRepositoryI {
 
     public ManagedRepositoryI(File root, String template, long repoObjectId, Executor executor,
             SqlAction sql, Principal principal, Registry reg) throws Exception {
-        super(new File(root, MANAGED_REPO_PATH), repoObjectId, executor, sql,
+        super(makeManagedRoot(root), repoObjectId, executor, sql,
                 principal);
         this.reg = reg;
         this.template = template;
         log.info("Repository template: " + this.template);
+    }
+
+    /**
+     * Since the {@link PublicRepositoryI} requires the directory to exist and
+     * we can be assured that it has already successfully been called, then it
+     * should be fairly safe to manually create the MRP directory underneath
+     * that.
+     *
+     * @param root
+     * @return
+     */
+    private static File makeManagedRoot(File root) {
+        File f = new File(root, MANAGED_REPO_PATH);
+        f.mkdirs();
+        return f;
     }
 
     public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
