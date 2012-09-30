@@ -282,7 +282,7 @@ public class ImportLibrary implements IObservable
         return true;
     }
 
-    public List<Pixels> importMetadataOnly(ImportContainer container, int index,
+    public List<Pixels> importMetadataViaRepository(ImportContainer container, int index,
                                     int numDone, int total)
             throws Exception
     {
@@ -528,11 +528,7 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Perform an image import.  <em>Note: this method both notifies
-     * {@link #observers} of error states AND throws the exception to cancel
-     * processing.</em>
-     * {@link #importCandidates(ImportConfig, ImportCandidates)}
-     * uses {@link ImportConfig#contOnError} to act on these exceptions.
+     * Perform an image import uploading files if necessary.
      * @param container The import container which houses all the configuration
      * values and target for the import.
      * @param index Index of the import in a set. <code>0</code> is safe if
@@ -547,7 +543,7 @@ public class ImportLibrary implements IObservable
      * @throws IOException If there is an I/O error.
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
-     * @since OMERO Beta 4.5.
+     * @since OMERO Beta 4.2.1.
      */
     public List<Pixels> importImage(ImportContainer container, int index,
                                     int numDone, int total)
@@ -556,13 +552,13 @@ public class ImportLibrary implements IObservable
         if(!container.getMetadataOnly()) {
             container = uploadFilesToRepository(container);
         }
-        List<Pixels> pixList = importMetadataOnly(container, index, numDone, total);
+        List<Pixels> pixList = importMetadataViaRepository(container, index, numDone, total);
         return pixList;
     }
 
     /**
-     * Perform an image import.  <em>Note: this method both notifies
-     * {@link #observers} of error states AND throws the exception to cancel
+     * Perform an image import on already uploaded files. <em>Note: this method both
+     *notifies {@link #observers} of error states AND throws the exception to cancel
      * processing.</em>
      * {@link #importCandidates(ImportConfig, ImportCandidates)}
      * uses {@link ImportConfig#contOnError} to act on these exceptions.
