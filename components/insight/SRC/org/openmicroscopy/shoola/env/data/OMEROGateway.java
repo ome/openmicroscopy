@@ -6411,7 +6411,7 @@ class OMEROGateway
 						file.getAbsolutePath(), depth));
 			}*/
 			//library.importCandidates(new ImportConfig(), c);
-			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);//library.importImage(ic, 0, 0, 1);
+			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
 			Image image;
