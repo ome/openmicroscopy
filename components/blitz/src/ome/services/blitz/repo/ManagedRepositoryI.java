@@ -35,12 +35,14 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
 import omero.ServerError;
+import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
 import omero.model.Experimenter;
 import omero.model.Pixels;
@@ -63,42 +65,59 @@ public class ManagedRepositoryI extends PublicRepositoryI {
 
     private final String template;
 
+    /**
+     * The Registry provides access to internal OMERO conections (i.e. within the
+     * firewall).
+     */
+    private final Registry reg;
+
     public ManagedRepositoryI(File root, String template, long repoObjectId, Executor executor,
-            SqlAction sql, Principal principal) throws Exception {
+            SqlAction sql, Principal principal, Registry reg) throws Exception {
         super(new File(root, MANAGED_REPO_PATH), repoObjectId, executor, sql,
                 principal);
+        this.reg = reg;
         this.template = template;
         log.info("Repository template: " + this.template);
     }
 
     public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
         OMEROMetadataStoreClient store = null;
-        ImportConfig config = new ImportConfig();
-        final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        OMEROWrapper reader = null;
         List<Pixels> pix = null;
-        // TODO: replace hard-wired host and port
-        config.hostname.set("localhost");
-        config.port.set(new Integer(4064));
-        config.sessionKey.set(clientSessionUuid);
-        OMEROWrapper reader = new OMEROWrapper(config);
         try {
-            store = config.createStore();
+            final ImportConfig config = new ImportConfig();
+            final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+            final String clientUuid = __current.ctx.get(omero.constants.CLIENTUUID.value);
+            final ServiceFactoryPrx sf = reg.getInternalServiceFactory(
+                    sessionUuid, "unused", 3, 1, clientUuid);
+
+            reader = new OMEROWrapper(config);
+            store = new OMEROMetadataStoreClient();
+            store.initialize(sf);
             ImportLibrary library = new ImportLibrary(store, reader);
             ImportContainer ic = createImportContainer(repoIC);
             pix = library.importImageInternal(ic, 0, 0, 1);
+        }
+        catch (ServerError se) {
+            throw se;
         }
         catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
         }
         finally {
             try {
-                reader.close();
-            }
-            catch (Exception e){
-                throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
-            }
-            if (store != null) {
-                store.logout();
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                }
+                catch (Exception e){
+                    throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+                }
+            } finally {
+                if (store != null) {
+                    store.logout();
+                }
             }
         }
         return pix;

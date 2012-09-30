@@ -300,7 +300,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 ManagedRepositoryI mr = null;
                 if (template != null) {
                     mr = new ManagedRepositoryI(new File(fileMaker
-                        .getDir()), template, r.getId(), ex, sql, p);
+                        .getDir()), template, r.getId(), ex, sql, p,
+                        reg);
                 }
 
                 LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
