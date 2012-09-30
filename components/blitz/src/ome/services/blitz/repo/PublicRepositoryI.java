@@ -248,7 +248,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             store = config.createStore();
             ImportLibrary library = new ImportLibrary(store, reader);
             ImportContainer ic = createImportContainer(repoIC);
-            pix = library.importImage(ic, 0, 0, 1);
+            pix = library.importImageInternal(ic, 0, 0, 1);
         }
         catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
