@@ -130,7 +130,7 @@ public class ImportLibrary implements IObservable
 
         this.store = client;
         this.reader = reader;
-        repo = getLegacyRepository();
+        repo = lookupManagedRepository();
         try
         {
             maxPlaneWidth = Integer.parseInt(store.getConfigValue(
@@ -288,7 +288,7 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws Exception
     {
-    	if (repo == null) return new ArrayList<Pixels>();
+        checkManagedRepo();
         RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
         List<Pixels> pixList = repo.importMetadata(repoIc);
         notifyObservers(new ImportEvent.IMPORT_DONE(
@@ -438,7 +438,7 @@ public class ImportLibrary implements IObservable
     public List<String> deleteFilesFromRepository(ImportContainer container)
             throws ServerError
     {
-    	if (repo == null) return new ArrayList<String>();
+        checkManagedRepo();
         List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
         return undeleted;
     }
@@ -451,7 +451,7 @@ public class ImportLibrary implements IObservable
     public ImportContainer uploadFilesToRepository(ImportContainer container)
             throws ServerError
     {
-    	if (repo == null) return container;
+        checkManagedRepo();
         ServiceFactoryPrx sf = store.getServiceFactory();
         RawFileStorePrx rawFileStore = sf.createRawFileStore();
         String[] usedFiles = container.getUsedFiles();
@@ -808,7 +808,7 @@ public class ImportLibrary implements IObservable
      * repositories.
      * @return Active proxy for the legacy repository.
      */
-    private ManagedRepositoryPrx getLegacyRepository()
+    private ManagedRepositoryPrx lookupManagedRepository()
     {
         try
         {
@@ -830,6 +830,12 @@ public class ImportLibrary implements IObservable
         catch (ServerError e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void checkManagedRepo() {
+        if (repo == null) {
+            throw new RuntimeException("No FS! Cannot proceed");
         }
     }
 

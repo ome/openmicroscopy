@@ -213,7 +213,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
             }
         }
-        String uniquePath = paths.get(0);
 
         //FIXME: this seems a long-winded way to get the username. Is there an easier way?
         Principal currentUser = currentUser(__current);

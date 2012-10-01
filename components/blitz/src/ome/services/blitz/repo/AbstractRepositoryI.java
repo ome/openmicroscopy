@@ -290,7 +290,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 // Servants
                 //
 
-                servant.initialize(fileMaker, r.getId());
+                servant.initialize(fileMaker, r.getId(), repoUuid);
 
                 LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
                 objs.add(addOrReplace("InternalRepository-", repo));

@@ -29,45 +29,32 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
-import loci.formats.FormatException;
-import loci.formats.IFormatReader;
-import loci.formats.IFormatWriter;
-import loci.formats.ImageReader;
-import loci.formats.ImageWriter;
-import loci.formats.meta.IMetadata;
-import loci.formats.services.OMEXMLService;
-import ome.conditions.InternalException;
-import ome.formats.OMEROMetadataStoreClient;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+
 import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.parameters.Parameters;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-import ome.xml.model.primitives.PositiveInteger;
+
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -78,35 +65,12 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
-import omero.constants.data.NONAMESET;
-import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryPrx;
-import omero.grid._RepositoryDisp;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
-import omero.model.DimensionOrder;
-import omero.model.Experimenter;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.Pixels;
-import omero.model.PixelsType;
 import omero.util.IceMapper;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
 
 /**
  * An implementation of he PublicRepository interface
@@ -123,14 +87,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
                     FileFilterUtils.orFileFilter(new NameFileFilter(".omero"),
                             new NameFileFilter(".git")));
 
-    /* These two path elements make up the local thumbnail cache */
-    private final static String OMERO_PATH = ".omero";
-
-    private final static String THUMB_PATH = "thumbnails";
-
-    /* String used as key in params field of db for indexing image series number */
-    private final static String IMAGE_NO_KEY = "image_no";
-
     private /*final*/ long id;
 
     protected /*final*/ File root;
@@ -142,12 +98,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
     protected final Executor executor;
 
     protected final Principal principal;
-
-    private final Map<String,DimensionOrder> dimensionOrderMap =
-        new ConcurrentHashMap<String, DimensionOrder>();
-
-    private final Map<String,PixelsType> pixelsTypeMap =
-        new ConcurrentHashMap<String, PixelsType>();
 
     private String repoUuid;
 
@@ -162,7 +112,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      * @param fileMaker
      * @param id
      */
-    public void initialize(FileMaker fileMaker, Long id) throws ValidationException {
+    public void initialize(FileMaker fileMaker, Long id, String repoUuid) throws ValidationException {
         this.id = id;
         this.root = new File(fileMaker.getDir()).getAbsoluteFile();
         this.normRoot = FilenameUtils.normalizeNoEndSeparator(root.getAbsolutePath());
@@ -171,6 +121,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
             throw new ValidationException(null, null,
                     "Root directory must be a existing, readable directory.");
         }
+        this.repoUuid = repoUuid;
     }
 
     /**
@@ -276,8 +227,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
         return undeleted;
     }
 
-    @SuppressWarnings("unchecked")
-
     /**
      * Get the mimetype for a file.
      *
@@ -342,7 +291,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
     }
 
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
 
         // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = new Ice.Current();
@@ -587,19 +535,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     /**
      * Create an OriginalFile object corresponding to a File object
-     *
-     * @param f
-     *            A File object.
-     * @return An OriginalFile object
-     *
-     */
-    private OriginalFile createOriginalFile(File f) {
-        String mimetype = getMimetype(f);
-        return createOriginalFile(f, rstring(mimetype));
-    }
-
-    /**
-     * Create an OriginalFile object corresponding to a File object
      * using the user supplied mimetype string
      *
      * @param f
@@ -613,7 +548,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
     private OriginalFile createOriginalFile(File f, omero.RString mimetype) {
         OriginalFile file = new OriginalFileI();
         file.setName(rstring(f.getName()));
-        // This first case deals with registerng the repos themselves.
+        // This first case deals with registering the repos themselves.
         if (f.getAbsolutePath().equals(root.getAbsolutePath())) {
             file.setPath(rstring(f.getParent()));
         } else { // Path should be relative to root?
@@ -638,11 +573,11 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *
      */
     private File getFile(final long id, final Principal currentUser) {
-        final String uuid = getRepoUuid();
         return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
-                            String path = getSqlAction().findRepoFilePath(uuid, id);
+                            String path = getSqlAction().findRepoFilePath(
+                                    repoUuid, id);
 
                             if (path == null) {
                                 return null;
@@ -651,29 +586,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
                             return new File(root, path);
                     }
                 });
-    }
-
-    /**
-     * A getter for the repoUuid.
-     * This is run once by getRepoUuid() when first needed,
-     * thereafter lookups are local.
-     *
-     * TODO: this should probably be done in the constructor?
-     */
-	private String getRepoUuid() {
-	    if (this.repoUuid == null) {
-            final long repoId = this.id;
-            ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-                .execute(principal, new Executor.SimpleWork(this, "getRepoUuid") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
-                    }
-                });
-            OriginalFileI file = (OriginalFileI) new IceMapper().map(oFile);
-            this.repoUuid = file.getSha1().getValue();
-        }
-        return this.repoUuid;
     }
 
     private String getRelativePath(File f) {
