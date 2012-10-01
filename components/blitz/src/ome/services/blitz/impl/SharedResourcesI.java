@@ -37,7 +37,6 @@ import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
-import omero.grid.AMI_InternalRepository_getProxy;
 import omero.grid.AMI_Tables_getTable;
 import omero.grid._InteractiveProcessorTie;
 import omero.grid.InteractiveProcessorI;
@@ -201,7 +200,16 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 }
             }
         }
-        return prx == null ? null : prx.getProxy();
+        if (prx == null) {
+            return null;
+        }
+
+        final RepositoryMap map = prx.getProxies();
+        if (map.proxies == null || map.proxies.size() == 0) {
+            return null;
+        }
+
+        return map.proxies.get(0);
     }
 
     @SuppressWarnings("unchecked")
@@ -242,11 +250,15 @@ public class SharedResourcesI extends AbstractAmdServant implements
                     log.warn("Description is null for " + i);
                     continue;
                 }
-                RepositoryPrx proxy = i.getProxy();
-                map.descriptions.add(desc);
-                map.proxies.add(proxy);
-                found.add(desc.getId().getValue());
-                sf.allow(proxy);
+                RepositoryMap map2 = i.getProxies();
+                for (int j = 0; j < map2.descriptions.size(); j++) {
+                    final OriginalFile desc2 = map2.descriptions.get(j);
+                    final RepositoryPrx proxy2 = map2.proxies.get(j);
+                    map.descriptions.add(desc2);
+                    map.proxies.add(proxy2);
+                    found.add(desc2.getId().getValue());
+                    sf.allow(proxy2);
+                }
             } catch (Ice.LocalException e) {
                 // Ok.
             }

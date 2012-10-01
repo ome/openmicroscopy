@@ -160,6 +160,25 @@ module omero {
 
         };
 
+        ["java:type:java.util.ArrayList<omero.grid.RepositoryPrx>:java.util.List<omero.grid.RepositoryPrx>"]
+            sequence<Repository*> RepositoryProxyList;
+
+        /**
+         * Return value for [omero::grid::SharedResources].acquireRepositories()
+         * The descriptions and proxies arrays will have the same size and each
+         * index in descriptions (non-null) will match a possibly null proxy, if
+         * the given repository is not currently accessible.
+         */
+        struct RepositoryMap {
+            omero::api::OriginalFileList descriptions;
+            RepositoryProxyList proxies;
+        };
+
+
+        //
+        // INTERNAL API
+        //
+
         /**
          * Internal portion of the API used for management. Not available to clients.
          **/
@@ -179,26 +198,15 @@ module omero {
 
             // Other repository methods
             omero::model::OriginalFile getDescription() throws ServerError;
-            // If this returns null, user will have to wait
-            Repository* getProxy() throws ServerError;
 
             string getFilePath(omero::model::OriginalFile file)
                     throws ServerError;
 
-        };
-
-        ["java:type:java.util.ArrayList<omero.grid.RepositoryPrx>:java.util.List<omero.grid.RepositoryPrx>"]
-            sequence<Repository*> RepositoryProxyList;
-
-        /**
-         * Return value for [omero::grid::SharedResources].acquireRepositories()
-         * The descriptions and proxies arrays will have the same size and each
-         * index in descriptions (non-null) will match a possibly null proxy, if
-         * the given repository is not currently accessible.
-         */
-        struct RepositoryMap {
-            omero::api::OriginalFileList descriptions;
-            RepositoryProxyList proxies;
+            /**
+             * Return all the known repositories in this internal repo.
+             * If this returns an empty map, user will have to wait
+             **/
+            RepositoryMap getProxies();
         };
 
     };

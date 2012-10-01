@@ -82,6 +82,7 @@ import omero.constants.data.NONAMESET;
 import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
+import omero.grid._RepositoryOperations;
 import omero.model.DimensionOrder;
 import omero.model.Experimenter;
 import omero.model.IObject;
@@ -111,7 +112,7 @@ import Ice.Current;
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class PublicRepositoryI extends _RepositoryDisp {
+public class PublicRepositoryI implements _RepositoryOperations {
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 

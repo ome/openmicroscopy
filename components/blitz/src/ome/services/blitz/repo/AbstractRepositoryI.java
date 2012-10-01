@@ -25,9 +25,13 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid._InternalRepositoryDisp;
+import omero.grid._ManagedRepositoryTie;
+import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -65,13 +69,13 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private final FileMaker fileMaker;
 
-    private OriginalFile description;
+    private final RepositoryMap map = new RepositoryMap();
 
-    private RepositoryPrx proxy;
+    private OriginalFile description;
 
     private String repoUuid;
 
-    private String template = "";
+    private String template = null;
 
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
@@ -133,11 +137,20 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
         Object rv = null;
         try {
-            rv = ex.execute(p, new GetOrCreateRepo(this));
+            GetOrCreateRepo gocr = new GetOrCreateRepo(this);
+            rv = ex.execute(p, gocr);
             if (rv instanceof ome.model.core.OriginalFile) {
 
                 ome.model.core.OriginalFile r = (ome.model.core.OriginalFile) rv;
                 description = getDescription(r.getId());
+                map.proxies = new ArrayList<RepositoryPrx>();
+                map.descriptions = new ArrayList<OriginalFile>();
+                map.proxies.add(gocr.publicPrx);
+                map.descriptions.add(description);
+                if (gocr.managedPrx != null) {
+                    map.proxies.add(gocr.managedPrx);
+                    map.descriptions.add(description); // FIXEME.
+                }
 
                 // Success
                 if (!state.compareAndSet(State.WAITING, State.ACTIVE)) {
@@ -182,8 +195,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         return description;
     }
 
-    public final RepositoryPrx getProxy(Current __current) {
-        return proxy;
+    public final RepositoryMap getProxies(Current __current) {
+        return map;
     }
 
     public abstract String getFilePath(final OriginalFile file,
@@ -229,6 +242,15 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     class GetOrCreateRepo extends Executor.SimpleWork {
 
         private final AbstractRepositoryI repo;
+
+        private RepositoryPrx publicPrx;
+
+        private RepositoryPrx managedPrx;
+
+        /**
+         * Id of the description object for {@link #managedPrx}
+         */
+        private long managedObjId;
 
         public GetOrCreateRepo(AbstractRepositoryI repo) {
             super(repo, "takeover");
@@ -306,16 +328,22 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
                 LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
                 objs.add(addOrReplace("InternalRepository-", repo));
-                objs.add(addOrReplace("PublicRepository-", pr));
-                proxy = RepositoryPrxHelper.uncheckedCast(objs.getLast());
+                objs.add(addOrReplace("PublicRepository-",
+                        new _RepositoryTie(pr)));
+
+                publicPrx = RepositoryPrxHelper.uncheckedCast(objs.getLast());
                 if (mr != null) {
-                    objs.add(addOrReplace("ManagedRepository-", pr));
+                    objs.add(addOrReplace("ManagedRepository-",
+                            new _ManagedRepositoryTie(mr)));
+                    managedPrx = ManagedRepositoryPrxHelper.uncheckedCast(objs.getLast());
                 }
 
                 //
                 // Activation & Registration
                 //
                 oa.activate(); // Must happen before the registry tries to connect
+
+
 
                 for (Ice.ObjectPrx prx : objs) {
                     reg.addObject(prx);

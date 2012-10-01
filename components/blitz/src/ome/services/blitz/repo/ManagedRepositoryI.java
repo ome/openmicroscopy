@@ -44,6 +44,7 @@ import ome.util.SqlAction;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
+import omero.grid._ManagedRepositoryOperations;
 import omero.model.Experimenter;
 import omero.model.Pixels;
 import omero.util.IceMapper;
@@ -56,7 +57,8 @@ import omero.util.IceMapper;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.5
  */
-public class ManagedRepositoryI extends PublicRepositoryI {
+public class ManagedRepositoryI extends PublicRepositoryI
+    implements _ManagedRepositoryOperations {
 
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
 
