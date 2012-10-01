@@ -33,9 +33,6 @@ import omero.api.IDeletePrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
@@ -49,7 +46,6 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
-import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -991,7 +987,7 @@ public class AbstractServerTest
                 InterruptedException
     {
 
-        CmdCallbackI cb = callback(passes, c, dc);
+        callback(passes, c, dc);
         return "ok";
     }
     
@@ -1070,7 +1066,6 @@ public class AbstractServerTest
      */
     protected Image createBinaryImage(Image image) throws Exception {
         Pixels pixels = image.getPrimaryPixels();
-        long id = pixels.getId().getValue();
         //Image
         List<Long> ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
