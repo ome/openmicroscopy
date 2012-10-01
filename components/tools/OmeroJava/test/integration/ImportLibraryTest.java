@@ -146,7 +146,6 @@ public class ImportLibraryTest
 		ImportLibrary library = new ImportLibrary(importer,
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = library.uploadFilesToRepository(ic);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertEquals(pixels.size(), 1);
@@ -194,7 +193,6 @@ public class ImportLibraryTest
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
 		ic = new ImportContainer(f, -1L, null, 
 				false, null, null, ic.getUsedFiles(), null);
-		ic = library.uploadFilesToRepository(ic);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertEquals(pixels.size(), 1);
