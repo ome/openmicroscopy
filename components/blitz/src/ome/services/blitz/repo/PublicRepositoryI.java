@@ -506,25 +506,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null, "Path is empty");
         }
 
-        boolean found = false;
-        File file = new File(path).getAbsoluteFile();
-        while (true) {
-            if (file.equals(root)) {
-                found = true;
-                break;
-            }
-            file = file.getParentFile();
-            if (file == null) {
-                break;
-            }
-        }
-
-        if (!found) {
+        final String root_ = FilenameUtils.normalizeNoEndSeparator(
+                root.getAbsolutePath()) + File.separator;
+        final String abspath = FilenameUtils.normalizeNoEndSeparator(path);
+        // Could be replaced by commons-io 2.4 directoryContains.
+        if (abspath.regionMatches(
+                true, 0, root_, 0, root_.length())) {
             throw new ValidationException(null, null, path + " is not within "
                     + root.getAbsolutePath());
         }
-
-        return new File(path).getAbsoluteFile();
+        return new File(abspath);
     }
 
     /**
