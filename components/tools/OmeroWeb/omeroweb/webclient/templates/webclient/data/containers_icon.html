@@ -30,7 +30,8 @@
             data.rslt.obj.each(function() {
                 // if we're removing the current dataset...
                 if (content_id == $(this).attr('id')) {
-                    $("#content_details").remove();
+                    $("#content_details").empty();
+                    $("#content_details").attr("rel", null);
                 } else if ($(this).attr('id').split("-")[0] == "image") {
                     // else, remove image
                     var imgId = $(this).attr('id').split("-")[1];
