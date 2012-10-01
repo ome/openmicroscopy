@@ -99,6 +99,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -117,6 +118,11 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 
+    private final static IOFileFilter DEFAULT_SKIP =
+            FileFilterUtils.notFileFilter(
+                    FileFilterUtils.orFileFilter(new NameFileFilter(".omero"),
+                            new NameFileFilter(".git")));
+
     /* These two path elements make up the local thumbnail cache */
     private final static String OMERO_PATH = ".omero";
 
@@ -128,6 +134,10 @@ public class PublicRepositoryI implements _RepositoryOperations {
     private /*final*/ long id;
 
     protected /*final*/ File root;
+
+    protected /*final*/ String normRoot;
+
+    protected /*final*/ String normRootSlash;
 
     protected final Executor executor;
 
@@ -155,6 +165,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public void initialize(FileMaker fileMaker, Long id) throws ValidationException {
         this.id = id;
         this.root = new File(fileMaker.getDir()).getAbsoluteFile();
+        this.normRoot = FilenameUtils.normalizeNoEndSeparator(root.getAbsolutePath());
+        this.normRootSlash = this.normRoot + File.separator;
         if (root == null || !root.isDirectory()) {
             throw new ValidationException(null, null,
                     "Root directory must be a existing, readable directory.");
@@ -185,8 +197,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public List<String> list(String path, Current __current) throws ServerError {
         File file = checkPath(path, true);
         List<String> contents = new ArrayList<String>();
-        for (String child : file.list()) {
-            contents.add(child);
+        for (Object child : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
+            contents.add(child.toString());
         }
         return contents;
     }
@@ -194,7 +206,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
         File file = checkPath(path, true);
         List<OriginalFile> contents = new ArrayList<OriginalFile>();
-        for (File child : file.listFiles()) {
+        for (Object child_ : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
+            File child = (File) child_;
             OriginalFile originalFile = new OriginalFileI();
             originalFile.setName(rstring(child.getName()));
             originalFile.setPath(rstring(path));
@@ -534,17 +547,22 @@ public class PublicRepositoryI implements _RepositoryOperations {
             throw new ValidationException(null, null, "Path is empty");
         }
 
-        final String root_ = FilenameUtils.normalizeNoEndSeparator(
-                root.getAbsolutePath()) + File.separator;
-        final String abspath = FilenameUtils.normalizeNoEndSeparator(path);
-        // Could be replaced by commons-io 2.4 directoryContains.
-        if (!abspath.regionMatches(
-                true, 0, root_, 0, root_.length())) {
-            throw new ValidationException(null, null, path + " is not within "
-                    + root.getAbsolutePath());
+        final String normPath = FilenameUtils.normalizeNoEndSeparator(path);
+        if (normPath.equals(normRoot)) { // Special-case top-level
+            return root;
         }
 
-        final File f = new File(abspath);
+        // Could be replaced by commons-io 2.4 directoryContains.
+        // But for the moment checking based on regionMatches with
+        // case-sensitivty. Note we check against normRootSlash so that
+        // two similar directories at the top-level can't cause issues.
+        if (!normPath.regionMatches(
+                false, 0, normRootSlash, 0, normRootSlash.length())) {
+            throw new ValidationException(null, null, normPath + " is not within "
+                    + normRootSlash);
+        }
+
+        final File f = new File(normPath);
         if (mustExist && !f.exists()) {
             throw new ValidationException(null, null, path + " does not exist");
         }

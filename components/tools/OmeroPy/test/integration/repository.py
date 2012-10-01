@@ -97,11 +97,14 @@ class TestRepository(lib.ITest):
         found = False
         for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
             found &= self.assertRepo(path, obj, prx)
+        self.assert_(found)
 
     def assertRepo(self, path, obj, prx):
         if prx:
             root = prx.root()
-            print prx.list(root.path.val + root.name.val)
+            assert ".omero" not in prx.list(root.path.val + root.name.val)
+            assert ".omero" not in \
+                    [x.name.val for x in prx.listFiles(root.path.val + root.name.val)]
             for x in ("id", "path", "name"):
                 a = getattr(obj, x)
                 b = getattr(root, x)
@@ -112,6 +115,7 @@ class TestRepository(lib.ITest):
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
                 return True
+        return False
 
 
 
