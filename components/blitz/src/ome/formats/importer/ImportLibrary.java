@@ -491,13 +491,6 @@ public class ImportLibrary implements IObservable
                 }
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
-                // FIXME: This is for testing only. See #6349
-                try {
-                    rawFileStore.close();
-                }
-                catch (Exception npe) {
-                    log.error("Ignoring NPE due to rawFileStore.close() bug, see #6349");
-                }
             }
             catch (Exception e) {
                 notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
@@ -506,6 +499,7 @@ public class ImportLibrary implements IObservable
                 break;
             }
             finally {
+                rawFileStore.close();
                 if (stream != null) {
                     try {
                         stream.close();

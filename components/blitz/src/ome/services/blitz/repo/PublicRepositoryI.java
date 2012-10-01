@@ -346,6 +346,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
         RepoRawFileStoreI rfs;
         try {
             rfs = new RepoRawFileStoreI(path, mode);
+            rfs.setApplicationContext(executor.getContext());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
@@ -398,6 +399,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
         // If there is no listener available who will take responsibility
         // for this servant, then we bail.
         RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
+        rfs.setApplicationContext(executor.getContext());
         _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
