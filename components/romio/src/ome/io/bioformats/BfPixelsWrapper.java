@@ -51,6 +51,7 @@ public class BfPixelsWrapper {
     public BfPixelsWrapper(String path, IFormatReader reader) throws IOException, FormatException {
         this.path = path;
         this.reader = reader;
+        reader.setFlattenedResolutions(false);
         reader.setId(path);
 
         /* Get some data that is widely used elsewhere.
