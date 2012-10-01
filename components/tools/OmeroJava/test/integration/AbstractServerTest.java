@@ -1593,4 +1593,24 @@ public class AbstractServerTest
 		return rsp;
 	}
 
+    /**
+     * Creates a new group with the specified permissions and sets the role
+     * of the user.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void login(String permissions, int userRole)
+    throws Exception
+    {
+    	newUserAndGroup(permissions);
+    	switch (userRole) {
+			case GROUP_OWNER:
+				makeGroupOwner();
+				break;
+			case ADMIN:
+				logRootIntoGroup();
+		}
+    }
 }

@@ -35,10 +35,8 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Pixels;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
@@ -61,13 +59,118 @@ public class ImportLibraryTest
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
+    /**
+     * Tests the <code>ImportImage</code> method using an import container
+     * returned by the import candidates method.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @param name The name of the file to import.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    private void importImage(String permissions, int userRole, String name)
+    		throws Throwable
+    {
+    	//create a new group and user
+    	login(permissions, userRole);
+    	File f = File.createTempFile(name+ModelMockFactory.FORMATS[0],
+    			"."+ModelMockFactory.FORMATS[0]);
+    	mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+    	files.add(f);
+    	ImportConfig config = new ImportConfig();
+    	ImportLibrary library = new ImportLibrary(importer,
+    			new OMEROWrapper(config));
+    	ImportContainer ic = getCandidates(f).getContainers().get(0);
+    	List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+    	assertNotNull(pixels);
+    	assertEquals(pixels.size(), 1);
+    }
+    
+    /**
+     * Tests the <code>ImportImage</code> method using an import container
+     * returned by the import candidates method.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @param name The name of the file to import.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    private void importCandidates(String permissions, int userRole,
+    		String name)
+		throws Throwable
+	{
+    	login(permissions, userRole);
+    	File f = File.createTempFile(name+ModelMockFactory.FORMATS[0],
+    			"."+ModelMockFactory.FORMATS[0]);
+		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+		files.add(f);
+		ImportCandidates candidates = getCandidates(f);
+		assertNotNull(candidates);
+		assertNotNull(candidates.getContainers().get(0));
+	}
+    
+    /**
+     * Tests the <code>testImportMetadataOnly</code> method using an import 
+     * container returned by the import candidates method.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @param name The name of the file to import.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    private void importMetadataAfterUploadToRepository(String permissions,
+    		int userRole, String name)
+		throws Throwable
+	{
+    	login(permissions, userRole);
+    	File f = File.createTempFile(name+ModelMockFactory.FORMATS[0],
+    			"."+ModelMockFactory.FORMATS[0]);
+		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+		files.add(f);
+    	ImportConfig config = new ImportConfig();
+		ImportLibrary library = new ImportLibrary(importer,
+				new OMEROWrapper(config));
+		ImportContainer ic = getCandidates(f).getContainers().get(0);
+		ic = library.uploadFilesToRepository(ic);
+		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);
+		assertNotNull(pixels);
+		assertEquals(pixels.size(), 1);
+	}
+    /**
+     * Tests the <code>ImportImage</code> method using an import container
+     * returned by the import candidates method.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @param name The name of the file to import.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void importImageCreateImportContainer(String permissions, int
+    		userRole, String name)
+		throws Throwable
+	{
+    	login(permissions, userRole);
+    	File f = File.createTempFile(name+ModelMockFactory.FORMATS[0],
+    			"."+ModelMockFactory.FORMATS[0]);
+		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+		files.add(f);
+    	ImportConfig config = new ImportConfig();
+		ImportLibrary library = new ImportLibrary(importer,
+				new OMEROWrapper(config));
+		ImportContainer ic = getCandidates(f).getContainers().get(0);
+		ic = new ImportContainer(f, -1L, null, 
+				false, null, null, ic.getUsedFiles(), null);
+		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+		assertNotNull(pixels);
+		assertEquals(pixels.size(), 1);
+	}
 	/**
 	 * Overridden to initialize the list.
 	 * @see AbstractServerTest#setUp()
 	 */
     @Override
     @BeforeClass
-    protected void setUp() 
+    protected void setUp()
     	throws Exception
     {
     	super.setUp();
@@ -80,7 +183,7 @@ public class ImportLibraryTest
 	 */
     @Override
     @AfterClass
-    public void tearDown() 
+    public void tearDown()
     	throws Exception
     {
     	Iterator<File> i = files.iterator();
@@ -98,7 +201,6 @@ public class ImportLibraryTest
      */
     private ImportCandidates getCandidates(File f)
     	throws Exception
-    
     {
     	ImportConfig config = new ImportConfig();
 		OMEROWrapper reader = new OMEROWrapper(config);
@@ -113,89 +215,625 @@ public class ImportLibraryTest
     }
     
     /**
-     * Tests the <code>ImportCandidates</code> method.
-     * @throws Exception Thrown if an error occurred.
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * general member.
+     * @throws Throwable Thrown if an error occurred.
      */
     @Test
-	public void testImportCandidates()
-		throws Exception
-	{
-    	File f = File.createTempFile("testImportCandidates"
-				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
-		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-		files.add(f);
-		ImportCandidates candidates = getCandidates(f);
-		assertNotNull(candidates);
-		assertNotNull(candidates.getContainers().get(0));
-	}
-    
-    /**
-     * Tests the <code>ImportImage</code> method using an import container
-     * returned by the import candidates method.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-	public void testImportImage()
+	public void testImportImageRWByMember()
 		throws Throwable
 	{
-    	File f = File.createTempFile("testImportImage"
-				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
-		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-		files.add(f);
-    	ImportConfig config = new ImportConfig();
-		ImportLibrary library = new ImportLibrary(importer,
-				new OMEROWrapper(config));
-		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertEquals(pixels.size(), 1);
+    	importImage("rw----", DATA_OWNER, "testImportImageRWByMember");
 	}
     
     /**
-     * Tests the <code>testImportMetadataOnly</code> method using an import 
-     * container returned by the import candidates method.
-     * @throws Exception Thrown if an error occurred.
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * group's owner.
+     * @throws Throwable Thrown if an error occurred.
      */
     @Test
-	public void testImportMetadataOnly()
-		throws Exception
-	{
-    	File f = File.createTempFile("testImportMetadataOnly"
-				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
-		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-		files.add(f);
-    	ImportConfig config = new ImportConfig();
-		ImportLibrary library = new ImportLibrary(importer,
-				new OMEROWrapper(config));
-		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertEquals(pixels.size(), 1);
-	}
-    
-    /**
-     * Tests the <code>ImportImage</code> method using an import container
-     * returned by the import candidates method.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-	public void testImportImageCreateImportContainer()
+	public void testImportImageRWByGroupOwner()
 		throws Throwable
 	{
-    	File f = File.createTempFile("testImportImage"
-				+ModelMockFactory.FORMATS[0], "."+ModelMockFactory.FORMATS[0]);
-		mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-		files.add(f);
-    	ImportConfig config = new ImportConfig();
-		ImportLibrary library = new ImportLibrary(importer,
-				new OMEROWrapper(config));
-		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = new ImportContainer(f, -1L, null, 
-				false, null, null, ic.getUsedFiles(), null);
-		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertEquals(pixels.size(), 1);
+    	importImage("rw----", GROUP_OWNER, "testImportImageRWByGroupOwner");
 	}
     
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by an
+     * administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWByAdmin()
+		throws Throwable
+	{
+    	importImage("rw----", ADMIN, "testImportImageRWByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRByMember()
+		throws Throwable
+	{
+    	importImage("rwr---", DATA_OWNER, "testImportImageRWRByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * group's owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRByGroupOwner()
+		throws Throwable
+	{
+    	importImage("rwr---", GROUP_OWNER, "testImportImageRWRByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by an
+     * administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRByAdmin()
+		throws Throwable
+	{
+    	importImage("rwr---", ADMIN, "testImportImageRWRByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by a 
+     * general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRAByMember()
+		throws Throwable
+	{
+    	importImage("rwra--", DATA_OWNER, "testImportImageRWRAByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by a 
+     * group's owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRAByGroupOwner()
+		throws Throwable
+	{
+    	importImage("rwra--", GROUP_OWNER, "testImportImageRWRAByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by an
+     * administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRAByAdmin()
+		throws Throwable
+	{
+    	importImage("rwra--", ADMIN, "testImportImageRWRAByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by a 
+     * general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRWByMember()
+		throws Throwable
+	{
+    	importImage("rwrw--", DATA_OWNER, "testImportImageRWRWByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by a 
+     * group's owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRWByGroupOwner()
+		throws Throwable
+	{
+    	importImage("rwrw--", GROUP_OWNER, "testImportImageRWRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by an
+     * administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageRWRWByAdmin()
+		throws Throwable
+	{
+    	importImage("rwrw--", ADMIN, "testImportImageRWRAByAdmin");
+	}
+    
+    //Test import candidates
+    /**
+     * Tests the import candidates method for <code>RWRW--</code> group logged
+     * in as a general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRWByMember()
+		throws Throwable
+	{
+    	importCandidates("rwrw--", DATA_OWNER,
+    			"testImportCandidatesRWRWByMember");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWRW--</code> group logged
+     * in as a group owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRWByGroupOwner()
+		throws Throwable
+	{
+    	importCandidates("rwrw--", GROUP_OWNER,
+    			"testImportCandidatesRWRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWRW--</code> group logged
+     * in as a administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRWByAdmin()
+		throws Throwable
+	{
+    	importCandidates("rwrw--", ADMIN, "testImportCandidatesRWRWByAdmin");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWRA--</code> group logged
+     * in as a general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRAByMember()
+		throws Throwable
+	{
+    	importCandidates("rwra--", DATA_OWNER,
+    			"testImportCandidatesRWRAByMember");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWRA--</code> group logged
+     * in as a group owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRAByGroupOwner()
+		throws Throwable
+	{
+    	importCandidates("rwra--", GROUP_OWNER,
+    			"testImportCandidatesRWRAByGroupOwner");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWRA--</code> group logged
+     * in as a administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRAByAdmin()
+		throws Throwable
+	{
+    	importCandidates("rwra--", ADMIN, "testImportCandidatesRWRAByAdmin");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWR---</code> group logged
+     * in as a general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRByMember()
+		throws Throwable
+	{
+    	importCandidates("rwr---", DATA_OWNER,
+    			"testImportCandidatesRWRByMember");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWR---</code> group logged
+     * in as a group owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRByGroupOwner()
+		throws Throwable
+	{
+    	importCandidates("rwr---", GROUP_OWNER,
+    			"testImportCandidatesRWRByGroupOwner");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RWR---</code> group logged
+     * in as a administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWRByAdmin()
+		throws Throwable
+	{
+    	importCandidates("rwr---", ADMIN, "testImportCandidatesRWRByAdmin");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RW----</code> group logged
+     * in as a general member.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWByMember()
+		throws Throwable
+	{
+    	importCandidates("rw----", DATA_OWNER,
+    			"testImportCandidatesRWByMember");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RW----</code> group logged
+     * in as a group owner.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWByGroupOwner()
+		throws Throwable
+	{
+    	importCandidates("rw----", GROUP_OWNER,
+    			"testImportCandidatesRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import candidates method for <code>RW----</code> group logged
+     * in as a administrator.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportCandidatesRWByAdmin()
+		throws Throwable
+	{
+    	importCandidates("rw----", ADMIN, "testImportCandidatesRWByAdmin");
+	}
+    
+    //Test import image with created import container.
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * general member. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWByMember()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rw----", DATA_OWNER, 
+    			"testImportImageCreateImportContainerRWByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * group owner. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWByGroupOwner()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rw----", GROUP_OWNER, 
+    			"testImportImageCreateImportContainerRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by an 
+     * administrator. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWByAdmin()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rw----", ADMIN, 
+    			"testImportImageCreateImportContainerRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * general member. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRByMember()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwr---", DATA_OWNER, 
+    			"testImportImageCreateImportContainerRWRByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * group owner. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRByGroupOwner()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwr---", GROUP_OWNER, 
+    			"testImportImageCreateImportContainerRWRByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by an 
+     * administrator. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRByAdmin()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwr---", ADMIN, 
+    			"testImportImageCreateImportContainerRWRByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * general member. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRAByMember()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwra--", DATA_OWNER, 
+    			"testImportImageCreateImportContainerRWRAByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by a 
+     * group owner. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRAByGroupOwner()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwra--", GROUP_OWNER, 
+    			"testImportImageCreateImportContainerRWRAByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by an 
+     * administrator. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRAByAdmin()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwra--", ADMIN, 
+    			"testImportImageCreateImportContainerRWRAByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * general member. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRWByMember()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwrw--", DATA_OWNER, 
+    			"testImportImageCreateImportContainerRWRWByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by a 
+     * group owner. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRWByGroupOwner()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwrw--", GROUP_OWNER, 
+    			"testImportImageCreateImportContainerRWRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by an 
+     * administrator. This time the import container object is created.
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageCreateImportContainerRWRWByAdmin()
+		throws Throwable
+	{
+    	importImageCreateImportContainer("rwrw--", ADMIN, 
+    			"testImportImageCreateImportContainerRWRWByGroupOwner");
+	}
+    
+    //Test import the metadata after uploading the file to the repository
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by an 
+     * administrator. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRWByAdmin()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwrw--", ADMIN, 
+    			"testImportMetadataAfterUploadToRepositoryRWRWByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by a 
+     * group owner. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRWByGroupOwner()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwrw--", GROUP_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRW--</code> group by a 
+     * general member. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRWByMember()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwrw--", DATA_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRWByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by an 
+     * administrator. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRAByAdmin()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwra--", ADMIN, 
+    			"testImportMetadataAfterUploadToRepositoryRWRAByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by a 
+     * group owner. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRAByGroupOwner()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwra--", GROUP_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRAByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWRA--</code> group by a 
+     * general member. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRAByMember()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwra--", DATA_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRAByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by an 
+     * administrator. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRByAdmin()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwr---", ADMIN, 
+    			"testImportMetadataAfterUploadToRepositoryRWRByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * group owner. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRByGroupOwner()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwr---", GROUP_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RWR---</code> group by a 
+     * general member. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWRByMember()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rwr---", DATA_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWRByMember");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RW---</code> group by an 
+     * administrator. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWByAdmin()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rw----", ADMIN, 
+    			"testImportMetadataAfterUploadToRepositoryRWByAdmin");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * group owner. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWByGroupOwner()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rw----", GROUP_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWByGroupOwner");
+	}
+    
+    /**
+     * Tests the import of an image into a <code>RW----</code> group by a 
+     * general member. The image is first uploaded to the repository, followed
+     * by a metadata import. 
+     * @throws Throwable Thrown if an error occurred.
+     */
+    @Test
+	public void testImportMetadataAfterUploadToRepositoryRWByMember()
+		throws Throwable
+	{
+    	importMetadataAfterUploadToRepository("rw----", DATA_OWNER, 
+    			"testImportMetadataAfterUploadToRepositoryRWByMember");
+	}
 }
