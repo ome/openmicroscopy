@@ -946,8 +946,8 @@ public class AbstractServerTest
 		ic.setUseMetadataFile(true);
 		ic.setCustomImageName(format);
 		ic.setTarget(target);
-		ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);//library.importImage(ic, 0, 0, 1);
+		//ic = library.uploadFilesToRepository(ic);
+		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
 		return pixels;

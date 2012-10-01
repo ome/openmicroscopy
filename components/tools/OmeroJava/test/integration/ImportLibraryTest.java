@@ -132,7 +132,7 @@ public class ImportLibraryTest
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
 		ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importMetadataOnly(ic, 0, 0, 1);
+		List<Pixels> pixels = library.importMetadataViaRepository(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertEquals(pixels.size(), 1);
 	}
