@@ -399,7 +399,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
             user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('user_id') is not None and request.session.get('user_id') or -1
+        user_id = request.session.get('user_id', -1)
         if int(user_id) not in userIds:
             user_id = conn.getEventContext().userId
 
