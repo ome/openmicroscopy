@@ -45,6 +45,7 @@ import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
 import omero.grid._ManagedRepositoryOperations;
+import omero.grid._ManagedRepositoryTie;
 import omero.model.Experimenter;
 import omero.model.Pixels;
 import omero.util.IceMapper;
@@ -62,9 +63,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
 
-    // FIXME: This should ultimately come from somewhere else
-    private final static String MANAGED_REPO_PATH = "ManagedRepository" + File.separator;
-
     private final String template;
 
     /**
@@ -73,28 +71,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private final Registry reg;
 
-    public ManagedRepositoryI(File root, String template, long repoObjectId, Executor executor,
-            SqlAction sql, Principal principal, Registry reg) throws Exception {
-        super(makeManagedRoot(root), repoObjectId, executor, sql,
-                principal);
+    public ManagedRepositoryI(String template, Executor executor,
+            Principal principal, Registry reg) throws Exception {
+        super(executor, principal);
         this.reg = reg;
         this.template = template;
         log.info("Repository template: " + this.template);
     }
 
-    /**
-     * Since the {@link PublicRepositoryI} requires the directory to exist and
-     * we can be assured that it has already successfully been called, then it
-     * should be fairly safe to manually create the MRP directory underneath
-     * that.
-     *
-     * @param root
-     * @return
-     */
-    private static File makeManagedRoot(File root) {
-        File f = new File(root, MANAGED_REPO_PATH);
-        f.mkdirs();
-        return f;
+    @Override
+    public Ice.Object tie() {
+        return new _ManagedRepositoryTie(this);
     }
 
     public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {

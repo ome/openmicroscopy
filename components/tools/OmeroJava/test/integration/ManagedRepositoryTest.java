@@ -22,6 +22,8 @@ import omero.ApiUsageException;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.OriginalFile;
@@ -47,12 +49,9 @@ import pojos.FileAnnotationData;
 public class ManagedRepositoryTest 
    extends AbstractServerTest
 {
-	
-    // FIXME: The repository itself should alread include this path element
-    private final static String MANAGED_REPO_PATH = "ManagedRepository";
 
 	/** Reference to the managed repository. */
-	RepositoryPrx repo;
+	ManagedRepositoryPrx repo;
 
 	/** Managed repository directory. */
 	private String repoDir; 
@@ -66,43 +65,20 @@ public class ManagedRepositoryTest
 	 */
 	@BeforeClass
 	public void setRepoAndRepoDir() throws Exception {
-		String dataDir = root.getSession().getConfigService().getConfigValue(
-		        "omero.data.dir");
-		template = root.getSession().getConfigService().getConfigValue("omero.fslite.path");
-	    EventContext ec = iAdmin.getEventContext();
-		repoDir = FilenameUtils.concat(dataDir, MANAGED_REPO_PATH);
-		// Force user prefix for now: see PublicRepositoryI.java
-        repoDir = FilenameUtils.concat(repoDir, ec.userName);
-        String dir;
-        String[] elements = template.split("/");
-        for (String part : elements) {
-            String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0]);
-            for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i]);
-            }
-            repoDir = FilenameUtils.concat(repoDir, dir);
-        }
-
-		repo = null;
-		RepositoryMap rm = factory.sharedResources().repositories();
-		int repoCount = 0;
-		String s = dataDir;
-		for (OriginalFile desc: rm.descriptions) {
-			String repoPath = desc.getPath().getValue() + 
-			desc.getName().getValue();
-			s += "\nFound repository:" + desc.getPath().getValue() + 
-			        desc.getName().getValue();
-			if (FilenameUtils.equals(
-					FilenameUtils.normalizeNoEndSeparator(dataDir),
-					FilenameUtils.normalizeNoEndSeparator(repoPath))) {
-				repo = rm.proxies.get(repoCount);
-				break;
-			}
-			repoCount++;
-		}
+	    RepositoryMap rm = factory.sharedResources().repositories();
+	    for (int i = 0; i < rm.proxies.size(); i++) {
+	        final RepositoryPrx prx = rm.proxies.get(i);
+	        final OriginalFile obj = rm.descriptions.get(i);
+	        ManagedRepositoryPrx tmp = ManagedRepositoryPrxHelper
+	                .checkedCast(prx);
+	        if (tmp != null) {
+	            repo = tmp;
+	            repoDir = FilenameUtils.concat(obj.getPath().getValue(),
+	                    obj.getName().getValue());
+	        }
+	    }
 		if (repo == null) {
-			throw new Exception("Unable to find legacy repository: " + s);
+			throw new Exception("Unable to find managed repository");
 		}
 	}
 

@@ -11,8 +11,10 @@ import java.io.File;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
+import ome.services.blitz.repo.PublicRepositoryI;
 import ome.services.blitz.repo.TemporaryRepositoryI;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.testing.MockServiceFactory;
 
 import org.apache.commons.io.FileUtils;
@@ -63,8 +65,9 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
         sf.mockQuery.expects(once()).method("findByQuery").will(
                 returnValue(repo));
 
+        Principal p = new Principal("session");
         TemporaryRepositoryI tr = new TemporaryRepositoryI(oa, reg, fixture.ex,
-                null, "mock-session");
+                p, new PublicRepositoryI(fixture.ex, p));
         fixture.mock("executorMock").expects(atLeastOnce()).method("execute")
                 .will(new Stub() {
 

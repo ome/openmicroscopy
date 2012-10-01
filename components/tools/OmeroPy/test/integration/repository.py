@@ -94,12 +94,14 @@ class TestRepository(lib.ITest):
     def testAllMethods(self):
         path = self.root.sf.getConfigService().getConfigValue("omero.data.dir")
         repoMap = self.client.sf.sharedResources().repositories()
+        found = False
         for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
-            self.assertRepo(path, obj, prx)
+            found &= self.assertRepo(path, obj, prx)
 
     def assertRepo(self, path, obj, prx):
         if prx:
             root = prx.root()
+            print prx.list(root.path.val + root.name.val)
             for x in ("id", "path", "name"):
                 a = getattr(obj, x)
                 b = getattr(root, x)
@@ -107,11 +109,9 @@ class TestRepository(lib.ITest):
                     self.assertEquals(a, b)
                 else:
                     self.assertEquals(a.val, b.val)
-            print prx.ice_ids()
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
-                print "FOUND"
-                print prx.list(root.path.val + root.name.val + "/omero")
+                return True
 
 
 

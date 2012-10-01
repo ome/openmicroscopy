@@ -83,6 +83,7 @@ import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.grid._RepositoryOperations;
+import omero.grid._RepositoryTie;
 import omero.model.DimensionOrder;
 import omero.model.Experimenter;
 import omero.model.IObject;
@@ -124,13 +125,11 @@ public class PublicRepositoryI implements _RepositoryOperations {
     /* String used as key in params field of db for indexing image series number */
     private final static String IMAGE_NO_KEY = "image_no";
 
-    private final long id;
+    private /*final*/ long id;
 
-    protected final File root;
+    protected /*final*/ File root;
 
     protected final Executor executor;
-
-    protected final SqlAction sql;
 
     protected final Principal principal;
 
@@ -142,19 +141,33 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     private String repoUuid;
 
-    public PublicRepositoryI(File root, long repoObjectId, Executor executor,
-            SqlAction sql, Principal principal) throws Exception {
-        this.id = repoObjectId;
+    public PublicRepositoryI(Executor executor, Principal principal) throws Exception {
         this.executor = executor;
-        this.sql = sql;
         this.principal = principal;
+        this.repoUuid = null;
+    }
 
+    /**
+     * Called by the internal repository once initialization has taken place.
+     * @param fileMaker
+     * @param id
+     */
+    public void initialize(FileMaker fileMaker, Long id) throws ValidationException {
+        this.id = id;
+        this.root = new File(fileMaker.getDir()).getAbsoluteFile();
         if (root == null || !root.isDirectory()) {
             throw new ValidationException(null, null,
                     "Root directory must be a existing, readable directory.");
         }
-        this.root = root.getAbsoluteFile();
-        this.repoUuid = null;
+    }
+
+    /**
+     * Wrap the current instance with an {@link Ice.TieBase} so that it
+     * can be turned into a proxy. This is required due to the subclassing
+     * between public repo instances.
+     */
+    public Ice.Object tie() {
+        return new _RepositoryTie(this);
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -611,7 +624,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
         return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
-                            String path = sql.findRepoFilePath(uuid, id);
+                            String path = getSqlAction().findRepoFilePath(uuid, id);
 
                             if (path == null) {
                                 return null;

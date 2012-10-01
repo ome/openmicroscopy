@@ -9,6 +9,7 @@ package ome.services.blitz.repo;
 import ome.services.blitz.fire.Registry;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
@@ -30,9 +31,9 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
 
     private final ScriptRepoHelper helper;
 
-    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex, SqlAction sql,
-            String sessionUuid, ScriptRepoHelper helper) {
-        super(oa, reg, ex, sql, sessionUuid, helper.getScriptDir());
+    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
+            Principal p, ScriptRepoHelper helper, PublicRepositoryI servant) {
+        super(oa, reg, ex, p, helper.getScriptDir(), servant);
         this.helper = helper;
     }
 

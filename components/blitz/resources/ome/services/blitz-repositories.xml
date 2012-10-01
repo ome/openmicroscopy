@@ -19,28 +19,69 @@
 
 <beans>
 
+  <bean id="repoPrincipal" class="ome.system.Principal">
+      <constructor-arg index="0" ref="uuid"/>
+      <constructor-arg index="1" value="system"/>
+      <constructor-arg index="2" value="Internal"/>
+  </bean>
+
   <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleSqlAction"/>
-      <constructor-arg index="4" ref="uuid"/>
-      <constructor-arg index="5" value="${omero.data.dir}"/>
-      <constructor-arg index="6" value="${omero.fslite.path}"/>
+      <constructor-arg index="3" ref="repoPrincipal"/>
+      <constructor-arg index="4" value="${omero.data.dir}"/>
+      <constructor-arg index="5">
+          <bean class="ome.services.blitz.repo.PublicRepositoryI">
+              <constructor-arg ref="executor"/>
+              <constructor-arg ref="repoPrincipal"/>
+          </bean>
+      </constructor-arg>
   </bean>
-  <bean id="repositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+  <bean id="legacyRepositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="legacyRepository" />
     <property name="targetMethod" value="takeover" />
     <property name="concurrent"   value="false"/>
   </bean>
-  <bean id="repositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+  <bean id="legacyRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
     <description>
     Runs periodically to give repositories a chance to take over for any dead
     instance. Calling takeover during regular initialization would cause startup
     to block. This is okay for separate repository (non-LegacyRepository) instances
     which run standalone, but not for this bean.
     </description>
-    <property name="jobDetail" ref="repositoryTakeoverRun" />
+    <property name="jobDetail" ref="legacyRepositoryTakeoverRun" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
+  </bean>
+
+  <bean id="managedRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="repoPrincipal"/>
+      <constructor-arg index="4" value="${omero.managed.dir}"/>
+      <constructor-arg index="5">
+          <bean class="ome.services.blitz.repo.ManagedRepositoryI">
+              <constructor-arg value="${omero.fslite.path}"/>
+              <constructor-arg ref="executor"/>
+              <constructor-arg ref="repoPrincipal"/>
+              <constructor-arg ref="Registry"/>
+          </bean>
+      </constructor-arg>
+  </bean>
+  <bean id="managedRepositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="managedRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="managedRepositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <description>
+    Runs periodically to give repositories a chance to take over for any dead
+    instance. Calling takeover during regular initialization would cause startup
+    to block. This is okay for separate repository (non-LegacyRepository) instances
+    which run standalone, but not for this bean.
+    </description>
+    <property name="jobDetail" ref="managedRepositoryTakeoverRun" />
     <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
 
@@ -52,9 +93,14 @@
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleSqlAction"/>
-      <constructor-arg index="4" ref="uuid"/>
-      <constructor-arg index="5" ref="scriptRepoHelper"/>
+      <constructor-arg index="3" ref="repoPrincipal"/>
+      <constructor-arg index="4" ref="scriptRepoHelper"/>
+      <constructor-arg index="5">
+          <bean class="ome.services.blitz.repo.PublicRepositoryI">
+              <constructor-arg ref="executor"/>
+              <constructor-arg ref="repoPrincipal"/>
+          </bean>
+      </constructor-arg>
   </bean>
   <bean id="scriptTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="scriptRepository" />
@@ -65,27 +111,5 @@
     <property name="jobDetail" ref="scriptTakeoverRun" />
     <property name="repeatInterval" value="60000" />
   </bean>
-
-  <!-- Disabling for 4.2 release (#1740)
-  <bean id="temporaryRepository" class="ome.services.blitz.repo.TemporaryRepositoryI" destroy-method="close">
-      <description>
-        Test repository which will make the ${java.io.tmpdir} available for testing.
-      </description>
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleSqlAction"/>
-      <constructor-arg index="4" ref="uuid"/>
-  </bean>
-  <bean id="temporaryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-    <property name="targetObject" ref="temporaryRepository" />
-    <property name="targetMethod" value="takeover" />
-    <property name="concurrent"   value="false"/>
-  </bean>
-  <bean id="temporaryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-    <property name="jobDetail" ref="temporaryTakeoverRun" />
-    <property name="repeatInterval" value="60000" />
-  </bean>
-  -->
 
 </beans>
