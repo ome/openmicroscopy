@@ -169,7 +169,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public List<String> list(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
+        File file = checkPath(path, true);
         List<String> contents = new ArrayList<String>();
         for (String child : file.list()) {
             contents.add(child);
@@ -178,7 +178,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
+        File file = checkPath(path, true);
         List<OriginalFile> contents = new ArrayList<OriginalFile>();
         for (File child : file.listFiles()) {
             OriginalFile originalFile = new OriginalFileI();
@@ -501,6 +501,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     private File checkPath(String path) throws ValidationException {
+        return checkPath(path, false);
+    }
+
+    /**
+     * Get the file object at a path.
+     *
+     * @param path
+     *            A path on a repository.
+     * @param mustExist
+     *            Whether or not the file must currently exist.
+     * @return File object
+     *
+     */
+    private File checkPath(String path, boolean mustExist) throws ValidationException {
 
         if (path == null || path.length() == 0) {
             throw new ValidationException(null, null, "Path is empty");
@@ -510,12 +524,17 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 root.getAbsolutePath()) + File.separator;
         final String abspath = FilenameUtils.normalizeNoEndSeparator(path);
         // Could be replaced by commons-io 2.4 directoryContains.
-        if (abspath.regionMatches(
+        if (!abspath.regionMatches(
                 true, 0, root_, 0, root_.length())) {
             throw new ValidationException(null, null, path + " is not within "
                     + root.getAbsolutePath());
         }
-        return new File(abspath);
+
+        final File f = new File(abspath);
+        if (mustExist && !f.exists()) {
+            throw new ValidationException(null, null, path + " does not exist");
+        }
+        return f;
     }
 
     /**

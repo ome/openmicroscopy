@@ -98,16 +98,19 @@ class TestRepository(lib.ITest):
             self.assertRepo(path, obj, prx)
 
     def assertRepo(self, path, obj, prx):
-        print path
-        root = prx.root()
-        for x in ("id", "path", "name"):
-            a = getattr(obj, x)
-            b = getattr(root, x)
-            if a is None:
-                self.assertEquals(a, b)
-            else:
-                self.assertEquals(a.val, b.val)
-        print prx.list(root.path.val + root.name.val + "/omero")
+        if prx:
+            root = prx.root()
+            for x in ("id", "path", "name"):
+                a = getattr(obj, x)
+                b = getattr(root, x)
+                if a is None:
+                    self.assertEquals(a, b)
+                else:
+                    self.assertEquals(a.val, b.val)
+            print prx
+            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
+            if prx:
+                print prx.list(root.path.val + root.name.val + "/omero")
 
 
 
