@@ -305,8 +305,10 @@ public class ImportLibrary implements IObservable
         repoIC.target = ic.getTarget();
         repoIC.reader = ic.getReader();
         repoIC.usedFiles = ic.getUsedFiles();
-        repoIC.isSPW = ic.getIsSPW();
-        repoIC.bfImageCount = ic.getBfImageCount();
+        repoIC.isSPW = (ic.getIsSPW() == null) ? false :
+        	ic.getIsSPW().booleanValue();
+        repoIC.bfImageCount = (ic.getBfImageCount() == null) ? 1 :
+        	ic.getBfImageCount().intValue();
         repoIC.bfPixels = ic.getBfPixels();
         repoIC.bfImageNames = ic.getBfImageNames();
         // Assuming that if the array is not null all values are not null.
