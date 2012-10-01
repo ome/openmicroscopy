@@ -21,6 +21,7 @@ import java.io.File;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -39,7 +40,6 @@ import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.util.SqlAction;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
@@ -85,16 +85,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
+        ServiceFactoryPrx sf = null;
         OMEROMetadataStoreClient store = null;
         OMEROWrapper reader = null;
         List<Pixels> pix = null;
+        boolean error = false;
         try {
             final ImportConfig config = new ImportConfig();
             final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
-            final String clientUuid = __current.ctx.get(omero.constants.CLIENTUUID.value);
-            final ServiceFactoryPrx sf = reg.getInternalServiceFactory(
-                    sessionUuid, "unused", 3, 1, clientUuid);
+            final String clientUuid = UUID.randomUUID().toString();
 
+            sf = reg.getInternalServiceFactory(
+                    sessionUuid, "unused", 3, 1, clientUuid);
             reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
@@ -103,28 +105,67 @@ public class ManagedRepositoryI extends PublicRepositoryI
             pix = library.importImageInternal(ic, 0, 0, 1);
         }
         catch (ServerError se) {
+            error = false;
             throw se;
         }
         catch (Throwable t) {
+            error = false;
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
         }
         finally {
+            Throwable readerErr = null;
+            Throwable storeErr = null;
+            Throwable sfPrxErr = null;
             try {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
+                if (reader != null) {
+                    reader.close();
                 }
-                catch (Exception e){
-                    throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
-                }
-            } finally {
+            } catch (Throwable e){
+                readerErr = e;
+            }
+            try {
                 if (store != null) {
                     store.logout();
+                }
+            } catch (Throwable e) {
+                storeErr = e;
+            }
+            try {
+                if (sf != null) {
+                    sf.destroy();
+                }
+            } catch (Throwable e) {
+                sfPrxErr = e;
+            }
+            if (readerErr != null || storeErr != null || sfPrxErr != null) {
+                StringBuilder stacks = new StringBuilder();
+                StringBuilder message = new StringBuilder();
+                append(stacks, message, readerErr);
+                append(stacks, message, storeErr);
+                append(stacks, message, sfPrxErr);
+                if (error) {
+                    // In order to throw the original error just log this
+                    log.error(String.format(
+                            "Error on importMetadata cleanup lost. %s\n%s\n",
+                            stacks.toString(), message.toString()));
+                } else {
+                    throw new omero.InternalException(
+                            stacks.toString(), null, message.toString());
                 }
             }
         }
         return pix;
+    }
+
+    private void append(StringBuilder stacks, StringBuilder message,
+            Throwable err) {
+        if (err != null) {
+            message.append("=========================");
+            message.append(err.toString());
+            message.append(err.getMessage());
+            stacks.append("==========================");
+            stacks.append(stackTraceAsString(err));
+        }
     }
 
     /**
