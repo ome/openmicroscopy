@@ -53,6 +53,7 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
+import omero.InternalException;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -331,17 +332,50 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
         PathCheck check = checkPath(path, __current);
+        return createRepoRFS(check.file, mode, null, __current);
+    }
 
-        // See comment below in RawFileStorePrx
-        Ice.Current adjustedCurr = new Ice.Current();
+    public RawFileStorePrx fileById(long fileId, Current __current) throws ServerError {
+        Principal currentUser = currentUser(__current);
+        File file = getFile(fileId, currentUser);
+        if (file == null) {
+            return null;
+        }
+        return createRepoRFS(file, null, fileId, __current);
+    }
+
+    /**
+     * Create, initialize, and register an {@link RepoRawFileStoreI}
+     * with the proper setting (read or write).
+     *
+     * @param file The file that will be read. Can't be null.
+     * @param mode The mode for writing. If null, read-only.
+     * @param fileId The id to read. Can't be null if mode is null.
+     * @param __current The current user's session information.
+     * @return A proxy ready to be returned to the user.
+     * @throws ServerError
+     * @throws InternalException
+     */
+    protected RawFileStorePrx createRepoRFS(File file, String mode, Long fileId,
+            Current __current) throws ServerError, InternalException {
+
+        // WORKAROUND: See the comment in RawFileStoreI.
+        // The most likely correction of this
+        // is to have PublicRepositories not be global objects, but be created
+        // on demand for each session via SharedResourcesI
+        final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        final Ice.Current adjustedCurr = new Ice.Current();
         adjustedCurr.ctx = __current.ctx;
         adjustedCurr.operation = __current.operation;
-        String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
 
         RepoRawFileStoreI rfs;
         try {
-            rfs = new RepoRawFileStoreI(path, mode);
+            if (mode != null) {
+                rfs = new RepoRawFileStoreI(file.getAbsolutePath(), mode);
+            } else {
+                rfs = new RepoRawFileStoreI(fileId, file);
+            }
             rfs.setApplicationContext(executor.getContext());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
@@ -353,53 +387,14 @@ public class PublicRepositoryI implements _RepositoryOperations {
             }
         }
 
-        // See comment below in fileById
-        _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
-        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
-        try {
-            this.executor.getContext().publishMessage(msg);
-        } catch (Throwable t) {
-            if (t instanceof ServerError) {
-                throw (ServerError) t;
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, t);
-                throw ie;
-            }
-        }
-        Ice.ObjectPrx prx = msg.getProxy();
-        if (prx == null) {
-            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
-        }
-        return RawFileStorePrxHelper.uncheckedCast(prx);
-    }
-
-    public RawFileStorePrx fileById(long fileId, Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
-        File file = getFile(fileId, currentUser);
-        if (file == null) {
-            return null;
-        }
-
-        // WORKAROUND: See the comment in RawFileStoreI.
-        // The most likely correction of this
-        // is to have PublicRepositories not be global objects, but be created
-        // on demand for each session via SharedResourcesI
-        Ice.Current adjustedCurr = new Ice.Current();
-        adjustedCurr.ctx = __current.ctx;
-        adjustedCurr.operation = __current.operation;
-        String sessionUuid = __current.ctx.get("omero.session");
-        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
-
         // TODO: Refactor all this into a single helper method.
         // If there is no listener available who will take responsibility
         // for this servant, then we bail.
-        RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
-        rfs.setApplicationContext(executor.getContext());
-        _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
-        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
+        final _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
+        final RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
             this.executor.getContext().publishMessage(msg);
+            rfs.setHolder(msg.getHolder());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
@@ -414,6 +409,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
             throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
         }
         return RawFileStorePrxHelper.uncheckedCast(prx);
+
     }
 
     /**
