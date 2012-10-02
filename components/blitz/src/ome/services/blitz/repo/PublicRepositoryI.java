@@ -46,10 +46,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
+import ome.api.local.LocalAdmin;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -462,18 +464,18 @@ public class PublicRepositoryI implements _RepositoryOperations {
      */
     private File getFile(final long id, final Principal currentUser) {
         return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                            String path = getSqlAction().findRepoFilePath(
-                                    repoUuid, id);
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                    String path = getSqlAction().findRepoFilePath(
+                            repoUuid, id);
 
-                            if (path == null) {
-                                return null;
-                            }
-
-                            return new File(root, path);
+                    if (path == null) {
+                        return null;
                     }
-                });
+
+                    return new File(root, path);
+            }
+        });
     }
 
     // Utility function for passing stack traces back in exceptions.
@@ -487,4 +489,13 @@ public class PublicRepositoryI implements _RepositoryOperations {
         return new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
     }
 
+    protected EventContext currentContext(Current __current) {
+        return (EventContext) executor.execute(currentUser(__current),
+                new Executor.SimpleWork(this, "getEventContext") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+            }
+        });
+    }
 }

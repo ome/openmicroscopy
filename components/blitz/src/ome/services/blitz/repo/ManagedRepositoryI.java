@@ -38,6 +38,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -203,7 +204,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * (an option here would be to create the dir if it doesn't exist??)
      */
     public List<String> getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
-        //FIXME: MANAGED_REPO_PATH should be passed in as config.
         String repoPath = root.getAbsolutePath(); // root includes MRP
         String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
         for (String path : paths)
@@ -214,21 +214,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
         }
 
-        //FIXME: this seems a long-winded way to get the username. Is there an easier way?
-        Principal currentUser = currentUser(__current);
-        ome.model.meta.Experimenter exp = (ome.model.meta.Experimenter) executor.execute(
-                currentUser, new Executor.SimpleWork(this, "getCurrentRepoDir") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                long id = sf.getAdminService().getEventContext().getCurrentUserId();
-                ome.model.meta.Experimenter exp = sf.getAdminService().getExperimenter(id);
-                return exp;
-            }
-        });
-
-        IceMapper mapper = new IceMapper();
-        Experimenter rv = (Experimenter) mapper.map(exp);
-        String name = rv.getOmeName().getValue();
+        EventContext ec = currentContext(__current);
+        String name = ec.getCurrentUserName();
 
         //FIXME: Force user prefix for now
         repoPath = FilenameUtils.concat(repoPath, name);
