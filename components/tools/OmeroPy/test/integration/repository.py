@@ -7,7 +7,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import unittest, time, os
 import integration.library as lib
 import omero
 from omero.rtypes import *
@@ -91,33 +91,67 @@ class TestRepository(lib.ITest):
         repoPrx.rename(remote_file, remote_file + ".old")
         repoPrx.delete(remote_file + ".old")
 
-    def testAllMethods(self):
-        path = self.root.sf.getConfigService().getConfigValue("omero.data.dir")
+    def testSanityCheckRepos(self):
+        # Repos should behave sensibly when it comes
+        # to listing their path and objects as well
+        # as what items they return.
         repoMap = self.client.sf.sharedResources().repositories()
-        found = False
+        managed = None
+        public = None
+        script = None
         for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
-            found &= self.assertRepo(path, obj, prx)
-        self.assert_(found)
+            if prx:
+                root = prx.root()
+                assert ".omero" not in prx.list(root.path.val + root.name.val)
+                assert ".omero" not in \
+                        [x.name.val for x in prx.listFiles(root.path.val + root.name.val)]
+                for x in ("id", "path", "name"):
+                    a = getattr(obj, x)
+                    b = getattr(root, x)
+                    if a is None:
+                        self.assertEquals(a, b)
+                    else:
+                        self.assertEquals(a.val, b.val)
 
-    def assertRepo(self, path, obj, prx):
-        if prx:
-            root = prx.root()
-            assert ".omero" not in prx.list(root.path.val + root.name.val)
-            assert ".omero" not in \
-                    [x.name.val for x in prx.listFiles(root.path.val + root.name.val)]
-            for x in ("id", "path", "name"):
-                a = getattr(obj, x)
-                b = getattr(root, x)
-                if a is None:
-                    self.assertEquals(a, b)
-                else:
-                    self.assertEquals(a.val, b.val)
+    def testManagedRepo(self):
+        mrepo = self.getManagedRepo(self.client)
+
+        # Create a file in the repo
+        path = mrepo.getCurrentRepoDir(["testManagedRepo.txt"])[0]
+        base = os.path.dirname(path)
+        mrepo.makeDir(base)
+        rfs = mrepo.file(path, "rw")
+        rfs.write("hi".encode("utf-8"), 0, 2)
+        rfs.close()
+
+        # Query it
+        assert "testManagedRepo.txt" in mrepo.list(base)[0]
+        mime = mrepo.mimetype(path)
+
+        # Register the file. This is currently necessary,
+        # but likely will need to be done one rfs.close()
+        obj = mrepo.register(path, omero.rtypes.rstring(mime))
+
+        # Now we try to look it up with __redirect
+        rfs = self.client.sf.createRawFileStore()
+        rfs.setFileId(obj.id.val)
+        self.assertEquals("hi", unicode(rfs.read(0, 2), "utf-8"))
+        rfs.close()
+
+    def getManagedRepo(self, client=None):
+        if client is None:
+            client = self.client
+        repoMap = client.sf.sharedResources().repositories()
+        prx = None
+        found = False
+        for prx in repoMap.proxies:
+            if not prx: continue
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
-                return True
-        return False
-
-
+                found = True
+                break
+        self.assert_(found)
+        return prx
 
 if __name__ == '__main__':
     unittest.main()
