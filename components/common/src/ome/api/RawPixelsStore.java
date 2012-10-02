@@ -40,6 +40,12 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public void setPixelsId(long pixelsId, boolean bypassOriginalFile);
     
     /**
+     * Returns the current Pixels path.
+     * @return See above.
+     */
+    public String getPixelsPath();
+
+    /**
      * Returns the current Pixels set identifier.
      * @return See above.
      */
