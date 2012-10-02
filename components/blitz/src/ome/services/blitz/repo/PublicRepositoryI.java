@@ -34,8 +34,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.activation.MimetypesFileTypeMap;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -61,11 +59,8 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawFileStorePrxHelper;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RawPixelsStorePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.api.ThumbnailStorePrx;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
-import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
@@ -133,6 +128,10 @@ public class PublicRepositoryI implements _RepositoryOperations {
         return new _RepositoryTie(this);
     }
 
+    //
+    // OriginalFile-based Interface methods
+    //
+
     public OriginalFile root(Current __current) throws ServerError {
        final long repoId = this.id;
        ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
@@ -145,8 +144,12 @@ public class PublicRepositoryI implements _RepositoryOperations {
        return (OriginalFileI) new IceMapper().map(oFile);
     }
 
+    //
+    // Path-based Interface methods
+    //
+
     public List<String> list(String path, Current __current) throws ServerError {
-        File file = checkPath(path, true);
+        File file = checkPath(path, __current).mustExist().file;
         List<String> contents = new ArrayList<String>();
         for (Object child : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
             contents.add(child.toString());
@@ -155,7 +158,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
     }
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
-        File file = checkPath(path, true);
+        File file = checkPath(path, __current).mustExist().file;
         List<OriginalFile> contents = new ArrayList<OriginalFile>();
         for (Object child_ : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
             File child = (File) child_;
@@ -184,9 +187,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public OriginalFile register(String path, omero.RString mimetype, Current __current)
             throws ServerError {
 
-        File file = new File(path).getAbsoluteFile();
-        OriginalFile omeroFile = new OriginalFileI();
-        omeroFile = createOriginalFile(file, mimetype);
+        PathCheck check = checkPath(path, __current);
+        OriginalFile omeroFile = check.createOriginalFile(mimetype);
 
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
@@ -205,23 +207,28 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     }
 
-    public void delete(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
-        FileUtils.deleteQuietly(file);
+    public boolean delete(String path, Current __current) throws ServerError {
+        return checkPath(path, __current).mustEdit().delete();
     }
 
     public List<String> deleteFiles(String[] files, Current __current) throws ServerError {
         List<String> undeleted = new ArrayList<String>();
         for (String path : files) {
-            File file = checkPath(path);
-            if (file.delete()) {
-                file = file.getParentFile();
-                while(!file.equals(root) && file.delete()) {
-                    file = file.getParentFile();
-                }
-            }
-            else {
+            PathCheck check = checkPath(path, __current).mustEdit();
+            boolean deleted = check.delete();
+            if (!deleted) {
                 undeleted.add(path);
+            } else {
+                // Now we attempt to clean up any parent directories that are
+                // 1) empty, 2) not the root directory and 3) editable.
+                check = check.parent();
+                while (check != null) {
+                    if (check.isRoot || !check.canEdit()) {
+                        break;
+                    }
+                    check.delete();
+                    check = check.parent();
+                }
             }
         }
         return undeleted;
@@ -238,11 +245,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *
      */
     public String mimetype(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
-        if (!file.exists()) {
-            throw new ValidationException(null, null, "Path does not exist");
-        }
-        return getMimetype(file);
+        return checkPath(path, __current).mustExist().getMimetype();
     }
 
     /**
@@ -256,7 +259,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *
      */
     public boolean fileExists(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
+        File file = checkPath(path, __current).file;
         return file.exists();
     }
 
@@ -271,7 +274,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *
      */
     public boolean create(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
+        File file = checkPath(path, __current).file;
         try {
             FileUtils.touch(file);
             return true;
@@ -280,17 +283,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
         }
     }
 
-    /**
-     *
-     * Interface methods yet TODO
-     *
-     */
-    public OriginalFile load(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
+        checkPath(path, __current).mustDB();
 
         // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = new Ice.Current();
@@ -336,6 +330,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     }
 
     public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
+        PathCheck check = checkPath(path, __current);
+
         // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = new Ice.Current();
         adjustedCurr.ctx = __current.ctx;
@@ -431,7 +427,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *            ice context.
      */
     public void makeDir(String path, Current __current) throws ServerError {
-        File file = checkPath(path);
+        File file = checkPath(path, __current).file;
         try {
             FileUtils.forceMkdir(file);
         } catch (Exception e) {
@@ -439,130 +435,24 @@ public class PublicRepositoryI implements _RepositoryOperations {
         }
     }
 
-    public void rename(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-
-    }
-
-
-    public RenderingEnginePrx render(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ThumbnailStorePrx thumbs(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void transfer(String srcPath, RepositoryPrx target,
-            String targetPath, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-
-    }
+    //
+    //
+    // Utility methods
+    //
+    //
 
     /**
-     *
-     * Utility methods
-     *
-     */
-
-    /**
-     * Get the file object at a path.
+     * Create a new {@link PathCheck} object based on the given user input.
+     * This method is included to allow subclasses a change to introduce their
+     * own {@link PathCheck} implementations.
      *
      * @param path
      *            A path on a repository.
-     * @return File object
      *
      */
-    private File checkPath(String path) throws ValidationException {
-        return checkPath(path, false);
-    }
-
-    /**
-     * Get the file object at a path.
-     *
-     * @param path
-     *            A path on a repository.
-     * @param mustExist
-     *            Whether or not the file must currently exist.
-     * @return File object
-     *
-     */
-    private File checkPath(String path, boolean mustExist) throws ValidationException {
-
-        if (path == null || path.length() == 0) {
-            throw new ValidationException(null, null, "Path is empty");
-        }
-
-        final String normPath = FilenameUtils.normalizeNoEndSeparator(path);
-        if (normPath.equals(normRoot)) { // Special-case top-level
-            return root;
-        }
-
-        // Could be replaced by commons-io 2.4 directoryContains.
-        // But for the moment checking based on regionMatches with
-        // case-sensitivty. Note we check against normRootSlash so that
-        // two similar directories at the top-level can't cause issues.
-        if (!normPath.regionMatches(
-                false, 0, normRootSlash, 0, normRootSlash.length())) {
-            throw new ValidationException(null, null, normPath + " is not within "
-                    + normRootSlash);
-        }
-
-        final File f = new File(normPath);
-        if (mustExist && !f.exists()) {
-            throw new ValidationException(null, null, path + " does not exist");
-        }
-        return f;
-    }
-
-    /**
-     * Get the mimetype for a file.
-     *
-     * @param file
-     *            A File in a repository.
-     * @return A String representing the mimetype.
-     *
-     * TODO Return the correct Format object in place of a dummy one
-     */
-    private String getMimetype(File file) {
-
-        final String contentType = new MimetypesFileTypeMap().getContentType(file);
-        return contentType;
-
-    }
-
-    /**
-     * Create an OriginalFile object corresponding to a File object
-     * using the user supplied mimetype string
-     *
-     * @param f
-     *            A File object.
-     * @param mimetype
-     *            Mimetype as an RString
-     * @return An OriginalFile object
-     *
-     * TODO populate more attribute fields than the few set here?
-     */
-    private OriginalFile createOriginalFile(File f, omero.RString mimetype) {
-        OriginalFile file = new OriginalFileI();
-        file.setName(rstring(f.getName()));
-        // This first case deals with registering the repos themselves.
-        if (f.getAbsolutePath().equals(root.getAbsolutePath())) {
-            file.setPath(rstring(f.getParent()));
-        } else { // Path should be relative to root?
-            file.setPath(rstring(getRelativePath(f)));
-        }
-        file.setSha1(rstring("UNKNOWN"));
-        file.setMimetype(mimetype);
-        file.setMtime(rtime(f.lastModified()));
-        file.setSize(rlong(f.length()));
-        // Any other fields?
-
-        return file;
+    protected PathCheck checkPath(final String path, final Ice.Current curr)
+            throws ValidationException {
+        return new PathCheck(executor, curr, path, normRoot, normRootSlash, root);
     }
 
     /**
@@ -588,14 +478,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
                             return new File(root, path);
                     }
                 });
-    }
-
-    private String getRelativePath(File f) {
-        String path = f.getParent()
-                .substring(root.getAbsolutePath().length(), f.getParent().length());
-        // The parent doesn't contain a trailing slash.
-        path = path + "/";
-        return path;
     }
 
     // Utility function for passing stack traces back in exceptions.

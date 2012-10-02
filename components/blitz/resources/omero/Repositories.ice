@@ -97,15 +97,6 @@ module omero {
                     throws ServerError;
 
             /**
-             * Load the OriginalFile at the given path with annotations and
-             * associated Pixels (if present). If the path does not point to
-             * an OriginalFile, a ValidationException exception is thrown.
-             *
-             * TODO should this just return null instead?
-             **/
-            omero::model::OriginalFile load(string path) throws ServerError;
-
-            /**
              * Returns a special RawFileStore which permits only the operations
              * set out in the options string "wb", "a+", etc.
              * FIXME: Initially only "r" and "rw" are supported as these are
@@ -119,10 +110,6 @@ module omero {
 
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
 
-            omero::api::RenderingEngine* render(string path) throws ServerError;
-
-            omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
-
             omero::api::RawFileStore* fileById(long id) throws ServerError;
 
             /**
@@ -132,11 +119,19 @@ module omero {
 
             ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
             void makeDir(string path) throws ServerError;
-            void rename(string path) throws ServerError;
-            void delete(string path) throws ServerError;
-            void transfer(string srcPath, Repository* target, string targetPath)
-                    throws ServerError;
 
+            /**
+             * Delete the path at the given location. If the file cannot be deleted
+             * for operating system reasons, a false will be returned, otherwise true.
+             * If a deletion is not permitted, then an exception will be thrown.
+             **/
+            bool delete(string path) throws ServerError;
+
+            /**
+             * Delete several individual paths as with [delete] but rather than
+             * a single boolean return all the paths for which a delete is not
+             * possible. If [delete] would throw, so would this method.
+             **/
             omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
 
         };
