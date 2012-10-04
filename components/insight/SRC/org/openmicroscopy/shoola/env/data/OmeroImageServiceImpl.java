@@ -155,6 +155,7 @@ class OmeroImageServiceImpl
 		Map<File, StatusLabel> files, StatusLabel status,
 		ImportableObject object, IObject ioContainer,
 		List<Annotation> list, long userID, boolean close, boolean hcs)
+	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
 			if (close) gateway.closeImport(ctx);
