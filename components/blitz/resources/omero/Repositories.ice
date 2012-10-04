@@ -148,10 +148,13 @@ module omero {
             omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
 
             /**
-             *
+             * Returns the directory which should be the import location for
+             * the set of paths passed in. Each set of paths consitutes a
+             * single import session. In order to prevent files from being
+             * overwritten or interfering with one another, a new directory
+             * may be created for the current session.
              **/
-            omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
-
+            omero::model::OriginalFile getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
 
         };
 

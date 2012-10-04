@@ -26,8 +26,6 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -40,16 +38,14 @@ import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.ServiceFactory;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
-import omero.model.Experimenter;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
-import omero.util.IceMapper;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -203,8 +199,30 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Return a template based directory path.
      * (an option here would be to create the dir if it doesn't exist??)
      */
-    public List<String> getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
-        String repoPath = root.file.getAbsolutePath(); // root includes MRP
+    public OriginalFile getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
+
+        // This is the first part of the string which comes after:
+        // ManagedRepository/, e.g. ${user}/${year}/etc.
+        final String relPath = expandTemplate(__current);
+
+        // The next part of the string which is chosen by the user:
+        // /home/bob/myStuff
+        String basePath = commonRoot(paths);
+
+        // If any two files clash in that chosen basePath directory, then
+        // we want to suggest a similar alternative.
+        basePath = suggestOnConflict(normRootSlash, relPath, basePath, paths);
+
+        return createUserDirectory(basePath);
+    }
+
+    /**
+     * From a list of paths, calculate the common root path that all share. In
+     * the worst case, that may be "/".
+     * @param paths
+     * @return
+     */
+    protected String commonRoot(List<String> paths) {
         String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
         for (String path : paths)
         {
@@ -213,61 +231,42 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
             }
         }
+        return basePath;
+    }
 
-        EventContext ec = currentContext(__current);
-        String name = ec.getCurrentUserName();
+    /**
+     * Turn the current template into a relative path. By default this is
+     * prefixed with the user's name.
+     * @param curr
+     * @return
+     */
+    protected String expandTemplate(Ice.Current curr) {
+        final EventContext ec = currentContext(curr);
+        final String name = ec.getCurrentUserName();
 
-        //FIXME: Force user prefix for now
-        repoPath = FilenameUtils.concat(repoPath, name);
+        Calendar now = Calendar.getInstance();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        String relPath = name;
         String dir;
         String[] elements = template.split("/");
         for (String part : elements) {
             String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0]);
+            dir = getStringFromToken(subelements[0], now, dfs);
             for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i]);
+                dir = dir + "-" + getStringFromToken(subelements[i], now, dfs);
             }
-            repoPath = FilenameUtils.concat(repoPath, dir);
+            relPath = FilenameUtils.concat(relPath, dir);
         }
-
-        //if file clashes in that directory
-        String uniquePathElement = FilenameUtils.getName(basePath);
-        String endPart = uniquePathElement;
-        boolean clashes = false;
-        for (String path: paths)
-        {
-            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
-            if (new File(new File(repoPath, endPart), relative).exists()) {
-                clashes = true;
-                break;
-            }
-        }
-
-        if (clashes) {
-            int version = 0;
-            while (new File(repoPath, endPart).exists()) {
-                version++;
-                endPart = uniquePathElement + "-" + Integer.toString(version);
-            }
-        }
-        repoPath = FilenameUtils.concat(repoPath, endPart);
-
-        for (int i=0; i<paths.size(); i++)
-        {
-            String path = paths.get(i);
-            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
-            path = FilenameUtils.concat(repoPath, relative);
-            paths.set(i, path);
-        }
-
-        return paths;
+        return relPath;
     }
 
-    // Helper method to provide a little more flexibility
-    // when building a path from a template
-    private String getStringFromToken(String token) {
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
+    /**
+     * Helper method to provide a little more flexibility
+     * when building a path from a template
+     */
+    protected String getStringFromToken(String token, Calendar now,
+            DateFormatSymbols dfs) {
+
         String rv;
         if (token.equals("%year%"))
             rv = Integer.toString(now.get(Calendar.YEAR));
@@ -284,6 +283,51 @@ public class ManagedRepositoryI extends PublicRepositoryI
             rv = "";
         }
         return rv;
+    }
+
+    /**
+     * Take a relative path that the user would like to see in his or her
+     * upload area, and check that none of the suggested paths currently
+     * exist in that location. If they do, then append an incrementing version
+     * number to the path ("/my/path/" becomes "/my/path-1" then "/my/path-2").
+     *
+     * @param trueRoot Absolute path of the root directory (with true FS
+     *          prefix, e.g. "/OMERO/ManagedRepo")
+     * @param relPath Path parsed from the template
+     * @param basePath Common base of all the listed paths ("/my/path")
+     * @return Suggested new basePath in the case of conflicts.
+     */
+    protected String suggestOnConflict(String trueRoot, String relPath,
+            String basePath, List<String> paths) {
+
+        final String nonEndPart = new File(basePath).getParent();
+        final String upToLast = FilenameUtils.concat(trueRoot, nonEndPart);
+        final String uniquePathElement = FilenameUtils.getName(basePath);
+
+        String endPart = uniquePathElement;
+        boolean clashes = false;
+        for (String path: paths)
+        {
+            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            if (new File(new File(upToLast, endPart), relative).exists()) {
+                clashes = true;
+                break;
+            }
+        }
+
+        if (clashes) {
+            int version = 0;
+            while (new File(upToLast, endPart).exists()) {
+                version++;
+                endPart = uniquePathElement + "-" + Integer.toString(version);
+            }
+        }
+        return endPart;
+
+    }
+
+    protected OriginalFile createUserDirectory(String basePath) {
+        crea
     }
 
 }
