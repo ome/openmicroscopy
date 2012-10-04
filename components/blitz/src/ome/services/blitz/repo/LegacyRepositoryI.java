@@ -32,13 +32,13 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     private final OriginalFilesService fs;
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir) {
-        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
+            SqlAction sql, String sessionUuid, String repoDir, String template) {
+        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir), template);
     }
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, FileMaker fileMaker) {
-        super(oa, reg, ex, sql, sessionUuid, fileMaker);
+            SqlAction sql, String sessionUuid, FileMaker fileMaker, String template) {
+        super(oa, reg, ex, sql, sessionUuid, fileMaker, template);
         this.fs = new OriginalFilesService(fileMaker.getDir());
     }
 

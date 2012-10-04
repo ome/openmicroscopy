@@ -24,6 +24,7 @@ import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
 import omero.api.AMD_RawPixelsStore_getHypercube;
 import omero.api.AMD_RawPixelsStore_getPixelsId;
+import omero.api.AMD_RawPixelsStore_getPixelsPath;
 import omero.api.AMD_RawPixelsStore_getPlane;
 import omero.api.AMD_RawPixelsStore_getPlaneOffset;
 import omero.api.AMD_RawPixelsStore_getPlaneRegion;
@@ -307,6 +308,11 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
 
     public void getPixelsId_async(AMD_RawPixelsStore_getPixelsId __cb, Current __current)
+            throws ServerError {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    public void getPixelsPath_async(AMD_RawPixelsStore_getPixelsPath __cb, Current __current)
             throws ServerError {
         throw new UnsupportedOperationException("NYI");
     }

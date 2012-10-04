@@ -55,9 +55,6 @@ public class ImportableFile
 	/** The file or folder to import. */
 	private File file;
 	
-	/** Flag indicating to archive the images. */
-	private boolean archived;
-	
 	/** Indicates to use the folder as a container if <code>true</code>.*/
 	private boolean folderAsContainer;
 	
@@ -72,34 +69,18 @@ public class ImportableFile
 	
 	/** The node of reference if set. */
 	private Object refNode;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param file The object to import.
-	 * @param archived  Pass <code>true</code> if the images will be archived, 
-	 * 					<code>false</code> otherwise.
-	 */
-	public ImportableFile(File file, boolean archived)
-	{
-		this(file, archived, false);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param file The object to import.
-	 * @param archived  Pass <code>true</code> if the images have to be archived, 
-	 * 					<code>false</code> otherwise.
 	 * @param folderAsContainer Pass <code>true</code> to make the folder a 
 	 * 							container e.g. a dataset, <code>false</code>
 	 * 							otherwise.
 	 */
-	public ImportableFile(File file, boolean archived,
-			boolean folderAsContainer)
+	public ImportableFile(File file, boolean folderAsContainer)
 	{
 		this.file = file;
-		this.archived = archived;
 		this.folderAsContainer = folderAsContainer;
 	}
 	
@@ -147,14 +128,6 @@ public class ImportableFile
 	 * @return See above.
 	 */
 	public File getFile() { return file; }
-	
-	/**
-	 * Returns <code>true</code> if the images have to be archived, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isArchived() { return archived; }
 	
 	/**
 	 * Returns <code>true</code> to make the folder a container e.g. a dataset, 
@@ -220,7 +193,7 @@ public class ImportableFile
 	 */
 	public ImportableFile copy()
 	{
-		ImportableFile newObject = new ImportableFile(this.file, this.archived,
+		ImportableFile newObject = new ImportableFile(this.file,
 				this.folderAsContainer);
 		newObject.dataset = this.dataset;
 		newObject.parent = this.parent;
