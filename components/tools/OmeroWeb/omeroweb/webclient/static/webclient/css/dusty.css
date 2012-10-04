@@ -894,6 +894,7 @@ button::-moz-focus-inner {
 		border-radius:50px;
 		border:solid 1px hsl(215,15%,30%);
 		border-top:solid 1px hsl(215,15%,18%);
+		border-color: #727F8C #9199A0 #9199A0;
 		padding: .2em .5em;
 		font-size:1.2em;
 		color:#333;
