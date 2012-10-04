@@ -38,51 +38,50 @@ import omero.model.OriginalFileI;
 
 /**
  * To prevent frequently re-calculating paths and re-creating File objects,
- * {@link PathCheck} objects store various interpretations of paths that
+ * {@link CheckedPath} objects store various interpretations of paths that
  * are passed in by users. One of these objects should be created at the
  * very beginning of any {@link PublicRepositoryI} remote method (i.e. those
  * public methods which take {@link Ice.Current} instance arguments. Methods
- * are then available to check various capabilities by the current user.
+ * are then available to check various capabilities by the current user. When
+ * a null {@link CheckedPath} object is passed into the constructor the caller
+ * indicates that the path is the root path, hence {@link CheckedPath#isRoot}
+ * will not be called.
  */
-public class PathCheck {
-
-    protected final Executor ex;
-    protected final Ice.Current curr;
-    protected final String normRootSlash;
-    protected final File root;
-    protected final String normRoot;
+public class CheckedPath {
 
     public final String original;
     public final String normPath;
     public final File file;
     public final boolean isRoot;
+    protected final CheckedPath root;
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
     protected String sha1;
     protected String mime;
 
-    public PathCheck(Executor ex, Ice.Current curr, String path,
-            String normRoot, String normRootSlash, File root)
+    public CheckedPath(CheckedPath root, String path)
             throws ValidationException {
 
         path = validate(path);
 
-        this.ex = ex;
-        this.curr = curr;
         this.original = path;
         this.normPath = FilenameUtils.normalizeNoEndSeparator(path);
-        this.normRoot = normRoot;
-        this.normRootSlash = normRootSlash;
         this.root = root;
 
-        this.isRoot = isRoot();
-        if (this.isRoot) {
-            this.file = root;
-        }
-        else {
-            checkWithin();
+        if (this.root == null) {
             this.file = new File(normPath);
+            this.isRoot = true;
+        } else {
+            this.isRoot = isRoot();
+
+            if (this.isRoot) {
+                this.file = root.file;
+            }
+            else {
+                checkWithin();
+                this.file = new File(normPath);
+            }
         }
     }
 
@@ -103,7 +102,7 @@ public class PathCheck {
      * Used during constructor to prevent unnecessary object creation.
      */
     protected boolean isRoot() {
-        return normPath.equals(normRoot);
+        return normPath.equals(root.normPath);
     }
 
     /**
@@ -115,10 +114,11 @@ public class PathCheck {
         // But for the moment checking based on regionMatches with
         // case-sensitivity. Note we check against normRootSlash so that
         // two similar directories at the top-level can't cause issues.
-        if (!normPath.regionMatches(false, 0, normRootSlash, 0,
-                normRootSlash.length())) {
+        final String rootNormSlash = this.root.normPath + File.separator;
+        if (!normPath.regionMatches(false, 0, rootNormSlash, 0,
+                rootNormSlash.length())) {
             throw new ValidationException(null, null, normPath
-                    + " is not within " + normRootSlash);
+                    + " is not within " + rootNormSlash);
         }
     }
 
@@ -150,13 +150,12 @@ public class PathCheck {
     //
 
     /**
-     * Returns a new {@link PathCheck} using {@link File#getParent()} and
+     * Returns a new {@link CheckedPath} using {@link File#getParent()} and
      * passing in all other values. Just as if calling the constructor,
      * bad paths will cause a {@link ValidationException} to be thrown.
      */
-    public PathCheck parent() throws ValidationException {
-        return new PathCheck(ex, curr, file.getParent(), normRoot,
-                normRootSlash, root);
+    public CheckedPath parent() throws ValidationException {
+        return new CheckedPath(root, file.getParent());
     }
 
     /**
@@ -166,7 +165,7 @@ public class PathCheck {
      * @return this instance for chaining.
      * @throws ValidationException
      */
-    PathCheck mustExist() throws ValidationException {
+    public CheckedPath mustExist() throws ValidationException {
         if (!file.exists()) {
             throw new ValidationException(null, null, original
                     + " does not exist");
@@ -182,7 +181,7 @@ public class PathCheck {
      * @return this instance for chaining
      * @throws omero.SecurityViolation
      */
-    public PathCheck mustEdit() throws omero.SecurityViolation {
+    public CheckedPath mustEdit() throws omero.SecurityViolation {
         if (!canEdit()) {
             throw new omero.SecurityViolation(null, null,
                     original + " is not editable.");
@@ -194,7 +193,11 @@ public class PathCheck {
         return true;
     }
 
-    public PathCheck mustDB() {
+    public boolean isDirectory() {
+        return this.file.isDirectory();
+    }
+
+    public CheckedPath mustDB() {
         return this;
     }
 
@@ -230,7 +233,7 @@ public class PathCheck {
 
     protected String getRelativePath(File f) {
         String path = f.getParent()
-                .substring(root.getAbsolutePath().length(), f.getParent().length());
+                .substring(root.file.getAbsolutePath().length(), f.getParent().length());
         // The parent doesn't contain a trailing slash.
         path = path + "/";
         return path;

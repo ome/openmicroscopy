@@ -204,7 +204,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * (an option here would be to create the dir if it doesn't exist??)
      */
     public List<String> getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
-        String repoPath = root.getAbsolutePath(); // root includes MRP
+        String repoPath = root.file.getAbsolutePath(); // root includes MRP
         String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
         for (String path : paths)
         {

@@ -87,11 +87,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     private /*final*/ long id;
 
-    protected /*final*/ File root;
-
-    protected /*final*/ String normRoot;
-
-    protected /*final*/ String normRootSlash;
+    protected /*final*/ CheckedPath root;
 
     protected final Executor executor;
 
@@ -112,9 +108,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      */
     public void initialize(FileMaker fileMaker, Long id, String repoUuid) throws ValidationException {
         this.id = id;
-        this.root = new File(fileMaker.getDir()).getAbsoluteFile();
-        this.normRoot = FilenameUtils.normalizeNoEndSeparator(root.getAbsolutePath());
-        this.normRootSlash = this.normRoot + File.separator;
+        this.root = new CheckedPath(null, fileMaker.getDir());
         if (root == null || !root.isDirectory()) {
             throw new ValidationException(null, null,
                     "Root directory must be a existing, readable directory.");
@@ -190,7 +184,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public OriginalFile register(String path, omero.RString mimetype, Current __current)
             throws ServerError {
 
-        PathCheck check = checkPath(path, __current);
+        CheckedPath check = checkPath(path, __current);
         OriginalFile omeroFile = check.createOriginalFile(mimetype);
 
         IceMapper mapper = new IceMapper();
@@ -217,7 +211,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
     public List<String> deleteFiles(String[] files, Current __current) throws ServerError {
         List<String> undeleted = new ArrayList<String>();
         for (String path : files) {
-            PathCheck check = checkPath(path, __current).mustEdit();
+            CheckedPath check = checkPath(path, __current).mustEdit();
             boolean deleted = check.delete();
             if (!deleted) {
                 undeleted.add(path);
@@ -333,7 +327,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
     }
 
     public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
-        PathCheck check = checkPath(path, __current);
+        CheckedPath check = checkPath(path, __current);
         return createRepoRFS(check.file, mode, null, __current);
     }
 
@@ -440,17 +434,17 @@ public class PublicRepositoryI implements _RepositoryOperations {
     //
 
     /**
-     * Create a new {@link PathCheck} object based on the given user input.
+     * Create a new {@link CheckedPath} object based on the given user input.
      * This method is included to allow subclasses a change to introduce their
-     * own {@link PathCheck} implementations.
+     * own {@link CheckedPath} implementations.
      *
      * @param path
      *            A path on a repository.
      *
      */
-    protected PathCheck checkPath(final String path, final Ice.Current curr)
+    protected CheckedPath checkPath(final String path, final Ice.Current curr)
             throws ValidationException {
-        return new PathCheck(executor, curr, path, normRoot, normRootSlash, root);
+        return new CheckedPath(root, path);
     }
 
     /**
@@ -473,7 +467,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
                         return null;
                     }
 
-                    return new File(root, path);
+                    return new File(root.file, path);
             }
         });
     }
