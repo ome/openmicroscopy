@@ -150,7 +150,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         final Ice.ObjectPrx prx = sf.getAdapter().createProxy(
                 Ice.Util.stringToIdentity("PublicRepository-" + repo));
         final RepositoryPrx repoPrx = RepositoryPrxHelper.checkedCast(prx);
-        final RawFileStorePrx rfsPrx = repoPrx.file(fileId, adjustedCtx);
+        final RawFileStorePrx rfsPrx = repoPrx.fileById(fileId, adjustedCtx);
         OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
         ops.setApplicationContext(ctx);
         tie.ice_delegate(ops);

@@ -324,47 +324,54 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     return null;
                 }
 
-                Pixels pixels = sf.getQueryService().get(
-                        Pixels.class, pixelsId);
-                Format format = pixels.getImage().getFormat();
-                List<OriginalFile> files = pixels.linkedOriginalFileList();
-                if (files == null || files.size() == 0)
+                File targetFile;
+                if (params.containsKey("target")) {
+                    targetFile = new File(params.get("target"));
+                } else
                 {
-                    throw new ResourceError(String.format(
-                            "Pixels:%d has no linked original files!",
-                            pixelsId));
-                }
-                OriginalFile source = null;
-                for (OriginalFile file : files)
-                {
-                    if (file.getMimetype().equals(format.getValue()))
+                    Pixels pixels = sf.getQueryService().get(
+                            Pixels.class, pixelsId);
+                    Format format = pixels.getImage().getFormat();
+                    List<OriginalFile> files = pixels.linkedOriginalFileList();
+                    if (files == null || files.size() == 0)
                     {
-                        if (source != null)
-                        {
-                            throw new ResourceError(String.format(
-                                    "Pixels:%d has at least two source " +
-                                    "original files %d and %d", pixelsId,
-                                    source.getId(), file.getId()));
-                        }
-                        source = file;
+                        throw new ResourceError(String.format(
+                                "Pixels:%d has no linked original files!",
+                                pixelsId));
                     }
+                    OriginalFile source = null;
+                    for (OriginalFile file : files)
+                    {
+                        if (file.getMimetype().equals(format.getValue()))
+                        {
+                            if (source != null)
+                            {
+                                throw new ResourceError(String.format(
+                                        "Pixels:%d has at least two source " +
+                                        "original files %d and %d", pixelsId,
+                                        source.getId(), file.getId()));
+                            }
+                            source = file;
+                        }
+                    }
+                    targetFile = new File(filesService.getFilesPath(source.getId()));
                 }
-                File file = new File(filesService.getFilesPath(source.getId()));
+
                 // We need to perform a case insensitive replacement due to the
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
                 Pattern p = Pattern.compile(
                         Pattern.quote(omeroDataDir), Pattern.CASE_INSENSITIVE);
-                String parent = file.getParent();
+                String parent = targetFile.getParent();
                 if (log.isDebugEnabled())
                 {
                     log.debug(String.format(
                             "omero.data.dir: '%s' file.absolutePath: '%s' " +
                             "parent: '%s'", omeroDataDir,
-                            file.getAbsolutePath(), parent));
+                            targetFile.getAbsolutePath(), parent));
                 }
                 String path = p.matcher(parent).replaceFirst("");
-                sql.setPixelsNamePathRepo(pixelsId, file.getName(),
+                sql.setPixelsNamePathRepo(pixelsId, targetFile.getName(),
                                           path, null);
                 return null;
             }

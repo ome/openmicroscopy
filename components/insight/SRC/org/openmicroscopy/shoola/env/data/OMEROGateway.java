@@ -6236,34 +6236,39 @@ class OMEROGateway
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
 	 * @param name		The name to give to the imported image.
-	 * @param archived  Pass <code>true</code> if the image has to be archived,
-	 * 					<code>false</code> otherwise.
-     * @param Pass <code>true</code> to close the import,
+	 * @param usedFiles The files returned composing the import.
+     * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(SecurityContext ctx, ImportableObject object,
-			IObject container, File file, StatusLabel status, boolean archived,
-			boolean close)
+			IObject container, ImportContainer ic, StatusLabel status,
+			boolean close, boolean hcs)
 		throws ImportException
 	{
 		isSessionAlive(ctx);
 		OMEROMetadataStoreClient omsc = null;
 		try {
 			omsc = getImportStore(ctx);
+			ImportConfig config = new ImportConfig();
 			ImportLibrary library = new ImportLibrary(omsc,
-					new OMEROWrapper(new ImportConfig()));
+					new OMEROWrapper(config));
 			library.addObserver(status);
+			/*
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					archived, object.getPixelsSize(), null, null, null);
+					false, object.getPixelsSize(), null, usedFiles, null);
+					*/
+			ic.setTarget(container);
+			ic.setUserPixels(object.getPixelsSize());
 			ic.setUseMetadataFile(true);
+			/*
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
-			}
-			
+			}*/
+			//library.importCandidates(new ImportConfig(), c);
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
@@ -6279,7 +6284,7 @@ class OMEROGateway
 				//if (isLargeImage(p)) {
 					//return new ThumbnailData(getImage(id, params), true);
 				//}
-				if (ImportableObject.isHCSFile(file)) {
+				if (hcs) {
 					PlateData plate = getImportedPlate(ctx, id);
 					if (plate != null) return plate;
 					return getImage(ctx, id, params);
