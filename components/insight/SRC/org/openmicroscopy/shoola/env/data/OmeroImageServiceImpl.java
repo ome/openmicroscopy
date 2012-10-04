@@ -222,7 +222,7 @@ class OmeroImageServiceImpl
 						}
 						label.setFile(file, converted);
 					} else label.setFile(file, result);
-				} catch (ImportException e) {
+				} catch (Exception e) {
 					label.setFile(file, e);
 				}
 			}
@@ -1031,7 +1031,7 @@ class OmeroImageServiceImpl
 	 */
 	public Object importFile(ImportableObject object,
 		ImportableFile importable, long userID, boolean close) 
-		throws ImportException
+		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
