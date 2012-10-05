@@ -34,27 +34,12 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
-
-import ome.api.local.LocalAdmin;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.util.RegisterServantMessage;
-import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Principal;
-import ome.system.ServiceFactory;
-
 import omero.InternalException;
 import omero.ServerError;
 import omero.ValidationException;
@@ -70,13 +55,25 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import Ice.Current;
+
 /**
  * An implementation of he PublicRepository interface
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class PublicRepositoryI implements _RepositoryOperations {
+public class PublicRepositoryI implements _RepositoryOperations, ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 
@@ -89,15 +86,18 @@ public class PublicRepositoryI implements _RepositoryOperations {
 
     protected /*final*/ CheckedPath root;
 
-    protected final Executor executor;
+//    protected final Executor executor;
 
-    protected final Principal principal;
+//    protected final Principal principal;
+
+    protected final RepositoryDao repositoryDao;
+
+    protected OmeroContext context;
 
     private String repoUuid;
 
-    public PublicRepositoryI(Executor executor, Principal principal) throws Exception {
-        this.executor = executor;
-        this.principal = principal;
+    public PublicRepositoryI(RepositoryDao repositoryDao) throws Exception {
+        this.repositoryDao = repositoryDao;
         this.repoUuid = null;
     }
 
@@ -129,16 +129,8 @@ public class PublicRepositoryI implements _RepositoryOperations {
     // OriginalFile-based Interface methods
     //
 
-    public OriginalFile root(Current __current) throws ServerError {
-       final long repoId = this.id;
-       ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-           .execute(principal, new Executor.SimpleWork(this, "root") {
-               @Transactional(readOnly = true)
-               public Object doWork(Session session, ServiceFactory sf) {
-                   return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
-               }
-           });
-       return (OriginalFileI) new IceMapper().map(oFile);
+    public OriginalFile root(Current __current) {
+       return this.repositoryDao.getOriginalFile(this.id);
     }
 
     //
@@ -181,27 +173,12 @@ public class PublicRepositoryI implements _RepositoryOperations {
      * @return The OriginalFile with id set (unloaded)
      *
      */
-    public OriginalFile register(String path, omero.RString mimetype, Current __current)
+    public OriginalFile register(String path, omero.RString mimetype,
+            Current __current)
             throws ServerError {
-
-        CheckedPath check = checkPath(path, __current);
-        OriginalFile omeroFile = check.createOriginalFile(mimetype);
-
-        IceMapper mapper = new IceMapper();
-        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
-                .reverse(omeroFile);
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "register", path) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
-            }
-        });
-
-        omeroFile.setId(rlong(id));
-        omeroFile.unload();
-        return omeroFile;
-
+        CheckedPath checkedPath = checkPath(path, __current);
+        OriginalFile omeroFile = checkedPath.createOriginalFile(mimetype);
+        return this.repositoryDao.register(omeroFile, mimetype, __current);
     }
 
     public boolean delete(String path, Current __current) throws ServerError {
@@ -309,7 +286,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
         _RawPixelsStoreTie tie = new _RawPixelsStoreTie(rps);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
-            this.executor.getContext().publishMessage(msg);
+            this.context.publishMessage(msg);
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
@@ -372,7 +349,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
             } else {
                 rfs = new RepoRawFileStoreI(fileId, file);
             }
-            rfs.setApplicationContext(executor.getContext());
+            rfs.setApplicationContext(this.context);
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
@@ -389,7 +366,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
         final _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
         final RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
-            this.executor.getContext().publishMessage(msg);
+            this.context.publishMessage(msg);
             rfs.setHolder(msg.getHolder());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
@@ -433,6 +410,13 @@ public class PublicRepositoryI implements _RepositoryOperations {
     //
     //
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.context = (OmeroContext) applicationContext;
+
+    }
+
     /**
      * Create a new {@link CheckedPath} object based on the given user input.
      * This method is included to allow subclasses a change to introduce their
@@ -457,19 +441,7 @@ public class PublicRepositoryI implements _RepositoryOperations {
      *
      */
     private File getFile(final long id, final Principal currentUser) {
-        return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                    String path = getSqlAction().findRepoFilePath(
-                            repoUuid, id);
-
-                    if (path == null) {
-                        return null;
-                    }
-
-                    return new File(root.file, path);
-            }
-        });
+        return this.repositoryDao.getFile(id, currentUser, this.repoUuid, this.root);
     }
 
     // Utility function for passing stack traces back in exceptions.
@@ -484,12 +456,6 @@ public class PublicRepositoryI implements _RepositoryOperations {
     }
 
     protected EventContext currentContext(Current __current) {
-        return (EventContext) executor.execute(currentUser(__current),
-                new Executor.SimpleWork(this, "getEventContext") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
-            }
-        });
+        return this.repositoryDao.currentContext(currentUser(__current));
     }
 }
