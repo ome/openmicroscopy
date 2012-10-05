@@ -55,7 +55,7 @@
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
-            $("#dataIcons li").click(function(event) {
+            $("#dataIcons li.row").click(function(event) {
                 handleClickSelection(event);
             });
             
@@ -243,6 +243,12 @@
             });
             $("#filtersearch label").inFieldLabels();
 
+            // simple emulation of table-sorter for other elements...
+            $(".element_sorter").elementsorter({
+                head: '.thead div',             // Selector for the equivalent of 'table head'
+                body: 'li.row',                 // Selector for the equivalent of 'table rows'
+                sort_key: '.hidden_sort_text'   // optional - how to find the text within each child of a 'row'.
+            });
         });
 
     </script>
@@ -288,21 +294,24 @@
 {% if manager.containers.images %}
 
     
-    <ul id="dataIcons" class="tablesorter iconLayout">
+    <ul id="dataIcons" class="element_sorter iconLayout">
         <li class="thead"> 
-            <div>{% trans "Images" %}</div> 
-            <div>{% trans "Name" %}</div> 
-            <div>{% trans "Date" %}</div> 
-            <div>{% trans "Size X" %}</div> 
-            <div>{% trans "Size Y" %}</div> 
+            <div></div> 
+            <div class='sort-alpha'>{% trans "Name" %}</div> 
+            <div class='sort-date'>{% trans "Date" %}</div> 
+            <div class='sort-numeric'>{% trans "Size X" %}</div> 
+            <div class='sort-numeric'>{% trans "Size Y" %}</div> 
         </li>
         {% for c in manager.containers.images %}
-            <li id="image_row-{{ c.id }}">
+            <li class='row' id="image_row-{{ c.id }}">
                 <div class="image" title="{{ c.name }}">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
-                <div class="desc" valign="middle">{{ c.name|truncatebefor:"65" }}</div>
-                <div class="date" valign="middle">{{ c.getDate }}</div>                    
+                <div class="desc" valign="middle">
+                    {{ c.name|truncatebefor:"65" }}
+                    <span class="hidden_sort_text">{{ c.name }}</span>
+                </div>
+                <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }}</div>                    
                 <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
                 <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
             </li>

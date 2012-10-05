@@ -1494,6 +1494,24 @@
     .tableLayout li:nth-child(2n) {
         background-color: #EFEFF0;
     }
+    .tableLayout li.thead {
+        height: 30px;
+    }
+    .element_sorter .clickable {
+        cursor: pointer;
+        background: url("../image/table_arrow_up_down.png") no-repeat scroll center left transparent;
+        padding:10px;
+        padding-left:20px;
+    }
+    .element_sorter .sorted-desc {
+        background: url("../image/table_arrow_up.png") no-repeat scroll center left transparent;
+    }
+    .element_sorter .sorted-asc {
+        background: url("../image/table_arrow_down.png") no-repeat scroll center left transparent;
+    }
+    .element_sorter .hidden_sort_text {
+        display: none;
+    }
 
     .iconLayout li {
         display: inline-block;
