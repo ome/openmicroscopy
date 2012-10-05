@@ -83,10 +83,47 @@
                     datatree.select_node(parent_id);
                     datatree.refresh(parent_id);
                 } else {
-                    // tree handles control/shift clicks for multi-select
-                    datatree.select_node(toSelect, true, event);
-                    deselectFilteredFromTree();     // in case shift-click selected filtered images
+                    // manually add ui-selected class to range of icons etc
+                    highlightClickedIcons(event, $li);
+                    // finally, apply all the changes to the tree
+                    syncTreeSelection();
                     return false;
+                }
+            }
+
+            var highlightClickedIcons = function(event, $clickedRow) {
+
+                var $rows = $("#dataIcons li.row:visible");
+                var selIndex = $rows.index($clickedRow);
+                var primaryIndex = -1;
+                var lastSelected = datatree.data.ui.last_selected;
+                if (lastSelected && (lastSelected.length > 0)) {
+                    var img_id = lastSelected.attr('id').split('-')[1];
+                    var $row = $('#image_row-'+ img_id);
+                    primaryIndex = $rows.index($row);
+                }
+                if (event.shiftKey) {
+                    // user tried to select a range, but we don't have a first selection yet...
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                        $clickedRow.addClass("ui-selected");
+                        return;
+                    }
+                    // select range
+                    var start = Math.min(primaryIndex,selIndex);
+                    var end = Math.max(primaryIndex,selIndex);
+                    $rows.slice(start, end+1).addClass("ui-selected");
+                } else if (event.metaKey) {
+                    // user wants to add/remove a single image to selection
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                    }
+                    $clickedRow.toggleClass("ui-selected");
+                } else {
+                    // regular click - remove selection
+                    $rows.removeClass("ui-selected");
+                    $clickedRow.addClass("ui-selected");
+                    primaryIndex = selIndex;
                 }
             }
 
