@@ -301,6 +301,7 @@
             <div class='sort-date'>{% trans "Date" %}</div> 
             <div class='sort-numeric'>{% trans "Size X" %}</div> 
             <div class='sort-numeric'>{% trans "Size Y" %}</div> 
+            <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
             <li class='row' id="image_row-{{ c.id }}">
@@ -314,6 +315,7 @@
                 <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }}</div>                    
                 <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
                 <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
+                <div class="sizeZ" valign="middle">{{ c.getSizeZ }}</div>
             </li>
         {% endfor %}
     </ul>

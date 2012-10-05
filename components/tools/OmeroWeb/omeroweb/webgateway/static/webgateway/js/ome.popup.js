@@ -508,7 +508,6 @@ var login_dialog = function(login_url, callback) {
                                 $.each(rows, function(index, row) {
                                     var $cell = $(row).children().eq(column);
                                     row.sortKey = findSortKey($cell);
-                                    console.log(row.sortKey);
                                 });
                                 // Do the sorting...
                                 rows.sort(function(a, b){
