@@ -433,3 +433,136 @@ var login_dialog = function(login_url, callback) {
     };
 
 })(jQuery);
+
+
+// jQuery plugin: simple emulation of table-sorter for other elements...
+// Based on code from 'Learning jQuery 1.3 http://book.learningjquery.com/'
+// Called on an element that resembles a table.
+// Example usage:
+//$(".element_sorter").elementsorter({
+//    head: '.thead div',             // Selector for the equivalent of 'table head'
+//    body: 'li.row',                 // Selector for the equivalent of 'table rows'
+//    sort_key: '.hidden_sort_text'   // optional - how to find the text within each child of a 'row'.
+//});
+(function ($) {
+
+    "use strict";
+
+    var methods = {
+
+    // initialise the plugin
+    init : function (options) {
+
+        if (!options.head || !options.body) {
+            return;
+        }
+
+        return this.each(function(){
+            var $this = $(this),
+                data = $this.data('elementsorter');
+
+            // If the plugin hasn't been initialized yet
+            if ( ! data ) {
+
+                data = options;     // save for later ref (E.g. destroy())
+                
+                var $headers = $(options.head, $this);
+                // for each 'column'...
+                $headers.each(function(column) {
+                    var $header = $(this),
+                        findSortKey;
+                    var findSortText = function($cell) {
+                        if (options.sort_key) {
+                            if ($(options.sort_key, $cell).length > 0) {
+                                return $(options.sort_key, $cell).text();
+                            }
+                        }
+                        return $cell.text();
+                    }
+                    if ($header.is('.sort-alpha')) {
+                        findSortKey = function($cell) {
+                            return findSortText($cell).toUpperCase();
+                        };
+                    } else if ($header.is('.sort-numeric')) {
+                        findSortKey = function($cell) {
+                            var key = findSortText($cell).replace(/^[^\d.]*/, '');
+                            key = parseFloat(key);
+                            return isNaN(key) ? 0 : key;
+                        };
+                    } else if ($header.is('.sort-date')) {
+                        findSortKey = function($cell) {
+                            var date = Date.parse(findSortText($cell));
+                            return isNaN(date) ? 0 : date;
+                        }
+                    }
+                    if (findSortKey) {
+                        $header
+                            .addClass('clickable')
+                            .click(function() {
+                                var sortDirection = 1;
+                                if ($header.is('.sorted-asc')) {
+                                    sortDirection = -1;
+                                }
+                                var rows = $(options.body, $this).get();
+                                // populate each row with current sort key
+                                $.each(rows, function(index, row) {
+                                    var $cell = $(row).children().eq(column);
+                                    row.sortKey = findSortKey($cell);
+                                    console.log(row.sortKey);
+                                });
+                                // Do the sorting...
+                                rows.sort(function(a, b){
+                                    if (a.sortKey < b.sortKey) return -sortDirection;
+                                    if (a.sortKey > b.sortKey) return sortDirection;
+                                    return 0;
+                                });
+                                // add rows to DOM in order
+                                $.each(rows, function(index, row) {
+                                    $this.append(row);
+                                    row.sortKey = null;
+                                });
+                                // clear classes from other headers
+                                $headers.removeClass('sorted-asc')
+                                    .removeClass('sorted-desc');
+                                if (sortDirection == 1) {
+                                    $header.addClass('sorted-asc');
+                                } else {
+                                    $header.addClass('sorted-desc');
+                                }
+                            });
+                    }
+                });
+
+                $this.data('elementsorter', data);
+                
+            }
+        });
+    },
+
+    destroy: function() {
+        
+        return this.each(function(){
+            var $this = $(this),
+                data = $this.data('elementsorter');
+
+            // all we need to do is remove the click handlers from headers
+            var $headers = $(data.head, $this);
+        });
+    }
+
+    };
+
+
+    // the plugin definition: either we init or we're calling a named method.
+    $.fn.elementsorter = function( method ) {
+
+        if ( methods[method] ) {
+          return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+        }
+        if ( typeof method === 'object' || ! method ) {
+          return methods.init.apply( this, arguments );
+        }
+        $.error( 'Method ' +  method + ' does not exist on jQuery.src_loader' );
+    };
+
+}(jQuery));
