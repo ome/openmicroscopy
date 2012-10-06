@@ -43,12 +43,15 @@ More info:
   /*** Globals ***/
   // To ignore any custom global variables, enable the `predef` option and list
   // your variables within it.
-  /*
+
   "predef": [
-    "myGlobalVar1",
-    "myGlobalVar2"
+    "InfoControl",
+    "BisqueISPyramid",
+    "PanoJS",
+    "ROIControl",
+    "jQuery"
   ],
-  */
+
 
   /*** Enforcing options ***/
   // Set these to `true` to enforce, or `false` to relax.
@@ -92,7 +95,7 @@ More info:
   "scripturl":    false,
   "shadow":       true,
   "smarttabs":    true,
-  "sub":          false,
+  "sub":          true,         // don't enforce dot notation
   "supernew":     false,
   "validthis":    true,
 
