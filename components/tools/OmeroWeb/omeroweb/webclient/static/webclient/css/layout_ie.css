@@ -160,7 +160,6 @@
         border-bottom: solid 1px #CFDAE6;
 		border-right:solid 1px #C3CED9;
         overflow:hidden;
-		top:1px;
 		position:relative;
     }
 	
@@ -726,42 +725,19 @@
 
     
     /* Thumbnails */
- 
-
-        #dataIcons li {
-			
-            background-color:#F2F2F2;
-			
-			-webkit-border-radius:2px; /* Saf3+, Chrome */
-			   -moz-border-radius:2px; /* FF1+ */
-			        border-radius:2px; /* Opera 10.5, IE 9 */ 
-			
-			
-			-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-			   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-			        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-			
-            border:solid 1px white; 
-        }
-
 
 
             #dataIcons .ui-selecting {  
                 background-color: #E6E6E6;
             }
-    
-            #dataIcons .ui-selected { 
-                background-color:#9FB3C7;
-               
-			    border:solid 1px #8FA1B3;
-         
-				
-				-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-				   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-				        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-				
+
+            #dataIcons .ui-selected {
+                background-color: #BBC6D2;
+                border: 1px solid #A3B2C1;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
             }
-        
+
+
 
 
 
