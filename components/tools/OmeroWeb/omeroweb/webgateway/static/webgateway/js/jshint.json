@@ -45,10 +45,6 @@ More info:
   // your variables within it.
 
   "predef": [
-    "InfoControl",
-    "BisqueISPyramid",
-    "PanoJS",
-    "ROIControl",
     "jQuery"
   ],
 
