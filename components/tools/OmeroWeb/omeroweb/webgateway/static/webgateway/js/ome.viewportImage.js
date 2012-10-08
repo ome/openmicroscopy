@@ -13,6 +13,8 @@
  *
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
+ 
+ /*global InfoControl:true BisqueISPyramid:true PanoJS:true ROIControl:true */
 
 jQuery.fn.viewportImage = function(options) {
   return this.each(function(){
