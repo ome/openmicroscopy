@@ -19,6 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
+/**
+ * DAO class for encapsulating operations related to resource access inside the
+ * repository. Methods return types already mapped from Ice. DAO is also used
+ * in the form of a mock in unit tests.
+ *
+ * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
+ * @since 4.5
+ */
 public class RepositoryDao {
 
     protected final Principal principal;
