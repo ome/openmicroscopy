@@ -25,6 +25,11 @@
       <constructor-arg index="2" value="Internal"/>
   </bean>
 
+  <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDao">
+    <constructor-arg ref="repoPrincipal"/>
+    <constructor-arg ref="executor"/>
+  </bean>
+
   <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
