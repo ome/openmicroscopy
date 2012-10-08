@@ -23,12 +23,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Ice.Current;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
@@ -38,7 +32,6 @@ import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
-
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
@@ -46,6 +39,12 @@ import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Ice.Current;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -70,7 +69,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     public ManagedRepositoryI(String template, Executor executor,
             Principal principal, Registry reg) throws Exception {
-        super(executor, principal);
+        //super(executor, principal);
+        super(new RepositoryDao(principal, executor));
         this.reg = reg;
         this.template = template;
         log.info("Repository template: " + this.template);
@@ -327,7 +327,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     protected OriginalFile createUserDirectory(String basePath) {
-        crea
+        return null;
     }
 
 }
