@@ -86,10 +86,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected /*final*/ CheckedPath root;
 
-//    protected final Executor executor;
-
-//    protected final Principal principal;
-
     protected final RepositoryDao repositoryDao;
 
     protected OmeroContext context;
