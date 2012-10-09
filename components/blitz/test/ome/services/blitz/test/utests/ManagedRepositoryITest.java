@@ -1,6 +1,7 @@
 package ome.services.blitz.test.utests;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import ome.system.Principal;
 import omero.grid.Import;
 import omero.util.TempFileManager;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.BeforeClass;
@@ -65,29 +67,35 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
                 null, this.reg);
     }
 
+    private String getSuggestion(String base, String...paths) {
+        Import i = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
+                "template", base, Arrays.asList(paths));
+        return new File(i.sharedPath).getName();
+    }
+
     @Test
     public void testSuggestOnConflictPassesWithNonconflictingPaths() {
         new File(this.tmpDir, "/my/path");
         String expectedBasePath = "path";
-        String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/my/path", Arrays.asList("/my/path/foo", "/my/path/bar")).sharedPath;
+        String suggestedBasePath = getSuggestion("/my/path", "/my/path/foo", "/my/path/bar");
+
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
     @Test
-    public void testSuggestOnConflictReturnsNewPathOnConflict() {
-        new File(this.tmpDir, "/upload");
+    public void testSuggestOnConflictReturnsNewPathOnConflict() throws IOException {
+        File upload = new File(this.tmpDir, "/upload");
+        upload.mkdirs();
+        FileUtils.touch(new File(upload, "foo"));
         String expectedBasePath = "upload-1";
-        String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/upload", Arrays.asList("/upload/foo", "/upload/bar")).sharedPath;
+        String suggestedBasePath = getSuggestion("/upload", "/upload/foo", "/upload/bar");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
     @Test
     public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() {
         String expectedBasePath = "upload";
-        String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/upload", new ArrayList<String> ()).sharedPath;
+        String suggestedBasePath = getSuggestion("/upload");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 

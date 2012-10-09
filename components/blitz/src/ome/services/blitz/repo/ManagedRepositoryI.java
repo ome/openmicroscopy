@@ -341,7 +341,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String[] parts = splitLastElement(basePath);
         final String nonEndPart = parts[0];
         final String uniquePathElement = parts[1];
-        final String upToLast = concat(trueRoot, nonEndPart);
+        final File upToLast = new File(trueRoot, nonEndPart);
 
         String endPart = uniquePathElement;
         boolean clashes = false;
@@ -364,6 +364,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         Import data = new Import();
         data.usedFiles = new ArrayList<String>(paths.size());
+        data.sharedPath = concat(nonEndPart, endPart);
         return data;
 
     }
