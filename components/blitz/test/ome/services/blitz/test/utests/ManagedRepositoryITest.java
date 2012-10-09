@@ -1,8 +1,10 @@
 package ome.services.blitz.test.utests;
 
 import java.io.File;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -10,7 +12,6 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.util.Executor;
 import ome.system.Principal;
-
 import omero.grid.Import;
 import omero.util.TempFileManager;
 
@@ -47,6 +48,12 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         public String[] splitLastElement(String path) {
             return super.splitLastElement(path);
         }
+
+        public String getStringFromToken(String token, Calendar now,
+                DateFormatSymbols dfs) {
+            return super.getStringFromToken(token, now, dfs);
+        }
+
     }
 
     @BeforeClass
@@ -170,5 +177,59 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         assertEquals(2, rv.length);
         assertEquals("/a/b", rv[0]);
         assertEquals("c", rv[1]);
+    }
+
+    public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
+        String actual = this.tmri.getStringFromToken("", Calendar.getInstance(),
+                DateFormatSymbols.getInstance());
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsTokenOnMalformedToken() {
+        String expected = "foo";
+        String actual = this.tmri.getStringFromToken(expected, Calendar.getInstance(),
+                DateFormatSymbols.getInstance());
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsYear() {
+        String expected = "2012";
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2012);
+        String actual = this.tmri.getStringFromToken("%year%", cal,
+                DateFormatSymbols.getInstance());
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsMonth() {
+        String expected = "10";
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, 11);
+        String actual = this.tmri.getStringFromToken("%month%", cal,
+                DateFormatSymbols.getInstance());
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsMonthName() {
+        String expected = "October";
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, 11);
+        String actual = this.tmri.getStringFromToken("%monthname%", cal,
+                DateFormatSymbols.getInstance());
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsDay() {
+        String expected = "7";
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 7);
+        String actual = this.tmri.getStringFromToken("%day%", cal,
+                DateFormatSymbols.getInstance());
+        Assert.assertEquals(expected, actual);
     }
 }
