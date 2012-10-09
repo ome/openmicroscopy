@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.FilenameUtils;
+import static org.apache.commons.io.FilenameUtils.concat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -104,12 +104,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
-        Import data = suggestOnConflict(root.normPath, relPath, basePath, paths);
-        String path = FilenameUtils.concat(relPath, basePath);
-        String name = FilenameUtils.getName(path);
-        path = FilenameUtils.getPath(path); // omit last bit.
-        data.directory = repositoryDao.createUserDirectory(getRepoUuid(), path,
-                name, currentUser(__current));
+        final Import data = suggestOnConflict(root.normPath, relPath, basePath, paths);
+        final String path = concat(relPath, basePath);
+        final String[] parts = splitLastElement(path);
+        data.directory = repositoryDao.createUserDirectory(getRepoUuid(),
+                parts[0], parts[1], currentUser(__current));
         return data;
     }
 
@@ -253,15 +252,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String commonRoot(List<String> paths) {
-        String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
+        String[] parts = splitLastElement(paths.get(0));
         for (String path : paths)
         {
-            if (!path.startsWith(basePath))
+            if (!path.startsWith(parts[0]))
             {
-                basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
+                parts = splitLastElement(parts[0]);
             }
         }
-        return basePath;
+        return parts[0];
     }
 
     /**
@@ -285,7 +284,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             for (int i = 1; i < subelements.length; i++) {
                 dir = dir + "-" + getStringFromToken(subelements[i], now, dfs);
             }
-            relPath = FilenameUtils.concat(relPath, dir);
+            relPath = concat(relPath, dir);
         }
         return relPath;
     }
@@ -330,9 +329,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected Import suggestOnConflict(String trueRoot, String relPath,
             String basePath, List<String> paths) {
 
-        final String nonEndPart = new File(basePath).getParent();
-        final String upToLast = FilenameUtils.concat(trueRoot, nonEndPart);
-        final String uniquePathElement = FilenameUtils.getName(basePath);
+        final String[] parts = splitLastElement(basePath);
+        final String nonEndPart = parts[0];
+        final String uniquePathElement = parts[1];
+        final String upToLast = concat(trueRoot, nonEndPart);
 
         String endPart = uniquePathElement;
         boolean clashes = false;
@@ -359,4 +359,31 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     }
 
+    /**
+     * Given a path with ending separator or not, this will split everything
+     * after the final slash and store it under index==1 while everything else
+     * will be stored under index==0. If there is no separator at all, "."
+     * will be used for the path value. Therefore, it should be possible to
+     * use {@link #concat()} to rejoin the parts. In the special case of the
+     * root file ("/"), "/" will be returned both for part and name.
+     *
+     * @param path Non-null, preferably normalized path string.
+     * @return A String-array of size 2 with non-null values for path and name.
+     */
+    protected String[] splitLastElement(String normalizedPath) {
+
+        if ("/".equals(normalizedPath)) {
+            return new String[]{"/", "/"}; // EARLY EXIT
+        }
+
+        final String[] rv = new String[2];
+        final File f = new File(normalizedPath);
+        rv[1] = f.getName();
+        if (f.getParentFile() == null) {
+            rv[0] = "."; // i.e. relative to "here"
+        } else {
+            rv[0] = f.getParentFile().toString();
+        }
+        return rv;
+    }
 }

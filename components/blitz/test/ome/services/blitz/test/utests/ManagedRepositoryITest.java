@@ -43,6 +43,10 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             return super.commonRoot(paths);
         }
 
+        @Override
+        public String[] splitLastElement(String path) {
+            return super.splitLastElement(path);
+        }
     }
 
     @BeforeClass
@@ -96,4 +100,75 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
+    @Test
+    public void testSplitLastElementSlash() throws Exception {
+        String[] rv = this.tmri.splitLastElement("/");
+        assertEquals(2, rv.length);
+        assertEquals("/", rv[0]);
+        assertEquals("/", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementEmpty() throws Exception {
+        String[] rv = this.tmri.splitLastElement("");
+        assertEquals(2, rv.length);
+        assertEquals(".", rv[0]);
+        assertEquals("", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementBlank() throws Exception {
+        String[] rv = this.tmri.splitLastElement(" ");
+        assertEquals(2, rv.length);
+        assertEquals(".", rv[0]);
+        assertEquals(" ", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsRelNoFinalSeparator() throws Exception {
+        String[] rv = this.tmri.splitLastElement("a/b");
+        assertEquals(2, rv.length);
+        assertEquals("a", rv[0]);
+        assertEquals("b", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsFinalRelSeparator() throws Exception {
+        String[] rv = this.tmri.splitLastElement("a/b/");
+        assertEquals(2, rv.length);
+        assertEquals("a", rv[0]);
+        assertEquals("b", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsFinalSeparatorRelThree() throws Exception {
+        String[] rv = this.tmri.splitLastElement("a/b/c");
+        assertEquals(2, rv.length);
+        assertEquals("a/b", rv[0]);
+        assertEquals("c", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsAbsNoFinalSeparator() throws Exception {
+        String[] rv = this.tmri.splitLastElement("/a/b");
+        assertEquals(2, rv.length);
+        assertEquals("/a", rv[0]);
+        assertEquals("b", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsFinalAbsSeparator() throws Exception {
+        String[] rv = this.tmri.splitLastElement("/a/b/");
+        assertEquals(2, rv.length);
+        assertEquals("/a", rv[0]);
+        assertEquals("b", rv[1]);
+    }
+
+    @Test
+    public void testSplitLastElementAppendsFinalSeparatorAbsThree() throws Exception {
+        String[] rv = this.tmri.splitLastElement("/a/b/c");
+        assertEquals(2, rv.length);
+        assertEquals("/a/b", rv[0]);
+        assertEquals("c", rv[1]);
+    }
 }
