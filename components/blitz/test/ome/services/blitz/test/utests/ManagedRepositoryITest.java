@@ -207,7 +207,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public void testGetStringFromTokenReturnsMonth() {
         String expected = "10";
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MONTH, 11);
+        cal.set(Calendar.MONTH, Integer.parseInt(expected) - 1);
         String actual = this.tmri.getStringFromToken("%month%", cal,
                 DateFormatSymbols.getInstance());
         Assert.assertEquals(expected, actual);
@@ -217,7 +217,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public void testGetStringFromTokenReturnsMonthName() {
         String expected = "October";
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MONTH, 11);
+        cal.set(Calendar.MONTH, 9);
         String actual = this.tmri.getStringFromToken("%monthname%", cal,
                 DateFormatSymbols.getInstance());
         Assert.assertEquals(expected, actual);
