@@ -195,10 +195,10 @@ class InputServerStrategy
 		Iterator<ShapeData> j;
 		Coord3D c;
 		while (i.hasNext()) {
-			list = (List<ShapeData>) i.next();
+			list = i.next();
 			j = list.iterator();
 			while (j.hasNext()) {
-				shapeData = (ShapeData) j.next();
+				shapeData = j.next();
 				shape = createROIShape(shapeData, newROI, userID);
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(

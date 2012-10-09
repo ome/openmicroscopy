@@ -22,26 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
-import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
-
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 /** 
  * 

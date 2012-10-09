@@ -34,12 +34,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -55,6 +52,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
+
 /** 
  * Selects the groups to add to the display. At least one group must be selected.
  *
@@ -159,7 +157,7 @@ public class GroupManagerDialog
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
 		ViewerSorter sorter = new ViewerSorter();
-		List<GroupData> l = (List<GroupData>) sorter.sort(groups);
+		List<GroupData> l = sorter.sort(groups);
 		groupsTable = new SelectionTable();
 		groupsTable.setGroups(l);
 		List<Long> ids = new ArrayList<Long>(selectedGroups.size());

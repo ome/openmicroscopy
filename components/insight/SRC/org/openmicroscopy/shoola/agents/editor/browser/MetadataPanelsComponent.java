@@ -251,7 +251,7 @@ public class MetadataPanelsComponent
 						null);
 				if (value == null || value.equals(""))
 					value = MetadataUI.DEFAULT_TEXT;
-				((OMETextArea) area).setText((String) value);
+				((OMETextArea) area).setText(value);
 				((OMETextArea) area).setEditedColor(
 						UIUtilities.EDITED_COLOR);
 			}

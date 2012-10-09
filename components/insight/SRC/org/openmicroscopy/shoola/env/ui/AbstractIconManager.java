@@ -181,7 +181,7 @@ public abstract class AbstractIconManager
 			StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
 			buf.append("<classpath>");
 			buf.append(factory.getResourcePathname(name));
-			buf.append(".");
+			buf.append('.');
 			registry.getLogger().error(this, buf.toString());
 		}
 		return icon;
@@ -206,7 +206,7 @@ public abstract class AbstractIconManager
 			StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
 			buf.append("<classpath>");
 			buf.append(factory.getResourcePathname(name));
-			buf.append(".");
+			buf.append('.');
 			registry.getLogger().error(this, buf.toString());
 		}
 		return icon;

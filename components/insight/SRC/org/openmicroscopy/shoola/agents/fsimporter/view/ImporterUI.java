@@ -428,8 +428,8 @@ class ImporterUI
 		//pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension size = getSize();
-		int width = (int) (screenSize.width);//*SCREEN_RATIO);
-		int height = (int) (screenSize.height);//*SCREEN_RATIO);
+		int width = screenSize.width;
+		int height = screenSize.height;
 		int w = size.width-10;
 		int h = size.height-10;
 		boolean reset = false;

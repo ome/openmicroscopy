@@ -773,7 +773,7 @@ public class IconManager
             StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
             buf.append("<classpath>");
             buf.append(factory.getResourcePathname(name));
-            buf.append(".");
+            buf.append('.');
         }
         return icon;
     }
@@ -814,7 +814,7 @@ public class IconManager
             StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
             buf.append("<classpath>");
             buf.append(factory.getResourcePathname(name));
-            buf.append(".");
+            buf.append('.');
         }
         return icon;
     }

@@ -34,7 +34,6 @@ import javax.swing.AbstractAction;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 
 /** 
  * Top class that each action should extend.

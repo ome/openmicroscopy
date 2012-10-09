@@ -439,7 +439,7 @@ public class ROITable
 		{
 			node = (ROINode) root.getChildAt(i);
 			if (node.isExpanded()) 
-				expandROIRow((ROINode) node);
+				expandROIRow(node);
 		}
 	}
 	

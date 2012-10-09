@@ -378,7 +378,7 @@ public class TreeCellRenderer
         	if (node.isToRefresh()) {
         		if (node.isAnnotated())
             		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
-            	else icon = SCREEN_TO_REFRESH_ICON;;
+            	else icon = SCREEN_TO_REFRESH_ICON;
         	} else {
         		if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
             	else icon = SCREEN_ICON;

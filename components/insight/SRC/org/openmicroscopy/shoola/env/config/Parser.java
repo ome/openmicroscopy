@@ -95,14 +95,14 @@ class Parser
         StringBuffer msg = new StringBuffer(
                             "An error occurred while attempting to process ");
         msg.append(configFile);
-        msg.append(".");
+        msg.append('.');
         String explanation = e.getMessage();
         if (explanation != null && explanation.length() != 0) {
             msg.append(" (");
             msg.append(explanation);
-            msg.append(")");    
+            msg.append(')');
         }
-        throw new ConfigException(msg.toString(), e); 
+        throw new ConfigException(msg.toString(), e);
     }
     
     /** 
@@ -163,7 +163,7 @@ class Parser
 			Node node;
 			Entry entry;
             while (i.hasNext()) {
-               node = (Node) i.next();
+               node = i.next();
                entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }

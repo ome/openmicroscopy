@@ -36,8 +36,6 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -117,7 +115,7 @@ public class ROIShape
 			throw new IllegalArgumentException("No Shape specified.");
 		if (parent == null)
 			throw new IllegalArgumentException("No ROI specified.");
-		ROIFigure src = (ROIFigure) shape.getFigure();
+		ROIFigure src = shape.getFigure();
 		if (src == null)
 			throw new IllegalArgumentException("No Figure associated to shape.");
 		this.parent = parent;

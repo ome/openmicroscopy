@@ -639,7 +639,7 @@ class MetadataViewerComponent
 						ex = (Exception) entry.getValue();
 						buf.append(exp.getFirstName()+" "+exp.getLastName());
 						buf.append("\n->"+ex.getMessage());
-						buf.append("\n");
+						buf.append('\n');
 					}
 				}
 				un.notifyInfo("Update experimenters", buf.toString());

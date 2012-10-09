@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-
-
 
 //Third-party libraries
 
@@ -37,7 +34,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
-import pojos.ProjectData;
 
 /** 
  * A concrete Model for a collection of datasets.

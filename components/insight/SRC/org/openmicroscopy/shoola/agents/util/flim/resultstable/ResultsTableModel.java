@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 

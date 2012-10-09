@@ -27,9 +27,6 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 //Third-party libraries
 
 //Application-internal dependencies
-
-import java.util.HashMap;
-
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 

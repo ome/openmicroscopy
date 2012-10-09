@@ -196,7 +196,7 @@ public class AdminCreator
         			while (i.hasNext()) {
         				exp = (ExperimenterData) i.next();
 						s.append(exp.getUserName());
-						s.append("\n");
+						s.append('\n');
 					}
         			StringBuffer buffer = new StringBuffer();
         			buffer.append("Not possible to reset the status of ");

@@ -977,8 +977,7 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() == DISCARDED) return false;
 		//Check if current user can write in object
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		long id = exp.getId();
 		Object ref = model.getRefObject();
 		boolean b = EditorUtil.isUserOwner(ref, id);
@@ -997,8 +996,7 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() == DISCARDED) return false;
 		//Check if current user can write in object
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		long id = exp.getId();
 		Object ref = model.getRefObject();
 		boolean b = EditorUtil.isUserOwner(ref, id);
@@ -1055,8 +1053,7 @@ class MeasurementViewerComponent
 		}
 		//if (l.size() == 0) return;
 		//clear view. and table.
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
+		ExperimenterData exp = MeasurementAgent.getUserDetails();
 		try {
 			List<ROIFigure> figures = model.removeAllROI(exp.getId(), level);
 			if (figures != null) {

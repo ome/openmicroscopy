@@ -203,15 +203,11 @@ class AgentsEntry
 					if (child.getNodeType() == Node.ELEMENT_NODE) {
 						childTags = extractValues(child);
 						info = new AgentInfo();
-						info.setName((String) childTags.get(AGENT_NAME_TAG));
-						info.setAgentClass(
-							(String) childTags.get(AGENT_CLASS_TAG));
-						info.setConfigPath(
-							(String) childTags.get(AGENT_CONFIG_TAG));
-						info.setActive(
-								(String) childTags.get(AGENT_ACTIVE_TAG));
-						info.setNumber(
-								(String) childTags.get(AGENT_NUMBER_TAG));
+						info.setName(childTags.get(AGENT_NAME_TAG));
+						info.setAgentClass(childTags.get(AGENT_CLASS_TAG));
+						info.setConfigPath(childTags.get(AGENT_CONFIG_TAG));
+						info.setActive(childTags.get(AGENT_ACTIVE_TAG));
+						info.setNumber(childTags.get(AGENT_NUMBER_TAG));
 						agentsList.add(info);
 					}		 
 				}

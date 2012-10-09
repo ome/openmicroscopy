@@ -196,7 +196,7 @@ class RatingCanvas
 		Image img;
 		stars.clear();
 		while (i.hasNext()) {
-			img = (Image) i.next();
+			img = i.next();
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));
@@ -206,7 +206,7 @@ class RatingCanvas
 		l = model.getMinus();
 		i = l.iterator();
 		while (i.hasNext()) {
-			img = (Image) i.next();
+			img = i.next();
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));

@@ -261,25 +261,7 @@ public class RectangleTextFigure
 		r.add(getTextBounds());
 		return r;
 	}
-	
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see RectangleFigure#invalidate()
-	 */
-	public void invalidate() 
-	{
-		super.invalidate();
-	}
 
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see RectangleFigure#validate()
-	 */
-	public void validate() 
-	{
-		super.validate();
-	}
-	
 	/**
 	 * Overridden to set the correct tool.
 	 * @see RectangleFigure#getTool(Point2D.Double)

@@ -217,7 +217,7 @@ public class AdminDialog
 						TreeViewerAgent.getRegistry().getUserNotifier();
 					while (i.hasNext()) {
 						entry = i.next();
-						uc = (UserCredentials) entry.getValue();
+						uc = entry.getValue();
 						b = isExistingObject(uc.getUserName(), false);
 						if (!b) {
 							password = uc.getPassword();
@@ -238,7 +238,7 @@ public class AdminDialog
 				i = map.entrySet().iterator();
 				while (i.hasNext()) {
 					entry = i.next();
-					uc = (UserCredentials) entry.getValue();
+					uc = entry.getValue();
 					b = isExistingObject(uc.getUserName(), false);
 					if (b) {
 						notifyUser(false);

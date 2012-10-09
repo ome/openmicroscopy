@@ -567,7 +567,7 @@ class PropertiesUI
     	}
     	if (dy != null && dy.doubleValue() > 0) {
     		if (value.length() == 0) value += nf.format(dy);
-    		else value +="x"+nf.format(dy);;
+    		else value +="x"+nf.format(dy);
     		tooltip += "Y: "+y+"<br>";
     		label += "Y";
     	}

@@ -208,16 +208,6 @@ public class DrawingObjectCreationTool
      */
     public Figure getPrototype() { return prototype; }
     
-    /**
-     * Overridden to set the cursor and reset the figure.
-     * @see AbstractTool#activate(DrawingEditor)
-     */
-    public void activate(DrawingEditor editor)
-    {
-        super.activate(editor);
-        //getView().clearSelection();
-        //getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    }
     
     /**
      * Overridden to set the cursor and reset the figure.

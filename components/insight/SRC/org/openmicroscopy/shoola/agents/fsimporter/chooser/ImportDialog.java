@@ -906,8 +906,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				}
 			}
 			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
-			combinedHCSFilter = new HCSFilter(
-					set.toArray(new String[set.size()]));
+			combinedHCSFilter = new HCSFilter(set.toArray(
+					new String[set.size()]));
+
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
 				chooser.addChoosableFileFilter(combinedHCSFilter);

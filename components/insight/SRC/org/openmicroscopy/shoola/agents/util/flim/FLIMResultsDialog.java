@@ -457,7 +457,7 @@ public class FLIMResultsDialog
 		//medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
-		sortedData = (List<Double>) sorter.sort(values);
+		sortedData = sorter.sort(values);
 		chartObject = new HistogramCanvas(sortedData, 
 				data, BINS, true, getBestGuess(sortedData));
 		chartObject.addPropertyChangeListener(this);
@@ -469,8 +469,10 @@ public class FLIMResultsDialog
 		
 		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
 		colourMapSlider.addPropertyChangeListener(this);
-		thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(calculateValue(0,true)));
-		thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(calculateValue(BINS,false)));
+		thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(
+				calculateValue(0,true)));
+		thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(
+				calculateValue(BINS,false)));
 	}
 	
 	/** 
@@ -592,7 +594,7 @@ public class FLIMResultsDialog
 		
 		if(file==null)
 			return;
-		List sortedNames = (List<String>) sorter.sort(names);
+		List sortedNames = sorter.sort(names);
 
 		int selectedFileIndex = sortedNames.indexOf(selectedFileName);
 		resultsBox = new JComboBox(sortedNames.toArray());
@@ -931,7 +933,8 @@ public class FLIMResultsDialog
 			{
 				sliderLeftValue=colourMapSlider.getStartValue();
 				sliderRightValue=colourMapSlider.getEndValue();
-				newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
+				newRangeSelected(colourMapSlider.getStartValue(), 
+						colourMapSlider.getEndValue());
 			}
 		}else if(TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(thresholdSlider))
 		{
@@ -945,7 +948,9 @@ public class FLIMResultsDialog
 			
 			displayMapResult((Integer)evt.getNewValue());
 		}else if(name.equals(JToggleButton.MODEL_CHANGED_PROPERTY)){
-			chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());		
+			chartObject.setRGB(RGBButton.isSelected(),
+					colourMapSlider.getStartValue(),
+					colourMapSlider.getEndValue());	
 		}
 	}
 	
@@ -967,7 +972,7 @@ public class FLIMResultsDialog
 		if(binStats==null)
 			return;
 	
-		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));;
+		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
 		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
 		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
@@ -1044,12 +1049,16 @@ public class FLIMResultsDialog
 			if(e.getStateChange() == ItemEvent.SELECTED)
 		    {
 				RGBButton.setText("RGB");
-				chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+				chartObject.setRGB(RGBButton.isSelected(),
+						colourMapSlider.getStartValue(),
+						colourMapSlider.getEndValue());
 		    }
             else
             {
             	RGBButton.setText("BGR");
-            	chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+            	chartObject.setRGB(RGBButton.isSelected(),
+            			colourMapSlider.getStartValue(),
+            			colourMapSlider.getEndValue());
             } 
 		}
 	}

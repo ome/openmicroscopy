@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;

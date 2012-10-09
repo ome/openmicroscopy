@@ -504,14 +504,14 @@ public class TextualTwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public double getStartValue() { return ((double) start)/roundingFactor; }
+	public double getStartValue() { return start/roundingFactor; }
 	
 	/**
 	 * Returns the end value. 
 	 * 
 	 * @return See above.
 	 */
-	public double getEndValue() { return ((double) end)/roundingFactor; }
+	public double getEndValue() { return end/roundingFactor; }
 	
 	/** Lays out the components. */
 	public void layoutComponents() { layoutComponents(LAYOUT_ALL); }

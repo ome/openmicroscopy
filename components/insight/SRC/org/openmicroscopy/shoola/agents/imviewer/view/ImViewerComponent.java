@@ -2880,7 +2880,7 @@ class ImViewerComponent
 			view.toFront();
 			view.requestFocusInWindow();
 		} else {
-			postViewerCreated(true, false);;
+			postViewerCreated(true, false);
 		}
 		if (ImViewerAgent.isFastConnection())
 			model.firePlaneInfoRetrieval();

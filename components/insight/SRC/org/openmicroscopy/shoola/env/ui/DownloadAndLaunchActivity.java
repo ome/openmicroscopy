@@ -22,7 +22,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -68,8 +67,9 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 	 */
 	protected void notifyActivityEnd() {
 		type.setText("Opening File");
-		DownloadAndLaunchActivityParam param = (DownloadAndLaunchActivityParam) parameters;
-		viewer.openApplication((ApplicationData) param.getApplicationData(),
+		DownloadAndLaunchActivityParam param =
+			(DownloadAndLaunchActivityParam) parameters;
+		viewer.openApplication(param.getApplicationData(),
 				file.getAbsolutePath());
 		if (parameters.getSource() != null)
 			parameters.getSource().setEnabled(true);

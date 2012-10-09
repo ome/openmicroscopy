@@ -46,7 +46,6 @@ import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -303,7 +302,7 @@ public class MeasureLineFigure
 					if (yLoc < p.y) yLoc = p.y;
 				}
 				Rectangle2D b = g.getFontMetrics().getStringBounds(v, g);
-				g.drawString(v, (int) minX, (int) (yLoc+b.getHeight()));
+				g.drawString(v, minX, (int) (yLoc+b.getHeight()));
 			}
 		}
 		if (MeasurementAttributes.SHOWID.get(this))

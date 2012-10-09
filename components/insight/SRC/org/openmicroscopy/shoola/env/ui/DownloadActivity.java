@@ -33,7 +33,6 @@ import java.util.List;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -133,7 +132,6 @@ public class DownloadActivity extends ActivityComponent {
 			return getFileName(files, value, value, dirPath, 1, extension);
 		}
 		value = parameters.getOriginalFileName();
-		;
 		if (value == null || value.length() == 0)
 			return "";
 		return getFileName(files, value, value, dirPath, 1, null);

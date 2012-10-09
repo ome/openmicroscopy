@@ -911,7 +911,7 @@ public class EditorUtil
 			Entry<Long, Long> entry;
 			while (i.hasNext()) {
 				entry = i.next();
-				value += (Long) entry.getValue();
+				value += entry.getValue();
 			}
 			value += count;
 			return value > n;
@@ -1179,7 +1179,7 @@ public class EditorUtil
     	if (f < 0) {
     		f = 0;
         	notSet.add(PIN_HOLE_SIZE);
-    	};
+    	}
         details.put(PIN_HOLE_SIZE, f);
         s = data.getFluor();
 		if (s == null || s.trim().length() == 0) 
@@ -2329,7 +2329,7 @@ public class EditorUtil
 		} catch (Exception e) {}
 		if (data == null) return l;
 		Map details = transformPixelsData(data);
-		v = "<b>"+XY_DIMENSION+": </b>";;
+		v = "<b>"+XY_DIMENSION+": </b>";
 		v += (String) details.get(SIZE_X);
     	v += " x ";
     	v += (String) details.get(SIZE_Y);

@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;

@@ -175,7 +175,7 @@ public class TreeModelMethods {
 												DefaultMutableTreeNode oldNode)
 	{
 		Field oldField = (Field)oldNode.getUserObject();
-		IField newField = (Field)oldField.clone();
+		IField newField = oldField.clone();
 		DefaultMutableTreeNode newNode = new FieldNode(newField);
 		
 		DefaultMutableTreeNode newChild;

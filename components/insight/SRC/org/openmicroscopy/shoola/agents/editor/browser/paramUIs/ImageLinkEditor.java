@@ -318,7 +318,7 @@ public class ImageLinkEditor
 			// getParameter().setAttribute(ImageParam.IMAGE_ZOOM, zoom);
 			/*refresh the whole panel, and stay in editing mode*/
 			ImageLinkEditor.this.firePropertyChange
-				(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);;
+				(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
 		}
 	}
 	

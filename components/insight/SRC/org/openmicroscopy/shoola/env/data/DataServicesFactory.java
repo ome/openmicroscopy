@@ -277,7 +277,7 @@ public class DataServicesFactory
     private Boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
-    	if (client.startsWith("@")) return true;
+    	if (client.charAt(0) == '@') return true;
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
@@ -609,7 +609,7 @@ public class DataServicesFactory
         	Iterator j;
         	ExperimenterData e;
         	while (i.hasNext()) {
-        		g = (GroupData) i.next();
+        		g = i.next();
         		set = g.getExperimenters();
         		j = set.iterator();
         		while (j.hasNext()) {
@@ -716,7 +716,7 @@ public class DataServicesFactory
 				while (i.hasNext()) {
 					agentInfo = i.next();
 					buffer.append(agentInfo.getName());
-					buffer.append("\n");
+					buffer.append('\n');
 				}
 				String message = "The following components " +
 				"could not be closed safely:\n"+buffer.toString()+"\n" +

@@ -177,7 +177,7 @@ class OmeroImageServiceImpl
 		ImportCandidates ic;
 		while (jj.hasNext()) {
 			entry = jj.next();
-			file = (File) entry.getKey();
+			file = entry.getKey();
 			if (hcs) {
 			//if (ImportableObject.isHCSFile(file) || hcs) {
 				if (!file.getName().endsWith(
@@ -188,7 +188,7 @@ class OmeroImageServiceImpl
 							ioContainer = null;
 				}
 			}
-			label = (StatusLabel) entry.getValue();
+			label = entry.getValue();
 			if (close) {
 				toClose = index == n;
 				index++;
@@ -441,11 +441,11 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
+							link = 
 							ModelMapper.linkParentToChild(
 									(Dataset) ioContainer, 
 									(Project) project);
-							link = (ProjectDatasetLink) 
+							link = 
 							gateway.saveAndReturnObject(ctx, link,
 									parameters);
 						} else {
@@ -461,11 +461,10 @@ class OmeroImageServiceImpl
 										(DatasetData) 
 										PojoMapper.asDataObject(
 										ioContainer));
-								link = (ProjectDatasetLink) 
+								link =
 								ModelMapper.linkParentToChild(
-										(Dataset) ioContainer, 
-										(Project) createdData.asProject());
-								link = (ProjectDatasetLink) 
+										ioContainer, createdData.asProject());
+								link =
 								gateway.saveAndReturnObject(ctx, link,
 										parameters);
 							} else ioContainer = d.asIObject();
@@ -482,11 +481,10 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
+							link =
 							ModelMapper.linkParentToChild(
-									(Dataset) ioContainer, 
-									(Project) container.asProject());
-							link = (ProjectDatasetLink) 
+									ioContainer, container.asProject());
+							link =
 							gateway.saveAndReturnObject(ctx, link,
 									parameters);
 						} else ioContainer = createdData.asIObject();
@@ -1348,29 +1346,28 @@ class OmeroImageServiceImpl
 												parameters);
 										object.addNewDataObject(
 											PojoMapper.asDataObject(project));
-										link = (ProjectDatasetLink) 
+										link = 
 										ModelMapper.linkParentToChild(
 												(Dataset) ioContainer, 
 												(Project) project);
-										link = (ProjectDatasetLink) 
+										link = 
 										gateway.saveAndReturnObject(ctx, link,
 												parameters);
 									} else {
-										link = (ProjectDatasetLink) 
+										link = 
 										ModelMapper.linkParentToChild(
-												(Dataset) ioContainer, 
-												(Project) 
+												ioContainer, 
 												createdData.asProject());
-										link = (ProjectDatasetLink) 
+										link = 
 										gateway.saveAndReturnObject(ctx, link,
 												parameters);
 									}
 								} else { //project already exists.
-									link = (ProjectDatasetLink) 
+									link = 
 									ModelMapper.linkParentToChild(
-											(Dataset) ioContainer, 
-											(Project) container.asProject());
-									link = (ProjectDatasetLink) 
+											ioContainer, 
+											container.asProject());
+									link = 
 									gateway.saveAndReturnObject(ctx, link, 
 											parameters);
 								}

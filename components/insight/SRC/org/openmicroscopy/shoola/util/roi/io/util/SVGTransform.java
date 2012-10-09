@@ -82,13 +82,14 @@ public class SVGTransform
                     {
                         if (tt.nextToken() != StreamTokenizer.TT_NUMBER) 
                         {
-                            throw new IOException("Matrix value "+i+" not found in transform "+str+" token:"+tt.ttype+" "+tt.sval);
+                            throw new IOException("Matrix value "+i+" " +
+                            		"not found in transform "+str+" token:"+
+                            		tt.ttype+" "+tt.sval);
                         }
                         m[i] = tt.nval;
                         if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                                (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                          (tt.sval.toLowerCase().charAt(0) == 'e')) 
                         {
-                            double mantissa = tt.nval;
                             m[i] = Double.valueOf(m[i] + tt.sval);
                         } 
                         else 
@@ -104,13 +105,13 @@ public class SVGTransform
                     double tx, ty;
                     if (tt.nextToken() != StreamTokenizer.TT_NUMBER) 
                     {
-                        throw new IOException("X-translation value not found in transform "+str);
+                        throw new IOException("X-translation value not found " +
+                        		"in transform "+str);
                     }
                     tx = tt.nval;
                     if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                            (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                            (tt.sval.toLowerCase().charAt(0) == 'e')) 
                     {
-                        double mantissa = tt.nval;
                         tx = Double.valueOf(tx + tt.sval);
                     } 
                     else 
@@ -121,9 +122,8 @@ public class SVGTransform
                     {
                         ty = tt.nval;
                         if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                                (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                           (tt.sval.toLowerCase().charAt(0) == 'e')) 
                         {
-                            double mantissa = tt.nval;
                             ty = Double.valueOf(ty + tt.sval);
                         } 
                         else 
@@ -148,9 +148,8 @@ public class SVGTransform
                     }
                     sx = tt.nval;
                     if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                            (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                        (tt.sval.toLowerCase().charAt(0) == 'e')) 
                     {
-                        double mantissa = tt.nval;
                         sx = Double.valueOf(sx + tt.sval);
                     } 
                     else 
@@ -161,9 +160,8 @@ public class SVGTransform
                     {
                         sy = tt.nval;
                         if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                                (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                         (tt.sval.toLowerCase().charAt(0) == 'e')) 
                         {
-                            double mantissa = tt.nval;
                             sy = Double.valueOf(sy + tt.sval);
                         } 
                         else 
@@ -184,13 +182,13 @@ public class SVGTransform
                     double angle, cx, cy;
                     if (tt.nextToken() != StreamTokenizer.TT_NUMBER) 
                     {
-                        throw new IOException("Angle value not found in transform "+str);
+                        throw new IOException("Angle value not found in " +
+                        		"transform "+str);
                     }
                     angle = tt.nval;
                     if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                            (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                       (tt.sval.toLowerCase().charAt(0) == 'e')) 
                     {
-                        double mantissa = tt.nval;
                         angle = Double.valueOf(angle + tt.sval);
                     } 
                     else 
@@ -201,9 +199,8 @@ public class SVGTransform
                     {
                         cx = tt.nval;
                         if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                                (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                           (tt.sval.toLowerCase().charAt(0) == 'e'))
                         {
-                            double mantissa = tt.nval;
                             cx = Double.valueOf(cx + tt.sval);
                         } 
                         else 
@@ -216,9 +213,8 @@ public class SVGTransform
                         }
                         cy = tt.nval;
                         if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                                (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                            (tt.sval.toLowerCase().charAt(0) == 'e')) 
                         {
-                            double mantissa = tt.nval;
                             cy = Double.valueOf(cy + tt.sval);
                         } 
                         else 
@@ -244,10 +240,9 @@ public class SVGTransform
                     }
                     angle = tt.nval;
                     if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                            (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                            (tt.sval.toLowerCase().charAt(0) == 'e')) 
                     {
-                        double mantissa = tt.nval;
-                        angle = Double.valueOf(angle + tt.sval);
+                       angle = Double.valueOf(angle + tt.sval);
                     } 
                     else 
                     {
@@ -267,9 +262,8 @@ public class SVGTransform
                     }
                     angle = tt.nval;
                     if (tt.nextToken() == StreamTokenizer.TT_WORD &&
-                            (tt.sval.startsWith("E") || tt.sval.startsWith("e"))) 
+                       (tt.sval.toLowerCase().charAt(0) == 'e')) 
                     {
-                        double mantissa = tt.nval;
                         angle = Double.valueOf(angle + tt.sval);
                     } 
                     else 

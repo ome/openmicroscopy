@@ -41,7 +41,6 @@ import javax.swing.WindowConstants;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * A modal dialog brings up on screen when the metadata and rendering settings

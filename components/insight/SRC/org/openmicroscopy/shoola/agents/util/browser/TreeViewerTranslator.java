@@ -41,12 +41,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

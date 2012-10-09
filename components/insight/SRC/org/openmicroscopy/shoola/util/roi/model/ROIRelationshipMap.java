@@ -29,8 +29,6 @@ import java.util.HashMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
-import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipList;
 
 /** 
  * 

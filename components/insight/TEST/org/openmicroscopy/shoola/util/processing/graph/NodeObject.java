@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.processing.graph;
 import java.util.Comparator;
 
 //Third-party libraries
-import processing.core.PApplet;
 
 //Application-internal dependencies
 

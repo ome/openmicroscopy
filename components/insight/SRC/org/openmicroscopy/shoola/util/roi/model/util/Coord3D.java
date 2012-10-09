@@ -29,7 +29,6 @@ import java.util.Comparator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * Defines a plane. Rename??

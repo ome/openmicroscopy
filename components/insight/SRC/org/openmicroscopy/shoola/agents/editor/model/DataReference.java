@@ -23,25 +23,22 @@
 package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
-
 import java.io.File;
 import java.util.HashMap;
-
 import javax.swing.filechooser.FileFilter;
 
-import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
-import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 
 /** 
  * A data reference is attached to a 'Field'/Step in order to link that 
  * step to some data that it produces. 
- * This can be a reference to some data on the local file-system, a url or
- * some data on a server (eg OMERO). 
+ * This can be a reference to some data on the local file-system, a URL or
+ * some data on a server (e.g. OMERO). 
  * Property names correspond to elements within .cpe.xml files that store
  * properties of the data reference. 
  *

@@ -229,7 +229,7 @@ public class MoveGroupSelectionDialog
         TreeImageDisplay display;
         List<TreeImageDisplay> children;
         while (i.hasNext()) {
-            display = (TreeImageDisplay) i.next();
+            display = i.next();
             display.setDisplayItems(false);
             tm.insertNodeInto(display, parent, parent.getChildCount());
             if (display instanceof TreeImageSet) {
@@ -402,7 +402,7 @@ public class MoveGroupSelectionDialog
 		TreeImageDisplay object;
 		Object uo;
 		while (j.hasNext()) {
-			object = (TreeImageDisplay) j.next();
+			object = j.next();
 			uo = object.getUserObject();
 			if (ProjectData.class.equals(containerType)) {
 				if (uo instanceof ProjectData) {

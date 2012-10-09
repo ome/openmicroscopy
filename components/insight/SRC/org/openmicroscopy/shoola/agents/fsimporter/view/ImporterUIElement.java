@@ -396,7 +396,7 @@ class ImporterUIElement
 		boolean single = model.isSingleGroup();
 		while (i.hasNext()) {
 			importable = i.next();
-			f = (File) importable.getFile();
+			f = importable.getFile();
 			c = new FileImportComponent(f, importable.isFolderAsContainer(),
 					!controller.isMaster(), importable.getGroup(), single);
 			c.setLocation(importable.getParent(), importable.getDataset(), 

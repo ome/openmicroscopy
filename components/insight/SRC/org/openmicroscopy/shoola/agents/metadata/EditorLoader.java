@@ -38,9 +38,6 @@ import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
-
 /** 
  * Parent of all classes that load data asynchronously for a {@link Editor}.
  * All these classes invoke methods of the {@link DataManagerView} or

@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
-
 import javax.swing.undo.UndoableEditSupport;
 
 //Third-party libraries
@@ -36,7 +34,6 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddTextBoxFieldEdit;
-import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 /** 

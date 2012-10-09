@@ -90,7 +90,7 @@ class GridCanvas
 		int columns = model.getGridColumn();
 		TextureData data;
 		while (i.hasNext()) {
-			img = (GridImage) i.next();
+			img = i.next();
 			if (img.isActive()) {
 				data = img.getTextureData();
 				if (data != null) {
@@ -149,7 +149,7 @@ class GridCanvas
 		float vGap = 1.0f/model.getGridRow();
 		if (model.getMaxC() > 3) hGap = HGAP_HIGH;
 		while (i.hasNext()) {
-			img = (GridImage) i.next();
+			img = i.next();
 			if (img.isActive()) {
 				gl.glRasterPos2f(x, y);
 				glut.glutBitmapString(FONT, img.getLabel());
@@ -187,7 +187,7 @@ class GridCanvas
 		int col = 0;
 		int columns = model.getGridColumn();
 		while (i.hasNext()) {
-			img = (GridImage) i.next();
+			img = i.next();
 			if (img.isActive()) {
 				rgb = img.getRGB();
 				gl.glColorMask(rgb[0], rgb[1], rgb[2], false);

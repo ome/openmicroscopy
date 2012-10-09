@@ -119,7 +119,7 @@ public class ImportableObject
 		
 
 		IFormatReader reader = new OMEXMLReader();
-		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
+		OME_SUFFIXES = Arrays.asList(reader.getSuffixes());
 
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");

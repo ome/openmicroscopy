@@ -769,7 +769,7 @@ public class Factory
     			height, BufferedImage.TYPE_INT_ARGB);
     	Graphics g = bi.createGraphics();
     	g.drawImage(img.getImage(), 0, 0, width, height, null);
-    	return (Icon) (new ImageIcon(bi));
+    	return new ImageIcon(bi);
     }
     
     /**

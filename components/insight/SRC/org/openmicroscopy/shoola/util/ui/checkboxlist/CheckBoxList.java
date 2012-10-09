@@ -75,7 +75,7 @@ public class CheckBoxList
 	{
 		int col = getSelectedColumn();
 		int row = getSelectedRow();
-		Object v = getModel().getValueAt(row, col);;
+		Object v = getModel().getValueAt(row, col);
 		boolean value = Boolean.valueOf(false);
 		if (v != null) value = (Boolean) v;
 		getModel().setValueAt(!value, row, col);

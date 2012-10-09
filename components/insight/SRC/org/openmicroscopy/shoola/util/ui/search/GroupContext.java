@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.GroupData;
 
 /** 
  * Host information about the group to search into.

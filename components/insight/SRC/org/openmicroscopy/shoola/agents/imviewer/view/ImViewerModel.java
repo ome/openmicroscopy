@@ -1944,17 +1944,17 @@ class ImViewerModel
 		state = ImViewer.PROJECTING;
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("Original Image ID: "+getImageID());
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("Projection type: "+typeName);
-		buf.append("\n");
+		buf.append('\n');
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
 		
 		String imageNameWithRange = combineFilenameWith(ref.getImageName(), 
 				getImageName(), startZ, endZ);
-		
+
 		int startT = ref.getStartT();
 		int endT = ref.getEndT();
 		if (startT == endT) buf.append("timepoint: "+(startT+1));

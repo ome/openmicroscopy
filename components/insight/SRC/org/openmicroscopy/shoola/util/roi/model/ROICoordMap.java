@@ -32,9 +32,6 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 

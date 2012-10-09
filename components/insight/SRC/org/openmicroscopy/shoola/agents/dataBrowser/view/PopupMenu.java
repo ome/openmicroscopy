@@ -190,7 +190,7 @@ class PopupMenu
 				break;
 			default:
 				add(view);
-		};
+		}
 		add(openWithMenu);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(cutElement);

@@ -189,8 +189,8 @@ abstract class Entry
 		msg.append(ntp.name);
 		msg.append(", type: ");
 		msg.append(ntp.type);
-		msg.append(".");        	
-		throw new ConfigException(msg.toString(), e); 
+		msg.append('.');
+		throw new ConfigException(msg.toString(), e);
 	}
     
 	/** 
@@ -260,9 +260,9 @@ abstract class Entry
 		if (explanation != null && explanation.length() != 0) {
 			msg.append(" (");
 			msg.append(explanation);
-			msg.append(")");	
+			msg.append(')');
 		}
-		throw new ConfigException(msg.toString(), e); 
+		throw new ConfigException(msg.toString(), e);
 	}
 	
     /**

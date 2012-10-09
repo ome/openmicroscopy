@@ -373,7 +373,7 @@ public class Histogram
 				stddev = Math.pow(originalData.get(i)-mean,2);
 		
 		stddev = Math.sqrt(stddev/(float)count);
-		percent = (double)(count)/(double)originalData.size();
+		percent = count/(double) originalData.size();
 		rangeStats.put(FREQ,count);
 		rangeStats.put(MEAN,mean);
 		rangeStats.put(MIN,min);

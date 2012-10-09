@@ -338,7 +338,7 @@ class BrowserModel
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
         		if (TreeViewerAgent.isAdministrator()) 
-        			ctx = TreeViewerAgent.getAdminContext();;
+        			ctx = TreeViewerAgent.getAdminContext();
         		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
@@ -371,7 +371,7 @@ class BrowserModel
         SecurityContext ctx = getSecurityContext(refNode);
         if (TreeViewerAgent.isAdministrator() &&
         		getBrowserType() == Browser.ADMIN_EXPLORER)
-        	ctx = TreeViewerAgent.getAdminContext();;
+        	ctx = TreeViewerAgent.getAdminContext();
         ContainerCounterLoader loader = new ContainerCounterLoader(component,
         		ctx, containers, nodes);
         loader.load();

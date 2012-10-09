@@ -340,7 +340,7 @@ class ComplexParamPane
 		super.setToolTipText(text);
 		Iterator<RowPane> i = rows.iterator();
 		while (i.hasNext()) {
-			((RowPane) i.next()).setToolTipText(text);
+			i.next().setToolTipText(text);
 		}
 	}
 	
@@ -354,7 +354,7 @@ class ComplexParamPane
 		if (addButton != null) addButton.setEnabled(enabled);
 		Iterator<RowPane> i = rows.iterator();
 		while (i.hasNext()) {
-			((RowPane) i.next()).setEnabled(enabled);
+			i.next().setEnabled(enabled);
 		}
 	}
 	

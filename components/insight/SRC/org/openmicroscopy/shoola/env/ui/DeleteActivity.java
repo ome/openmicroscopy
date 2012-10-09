@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 

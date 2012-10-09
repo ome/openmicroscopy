@@ -1302,7 +1302,7 @@ public class UIUtilities
     public static File getDefaultFolder()
     {
     	String f = UIUtilities.getDefaultFolderAsString();
-    	if (f == null || f == "") return null; 
+    	if (f == null || f.trim().length() == 0) return null;
     	return new File(f);
     }
     
@@ -1674,8 +1674,8 @@ public class UIUtilities
 		buf.append("<html><body>");
 		buf.append("<a href=\"");
 		buf.append(url);
-		buf.append("\"");
-		buf.append(">");
+		buf.append('\"');
+		buf.append('>');
 		buf.append(url);
 		buf.append("</a>");
 		buf.append("</body></html>");
@@ -1937,7 +1937,7 @@ public class UIUtilities
         			buffer = new StringBuffer();
             		for (int i = 0; i < n; i++) {
             			buffer.append(l[i]);
-        				if (i < (n-1)) buffer.append(".");
+        				if (i < (n-1)) buffer.append('.');
         			}
             		name = buffer.toString();
         		}
@@ -1954,7 +1954,7 @@ public class UIUtilities
     			buffer = new StringBuffer();
         		for (int i = 0; i < n; i++) {
         			buffer.append(l[i]);
-    				if (i < (n-1)) buffer.append(".");
+    				if (i < (n-1)) buffer.append('.');
     			}
         		name = buffer.toString();
     		}
@@ -1980,13 +1980,13 @@ public class UIUtilities
     	if (fullPath.endsWith("\\")) extension = "\\";
     	else if (fullPath.endsWith("/")) extension = "/";
     	String start = null;
-    	if (fullPath.startsWith("\\")) start = "\\";
-    	else if (fullPath.startsWith("/")) start = "/";
+    	if (fullPath.charAt(0) == '\\') start = "\\";
+    	else if (fullPath.charAt(0) == '/') start = "/";
     	String sep = UIUtilities.getStringSeparator(fullPath);
     	if (sep == null) sep = "";
     	String text = "";
     	int folder = -1;
-    	if (number != null && number >= 0) folder = (Integer) number;
+    	if (number != null && number >= 0) folder = number;
     	if (folder == -1) return null;
     	if (l != null && l.length > 1) {
     		int n = 0;
@@ -2137,7 +2137,7 @@ public class UIUtilities
 		for (int i = 0 ; i < list.size() ; i++) {
 			buffer.append(list.get(i));
 			if (i < list.size()-1)
-				buffer.append(",");
+				buffer.append(',');
 		}
 		return buffer.toString();
 	}

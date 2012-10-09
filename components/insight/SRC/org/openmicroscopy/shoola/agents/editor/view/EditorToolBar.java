@@ -24,14 +24,11 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -40,7 +37,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 

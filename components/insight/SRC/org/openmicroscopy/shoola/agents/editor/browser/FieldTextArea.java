@@ -455,8 +455,7 @@ public class FieldTextArea
 			paramEditDialog.dispose();
 		}
 			
-		IParam param = (IParam)content;
-		paramEditDialog = new ParamEditorDialog(param, point, this);
+		paramEditDialog = new ParamEditorDialog(content, point, this);
 		paramEditDialog.setVisible(true);
 		
 	}

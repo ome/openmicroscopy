@@ -246,10 +246,11 @@ public class WindowsApplicationDataExtractor implements
 			String productName = getFilePropertyValue(absPath,
 					fileVersionInfoSize, translation,
 					APPLICATION_PROPERTY_KEY_PRODUCT_NAME);
-
-			if (fileDescription != "")
+			fileDescription = fileDescription.trim();
+			productName = productName.trim();
+			if (fileDescription.length() != 0)
 				applicationName = fileDescription;
-			else if (productName != "")
+			else if (productName.length() != 0)
 				applicationName = productName;
 		}
 

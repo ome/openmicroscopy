@@ -177,24 +177,6 @@ public class LineTextFigure
 			}
 		}
 	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see LineFigure#invalidate()
-	 */
-	public void invalidate() 
-	{
-		super.invalidate();
-	}
-
-	/** 
-	 * Overridden to set the layout to <code>null</code>.
-	 * @see LineFigure#validate()
-	 */
-	protected void validate() 
-	{
-		super.validate();
-	}
 	
 	/**
 	 * Overridden to return the bounds of the text area.

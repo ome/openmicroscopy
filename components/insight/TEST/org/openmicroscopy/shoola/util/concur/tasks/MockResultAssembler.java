@@ -96,7 +96,7 @@ public class MockResultAssembler
     //Used in verification mode.
     public Object assemble()
     {
-        MockedCall mc = new MockedCall(assemble, (Object) null);
+        MockedCall mc = new MockedCall(assemble, null);
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException())
             throw (RuntimeException) mc.getException();

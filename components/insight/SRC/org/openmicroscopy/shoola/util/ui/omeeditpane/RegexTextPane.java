@@ -44,9 +44,6 @@ import javax.swing.text.StyledDocument;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.omeeditpane.OMERegexFormatter;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.Position;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
 
 /** 
  * A Text Editor with Regular expression capability.

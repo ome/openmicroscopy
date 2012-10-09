@@ -302,7 +302,7 @@ public class DeleteBox
 			text = DEFAULT_TEXT+value+"?";
 		if (text != null) {
 			buffer.append(text);
-			buffer.append("\n");
+			buffer.append('\n');
 			if (ImageData.class.equals(type) || 
 					DatasetData.class.equals(type) || 
 					ProjectData.class.equals(type) ||

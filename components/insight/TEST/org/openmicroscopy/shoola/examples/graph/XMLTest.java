@@ -22,7 +22,6 @@
 package org.openmicroscopy.shoola.examples.graph;
 
 //Java imports
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +29,6 @@ import java.io.InputStream;
 
 
 //Third-party libraries
-
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
@@ -146,7 +144,7 @@ extends PApplet
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();;
+			ex.printStackTrace();
 		}
 		mapper = new XMLMapper((XMLElement)document);
 		mapper.parseDocument();

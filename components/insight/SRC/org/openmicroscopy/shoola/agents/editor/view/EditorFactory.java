@@ -259,11 +259,11 @@ public class EditorFactory
 	public static void saveInstances(List<Object> instances)
 	{
 		if (instances != null) {
-			Iterator i = instances.iterator();
+			Iterator<Object> i = instances.iterator();
 			EditorComponent comp;
 			Object object;
 			while (i.hasNext()) {
-				object = (Object) i.next();
+				object = i.next();
 				if (object instanceof EditorComponent) {
 					comp = (EditorComponent) object;
 					comp.save(false);

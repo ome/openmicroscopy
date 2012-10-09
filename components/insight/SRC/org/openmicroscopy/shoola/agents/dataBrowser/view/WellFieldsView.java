@@ -49,9 +49,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.PlateGrid;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays all the fields of a given well.
@@ -202,7 +199,7 @@ class WellFieldsView
 					if (node != null) {
 						StringBuffer buffer = new StringBuffer();
 						buffer.append(DEFAULT_FIELD_TEXT+node.getIndex());
-						buffer.append("\n");
+						buffer.append('\n');
 						buffer.append("x="+node.getPositionX()+", " +
 								"y="+node.getPositionY());
 						String s = buffer.toString();

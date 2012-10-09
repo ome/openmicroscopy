@@ -24,14 +24,11 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import javax.swing.filechooser.FileSystemView;
 
@@ -40,14 +37,9 @@ import javax.swing.filechooser.FileSystemView;
 
 //Application-internal dependencies
 import omero.grid.RepositoryPrx;
-import omero.model.Image;
-import omero.model.IObject;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
-import pojos.MultiImageData;
 
 
 /** 

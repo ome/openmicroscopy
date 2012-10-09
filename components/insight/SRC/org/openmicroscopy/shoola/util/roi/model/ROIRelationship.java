@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.util.roi.model;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentMap;
 
 /** 

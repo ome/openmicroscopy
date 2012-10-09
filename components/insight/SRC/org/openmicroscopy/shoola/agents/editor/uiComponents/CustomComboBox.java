@@ -1,6 +1,5 @@
-
- /*
- * ui.components.CustomComboBox
+/*
+ * org.openmicroscopy.shoola.agents.editor.CustomComboBox
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -25,18 +24,14 @@
 package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
 // java imports
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 //Third-party libraries

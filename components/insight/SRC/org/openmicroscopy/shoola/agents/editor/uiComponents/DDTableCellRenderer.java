@@ -22,23 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-
-import javax.swing.BorderFactory;
+//Java imports
 import javax.swing.Icon;
-import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 
 /** 
  * This renders a Table cell to look like it is a drop-down menu. 

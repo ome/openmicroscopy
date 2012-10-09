@@ -94,7 +94,6 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -386,7 +385,7 @@ public class TaskBarManager
 			buffer.append(ctx.getGroupID());
 			buffer.append("\niid=");
 			buffer.append(id);
-			buffer.append("]");
+			buffer.append(']');
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
 		} catch (Exception e) {
 			LogMessage message = new LogMessage();
@@ -461,7 +460,7 @@ public class TaskBarManager
 	private void handleLogOff(LogOff evt)
 	{
 		if (evt == null) return;
-		if (!((LogOff) evt).isAskQuestion()) {
+		if (!evt.isAskQuestion()) {
 			logOut();
 			return;
 		}
@@ -473,14 +472,15 @@ public class TaskBarManager
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
 			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
-				Iterator i = map.entrySet().iterator();
-				Entry entry;
+				Iterator<Entry<Agent, AgentSaveInfo>> 
+				i = map.entrySet().iterator();
+				Entry<Agent, AgentSaveInfo> entry;
 				Agent agent;
 				AgentSaveInfo info;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					agent = (Agent) entry.getKey();
-					info = (AgentSaveInfo) entry.getValue();
+					entry = i.next();
+					agent = entry.getKey();
+					info = entry.getValue();
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
@@ -1059,7 +1059,7 @@ public class TaskBarManager
 		} else if (MacOSMenuHandler.ABOUT_APPLICATION_PROPERTY.equals(name)) {
 			softwareAbout();
 		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
-			Registry reg = container.getRegistry();;
+			Registry reg = container.getRegistry();
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
 			if (exp == null) container.exit(); //not connected
 			//else doExit(true, null);

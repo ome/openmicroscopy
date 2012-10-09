@@ -349,10 +349,10 @@ public class NetworkGraph
 	 */
 	public void mouseReleased()
 	{
-		if(picked==true)
+		if (picked)
 		{
 			p.makeFree();
-			if(pickedId==0)
+			if (pickedId == 0)
 				p.makeFixed();
 			//p.setMass(1);
 			picked = false;
@@ -412,7 +412,7 @@ public class NetworkGraph
 	 */
 	public void mouseDragged(float mouseX, float mouseY, float dmouseX, float dmouseY)
 	{
-		if(picked==true)
+		if (picked)
 		{
 		 
 		System.err.println(p.position());

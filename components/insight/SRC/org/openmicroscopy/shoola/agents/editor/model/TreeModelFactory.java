@@ -37,8 +37,6 @@ import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLParserFactory;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.model.Field;
-import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 /** 

@@ -312,7 +312,7 @@ class BrowserControl
         	} else {
         		//Load the data of the logged in user.
         		List l = display.getChildrenDisplay();
-        		if (l != null & l.size() > 0) {
+        		if (l != null && l.size() > 0) {
             		view.expandNode((TreeImageDisplay) l.get(0), true);
         		}
         	}

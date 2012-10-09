@@ -657,10 +657,10 @@ public class ProjSavingDialog
 			while (i.hasNext()) {
 				ho = i.next();
 				if (ho instanceof ProjectData) {
-					n = new DataNode((DataObject) ho);
+					n = new DataNode(ho);
 					topList.add(n); 
 				} else if (ho instanceof DatasetData) {
-					n = new DataNode((DataObject) ho);
+					n = new DataNode(ho);
 					datasetsList.add(n);
 				}
 			}

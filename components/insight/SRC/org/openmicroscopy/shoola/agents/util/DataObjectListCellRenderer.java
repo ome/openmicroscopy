@@ -235,7 +235,7 @@ public class DataObjectListCellRenderer
     	buffer.append(tag.getTagValue());
     	buffer.append(" [");
     	buffer.append(v);
-    	buffer.append("]");
+    	buffer.append(']');
     	return buffer.toString();
     }
     

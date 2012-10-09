@@ -35,7 +35,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Updates the object e.g. name.
