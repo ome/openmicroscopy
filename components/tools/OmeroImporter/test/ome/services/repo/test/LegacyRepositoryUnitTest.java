@@ -11,18 +11,16 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.UUID;
 
-import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
-import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.PublicRepositoryI;
+import ome.services.blitz.repo.RepositoryDao;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
-import ome.util.SqlAction;
 
 import org.jmock.Mock;
 import org.jmock.core.Invocation;
@@ -69,7 +67,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     private LegacyRepositoryI mk() throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
         return new LegacyRepositoryI(oa, reg, ex, p, tmpRepo.getAbsolutePath(),
-                new PublicRepositoryI(ex, p));
+                new PublicRepositoryI(new RepositoryDao(p, ex)));
     }
 
     private OriginalFile file() {
