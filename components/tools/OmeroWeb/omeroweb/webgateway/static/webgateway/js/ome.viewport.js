@@ -290,6 +290,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         after_img_load_cb(callback);
         _this.viewportimg.unbind('load', rcb);
         _this.self.trigger('imageChange', [_this]);
+        _this.viewportimg.get(0).destroyTiles();
       };
       
       if (_this.loadedImg.tiles) {

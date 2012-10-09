@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -74,7 +75,7 @@ public interface MetadataViewer
 {
 
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	public static final int		IMAGE_J = LookupNames.IMAGE_J;
 	
 	/** Indicates to run the script. */
 	public static final int		RUN = 100;

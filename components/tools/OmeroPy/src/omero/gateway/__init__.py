@@ -215,7 +215,7 @@ class BlitzObjectWrapper (object):
         @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.CHILD_WRAPPER_CLASS is None:
+        if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError('%s has no child wrapper defined' % self.__class__)
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
             # resolve class
@@ -233,7 +233,7 @@ class BlitzObjectWrapper (object):
         @return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
-        if self.PARENT_WRAPPER_CLASS is None:
+        if self.PARENT_WRAPPER_CLASS is None: #pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
         if not isinstance(pwc, ListType):
@@ -1211,6 +1211,9 @@ class NoProxies (object):
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
 
+    def values (self):
+        return ()
+
 class _BlitzGateway (object):
     """
     Connection wrapper. Handles connecting and keeping the session alive, creation of various services,
@@ -1279,6 +1282,7 @@ class _BlitzGateway (object):
         self._anonymous = anonymous
         self._defaultOmeroGroup = None
         self._defaultOmeroUser = None
+        self._maxPlaneSize = None
 
         self._connected = False
         self._user = None
@@ -1317,6 +1321,23 @@ class _BlitzGateway (object):
     def getDefaultOmeroUser(self):
         return self._defaultOmeroUser
 
+    def getMaxPlaneSize (self):
+        """
+        Returns the maximum plane size the server will allow for an image to not be considered big
+        i.e. width or height larger than this will trigger image pyramids to be calculated.
+
+        This is useful for the client to filter images based on them needing pyramids or not, without
+        the full rendering engine overhead.
+
+        @return: tuple holding (max_plane_width, max_plane_height) as set on the server
+        @rtype:  Tuple
+        """
+        if self._maxPlaneSize is None:
+            c = self.getConfigService()
+            self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
+                                  int(c.getConfigValue('omero.pixeldata.max_plane_height')))
+        return self._maxPlaneSize
+    
     def isAnonymous (self):
         """ 
         Returns the anonymous flag 
@@ -5703,8 +5724,16 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def simpleMarshal (self, xtra=None, parents=False):
         """
-        Creates a dict representation of the Image, including author and date info. 
-        
+        Creates a dict representation of the Image, including author and date info.
+
+        @param xtra: controls the optional parts of simpleMarshal;
+                     - thumbUrlPrefix - allows customizing the thumb URL by
+                     either a static string prefix or a callable function
+                     that will take a single ImgId int argument and return the
+                     customized URL string
+                     - tiled - if passed and value evaluates to true, add
+                     information on whether this image is tiled on this server.
+        @type: Dict
         @return:    Dict
         @rtype:     Dict
         """
@@ -5718,6 +5747,17 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
                 else:
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
+            if xtra.get('tiled', False):
+                # Since we need to calculate sizes, store them too in the marshaled value
+                maxplanesize = self._conn.getMaxPlaneSize()
+                rv['size'] = {'width': self.getSizeX(),
+                             'height': self.getSizeY(),
+                              }
+                if rv['size']['height'] and rv['size']['width']:
+                    rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
+                else:
+                    rv['tiles'] = False
+                
         return rv
 
     def getStageLabel (self):
@@ -7180,15 +7220,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
 
-    def getROICount(self, shapeType=None, eid=None):
+    def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
         Count number of ROIs associated to an image
-        
-        @param shapeType:   Filter by shape type ("Rect",...).
-        @param eid:         Filter by owner ID.
-        @return:            Number of ROIs found
+
+        @param shapeType: Filter by shape type ("Rect",...).
+        @param filterByCurrentUser: Whether or not to filter the count by the
+        currently logged in user.
+        @return: Number of ROIs found for the currently logged in user if
+        C{filterByCurrentUser} is C{True}, otherwise the total number found.
         """
-        
+
         # Create ROI shape validator (return True if at least one shape is found)
         def isValidType(shape):
             if not shapeType:
@@ -7206,9 +7248,25 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if isValidType(shape):
                     return True
             return False
-        
+
+        # Optimisation for the most common use case of unfiltered ROI counts
+        # for the current user.
+        if shapeType is None:
+            params = omero.sys.ParametersI()
+            params.addLong('imageId', self.id)
+            query = 'select count(*) from Roi as roi ' \
+                    'where roi.image.id = :imageId'
+            if filterByCurrentUser:
+                query += ' and roi.details.owner.id = :ownerId'
+                params.addLong('ownerId', self._conn.getUserId())
+            count = self._conn.getQueryService().projection(
+                    query, params, self._conn.SERVICE_OPTS)
+            # Projection returns a two dimensional array of RType wrapped
+            # return values so we want the value of row one, column one.
+            return count[0][0].getValue()
+
         roiOptions = omero.api.RoiOptions()
-        if eid:
+        if filterByCurrentUser:
             roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
         
         result = self._conn.getRoiService().findByImage(self.id, roiOptions)

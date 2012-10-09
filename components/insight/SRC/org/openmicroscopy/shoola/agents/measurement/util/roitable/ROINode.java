@@ -73,12 +73,6 @@ public class ROINode
 	/** Type Column no for the wizard. */
 	private static final int				SHAPE_COLUMN = 
 		ROITableModel.SHAPE_COLUMN;
-
-	/** Type Column no for the wizard. */
-	//private static final int				NAMESPACE_COLUMN = 4;
-	
-	/** Type Column no for the wizard. */
-	//private static final int				KEYWORDS_COLUMN = 5;
 	
 	/** Annotation Column no for the wizard. */
 	private static final int				ANNOTATION_COLUMN = 
@@ -272,13 +266,6 @@ public class ROINode
 					return roi.getZRange();
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
-					/*
-				case NAMESPACE_COLUMN+1:
-					return EditorUtil.getWorkflowForDisplay(
-							AnnotationKeys.NAMESPACE.get(roi));
-				case KEYWORDS_COLUMN+1:
-					return AnnotationKeys.KEYWORDS.get(roi);
-					*/
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:
@@ -290,6 +277,7 @@ public class ROINode
 		else if (userObject instanceof ROIShape)
 		{
 			ROIShape roiShape = (ROIShape) userObject;
+			int v;
 			switch (column)
 			{
 				case 0:
@@ -299,16 +287,18 @@ public class ROINode
 						return "--";
 					return Long.valueOf(roiShape.getROIShapeID());
 				case TIME_COLUMN+1:
-					return ((Integer) (roiShape.getT()+1)).toString();
+					v = roiShape.getT();
+					if (v < 0) return "";
+					return ((Integer) (v+1)).toString();
 				case Z_COLUMN+1:
-					Integer z = roiShape.getZ()+1;
-					return z.toString();
+					v = roiShape.getZ();
+					if (v < 0) return "";
+					return ((Integer) (v+1)).toString();
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
 					return roiShape.getFigure().getAttribute(
 							MeasurementAttributes.TEXT);
-					//return AnnotationKeys.TEXT.get(roiShape);
 				case VISIBLE_COLUMN+1:
 					return Boolean.valueOf(roiShape.getFigure().isVisible());
 				default:

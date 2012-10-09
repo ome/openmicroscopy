@@ -768,5 +768,25 @@ class AdminServiceImpl
 	 * @see AdminService#isConnected()
 	 */
 	public boolean isConnected() { return gateway.isConnected(); }
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#getUserDetails()
+	 */
+	public ExperimenterData getUserDetails()
+	{
+		return (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#getAvailableUserGroups()
+	 */
+	public Collection<GroupData> getAvailableUserGroups()
+	{
+		return (Collection<GroupData>) context.lookup(
+				LookupNames.USER_GROUP_DETAILS);
+	}
 
 }

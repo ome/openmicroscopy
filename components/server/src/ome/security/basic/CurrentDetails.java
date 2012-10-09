@@ -345,7 +345,7 @@ public class CurrentDetails implements PrincipalHolder {
         l.setEntityId(id);
         l.setEvent(c.getEvent());
         Details d = Details.create();
-        d.setPermissions(new Permissions());
+        d.setPermissions(Permissions.WORLD_IMMUTABLE);
         l.getDetails().copy(d);
         list.add(l);
     }
@@ -381,9 +381,7 @@ public class CurrentDetails implements PrincipalHolder {
         d.setGroup(c.getGroup());
         // ticket:1434
         final Permissions groupPerms = c.getCurrentGroupPermissions();
-        final Permissions userUmask = c.getCurrentUmask();
         final Permissions p = new Permissions(groupPerms);
-        p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
     }
@@ -394,9 +392,8 @@ public class CurrentDetails implements PrincipalHolder {
         if (changePerms) {
             // Make the permissions match (#8277)
             final Permissions groupPerms = c.getCurrentGroupPermissions();
-            Permissions copy = new Permissions(Permissions.EMPTY);
             if (groupPerms != Permissions.DUMMY) {
-                copy = new Permissions(groupPerms);
+                details.setPermissions(new Permissions(groupPerms));
             } else {
                 // In the case of the dummy, we will be required to have
                 // the group id already set in the context.
@@ -406,15 +403,26 @@ public class CurrentDetails implements PrincipalHolder {
                     Long gid = details.getGroup().getId();
                     Permissions p = c.getPermissionsForGroup(gid);
                     if (p != null) {
-                        copy = p;
+                        // Ticket:9505. This must be a new copy of the permissions
+                        // in order to prevent the restrictions being modified by
+                        // later objects!
+                        details.setPermissions(new Permissions(p));
+                    } else if (gid.equals(Long.valueOf(roles.getUserGroupId()))) {
+                        details.setPermissions(new Permissions(Permissions.EMPTY));
+                    } else {
+                        throw new InternalException("No permissions: " + details);
                     }
                 }
             }
-            details.setPermissions(copy);
         }
 
     }
 
+    /**
+     * Checks the "groupPermissions" map in {@link BasicEventContext} which has
+     * been filled up by calls to {@link BasicEventContext#setPermissionsForGroup(Long, Permissions)}
+     * during {@link BasicACLVoter#allowLoad(org.hibernate.Session, Class, Details, long)}.
+     */
     public void loadPermissions(org.hibernate.Session session) {
         current().loadPermissions(session);
     }

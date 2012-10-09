@@ -1,8 +1,10 @@
+# coding=utf-8
+
 import unittest, time, os, datetime
 import tempfile
 
 #from models import StoredConnection
-from webgateway.webgateway_cache import FileCache, WebGatewayCache
+from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTempFile
 from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
@@ -218,7 +220,50 @@ class FileCacheTest(unittest.TestCase):
         self.assertEqual(self.cache._num_entries, 3)
         self.cache.wipe()
         self.assertEqual(self.cache._num_entries, 0)
+
+class WebGatewayCacheTempFileTest(unittest.TestCase):
+    def setUp (self):
+        self.tmpfile = WebGatewayTempFile(tdir='test_cache')
+
+    def tearDown (self):
+        os.system('rm -fr test_cache')
+
+    def testFilenameSize (self):
+        """
+        Make sure slashes, dashes, underscores and other chars don't mess things up.
+        Also check for filename size limits.
+        """
+        fname='1/2_3!"\'#$%&()=@€£‰¶÷[]≠§±+*~^\,.;:'
+
+        try:
+            fpath, rpath, fobj = self.tmpfile.new(fname, key='specialchars')
+        except:
+            self.fail('WebGatewayTempFile.new not handling special characters properly')
+        # ext2/3/4 limit is 255 bytes, most others are equal to or larger
+        fname = "a"*384
+        try:
+            fpath, rpath, fobj = self.tmpfile.new(fname, key='longname')
+            fobj.close()
+            # is it keeping extensions properly?
+            fpath, rpath, fobj = self.tmpfile.new("1" + fname + '.tif', key='longname')
+            fobj.close()
+            self.assertEqual(fpath[-5:], 'a.tif')
+            fpath, rpath, fobj = self.tmpfile.new("2" + fname + '.ome.tiff', key='longname')
+            fobj.close()
+            self.assertEqual(fpath[-10:], 'a.ome.tiff')
+            fpath, rpath, fobj = self.tmpfile.new("3" + fname + 'ome.tiff', key='longname')
+            fobj.close()
+            self.assertEqual(fpath[-6:], 'a.tiff')
+            fpath, rpath, fobj = self.tmpfile.new("4" + fname + 'somethingverylong.zip', key='longname')
+            fobj.close()
+            self.assertEqual(fpath[-5:], 'a.zip')
+            fpath, rpath, fobj = self.tmpfile.new("5" + fname + '.tif.somethingverylong', key='longname')
+            fobj.close()
+            self.assertEqual(fpath[-5:], 'aaaaa')
+        except:
+            self.fail('WebGatewayTempFile.new not handling long file names properly')
         
+
 class WebGatewayCacheTest(unittest.TestCase):
     def setUp (self):
         self.wcache = WebGatewayCache(backend=FileCache, basedir='test_cache')
@@ -365,6 +410,21 @@ class JsonTest (WGTest):
         self.assert_('"split_channel":' in v)
         self.assert_('"pixel_range": [-32768, 32767]' in v)
 
+    def testListChildren (self):
+        self.loginAsAuthor()
+        img = self.getTestImage()
+        did = img.getParent().getId()
+        r = fakeRequest()
+        v = views.listImages_json(r, did=did, server_id=1, conn=self.gateway, _internal=True)
+        self.assert_(type(v) == type(''))
+        self.assert_('"id": %d,' % img.getId() in v)
+        self.assert_('"tiled: "' not in v)
+        r.setQuery(tiled='1')
+        v = views.listImages_json(r, did=did, server_id=1, conn=self.gateway, _internal=True)
+        self.assert_(type(v) == type(''))
+        self.assert_('"id": %d,' % img.getId() in v)
+        self.assert_('"tiled": false' in v)
+
 class UserProxyTest (WGTest):
     def test (self):
         self.loginAsAuthor()
@@ -373,8 +433,6 @@ class UserProxyTest (WGTest):
         int(user.getId())
         self.assertEqual(user.getName(), self.AUTHOR.name)
         self.assertEqual(user.getFirstName(), self.AUTHOR.firstname)
-        views._purge(True)
-
 
 class ZZ_TDTest(WGTest):
     def setUp (self):

@@ -33,6 +33,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -42,7 +43,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
@@ -92,10 +93,10 @@ public class InputDialog
 	/** Button to save the data. */
 	private JButton			save;
 	
-	/** The area where to enter the text. */
-	private JTextArea		area;
+	/** The field where to enter the text. */
+	private JTextField		textValue;
 	
-	/** The text entered in the {@link #area} when initialized. */
+	/** The text entered in the {@link #textValue} when initialized. */
 	private String			originalText;
 	
 	/** The icon displayed on the left-hand side. */
@@ -118,10 +119,15 @@ public class InputDialog
 		save.setActionCommand(""+SAVE);
 		save.setEnabled(false);
 		//area = new MultilineLabel(originalText);
-		area = new JTextArea(originalText);
-		area.setCaretPosition(originalText.length());
-		area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		area.getDocument().addDocumentListener(this);
+		textValue = new JTextField(originalText);
+		textValue.setCaretPosition(originalText.length());
+		textValue.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		textValue.getDocument().addDocumentListener(this);
+		textValue.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+			}
+		});
+		
 		getRootPane().setDefaultButton(save);
 	}
 	
@@ -131,7 +137,7 @@ public class InputDialog
 	 */
 	private void handleTextModification()
 	{
-		String text = area.getText();
+		String text = textValue.getText();
 		text = text.trim();
 		save.setEnabled(!originalText.equals(text));
 	}
@@ -147,7 +153,7 @@ public class InputDialog
 	/** Saves the edition. */
 	private void save()
 	{
-		String text = area.getText();
+		String text = textValue.getText();
 		firePropertyChange(EDIT_PROPERTY, originalText, text);
 		cancel();
 	}
@@ -185,7 +191,7 @@ public class InputDialog
 		cons.insets = new Insets(0, 0, 3, 0);
 		cons.fill = GridBagConstraints.HORIZONTAL;
 	    cons.weightx = 1;
-	    body.add(area, cons);
+	    body.add(textValue, cons);
 		top.add(realBody, BorderLayout.CENTER);
 		
 		JPanel p = new JPanel();
@@ -262,14 +268,14 @@ public class InputDialog
 	 * 
 	 * @return See above.
 	 */
-	public String getText() { return area.getText(); }
+	public String getText() { return textValue.getText(); }
 	
 	/**
 	 * Sets the text.
 	 * 
 	 * @param text The value to set.
 	 */
-	public void setText(String text) { area.setText(text); }
+	public void setText(String text) { textValue.setText(text); }
 	
 	/**
      * Shows the message box at the passed location and returns the option 

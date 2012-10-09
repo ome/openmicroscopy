@@ -91,10 +91,10 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.custom_models import Server
+from omeroweb.connector import Server
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 
@@ -107,7 +107,7 @@ from omeroweb.decorators import ConnCleaningHttpResponse
 
 logger = logging.getLogger(__name__)
 
-connectors = {}
+logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
 # views controll
@@ -129,6 +129,7 @@ def login(request):
     
     server_id = request.REQUEST.get('server')
     form = LoginForm(data=request.REQUEST.copy())
+    useragent = 'OMERO.web'
     if form.is_valid():
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
@@ -139,8 +140,8 @@ def login(request):
         
         # TODO: version check should be done on the low level, see #5983
         if server_id is not None and username is not None and password is not None \
-                and _checkVersion(*connector.lookup_host_and_port()):
-            conn = connector.create_connection('OMERO.web', username, password)
+                and connector.check_version(useragent):
+            conn = connector.create_connection(useragent, username, password)
             if conn is not None:
                 # Check if user is in "user" group
                 userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
@@ -152,6 +153,8 @@ def login(request):
                     if request.session.get('active_group'):
                         if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
                             del request.session['active_group']
+                    if request.session.get('user_id'):  # always want to revert to logged-in user
+                        del request.session['user_id']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
                     if request.REQUEST.get('noredirect'):
@@ -168,14 +171,13 @@ def login(request):
 
     
     if request.method == 'POST' and server_id is not None:
-        s = Server.get(server_id)
-        if s is not None and error is None:
-            if not _isServerOn(s.host, s.port):
-                error = "Server is not responding, please contact administrator."
-            elif not _checkVersion(s.host, s.port):
-                error = "Client version does not match server, please contact administrator."
-            else:
-                error = "Connection not available, please check your user name and password."
+        connector = Connector(server_id, True)
+        if not connector.is_server_up(useragent):
+            error = "Server is not responding, please contact administrator."
+        elif not connector.check_version(useragent):
+            error = "Client version does not match server, please contact administrator."
+        else:
+            error = "Connection not available, please check your user name and password."
     url = request.REQUEST.get("url")
     
     template = "webclient/login.html"
@@ -280,7 +282,7 @@ def switch_active_group(request, active_group=None):
         request.session['imageInBasket'] = set()        # empty basket
         request.session['basket_counter'] = 0
 
-@login_required()
+@login_required(login_redirect='webindex')
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
 
@@ -742,7 +744,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)   # TODO: Remove setGroupContext=True when #9505 is fixed
+@login_required()
 @render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
@@ -1070,13 +1072,18 @@ def batch_annotate(request, conn=None, **kwargs):
     form_comment = CommentAnnotationForm(initial=initial)
 
     obj_ids = []
+    obj_labels = []
     for key in oids:
         obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
+        for o in oids[key]:
+            obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     
-    context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string}
+    context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
+            'obj_labels': obj_labels}
     context['template'] = "webclient/annotations/batch_annotate.html"
+    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 
@@ -2017,20 +2024,26 @@ def activities(request, conn=None, **kwargs):
                 try:
                     prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
+                    close_handle = False
+                    try:
+                        # if response is None, then we're still in progress, otherwise...
+                        if rsp is not None:
+                            close_handle = True
+                            new_results.append(cbString)
+                            if isinstance(rsp, omero.cmd.ERR):
+                                request.session['callback'][cbString]['status'] = "failed"
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("chgrp failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
+                            elif isinstance(rsp, omero.cmd.OK):
+                                request.session['callback'][cbString]['status'] = "finished"
+                        else:
+                            in_progress+=1
+                    finally:
+                        prx.close(close_handle)
                 except:
                     logger.info("Activities chgrp handle not found: %s" % cbString)
-                # if response is None, then we're still in progress, otherwise...
-                if rsp is not None:
-                    new_results.append(cbString)
-                    if isinstance(rsp, omero.cmd.ERR):
-                        request.session['callback'][cbString]['status'] = "failed"
-                        rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                        logger.error("chgrp failed with: %s" % rsp_params)
-                        request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
-                    elif isinstance(rsp, omero.cmd.OK):
-                        request.session['callback'][cbString]['status'] = "finished"
-                else:
-                    in_progress+=1
+                    continue
 
         # update delete
         elif job_type == 'delete':

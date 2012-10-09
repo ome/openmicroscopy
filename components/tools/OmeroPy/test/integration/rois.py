@@ -76,22 +76,30 @@ class TestRois(lib.ITest):
         roi3.addShape(omero.model.EllipseI())
         roi3.setImage(img)
         roi3  = member.sf.getUpdateService().saveAndReturnObject(roi3)
+        self.assertEqual(wrapper.getROICount(),3)
+        self.assertEqual(wrapper.getROICount(filterByCurrentUser=True),2)
         self.assertEqual(wrapper.getROICount("Ellipse"),2)
         self.assertEqual(wrapper.getROICount("Ellipse",None),2)
         self.assertEqual(wrapper.getROICount("Ellipse",1),1)
+        self.assertEqual(wrapper.getROICount("Ellipse",True),1)
         self.assertEqual(wrapper.getROICount("Rect"),2)
         self.assertEqual(wrapper.getROICount("Rect",None),2)
         self.assertEqual(wrapper.getROICount("Rect",1),2)
+        self.assertEqual(wrapper.getROICount("Rect",True),2)
         
         # Member gateway
         conn = BlitzGateway(client_obj = member)
         wrapper = ImageWrapper(conn, img)            
+        self.assertEqual(wrapper.getROICount(),3)
+        self.assertEqual(wrapper.getROICount(filterByCurrentUser=True),1)
         self.assertEqual(wrapper.getROICount("Ellipse"),2)
         self.assertEqual(wrapper.getROICount("Ellipse",None),2)
         self.assertEqual(wrapper.getROICount("Ellipse",1),1)
+        self.assertEqual(wrapper.getROICount("Ellipse",True),1)
         self.assertEqual(wrapper.getROICount("Rect"),2)
         self.assertEqual(wrapper.getROICount("Rect",None),2)
         self.assertEqual(wrapper.getROICount("Rect",1),0)
+        self.assertEqual(wrapper.getROICount("Rect",True),0)
     
 
     def test8990(self):

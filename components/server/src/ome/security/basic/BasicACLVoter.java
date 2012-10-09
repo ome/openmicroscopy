@@ -30,6 +30,7 @@ import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.system.EventContext;
+import ome.system.Roles;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,12 +76,20 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final SecurityFilter securityFilter;
 
+    protected final Roles roles;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-            TokenHolder tokenHolder, SecurityFilter securityFilter) {
+        TokenHolder tokenHolder, SecurityFilter securityFilter) {
+        this(cd, sysTypes, tokenHolder, securityFilter, new Roles());
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+        TokenHolder tokenHolder, SecurityFilter securityFilter, Roles roles) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
+        this.roles = roles;
     }
 
     // ~ Interface methods
@@ -106,25 +115,43 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
-        if (d == null ||
-                sysTypes.isSystemType(klass) ||
-                sysTypes.isInSystemGroup(d) ||
-                sysTypes.isInUserGroup(d)) {
-            return true;
+        if (d == null || sysTypes.isSystemType(klass)) {
+            // Here we're returning true because there
+            // will be no group value that we can use
+            // to store any permissions and don't want
+            // WARNS in the log.
+
+            return true; // EARLY EXIT!
         }
 
-        boolean rv = securityFilter.passesFilter(session, d, currentUser.current());
+        boolean rv = false;
+        if (sysTypes.isInSystemGroup(d) ||
+                sysTypes.isInUserGroup(d)) {
+            rv = true;
+        }
+        else {
+            rv = securityFilter.passesFilter(session, d, currentUser.current());
+        }
 
         // Misusing this location to store the loaded objects perms for later.
-        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
+        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
             // cache it's permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
+            if (g == null) {
+                log.warn(String.format("Group null while loading %s:%s",
+                        klass.getName(), id));
+            }
             if (g != null) { // Null for system types
                 Long gid = g.getId();
                 Permissions p = g.getDetails().getPermissions();
-                this.currentUser.current().setPermissionsForGroup(gid, p);
+                if (p == null) {
+                    log.warn(String.format("Permissions null for group %s " +
+                            "while loading %s:%s", gid, klass.getName(), id));
+                } else {
+                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                }
             }
         }
 
@@ -179,7 +206,8 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
+            c.getCurrentGroupPermissions(), Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -198,7 +226,8 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
+                c.getCurrentGroupPermissions(), Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -247,7 +276,7 @@ public class BasicACLVoter implements ACLVoter {
      *     which should be allowed.
      */
     private int allowUpdateOrDelete(EventContext c, IObject iObject,
-        Details trustedDetails, Scope...scopes) {
+        Details trustedDetails, Permissions grpPermissions, Scope...scopes) {
 
         int rv = 0;
 
@@ -298,10 +327,8 @@ public class BasicACLVoter implements ACLVoter {
             throw new InternalException("trustedDetails are null!");
         }
 
-        final Permissions p = c.getCurrentGroupPermissions(); // From Group!
-
         // this should never occur.
-        if (p == null) {
+        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
             throw new InternalException(
                     "Permissions null! Security system "
                             + "failure -- refusing to continue. The Permissions should "
@@ -321,11 +348,11 @@ public class BasicACLVoter implements ACLVoter {
             }
 
             // standard
-            else if (p.isGranted(WORLD, scope.right)) {
+            else if (grpPermissions.isGranted(WORLD, scope.right)) {
                 rv |= (1<<i);
             }
 
-            else if (owner && p.isGranted(USER, scope.right)) {
+            else if (owner && grpPermissions.isGranted(USER, scope.right)) {
                 // Using cuId rather than getOwner since postProcess is also
                 // post-login!
                 rv |= (1<<i);
@@ -333,7 +360,7 @@ public class BasicACLVoter implements ACLVoter {
             // Previously restricted by ticket:1992
             // As of ticket:8562 this is handled by
             // the separation of ANNOTATE and WRITE
-            else if (member && p.isGranted(GROUP, scope.right) ) {
+            else if (member && grpPermissions.isGranted(GROUP, scope.right) ) {
                 rv |= (1<<i);
             }
         }
@@ -353,12 +380,27 @@ public class BasicACLVoter implements ACLVoter {
                     !(object instanceof ExperimenterGroup));
 
             final BasicEventContext c = currentUser.current();
+            Permissions grpPermissions = c.getCurrentGroupPermissions();
+            if (grpPermissions == Permissions.DUMMY && details.getGroup() != null) {
+                Long gid = details.getGroup().getId();
+                grpPermissions = c.getPermissionsForGroup(gid);
+                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
+                    grpPermissions = new Permissions(Permissions.EMPTY);
+                }
+            }
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            final int allow = allowUpdateOrDelete(c, object, details, grpPermissions,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
-            p.copyRestrictions(allow);
+
+            // #9635 - This is not the most efficient solution
+            // But since it's unclear why Permission objects
+            // are currently being shared, the safest solution
+            // is to always produce a copy.
+            Permissions copy = new Permissions(p);
+            copy.copyRestrictions(allow);
+            details.setPermissions(copy); // #9635
         }
     }
 

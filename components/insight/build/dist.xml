@@ -69,7 +69,7 @@
   <property name="dist.jar.file" value="omero.insight.jar"/>
    <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
-  <property name="dist.bundle.ij.name" value="OMERO.ij"/>
+  <property name="dist.bundle.ij.name" value="OMERO.insight-ij"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -237,7 +237,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL,distEditor-osx, dist-ij, 
+  	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win, dist-ij, 
   	distImporter-osx, distImporter-win"
           description="Build and package the app for distribution."> 
 

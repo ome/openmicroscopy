@@ -28,7 +28,6 @@ import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -82,6 +81,7 @@ import loci.formats.gui.ComboFileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -120,7 +120,7 @@ import pojos.TagAnnotationData;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
+public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
 
 	/** Bound property indicating to create the object. */
@@ -1681,8 +1681,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			object.setLoadThumbnail(showThumbnails.isSelected());
 		}
 		// tags
-		if (tagsMap.size() > 0)
-			object.setTags(tagsMap.values());
+		if (tagsMap.size() > 0) {
+			Iterator<TagAnnotationData> j = tagsMap.values().iterator();
+			List<TagAnnotationData> l = new ArrayList<TagAnnotationData>();
+			while (j.hasNext()) {
+				l.add(j.next());
+			}
+			object.setTags(l);
+		}
+			
 		if (partialName.isSelected()) {
 			Integer number = (Integer) numberOfFolders.getValueAsNumber();
 			if (number != null && number >= 0)
@@ -2259,18 +2266,26 @@ public class ImportDialog extends ClosableTabbedPaneComponent// JDialog
 			}
 		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			Object ho = evt.getNewValue();
-			List<DataObject> l = new ArrayList<DataObject>();
+			DataObject child = null, parent = null;
 			if (ho instanceof ProjectData || ho instanceof ScreenData) {
-				l.add((DataObject) ho);
+				child = (DataObject) ho;
 			} else if (ho instanceof DatasetData) {
-				l.add((DataObject) ho);
+				child = (DataObject) ho;
 				DataNode n = (DataNode) parentsBox.getSelectedItem();
 				if (!n.isDefaultNode()) {
-					l.add(n.getDataObject());
+					parent = n.getDataObject();
 				}
 			}
-			if (l.size() > 0)
-				firePropertyChange(CREATE_OBJECT_PROPERTY, null, l);
+			GroupData g = group;
+			if (groupSelection != null) {
+				JComboBoxImageObject o = (JComboBoxImageObject) groupSelection
+						.getSelectedItem();
+				g = (GroupData) o.getData();
+			}
+			if (child != null && g != null) {
+				firePropertyChange(CREATE_OBJECT_PROPERTY, null, 
+						new ObjectToCreate(g, child, parent));
+			}
 		}
 	}
 

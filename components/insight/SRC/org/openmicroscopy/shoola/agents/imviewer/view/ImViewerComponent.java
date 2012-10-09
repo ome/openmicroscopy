@@ -800,6 +800,8 @@ class ImViewerComponent
 	 */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
+		if (z < 0) z = model.getDefaultZ();
+		if (t < 0) t = model.getDefaultT();
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
@@ -831,6 +833,8 @@ class ImViewerComponent
 	 */
 	public void setSelectedRegion(int z, int t, Rectangle region)
 	{
+		if (z < 0) z = model.getDefaultZ();
+		if (t < 0) t = model.getDefaultT();
 		if (region == null || !model.isBigImage()) {
 			setSelectedXYPlane(z, t);
 			return;

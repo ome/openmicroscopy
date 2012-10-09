@@ -76,6 +76,9 @@ public abstract class ShapeData
 	private String convertPoints(String pts, String type)
 	{
 		if (pts.length() == 0) return "";
+		if (!pts.contains(type)) {//data inserted following the schema
+			return pts;
+		}
 		String exp = type+'[';
 		int typeStr = pts.indexOf(exp, 0);
 		int start = pts.indexOf('[', typeStr);
@@ -110,12 +113,20 @@ public abstract class ShapeData
 	protected List<Point2D.Double> parsePointsToPoint2DList(String str)
 	{
 		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
-		StringTokenizer tt = new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens()/2;
-		for (int i = 0; i < numTokens; i++)
-			points.add(
-					new Point2D.Double(new Double(tt.nextToken()), new Double(
-						tt.nextToken())));
+		if (str == null) return points;
+		StringTokenizer tt = new StringTokenizer(str, " ");
+		int numTokens = tt.countTokens();
+		StringTokenizer t;
+		int n;
+		for (int i = 0; i < numTokens; i++) {
+			t = new StringTokenizer(tt.nextToken(), ",");
+			n = t.countTokens()/2;
+			for (int j = 0; j < n; j++) {
+				points.add(
+					new Point2D.Double(new Double(t.nextToken()), new Double(
+							t.nextToken())));
+			}
+		}
 		return points;
 	}
 	
@@ -127,11 +138,18 @@ public abstract class ShapeData
 	protected List<Integer> parsePointsToIntegerList(String str)
 	{
 		List<Integer> points = new ArrayList<Integer>();
-
+		if (str == null) return points;
 		StringTokenizer tt = new StringTokenizer(str, ",");
 		int numTokens = tt.countTokens();
-		for (int i = 0; i< numTokens; i++)
-			points.add(new Integer(tt.nextToken()));
+		StringTokenizer t;
+		int n;
+		for (int i = 0; i< numTokens; i++) {
+			t = new StringTokenizer(tt.nextToken(), " ");
+			n = t.countTokens();
+			for (int j = 0; j < n; j++) {
+				points.add(new Integer(t.nextToken()));
+			}
+		}
 		return points;
 	}
 	

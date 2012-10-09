@@ -673,6 +673,14 @@ public class ModelMapper
     		n.setGreen(o.getGreen());
     		n.setBlue(o.getBlue());
     		n.setAlpha(o.getAlpha());
+    	} else if (oldObject instanceof PlateAcquisition) {
+    		PlateAcquisition n = (PlateAcquisition) newObject;
+    		PlateAcquisition o = (PlateAcquisition) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    		n.setEndTime(o.getEndTime());
+    		n.setStartTime(o.getStartTime());
+    		n.setMaximumFieldCount(o.getMaximumFieldCount());
     	}
     }
   

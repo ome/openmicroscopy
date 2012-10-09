@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -377,15 +378,8 @@ class ImporterControl
 			if (value != null) v = value.intValue();
 			model.refreshContainers(v);
 		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
-			List<DataObject> l = (List<DataObject>) evt.getNewValue();
-			if (l == null) return;
-			switch (l.size()) {
-				case 1:
-					model.createDataObject(l.get(0), null);
-					break;
-				case 2:
-					model.createDataObject(l.get(0), l.get(1));
-			}
+			ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
+			model.createDataObject(l);
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			view.appendDebugText((String) evt.getNewValue());
 		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {

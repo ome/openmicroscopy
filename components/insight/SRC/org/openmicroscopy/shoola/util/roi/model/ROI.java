@@ -212,12 +212,17 @@ public class ROI
 	 */
 	public String getTRange()
 	{
+		
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		int s = low.getTimePoint()+1;
-		int e = high.getTimePoint()+1;
+		int s = low.getTimePoint();
+		int e = high.getTimePoint();
+		if (s < 0 || e < 0) return "";
+		s++;
+		e++;
 		if (s == e) return ""+s;
 		return s+"-"+e;
+		
 	}
 	
 	/** 
@@ -229,8 +234,11 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		int s = low.getZSection()+1;
-		int e = high.getZSection()+1;
+		int s = low.getZSection();
+		int e = high.getZSection();
+		if (s < 0 || e < 0) return "";
+		s++;
+		e++;
 		if (s == e) return ""+s;
 		return s+"-"+e;
 	}

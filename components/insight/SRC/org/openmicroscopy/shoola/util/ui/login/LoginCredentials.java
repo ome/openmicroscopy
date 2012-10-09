@@ -119,7 +119,7 @@ public class LoginCredentials
     public LoginCredentials(String userName, String password, String hostName,
     						int speedLevel, int port, boolean encrypted)
     {
-    	this(userName, password, hostName, speedLevel, port, -1L, false);
+    	this(userName, password, hostName, speedLevel, port, -1L, encrypted);
     }
     
     /**

@@ -81,6 +81,7 @@ public class ViewInPluginCmd
 			SecurityContext ctx = browser.getSecurityContext(node);
 			ViewInPluginEvent event = new ViewInPluginEvent(ctx,
 					(DataObject) object, plugin);
+			event.setDataObjects(browser.getSelectedDataObjects());
 			TreeViewerAgent.getRegistry().getEventBus().post(event);
 		}
 	}

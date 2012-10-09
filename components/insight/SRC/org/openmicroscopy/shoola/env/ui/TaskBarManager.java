@@ -405,7 +405,7 @@ public class TaskBarManager
 	{
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
-			case ViewInPluginEvent.IMAGE_J:
+			case LookupNames.IMAGE_J:
 				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}
@@ -467,13 +467,10 @@ public class TaskBarManager
 		IconManager icons = IconManager.getInstance(container.getRegistry());
 		Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
 		CheckoutBox msg = new CheckoutBox(view, LOGOUT_TITLE, 
-				LOGOUT_TEXT, 
-				icons.getIcon(IconManager.QUESTION), instances);
+				LOGOUT_TEXT, icons.getIcon(IconManager.QUESTION), instances);
 		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
-			if (map == null || map.size() == 0) {
-				logOut();
-			} else {
+			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
 				Iterator<Entry<Agent, AgentSaveInfo>> 
 				i = map.entrySet().iterator();
@@ -487,8 +484,8 @@ public class TaskBarManager
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
-				logOut();
 			}
+			logOut();
 		}
 	}
 	
@@ -639,8 +636,8 @@ public class TaskBarManager
     }
 
 	/**
-	 * Returns <code>true</code> if the application is used as an 
-	 * <code></code>ImageJ plug-in, <code>false</code> otherwise.
+	 * Returns <code>true</code> if the application is used as 
+	 * plug-in e.g. ImageJ, KNIME, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -649,7 +646,7 @@ public class TaskBarManager
 		Environment env = (Environment) 
 		container.getRegistry().lookup(LookupNames.ENV);
     	if (env == null) return false;
-    	return env.runAsPlugin() == LookupNames.IMAGE_J;
+    	return env.runAsPlugin() >= 0;
 	}
 	
 	/** 
@@ -984,11 +981,11 @@ public class TaskBarManager
 		    	String v = "";
 		    	if (version != null && version instanceof String)
 		    		v = (String) version;
-		    	OMEROInfo omeroInfo = 
+		    	OMEROInfo info = 
 		    		(OMEROInfo) container.getRegistry().lookup(
 		    				LookupNames.OMERODS);
 		        
-		    	String port = ""+omeroInfo.getPortSSL();
+		    	String port = ""+info.getPortSSL();
 		    	String f = container.getConfigFileRelative(null);
 
 				String n = (String) container.getRegistry().lookup(
@@ -996,7 +993,11 @@ public class TaskBarManager
 
 		    	login = new ScreenLoginDialog(Container.TITLE,
 		    		getSplashScreen(Factory.createIcon(n, f)), img, v, port);
-		    	//login.setModal(true);
+		    	login.setEncryptionConfiguration(info.isEncrypted(),
+		    			info.isEncryptedConfigurable());
+		    	login.setHostNameConfiguration(info.getHostName(),
+		    			info.isHostNameConfigurable());
+		    	login.setModal(true);
 		    	login.setStatusVisible(false);
 				login.showConnectionSpeed(true);
 				login.addPropertyChangeListener(this);

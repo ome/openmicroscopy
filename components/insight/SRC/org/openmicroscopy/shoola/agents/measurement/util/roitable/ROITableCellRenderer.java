@@ -97,7 +97,6 @@ public class ROITableCellRenderer
 			boolean leaf, int row, boolean hasFocus)
 	{
 		Object thisObject = ((ROINode) value).getUserObject();
-		
 		if (thisObject instanceof ROI) {
 			ROI roi = (ROI) thisObject;
 			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)

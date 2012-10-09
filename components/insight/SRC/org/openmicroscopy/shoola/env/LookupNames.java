@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env;
 
 //Java imports
@@ -51,6 +50,11 @@ public class LookupNames
 	 * Field associated to the <code>ImageJ</code> plugin.
 	 */
 	public static final int IMAGE_J = 100;
+	
+	/** 
+	 * Field associated to the <code>Knime</code> plugin.
+	 */
+	public static final int KNIME = 101;
 	
 	/** Field to access the plugin.*/
 	public static final String PLUGIN = "Plugin";
@@ -308,4 +312,9 @@ public class LookupNames
 	public static final String ENTRY_POINT_HIERARCHY = 
 		"/application/entryPointHierarchy";
 
+	/** 
+	 * Field indicating that the application is ran head-less.
+	 */
+	public static final String HEADLESS = "Headless";
+	
 }

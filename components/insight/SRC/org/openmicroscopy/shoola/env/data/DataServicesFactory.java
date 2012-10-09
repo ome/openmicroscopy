@@ -57,11 +57,13 @@ import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -92,15 +94,7 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
-	
-	/** Indicates that the connection has been lost. */
-	public static final int LOST_CONNECTION = 0;
-	
-	/** Indicates that the server is out of service. */
-	public static final int SERVER_OUT_OF_SERVICE = 1;
-	
-	/** Indicates that the server is out of service. */
-	public static final int DESTROYED_CONNECTION = 2;
+
 	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
@@ -272,13 +266,15 @@ public class DataServicesFactory
 	
     /**
      * Returns <code>true</code> if the server and the client are compatible,
-     * <code>false</code> otherwise.
+     * <code>false</code> otherwise. Return <code>null</code> if an error
+     * occurred while comparing the versions and the user does not want to
+     * connect.
      * 
      * @param server The version of the server.
      * @param client The version of the client.
      * @return See above.
      */
-    private boolean checkClientServerCompatibility(String server, String client)
+    private Boolean checkClientServerCompatibility(String server, String client)
     {
     	if (server == null || client == null) return false;
     	if (client.charAt(0) == '@') return true;
@@ -289,12 +285,34 @@ public class DataServicesFactory
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
     	if (values.length < 2 || valuesClient.length < 2) return false;
-    	int s1 = Integer.parseInt(values[0]);
-    	int s2 = Integer.parseInt(values[1]);
-    	int c1 = Integer.parseInt(valuesClient[0]);
-    	int c2 = Integer.parseInt(valuesClient[1]);
-    	if (s1 < c1) return false;
-    	if (s2 < c2) return false;
+    	try {
+    		int s1 = Integer.parseInt(values[0]);
+        	int s2 = Integer.parseInt(values[1]);
+        	int c1 = Integer.parseInt(valuesClient[0]);
+        	int c2 = Integer.parseInt(valuesClient[1]);
+        	if (s1 < c1) return false;
+        	if (s2 < c2) return false;
+		} catch (Exception e) {
+			//Record error
+			LogMessage msg = new LogMessage();
+			msg.print("Client server compatibility");
+			msg.print(e);
+			registry.getLogger().debug(this, msg);
+			//Notify user that it is not possible to parse
+			String message = "An error occurred while checking " +
+					"the compatibility between client and server." +
+					"\nDo you " +
+					"still want to connect (further errors might occur)?";
+			JFrame f = new JFrame();
+			f.setIconImage(IconManager.getOMEImageIcon());
+			MessageBox box = new MessageBox(f, "Version Check", message);
+			box.setAlwaysOnTop(true);
+			if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+				return true;
+			}
+			return null;
+		}
+    	
     	return true;
     }
     
@@ -309,13 +327,14 @@ public class DataServicesFactory
     		String serverVersion, String hostname)
     {
     	UserNotifier un = registry.getUserNotifier();
-    	String message = "The client version ("+clientVersion+") is not " +
-    			"compatible with the following server:"+hostname;
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append("The client version ("+clientVersion+") is not " +
+    			"compatible with the server:\n"+hostname);
     	if (serverVersion != null) {
-    		message += " version:"+serverVersion;
+    		buffer.append(" version:"+serverVersion);
     	}
-    	message += ".";
-    	un.notifyInfo("Client Server not compatible", message);
+    	buffer.append(".");
+    	un.notifyInfo("Client Server not compatible", buffer.toString());
     }
     
     /**
@@ -375,8 +394,8 @@ public class DataServicesFactory
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
-			case DESTROYED_CONNECTION:
-			case LOST_CONNECTION:
+			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
+			case ConnectionExceptionHandler.LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will now exit.";
 				connectionDialog = new MessageBox(
@@ -439,7 +458,7 @@ public class DataServicesFactory
 					}
 				}
 				break;
-			case SERVER_OUT_OF_SERVICE:
+			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
@@ -517,7 +536,13 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        if (!checkClientServerCompatibility(version, clientVersion)) {
+        Boolean check = checkClientServerCompatibility(version, clientVersion);
+        if (check == null) {
+        	compatible = false;
+        	omeroGateway.logout();
+        	return;
+        }
+        if (!check.booleanValue()) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
@@ -527,17 +552,21 @@ public class DataServicesFactory
         ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
         		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
         		uc.getGroup());
+        //Post an event to indicate that the user is connected.
+        EventBus bus = container.getRegistry().getEventBus();
+        bus.post(new ConnectedEvent());
+        //Post an event to notify 
         compatible = true;
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
         msg.println("Server version: "+version);
         msg.println("Client version: "+clientVersion);
-        Entry entry;
-        Iterator k = info.entrySet().iterator();
+        Entry<String, String> entry;
+        Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
-        	entry = (Entry) k.next();
-        	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
+        	entry = k.next();
+        	msg.println(entry.getKey()+": "+entry.getValue());
 		}
         registry.getLogger().info(this, msg);
         
@@ -646,27 +675,6 @@ public class DataServicesFactory
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
-		Collection groups = (Collection) 
-		registry.lookup(LookupNames.USER_GROUP_DETAILS);
-		if (groups != null && groups.size() > 0) {
-			ExperimenterData exp = (ExperimenterData) 
-			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-			GroupData group = exp.getDefaultGroup();	
-			Iterator i = groups.iterator();
-			GroupData g;
-			Map<Long, String> names = new LinkedHashMap<Long, String>();
-			while (i.hasNext()) {
-				g = (GroupData) i.next();
-				if (g.getId() != group.getId()) {
-					if (!omeroGateway.isSystemGroup(g.asGroup()))
-						names.put(g.getId(), g.getName());
-				}
-			}
-			if (!omeroGateway.isSystemGroup(group.asGroup()))
-				names.put(group.getId(), group.getName());
-			if (names.size() == 0) names = null;
-			ScreenLogin.registerGroup(names);
-		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 
@@ -737,16 +745,4 @@ public class DataServicesFactory
 		}
 	}
 
-	/**
-	 * Checks if the session is alive.
-	 * 
-	 * @param context 	The context to make sure that agents do not
-	 * 					access the method.
-	 * @param ctx The security context.
-	 */
-	public static void isSessionAlive(Registry context, SecurityContext ctx)
-	{
-		if (context == registry) omeroGateway.isSessionAlive(ctx);
-	}
-	
 }

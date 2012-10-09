@@ -51,11 +51,7 @@
                 // show a link to the current objects
                 $("#show_link_btn").click(function(){
                     $("#link_info_popup").show();
-                    var lnk = location.href.substring(0,location.href.length - location.search.length);
-                    if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}
-                    lnk = lnk + "?show={{ link_string }}";      // E.g. image-123|image-890
                     var link_input = $("#link_info_popup input");
-                    link_input.val(lnk);
                     link_input.get(0).focus();
                     link_input.get(0).select();
                 });
@@ -194,6 +190,18 @@
                     return false;
                 });
 
+                $(".tooltip_title").tooltip({ 
+                    bodyHandler: function() { 
+                            return $("span.tooltip_html", $(this)).html(); 
+                        },
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: 10, 
+                    left: -100 
+                });
             });
             
     </script>
@@ -210,14 +218,23 @@
     </div>
 
 
-	<h1 style="position: relative">
+	<h1 id="batch_ann_title" style="position: relative">
 	    Batch Annotate:
+	    <span class="tooltip_title">
+	        {{ obj_labels|length }} objects
+	        <span style="width:20px; height:20px; display: inline-block" class="btn_info"> &nbsp </span>
+	        <span class="tooltip_html" style='display:none'>
+                {% for label in obj_labels %}
+                    <div><b>{{ label.type }} {{ label.id}}:</b> {{ label.name|truncateafter:"40" }}</div>
+                {% endfor %}
+            </span>
+        </span>
 	    <!-- multi-object link -->
         <button id="show_link_btn" class="btn silver btn_link" title="Link to the selected Objects">
 			<span></span>
 		</button>
 		<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-		    <input type="text" size="30">
+		    <input type="text" size="30" value="{{ webclient_path }}?show={{ link_string }}"/> <!-- E.g. image-123|image-890 -->
 		    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
 		</div>
 	</h1>

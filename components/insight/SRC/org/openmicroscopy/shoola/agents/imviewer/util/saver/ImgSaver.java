@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -477,6 +478,10 @@ public class ImgSaver
         boolean constrain;
         try {
         	String name = uiDelegate.getSelectedFilePath();
+        	
+        	// make sure the parent directory paths all exist
+        	FileUtils.forceMkdir(new File(name).getParentFile());
+        	
             if (imageComponents == null) {
             	constrain = unitBar && v != null && s < mainImage.getWidth() 
             				&& imageType == ImgSaverUI.IMAGE;

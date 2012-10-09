@@ -760,6 +760,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
+				view.setVisible(true);
 				view.setOnScreen();
 				view.selectFirstPane();
 				model.getSelectedBrowser().activate();
@@ -783,10 +784,10 @@ class TreeViewerComponent
 	 */
 	public void discard()
 	{
-		Map browsers = getBrowsers();
-		Iterator i = browsers.values().iterator();
+		Map<Integer, Browser> browsers = getBrowsers();
+		Iterator<Browser> i = browsers.values().iterator();
 		while (i.hasNext())
-			((Browser) i.next()).discard();
+			i.next().discard();
 		model.discard();
 		fireStateChange();
 	}
@@ -3876,31 +3877,18 @@ class TreeViewerComponent
 	 */
 	public void onGroupSwitched(boolean success)
 	{
-		/*
-		ExperimenterData exp = TreeViewerAgent.getUserDetails();
-		GroupData group = exp.getDefaultGroup();
-		long oldGroup = model.getUserGroupID();
-		if (success) {
-			model.setRndSettings(null);
-			model.setNodesToCopy(null, -1);
-			view.removeAllFromWorkingPane();
-			model.setDataViewer(null);
-			model.getMetadataViewer().onGroupSwitched(success);
-			//model.resetMetadataViewer();
-			Map<Integer, Browser> browsers = model.getBrowsers();
-			Entry entry;
-			Browser browser;
-			Iterator i = browsers.entrySet().iterator();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				browser = (Browser) entry.getValue();
-				browser.reActivate();
-			}
-			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
-					model.getUserGroupID());
-			view.createTitle();
-		}
-		*/
+		model.setRndSettings(null);
+		model.setNodesToCopy(null, -1);
+		//remove thumbnails browser
+		view.removeAllFromWorkingPane();
+		model.setDataViewer(null);
+		
+		//reset metadata
+		MetadataViewer mv = view.resetMetadataViewer();
+		mv.addPropertyChangeListener(controller);
+		
+		//reset search
+		clearFoundResults();
 	}
 	
 	/**
