@@ -137,15 +137,60 @@ module omero {
         };
 
         /**
+         * Returned by [ManagedRepository::prepareUpload] with
+         * the information needed to proceed with an FS import.
+         * For the examples that follow, assume that the used
+         * files passed to prepareUpload were:
+         *
+         * <pre>
+         *  /Users/jack/Documents/Data/Experiment-1/1.dv
+         *  /Users/jack/Documents/Data/Experiment-1/1.dv.log
+         *  /Users/jack/Documents/Data/Experiment-2/2.dv
+         *  /Users/jack/Documents/Data/Experiment-2/2.dv.log
+         * </pre>
+         *
+         **/
+        class Import {
+
+            /**
+             * The shared base of all the paths passed to
+             * the server.
+             **/
+            string sharedPath;
+
+            /**
+             * Number of directories which have been omitted
+             * from the original paths passed to the server.
+             **/
+            int omittedLevels;
+
+            /**
+             * Parsed string names which should be used by the
+             * clients during upload. This array will be of the
+             * same length as the argument passed to
+             * [ManagedRepository::prepareUpload] but will have
+             * shortened paths.
+             *
+             * <pre>
+             *  Experiment/1.dv
+             *  Experiment/1.dv.log
+             * </pre>
+             **/
+            omero::api::StringSet usedFiles;
+
+            /**
+             * Represents the directory to which all files
+             * will be uploaded.
+             **/
+            omero::model::OriginalFile directory;
+
+        };
+
+        /**
          * FS-enabled repository which can convert uploaded files
          * into Images by using Bio-Formats to import them.
          **/
         ["ami"] interface ManagedRepository extends Repository {
-
-            /**
-             *
-             **/
-            omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
 
             /**
              * Returns the directory which should be the import location for
@@ -154,7 +199,24 @@ module omero {
              * overwritten or interfering with one another, a new directory
              * may be created for the current session.
              **/
-            omero::model::OriginalFile getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
+            Import prepareImport(omero::api::StringSet paths) throws ServerError;
+
+            /**
+             *
+             **/
+            omero::api::RawFileStore* uploadUsedFile(Import importData, string usedFile) throws ServerError;
+
+            /**
+             * This will free any locks, etc in the Up
+             **/
+            omero::api::PixelsList importMetadata(Import importData, RepositoryImportContainer ic) throws ServerError;
+
+            /**
+             * If the user cancels the import, then this method should
+             * be called in order to delete any dangling files and free up resources.
+             **/
+            void cancelImport(Import importData) throws ServerError;
+
 
         };
 

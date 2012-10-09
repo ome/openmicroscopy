@@ -48,6 +48,7 @@ import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.Import;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryImportContainer;
@@ -284,19 +285,6 @@ public class ImportLibrary implements IObservable
         return true;
     }
 
-    public List<Pixels> importMetadataViaRepository(ImportContainer container, int index,
-                                    int numDone, int total)
-            throws Exception
-    {
-        checkManagedRepo();
-        RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
-        List<Pixels> pixList = repo.importMetadata(repoIc);
-        notifyObservers(new ImportEvent.IMPORT_DONE(
-                index, container.getFile().getAbsolutePath(),
-                null, null, 0, null, pixList));
-        return pixList;
-    }
-
     /**
      * Create a RepositoryImportContainer from an ImportContainer
      */
@@ -445,15 +433,17 @@ public class ImportLibrary implements IObservable
 
     /**
      * Upload files to the managed repository.
+     *
+     * This is done by first passing in the possibly absolute local file paths.
+     * A common selection of those are chosen and passed back to the client.
+     *
      * @param container The current import container we're to handle.
      * @return Rewritten container after files have been copied to repository.
      */
-    public ImportContainer uploadFilesToRepository(ImportContainer container)
+    public Import uploadFilesToRepository(final ImportContainer container)
             throws ServerError
     {
         checkManagedRepo();
-        ServiceFactoryPrx sf = store.getServiceFactory();
-        RawFileStorePrx rawFileStore = sf.createRawFileStore();
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
         if (log.isDebugEnabled()) {
@@ -463,21 +453,22 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
-        byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
-        List<String> srcFiles = Arrays.asList(usedFiles);
-        List<String> destFiles = repo.getCurrentRepoDir(srcFiles);
-        int fileTotal = srcFiles.size();
+        final byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
+        final List<String> srcFiles = Arrays.asList(usedFiles);
+        final int fileTotal = srcFiles.size();
+        final Import data = repo.prepareImport(srcFiles);
+
         notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                 null, 0, fileTotal, null, null, null));
+
         for (int i = 0; i < fileTotal; i++) {
             File file = new File(srcFiles.get(i));
             long length = file.length();
             FileInputStream stream = null;
+            RawFileStorePrx rawFileStore = null;
             try {
                 stream = new FileInputStream(file);
-                file = new File(destFiles.get(i));
-                repo.makeDir(file.getParent());
-                rawFileStore = repo.file(file.getAbsolutePath(), "rw");
+                rawFileStore = repo.uploadUsedFile(data, file.getAbsolutePath());
                 int rlen = 0;
                 long offset = 0;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -499,21 +490,13 @@ public class ImportLibrary implements IObservable
                 break;
             }
             finally {
-                rawFileStore.close();
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    }
-                    catch (Exception e) {
-                        log.error("I/O error closing stream.", e);
-                    }
-                }
+                cleanupUpload(rawFileStore, stream);
             }
         }
         notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
                 null, fileTotal, fileTotal, null, null, null));
 
-        usedFiles = destFiles.toArray(new String[destFiles.size()]);
+        usedFiles = data.usedFiles.toArray(new String[data.usedFiles.size()]);
         if (log.isDebugEnabled()) {
             log.debug("Used files after:");
             for (String f : usedFiles) {
@@ -522,7 +505,26 @@ public class ImportLibrary implements IObservable
         }
         container.setUsedFiles(usedFiles);
         container.setFile(new File(usedFiles[0]));
-        return container;
+        return data;
+    }
+
+    private void cleanupUpload(RawFileStorePrx rawFileStore,
+            FileInputStream stream) throws ServerError {
+        try {
+            if (rawFileStore != null) {
+                rawFileStore.close();
+            }
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                }
+                catch (Exception e) {
+                    log.error("I/O error closing stream.", e);
+                }
+            }
+        }
+
     }
 
     /**
@@ -547,10 +549,16 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
-        if(!container.getMetadataOnly()) {
-            container = uploadFilesToRepository(container);
+        if(container.getMetadataOnly()) {
+            throw new RuntimeException("Unsupported");
         }
-        List<Pixels> pixList = importMetadataViaRepository(container, index, numDone, total);
+
+        Import data = uploadFilesToRepository(container);
+        RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
+        List<Pixels> pixList = repo.importMetadata(data, repoIc);
+        notifyObservers(new ImportEvent.IMPORT_DONE(
+                index, container.getFile().getAbsolutePath(),
+                null, null, 0, null, pixList));
         return pixList;
     }
 

@@ -57,6 +57,7 @@ public abstract class AbstractServantTest extends TestCase {
 
     protected ManagedContextFixture user, root;
     protected OmeroContext ctx;
+    protected File omeroDataDir;
 
     public class RV {
         public Exception ex;
@@ -74,7 +75,7 @@ public abstract class AbstractServantTest extends TestCase {
     protected void setUp() throws Exception {
 
         // ticket:#6417
-        File omeroDataDir = TempFileManager.create_path(".omeroDataDir", "test", true);
+        omeroDataDir = TempFileManager.create_path(".omeroDataDir", "test", true);
         System.setProperty("omero.data.dir", omeroDataDir.getAbsolutePath());
 
         // Shared

@@ -121,6 +121,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return new _RepositoryTie(this);
     }
 
+    public String getRepoUuid() {
+        return repoUuid;
+    }
+
     //
     // OriginalFile-based Interface methods
     //

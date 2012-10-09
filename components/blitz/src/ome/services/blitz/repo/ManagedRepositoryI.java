@@ -19,9 +19,16 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Ice.Current;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -32,19 +39,15 @@ import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+
 import omero.ServerError;
+import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.Import;
 import omero.grid.RepositoryImportContainer;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Ice.Current;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -80,7 +83,45 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return new _ManagedRepositoryTie(this);
     }
 
-    public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
+    //
+    // INTERFACE METHODS
+    //
+
+    /**
+     * Return a template based directory path.
+     * (an option here would be to create the dir if it doesn't exist??)
+     */
+    public Import prepareImport(java.util.List<String> paths, Ice.Current __current)
+            throws omero.ServerError {
+
+        // This is the first part of the string which comes after:
+        // ManagedRepository/, e.g. ${user}/${year}/etc.
+        final String relPath = expandTemplate(__current);
+
+        // The next part of the string which is chosen by the user:
+        // /home/bob/myStuff
+        String basePath = commonRoot(paths);
+
+        // If any two files clash in that chosen basePath directory, then
+        // we want to suggest a similar alternative.
+        Import data = suggestOnConflict(root.normPath, relPath, basePath, paths);
+        String path = FilenameUtils.concat(relPath, basePath);
+        String name = FilenameUtils.getName(path);
+        path = FilenameUtils.getPath(path); // omit last bit.
+        data.directory = repositoryDao.createUserDirectory(getRepoUuid(), path,
+                name, currentUser(__current));
+        return data;
+    }
+
+
+    public RawFileStorePrx uploadUsedFile(Import importData, String usedFile, Ice.Current __current)
+            throws omero.ServerError {
+        return file(usedFile, "rw", __current); // FIXME.
+    }
+
+    public List<Pixels> importMetadata(Import importData,
+            RepositoryImportContainer repoIC, Current __current) throws ServerError {
+
         ServiceFactoryPrx sf = null;
         OMEROMetadataStoreClient store = null;
         OMEROWrapper reader = null;
@@ -97,7 +138,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
             ImportLibrary library = new ImportLibrary(store, reader);
-            ImportContainer ic = createImportContainer(repoIC);
+            ImportContainer ic = createImportContainer(repoIC, __current);
             pix = library.importImageInternal(ic, 0, 0, 1);
         }
         catch (ServerError se) {
@@ -153,7 +194,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return pix;
     }
 
-    private void append(StringBuilder stacks, StringBuilder message,
+
+    public void cancelImport(Import importData, Ice.Current __current)
+               throws ServerError {
+        throw new omero.InternalException(null, null, "NYI"); // FIXME
+    }
+
+    //
+    // HELPERS
+    //
+
+    protected void append(StringBuilder stacks, StringBuilder message,
             Throwable err) {
         if (err != null) {
             message.append("=========================");
@@ -167,8 +218,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /**
      * Create an ImportContainer from a RepositoryImportContainer
      */
-    private ImportContainer createImportContainer(RepositoryImportContainer repoIC) {
-        ImportContainer ic = new ImportContainer(new File(repoIC.file), repoIC.projectId,
+    protected ImportContainer createImportContainer(RepositoryImportContainer repoIC,
+            Ice.Current __current) throws omero.ValidationException {
+        CheckedPath cp = checkPath(repoIC.file, __current);
+        ImportContainer ic = new ImportContainer(cp.file, repoIC.projectId,
 			    repoIC.target, false, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
 		ic.setBfImageCount(repoIC.bfImageCount);
 		ic.setBfPixels(repoIC.bfPixels);
@@ -191,28 +244,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
 		ic.setDoThumbnails(repoIC.doThumbnails);
 		ic.setCustomAnnotationList(repoIC.customAnnotationList);
         return ic;
-    }
-
-
-    /**
-     * Return a template based directory path.
-     * (an option here would be to create the dir if it doesn't exist??)
-     */
-    public OriginalFile getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
-
-        // This is the first part of the string which comes after:
-        // ManagedRepository/, e.g. ${user}/${year}/etc.
-        final String relPath = expandTemplate(__current);
-
-        // The next part of the string which is chosen by the user:
-        // /home/bob/myStuff
-        String basePath = commonRoot(paths);
-
-        // If any two files clash in that chosen basePath directory, then
-        // we want to suggest a similar alternative.
-        basePath = suggestOnConflict(normRootSlash, relPath, basePath, paths);
-
-        return createUserDirectory(basePath);
     }
 
     /**
@@ -296,7 +327,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param basePath Common base of all the listed paths ("/my/path")
      * @return Suggested new basePath in the case of conflicts.
      */
-    protected String suggestOnConflict(String trueRoot, String relPath,
+    protected Import suggestOnConflict(String trueRoot, String relPath,
             String basePath, List<String> paths) {
 
         final String nonEndPart = new File(basePath).getParent();
@@ -321,12 +352,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 endPart = uniquePathElement + "-" + Integer.toString(version);
             }
         }
-        return endPart;
 
-    }
+        Import data = new Import();
+        data.usedFiles = new ArrayList<String>(paths.size());
+        return data;
 
-    protected OriginalFile createUserDirectory(String basePath) {
-        return null;
     }
 
 }

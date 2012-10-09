@@ -10,6 +10,8 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.util.Executor;
 import ome.system.Principal;
+
+import omero.grid.Import;
 import omero.util.TempFileManager;
 
 import org.jmock.Mock;
@@ -31,7 +33,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String suggestOnConflict(String trueRoot, String relPath,
+        public Import suggestOnConflict(String trueRoot, String relPath,
                 String basePath, List<String> paths) {
             return super.suggestOnConflict(trueRoot, relPath, basePath, paths);
         }
@@ -57,7 +59,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         new File(this.tmpDir, "/my/path");
         String expectedBasePath = "path";
         String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/my/path", Arrays.asList("/my/path/foo", "/my/path/bar"));
+                null, "/my/path", Arrays.asList("/my/path/foo", "/my/path/bar")).sharedPath;
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
@@ -66,7 +68,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         new File(this.tmpDir, "/upload");
         String expectedBasePath = "upload-1";
         String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/upload", Arrays.asList("/upload/foo", "/upload/bar"));
+                null, "/upload", Arrays.asList("/upload/foo", "/upload/bar")).sharedPath;
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
@@ -74,7 +76,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() {
         String expectedBasePath = "upload";
         String suggestedBasePath = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                null, "/upload", new ArrayList<String> ());
+                null, "/upload", new ArrayList<String> ()).sharedPath;
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
