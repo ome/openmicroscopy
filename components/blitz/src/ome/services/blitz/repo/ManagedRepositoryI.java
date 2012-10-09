@@ -253,12 +253,21 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected String commonRoot(List<String> paths) {
         String[] parts = splitLastElement(paths.get(0));
-        for (String path : paths)
+
+        OUTER: while (true)
         {
-            if (!path.startsWith(parts[0]))
+            for (String path : paths)
             {
-                parts = splitLastElement(parts[0]);
+                if (!path.startsWith(parts[0]))
+                {
+                    parts = splitLastElement(parts[0]);
+                    if (".".equals(parts[0]) || "/".equals(parts[0])) {
+                        break OUTER;
+                    }
+                    continue OUTER;
+                }
             }
+            break;
         }
         return parts[0];
     }
