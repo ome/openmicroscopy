@@ -251,6 +251,10 @@
 
 
                 // Choose to add tags...
+                if ($("#add_tags_form").length === 0) {
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'>")
+                        .hide().appendTo('body');
+                }
                 $("#launch_tags_form").click(function(event) {
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
@@ -291,6 +295,10 @@
 
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+                if ($("#choose_attachments_form").length === 0) {
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'>")
+                        .hide().appendTo('body');
+                }
                 $('#choose_attachments_form').ajaxForm({
                     beforeSubmit: function(data) {
                         $("#batch_attachments_form").dialog( "close" );
@@ -985,11 +993,7 @@
 						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
 					</div>
                 {% endif %}
-                
-				<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
-                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
-                </form>
-				
+
                 <!-- display existing Tags -->
                 <div id="tags_container" class="lntags">
                 {% for tag in manager.tag_annotations %}
@@ -1014,11 +1018,6 @@
                         </a>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-                    
-                    <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
-                    <form id="choose_attachments_form" style="display:none" title="Choose Attachments" action="{% url annotate_file %}" method="post">
-                    </form>
-                    
 
                 <!-- display existing file annotations -->
 
