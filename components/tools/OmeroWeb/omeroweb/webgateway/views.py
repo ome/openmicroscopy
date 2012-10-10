@@ -43,6 +43,7 @@ from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException, InternalException
 from omero.gateway import timeit, TimeIt, OriginalFileWrapper
+from omeroweb.decorators import ConnCleaningHttpResponse
 
 import Ice
 import glob
@@ -2032,7 +2033,7 @@ def repository_root(request, index, conn=None, **kwargs):
                 name=OriginalFileWrapper(conn=conn, obj=description).getName())
 
 
-@login_required()
+@login_required(doConnectionCleanup=False)
 def repository_download(request, index, filepath, conn=None, **kwargs):
     """
     Downloads a file from a repository.  Supports the HTTP_RANGE header to
@@ -2050,7 +2051,7 @@ def repository_download(request, index, filepath, conn=None, **kwargs):
     except InternalException:
         raise Http404()
 
-    def chunk_copy_from_repo(source, target, start, end):
+    def iterate_content(source, start, end):
         chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
         position = start
         to_read = end - start + 1
@@ -2060,7 +2061,7 @@ def repository_download(request, index, filepath, conn=None, **kwargs):
                 break
             to_read -= len(chunk)
             position += len(chunk)
-            target.write(chunk)
+            yield chunk
 
     def parse_range(request, size):
         # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
@@ -2084,10 +2085,14 @@ def repository_download(request, index, filepath, conn=None, **kwargs):
     filesize = sourcefile.size()
 
     code, start, end = parse_range(request, filesize)
-    response = HttpResponse(status=code, content_type='application/octet-stream')
+
     if code < 400:
+        response = ConnCleaningHttpResponse(iterate_content(sourcefile, start, end))
+        response['Content-Type'] = 'application/octet-stream'
         response['Content-Length'] = end - start + 1
-        chunk_copy_from_repo(sourcefile, response, start, end)
+
+    else:
+        response = HttpResponse(status=code)
 
     return response
 
