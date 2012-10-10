@@ -38,7 +38,11 @@ import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.system.Principal;
 
+import omero.api.AMD_RawFileStore_write;
+import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
+import omero.api._RawFileStoreTie;
 import omero.grid.Import;
 import omero.grid.RepositoryImportContainer;
 import omero.model.Pixels;
@@ -49,7 +53,8 @@ import omero.util.TempFileManager;
 @Test(groups = { "integration", "repo", "fslite" })
 public class ManagedRepositoryITest extends AbstractServantTest {
 
-    Mock adapterMock;
+    FakeAdapter adapter;
+    Mock adapterMock, regMock, sfMock;
     ManagedRepositoryI repo;
     LegacyRepositoryI internal;
 
@@ -57,9 +62,17 @@ public class ManagedRepositoryITest extends AbstractServantTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
+        adapter = new FakeAdapter();
         adapterMock = (Mock) user.ctx.getBean("adapterMock");
-        adapterMock.setDefaultStub(new FakeAdapter());
-        Registry reg = null;
+        adapterMock.setDefaultStub(adapter);
+
+        sfMock = mock(ServiceFactoryPrx.class);
+        sfMock.setDefaultStub(new FakeProxy(null, user.sf));
+
+        regMock = mock(Registry.class);
+        regMock.expects(atLeastOnce()).method("getInternalServiceFactory")
+            .will(returnValue(sfMock.proxy()));
+        Registry reg = (Registry) regMock.proxy();
 
         final Principal rootPrincipal = root.getPrincipal();
         final Principal userPrincipal = user.getPrincipal();
@@ -111,6 +124,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
                 Boolean.FALSE /*archive*/, null /*user pixels */,
                 null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
                 Boolean.FALSE /*spw*/);
+        ic.setBfImageCount(1);
         return ic;
     }
 
@@ -121,26 +135,46 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         Import i = repo.prepareImport(Arrays.asList(ic.getUsedFiles()), curr());
         assertNotNull(i);
 
-        RawFileStorePrx file = null;
-        try {
-            file = repo.uploadUsedFile(i, i.usedFiles.get(0), curr());
-            file.write(new byte[]{0}, 0, 1);
-            file.close();
-            file = repo.uploadUsedFile(i, i.usedFiles.get(1), curr());
-            file.write(
-                    new byte[]{0}, 0, 1);
-            file.close();
-            file = null;
-            // FIXME: This should be a much simpler method call.
-            RepositoryImportContainer repoIc =
-                    ImportLibrary.createRepositoryImportContainer(ic);
-            List<Pixels> pixList = repo.importMetadata(i, repoIc, curr());
-        } finally {
-            if (file != null) {
-                file.close();
-            }
-        }
+        upload(repo.uploadUsedFile(i, i.usedFiles.get(0), curr()));
+        upload(repo.uploadUsedFile(i, i.usedFiles.get(1), curr()));
+
+        // FIXME: This should be a much simpler method call.
+        RepositoryImportContainer repoIc =
+                ImportLibrary.createRepositoryImportContainer(ic);
+        List<Pixels> pixList = repo.importMetadata(i, repoIc, curr());
 
     }
 
+    void upload(RawFileStorePrx prx) throws Exception {
+        final Exception[] ex = new Exception[1];
+        final _RawFileStoreTie file = (_RawFileStoreTie) adapter.findByProxy(prx);
+        try {
+            file.write_async(new AMD_RawFileStore_write(){
+                public void ice_response() {
+                    // no-op
+                }
+
+                public void ice_exception(Exception ex2) {
+                    ex[0] = ex2;
+                }}, new byte[]{0}, 0, 1, curr());
+        } finally {
+            file.close_async(new AMD_StatefulServiceInterface_close(){
+
+                public void ice_response() {
+                    // no-op
+                }
+
+                public void ice_exception(Exception ex2) {
+                    if (ex[0] == null) {
+                        ex[0] = ex2;
+                    } else {
+                        ex2.printStackTrace();
+                    }
+                }}, curr());
+        }
+        if (ex[0] != null) {
+            throw ex[0];
+        }
+
+    }
 }

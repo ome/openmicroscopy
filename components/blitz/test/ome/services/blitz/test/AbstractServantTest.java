@@ -45,12 +45,13 @@ import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.IOUtils;
+import org.jmock.MockObjectTestCase;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
-public abstract class AbstractServantTest extends TestCase {
+public abstract class AbstractServantTest extends MockObjectTestCase {
 
     private final static AtomicReference<File> tinyHolder =
         new AtomicReference<File>();
