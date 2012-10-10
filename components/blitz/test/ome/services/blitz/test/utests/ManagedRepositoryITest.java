@@ -10,6 +10,7 @@ import java.util.List;
 import junit.framework.Assert;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.ManagedRepositoryI;
+import ome.services.blitz.repo.RepositoryDao;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import omero.grid.Import;
@@ -34,9 +35,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
      */
     public class TestManagedRepositoryI extends ManagedRepositoryI {
 
-        public TestManagedRepositoryI(String template, Executor executor,
-                Principal principal, Registry reg) throws Exception {
-            super(template, executor, principal, reg);
+        public TestManagedRepositoryI(String template,
+                RepositoryDao repositoryDao, Registry reg) throws Exception {
+            super(template, repositoryDao, reg);
         }
 
         @Override
@@ -69,7 +70,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         Mock mockReg = mock(Registry.class);
         this.reg = (Registry) mockReg.proxy();
         this.tmri = new TestManagedRepositoryI("/%year%/%month%/%day%", null,
-                null, this.reg);
+                this.reg);
     }
 
     private String getSuggestion(String base, String...paths) {
