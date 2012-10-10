@@ -41,7 +41,7 @@ except:
     
 from cStringIO import StringIO
 
-from omero import client_wrapper, ApiUsageException
+from omero import client_wrapper, ApiUsageException, InternalException
 from omero.gateway import timeit, TimeIt, OriginalFileWrapper
 
 import Ice
@@ -2044,7 +2044,11 @@ def repository_download(request, index, filepath, conn=None, **kwargs):
     description = repositories.descriptions[int(index)]
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
     fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
-    sourcefile = repository.file(fullpath, 'r')
+
+    try:
+        sourcefile = repository.file(fullpath, 'r')
+    except InternalException:
+        raise Http404()
 
     def chunk_copy_from_repo(source, target, start, end):
         chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
