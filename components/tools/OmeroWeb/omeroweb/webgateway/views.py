@@ -2003,8 +2003,13 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
     root = os.path.join(unwrap(repository.root().path), name)
     if filepath:
         root = os.path.join(root, filepath)
-    result = map(lambda f: OriginalFileWrapper(conn=conn, obj=f).simpleMarshal(),
-                 repository.listFiles(root))
+        
+    def _getFile(f):
+        w = OriginalFileWrapper(conn=conn, obj=f)
+        setattr(w, '_attrs', ('()size',))
+        return w.simpleMarshal()
+        
+    result = map(_getFile, repository.listFiles(root))
     return dict(result=result)
 
 
