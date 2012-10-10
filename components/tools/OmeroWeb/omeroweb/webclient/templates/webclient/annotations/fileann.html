@@ -32,21 +32,49 @@
 
 {% if fileann.getFileName %}
 <li class="file_ann_wrapper">
-    <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
-        title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
+    <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
         {{ fileann.getFileName|shortening:40 }}
 		<span>{% if fileann.getFileSize %}({{ fileann.getFileSize|default:0|filesizeformat }}){% endif %}</span>
     </a>
+
+    {% if batch_ann %}
     <span class="tooltip_html" style='display:none'>
-        <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
-        <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
-        <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-        <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
+        Can remove File from <b>{{ can_unlink_count }} object{{ can_unlink_count|pluralize }}</b>:<br/>
+        {% for l in links %}
+            {% if forloop.counter < 20 %}
+                <div>
+                    <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
+                    {{ l.getParent.name|truncateafter:"40" }}
+                    {% if l.canDelete %}<b> X </b>{% endif %}
+                </div>
+            {% else %}
+                {% if forloop.counter == 20 and links|length > 20 %}
+                    <div>
+                        and <b> {{ links|length|subtract:20 }}</b> other objects...
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
     </span>
+    {% else %}
+        {% if new_batch_ann %}
+            <span class="tooltip_html" style='display:none'>
+                Can remove Tag from <b>all</b> objects
+            </span>
+        {% else %}
+            <span class="tooltip_html" style='display:none'>
+                <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
+                <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
+                <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+                <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
+            </span>
+        {% endif %}
+    {% endif %}
 	
 	<div class="attachment_actions">
-	    {% if fileann.link.canDelete and not fileann.isOriginalMetadata %}
-	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File">-</a>
+	    {% if can_remove and not fileann.isOriginalMetadata %}
+	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File"
+	        href='{% url manage_action_containers "remove" %}file/{{ fileann.id }}/'>-</a>
 	    {% endif %}
 	
 	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}

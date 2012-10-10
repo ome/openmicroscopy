@@ -1063,6 +1063,18 @@ def batch_annotate(request, conn=None, **kwargs):
     
     form_comment = CommentAnnotationForm(initial=initial)
 
+    batchAnns = {}
+    manager = BaseContainer(conn)
+    for key, annMap in manager.loadBatchAnnotations(oids).items():
+        # E.g. key = 'Tag', 'Comment', 'File' etc
+        annList = []
+        for annId, anns in annMap.items():
+            # anns is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
+            anns['links'].sort(key=lambda x: x.parent.id.val)
+            anns['can_remove'] = anns['unlink'] > 0
+            annList.append(anns)
+        batchAnns[key] = annList
+
     obj_ids = []
     obj_labels = []
     for key in oids:
@@ -1073,7 +1085,7 @@ def batch_annotate(request, conn=None, **kwargs):
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1134,7 +1146,9 @@ def annotate_file(request, conn=None, **kwargs):
             if len(linked_files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
-            context = {'fileanns':linked_files}
+            context = {'fileanns':linked_files, 'can_remove':True}
+            if obj_count > 1:
+                context['batch_ann'] = True
         else:
             return HttpResponse(form_file.errors)
 
@@ -1237,7 +1251,9 @@ def annotate_tags(request, conn=None, **kwargs):
             if len(linked_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
-            context = {'tags':linked_tags}
+            context = {'tags':linked_tags, 'can_remove':True}
+            if obj_count > 1:
+                context['new_batch_ann'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
@@ -1463,9 +1479,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
-        parent = request.REQUEST['parent'].split('-')
+        parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parent)            
+            manager.remove(parents.split('|'))
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }

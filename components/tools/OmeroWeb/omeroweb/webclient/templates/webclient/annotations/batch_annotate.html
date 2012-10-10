@@ -139,6 +139,7 @@
                         $("#tags_container").prepend($tag).show();
                         $(".removeTag", $tag).hide();
                         show_batch_msg("Tags added to Objects");
+                        $(".tooltip", $tag).tooltip_init();
                     },
                     error: function(data) {
                         $("#tagann_spinner").hide();
@@ -161,8 +162,6 @@
                         // update the list of file annotations and hide actions
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns ).show();
-                        $("#fileanns_container .deleteFile").hide();
-                        $("#fileanns_container .removeFile").hide();
                         show_batch_msg("File Annotation(s) added to Objects");
                     },
                     error: function(data){
@@ -198,7 +197,7 @@
                     return false;
                 });
 
-                $(".tooltip_title").tooltip({ 
+                $(".tooltip_title, .tag_annotation_wrapper, .file_ann_wrapper").tooltip({ 
                     bodyHandler: function() { 
                             return $("span.tooltip_html", $(this)).html(); 
                         },
@@ -209,6 +208,20 @@
                     showBody: " - ", 
                     top: 10, 
                     left: -100 
+                });
+
+                // bind 'remove' action to various annotations
+                $("#tags_container").on("click", ".removeTag", function(event){
+                    var url = $(this).attr('url'),
+                        parents = '{{ link_string }}';  // E.g image-123|image-456
+                    OME.removeItem(event, ".tag", url, parents);
+                    return false;
+                });
+                $("#fileanns_container").on("click", ".removeFile", function(event) {
+                    var url = $(this).attr('href'),
+                        parents = '{{ link_string }}';  // E.g image-123|image-456
+                    OME.removeItem(event, ".file_ann_wrapper", url, parents);
+                    return false;
                 });
             });
             
@@ -233,7 +246,13 @@
 	        <span style="width:20px; height:20px; display: inline-block" class="btn_info"> &nbsp </span>
 	        <span class="tooltip_html" style='display:none'>
                 {% for label in obj_labels %}
-                    <div><b>{{ label.type }} {{ label.id}}:</b> {{ label.name|truncateafter:"40" }}</div>
+                    {% if forloop.counter < 20 %}
+                        <div><b>{{ label.type }} {{ label.id}}:</b> {{ label.name|truncateafter:"40" }}</div>
+                    {% else %}
+                        {% if forloop.counter == 20 and obj_labels|length > 20 %}
+                            <div>and <b> {{ obj_labels|length|subtract:20 }}</b> other objects...</div>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </span>
         </span>
@@ -256,9 +275,11 @@
         <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver btn_add"><span></span></a>
 				
         <div id="tags_container" class="lntags">
-        {% for tag in manager.tag_annotations %}
-            {% include "webclient/annotations/tag.html" %}
-        {% endfor %}
+            {% for t in batchAnns.Tag %}
+                {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
+                    {% include "webclient/annotations/tag.html" %}
+                {% endwith %}
+            {% endfor %}
         </div>
  
     </div>
@@ -283,8 +304,10 @@
         <!-- display existing file annotations -->
 
             <ul id="fileanns_container" class="lnfiles">
-                {% for fileann in manager.file_annotations %}
-                    {% include "webclient/annotations/fileann.html" %}
+                {% for f in batchAnns.File %}
+                    {% with fileann=f.ann links=f.links can_unlink_count=f.unlink can_remove=f.can_remove %}
+                        {% include "webclient/annotations/fileann.html" %}
+                    {% endwith %}
                 {% endfor %}
             </ul>
 

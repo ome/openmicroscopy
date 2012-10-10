@@ -764,7 +764,6 @@
         #tags_container, .lnfiles {
             clear:left;
             overflow:hidden;
-            width:99.5%;
         }
             
         
@@ -827,7 +826,7 @@
             }
             
             
-                .lnfiles li a.tooltip {
+                .lnfiles li>a {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
                     font-size:1em;
                     padding:8px 10px;
@@ -850,14 +849,8 @@
     			.attachment_actions {
     				float:right;
     				margin-right:4px;
-    				//display:none;
-    				opacity:0;
     			}
 				
-    			.lnfiles li:hover .attachment_actions {
-    				//display:block;
-    				opacity:1;
-    			}
 				
     				.action {
     					width:18px;
