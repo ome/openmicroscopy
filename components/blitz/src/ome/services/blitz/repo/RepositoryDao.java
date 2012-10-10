@@ -161,4 +161,8 @@ public class RepositoryDao {
         });
     }
 
+    protected String getCurrentUserName(Ice.Current curr) {
+        return this.currentContext(new Principal(curr.ctx.get(
+                omero.constants.SESSIONUUID.value))).getCurrentUserName();
+    }
 }

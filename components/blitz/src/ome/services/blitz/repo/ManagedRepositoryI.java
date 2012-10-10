@@ -279,8 +279,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String expandTemplate(Ice.Current curr) {
-        final EventContext ec = currentContext(curr);
-        final String name = ec.getCurrentUserName();
+        final String name = this.repositoryDao.getCurrentUserName(curr);
 
         Calendar now = Calendar.getInstance();
         DateFormatSymbols dfs = new DateFormatSymbols();

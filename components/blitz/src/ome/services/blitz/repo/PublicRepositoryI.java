@@ -455,7 +455,4 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
     }
 
-    protected EventContext currentContext(Current __current) {
-        return this.repositoryDao.currentContext(currentUser(__current));
-    }
 }
