@@ -7,37 +7,24 @@
 package integration;
 
 import java.io.File;
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Formatter;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import ome.formats.OMEROMetadataStoreClient;
-import omero.ApiUsageException;
-import omero.ResourceError;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.grid.Import;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
-import omero.sys.ParametersI;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import pojos.FileAnnotationData;
 
 /** 
 * Collections of tests for the <code>ManagedRepository</code> service.
@@ -53,18 +40,11 @@ public class ManagedRepositoryTest
 	/** Reference to the managed repository. */
 	ManagedRepositoryPrx repo;
 
-	/** Managed repository directory. */
-	private String repoDir; 
+	/** Description object representing this repository */
+	OriginalFile obj;
 
-	/** Managed repository template. */
-	private String template; 
-
-	/**
-	 * Set the data directory for the tests. This is needed to find the 
-	 * correct repository to test whether deletes have been successful.
-	 */
 	@BeforeClass
-	public void setRepoAndRepoDir() throws Exception {
+	public void setRepo() throws Exception {
 	    RepositoryMap rm = factory.sharedResources().repositories();
 	    for (int i = 0; i < rm.proxies.size(); i++) {
 	        final RepositoryPrx prx = rm.proxies.get(i);
@@ -72,9 +52,8 @@ public class ManagedRepositoryTest
 	        ManagedRepositoryPrx tmp = ManagedRepositoryPrxHelper
 	                .checkedCast(prx);
 	        if (tmp != null) {
-	            repo = tmp;
-	            repoDir = FilenameUtils.concat(obj.getPath().getValue(),
-	                    obj.getName().getValue());
+	            this.repo = tmp;
+	            this.obj = obj;
 	        }
 	    }
 		if (repo == null) {
@@ -82,49 +61,24 @@ public class ManagedRepositoryTest
 		}
 	}
 
-    // Helper method to provide a little more flexibility
-    // when building a path from a template
-    private String getStringFromToken(String token) {
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String rv;
-        if (token.equals("%year%"))
-            rv = Integer.toString(now.get(Calendar.YEAR));
-        else if (token.equals("%month%"))
-            rv = Integer.toString(now.get(Calendar.MONTH)+1);
-        else if (token.equals("%monthname%"))
-            rv = dfs.getMonths()[now.get(Calendar.MONTH)];
-        else if (token.equals("%day%"))
-            rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
-        else if (!token.endsWith("%") && !token.startsWith("%"))
-            rv = token;
-        else {
-            log.warn("Ignored unrecognised token in template: " + token);
-            rv = "";
-        }
-        return rv;
-    }
-
 	/**
 	 * Makes sure that the OMERO file exists of the given name
-	 * 
 	 * @param path The absolute filename.
 	 */
 	void assertFileExists(String message, String path)
 	        throws ServerError
 	{   
-		assertTrue(message + path, repo.fileExists(path));
+	    assertTrue(message + path, repo.fileExists(path));
 	}
 
 	/**
 	 * Makes sure that the OMERO file exists of the given name
-	 * 
 	 * @param path The absolute filename.
 	 */
 	void assertFileDoesNotExist(String message, String path)
 	        throws ServerError
 	{  
-		assertFalse(message + path, repo.fileExists(path));
+	    assertFalse(message + path, repo.fileExists(path));
 	}  
 
 	/**
@@ -133,7 +87,6 @@ public class ManagedRepositoryTest
 	 * @param pathElements Array containing elements of a path.
 	 */
 	String buildPath(String[] pathElements)
-	        throws ServerError
 	{
 	    String path = "";
 	    for (String element : pathElements) {
@@ -152,49 +105,43 @@ public class ManagedRepositoryTest
 	public void testGetCurrentRepoDirSimple()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
 	    String destPath;
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
 	    String file2 = UUID.randomUUID().toString() + ".dv";
 
 	    // Completely new file
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    String[] dest = {repoDir, uniquePath, file1};
+	    String[] dest = {uniquePath, file1};
 	    destPath = buildPath(dest);
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		assertTrue("\nExpected :" + destPath + "\nActual  :" 
-		        + repoPaths.get(0), destPath.equals(repoPaths.get(0)));
-		repo.create(repoPaths.get(0));
+	    Import data = repo.prepareImport(srcPaths);
+		assertContains(data.usedFiles.get(0), destPath);
+		touch(repo.uploadUsedFile(data, data.usedFiles.get(0)));
         
         // Different file that should go in existing directory
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.set(0, buildPath(src));
-	    dest[2] = file2;
+	    dest[1] = file2;
 	    destPath = buildPath(dest);
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		assertTrue("\nExpected :" + destPath + "\nActual  :" 
-		        + repoPaths.get(0), destPath.equals(repoPaths.get(0)));
-		repo.create(repoPaths.get(0));
+	    data = repo.prepareImport(srcPaths);
+		assertContains(data.usedFiles.get(0), destPath);
+		touch(repo.uploadUsedFile(data, data.usedFiles.get(0)));
 
         // Same file that should go in new directory
-	    dest[1] = uniquePath + "-1";
+	    dest[0] = uniquePath + "-1";
 	    destPath = buildPath(dest);
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		assertTrue("\nExpected :" + destPath + "\nActual  :" 
-		        + repoPaths.get(0), destPath.equals(repoPaths.get(0)));
-		repo.create(repoPaths.get(0));
+	    data = repo.prepareImport(srcPaths);
+		assertContains(data.usedFiles.get(0), destPath);
+		touch(repo.uploadUsedFile(data, data.usedFiles.get(0)));
 
         // Same file again that should go in new directory
-	    dest[1] = uniquePath + "-2";
+	    dest[0] = uniquePath + "-2";
 	    destPath = buildPath(dest);
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		assertTrue("\nExpected :" + destPath + "\nActual  :" 
-		        + repoPaths.get(0), destPath.equals(repoPaths.get(0)));
+	    data = repo.prepareImport(srcPaths);
+		assertContains(data.usedFiles.get(0), destPath);
 	}
 
 	/**
@@ -207,10 +154,8 @@ public class ManagedRepositoryTest
 	public void testGetCurrentRepoDirMultipleFiles() 
 	        throws Exception
 	{   
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
 	    List<String> destPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
@@ -219,70 +164,66 @@ public class ManagedRepositoryTest
 	    String file4 = file3 + ".log";
 
 	    // Completely new files
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    String[] dest = {repoDir, uniquePath, file1};
+	    String[] dest = {uniquePath, file1};
 	    destPaths.add(buildPath(dest));
-	    dest[2] = file2;
+	    dest[1] = file2;
 	    destPaths.add(buildPath(dest));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    Import data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
 
         // One identical file both should go in a new directory
-	    src[3] = file1;
+	    src[1] = file1;
 	    srcPaths.set(0, buildPath(src));
-	    src[3] = file4;
+	    src[1] = file4;
 	    srcPaths.set(1, buildPath(src));
-        dest[1] = uniquePath + "-1";
-	    dest[2] = file1;
+        dest[0] = uniquePath + "-1";
+	    dest[1] = file1;
 	    destPaths.set(0, buildPath(dest));
-	    dest[2] = file4;
+	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
 
         // Two different files that should go in existing directory
-	    src[3] = file3;
+	    src[1] = file3;
 	    srcPaths.set(0, buildPath(src));
-	    src[3] = file4;
+	    src[1] = file4;
 	    srcPaths.set(1, buildPath(src));
-        dest[1] = uniquePath;
-	    dest[2] = file3;
+        dest[0] = uniquePath;
+	    dest[1] = file3;
 	    destPaths.set(0, buildPath(dest));
-	    dest[2] = file4;
+	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
 
         // Two identical files that should go in a new directory
-        dest[1] = uniquePath + "-2";
-	    dest[2] = file3;
+        dest[0] = uniquePath + "-2";
+	    dest[1] = file3;
 	    destPaths.set(0, buildPath(dest));
-	    dest[2] = file4;
+	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
     }
 
@@ -296,10 +237,8 @@ public class ManagedRepositoryTest
 	public void testGetCurrentRepoDirNested()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
 	    List<String> destPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String subDir = "sub";
@@ -309,46 +248,44 @@ public class ManagedRepositoryTest
 	    String file3 = UUID.randomUUID().toString() + ".tif";
 
 	    // Completely new files
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = subDir;
+	    src[1] = subDir;
 	    src = (String[]) ArrayUtils.add(src, file2);
 	    srcPaths.add(buildPath(src));
-	    src[4] = subSubDir;
+	    src[2] = subSubDir;
 	    src = (String[]) ArrayUtils.add(src,file3);
 	    srcPaths.add(buildPath(src));
-	    String[] dest = {repoDir, uniquePath, file1};
+	    String[] dest = {uniquePath, file1};
 	    destPaths.add(buildPath(dest));
-	    dest[2] = subDir;
+	    dest[1] = subDir;
 	    dest = (String[]) ArrayUtils.add(dest,file2);
 	    destPaths.add(buildPath(dest));
-	    dest[3] = subSubDir;
+	    dest[2] = subSubDir;
 	    dest = (String[]) ArrayUtils.add(dest,file3);
 	    destPaths.add(buildPath(dest));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    Import data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
 
 	    // Same files should go into new directory
 	    destPaths.clear();
-	    String[] dest2 = {repoDir, uniquePath + "-1", file1};
+	    String[] dest2 = {uniquePath + "-1", file1};
 	    destPaths.add(buildPath(dest2));
-	    dest2[2] = subDir;
+	    dest2[1] = subDir;
 	    dest2 = (String[]) ArrayUtils.add(dest2,file2);
 	    destPaths.add(buildPath(dest2));
-	    dest2[3] = subSubDir;
+	    dest2[2] = subSubDir;
 	    dest2 = (String[]) ArrayUtils.add(dest2,file3);
 	    destPaths.add(buildPath(dest2));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-	    assertTrue(repoPaths.size()==destPaths.size());
-	    for (int i=0; i<repoPaths.size(); i++) {
-		    assertTrue("\nExpected :" + destPaths.get(i) + "\nActual  :" + repoPaths.get(i),
-		            destPaths.get(i).equals(repoPaths.get(i)));
-		    repo.create(repoPaths.get(i));
+	    data = repo.prepareImport(srcPaths);
+	    assertTrue(data.usedFiles.size()==destPaths.size());
+	    for (int i=0; i<data.usedFiles.size(); i++) {
+            assertContains(data.usedFiles.get(i), destPaths.get(i));
+		    touch(repo.uploadUsedFile(data, data.usedFiles.get(i)));
 	    }
 	}
 
@@ -360,22 +297,20 @@ public class ManagedRepositoryTest
 	public void testDeleteUploadedFileSimple()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
 
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		repo.create(repoPaths.get(0));
-		for (String path : repoPaths) {
+	    Import data = repo.prepareImport(srcPaths);
+		touch(repo.uploadUsedFile(data, data.usedFiles.get(0)));
+		for (String path : data.usedFiles) {
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles((String[]) repoPaths.toArray(new String[repoPaths.size()]));
-		for (String path : repoPaths) {
+		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
 	}
@@ -388,25 +323,23 @@ public class ManagedRepositoryTest
 	public void testDeleteUploadedMultipleFilesSimple()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
 	    String file2 = file1 + ".dv.log";
 
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		for (String path : repoPaths) {
-		    repo.create(path);
+	    Import data = repo.prepareImport(srcPaths);
+		for (String path : data.usedFiles) {
+		    touch(repo.uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles((String[]) repoPaths.toArray(new String[repoPaths.size()]));
-		for (String path : repoPaths) {
+		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
 	}
@@ -419,26 +352,24 @@ public class ManagedRepositoryTest
 	public void testDeleteUploadedPartialFiles()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
 	    String file2 = file1 + ".dv.log";
 
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		repo.create(repoPaths.get(0));
-		assertFileExists("Upload failed. File does not exist: ", repoPaths.get(0));
-		assertFileDoesNotExist("Something wrong. File does exist!: ", repoPaths.get(1));
+	    Import data = repo.prepareImport(srcPaths);
+		touch(repo.uploadUsedFile(data, data.usedFiles.get(0)));
+		assertFileExists("Upload failed. File does not exist: ", data.usedFiles.get(0));
+		assertFileDoesNotExist("Something wrong. File does exist!: ", data.usedFiles.get(1));
 
 		// Non-existent file should be silently ignored.
-		repo.deleteFiles((String[]) repoPaths.toArray(new String[repoPaths.size()]));
-		for (String path : repoPaths) {
+		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
 	}
@@ -451,9 +382,7 @@ public class ManagedRepositoryTest
 	public void testDeleteUploadedMultipleFilesNested()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
-        List<String> repoPaths;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String subDir = "sub";
@@ -462,22 +391,22 @@ public class ManagedRepositoryTest
 	    String file2 = UUID.randomUUID().toString() + ".tif";
 	    String file3 = UUID.randomUUID().toString() + ".tif";
 
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = subDir;
+	    src[1] = subDir;
 	    src = (String[]) ArrayUtils.add(src, file2);
 	    srcPaths.add(buildPath(src));
-	    src[4] = subSubDir;
+	    src[2] = subSubDir;
 	    src = (String[]) ArrayUtils.add(src,file3);
 	    srcPaths.add(buildPath(src));
 
-	    repoPaths = repo.getCurrentRepoDir(srcPaths);
-		for (String path : repoPaths) {
-		    repo.create(path);
+	    Import data = repo.prepareImport(srcPaths);
+		for (String path : data.usedFiles) {
+		    touch(repo.uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles((String[]) repoPaths.toArray(new String[repoPaths.size()]));
-		for (String path : repoPaths) {
+		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
 	}
@@ -490,46 +419,64 @@ public class ManagedRepositoryTest
 	public void testDeleteUploadedMultipleSetsDeleteOneSet()
 	        throws Exception
 	{
-	    EventContext ec = iAdmin.getEventContext();
 	    List<String> srcPaths = new ArrayList<String>();
-        List<String> repoPaths1, repoPaths2;
 
 	    String uniquePath = UUID.randomUUID().toString();
 	    String file1 = UUID.randomUUID().toString() + ".dv";
 	    String file2 = file1 + ".dv.log";
 
-	    String[] src = {FilenameUtils.getPrefix(repoDir), ec.userName, uniquePath, file1};
+	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    repoPaths1 = repo.getCurrentRepoDir(srcPaths);
+	    Import data1 = repo.prepareImport(srcPaths);
 
 	    srcPaths.clear();
 	    file1 = UUID.randomUUID().toString() + ".dv";
 	    file2 = file1 + ".dv.log";
-	    src[3] = file1;
+	    src[1] = file1;
 	    srcPaths.add(buildPath(src));
-	    src[3] = file2;
+	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    repoPaths2 = repo.getCurrentRepoDir(srcPaths);
+	    Import data2 = repo.prepareImport(srcPaths);
 
-		for (String path : repoPaths1) {
-		    repo.create(path);
+		for (String path : data1.usedFiles) {
+		    touch(repo.uploadUsedFile(data1, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		for (String path : repoPaths2) {
-		    repo.create(path);
+		for (String path : data2.usedFiles) {
+		    touch(repo.uploadUsedFile(data2, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles((String[]) repoPaths1.toArray(new String[repoPaths1.size()]));
+		repo.deleteFiles(data1.usedFiles.toArray(new String[data1.usedFiles.size()]));
 		// This set should be gone
-		for (String path : repoPaths1) {
+		for (String path : data1.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
 		// This set should be still there
-		for (String path : repoPaths2) {
+		for (String path : data2.usedFiles) {
 		    assertFileExists("Delete failed. File deleted!: ", path);
 		}
 	}
 
+    private void assertContains(String usedFile, String destPath)
+    {
+        assertTrue("\nExpected :" + destPath + "\nActual  :"
+                + usedFile, usedFile.contains(destPath));
+    }
+
+    private void touch(RawFileStorePrx prx) throws ServerError
+	{
+	    try
+	    {
+	        prx.write(new byte[]{0}, 0, 1);
+	    }
+	    finally
+	    {
+	        if (prx != null)
+	        {
+	            prx.close();
+	        }
+	    }
+	}
 }

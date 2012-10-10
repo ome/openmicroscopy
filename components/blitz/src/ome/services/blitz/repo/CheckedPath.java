@@ -63,25 +63,38 @@ public class CheckedPath {
     public CheckedPath(CheckedPath root, String path)
             throws ValidationException {
 
-        path = validate(path);
-
-        this.original = path;
-        this.normPath = FilenameUtils.normalizeNoEndSeparator(path);
         this.root = root;
+        this.original = path;
 
         if (this.root == null) {
+            // Assumed absolute
+            this.normPath = FilenameUtils.normalizeNoEndSeparator(path);
             this.file = new File(normPath);
             this.isRoot = true;
-        } else {
-            this.isRoot = isRoot();
+            return; // EARLY EXIT!
+        }
 
-            if (this.isRoot) {
-                this.file = root.file;
-            }
-            else {
-                checkWithin();
-                this.file = new File(normPath);
-            }
+        path = validate(path);
+
+        // Handle the case where a relative path has been passed in.
+        // It is currently appended to the root file to guarantee that
+        // the object is in the repository.
+        String p = FilenameUtils.normalizeNoEndSeparator(path);
+        File f = new File(p);
+        if (!f.isAbsolute()) {
+            f = new File(root.file, p);
+            p = f.toString();
+        }
+
+        this.normPath = p;
+        this.isRoot = isRoot();
+
+        if (this.isRoot) {
+            this.file = root.file;
+        }
+        else {
+            checkWithin();
+            this.file = f;
         }
     }
 

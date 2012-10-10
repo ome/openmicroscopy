@@ -18,6 +18,7 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.net.URI;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.apache.commons.io.FilenameUtils.concat;
+import static org.apache.commons.io.FilenameUtils.normalize;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,9 +38,6 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.fire.Registry;
-import ome.services.util.Executor;
-import ome.system.EventContext;
-import ome.system.Principal;
 
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -342,13 +341,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String[] parts = splitLastElement(basePath);
         final String nonEndPart = parts[0];
         final String uniquePathElement = parts[1];
-        final File upToLast = new File(trueRoot, nonEndPart);
+        final File upToLast = new File(new File(trueRoot, relPath), nonEndPart);
 
         String endPart = uniquePathElement;
         boolean clashes = false;
         for (String path: paths)
         {
-            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            URI baseUri = new File(basePath).toURI();
+            URI pathUri = new File(path).toURI();
+            String relative = baseUri.relativize(pathUri).getPath();
             if (new File(new File(upToLast, endPart), relative).exists()) {
                 clashes = true;
                 break;
@@ -365,10 +366,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         final File newBase = new File(new File(new File(relPath), nonEndPart), endPart);
         final Import data = new Import();
-        data.sharedPath = newBase.toString();
+        data.sharedPath = normalize(newBase.toString());
         data.usedFiles = new ArrayList<String>(paths.size());
         for (String path : paths) {
-            path = new File(newBase, new File(path).getName()).toString();
+            path = normalize(new File(newBase, new File(path).getName()).toString());
             data.usedFiles.add(path);
         }
         return data;
