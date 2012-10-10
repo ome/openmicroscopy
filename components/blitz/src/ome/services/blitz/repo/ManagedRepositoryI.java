@@ -220,7 +220,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected ImportContainer createImportContainer(RepositoryImportContainer repoIC,
             Ice.Current __current) throws omero.ValidationException {
-        CheckedPath cp = checkPath(repoIC.file, __current);
+        File f = new File(root.file, repoIC.file);
+        CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
         ImportContainer ic = new ImportContainer(cp.file, repoIC.projectId,
 			    repoIC.target, false, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
 		ic.setBfImageCount(repoIC.bfImageCount);

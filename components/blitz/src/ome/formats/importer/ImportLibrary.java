@@ -292,7 +292,7 @@ public class ImportLibrary implements IObservable
      */
     public static RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
         RepositoryImportContainer repoIC = new RepositoryImportContainer();
-        repoIC.file = ic.getFile().getAbsolutePath();
+        repoIC.file = ic.getUsedFiles()[0];
         repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();
         repoIC.target = ic.getTarget();
         repoIC.reader = ic.getReader();
@@ -470,7 +470,7 @@ public class ImportLibrary implements IObservable
             RawFileStorePrx rawFileStore = null;
             try {
                 stream = new FileInputStream(file);
-                rawFileStore = repo.uploadUsedFile(data, file.getAbsolutePath());
+                rawFileStore = repo.uploadUsedFile(data, data.usedFiles.get(i));
                 int rlen = 0;
                 long offset = 0;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
