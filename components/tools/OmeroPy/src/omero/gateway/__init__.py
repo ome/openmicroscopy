@@ -3697,6 +3697,16 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
     def getAnnotation(self):
         return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
 
+    def getParent(self):
+        """
+        Gets the parent (Annotated Object) as a L{BlitzObjectWrapper }, but attempts
+        to wrap it in the correct subclass using L{KNOWN_WRAPPERS}, E.g. ImageWrapper
+        """
+        modelClass = self.parent.__class__.__name__[:-1].lower()    # E.g. 'image'
+        if modelClass in KNOWN_WRAPPERS:
+            return KNOWN_WRAPPERS[modelClass](self._conn, self.parent)
+        return BlitzObjectWrapper(self._conn, self.parent)
+
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 
 from omero_model_FileAnnotationI import FileAnnotationI
