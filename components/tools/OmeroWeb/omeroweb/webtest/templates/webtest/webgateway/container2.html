@@ -1,4 +1,4 @@
-{% extends "webtest/common/base_header.html" %}
+{% extends "webgateway/base/container2.html" %}
 
 {% comment %}
 <!--
@@ -21,36 +21,26 @@
 {% endcomment %}
 
 {% block title %}
-Extends "webtest/common/base_header.html"
+Extends "webgateway/base/container2.html"
 {% endblock %}
 
 
-{% block logo %}
-<div><img src="/webtest/statictest/img/ome-logo-bw.png" height='85'/></div>
-{% endblock %}
+{% block center %}
+<div style="margin-left:auto; margin-right:auto; width:700px; font-size:120%">
 
-
-{% block thin_header_left %}
-{{ block.super }}
- | <a href="#">Extra Link for this page</a>
-{% endblock %}
-
-
-{% block content %}
-    <h1>block content</h1>
-    
+    <h1>block center</h1>
     <p>
-        This page extends "<a href="{% url common 'base_header' %}">webtest/common/base_header.html</a>" and makes the following changes:
+        This page extends "webgateway/base/container2.html" and makes the following changes:
         <ul>
-            <li>Overwrites the 'logo' block to change the icon at the top-left of the page</li>
-            <li>Add extra link to the 'thin_header_left' block (while including the links from the parent template)
+            <li>Sets page Title</li>
             <li>Adds this text to the 'content' block</li>
         </ul>
     </p>
-    
-    <p>
-        The links in the thin header (left) take you to other pages that also extend webgateway/base/base_header OR extend this one, 
-        showing other options for customising things.
-    </p>
-    
+
+</div>
+{% endblock %}
+
+
+{% block right %}
+    <h1>block right</h1>
 {% endblock %}
