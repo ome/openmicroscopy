@@ -115,7 +115,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     public RawFileStorePrx uploadUsedFile(Import importData, String usedFile, Ice.Current __current)
             throws omero.ServerError {
-        return file(usedFile, "rw", __current); // FIXME.
+        File f = new File(root.file, usedFile);
+        f.getParentFile().mkdirs(); // FIXME: this should likely be done by CheckedPath
+        return file(f.getAbsolutePath(), "rw", __current);
     }
 
     public List<Pixels> importMetadata(Import importData,
@@ -361,9 +363,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
         }
 
-        Import data = new Import();
+        final File newBase = new File(new File(new File(relPath), nonEndPart), endPart);
+        final Import data = new Import();
+        data.sharedPath = newBase.toString();
         data.usedFiles = new ArrayList<String>(paths.size());
-        data.sharedPath = concat(nonEndPart, endPart);
+        for (String path : paths) {
+            path = new File(newBase, new File(path).getName()).toString();
+            data.usedFiles.add(path);
+        }
         return data;
 
     }

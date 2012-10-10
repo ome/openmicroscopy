@@ -286,9 +286,11 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Create a RepositoryImportContainer from an ImportContainer
+     * Create a RepositoryImportContainer from an ImportContainer.
+     * Currently public static for testing purposes.
+     * @TODO This method and the RIC return type should be removed post-haste.
      */
-    private RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
+    public static RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
         RepositoryImportContainer repoIC = new RepositoryImportContainer();
         repoIC.file = ic.getFile().getAbsolutePath();
         repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();

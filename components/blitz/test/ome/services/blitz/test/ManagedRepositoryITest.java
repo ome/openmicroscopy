@@ -21,21 +21,28 @@ package ome.services.blitz.test;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
+import loci.formats.FormatTools;
+
+import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportLibrary;
 import ome.services.blitz.fire.Registry;
-import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
-import ome.services.blitz.repo.PublicRepositoryI;
-import ome.services.util.Executor;
 import ome.system.Principal;
 
+import omero.api.RawFileStorePrx;
 import omero.grid.Import;
+import omero.grid.RepositoryImportContainer;
+import omero.model.Pixels;
+import omero.util.TempFileManager;
 
 /**
  */
@@ -60,6 +67,8 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         targetDir.mkdirs();
 
         repo = new ManagedRepositoryI("template", user.ex, userPrincipal, reg);
+        repo.setApplicationContext(user.ctx);
+
         internal = new LegacyRepositoryI(user.adapter, reg, user.ex, rootPrincipal,
                 targetDir.getAbsolutePath(), repo);
         internal.takeover();
@@ -78,14 +87,60 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         Ice.Current ic = new Ice.Current();
         ic.ctx = new HashMap<String, String>();
         ic.ctx.put(omero.constants.SESSIONUUID.value, p.getName());
+        ic.id = new Ice.Identity();
+        ic.id.category = "fake";
+        ic.id.name = p.getName();
         return ic;
     }
 
     /**
+     * Generate a multi-file fake data set by touching "test.fake" and then
+     * converting that into a multi-file format (here, ics). Thanks, Melissa.
+     *
+     * @param dir Directory in which the fakes are created.
+     * @return {@link File} object for one of the two files that can be imported.
+     * @throws Exception
      */
+    protected ImportContainer makeFake(File dir) throws Exception {
+        File fake = new File(dir, "test.fake");
+        File ids = new File(dir, "test.ids");
+        File ics = new File(dir, "test.ics");
+        FileUtils.touch(fake);
+        FormatTools.convert(fake.getAbsolutePath(), ids.getAbsolutePath());
+        ImportContainer ic = new ImportContainer(ids, null /*proj*/, null /*target*/,
+                Boolean.FALSE /*archive*/, null /*user pixels */,
+                null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
+                Boolean.FALSE /*spw*/);
+        return ic;
+    }
+
     public void testBasicImportExample() throws Exception {
-        Import i = repo.prepareImport(Arrays.asList("my-dir/test.txt"), curr());
+        File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
+        ImportContainer ic = makeFake(tmpDir);
+
+        Import i = repo.prepareImport(Arrays.asList(ic.getUsedFiles()), curr());
         assertNotNull(i);
+
+        RawFileStorePrx file = null;
+        try {
+            file = repo.uploadUsedFile(i, i.usedFiles.get(0), curr());
+            file.write(new byte[]{0}, 0, 1);
+            file.close();
+            file = repo.uploadUsedFile(i, i.usedFiles.get(1), curr());
+            file.write(
+                    new byte[]{0}, 0, 1);
+            file.close();
+            file = null;
+            // FIXME: This should be a much simpler method call.
+            RepositoryImportContainer repoIc =
+                    ImportLibrary.createRepositoryImportContainer(ic);
+            List<Pixels> pixList = repo.importMetadata(i, repoIc, curr());
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
+
     }
 
 }

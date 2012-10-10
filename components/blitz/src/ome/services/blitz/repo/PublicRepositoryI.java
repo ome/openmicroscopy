@@ -410,7 +410,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     //
     //
 
-    @Override
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
