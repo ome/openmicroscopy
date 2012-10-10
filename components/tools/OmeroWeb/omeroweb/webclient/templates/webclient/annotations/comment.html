@@ -43,7 +43,8 @@
         </span>
     
         {% if tann.canDelete %}
-            <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/icon_basic_delete.png"%}" title="Delete comment"/>
+            <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/icon_basic_delete.png"%}" 
+                url='{% url manage_action_containers "remove" %}comment/{{ tann.id }}/' title="Delete comment"/>
         {% endif %}
     
         <span class='commentText'>

@@ -32,19 +32,50 @@
 <span class="tag_annotation_wrapper">
 	
 		<div class="tag">
-	        <a class='tooltip tag_inner' href="{% url load_template 'usertags' %}?show=tag-{{ tag.id }}{% if not tag.isOwned %}&experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a>
+	        <a class='tooltip tag_inner' href="{% url load_template 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
+	            {{ tag.textValue }}
+	        </a>
 		
-			{% if tag.link.canDelete %}
-	        <span class='removeTag' id="{{ tag.id }}-tag" title="Remove Tag"> x </span>
+			{% if can_remove %}
+	        <span class='removeTag' id="{{ tag.id }}-tag" title="Remove Tag" 
+	            url='{% url manage_action_containers "remove" %}tag/{{ tag.id }}/'>
+	            x
+	        </span>
 	        {% endif %}
-			
-		    <span class="tooltip_html" style='display:none'>
-		        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
-		        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-		        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-		        <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
-		    </span>
-			
+
+            {% if batch_ann %}
+            <span class="tooltip_html" style='display:none'>
+                Can remove Tag from <b>{{ can_unlink_count }} object{{ can_unlink_count|pluralize }}</b>:<br/>
+                {% for l in links %}
+                    {% if forloop.counter < 20 %}
+                        <div>
+                            <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
+                            {{ l.getParent.name|truncateafter:"40" }}
+                            {% if l.canDelete %}<b> X </b>{% endif %}
+                        </div>
+                    {% else %}
+                        {% if forloop.counter == 20 and links|length > 20 %}
+                            <div>
+                                and <b> {{ links|length|subtract:20 }}</b> other objects...
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </span>
+            {% else %}
+                {% if new_batch_ann %}
+                    <span class="tooltip_html" style='display:none'>
+                        Can remove Tag from <b>all</b> objects
+                    </span>
+                {% else %}
+                    <span class="tooltip_html" style='display:none'>
+                        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
+                        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
+                        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+                        <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
+                    </span>
+                {% endif %}
+			{% endif %}
 			
 		</div>
 		
