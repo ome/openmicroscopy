@@ -387,6 +387,57 @@ class BaseContainer(BaseController):
             return True
         return False
 
+
+    def loadBatchAnnotations(self, objDict):
+        """ 
+        Look up the Tags, Files, Comments, Ratings etc that are on one or more of 
+        the objects in objDect.
+        
+        """
+
+        batchAnns = {
+            omero.model.CommentAnnotationI: 'Comment',
+            omero.model.LongAnnotationI: 'Long',
+            omero.model.FileAnnotationI: 'File',
+            omero.model.TagAnnotationI: 'Tag',
+            omero.model.XmlAnnotationI: 'Xml',
+            omero.model.BooleanAnnotationI: 'Boolean',
+            omero.model.DoubleAnnotationI: 'Double',
+            omero.model.TermAnnotationI: 'Term',
+            omero.model.TimestampAnnotationI: 'TimeStamp'
+        }
+        
+        # return, E.g {"Tag": {AnnId: {'ann': ObjWrapper, 'parents': [ImageWrapper, etc] } }, etc...}
+        rv = {}
+        # populate empty return map
+        for key, value in batchAnns.items():
+            rv[value] = {}
+        
+        for objType, objList in objDict.items():
+            if len(objList) == 0:
+                continue
+            parent_ids = [o.getId() for o in objList]
+            for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids):
+                ann = annLink.getAnnotation()
+                if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
+                    continue    # TODO: Handle ratings
+                if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
+                    continue
+                annClass = ann._obj.__class__
+                if annClass in batchAnns:
+                    annotationsMap = rv[ batchAnns[annClass] ]      # E.g. map for 'Tags'
+                    if ann.getId() not in annotationsMap:
+                        annotationsMap[ann.getId()] = {
+                            'ann': ann,
+                            'links': [annLink],
+                            'unlink': 0}
+                    else:
+                        annotationsMap[ann.getId()]['links'].append( annLink )
+                    if annLink.canDelete():
+                        annotationsMap[ann.getId()]['unlink'] += 1
+        return rv
+
+
     def getTagsByObject(self):
         eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
@@ -867,47 +918,57 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove(self, parent):
-        if self.tag:
-            for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.canDelete():
-                    self.conn.deleteObjectDirect(al._obj)
-        elif self.file:
-            for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.canDelete():
-                    self.conn.deleteObjectDirect(al._obj)
-        elif self.comment:
-            # remove the comment from specified parent
-            for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.canDelete():
-                    self.conn.deleteObjectDirect(al._obj)
-            # if comment is orphan, delete it directly
-            orphan = True
-            for parentType in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-                annLinks = list(self.conn.getAnnotationLinks(parentType, ann_ids=[self.comment.id]))
-                if len(annLinks) > 0:
-                    orphan = False
-                    break
-            if orphan:
-                self.conn.deleteObjectDirect(self.comment._obj)
+    def remove( self, parents ):
+        """
+        Removes the current object (file, tag, comment, dataset, plate, image) from it's parents by
+        manually deleting the link.
+        For Comments, we check whether it becomes an orphan & delete if true
         
-        elif self.dataset is not None:
-            if parent[0] == 'project':
-                for pdl in self.dataset.getParentLinks([parent[1]]):
-                    if pdl is not None:
-                        self.conn.deleteObjectDirect(pdl._obj)
-        elif self.plate is not None:
-            if parent[0] == 'screen':
-                for spl in self.plate.getParentLinks([parent[1]]):
-                    if spl is not None:
-                        self.conn.deleteObjectDirect(spl._obj)
-        elif self.image is not None:
-            if parent[0] == 'dataset':
-                for dil in self.image.getParentLinks([parent[1]]):
-                    if dil is not None:
-                        self.conn.deleteObjectDirect(dil._obj)
-        else:
-            raise AttributeError("Attribute not specified. Cannot be removed.")
+        @param parents:     List of parent IDs, E.g. ['image-123']
+        """
+        print "Remove", parents
+        for p in parents:
+            parent = p.split('-')
+            if self.tag:
+                for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
+                    if al is not None and al.canDelete():
+                        self.conn.deleteObjectDirect(al._obj)
+            elif self.file:
+                for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
+                    if al is not None and al.canDelete():
+                        self.conn.deleteObjectDirect(al._obj)
+            elif self.comment:
+                # remove the comment from specified parent
+                for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
+                    if al is not None and al.canDelete():
+                        self.conn.deleteObjectDirect(al._obj)
+                # if comment is orphan, delete it directly
+                orphan = True
+                for parentType in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+                    annLinks = list(self.conn.getAnnotationLinks(parentType, ann_ids=[self.comment.id]))
+                    if len(annLinks) > 0:
+                        orphan = False
+                        break
+                if orphan:
+                    self.conn.deleteObjectDirect(self.comment._obj)
+
+            elif self.dataset is not None:
+                if parent[0] == 'project':
+                    for pdl in self.dataset.getParentLinks([parent[1]]):
+                        if pdl is not None:
+                            self.conn.deleteObjectDirect(pdl._obj)
+            elif self.plate is not None:
+                if parent[0] == 'screen':
+                    for spl in self.plate.getParentLinks([parent[1]]):
+                        if spl is not None:
+                            self.conn.deleteObjectDirect(spl._obj)
+            elif self.image is not None:
+                if parent[0] == 'dataset':
+                    for dil in self.image.getParentLinks([parent[1]]):
+                        if dil is not None:
+                            self.conn.deleteObjectDirect(dil._obj)
+            else:
+                raise AttributeError("Attribute not specified. Cannot be removed.")
     
     def removemany(self, images):
         if self.dataset is not None:

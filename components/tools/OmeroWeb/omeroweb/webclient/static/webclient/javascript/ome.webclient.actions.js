@@ -183,3 +183,57 @@ function doPagination(view, page) {
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
 }
+
+
+var OME = {}
+
+
+// handle deleting of Tag, File, Comment
+// on successful delete via AJAX, the parent .domClass is hidden
+OME.removeItem = function(event, domClass, url, parentId) {
+    var removeId = $(event.target).attr('id');
+    var dType = removeId.split("-")[1]; // E.g. 461-comment
+    // /webclient/action/remove/comment/461/?parent=image-257
+    var $parent = $(event.target).parents(domClass);
+    var $annContainer = $parent.parent();
+    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
+        function() {
+            if(confirm_remove.data("clicked_button") == "OK") {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: {'parent':parentId},
+					contentType: 'application/javascript',
+                    dataType: 'json',
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            alert(r.errs);
+                        } else {
+                            // simply remove the item (parent class div)
+                            //console.log("Success function");
+                            $parent.remove();
+                            $annContainer.hide_if_empty();
+                        }
+                    }
+                });
+            }
+        }
+    );
+    return false;
+}
+
+jQuery.fn.tooltip_init = function() {
+    $(this).tooltip({
+        bodyHandler: function() {
+                return $(this).parent().children("span.tooltip_html").html();
+            },
+        track: true,
+        delay: 0,
+        showURL: false,
+        fixPNG: true,
+        showBody: " - ",
+        top: 10,
+        left: -100
+    });
+  return this;
+};
