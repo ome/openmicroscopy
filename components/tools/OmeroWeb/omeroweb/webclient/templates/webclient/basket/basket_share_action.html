@@ -36,7 +36,7 @@
 {% block script %}
     <script>
       $(document).ready(function(){
-          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
           $("#markup_c, #enable, #expire").tooltip({ 
               track: true, 
               delay: 0, 

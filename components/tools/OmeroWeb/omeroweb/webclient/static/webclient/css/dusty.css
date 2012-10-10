@@ -711,7 +711,7 @@ button::-moz-focus-inner {
 	
 			.ui-datepicker tbody a{
 				font-size:1.2em;
-				color:#999;
+				border: 1px solid #CCCCCC;
 			}
 
 
