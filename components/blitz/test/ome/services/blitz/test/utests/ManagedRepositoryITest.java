@@ -3,7 +3,6 @@ package ome.services.blitz.test.utests;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -28,6 +27,11 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     TestManagedRepositoryI tmri;
     Registry reg;
 
+    /**
+     * Overrides protected methods from parent class for testing
+     *
+     * @author bpindelski
+     */
     public class TestManagedRepositoryI extends ManagedRepositoryI {
 
         public TestManagedRepositoryI(String template, Executor executor,
@@ -51,6 +55,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             return super.splitLastElement(path);
         }
 
+        @Override
         public String getStringFromToken(String token, Calendar now,
                 DateFormatSymbols dfs) {
             return super.getStringFromToken(token, now, dfs);
