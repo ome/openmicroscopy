@@ -199,6 +199,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         assertEquals("c", rv[1]);
     }
 
+    @Test
     public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
         String actual = this.tmri.getStringFromToken("", Calendar.getInstance(),
                 DateFormatSymbols.getInstance());
