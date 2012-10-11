@@ -363,7 +363,7 @@ public class ImportLibraryTest
 	public void testImportImageRWRWByAdmin()
 		throws Throwable
 	{
-    	importImage("rwrw--", ADMIN, "testImportImageRWRAByAdmin");
+    	importImage("rwrw--", ADMIN, "testImportImageRWRWByAdmin");
 	}
     
     //Test import candidates
@@ -556,7 +556,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rw----", ADMIN, 
-    			"testImportImageCreateImportContainerRWByGroupOwner");
+    			"testImportImageCreateImportContainerRWByAdmin");
 	}
     
     /**
@@ -595,7 +595,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwr---", ADMIN, 
-    			"testImportImageCreateImportContainerRWRByGroupOwner");
+    			"testImportImageCreateImportContainerRWRByGroupAdmin");
 	}
     
     /**
@@ -634,7 +634,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwra--", ADMIN, 
-    			"testImportImageCreateImportContainerRWRAByGroupOwner");
+    			"testImportImageCreateImportContainerRWRAByGroupAdmin");
 	}
     
     /**
@@ -673,7 +673,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwrw--", ADMIN, 
-    			"testImportImageCreateImportContainerRWRWByGroupOwner");
+    			"testImportImageCreateImportContainerRWRWByGroupAdmin");
 	}
     
     //Test import the metadata after uploading the file to the repository

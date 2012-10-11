@@ -103,8 +103,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         final Import data = suggestOnConflict(root.normPath, relPath, basePath, paths);
-        final String path = concat(relPath, basePath);
-        final String[] parts = splitLastElement(path);
+        final String[] parts = splitLastElement(data.sharedPath);
         data.directory = repositoryDao.createUserDirectory(getRepoUuid(),
                 parts[0], parts[1], currentUser(__current));
         return data;

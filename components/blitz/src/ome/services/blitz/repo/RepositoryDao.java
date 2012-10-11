@@ -125,8 +125,10 @@ public class RepositoryDao {
                     throws omero.ApiUsageException {
 
         ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
-                executor.execute(currentUser, new Executor.SimpleWork(this, "createUserDirectory") {
-            @Transactional(readOnly = false)
+                executor.execute(currentUser, new Executor.SimpleWork(this,
+                        "createUserDirectory", repoUuid, path, name) {
+
+                    @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 Long fileId = getSqlAction().findRepoFile(
                         repoUuid, path, name, null /*mimetype*/);
