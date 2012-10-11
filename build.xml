@@ -899,7 +899,7 @@ omero.version=${omero.version}
         </apply>
     </target>
 
-    <target name="release-webstart" depends="init">
+    <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
         <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
             <patternset>
                 <include name="**/*.jar"/>
