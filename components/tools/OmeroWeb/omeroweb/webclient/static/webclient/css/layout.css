@@ -2198,7 +2198,7 @@ div.plane_info table div {
 #tooltip {
 position: absolute;
 background: #000;
-color:#aaa;
+color:#bbb;
 z-index: 3000;
 border:solid 1px black;
 -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 3px 3px 3px rgba(0,0,0,.3);
