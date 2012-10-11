@@ -11,7 +11,7 @@ import java.util.List;
 import junit.framework.Assert;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.ManagedRepositoryI;
-import ome.services.blitz.repo.RepositoryDao;
+import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import omero.grid.Import;
@@ -38,7 +38,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public class TestManagedRepositoryI extends ManagedRepositoryI {
 
         public TestManagedRepositoryI(String template,
-                RepositoryDao repositoryDao, Registry reg) throws Exception {
+                RepositoryDaoImpl repositoryDao, Registry reg) throws Exception {
             super(template, repositoryDao, reg);
         }
 

@@ -12,7 +12,7 @@ import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.PublicRepositoryI;
-import ome.services.blitz.repo.RepositoryDao;
+import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.blitz.repo.TemporaryRepositoryI;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -68,7 +68,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
 
         Principal p = new Principal("session");
         TemporaryRepositoryI tr = new TemporaryRepositoryI(oa, reg, fixture.ex,
-                p, new PublicRepositoryI(new RepositoryDao(p, fixture.ex)));
+                p, new PublicRepositoryI(new RepositoryDaoImpl(p, fixture.ex)));
         fixture.mock("executorMock").expects(atLeastOnce()).method("execute")
                 .will(new Stub() {
 

@@ -86,13 +86,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected /*final*/ CheckedPath root;
 
-    protected final RepositoryDao repositoryDao;
+    protected final RepositoryDaoImpl repositoryDao;
 
     protected OmeroContext context;
 
     private String repoUuid;
 
-    public PublicRepositoryI(RepositoryDao repositoryDao) throws Exception {
+    public PublicRepositoryI(RepositoryDaoImpl repositoryDao) throws Exception {
         this.repositoryDao = repositoryDao;
         this.repoUuid = null;
     }

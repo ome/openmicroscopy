@@ -25,7 +25,7 @@
       <constructor-arg index="2" value="Internal"/>
   </bean>
 
-  <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDao">
+  <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDaoImpl">
     <constructor-arg ref="repoPrincipal"/>
     <constructor-arg ref="executor"/>
   </bean>

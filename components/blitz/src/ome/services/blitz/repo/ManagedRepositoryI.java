@@ -69,7 +69,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private final Registry reg;
 
-    public ManagedRepositoryI(String template, RepositoryDao dao, Registry reg) throws Exception {
+    public ManagedRepositoryI(String template, RepositoryDaoImpl dao, Registry reg) throws Exception {
         super(dao);
         this.reg = reg;
         this.template = template;
