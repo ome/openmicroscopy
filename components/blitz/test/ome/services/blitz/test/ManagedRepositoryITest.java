@@ -36,6 +36,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
+import ome.services.blitz.repo.RepositoryDao;
 import ome.system.Principal;
 
 import omero.api.AMD_RawFileStore_write;
@@ -79,7 +80,8 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         final File targetDir = new File(omeroDataDir, "ManagedRepo-"+userPrincipal.getName());
         targetDir.mkdirs();
 
-        repo = new ManagedRepositoryI("template", user.ex, userPrincipal, reg);
+        repo = new ManagedRepositoryI("template",
+                new RepositoryDao(rootPrincipal, user.ex), reg);
         repo.setApplicationContext(user.ctx);
 
         internal = new LegacyRepositoryI(user.adapter, reg, user.ex, rootPrincipal,

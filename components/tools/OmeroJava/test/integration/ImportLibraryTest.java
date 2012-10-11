@@ -131,11 +131,19 @@ public class ImportLibraryTest
 		ImportLibrary library = new ImportLibrary(importer,
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importMetadataViaRepository(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertEquals(pixels.size(), 1);
+
+                // FIXME: Using importImage here to keep the tests working
+                // but this is not the method under test (which has been removed)
+                List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+                assertNotNull(pixels);
+                assertEquals(pixels.size(), 1);
+		// omero.grid.Import data = library.uploadFilesToRepository(ic);
+                // omero.grid.RepositoryImportContainer repoIc = ImportLibrary.createRepositoryImportContainer(ic);
+                // List<Pixels> pixels = repo.importMetadata(data, repoIc);
+		// assertNotNull(pixels);
+		// assertEquals(pixels.size(), 1);
 	}
+
     /**
      * Tests the <code>ImportImage</code> method using an import container
      * returned by the import candidates method.
