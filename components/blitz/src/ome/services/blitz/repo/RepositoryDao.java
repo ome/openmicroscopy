@@ -2,6 +2,12 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 
+import ome.system.Principal;
+
+import omero.ServerError;
+import omero.model.OriginalFile;
+import omero.sys.EventContext;
+
 import Ice.Current;
 
 public interface RepositoryDao {
@@ -52,5 +58,11 @@ public interface RepositoryDao {
     OriginalFile createUserDirectory(final String repoUuid, final String path,
             final String name, Principal currentUser)
             throws omero.ApiUsageException;
+
+    /**
+     * Look up information for the current session as specified in the ctx
+     * field of the current.
+     */
+    EventContext getEventContext(final Ice.Current current);
 
 }

@@ -1,7 +1,6 @@
 package ome.services.blitz.test.utests;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -9,23 +8,38 @@ import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Assert;
-import ome.services.blitz.fire.Registry;
-import ome.services.blitz.repo.ManagedRepositoryI;
-import ome.services.blitz.repo.RepositoryDaoImpl;
-import ome.services.util.Executor;
-import ome.system.Principal;
-import omero.grid.Import;
-import omero.util.TempFileManager;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import ome.services.blitz.fire.Registry;
+import ome.services.blitz.repo.ManagedRepositoryI;
+import ome.services.blitz.repo.RepositoryDao;
+
+import omero.grid.Import;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
+import omero.util.TempFileManager;
 
 public class ManagedRepositoryITest extends MockObjectTestCase {
 
+    Mock daoMock;
+
+    /**
+     * The temporary directory which is equivalent to /OMERO/ManagedRepository
+     */
     File tmpDir;
+
+    /**
+     * The "expanded" template directory which here is mocked to simply
+     * "template". This should be used when touch()-ing files under
+     * tmpDir.
+     */
+    File templateDir;
+
     TestManagedRepositoryI tmri;
     Registry reg;
     Ice.Current curr;
@@ -38,7 +52,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public class TestManagedRepositoryI extends ManagedRepositoryI {
 
         public TestManagedRepositoryI(String template,
-                RepositoryDaoImpl repositoryDao, Registry reg) throws Exception {
+                RepositoryDao repositoryDao, Registry reg) throws Exception {
             super(template, repositoryDao, reg);
         }
 
@@ -66,13 +80,15 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     }
 
-    @BeforeClass
+    @BeforeMethod
     public void setup() throws Exception {
         this.tmpDir = TempFileManager.create_path("repo", "test", true);
+        this.templateDir = new File(this.tmpDir, "template");
         Mock mockReg = mock(Registry.class);
+        this.daoMock = mock(RepositoryDao.class);
         this.reg = (Registry) mockReg.proxy();
-        this.tmri = new TestManagedRepositoryI("/%year%/%month%/%day%", null,
-                this.reg);
+        this.tmri = new TestManagedRepositoryI("/%year%/%month%/%day%",
+                (RepositoryDao) daoMock.proxy(), this.reg);
         this.curr = new Ice.Current();
         this.curr.ctx = new HashMap<String, String>();
         this.curr.ctx.put(omero.constants.SESSIONUUID.value, "TEST");
@@ -85,8 +101,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         return new File(i.sharedPath).getName();
     }
 
+    private void assertReturnFile(Long id) {
+        OriginalFile of = new OriginalFileI(id, false);
+        daoMock.expects(once()).method("createUserDirectory").will(returnValue(of));
+    }
+
     @Test
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
+        assertReturnFile(1L);
         new File(this.tmpDir, "/my/path");
         String expectedBasePath = "path";
         String suggestedBasePath = getSuggestion("/my/path", "/my/path/foo", "/my/path/bar");
@@ -96,7 +118,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testSuggestOnConflictReturnsNewPathOnConflict() throws Exception {
-        File upload = new File(this.tmpDir, "/upload");
+        assertReturnFile(1L);
+        File upload = new File(this.templateDir, "/upload");
         upload.mkdirs();
         FileUtils.touch(new File(upload, "foo"));
         String expectedBasePath = "upload-1";
@@ -106,6 +129,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() throws Exception {
+        assertReturnFile(1L);
         String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);

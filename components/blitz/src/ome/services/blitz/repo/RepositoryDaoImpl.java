@@ -27,7 +27,7 @@ import Ice.Current;
  * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
  * @since 4.5
  */
-public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
+public class RepositoryDaoImpl implements RepositoryDao {
 
     protected final Principal principal;
     protected final Executor executor;
@@ -37,7 +37,6 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
         this.executor = executor;
     }
 
-    @Override
     public OriginalFile getOriginalFile(final long repoId) {
         ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
                 .execute(principal, new Executor.SimpleWork(this, "root") {
@@ -64,7 +63,6 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
      * @throws ServerError
      *
      */
-    @Override
     public OriginalFile register(OriginalFile omeroFile,
             omero.RString mimetype, Current __current) throws ServerError {
         IceMapper mapper = new IceMapper();
@@ -93,7 +91,6 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
      * @return OriginalFile object.
      *
      */
-    @Override
     public File getFile(final long id, final Principal currentUser,
             final String repoUuid, final CheckedPath root) {
         return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
@@ -123,7 +120,6 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
      * @return ID of the object.
      * @throws omero.ApiUsageException
      */
-    @Override
     public OriginalFile createUserDirectory(final String repoUuid,
             final String path, final String name, Principal currentUser)
                     throws omero.ApiUsageException {
@@ -157,6 +153,12 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
         return (OriginalFile) new IceMapper().map(of);
     }
 
+    public omero.sys.EventContext getEventContext(Ice.Current curr) {
+        EventContext ec = this.currentContext(new Principal(curr.ctx.get(
+                omero.constants.SESSIONUUID.value)));
+        return IceMapper.convert(ec);
+    }
+
     protected EventContext currentContext(Principal currentUser) {
         return (EventContext) executor.execute(currentUser,
                 new Executor.SimpleWork(this, "getEventContext") {
@@ -168,7 +170,6 @@ public class RepositoryDaoImpl implements RepositoryDao, RepositoryDao {
     }
 
     protected String getCurrentUserName(Ice.Current curr) {
-        return this.currentContext(new Principal(curr.ctx.get(
-                omero.constants.SESSIONUUID.value))).getCurrentUserName();
+        return getEventContext(curr).userName;
     }
 }

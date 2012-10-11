@@ -69,7 +69,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private final Registry reg;
 
-    public ManagedRepositoryI(String template, RepositoryDaoImpl dao, Registry reg) throws Exception {
+    public ManagedRepositoryI(String template, RepositoryDao dao, Registry reg) throws Exception {
         super(dao);
         this.reg = reg;
         this.template = template;
@@ -275,7 +275,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String expandTemplate(Ice.Current curr) {
-        final String name = this.repositoryDao.getCurrentUserName(curr);
+        final String name = this.repositoryDao.getEventContext(curr).userName;
 
         Calendar now = Calendar.getInstance();
         DateFormatSymbols dfs = new DateFormatSymbols();
