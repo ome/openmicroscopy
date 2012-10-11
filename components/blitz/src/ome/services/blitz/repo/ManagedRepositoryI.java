@@ -102,11 +102,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
-        final Import data = suggestOnConflict(root.normPath, relPath, basePath, paths);
-        final String[] parts = splitLastElement(data.sharedPath);
-        data.directory = repositoryDao.createUserDirectory(getRepoUuid(),
-                parts[0], parts[1], currentUser(__current));
-        return data;
+        return suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
     }
 
 
@@ -335,42 +331,65 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return Suggested new basePath in the case of conflicts.
      */
     protected Import suggestOnConflict(String trueRoot, String relPath,
-            String basePath, List<String> paths) {
+            String basePath, List<String> paths, Ice.Current __current)
+            throws omero.ApiUsageException {
 
+        // Static elements which will be re-used throughout
+        final Import data = new Import(); // Return value
         final String[] parts = splitLastElement(basePath);
         final String nonEndPart = parts[0];
         final String uniquePathElement = parts[1];
-        final File upToLast = new File(new File(trueRoot, relPath), nonEndPart);
+        final File relUpToLast = new File(new File(relPath), nonEndPart);
+        final File trueUpToLast = new File(new File(trueRoot, relPath), nonEndPart);
 
-        String endPart = uniquePathElement;
-        boolean clashes = false;
-        for (String path: paths)
-        {
-            URI baseUri = new File(basePath).toURI();
-            URI pathUri = new File(path).toURI();
-            String relative = baseUri.relativize(pathUri).getPath();
-            if (new File(new File(upToLast, endPart), relative).exists()) {
-                clashes = true;
+        // State that will be updated per loop.
+        Integer version = null;
+
+        OUTER:
+        while (true) {
+
+            String endPart = uniquePathElement + (version == null ? "" :
+                "-" + Integer.toString(version));
+    
+            for (String path: paths)
+            {
+                URI baseUri = new File(basePath).toURI();
+                URI pathUri = new File(path).toURI();
+                String relative = baseUri.relativize(pathUri).getPath();
+                if (new File(new File(trueUpToLast, endPart), relative).exists()) {
+                    if (version == null) {
+                        version = 1;
+                    } else {
+                        version = version + 1;
+                    }
+                    continue OUTER;
+                }
+            }
+        
+            final File newBase = new File(relUpToLast, endPart);
+            data.sharedPath = normalize(newBase.toString());
+            data.usedFiles = new ArrayList<String>(paths.size());
+            for (String path : paths) {
+                path = normalize(new File(newBase, new File(path).getName()).toString());
+                data.usedFiles.add(path);
+            }
+    
+            try {
+                data.directory = repositoryDao.createUserDirectory(getRepoUuid(),
+                    normalize(relUpToLast.toString()), endPart, currentUser(__current));
                 break;
+            } catch (ome.conditions.SecurityViolation sv) {
+                // This directory apparently belongs to some other group
+                // or is not readable in the current context.
+                if (version == null) {
+                    version = 1;
+                } else {
+                    version = version + 1;
+                }
+                continue;
             }
         }
-
-        if (clashes) {
-            int version = 0;
-            while (new File(upToLast, endPart).exists()) {
-                version++;
-                endPart = uniquePathElement + "-" + Integer.toString(version);
-            }
-        }
-
-        final File newBase = new File(new File(new File(relPath), nonEndPart), endPart);
-        final Import data = new Import();
-        data.sharedPath = normalize(newBase.toString());
-        data.usedFiles = new ArrayList<String>(paths.size());
-        for (String path : paths) {
-            path = normalize(new File(newBase, new File(path).getName()).toString());
-            data.usedFiles.add(path);
-        }
+        
         return data;
 
     }

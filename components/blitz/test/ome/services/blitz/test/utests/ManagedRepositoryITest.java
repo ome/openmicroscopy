@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -27,6 +28,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     File tmpDir;
     TestManagedRepositoryI tmri;
     Registry reg;
+    Ice.Current curr;
 
     /**
      * Overrides protected methods from parent class for testing
@@ -42,8 +44,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
         @Override
         public Import suggestOnConflict(String trueRoot, String relPath,
-                String basePath, List<String> paths) {
-            return super.suggestOnConflict(trueRoot, relPath, basePath, paths);
+                String basePath, List<String> paths, Ice.Current curr) throws omero.ApiUsageException {
+            return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
         }
 
         @Override
@@ -71,16 +73,20 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         this.reg = (Registry) mockReg.proxy();
         this.tmri = new TestManagedRepositoryI("/%year%/%month%/%day%", null,
                 this.reg);
+        this.curr = new Ice.Current();
+        this.curr.ctx = new HashMap<String, String>();
+        this.curr.ctx.put(omero.constants.SESSIONUUID.value, "TEST");
+
     }
 
-    private String getSuggestion(String base, String...paths) {
+    private String getSuggestion(String base, String...paths) throws Exception {
         Import i = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                "template", base, Arrays.asList(paths));
+                "template", base, Arrays.asList(paths), curr);
         return new File(i.sharedPath).getName();
     }
 
     @Test
-    public void testSuggestOnConflictPassesWithNonconflictingPaths() {
+    public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
         new File(this.tmpDir, "/my/path");
         String expectedBasePath = "path";
         String suggestedBasePath = getSuggestion("/my/path", "/my/path/foo", "/my/path/bar");
@@ -89,7 +95,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testSuggestOnConflictReturnsNewPathOnConflict() throws IOException {
+    public void testSuggestOnConflictReturnsNewPathOnConflict() throws Exception {
         File upload = new File(this.tmpDir, "/upload");
         upload.mkdirs();
         FileUtils.touch(new File(upload, "foo"));
@@ -99,7 +105,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() {
+    public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() throws Exception {
         String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
