@@ -24,6 +24,7 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.TempFileManager;
 
+@Test(groups = {"fs"})
 public class ManagedRepositoryITest extends MockObjectTestCase {
 
     Mock daoMock;
@@ -106,7 +107,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         daoMock.expects(once()).method("createUserDirectory").will(returnValue(of));
     }
 
-    @Test
+    @Test(groups = {"fs"})
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
         assertReturnFile(1L);
         new File(this.tmpDir, "/my/path");
