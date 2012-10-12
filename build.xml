@@ -343,6 +343,13 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <launchSuite suite="integration" excludes="**/tools/build.xml,**/tools/**/build.xml"/>
     </target>
 
+    <target name="test-fs" description="Run all FS related unit and integration tests" depends="init">
+        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="test-suite" inheritAll="false">
+            <property name="test.dir" value="${blitz.comp}/test"/>
+            <property name="unit.suite" value="fs.testng.xml"/>
+        </ant>
+    </target>
+
     <target name="test-report" description="Joins test results into a single report">
         <mkdir dir="${target.dir}/reports"/>
         <junitreport todir="${target.dir}/reports">

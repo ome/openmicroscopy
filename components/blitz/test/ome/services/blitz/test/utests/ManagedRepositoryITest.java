@@ -81,7 +81,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun=true)
     public void setup() throws Exception {
         this.tmpDir = TempFileManager.create_path("repo", "test", true);
         this.templateDir = new File(this.tmpDir, "template");
@@ -107,7 +107,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         daoMock.expects(once()).method("createUserDirectory").will(returnValue(of));
     }
 
-    @Test(groups = {"fs"})
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
         assertReturnFile(1L);
         new File(this.tmpDir, "/my/path");
