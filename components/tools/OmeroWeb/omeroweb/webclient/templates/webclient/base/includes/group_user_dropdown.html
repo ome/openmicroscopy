@@ -96,15 +96,19 @@
        
 	    <!-- Group / User drop-down -->
         
-		<div id="groupsUsersButton" title="Switch Group/User">
-			<img  {% if active_group.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+        <div id="groupsUsersButton" title="Switch Group/User">
+            <img 
+            {% if active_group.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
             {% else %}
-                {% if active_group.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                {% if active_group.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
                 {% else %}
-                    src="{% static "webclient/image/personal16.png" %}"
+                    {% if active_group.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                    {% else %}
+                        src="{% static "webclient/image/personal16.png" %}"
+                    {% endif %}
                 {% endif %}
             {% endif %} />
-			<span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
+            <span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
         </div>
 
         <div id="listViewPort">
