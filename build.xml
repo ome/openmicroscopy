@@ -348,6 +348,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <property name="test.dir" value="${blitz.comp}/test"/>
             <property name="unit.suite" value="fs.testng.xml"/>
         </ant>
+        <ant antfile="${tools.comp}/OmeroJava/build.xml" dir="${tools.comp}/OmeroJava" target="test-suite" inheritall="false">
+            <property name="test.dir" value="${tools.comp}/OmeroJava/test"/>
+            <property name="unit.suite" value="fs.testng.xml"/>
+        </ant>
     </target>
 
     <target name="test-report" description="Joins test results into a single report">
