@@ -237,11 +237,7 @@ public class ImportHandler implements IObservable
                     if (fe.getMessage() == "Cannot locate JPEG decoder") {
                         viewer.appendToOutputLn("> [" + j
                                 + "] Lossless JPEG not supported.");
-                        /*
-                         * See " +
-                         * "http://trac.openmicroscopy.org.uk/ome/wiki/LosslessJPEG for "
-                         * + "details on this error.");
-                         */
+
                         JOptionPane.showMessageDialog(viewer,
                                 "\nThe importer cannot import the lossless JPEG images used by the file"
                                         + "\n" + importContainer[j].getFile().getAbsolutePath()
@@ -250,9 +246,7 @@ public class ImportHandler implements IObservable
                          * "
                          * "\n\nThere maybe be a native library available for your operating system"
                          * +
-                         * "\nthat will support this format. For details on this error, check:"
-                         * +
-                         * "\nhttp://trac.openmicroscopy.org.uk/ome/wiki/LosslessJPEG"
+                         * "\nthat will support this format.
                          * );
                          */
                     } 
