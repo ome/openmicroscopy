@@ -1984,7 +1984,10 @@ def repository_list(request, index, filepath=None, conn=None, **kwargs):
     root = os.path.join(unwrap(repository.root().path), name)
     if filepath:
         root = os.path.join(root, filepath)
-    result = repository.list(root)
+    if repository.fileExists(root):
+        result = repository.list(root)
+    else:
+        result = []
     return dict(result=result)
 
 
@@ -2009,8 +2012,11 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
         w = OriginalFileWrapper(conn=conn, obj=f)
         setattr(w, '_attrs', ('()size',))
         return w.simpleMarshal()
-        
-    result = map(_getFile, repository.listFiles(root))
+
+    if repository.fileExists(root):
+        result = map(_getFile, repository.listFiles(root))
+    else:
+        result = []
     return dict(result=result)
 
 
