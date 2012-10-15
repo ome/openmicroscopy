@@ -9,6 +9,8 @@ package ome.services.blitz.util;
 
 import ome.util.messages.InternalMessage;
 
+import omero.util.ServantHolder;
+
 /**
  * {@link InternalMessage} raised when a servant should be registered for clean.
  * This is possibly the result of a redirect performed within a servant or of
@@ -26,6 +28,8 @@ public class RegisterServantMessage extends InternalMessage {
     private final transient Ice.Current curr;
 
     private transient Ice.ObjectPrx prx;
+
+    private transient ServantHolder holder;
 
     public RegisterServantMessage(Object source, Ice.Object servant,
             Ice.Current current) {
@@ -51,5 +55,16 @@ public class RegisterServantMessage extends InternalMessage {
 
     public Ice.ObjectPrx getProxy() {
         return this.prx;
+    }
+
+    public void setHolder(ServantHolder holder) {
+        if (this.holder != null) {
+            throw new RuntimeException("Holder can only be set once!");
+        }
+        this.holder = holder;
+    }
+
+    public ServantHolder getHolder() {
+        return this.holder;
     }
 }

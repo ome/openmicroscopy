@@ -8,6 +8,7 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
@@ -31,8 +32,8 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
             .getLog(TemporaryRepositoryI.class);
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
-            Executor ex, SqlAction sql, String sessionUuid) {
-        super(oa, reg, ex, sql, sessionUuid, System.getProperty("java.io.tmpdir"), "");
+            Executor ex, Principal p, PublicRepositoryI servant) {
+        super(oa, reg, ex, p, System.getProperty("java.io.tmpdir"), servant);
     }
 
     /**
