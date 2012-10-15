@@ -2012,10 +2012,9 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
     root = os.path.join(unwrap(repository.root().path), name)
     if filepath:
         root = os.path.join(root, filepath)
-        
+
     def _getFile(f):
         w = OriginalFileWrapper(conn=conn, obj=f)
-        setattr(w, '_attrs', ('()size',))
         return w.simpleMarshal()
 
     if repository.fileExists(root):
