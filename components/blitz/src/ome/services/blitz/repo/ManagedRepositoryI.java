@@ -69,6 +69,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private final Registry reg;
 
+    /**
+     * Fields used in date-time calculations. Static version should
+     * decrease the number of calls to <code>Calendar.getInstance()</code>
+     */
+    private static final DateFormatSymbols DATE_FORMAT;
+    private static final Calendar NOW;
+
+    static {
+        NOW = Calendar.getInstance();
+        DATE_FORMAT = new DateFormatSymbols();
+    }
+
     public ManagedRepositoryI(String template, RepositoryDao dao, Registry reg) throws Exception {
         super(dao);
         this.reg = reg;
@@ -277,16 +289,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected String expandTemplate(Ice.Current curr) {
         final String name = this.repositoryDao.getEventContext(curr).userName;
 
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
         String relPath = name;
-        String dir;
+        String dir = null;
         String[] elements = template.split("/");
         for (String part : elements) {
             String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0], now, dfs);
+            dir = getStringFromToken(subelements[0], NOW);
             for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i], now, dfs);
+                dir = dir + "-" + getStringFromToken(subelements[i], NOW);
             }
             relPath = concat(relPath, dir);
         }
@@ -297,17 +307,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Helper method to provide a little more flexibility
      * when building a path from a template
      */
-    protected String getStringFromToken(String token, Calendar now,
-            DateFormatSymbols dfs) {
+    protected String getStringFromToken(String token, Calendar now) {
 
         String rv;
-        if (token.equals("%year%"))
+        if ("%year%".equals(token))
             rv = Integer.toString(now.get(Calendar.YEAR));
-        else if (token.equals("%month%"))
+        else if ("%month%".equals(token))
             rv = Integer.toString(now.get(Calendar.MONTH)+1);
-        else if (token.equals("%monthname%"))
-            rv = dfs.getMonths()[now.get(Calendar.MONTH)];
-        else if (token.equals("%day%"))
+        else if ("%monthname%".equals(token))
+            rv = DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)];
+        else if ("%day%".equals(token))
             rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
         else if (!token.endsWith("%") && !token.startsWith("%"))
             rv = token;
