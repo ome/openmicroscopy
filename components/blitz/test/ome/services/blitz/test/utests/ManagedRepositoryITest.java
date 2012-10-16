@@ -74,9 +74,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String getStringFromToken(String token, Calendar now,
-                DateFormatSymbols dfs) {
-            return super.getStringFromToken(token, now, dfs);
+        public String getStringFromToken(String token, Calendar now) {
+            return super.getStringFromToken(token, now);
         }
 
     }
@@ -225,16 +224,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
-        String actual = this.tmri.getStringFromToken("", Calendar.getInstance(),
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("", null);
         Assert.assertTrue(actual.isEmpty());
     }
 
     @Test
     public void testGetStringFromTokenReturnsTokenOnMalformedToken() {
         String expected = "foo";
-        String actual = this.tmri.getStringFromToken(expected, Calendar.getInstance(),
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken(expected, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -243,8 +240,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "2012";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2012);
-        String actual = this.tmri.getStringFromToken("%year%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%year%", cal);
         Assert.assertEquals(expected, actual);
     }
 
@@ -253,8 +249,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "10";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, Integer.parseInt(expected) - 1);
-        String actual = this.tmri.getStringFromToken("%month%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%month%", cal);
         Assert.assertEquals(expected, actual);
     }
 
@@ -263,8 +258,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "October";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, 9);
-        String actual = this.tmri.getStringFromToken("%monthname%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%monthname%", cal);
         Assert.assertEquals(expected, actual);
     }
 
@@ -273,8 +267,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "7";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 7);
-        String actual = this.tmri.getStringFromToken("%day%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%day%", cal);
         Assert.assertEquals(expected, actual);
     }
 }
