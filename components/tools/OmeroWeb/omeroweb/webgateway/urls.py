@@ -68,6 +68,11 @@ repository_root = (r'^repositories/(?P<index>\d+)/root/$', 'webgateway.views.rep
 json method: Returns the root and name property of a repository
 """
 
+repository_makedir = (r'^repositories/(?P<index>\d+)/makedir/(?P<dirpath>.+)$', 'webgateway.views.repository_makedir')
+"""
+json method: Creates a directory in a repository
+"""
+
 repository_download = (r'^repositories/(?P<index>\d+)/download/(?P<filepath>.+)$', 'webgateway.views.repository_download')
 """
 Downloads a file from a repository.  Supports the HTTP_RANGE header to
@@ -358,6 +363,7 @@ urlpatterns = patterns('',
     repository_list,
     repository_listfiles,
     repository_root,
+    repository_makedir,
     repository_download,
     repository_upload,
     repository_clean_mpus,

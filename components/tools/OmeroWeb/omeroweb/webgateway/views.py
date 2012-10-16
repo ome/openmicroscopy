@@ -29,6 +29,7 @@ from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 import django.views.generic
+from django.views.decorators.http import require_POST
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
@@ -2031,6 +2032,29 @@ def repository_root(request, index, conn=None, **kwargs):
     description = repositories.descriptions[int(index)]
     return dict(root=unwrap(repository.root().path),
                 name=OriginalFileWrapper(conn=conn, obj=description).getName())
+
+
+@require_POST
+@login_required()
+@jsonp
+def repository_makedir(request, index, dirpath, conn=None, **kwargs):
+    """
+    Returns the root and name property of a repository
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    root = unwrap(repository.root().path)
+    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+
+    try:
+        rdict = {'bad': 'false'}
+        repository.makeDir(os.path.join(root, name, dirpath))
+    except Exception, ex:
+        logger.error(traceback.format_exc())
+        rdict = {'bad': 'true', 'errs': str(ex)}
+    return rdict
 
 
 @login_required(doConnectionCleanup=False)
