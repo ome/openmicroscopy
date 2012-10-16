@@ -287,16 +287,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String expandTemplate(Ice.Current curr) {
-        final String name = this.repositoryDao.getEventContext(curr).userName;
-
-        String relPath = name;
+        String relPath = null;
         String dir = null;
         String[] elements = template.split("/");
         for (String part : elements) {
             String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0], NOW);
+            dir = getStringFromToken(subelements[0], NOW, curr);
             for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i], NOW);
+                dir = dir + "-" + getStringFromToken(subelements[i], NOW, curr);
             }
             relPath = concat(relPath, dir);
         }
@@ -307,7 +305,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Helper method to provide a little more flexibility
      * when building a path from a template
      */
-    protected String getStringFromToken(String token, Calendar now) {
+    protected String getStringFromToken(String token, Calendar now,
+            Ice.Current curr) {
 
         String rv;
         if ("%year%".equals(token))
@@ -318,6 +317,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
             rv = DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)];
         else if ("%day%".equals(token))
             rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+        else if ("%user%".equals(token))
+            rv = this.repositoryDao.getEventContext(curr).userName;
+        else if ("%group%".equals(token))
+            rv = this.repositoryDao.getEventContext(curr).groupName;
         else if (!token.endsWith("%") && !token.startsWith("%"))
             rv = token;
         else {

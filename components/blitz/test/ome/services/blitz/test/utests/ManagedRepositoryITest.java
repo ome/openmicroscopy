@@ -22,6 +22,7 @@ import ome.services.blitz.repo.RepositoryDao;
 import omero.grid.Import;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
 @Test(groups = {"fs"})
@@ -74,8 +75,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String getStringFromToken(String token, Calendar now) {
-            return super.getStringFromToken(token, now);
+        public String getStringFromToken(String token, Calendar now,
+                Ice.Current curr) {
+            return super.getStringFromToken(token, now, curr);
         }
 
     }
@@ -127,7 +129,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() throws Exception {
+    public void testSuggestOnConflictReturnsBasePathWithEmptyPathsList() throws Exception {
         assertReturnFile(1L);
         String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload");
@@ -224,14 +226,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
-        String actual = this.tmri.getStringFromToken("", null);
+        String actual = this.tmri.getStringFromToken("", null, null);
         Assert.assertTrue(actual.isEmpty());
     }
 
     @Test
     public void testGetStringFromTokenReturnsTokenOnMalformedToken() {
         String expected = "foo";
-        String actual = this.tmri.getStringFromToken(expected, null);
+        String actual = this.tmri.getStringFromToken(expected, null, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -240,7 +242,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "2012";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2012);
-        String actual = this.tmri.getStringFromToken("%year%", cal);
+        String actual = this.tmri.getStringFromToken("%year%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -249,7 +251,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "10";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, Integer.parseInt(expected) - 1);
-        String actual = this.tmri.getStringFromToken("%month%", cal);
+        String actual = this.tmri.getStringFromToken("%month%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -258,7 +260,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "October";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, 9);
-        String actual = this.tmri.getStringFromToken("%monthname%", cal);
+        String actual = this.tmri.getStringFromToken("%monthname%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -267,7 +269,27 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "7";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 7);
-        String actual = this.tmri.getStringFromToken("%day%", cal);
+        String actual = this.tmri.getStringFromToken("%day%", cal, null);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsUserName() {
+        String expected = "user-1";
+        EventContext ecStub = new EventContext();
+        ecStub.userName = expected;
+        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
+        String actual = this.tmri.getStringFromToken("%user%", null, null);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsGroupName() {
+        String expected = "group-1";
+        EventContext ecStub = new EventContext();
+        ecStub.groupName = expected;
+        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
+        String actual = this.tmri.getStringFromToken("%group%", null, null);
         Assert.assertEquals(expected, actual);
     }
 }

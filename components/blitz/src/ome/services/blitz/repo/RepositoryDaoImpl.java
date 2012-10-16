@@ -169,7 +169,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
-    protected String getCurrentUserName(Ice.Current curr) {
-        return getEventContext(curr).userName;
-    }
+//    protected String getCurrentUserName(Ice.Current curr) {
+//        return getEventContext(curr).userName;
+//    }
 }
