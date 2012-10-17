@@ -2377,6 +2377,8 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
+                if d is None:
+                    continue
                 if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
@@ -2399,7 +2401,7 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", gid)
         if not default.isPrivate() or self.isLeader() or self.isAdmin():
             for d in default.copyGroupExperimenterMap():
-                if d.child.id.val == userId:
+                if d is None or d.child.id.val == userId:
                     continue
                 if d.owner.val:
                     leaders.append(ExperimenterWrapper(self, d.child))
@@ -2441,6 +2443,8 @@ class _BlitzGateway (object):
             
         exp = self.getUser()
         for gem in exp.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
@@ -4341,6 +4345,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "system":
                 return True
         return False
@@ -4369,6 +4375,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "guest":
                 return True
         return False
