@@ -240,17 +240,14 @@ public class MainIJPlugin
 			jarFile = new File(src.getLocation().toURI().getPath());
 		    //Plugin folder
 			File dir = new File(System.getProperty("user.dir"), PLUGINS_DIR);
-			IJ.log(dir.getAbsolutePath());
 		    File[] l = dir.listFiles();
 		    
 		    for (int i = 0; i < l.length; i++) {
-		    	IJ.log(l[i].getAbsolutePath());
 				if (l[i].getName().equals(LOCI_TOOL)) {
 					exist = true;
 					break;
 				}
 			}
-		    IJ.log("value"+exist);
 		} catch (Exception e) {
 			String msg = "An error occurred while checking if " +
 					""+LOCI_TOOL+" is installed."+e.toString();
