@@ -24,12 +24,12 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be $HOME/Library/VirtualBox/HardDisks/ and on Linux $HOME/.VirtualBox/HardDisks/
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
 
-4. [OPTIONAL] In setup_omero.sh you can define whether you wish to build OMERO from source, use the most recent QA build or use the release build by setting the TARGET var. Valid values for TARGET are QA or SRC or RELEASE. Anything else will cause the latest QA build to be used by default. The is for latest trunk QA builds from the Hudson build process. To specify a different build you can adjust the following vars, DL_LOC & DL_ARCHIVE:
+4. [OPTIONAL] In setup_omero.sh you can define whether you wish to build OMERO from source, use the most recent QA build or use the release build by setting the TARGET var. Valid values for TARGET are QA or SRC or RELEASE. Anything else will cause the latest QA build to be used by default. The is for latest 4.4 QA builds from the Hudson build process. To specify a different build you can adjust the following vars, DL_LOC & DL_ARCHIVE:
 	
 	DL_LOC stores the URL from which to retrieve our build:
 		DL_LOC="http://url-of-your-download-folder"
 	e.g.
-		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk/lastSuccessfulBuild/artifact/"
+		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/artifact/"
 
 	DL_ARCHIVE stores the name of the zip archive to retrieve from DL_LOC because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve.
 	DL_ARCHIVE="omero.server.archive.zip"
