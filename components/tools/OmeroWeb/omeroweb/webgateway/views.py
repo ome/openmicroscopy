@@ -40,6 +40,11 @@ try:
 except:
     from md5 import md5
     
+try:
+    from hashlib import sha1 as sha
+except:
+    from sha import sha
+
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException, InternalException
@@ -2027,6 +2032,32 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
+def repository_sha(request, index, filepath, conn=None, **kwargs):
+    """
+    json method: Returns the sha1 checksum of the specified file
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    repository = repositories.proxies[int(index)]
+    description = repositories.descriptions[int(index)]
+    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+
+    try:
+        sourcefile = repository.file(fullpath, 'r')
+    except InternalException:
+        raise Http404()
+
+    digest = sha()
+    for block in iterate_content(sourcefile, 0, sourcefile.size() - 1):
+        digest.update(block)
+
+    return dict(sha=digest.hexdigest())
+
+
+
+@login_required()
+@jsonp
 def repository_root(request, index, conn=None, **kwargs):
     """
     Returns the root and name property of a repository
@@ -2062,6 +2093,19 @@ def repository_makedir(request, index, dirpath, conn=None, **kwargs):
     return rdict
 
 
+def iterate_content(source, start, end):
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    position = start
+    to_read = end - start + 1
+    while True:
+        chunk = source.read(position, min(chunk_size, to_read))
+        if not chunk:
+            break
+        to_read -= len(chunk)
+        position += len(chunk)
+        yield chunk
+
+
 @login_required(doConnectionCleanup=False)
 def repository_download(request, index, filepath, conn=None, **kwargs):
     """
@@ -2079,18 +2123,6 @@ def repository_download(request, index, filepath, conn=None, **kwargs):
         sourcefile = repository.file(fullpath, 'r')
     except InternalException:
         raise Http404()
-
-    def iterate_content(source, start, end):
-        chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
-        position = start
-        to_read = end - start + 1
-        while True:
-            chunk = source.read(position, min(chunk_size, to_read))
-            if not chunk:
-                break
-            to_read -= len(chunk)
-            position += len(chunk)
-            yield chunk
 
     def parse_range(request, size):
         # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
