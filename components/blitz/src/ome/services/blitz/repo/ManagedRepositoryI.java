@@ -287,7 +287,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String expandTemplate(Ice.Current curr) {
-        String relPath = null;
+        String relPath = "";
         String dir = null;
         String[] elements = template.split("/");
         for (String part : elements) {
