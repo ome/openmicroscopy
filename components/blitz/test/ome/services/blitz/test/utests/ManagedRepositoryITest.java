@@ -137,18 +137,18 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testCommonRootReturns() {
-        String expectedCommonRoot = "/home";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/myStuff",
-                "/home/alice/myOtherStuff"));
+    public void testCommonRootReturnsTopLevelWithUncommonPaths() {
+        String expectedCommonRoot = "/";
+        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/1.jpg",
+                "/data/alice/1.jpg"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
     @Test
-    public void testCommonRootReturnsTopLevelWithUncommonPaths() {
-        String expectedCommonRoot = "/";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/myStuff",
-                "/data/alice"));
+    public void testCommonRootReturnsCommonRootForPathList() {
+        String expectedCommonRoot = "/bob/files/dv";
+        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList(
+                expectedCommonRoot + "/file1.dv", expectedCommonRoot + "/file2.dv"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
