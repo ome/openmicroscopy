@@ -32,7 +32,7 @@ import omero.sys.EventContext;
 * @author Colin Blackburn &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:c.blackburn@dundee.ac.uk">c.blackburn@dundee.ac.uk</a>
 */
-@Test(groups = {"integration"})
+@Test(groups = {"integration", "fs"})
 public class ManagedRepositoryTest 
    extends AbstractServerTest
 {
