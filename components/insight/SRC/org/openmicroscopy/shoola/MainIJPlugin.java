@@ -116,7 +116,7 @@ public class MainIJPlugin
         		BorderLayout.SOUTH);
 
        	final JDialog frame = new JDialog(IJ.getInstance(), "Warning");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setSize(250, 200);
         frame.setResizable(false);
@@ -156,6 +156,7 @@ public class MainIJPlugin
 			LogMessage msg = new LogMessage();
 			msg.println("Exit Plugin:"+UIUtilities.printErrorText(e));
 			if (IJ.debugMode) IJ.log(msg.toString());
+			msg.close();
 		}
 	}
 	
@@ -234,24 +235,32 @@ public class MainIJPlugin
 			} catch (Exception e) {}
 		}
 		//Check if plugin is there
+		boolean exist = false;
 		try {
 			jarFile = new File(src.getLocation().toURI().getPath());
 		    //Plugin folder
 			File dir = new File(System.getProperty("user.dir"), PLUGINS_DIR);
+			IJ.log(dir.getAbsolutePath());
 		    File[] l = dir.listFiles();
-		    boolean exist = false;
+		    
 		    for (int i = 0; i < l.length; i++) {
+		    	IJ.log(l[i].getAbsolutePath());
 				if (l[i].getName().equals(LOCI_TOOL)) {
 					exist = true;
 					break;
 				}
 			}
-		    if (!exist) {
-		    	showMessage();
-				return;
-		    }
-		    
-		} catch (Exception e) {}
+		    IJ.log("value"+exist);
+		} catch (Exception e) {
+			String msg = "An error occurred while checking if " +
+					""+LOCI_TOOL+" is installed."+e.toString();
+			if (IJ.debugMode)
+				IJ.log(msg);
+		}
+		if (!exist) {
+	    	showMessage();
+			return;
+	    }
 		attachListeners();
 		container = Container.startupInPluginMode(homeDir, configFile,
 				LookupNames.IMAGE_J);
