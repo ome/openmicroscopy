@@ -353,6 +353,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String uniquePathElement = parts[1];
         final File relUpToLast = new File(new File(relPath), nonEndPart);
         final File trueUpToLast = new File(new File(trueRoot, relPath), nonEndPart);
+        final URI baseUri = new File(basePath).toURI();
 
         // State that will be updated per loop.
         Integer version = null;
@@ -365,7 +366,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
             for (String path: paths)
             {
-                URI baseUri = new File(basePath).toURI();
                 URI pathUri = new File(path).toURI();
                 String relative = baseUri.relativize(pathUri).getPath();
                 if (new File(new File(trueUpToLast, endPart), relative).exists()) {
@@ -382,7 +382,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             data.sharedPath = normalize(newBase.toString());
             data.usedFiles = new ArrayList<String>(paths.size());
             for (String path : paths) {
-                path = normalize(new File(newBase, new File(path).getName()).toString());
+                URI pathUri = new File(path).toURI();
+                String relative = baseUri.relativize(pathUri).getPath();
+                path = normalize(new File(newBase, relative).toString());
                 data.usedFiles.add(path);
             }
     
