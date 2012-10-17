@@ -1986,8 +1986,7 @@ def getObjectUrl(conn, obj):
     if obj.__class__.__name__ in ("ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
         otype = obj.__class__.__name__[:-1].lower()
         base_url += "?show=%s-%s" % (otype, obj.id.val)
-
-    return base_url
+        return base_url
 
 
 ######################
