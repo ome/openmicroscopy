@@ -5150,8 +5150,8 @@ class _LightPathWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'LightPath'
 
     def getExcitationFilters(self):
-        """ Returns list of excitation L{FilterWrapper}s """
-        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink()]
+        """ Returns list of excitation L{FilterWrapper}s. Ordered collections can contain nulls"""
+        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink() if link is not None]
 
     def getEmissionFilters(self):
         """ Returns list of emission L{FilterWrapper}s """
