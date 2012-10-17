@@ -862,8 +862,11 @@
                             type: "POST",
                             success: function(r){
                                 if(eval(r.bad)) {
-                                      $.jstree.rollback(data.rlbk);
-                                      alert(r.errs);
+                                      if (data.rslt.o.length === 1) {
+                                          // only safe to rollback for single objects
+                                          $.jstree.rollback(data.rlbk);
+                                      };
+                                      // alert(r.errs);  // We've already handled the error - don't need to notify user
                                   }
                                   else {
                                       refresh = true;
