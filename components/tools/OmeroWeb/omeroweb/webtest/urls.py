@@ -44,8 +44,10 @@ urlpatterns = patterns('django.views.generic.simple',
     # ns=Namespace replace=true (replaces existing comment with same ns if found)
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
     
-    # examples of using the 'common' templates
-    url(r'^common/(?P<base_template>[a-z0-9_]+)/', views.common_templates, name='common'),
+    # examples of using the webgateway base templates
+    url(r'^webgateway_templates/(?P<base_template>[a-z0-9_]+)/', views.webgateway_templates, name='webgateway_templates'),
+    # same as webgateway base examples, except that these pgaes use webclient components that require login
+    url(r'^webclient_templates/(?P<base_template>[a-z0-9_]+)/', views.webclient_templates, name='webclient_templates'),
     
     url( r'^img_detail/(?:(?P<iid>[0-9]+)/)?$', views.image_viewer, name="webtest_image_viewer"),
 )

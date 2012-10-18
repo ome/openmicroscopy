@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.connector import Server
 
-from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
 
 from cStringIO import StringIO
@@ -541,11 +541,18 @@ def image_rois (request, imageId, conn=None, **kwargs):
     return render_to_response('webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
 
 
-def common_templates (request, base_template):
+def webgateway_templates (request, base_template):
     """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
-    template_name = 'webtest/common/%s.html' % base_template
-    from django.template import RequestContext
-    return render_to_response(template_name, context_instance=RequestContext(request))
+    template_name = 'webtest/webgateway/%s.html' % base_template
+    return render_to_response(template_name, {})
+
+@login_required()
+@render_response()
+def webclient_templates (request, base_template, **kwargs):
+    """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
+    template_name = 'webtest/webgateway/%s.html' % base_template
+    return {'template': template_name}
+
 
 @login_required()
 def image_viewer (request, iid=None, conn=None, **kwargs):
