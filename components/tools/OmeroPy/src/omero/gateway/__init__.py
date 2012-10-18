@@ -5451,8 +5451,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    Min pixel value
         @rtype:     double
         """
-        
-        return self._obj.getStatsInfo().getGlobalMin().val
+        si = self._obj.getStatsInfo()
+        if si is None:
+            logger.error("getStatsInfo() is null. See #9695")
+            return None
+        return si.getGlobalMin().val
 
     def getWindowMax (self):
         """
@@ -5461,8 +5464,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    Min pixel value
         @rtype:     double
         """
-        
-        return self._obj.getStatsInfo().getGlobalMax().val
+        si = self._obj.getStatsInfo()
+        if si is None:
+            logger.error("getStatsInfo() is null. See #9695")
+            return None
+        return si.getGlobalMax().val
 
 ChannelWrapper = _ChannelWrapper
 
