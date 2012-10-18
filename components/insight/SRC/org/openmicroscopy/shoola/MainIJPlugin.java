@@ -118,7 +118,7 @@ public class MainIJPlugin
        	final JDialog frame = new JDialog(IJ.getInstance(), "Warning");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        frame.setSize(250, 200);
+        frame.setSize(350, 200);
         frame.setResizable(false);
         okay.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -138,10 +138,14 @@ public class MainIJPlugin
 	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><body>");
-		buffer.append("<p>The plugin requires loci_tools.jar<br>" +
-				"Download the release version from<br>");
+		buffer.append("<p>The plugin requires ");
+		buffer.append(LOCI_TOOL);
+		buffer.append("<br>Download the stable release version from<br>");
 		buffer.append("<a href=\"http://loci.wisc.edu/bio-formats/downloads\">" +
-				"bio-formats/downloads</a>");
+				"bio-formats/downloads</a><br>");
+		buffer.append("Add ");
+		buffer.append(LOCI_TOOL);
+		buffer.append(" to Plugins folder and restart ImageJ.</p>");
 		buffer.append("</body><html>");
 		return buffer.toString();
 	}
