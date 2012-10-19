@@ -1996,7 +1996,7 @@ def repository_list(request, index, filepath=None, conn=None, **kwargs):
     if filepath:
         root = os.path.join(root, filepath)
     if repository.fileExists(root):
-        result = repository.list(root)
+        result = [f for f in repository.list(root) if not f.startswith('.')]
     else:
         result = []
     return dict(result=result)
@@ -2024,7 +2024,8 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
         return w.simpleMarshal()
 
     if repository.fileExists(root):
-        result = map(_getFile, repository.listFiles(root))
+        result = [_getFile(f) for f in repository.listFiles(root)]
+        result = [f for f in result if not f.get('name', '').startswith('.')]
     else:
         result = []
     return dict(result=result)
