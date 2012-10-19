@@ -143,8 +143,6 @@ class SessionsControl(BaseControl):
 
         # Basic props, don't get fiddled with
         props = {}
-        if args.port:
-            props["omero.port"] = args.port
         if args.group:
             props["omero.group"] = args.group
 
@@ -155,6 +153,7 @@ class SessionsControl(BaseControl):
         #
         server = getattr(args, "connection", None) # May be called by another plugin
         name = None
+        port = None
 
         if args.server:
             if server:
@@ -162,13 +161,19 @@ class SessionsControl(BaseControl):
             else:
                 server = args.server
 
-        if server: server, name = self._parse_conn(server, name)
+        if server: server, name, port = self._parse_conn(server, name)
 
         if args.user:
             if name:
                 self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
             else:
                 name = args.user
+
+        if args.port:
+            if port:
+                self.ctx.die(5, "Port specified twice: %s and %s" % (port, args.port))
+            else:
+                port = args.port
 
         #
         # If a key is provided, then that takes precedence.
@@ -222,11 +227,13 @@ class SessionsControl(BaseControl):
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server, name = self._get_server(store, name)
+        if not server: server, name, prt = self._get_server(store, name)
         if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
         props["omero.user"] = name
+        if port:
+            props["omero.port"] = port
 
         rv = None
         #
@@ -489,15 +496,25 @@ class SessionsControl(BaseControl):
     def _parse_conn(self, server, name):
         try:
             idx = server.rindex("@")
-            return  server[idx+1:], server[0:idx] # server, user which may also contain an @
+            name = server[0:idx] # user which may also contain an @
+            server = server[idx+1:] # server which may also contain the port
         except ValueError:
-            return server, name
+            pass
+
+        try:
+            idx = server.rindex(":")
+            port = server[idx+1:]
+            server = server[0:idx]
+        except ValueError:
+            port = None
+
+        return server, name, port
 
     def _get_server(self, store, name):
         defserver = store.last_host()
         rv = self.ctx.input("Server: [%s]" % defserver)
         if not rv:
-            return defserver, name
+            return defserver, name, None
         else:
             return self._parse_conn(rv, name)
 
