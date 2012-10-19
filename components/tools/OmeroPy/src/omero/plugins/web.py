@@ -16,6 +16,7 @@ import time
 import sys
 import os
 import re
+from shutil import rmtree
 
 try:
     from omeroweb import settings
@@ -350,6 +351,10 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
     def collectstatic(self):
         # Ensure that static media is copied to the correct location
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        webstart_dir = location / "static" / "webstart"
+        if os.path.exists(webstart_dir):
+            self.ctx.out("Removing %s" % webstart_dir)
+            rmtree(webstart_dir)
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd = location)
         if rv != 0:
