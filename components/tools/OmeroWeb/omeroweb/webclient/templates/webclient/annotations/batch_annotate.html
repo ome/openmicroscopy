@@ -98,6 +98,10 @@
 
 
                 // Choose to add tags...
+                if ($("#add_tags_form").length === 0) {
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'>")
+                        .hide().appendTo('body');
+                }
                 $("#launch_tags_form").click(function(event) {
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
@@ -143,9 +147,13 @@
 
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
-                $('#batch_attachments_form').ajaxForm({
+                if ($("#choose_attachments_form").length === 0) {
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'>")
+                        .hide().appendTo('body');
+                }
+                $('#choose_attachments_form').ajaxForm({
                     beforeSubmit: function(data) {
-                        $("#batch_attachments_form").dialog( "close" );
+                        $("#choose_attachments_form").dialog( "close" );
                         $("#fileann_spinner").show();
                     },
                     success: function(data) {
@@ -162,7 +170,7 @@
                     }
                 });
                 // prepare dialog for choosing file to attach...
-                $("#batch_attachments_form").dialog({
+                $("#choose_attachments_form").dialog({
                     autoOpen: false,
                     resizable: true,
                     height: 400,
@@ -171,7 +179,7 @@
                     buttons: {
                         "Accept": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#batch_attachments_form").submit();
+                            $("#choose_attachments_form").submit();
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
@@ -182,7 +190,7 @@
                 // show dialog for choosing file to attach...
                 $("#choose_file_anns").click(function() {
                     // show dialog first, then do the AJAX call to load files...
-                    var attach_form = $( "#batch_attachments_form" );
+                    var attach_form = $( "#choose_attachments_form" );
                     attach_form.dialog( "open" );
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
@@ -244,11 +252,7 @@
     <div class="annotations_section">
                 
 		<h2>{% trans "Tags" %}</h2>
-                
-		<form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
-		</form>
-				
-				
+
         <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver btn_add"><span></span></a>
 				
         <div id="tags_container" class="lntags">
@@ -275,12 +279,6 @@
 			
 			
             <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-                    
-            <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
-            <form id="batch_attachments_form" title="Select Attachments" action="{% url annotate_file %}" method="post">
-            </form>
-            
-                    
 
         <!-- display existing file annotations -->
 
