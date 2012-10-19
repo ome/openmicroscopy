@@ -123,6 +123,9 @@
                 }
                 
                 // Edit share: launch dialog with edit-share form
+                if ($("#edit_share_div").length === 0) {
+                    $("<div id='edit_share_div'></div>").appendTo('body').hide();
+                }
                 $("#edit_share").click(function(){
                     // set-up the edit-share form to use dialog
                     $("#edit_share_div").dialog({
@@ -265,8 +268,6 @@
             {% endif %}
 
             {% if manager.share %}
-                <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
-                <div id='edit_share_div'></div>
                 <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
                         <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
