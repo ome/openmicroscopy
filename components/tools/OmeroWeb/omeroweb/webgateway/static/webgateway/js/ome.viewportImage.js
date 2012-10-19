@@ -4,7 +4,7 @@
  * Depends on jquery
  *
  * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
- * 
+ *
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
  * free to use it only for non commercial purposes.
@@ -13,8 +13,10 @@
  *
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
+ 
+ /*global InfoControl:true BisqueISPyramid:true PanoJS:true ROIControl:true */
 
-$.fn.viewportImage = function(options) {
+jQuery.fn.viewportImage = function(options) {
   return this.each(function(){
     if (!this.id) {
       this.id = '' + (new Date()).getTime();
@@ -40,7 +42,7 @@ $.fn.viewportImage = function(options) {
     var mediaroot = options == null ? null : options.mediaroot;
     mediaroot = mediaroot || '/appmedia';
     
-    if (panbars) { 
+    if (panbars) {
     /* Panning sides */
     var panleftId = this.id + '-panl';
     var panrightId = this.id + '-panr';
@@ -58,7 +60,7 @@ $.fn.viewportImage = function(options) {
     var pantop = jQuery('#'+pantopId);
     var panbottom = jQuery('#'+panbottomId);
 
-    function panside_extend (e, min, max, mintm, maxtm, s) {
+    var panside_extend = function (e, min, max, mintm, maxtm, s) {
       var opt = {};
       var opt2 = {};
       opt[s] = opt2[s] = max;
@@ -69,9 +71,9 @@ $.fn.viewportImage = function(options) {
       .animate(opt);
       opt2[s == 'width' && 'top' || 'left'] = e._img_pos_extended;
       e.children("img").animate(opt2);
-    }
+    };
 
-    function panside_collapse (e, min, max, mintm, maxtm, s) {
+    var panside_collapse = function (e, min, max, mintm, maxtm, s) {
       var opt = {};
       var opt2 = {};
       opt[s] = opt2[s] = min;
@@ -80,9 +82,9 @@ $.fn.viewportImage = function(options) {
       .animate(opt);
       opt2[s == 'width' && 'top' || 'left'] = e._img_pos_collapsed;
       e.children("img").animate(opt2);
-    }
+    };
 
-    function panside_prepare (e,x,y) {
+    var panside_prepare = function (e,x,y) {
       var img = e.children("img");
       var iw = img.width();
       var ih = img.height();
@@ -91,37 +93,37 @@ $.fn.viewportImage = function(options) {
       wrapheight = wrapdiv.height();
       img.unbind('load');
 
-      if (iw == 0 || iw == 0) {
+      if (iw === 0 || iw === 0) {
         img.load(function() {panside_prepare(e,x,y);});
         e.center = function () {};
         e.display = function () {};
         return;
       }
 
-      if (x == 0) {
+      if (x === 0) {
         side = 'height';
         max = ih;
         //img.css('top', '50%');
         e.center = function () {
-          e._img_pos_extended = parseInt((wrapwidth / 2) - (iw / 2));
-          e._img_pos_collapsed = parseInt((wrapwidth / 2) - (iw / 6));
+          e._img_pos_extended = parseInt((wrapwidth / 2) - (iw / 2), 10);
+          e._img_pos_collapsed = parseInt((wrapwidth / 2) - (iw / 6), 10);
           img.css('left', e._img_pos_collapsed);
-        }
+        };
       } else {
         side = 'width';
         max = iw;
         img.css('left', '0%');
         e.center = function () {
-          e._img_pos_extended = parseInt((wrapheight / 2) - (ih / 2));
-          e._img_pos_collapsed = parseInt((wrapheight / 2) - (ih / 6));
+          e._img_pos_extended = parseInt((wrapheight / 2) - (ih / 2), 10);
+          e._img_pos_collapsed = parseInt((wrapheight / 2) - (ih / 6), 10);
           img.css('top', e._img_pos_collapsed);
-        }
+        };
       }
       e.center();
       img.css({display: 'block', position: 'absolute'});
-      min = parseInt(max / 3);
-      maxtm = -parseInt(ih / 2);
-      mintm = parseInt(maxtm / 5);
+      min = parseInt(max / 3, 10);
+      maxtm = -parseInt(ih / 2, 10);
+      mintm = parseInt(maxtm / 5, 10);
       e.do_extend = function () {panside_extend(e,min,max,mintm,maxtm,side);};
       e.do_collapse = function () {panside_collapse(e,min,max,mintm,maxtm,side);};
       e.do_collapse();
@@ -142,7 +144,7 @@ $.fn.viewportImage = function(options) {
           .hide();
         }
       };
-    }
+    };
     
     panside_prepare(panleft,50,0);
     panside_prepare(panright,-50,0);
@@ -156,14 +158,14 @@ $.fn.viewportImage = function(options) {
     var wrapwidth = 0;
     var wrapheight = 0;
 
-    var centering  = function (x, y) {
-      if (x == null && y == null) {
+    //var centering  = function (x, y) {
+    //  if (x == null && y == null) {
         /* Return current center */
         
-      } else {
+   //   } else {
         /* move to center */
-      }
-    };
+   //   }
+   // };
 
 
     /**
@@ -182,15 +184,15 @@ $.fn.viewportImage = function(options) {
         overlay.show();
         cb && cb();
       }
-    }
+    };
 
     this.hideOverlay = function () {
       overlay.hide();
-    }
+    };
 
     this.overlayVisible = function () {
       return overlay.is(':visible') || overlay.is('.loading');
-    }
+    };
 
     /**
      * Pan the image within the viewport
@@ -200,8 +202,8 @@ $.fn.viewportImage = function(options) {
       /* Image and wrapping div */
       var pos = dragdiv.offset();
       var rel = wrapdiv.offset();
-      pos.left -= rel.left + parseInt(jQuery.curCSS(wrapdiv[0], "borderLeftWidth", true));
-      pos.top -= rel.top + parseInt(jQuery.curCSS(wrapdiv[0], "borderTopWidth", true));
+      pos.left -= rel.left + parseInt(jQuery.curCSS(wrapdiv[0], "borderLeftWidth", true), 10);
+      pos.top -= rel.top + parseInt(jQuery.curCSS(wrapdiv[0], "borderTopWidth", true), 10);
       var left = pos.left + deltax;
       var top = pos.top + deltay;
       var self = this;
@@ -260,7 +262,7 @@ $.fn.viewportImage = function(options) {
       } else {
         dragdiv.css({left: left, top: top});
       }
-    }
+    };
 
     var cur_zoom = 100;
     var orig_width;
@@ -271,12 +273,12 @@ $.fn.viewportImage = function(options) {
     this.getOrigHeight = function () { return orig_height; };
 
     this.getXOffset = function () {
-      offset = parseInt(dragdiv.css('left'));
+      var offset = parseInt(dragdiv.css('left'), 10);
       return offset < 0 ? (-offset) : 0;
     };
     this.setXOffset = function (xoffset) {dragdiv.css('left', -xoffset); this.doMove(0,0);};
     this.getYOffset = function () {
-      offset = parseInt(dragdiv.css('top'));
+      var offset = parseInt(dragdiv.css('top'), 10);
       return offset < 0 ? (-offset) : 0;
     };
     this.setYOffset = function (yoffset) {dragdiv.css('top', -yoffset); this.doMove(0,0);};
@@ -289,23 +291,22 @@ $.fn.viewportImage = function(options) {
         orig_width = width;
         orig_height = height;
       }
-      width = parseInt(orig_width*val/100);
-      height = parseInt(orig_height*val/100);
+      width = parseInt(orig_width*val/100, 10);
+      height = parseInt(orig_height*val/100, 10);
       cur_zoom = val;
       imagewidth = width;
       imageheight = height;
       this.doMove(0, 0);
       if (!changing) {
-	changing = setTimeout(function () {;
+	changing = setTimeout(function () {
           image.trigger("zoom", [cur_zoom]);
           changing = null;
 			      }, 20);
       }
-      image.trigger("instant_zoom", [cur_zoom])
+      image.trigger("instant_zoom", [cur_zoom]);
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
-            
-     }     
+     };
 
     this.setZoomToFit = function (only_shrink, width, height) {
       if (width != null && height != null) {
@@ -317,16 +318,16 @@ $.fn.viewportImage = function(options) {
       if (only_shrink && ztf >= 100.0) {
         ztf = 100.0;
       }
-      this.setZoom(parseInt(ztf));
-    }
+      this.setZoom(parseInt(ztf, 10));
+    };
 
     this.doZoom = function (increment, justDirection) {
       if (justDirection) {
         var t = Math.max(1,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
         increment = cur_zoom + (increment>0?t:-t);
       }
-      this.setZoom(parseInt(increment));
-    }
+      this.setZoom(parseInt(increment, 10));
+    };
 
     dragdiv.mousewheel(function (e, delta) {
       _this.doZoom(delta, true);
@@ -357,7 +358,7 @@ $.fn.viewportImage = function(options) {
       if (clickinterval != null) {
         clearInterval(clickinterval);
       }
-      clickinterval = setTimeout(function () {clearTimeout(clickinterval); clickinterval = null;}, 250)
+      clickinterval = setTimeout(function () {clearTimeout(clickinterval); clickinterval = null;}, 250);
       return false;
     })
     .mouseup(function (e) {
@@ -387,29 +388,29 @@ $.fn.viewportImage = function(options) {
 
     this.getBigImageContainer = function () {
         return viewerBean;
-    }
+    };
     
     this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy) {
         InfoControl.prototype.viewerZoomed = function(e) {
-            var sz = this.viewer.imageSize();
-            if (this.dom_info) 
+            if (this.dom_info) {
                 var scale = e.scale * 100;
                 if (scale % 1 !== 0) {
                     scale = scale.toFixed(2);
                 }
                 this.dom_info.innerHTML = 'Scale: '+ scale +'%';
-        }
+            }
+        };
         
         var myPyramid = new BisqueISPyramid(
                 imagewidth, imageheight, xtilesize, ytilesize, levels);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
-            return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
+            return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex );
             //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
-        }
+        };
         myProvider.thumbnailUrl = function (thref) {
             this.thumbnailUrl = thref;
-        }
+        };
         myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
@@ -434,7 +435,9 @@ $.fn.viewportImage = function(options) {
             
             viewerBean.mouseReleasedHandler = function(e) {
                 e = e ? e : window.event;
-                if (!this.pressed) return false;
+                if (!this.pressed) {
+                    return false;
+                }
                 var coords = this.resolveCoordinates(e);
                 var motion = {
                     'x' : (coords.x - this.mark.x),
@@ -443,49 +446,56 @@ $.fn.viewportImage = function(options) {
                 var moved = this.mouse_have_moved;
                 this.release(coords);
 
-                if (!moved) return false;
-
+                if (!moved) {
+                    return false;
+                }
 
                 // only if there was little movement
-                if (moved || motion.x>5 || motion.y>5) return false;
+                if (moved || motion.x>5 || motion.y>5) {
+                    return false;
+                }
 
                 if (e.button == 2) {
-                    this.blockPropagation(e);      
-                    this.zoom(-1);    
+                    this.blockPropagation(e);
+                    this.zoom(-1);
                 } else
                 // move on one click
                 if (e.button < 2) {
                     //if (!this.pointExceedsBoundaries(coords)) {
                         this.resetSlideMotion();
                         this.recenter(coords);
-                    //} 
+                    //}
                 }
 
                 return false;
-            }
+            };
             
             // thumbnail url overwritten
             // bird-eye view cannot relay on levels in order to load thumbail,
             // becuase of the way pyramid is generated.
             viewerBean.thumbnailURL = function() {
                 return this.tileUrlProvider.thumbnailUrl;
-            }
+            };
             
             viewerBean.update_url = function() {
                 if (this.thumbnail_control) {
                     this.thumbnail_control.dom_image.src = this.thumbnailURL();
                 }
                 this.update();
-            }
+            };
             
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             viewerBean.init();
             if ((typeof init_cx != 'undefined') && (typeof init_cy != 'undefined')) {
-                viewerBean.recenter({'x':parseInt(init_cx), 'y':parseInt(init_cy)}, true, true);
+                viewerBean.recenter({'x':parseInt(init_cx, 10), 'y':parseInt(init_cy, 10)}, true, true);
             }
-            if (viewerBean.thumbnail_control) viewerBean.thumbnail_control.update();
-            if (!viewerBean.roi_control) viewerBean.roi_control = new ROIControl(viewerBean);
+            if (viewerBean.thumbnail_control) {
+                viewerBean.thumbnail_control.update();
+            }
+            if (!viewerBean.roi_control) {
+                viewerBean.roi_control = new ROIControl(viewerBean);
+            }
             
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
@@ -497,12 +507,12 @@ $.fn.viewportImage = function(options) {
             viewerBean.update_url();
         }
         cur_zoom = viewerBean.zoomLevel;
-    }
+    };
     
     this.destroyTiles = function () {
         jQuery('#weblitz-viewport-tiles').remove();
         viewerBean = null;
-    }
+    };
 
     this.refresh = function () {
         
@@ -525,9 +535,9 @@ $.fn.viewportImage = function(options) {
       panright.center();
       }
       self.doMove(0, 0);
-    }
+    };
 
     //jQuery(window).resize(this.refresh);
   });
-}
+};
 
