@@ -934,6 +934,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         # old list of groups
         old_groups = list()
         for ogr in up_exp.copyGroupExperimenterMap():
+            if ogr is None:
+                continue
             old_groups.append(ogr.parent)
 
         # create list of new groups
@@ -1148,6 +1150,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         # old list of owners
         old_owners = list()
         for oex in up_gr.copyGroupExperimenterMap():
+            if oex is None:
+                continue
             if oex.owner.val:
                 old_owners.append(oex.child)
 
@@ -1992,12 +1996,14 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     
     def getDefaultGroup(self):
         geMap = self.copyGroupExperimenterMap()
-        if self.sizeOfGroupExperimenterMap() > 0:
+        if self.sizeOfGroupExperimenterMap() > 0 and geMap[0] is not None:
             return ExperimenterGroupWrapper(self._conn, geMap[0].parent)
         return None
     
     def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
         for gem in self.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             flag = False
             if gem.parent.name.val in excluded_names:
                 flag = True
@@ -2033,6 +2039,8 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
 
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             if gem.owner.val:
                 yield ExperimenterWrapper(self._conn, gem.child)
     
@@ -2044,6 +2052,8 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         
     def getMembers(self, excluded_omename=list(), excluded_ids=list()):
         for gem in self.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             flag = False
             if gem.child.omeName.val in excluded_omename:
                 flag = True
