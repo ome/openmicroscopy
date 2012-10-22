@@ -386,7 +386,6 @@ public class DataServicesFactory
 	{
 		if (connectionDialog != null) return;
 		String message;
-		UserNotifier un = registry.getUserNotifier();
 		if (exc != null) {
 			LogMessage msg = new LogMessage();
 			msg.print("Session Expired");
@@ -395,69 +394,60 @@ public class DataServicesFactory
 		}
 		switch (index) {
 			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
+				message = "The connection has been destroyed." +
+						"\nThe application will now exit.";
+				showNotificationDialog("Connection Refused", message);
+				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
-				/*
-				message = "The connection has been lost. \nDo you want " +
-						"to reconnect? If no, the application will now exit.";
-				connectionDialog = new MessageBox(
-						registry.getTaskBar().getFrame(), "Lost Connection", 
-						message);
-				connectionDialog.setModal(true);
-				int v = ((MessageBox) connectionDialog).centerMsgBox();
-				if (v == MessageBox.NO_OPTION) {
-					connectionDialog = null;
-					exitApplication(true, true);
-				} else if (v == MessageBox.YES_OPTION) {
-				 */
-					UserCredentials uc = (UserCredentials) 
-					registry.lookup(LookupNames.USER_CREDENTIALS);
-					Map<SecurityContext, Set<Long>> l =
+				UserCredentials uc = (UserCredentials) 
+				registry.lookup(LookupNames.USER_CREDENTIALS);
+				Map<SecurityContext, Set<Long>> l =
 						omeroGateway.getRenderingEngines();
-					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
-            				uc.getPassword());
-					connectionDialog = null;
-					if (b) {
-						//reactivate the rendering engine. Need to review that
-						Iterator<Entry<SecurityContext, Set<Long>>> i =
+				boolean b =  omeroGateway.reconnect(uc.getUserName(), 
+						uc.getPassword());
+				connectionDialog = null;
+				if (b) {
+					//reactivate the rendering engine. Need to review that
+					Iterator<Entry<SecurityContext, Set<Long>>> i =
 							l.entrySet().iterator();
-						OmeroImageService svc = registry.getImageService();
-						Long id;
-						Entry<SecurityContext, Set<Long>> entry;
-						Map<SecurityContext, List<Long>> 
-						failure = new HashMap<SecurityContext, List<Long>>();
-						Iterator<Long> j;
-						SecurityContext ctx;
-						List<Long> f;
-						while (i.hasNext()) {
-							entry = i.next();
-							j = entry.getValue().iterator();
-							ctx = entry.getKey();
-							while (j.hasNext()) {
-								id = j.next();
-								try {
-									svc.reloadRenderingService(ctx, id);
-								} catch (Exception e) {
-									f = failure.get(ctx);
-									if (f == null) {
-										f = new ArrayList<Long>();
-										failure.put(ctx, f);
-									}
-									f.add(id);
+					OmeroImageService svc = registry.getImageService();
+					Long id;
+					Entry<SecurityContext, Set<Long>> entry;
+					Map<SecurityContext, List<Long>> 
+					failure = new HashMap<SecurityContext, List<Long>>();
+					Iterator<Long> j;
+					SecurityContext ctx;
+					List<Long> f;
+					while (i.hasNext()) {
+						entry = i.next();
+						j = entry.getValue().iterator();
+						ctx = entry.getKey();
+						while (j.hasNext()) {
+							id = j.next();
+							try {
+								svc.reloadRenderingService(ctx, id);
+							} catch (Exception e) {
+								f = failure.get(ctx);
+								if (f == null) {
+									f = new ArrayList<Long>();
+									failure.put(ctx, f);
 								}
+								f.add(id);
 							}
 						}
-						message = "You are reconnected to the server.";
-						//un.notifyInfo("Reconnection Success", message);
-						if (failure.size() > 0) {
-							//notify user.
-							registry.getEventBus().post(
-									new ReloadRenderingEngine(failure));
-						}
-					} else {
-						message = "A failure occurred while attempting to " +
-								"reconnect.\nThe application will now exit.";
-						showNotificationDialog("Reconnection Failure", message);
 					}
+					message = "You are reconnected to the server.";
+					//un.notifyInfo("Reconnection Success", message);
+					if (failure.size() > 0) {
+						//notify user.
+						registry.getEventBus().post(
+								new ReloadRenderingEngine(failure));
+					}
+				} else {
+					message = "A failure occurred while attempting to " +
+							"reconnect.\nThe application will now exit.";
+					showNotificationDialog("Reconnection Failure", message);
+				}
 				//}
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
