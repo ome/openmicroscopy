@@ -99,7 +99,7 @@
                 var lastSelected = datatree.data.ui.last_selected;
                 if (lastSelected && (lastSelected.length > 0)) {
                     var img_id = lastSelected.attr('id').split('-')[1];
-                    var $row = $('#image_row-'+ img_id);
+                    var $row = $('#image_icon-'+ img_id);
                     primaryIndex = $rows.index($row);
                 }
                 var multiSelectKey = multi_key() + "Key";
@@ -342,7 +342,7 @@
             <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
-            <li class='row' id="image_row-{{ c.id }}">
+            <li class='row' id="image_icon-{{ c.id }}">
                 <div class="image" title="{{ c.name }}">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>

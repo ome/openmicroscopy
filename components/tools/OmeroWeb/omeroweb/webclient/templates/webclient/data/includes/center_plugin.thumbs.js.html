@@ -34,7 +34,7 @@ $(document).ready(function() {
             var dtype = $(this).attr("rel").replace("-locked", "");
             if (dtype == "image") {
                 var imgId = $(this).attr("id").split("-")[1];
-                $("#image_row-"+imgId).addClass('ui-selected');
+                $("#image_icon-"+imgId).addClass('ui-selected');
             }
         });
     }
