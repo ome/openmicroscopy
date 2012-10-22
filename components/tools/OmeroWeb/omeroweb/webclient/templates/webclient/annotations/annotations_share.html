@@ -154,11 +154,11 @@
                                 $("#edit_share_div").dialog( "close" );      // hide in case it was submitted via 'Enter'
                                 // update the UI  - only available if the owner is editing share
                                 {% if manager.share.id %}
-                                share_selection_changed({{ manager.share.id }});
+                                share_selection_changed("share-{{ manager.share.id }}");
                                 {% endif %}
                             }
                         });
-                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
                         $("#markup_c, #enable, #expire").tooltip({ 
                               track: true, 
                               delay: 0, 
