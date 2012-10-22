@@ -330,11 +330,11 @@
 <div id="admin">
     
     <ul id="settings_tabs">
-        <li id="personal_settings_tab"><a href="#personal_settings" title="User Settings">User</a></li>
+        <li id="personal_settings_tab"><a href="#personal_settings" title="User Settings">{% trans "User" %}</a></li>
 
-        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Edit Groups that I own">My Groups</a></li>{% endif %}
+        {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="{% trans "Edit Groups that I own" %}">{% trans "My Groups" %}</a></li>{% endif %}
 
-        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
+        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="{% trans "Drivespace" %}">{% trans "Drivespace" %}</a></li>
     </ul>
      
      <!-- Personal Settings -->
@@ -349,12 +349,12 @@
            <div id="avatar">
                <img src="{% url wamyphoto %}" class="imgzoom"/>                 
                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
-                   <span>Change</span>
+                   <span>{% trans "Change" %}</span>
                </a> 
 
                {% if myaccount.hasAvatar %} 
                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
-                   <span>Delete</span>
+                   <span>{% trans "Delete" %}</span>
                </a>
                {% endif %}
             </div>
@@ -371,15 +371,15 @@
                {% endfor %}
 
                {% if ldapAuth %}
-               LDAP: {{ ldapAuth }}
+               {% trans "LDAP" %}: {{ ldapAuth }}
                {% else %}
 
                <div id="password">
 
                    <div id="password_change">
-                       <label>Password:</label>
+                       <label>{% trans "Password" %}:</label>
                        <a class="btn btn_text silver" id="change_password">
-                           <span>Change  Password</span>
+                           <span>{% trans "Change Password" %}</span>
                        </a>
                        <span id="password_change_message"></span>
                    </div>
@@ -424,14 +424,14 @@
     {% if ownedGroups %}
     <div id="groups_settings" class="settings_content">
         
-        <h1>Groups I Own</h1>
+        <h1>{% trans "Groups I Own" %}</h1>
         
         <div class="one_column_header">
             <form class="search filtersearch" id="filtersearch" action="#">
                 <input type="text" id="id_search" value="">
-                <input type="submit" value="Go" />
+                <input type="submit" value="{% trans "Go" %}" />
                 <span class="loading">
-                    <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+                    <img class="loader" alt="{% trans "Loading" %}" src="{% static "webgateway/img/spinner.gif" %}">
                 </span>
             </form>
             
@@ -453,8 +453,8 @@
                     <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
                     <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
-                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver">
-                            <span>Edit</span>
+                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="{% trans "Edit Group" %}" title="{% trans "Edit Group" %}" class="btn silver">
+                            <span>{% trans "Edit" %}</span>
                         </a>
                     </td>
                 </tr>
@@ -477,13 +477,13 @@
 
         <div id="usage">
             <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
-            <div id="status">loading...</div>
+            <div id="status">{% trans "loading..." %}</div>
         </div>
 
 
         <table id="drivespaceTable" class="tablesorter" style="display: none;">
             <thead>
-                <tr><th>User</th><th>Usage</th></tr>
+                <tr><th>{% trans "User" %}</th><th>{% trans "Usage" %}</th></tr>
             </thead>
         </table>
     </div>

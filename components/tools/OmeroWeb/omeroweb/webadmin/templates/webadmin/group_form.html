@@ -78,7 +78,7 @@
     <h1>{% trans "Add group" %}</h1>
 {% endif %}
 
-<h1><a href="{% url wagroups %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
+<h1><a href="{% url wagroups %}" style="position:relative; top:-38px; float:right" title="{% trans "Go Back to Groups" %}">{% trans "Cancel" %}</a></h1>
 
 
 {% if gid %}
@@ -110,11 +110,13 @@
     </form>
 
     <p>
+        {% blocktrans %}
         Full details on various Permissions levels can be found on the 
         <a href="http://www.openmicroscopy.org/site/support/omero4/server/permissions/" target="new">
             OMERO Permissions
         </a>
         page.
+        {% endblocktrans %}
     </p>
 </div>
 {% endblock %}

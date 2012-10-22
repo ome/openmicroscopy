@@ -39,9 +39,9 @@ class OmeNameField(forms.CharField):
     def to_python(self, value):
         omeName = value
         if not value:
-            raise forms.ValidationError('This field is required.')
+            raise forms.ValidationError(_('This field is required.'))
         if not self.is_valid_omeName(omeName):
-            raise forms.ValidationError('%s is not a valid Omename.' % omeName)
+            raise forms.ValidationError(_('%s is not a valid Omename.') % omeName)
         return omeName
 
     def is_valid_omeName(self, omeName):
@@ -387,7 +387,7 @@ class DefaultGroupField(ChoiceField):
         Check that the field was selected.
         """
         if not value:
-            raise forms.ValidationError("Choose one of the 'Selected groups' to specify 'Default Group'.")
+            raise forms.ValidationError(_("Choose one of the 'Selected groups' to specify 'Default Group'."))
 
         # Always return the cleaned data.
         return value
