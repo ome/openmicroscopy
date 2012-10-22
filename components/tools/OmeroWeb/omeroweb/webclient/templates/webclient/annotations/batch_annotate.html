@@ -223,6 +223,12 @@
                     OME.removeItem(event, ".file_ann_wrapper", url, parents);
                     return false;
                 });
+
+                // delete action (files)
+                $("#fileanns_container").on("click", ".deleteFile", function(event) {
+                    var url = $(this).attr('href');
+                    OME.deleteItem(event, "file_ann_wrapper", url);
+                });
             });
             
     </script>

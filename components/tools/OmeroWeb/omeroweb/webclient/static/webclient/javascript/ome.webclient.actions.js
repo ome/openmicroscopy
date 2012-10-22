@@ -222,6 +222,38 @@ OME.removeItem = function(event, domClass, url, parentId) {
     return false;
 }
 
+OME.deleteItem = function(event, domClass, url) {
+    var deleteId = $(event.target).attr('id');
+    var dType = deleteId.split("-")[1]; // E.g. 461-comment
+    // /webclient/action/delete/file/461/?parent=image-257
+    var $parent = $(event.target).parents("."+domClass);
+    var $annContainer = $parent.parent();
+    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
+        function() {
+            if(confirm_remove.data("clicked_button") == "OK") {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/javascript',
+                    dataType:'json',
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            alert(r.errs);
+                        } else {
+                            // simply remove the item (parent class div)
+                            $parent.remove();
+                            $annContainer.hide_if_empty();
+                            window.parent.refreshActivities();
+                        }
+                    }
+                });
+            }
+        }
+    );
+    event.preventDefault();
+    return false;
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         bodyHandler: function() {

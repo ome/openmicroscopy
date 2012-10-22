@@ -78,7 +78,8 @@
 	    {% endif %}
 	
 	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-	        <a id="{{ fileann.id }}-file" type="image" class="deleteFile action" alt="Delete File" title="Delete File"> &#215 </a>
+	        <a id="{{ fileann.id }}-file" type="image" class="deleteFile action" title="Delete File"
+	            href="{% url manage_action_containers 'delete' %}file/{{ fileann.id }}/"> &#215 </a>
 	    {% endif %}
 	
 	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
