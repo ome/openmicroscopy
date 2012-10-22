@@ -556,6 +556,7 @@
                         "select_limit" : -1,
                         "select_multiple_modifier": multi_key(),
                         "selected_parent_close": "select_parent",
+                        "disable_selecting_children": true,
                         "select_prev_on_delete": false,
                         "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
                     },
