@@ -73,7 +73,7 @@ class Column(list):
     def __init__(self, name, data, align=ALIGN.LEFT):
         list.__init__(self, data)
         self.name = name
-        self.width = max(len(str(x)) for x in data + [name])
+        self.width = max(len(str(x).decode("utf-8")) for x in data + [name])
         self.format = ' %%%s%ds ' % (align, self.width)
 
 
@@ -88,7 +88,14 @@ class Table:
             if i is None:
                 yield x.format % x.name
             else:
-                yield x.format % x[i]
+                try:
+                    x[i].decode("ascii")
+                except UnicodeDecodeError: # Unicode characters are present
+                    yield (x.format % x[i].decode("utf-8")).encode("utf-8")
+                except AttributeError: # Unicode characters are present
+                    yield x.format % x[i]
+                else:
+                    yield x.format % x[i]
 
     def get_rows(self):
         yield '|'.join(self.get_row(None))
