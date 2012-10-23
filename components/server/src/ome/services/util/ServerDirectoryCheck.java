@@ -40,7 +40,7 @@ public class ServerDirectoryCheck implements Runnable {
     }
 
     public void createDirectories() {
-        for (String directory : Arrays.asList("FullText")) {
+        for (String directory : Arrays.asList("FullText", "ManagedRepository")) {
             File f = new File(omeroDataDir + File.separator + directory);
             if (f.mkdirs()) {
                 log.info("Creating " + f);

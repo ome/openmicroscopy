@@ -69,6 +69,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     private final Registry reg;
 
+    /**
+     * Fields used in date-time calculations. Static version should
+     * decrease the number of calls to <code>Calendar.getInstance()</code>
+     */
+    private static final DateFormatSymbols DATE_FORMAT;
+    private static final Calendar NOW;
+
+    static {
+        NOW = Calendar.getInstance();
+        DATE_FORMAT = new DateFormatSymbols();
+    }
+
     public ManagedRepositoryI(String template, RepositoryDao dao, Registry reg) throws Exception {
         super(dao);
         this.reg = reg;
@@ -275,18 +287,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return
      */
     protected String expandTemplate(Ice.Current curr) {
-        final String name = this.repositoryDao.getEventContext(curr).userName;
-
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String relPath = name;
-        String dir;
+        String relPath = "";
+        String dir = null;
         String[] elements = template.split("/");
         for (String part : elements) {
             String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0], now, dfs);
+            dir = getStringFromToken(subelements[0], NOW, curr);
             for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i], now, dfs);
+                dir = dir + "-" + getStringFromToken(subelements[i], NOW, curr);
             }
             relPath = concat(relPath, dir);
         }
@@ -298,17 +306,21 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * when building a path from a template
      */
     protected String getStringFromToken(String token, Calendar now,
-            DateFormatSymbols dfs) {
+            Ice.Current curr) {
 
         String rv;
-        if (token.equals("%year%"))
+        if ("%year%".equals(token))
             rv = Integer.toString(now.get(Calendar.YEAR));
-        else if (token.equals("%month%"))
+        else if ("%month%".equals(token))
             rv = Integer.toString(now.get(Calendar.MONTH)+1);
-        else if (token.equals("%monthname%"))
-            rv = dfs.getMonths()[now.get(Calendar.MONTH)];
-        else if (token.equals("%day%"))
+        else if ("%monthname%".equals(token))
+            rv = DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)];
+        else if ("%day%".equals(token))
             rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+        else if ("%user%".equals(token))
+            rv = this.repositoryDao.getEventContext(curr).userName;
+        else if ("%group%".equals(token))
+            rv = this.repositoryDao.getEventContext(curr).groupName;
         else if (!token.endsWith("%") && !token.startsWith("%"))
             rv = token;
         else {
@@ -341,6 +353,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String uniquePathElement = parts[1];
         final File relUpToLast = new File(new File(relPath), nonEndPart);
         final File trueUpToLast = new File(new File(trueRoot, relPath), nonEndPart);
+        final URI baseUri = new File(basePath).toURI();
 
         // State that will be updated per loop.
         Integer version = null;
@@ -353,7 +366,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
             for (String path: paths)
             {
-                URI baseUri = new File(basePath).toURI();
                 URI pathUri = new File(path).toURI();
                 String relative = baseUri.relativize(pathUri).getPath();
                 if (new File(new File(trueUpToLast, endPart), relative).exists()) {
@@ -370,7 +382,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             data.sharedPath = normalize(newBase.toString());
             data.usedFiles = new ArrayList<String>(paths.size());
             for (String path : paths) {
-                path = normalize(new File(newBase, new File(path).getName()).toString());
+                URI pathUri = new File(path).toURI();
+                String relative = baseUri.relativize(pathUri).getPath();
+                path = normalize(new File(newBase, relative).toString());
                 data.usedFiles.add(path);
             }
     

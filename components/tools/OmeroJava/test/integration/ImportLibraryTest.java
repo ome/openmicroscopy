@@ -51,7 +51,7 @@ import org.testng.annotations.Test;
  * </small>
  * @since 4.5
  */
-@Test(groups = {"import", "integration"})
+@Test(groups = {"import", "integration", "fs"})
 public class ImportLibraryTest 
 	extends AbstractServerTest
 {
