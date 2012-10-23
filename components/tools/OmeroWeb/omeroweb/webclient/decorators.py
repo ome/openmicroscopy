@@ -155,6 +155,8 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['right_plugins'] = r_plugins
 
         center_plugins = settings.CENTER_PLUGINS
+        # TEMP ACTIVATION of split-view plugin
+        center_plugins.append( ["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"] )
         c_plugins = []
         for cp in center_plugins:
             label = cp[0]
