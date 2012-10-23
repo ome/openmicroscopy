@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.context.ApplicationListener;
+
 import ome.api.IAdmin;
 import ome.logic.HardWiredInterceptor;
 import ome.model.internal.Permissions;
@@ -30,6 +32,7 @@ import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.ShareI;
 import ome.services.blitz.impl.UpdateI;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.scheduler.ThreadPool;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -39,6 +42,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
+import ome.util.messages.MessageException;
 
 /**
  * This fixture is copied from components/server/test/ome/server/itests/
@@ -149,6 +153,23 @@ public class ManagedContextFixture {
         configure(admin, init);
         configure(config, init);
         configure(share, init);
+
+        this.ctx.addApplicationListener(
+                new ApplicationListener<RegisterServantMessage>(){
+                    public void onApplicationEvent(RegisterServantMessage msg) {
+                        Ice.Current curr = msg.getCurrent();
+                        if (curr.id.category.equals(getPrincipal().getName())) {
+                            try {
+                                Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), curr.id.name);
+                                msg.setProxy(sf.registerServant(newId, msg.getServant()));
+                                msg.setHolder(sf.holder);
+                            } catch (Throwable t) {
+                                throw new MessageException(
+                                        "ManagedContextFixture.onApplicationEvent", t);
+                            }
+                        }
+                    }});
+
     }
 
     private ServiceFactoryI createServiceFactoryI()
@@ -156,7 +177,7 @@ public class ManagedContextFixture {
         Ice.Current current = new Ice.Current();
         current.adapter = adapter;
         current.ctx = new HashMap<String, String>();
-        current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
+        current.ctx.put(omero.constants.CLIENTUUID.value, UUID.randomUUID().toString());
         ServiceFactoryI factory = new ServiceFactoryI(current,
                 new omero.util.ServantHolder(getPrincipal().getName()), null, ctx, mgr, ex,
                 getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);

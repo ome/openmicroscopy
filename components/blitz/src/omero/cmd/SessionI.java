@@ -622,13 +622,19 @@ public class SessionI implements _SessionOperations {
         // which case unregisterServant() is being closed via
         // onApplicationEvent().
         // Otherwise, it is being called directly by SF.close().
-        Ice.Object obj = adapter.remove(id); // OK ADAPTER USAGE
-        Object removed = holder.remove(id);
-        if (removed == null) {
-            log.error("Adapter and active servants out of sync.");
+        final Ice.Object obj = adapter.remove(id); // OK ADAPTER USAGE
+        final String str = servantString(id, obj);
+
+        if (holder == null) {
+            log.warn("Holder is null for " + str);
+        } else {
+            Object removed = holder.remove(id);
+            if (removed == null) {
+                log.error("Adapter and active servants out of sync.");
+            }
         }
         if (log.isInfoEnabled()) {
-            log.info("Unregistered servant:" + servantString(id, obj));
+            log.info("Unregistered servant:" + str);
         }
     }
 

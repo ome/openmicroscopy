@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="OmeroJava.fs" >
+  <test name="OmeroJava.fs">
+    <groups>
+      <run>
+        <include name="fs"/>
+      </run>
+    </groups>
+    <classes>
+      <class name="integration.ManagedRepositoryTest"/>
+      <class name="integration.ImportLibraryTest"/>
+    </classes>
+  </test>
+</suite>

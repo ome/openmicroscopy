@@ -212,7 +212,6 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // Need to keep up with closing
         // might need to cache the found repositories.
 
-        final String query = QUERY;
         IceMapper mapper = new IceMapper();
         List<OriginalFile> objs = (List<OriginalFile>) mapper
                 .map((List<Filterable>) sf.executor.execute(current.ctx, sf.principal,

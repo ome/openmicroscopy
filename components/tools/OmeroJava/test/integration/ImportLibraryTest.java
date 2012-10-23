@@ -51,7 +51,7 @@ import org.testng.annotations.Test;
  * </small>
  * @since 4.5
  */
-@Test(groups = {"import", "integration"})
+@Test(groups = {"import", "integration", "fs"})
 public class ImportLibraryTest 
 	extends AbstractServerTest
 {
@@ -131,11 +131,19 @@ public class ImportLibraryTest
 		ImportLibrary library = new ImportLibrary(importer,
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importMetadataViaRepository(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertEquals(pixels.size(), 1);
+
+                // FIXME: Using importImage here to keep the tests working
+                // but this is not the method under test (which has been removed)
+                List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+                assertNotNull(pixels);
+                assertEquals(pixels.size(), 1);
+		// omero.grid.Import data = library.uploadFilesToRepository(ic);
+                // omero.grid.RepositoryImportContainer repoIc = ImportLibrary.createRepositoryImportContainer(ic);
+                // List<Pixels> pixels = repo.importMetadata(data, repoIc);
+		// assertNotNull(pixels);
+		// assertEquals(pixels.size(), 1);
 	}
+
     /**
      * Tests the <code>ImportImage</code> method using an import container
      * returned by the import candidates method.
@@ -355,7 +363,7 @@ public class ImportLibraryTest
 	public void testImportImageRWRWByAdmin()
 		throws Throwable
 	{
-    	importImage("rwrw--", ADMIN, "testImportImageRWRAByAdmin");
+    	importImage("rwrw--", ADMIN, "testImportImageRWRWByAdmin");
 	}
     
     //Test import candidates
@@ -548,7 +556,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rw----", ADMIN, 
-    			"testImportImageCreateImportContainerRWByGroupOwner");
+    			"testImportImageCreateImportContainerRWByAdmin");
 	}
     
     /**
@@ -587,7 +595,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwr---", ADMIN, 
-    			"testImportImageCreateImportContainerRWRByGroupOwner");
+    			"testImportImageCreateImportContainerRWRByGroupAdmin");
 	}
     
     /**
@@ -626,7 +634,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwra--", ADMIN, 
-    			"testImportImageCreateImportContainerRWRAByGroupOwner");
+    			"testImportImageCreateImportContainerRWRAByGroupAdmin");
 	}
     
     /**
@@ -665,7 +673,7 @@ public class ImportLibraryTest
 		throws Throwable
 	{
     	importImageCreateImportContainer("rwrw--", ADMIN, 
-    			"testImportImageCreateImportContainerRWRWByGroupOwner");
+    			"testImportImageCreateImportContainerRWRWByGroupAdmin");
 	}
     
     //Test import the metadata after uploading the file to the repository
