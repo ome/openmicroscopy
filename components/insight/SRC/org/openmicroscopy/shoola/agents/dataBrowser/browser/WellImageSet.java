@@ -78,7 +78,14 @@ public class WellImageSet
 	/** The tabular data. */
 	private Map<String[], Object[]> tabularData;
 	
+	/** The tooltip.*/
 	private List<String> text;
+	
+	/** The value by which to shift the row by when laying out the cell.*/
+	private int indentRow;
+	
+	/** The value by which to shift the column by when laying out the cell.*/
+	private int indentColumn;
 	
 	/** 
 	 * Sets the default value for the row and column display.
@@ -165,8 +172,42 @@ public class WellImageSet
 		setDefault();
 		rowDisplay = null;
 		columnDisplay = null;
+		indentRow = 0;
+		indentColumn = 0;
 	}
 
+	
+	/**
+	 * Sets the value by which to shift the row by when laying out the cell.
+	 * 
+	 * @param indentRow The value to set.
+	 */
+	public void setIndentRow(int indentRow) { this.indentRow = indentRow; }
+	
+	/**
+	 * Sets the value by which to shift the row by when laying out the cell.
+	 *  
+	 * @param indentColumn The value to set.
+	 */
+	public void setIndentColumn(int indentColumn)
+	{
+		this.indentColumn = indentColumn;
+	}
+	
+	/**
+	 * Returns the value by which to shift the row by when laying out the cell.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndentRow() { return indentRow; }
+	
+	/**
+	 * Returns the value by which to shift the row by when laying out the cell.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndentColumn() { return indentColumn; }
+	
 	/**
 	 * Returns the location of the well on the grid as a string.
 	 * 
