@@ -29,11 +29,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -403,6 +407,31 @@ class OMEROGateway
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
 
+	/**
+	 * Checks if the network is up.
+	 * @throws Exception Throw
+	 */
+	private void isNetworkUp()
+		throws Exception
+	{
+		Enumeration<NetworkInterface> interfaces = 
+				NetworkInterface.getNetworkInterfaces();
+		boolean on = false;
+		NetworkInterface ni;
+		if (interfaces != null) {
+			while (interfaces.hasMoreElements()) {
+				ni = interfaces.nextElement();
+				if (ni.isUp() && !ni.isLoopback()) {
+					on = true;
+					break;
+				}
+			}
+		}
+		if (!on) {
+			throw new UnknownHostException("Network is not up.");
+		}
+	}
+
 	/** 
 	 * Checks if the session is still alive.
 	 * 
@@ -415,6 +444,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			isNetworkUp();
 			c.ping();
 		} catch (Exception e) {
 			handleConnectionException(e);
@@ -2556,6 +2586,7 @@ class OMEROGateway
 		connected = false;
 		shutDownServices(true);
 		try {
+			isNetworkUp();
 			Iterator<Connector> i = connectors.iterator();
 			while (i.hasNext()) {
 				i.next().close();
@@ -3876,9 +3907,14 @@ class OMEROGateway
 	 */
 	private void shutDownServices(boolean rendering)
 	{
-		Iterator<Connector> i = connectors.iterator();
-		while (i.hasNext())
-			i.next().shutDownServices(rendering);
+		try {
+			isNetworkUp();
+			Iterator<Connector> i = connectors.iterator();
+			while (i.hasNext())
+				i.next().shutDownServices(rendering);
+		} catch (Exception e) {
+			//do not shut down the services, the network is down.
+		}
 	}
 	
 	/**

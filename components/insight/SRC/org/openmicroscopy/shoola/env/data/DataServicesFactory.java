@@ -398,6 +398,11 @@ public class DataServicesFactory
 						"\nThe application will now exit.";
 				showNotificationDialog("Connection Refused", message);
 				break;
+			case ConnectionExceptionHandler.NETWORK:
+				message = "The network is down." +
+						"\nThe application will now exit.";
+				showNotificationDialog("Network", message);
+				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
 				UserCredentials uc = (UserCredentials) 
 				registry.lookup(LookupNames.USER_CREDENTIALS);
