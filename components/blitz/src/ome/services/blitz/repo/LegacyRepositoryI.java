@@ -9,7 +9,7 @@ package ome.services.blitz.repo;
 import ome.io.nio.OriginalFilesService;
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
-import ome.util.SqlAction;
+import ome.system.Principal;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
@@ -32,13 +32,13 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     private final OriginalFilesService fs;
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir, String template) {
-        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir), template);
+            Principal p, String repoDir, PublicRepositoryI servant) {
+        this(oa, reg, ex, p, new FileMaker(repoDir), servant);
     }
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, FileMaker fileMaker, String template) {
-        super(oa, reg, ex, sql, sessionUuid, fileMaker, template);
+            Principal p, FileMaker fileMaker, PublicRepositoryI servant) {
+        super(oa, reg, ex, p, fileMaker, servant);
         this.fs = new OriginalFilesService(fileMaker.getDir());
     }
 

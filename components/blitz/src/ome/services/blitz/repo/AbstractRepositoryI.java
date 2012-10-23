@@ -8,6 +8,9 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,9 +25,13 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid._InternalRepositoryDisp;
+import omero.grid._ManagedRepositoryTie;
+import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -58,17 +65,15 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private final Principal p;
 
-    private final SqlAction sql;
-
     private final FileMaker fileMaker;
+
+    private final PublicRepositoryI servant;
 
     private OriginalFile description;
 
     private RepositoryPrx proxy;
 
     private String repoUuid;
-
-    private String template = "";
 
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
@@ -77,30 +82,19 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir) {
-        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
+            Principal p, String repoDir, PublicRepositoryI servant) {
+        this(oa, reg, ex, p, new FileMaker(repoDir), servant);
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir, String template) {
-        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir), template);
-    }
-
-    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, FileMaker fileMaker, String template) {
-        this(oa, reg, ex, sql, sessionUuid, fileMaker);
-        this.template = template;
-    }
-
-    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, FileMaker fileMaker) {
+            Principal p, FileMaker fileMaker, PublicRepositoryI servant) {
         this.state.set(State.EAGER);
-        this.p = new Principal(sessionUuid, "system", "Internal");
+        this.p = p;
         this.oa = oa;
         this.ex = ex;
         this.reg = reg;
-        this.sql = sql;
         this.fileMaker = fileMaker;
+        this.servant = servant;
         log.info("Initializing repository in " + fileMaker.getDir());
     }
 
@@ -130,11 +124,13 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
         Object rv = null;
         try {
-            rv = ex.execute(p, new GetOrCreateRepo(this));
+            GetOrCreateRepo gorc = new GetOrCreateRepo(this);
+            rv = ex.execute(p, gorc);
             if (rv instanceof ome.model.core.OriginalFile) {
 
                 ome.model.core.OriginalFile r = (ome.model.core.OriginalFile) rv;
                 description = getDescription(r.getId());
+                proxy = gorc.publicPrx;
 
                 // Success
                 if (!state.compareAndSet(State.WAITING, State.ACTIVE)) {
@@ -227,6 +223,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
         private final AbstractRepositoryI repo;
 
+        RepositoryPrx publicPrx;
+
         public GetOrCreateRepo(AbstractRepositoryI repo) {
             super(repo, "takeover");
             this.repo = repo;
@@ -292,21 +290,21 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 // Servants
                 //
 
-                PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), template, r.getId(), ex, sql, p);
+                servant.initialize(fileMaker, r.getId(), repoUuid);
 
-                Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
-                Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
+                LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
+                objs.add(addOrReplace("InternalRepository-", repo));
+                objs.add(addOrReplace("PublicRepository-", servant.tie()));
+                publicPrx = RepositoryPrxHelper.uncheckedCast(objs.getLast());
 
                 //
                 // Activation & Registration
                 //
                 oa.activate(); // Must happen before the registry tries to connect
 
-                reg.addObject(internalObj);
-                reg.addObject(externalObj);
-
-                proxy = RepositoryPrxHelper.uncheckedCast(externalObj);
+                for (Ice.ObjectPrx prx : objs) {
+                    reg.addObject(prx);
+                }
 
                 log.info("Repository now active");
                 return r;

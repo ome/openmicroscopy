@@ -8,6 +8,7 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
@@ -29,8 +30,8 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     private final static Log log = LogFactory.getLog(InternalRepositoryI.class);
 
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir) {
-        super(oa, reg, ex, sql, sessionUuid, repoDir);
+            Principal p, String repoDir, PublicRepositoryI servant) {
+        super(oa, reg, ex, p, repoDir, servant);
     }
 
     /**
