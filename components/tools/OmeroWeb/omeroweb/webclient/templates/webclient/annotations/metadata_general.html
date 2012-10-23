@@ -367,9 +367,40 @@
                 
                 // Handle Download actions
                 $("#create-ometiff").click(function(e){
-                    $.post( $(this).attr('href') );
+                    
+                    var url = $(this).attr('href');
                     $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
-                    showActivities();
+                    var dialog_opts = ['Cancel', 'Prepare'];
+                    var msg = "This will prepare an OME-TIFF file from this Image.";
+                    {% if manager.ome_tiff %}
+                        msg += "<br>Or you can Download one that was prepared {{ manager.ome_tiff.created|ago }} ago";
+                        var download_ometiff = "{% url download_annotation 'download' manager.ome_tiff.id %}";
+                        dialog_opts[1] = "Prepare New";
+                        dialog_opts.push("Download");
+                    {% else %}
+                        msg += "<br>This will be attached to the Image and available to download.";
+                    {% endif %}
+                    
+                    var confirm_ometiff = confirm_dialog(msg,
+                        function() {
+                            var btn = confirm_ometiff.data("clicked_button");
+                            switch (btn) {
+                                case "Prepare":   // two options for the same button
+                                case "Prepare New":
+                                    $.post( url, function() {
+                                        showActivities();
+                                    });
+                                    break;
+                                case "Download":
+                                    window.location.href = download_ometiff;
+                                    break;
+                            }
+                        },
+                        "Prepare OME-TIFF?",
+                        dialog_opts,
+                        null, 200
+                    );
+                    
                     e.preventDefault();
                     return false;
                 });

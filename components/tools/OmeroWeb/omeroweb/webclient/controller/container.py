@@ -317,6 +317,7 @@ class BaseContainer(BaseController):
         self.term_annotations = list()
         self.time_annotations = list()
         self.companion_files =  list()
+        self.ome_tiff = None
         
         annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
                     omero.model.LongAnnotationI: self.long_annotations,
@@ -354,6 +355,11 @@ class BaseContainer(BaseController):
                         self.companion_files.append(ann)
                 else:
                     annTypes[annClass].append(ann)
+                    # Any existing OME-TIFF will appear in list
+                    from datetime import datetime
+                    if ann.ns == omero.constants.namespaces.NSOMETIFF:
+                        d = ann.link.creationEventDate()
+                        self.ome_tiff = {"created": d, "id":ann.getId()}
 
         self.text_annotations.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.file_annotations.sort(key=lambda x: x.creationEventDate())
