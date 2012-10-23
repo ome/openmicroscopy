@@ -147,10 +147,10 @@ public class NotificationDialog
 	/** Hides and disposes of the dialog. */
 	private void close()
 	{
-		firePropertyChange(CLOSE_NOTIFICATION_PROPERTY,
-				Boolean.valueOf(false), Boolean.valueOf(true));
 		setVisible(false);
 		dispose();
+		firePropertyChange(CLOSE_NOTIFICATION_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
