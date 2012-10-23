@@ -22,8 +22,10 @@ import ome.services.blitz.repo.RepositoryDao;
 import omero.grid.Import;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
+@Test(groups = {"fs"})
 public class ManagedRepositoryITest extends MockObjectTestCase {
 
     Mock daoMock;
@@ -74,13 +76,13 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
         @Override
         public String getStringFromToken(String token, Calendar now,
-                DateFormatSymbols dfs) {
-            return super.getStringFromToken(token, now, dfs);
+                Ice.Current curr) {
+            return super.getStringFromToken(token, now, curr);
         }
 
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun=true)
     public void setup() throws Exception {
         this.tmpDir = TempFileManager.create_path("repo", "test", true);
         this.templateDir = new File(this.tmpDir, "template");
@@ -106,7 +108,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         daoMock.expects(once()).method("createUserDirectory").will(returnValue(of));
     }
 
-    @Test
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
         assertReturnFile(1L);
         new File(this.tmpDir, "/my/path");
@@ -128,7 +129,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testSuggestOnConflictReturnsBasnePathWithEmptyPathsList() throws Exception {
+    public void testSuggestOnConflictReturnsBasePathWithEmptyPathsList() throws Exception {
         assertReturnFile(1L);
         String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload");
@@ -136,18 +137,18 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testCommonRootReturns() {
-        String expectedCommonRoot = "/home";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/myStuff",
-                "/home/alice/myOtherStuff"));
+    public void testCommonRootReturnsTopLevelWithUncommonPaths() {
+        String expectedCommonRoot = "/";
+        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/1.jpg",
+                "/data/alice/1.jpg"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
     @Test
-    public void testCommonRootReturnsTopLevelWithUncommonPaths() {
-        String expectedCommonRoot = "/";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/myStuff",
-                "/data/alice"));
+    public void testCommonRootReturnsCommonRootForPathList() {
+        String expectedCommonRoot = "/bob/files/dv";
+        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList(
+                expectedCommonRoot + "/file1.dv", expectedCommonRoot + "/file2.dv"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
@@ -225,16 +226,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
-        String actual = this.tmri.getStringFromToken("", Calendar.getInstance(),
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("", null, null);
         Assert.assertTrue(actual.isEmpty());
     }
 
     @Test
     public void testGetStringFromTokenReturnsTokenOnMalformedToken() {
         String expected = "foo";
-        String actual = this.tmri.getStringFromToken(expected, Calendar.getInstance(),
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken(expected, null, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -243,8 +242,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "2012";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2012);
-        String actual = this.tmri.getStringFromToken("%year%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%year%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -253,8 +251,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "10";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, Integer.parseInt(expected) - 1);
-        String actual = this.tmri.getStringFromToken("%month%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%month%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -263,8 +260,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "October";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, 9);
-        String actual = this.tmri.getStringFromToken("%monthname%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%monthname%", cal, null);
         Assert.assertEquals(expected, actual);
     }
 
@@ -273,8 +269,27 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "7";
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 7);
-        String actual = this.tmri.getStringFromToken("%day%", cal,
-                DateFormatSymbols.getInstance());
+        String actual = this.tmri.getStringFromToken("%day%", cal, null);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsUserName() {
+        String expected = "user-1";
+        EventContext ecStub = new EventContext();
+        ecStub.userName = expected;
+        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
+        String actual = this.tmri.getStringFromToken("%user%", null, null);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStringFromTokenReturnsGroupName() {
+        String expected = "group-1";
+        EventContext ecStub = new EventContext();
+        ecStub.groupName = expected;
+        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
+        String actual = this.tmri.getStringFromToken("%group%", null, null);
         Assert.assertEquals(expected, actual);
     }
 }
