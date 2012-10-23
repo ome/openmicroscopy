@@ -2377,6 +2377,8 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
+                if d is None:
+                    continue
                 if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
@@ -2399,7 +2401,7 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", gid)
         if not default.isPrivate() or self.isLeader() or self.isAdmin():
             for d in default.copyGroupExperimenterMap():
-                if d.child.id.val == userId:
+                if d is None or d.child.id.val == userId:
                     continue
                 if d.owner.val:
                     leaders.append(ExperimenterWrapper(self, d.child))
@@ -2441,6 +2443,8 @@ class _BlitzGateway (object):
             
         exp = self.getUser()
         for gem in exp.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
@@ -4341,6 +4345,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "system":
                 return True
         return False
@@ -4369,6 +4375,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "guest":
                 return True
         return False
@@ -5142,8 +5150,8 @@ class _LightPathWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'LightPath'
 
     def getExcitationFilters(self):
-        """ Returns list of excitation L{FilterWrapper}s """
-        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink()]
+        """ Returns list of excitation L{FilterWrapper}s. Ordered collections can contain nulls"""
+        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink() if link is not None]
 
     def getEmissionFilters(self):
         """ Returns list of emission L{FilterWrapper}s """
