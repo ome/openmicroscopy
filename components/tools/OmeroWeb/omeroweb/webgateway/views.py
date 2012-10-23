@@ -2341,6 +2341,7 @@ class repository_upload(django.views.generic.View):
         _delete_upload(objectname)
 
 
+@require_POST
 @login_required()
 @jsonp
 def clean_incomplete_mpus(request, conn, **kwargs):
