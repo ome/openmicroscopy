@@ -43,14 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 //Third-party libraries
 
@@ -94,7 +87,6 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -189,39 +181,6 @@ public class TaskBarManager
 		}
     	return splashScreen;
     }
-    
-	/** 
-	 * Parses the passed file to determine the value of the URL.
-	 * 
-	 * @param refFile	The file to parse
-	 * @return See above.
-	 */
-	private String parse(String refFile)
-	{
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new File(refFile));
-            //parse 
-            
-            NodeList list = document.getElementsByTagName(A_TAG); //length one
-            Node n;
-            String url = null;
-            for (int i = 0; i < list.getLength(); ++i) {
-                n = list.item(i);
-                url = n.getFirstChild().getNodeValue();
-            }
-            return url;
-        } catch (Exception e) { 
-        	if (suDialog != null) suDialog.close();
-        	Logger logger = container.getRegistry().getLogger();
-			LogMessage msg = new LogMessage();
-	        msg.print("Error while saving.");
-	        msg.print(e);
-	        logger.error(this, msg);
-        }   
-        return null;
-	}
 	
 	/**
 	 * Reads the content of the specified file and returns it as a string.
@@ -695,7 +654,7 @@ public class TaskBarManager
     	String message = loadAbout(refFile);
     	String title = (String) container.getRegistry().lookup(
     			LookupNames.SOFTWARE_NAME);
-        suDialog = new SoftwareUpdateDialog(view, message, refFile);
+        suDialog = new SoftwareUpdateDialog(view, message);
         suDialog.setTitle(TITLE_ABOUT+" "+title+"...");
         suDialog.setAlwaysOnTop(true);
         suDialog.addPropertyChangeListener(
@@ -1054,8 +1013,8 @@ public class TaskBarManager
 	{
 		String name = evt.getPropertyName();
 		if (SoftwareUpdateDialog.OPEN_URL_PROPERTY.equals(name)) {
-			String refFile = (String) evt.getNewValue();
-			if (refFile != null) openURL(parse(refFile));
+			String url = (String) evt.getNewValue();
+			if (url != null) openURL(url);
 		} else if (MacOSMenuHandler.ABOUT_APPLICATION_PROPERTY.equals(name)) {
 			softwareAbout();
 		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
