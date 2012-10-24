@@ -281,13 +281,12 @@ public class DataObjectListCellRenderer
 				if (currentUserID >= 0) {
 					try {
 						exp = tag.getOwner();
+						createTooltip(exp);
 						long id = exp.getId();
 						if (id == currentUserID) 
 							setIcon(TAG_SET_ICON);
-						else  {
-							createTooltip(exp);
+						else
 							setIcon(TAG_SET_OTHER_OWNER_ICON);
-						}
 					} catch (Exception e) {
 						setIcon(TAG_SET_ICON);
 					}
@@ -297,13 +296,12 @@ public class DataObjectListCellRenderer
 				if (currentUserID >= 0) {
 					try {
 						exp = tag.getOwner();
+						createTooltip(exp);
 						long id = exp.getId();
 						if (id == currentUserID) 
 							setIcon(TAG_ICON);
-						else {
-							createTooltip(exp);
+						else
 							setIcon(TAG_OTHER_OWNER_ICON);
-						}
 					} catch (Exception e) {
 						setIcon(TAG_ICON);
 					}
