@@ -187,7 +187,7 @@ public class PlateGrid
 	 */
 	public PlateGrid(int columns)
 	{
-		validValues = new ArrayList<WellGridElement>();//boolean[1][columns];
+		validValues = new ArrayList<WellGridElement>();
 		for (int i = 0; i < columns; i++)
 			validValues.add(new WellGridElement(0, i));
 		initialize(1, columns);
