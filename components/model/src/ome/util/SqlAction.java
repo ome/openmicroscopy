@@ -137,8 +137,18 @@ public interface SqlAction {
 
     int synchronizeJobs(List<Long> ids);
 
+    /**
+     * Lookup the id of an {@link OriginalFile} in a given repository or
+     * return null if none is found.
+     *
+     * @param uuid The UUID of the repository (originalfile.sha1)
+     * @param dirname the full directory path minus the file name.
+     * @param basename i.e. the filename without any directory path
+     * @param mimetype if null, then no mimetype query fragement will be added.
+     * @return null if no {@link OriginalFile} is found, otherwise the id.
+     */
     Long findRepoFile(String uuid, String dirname, String basename,
-            String string);
+            String mimetype);
 
     String findRepoFilePath(String uuid, long id);
 

@@ -239,7 +239,7 @@ omero.version=${omero.version}
 		</suite>
 	</target>
 
-	<target name="test-suite" unless="TEST">
+	<target name="test-suite" unless="TEST" depends="testng-init">
 		<suite>
 			<xmlfileset dir="${test.dir}">
 				<include name="${unit.suite}"/>
