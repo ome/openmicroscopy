@@ -37,12 +37,9 @@ import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -51,14 +48,12 @@ import javax.swing.table.TableColumnModel;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.GroupData;
 
@@ -117,10 +112,7 @@ class FileSelectionTable
 	 * as a dataset. 
 	 */
 	static final int		FOLDER_AS_CONTAINER_INDEX = 4;
-	
-	/** The index of the column indicating to archive the file. */
-	private static final int		ARCHIVED_INDEX = 5;
-	
+
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
 	
@@ -133,17 +125,8 @@ class FileSelectionTable
 	/** The tool-tip of the columns. */
 	private static final String[] COLUMNS_NO_GROUP_TOOLTIP;
 	
-	/** String used to retrieve if the value of the archived flag. */
-	private static final String ARCHIVED = "/options/Archived";
-	
-	/** String used to retrieve if the archived option is displayed. */
-	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
-	
 	/** The text displayed to use the folder as container. */
 	private static final String FAD_TEXT = "Folder as\nDataset";
-	
-	/** Indicate to archive or not the files. */
-	private static final String ARCHIVED_TEXT = "Archive";
 	
 	/** Indicate to select the files. */
 	private static final String FILE_TEXT = "File or\nFolder";
@@ -162,14 +145,13 @@ class FileSelectionTable
 	private static final String GROUP_TEXT = "Group";
 	
 	static {
-		int n = 6;
+		int n = 5;
 		COLUMNS = new Vector<String>(n);
 		COLUMNS.add(FILE_TEXT);
 		COLUMNS.add(SIZE_TEXT);
 		COLUMNS.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS.add(GROUP_TEXT);
 		COLUMNS.add(FAD_TEXT);
-		COLUMNS.add(ARCHIVED_TEXT);
 		COLUMNS_TOOLTIP = new String[n];
 		COLUMNS_TOOLTIP[FILE_INDEX] = "File or Folder to import.";
 		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
@@ -178,14 +160,12 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[GROUP_INDEX] = "The group where to import data.";
 		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
 			"Convert the folder as dataset.";
-		COLUMNS_TOOLTIP[ARCHIVED_INDEX] = "Archive the data.";
 		
 		COLUMNS_NO_GROUP = new Vector<String>(n-1);
 		COLUMNS_NO_GROUP.add(FILE_TEXT);
 		COLUMNS_NO_GROUP.add(SIZE_TEXT);
 		COLUMNS_NO_GROUP.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_GROUP.add(FAD_TEXT);
-		COLUMNS_NO_GROUP.add(ARCHIVED_TEXT);
 		COLUMNS_NO_GROUP_TOOLTIP = new String[n-1];
 		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = COLUMNS_TOOLTIP[FILE_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = COLUMNS_TOOLTIP[SIZE_INDEX];
@@ -193,8 +173,6 @@ class FileSelectionTable
 			COLUMNS_TOOLTIP[CONTAINER_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] =
 			COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] =
-			COLUMNS_TOOLTIP[ARCHIVED_INDEX];
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -211,15 +189,6 @@ class FileSelectionTable
 	
 	/** Reference to the model. */
 	private ImportDialog 		model;
-	
-	/** The default value of the archived file. */
-	private boolean archived;
-	
-	/** The default value of the archived file. */
-	private boolean archivedTunable;
-	
-	/** Indicates to archive the files. */
-	private JCheckBox			archivedBox;
 	
 	/** The key listener added to the queue. */
 	private KeyAdapter			keyListener;
@@ -246,18 +215,10 @@ class FileSelectionTable
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
 			tc.setResizable(false);
-			tc = tcm.getColumn(ARCHIVED_INDEX);
-			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
-			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setResizable(false);
 			tips = COLUMNS_TOOLTIP;
 		} else {
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
-			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setResizable(false);
-			tc = tcm.getColumn(ARCHIVED_INDEX-1);
-			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
 			tc.setResizable(false);
 			tips = COLUMNS_NO_GROUP_TOOLTIP;
@@ -278,11 +239,7 @@ class FileSelectionTable
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		} else {
-			tcm.getColumn(ARCHIVED_INDEX-1).setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(table, archivedBox));
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		}
@@ -311,10 +268,6 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
-		if (b != null) archived = b.booleanValue();
-		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
-		if (b != null) archivedTunable = b.booleanValue();
 		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
 		else selectedColumns = COLUMNS;
 		
@@ -335,20 +288,6 @@ class FileSelectionTable
 			}
 		};
 		table.addKeyListener(keyListener);
-
-		archivedBox = new JCheckBox();
-		archivedBox.setBackground(UIUtilities.BACKGROUND);
-		archivedBox.setSelected(archived);
-		archivedBox.setEnabled(archivedTunable);
-    	if (archivedTunable) {
-    		archivedBox.addChangeListener(new ChangeListener() {
-				
-				public void stateChanged(ChangeEvent e) {
-					markFileToArchive(archivedBox.isSelected());
-				}
-			});
-    	}
-    	
     	formatTableModel();
 	}
 	
@@ -495,17 +434,13 @@ class FileSelectionTable
 			file = element.getFile();
 			dataset = dne.getLocation();
 			if (single) {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+				b = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						FOLDER_AS_CONTAINER_INDEX-1));
-				importable = new ImportableFile(file, 
-						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-					ARCHIVED_INDEX-1)), b);
+				importable = new ImportableFile(file, b);
 			} else {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+				b = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						FOLDER_AS_CONTAINER_INDEX));
-				importable = new ImportableFile(file, 
-						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-					ARCHIVED_INDEX)), b);
+				importable = new ImportableFile(file, b);
 			}
 			
 			if (b) dataset = null;
@@ -584,7 +519,6 @@ class FileSelectionTable
 			node.setParent(model.getParentImportLocation());
 		String value = null;
 		boolean v = false;
-		boolean a = archivedBox.isSelected();
 		long gID = group.getId();
 		while (i.hasNext()) {
 			f = i.next();
@@ -597,7 +531,6 @@ class FileSelectionTable
 					value = f.getName();
 					v = fad;
 					if (model.getType() == Importer.SCREEN_TYPE) {
-						a = false;
 						value = null;
 					}
 				} else {
@@ -606,19 +539,17 @@ class FileSelectionTable
 						v = true;
 						element.setToggleContainer(v);
 					}
-					if (model.getType() == Importer.SCREEN_TYPE)
-						a = false;
 				}
 				if (multi) {
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),
 							new DataNodeElement(node, value), group.getName(),
-							Boolean.valueOf(v), Boolean.valueOf(a)});
+							Boolean.valueOf(v)});
 				} else {
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),
 							new DataNodeElement(node, value),
-							Boolean.valueOf(v), Boolean.valueOf(a)});
+							Boolean.valueOf(v)});
 				}
 			}
 		}
@@ -660,25 +591,6 @@ class FileSelectionTable
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
 			if (element.isDirectory())
 				dtm.setValueAt(fad, i, FOLDER_AS_CONTAINER_INDEX+j);
-		}
-	}
-	
-	/**
-	 * Marks to archive the images.
-	 * 
-	 * @param archive Pass <code>true</code> to archive the images,
-	 * 			      <code>false</code> otherwise.
-	 */
-	void markFileToArchive(boolean archive)
-	{
-		int n = table.getRowCount();
-		if (n == 0) return;
-		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		int index = ARCHIVED_INDEX;
-		if (model.isSingleGroup())
-			index = index-1;
-		for (int i = 0; i < n; i++) {
-			dtm.setValueAt(archive, i, index);
 		}
 	}
 	
@@ -760,17 +672,7 @@ class FileSelectionTable
 				case SIZE_INDEX:
 					return false;
 				case FOLDER_AS_CONTAINER_INDEX:	
-					if (getColumnCount() == 
-						COLUMNS_NO_GROUP.size())
-						return archivedTunable;
-					if (f.getType() == Importer.SCREEN_TYPE)
-						return false;
 					return false;
-				case ARCHIVED_INDEX: {
-					if (f.getType() == Importer.SCREEN_TYPE)
-						return false;
-					return archivedTunable;
-				}
 			}
 			return false; 
 		}

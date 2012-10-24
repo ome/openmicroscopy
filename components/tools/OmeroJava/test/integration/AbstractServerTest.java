@@ -18,8 +18,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.ApiUsageException;
@@ -29,9 +33,6 @@ import omero.api.IDeletePrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
@@ -45,7 +46,6 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
-import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -103,6 +103,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import spec.AbstractTest;
+
 //Application-internal dependencies
 
 /**
@@ -203,7 +204,6 @@ public class AbstractServerTest
         client.createSession("root", rootpass);
         return client;
     }
-
 
     /**
      * Initializes the various services.
@@ -927,14 +927,27 @@ public class AbstractServerTest
 			File file, String format, boolean metadata, IObject target)
 		throws Throwable
 	{
-		ImportLibrary library = new ImportLibrary(importer, 
-				new OMEROWrapper(new ImportConfig()));
+		String[] paths = new String[1];
+		paths[0] = file.getAbsolutePath();
+		ImportConfig config = new ImportConfig();
+		OMEROWrapper reader = new OMEROWrapper(config);
+		IObserver o = new IObserver() {
+	        public void update(IObservable importLibrary, ImportEvent event) {
+	            
+	        }
+	    };
+		ImportCandidates candidates = new ImportCandidates(reader, paths, o);
+		
+		ImportLibrary library = new ImportLibrary(importer, reader);
 		library.setMetadataOnly(metadata);
-		ImportContainer container = new ImportContainer(
-                file, null, target, false, null, null, null, null);
-		container.setUseMetadataFile(true);
-		container.setCustomImageName(format);
-		List<Pixels> pixels = library.importImage(container, 0, 0, 1);
+		ImportContainer ic = candidates.getContainers().get(0);
+		//new ImportContainer(
+        //        file, null, target, false, null, null, null, null);
+		ic.setUseMetadataFile(true);
+		ic.setCustomImageName(format);
+		ic.setTarget(target);
+		//ic = library.uploadFilesToRepository(ic);
+		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
 		return pixels;
@@ -974,7 +987,7 @@ public class AbstractServerTest
                 InterruptedException
     {
 
-        CmdCallbackI cb = callback(passes, c, dc);
+        callback(passes, c, dc);
         return "ok";
     }
     
@@ -1053,7 +1066,6 @@ public class AbstractServerTest
      */
     protected Image createBinaryImage(Image image) throws Exception {
         Pixels pixels = image.getPrimaryPixels();
-        long id = pixels.getId().getValue();
         //Image
         List<Long> ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
@@ -1576,4 +1588,24 @@ public class AbstractServerTest
 		return rsp;
 	}
 
+    /**
+     * Creates a new group with the specified permissions and sets the role
+     * of the user.
+     * 
+     * @param permissions The permissions of the group.
+     * @param userRole The role of the user e.g. group owner.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void login(String permissions, int userRole)
+    throws Exception
+    {
+    	newUserAndGroup(permissions);
+    	switch (userRole) {
+			case GROUP_OWNER:
+				makeGroupOwner();
+				break;
+			case ADMIN:
+				logRootIntoGroup();
+		}
+    }
 }

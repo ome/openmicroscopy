@@ -848,10 +848,6 @@ public class DeleteITest extends AbstractServantTest {
         return (DeleteHandlePrx) rv.rv;
     }
 
-    private InvocationMatcher once() {
-        return new InvokeOnceMatcher();
-    }
-
     Plate createPlate(long imageId) throws Exception {
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(1));

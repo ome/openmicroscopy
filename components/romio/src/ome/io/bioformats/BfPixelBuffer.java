@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -126,6 +127,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public void close() throws IOException {
         reader().close();
+        reader.set(null);
     }
 
     public int getByteWidth() {
@@ -139,6 +141,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getColSize()];
         reader.getCol(x,z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -174,6 +178,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[size];
         reader.getPlane(z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -223,6 +229,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getRowSize()];
         reader.getRow(y,z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -274,6 +282,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getColSize()];
         reader.getStack(c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -307,6 +317,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[size];
         reader.getTimepoint(t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -412,6 +424,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[hypercubeSize];
         reader.getHypercube(offset,size,step,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -448,7 +462,11 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[
                 w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
         getTileDirect(z, c, t, x, y, w, h, buffer);
-        return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        PixelData d = new PixelData(
+                reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        return d;
     }
 
     /* (non-Javadoc)
@@ -485,7 +503,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         // Ensure the reader has been initialized
         reader();
         // The highest resolution level (100%) is actually the first series
-        return Math.abs(bfReader.getSeries() - (getResolutionLevels() - 1));
+        return Math.abs(
+                bfReader.getResolution() - (getResolutionLevels() - 1));
     }
 
     /* (non-Javadoc)
@@ -495,7 +514,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         // Ensure the reader has been initialized
         reader();
-        return bfReader.getSeriesCount();
+        return bfReader.getResolutionCount();
     }
 
     /* (non-Javadoc)
@@ -517,7 +536,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         // Ensure the reader has been initialized
         reader();
         // The highest resolution level (100%) is actually the first series
-        bfReader.setSeries(Math.abs(
+        bfReader.setResolution(Math.abs(
                 resolutionLevel - (getResolutionLevels() - 1)));
     }
 
