@@ -273,9 +273,11 @@ class GridBICanvas
 	{
 		BufferedImage gridImage;
 		BufferedImage original = model.getCombinedImage();
+		if (original == null) return null;
     	int w = original.getWidth();
     	int h = original.getHeight();
     	Dimension d = getSize();
+    	if (d.width == 0 || d.height == 0) return null;
 		gridImage = new BufferedImage(d.width, d.height, 
 										BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2D = (Graphics2D) gridImage.getGraphics();
