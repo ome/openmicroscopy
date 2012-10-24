@@ -16,10 +16,8 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 	A recent & working Virtual Box install
 	
 3. Environment Setup:
-	Retrieve the OMERO VM base VDI from either:
-		team/virtual-machines/OMERO.VM/vdi/omero-base-img_2011-08-08.vdi [2.5GB]
-	on squig, or via the public web repo:	
-		http://
+	See
+        https://www.openmicroscopy.org/site/support/omero4/users/virtual-appliance.html
 	
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be $HOME/Library/VirtualBox/HardDisks/ and on Linux $HOME/.VirtualBox/HardDisks/
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
