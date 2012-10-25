@@ -136,8 +136,10 @@
                         $("#tagann_spinner").hide();
                         // update the list of tags
                         var $tag = $(data);
-                        $("#tags_container").prepend($tag).show();
-                        $(".removeTag", $tag).hide();
+                        $tag.filter(".tag_annotation_wrapper").each(function(){
+                            $("#"+$(this).attr("id")).remove();     // if this Tag already exists, remove it
+                            $("#tags_container").prepend( this ).show();
+                        });
                         show_batch_msg("Tags added to Objects");
                         $(".tooltip", $tag).tooltip_init();
                     },
@@ -160,8 +162,18 @@
                     success: function(data) {
                         $("#fileann_spinner").hide();
                         // update the list of file annotations and hide actions
-                        var $fileanns = $(data)
-                        $("#fileanns_container").prepend( $fileanns ).show();
+                        var $fileanns = $(data);
+                        $fileanns.filter(".file_ann_wrapper").each(function(){
+                            $("#"+$(this).attr("id")).remove();     // if this File already exists, remove it
+                            $("#fileanns_container").prepend( this ).show();
+                        });
+                        $fileanns.tooltip({ 
+                            bodyHandler: function() {
+                                    return $("span.tooltip_html", $(this)).html(); 
+                                },
+                            track: true, delay: 0, showURL: false, fixPNG: true, 
+                            showBody: " - ", top: 10, left: -100 
+                        });
                         show_batch_msg("File Annotation(s) added to Objects");
                     },
                     error: function(data){

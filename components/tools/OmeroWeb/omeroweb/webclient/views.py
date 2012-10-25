@@ -1056,30 +1056,21 @@ def batch_annotate(request, conn=None, **kwargs):
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
 
-    oids = getObjects(request, conn)
+    objs = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
+            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisitions'], 'wells':objs['well']}
     
     form_comment = CommentAnnotationForm(initial=initial)
 
-    batchAnns = {}
     manager = BaseContainer(conn)
-    for key, annMap in manager.loadBatchAnnotations(oids).items():
-        # E.g. key = 'Tag', 'Comment', 'File' etc
-        annList = []
-        for annId, anns in annMap.items():
-            # anns is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
-            anns['links'].sort(key=lambda x: x.parent.id.val)
-            anns['can_remove'] = anns['unlink'] > 0
-            annList.append(anns)
-        batchAnns[key] = annList
+    batchAnns = manager.loadBatchAnnotations(objs)
 
     obj_ids = []
     obj_labels = []
-    for key in oids:
-        obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
-        for o in oids[key]:
+    for key in objs:
+        obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
+        for o in objs[key]:
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
@@ -1134,19 +1125,20 @@ def annotate_file(request, conn=None, **kwargs):
         form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
         if form_file.is_valid():
             # Link existing files...
-            linked_files = []
             files = form_file.cleaned_data['files']
             if files is not None and len(files)>0:
-                linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+                manager.createAnnotationsLinks('file', files, oids, well_index=index)
             # upload new file
             fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
             if fileupload is not None and fileupload != "":
-                upload = manager.createFileAnnotations(fileupload, oids, well_index=index)
-                linked_files.append(upload)
-            if len(linked_files) == 0:
+                newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                files.append(newFileId)
+            if len(files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
-            context = {'fileanns':linked_files, 'can_remove':True}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=files)
+            context = {"batchAnns": batchAnns}
             if obj_count > 1:
                 context['batch_ann'] = True
         else:
@@ -1242,18 +1234,19 @@ def annotate_tags(request, conn=None, **kwargs):
             tag = form_tags.cleaned_data['tag']
             description = form_tags.cleaned_data['description']
             tags = form_tags.cleaned_data['tags']
-            linked_tags = []
             if tags is not None and len(tags)>0:
-                linked_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+                manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
             if tag is not None and tag != "":
-                new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                linked_tags.append(new_tag)
-            if len(linked_tags) == 0:
+                new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
+                tags.append(new_tag_id)
+            if len(tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
-            context = {'tags':linked_tags, 'can_remove':True}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=tags)
+            context = {"batchAnns": batchAnns}
             if obj_count > 1:
-                context['new_batch_ann'] = True
+                context['batch_ann'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
