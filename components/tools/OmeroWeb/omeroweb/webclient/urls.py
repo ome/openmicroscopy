@@ -135,6 +135,7 @@ urlpatterns = patterns('django.views.generic.simple',
 
     # ome_tiff_script: generate OME-TIFF and attach to image (use script service). Must be POST
     url( r'^ome_tiff_script/(?P<imageId>[0-9]+)/$', views.ome_tiff_script, name='ome_tiff_script' ),
+    url( r'^ome_tiff_info/(?P<imageId>[0-9]+)/$', views.ome_tiff_info, name='ome_tiff_info' ),
 
     # ping OMERO server to keep session alive
     url( r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),
