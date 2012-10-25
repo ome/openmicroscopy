@@ -190,8 +190,7 @@ public class DataObjectListCellRenderer
      */
     private void createTooltip(ExperimenterData exp)
     {
-    	if (exp == null) return;
-    	String s = "Created by: "+exp.getFirstName()+" "+exp.getLastName();
+    	String s = "Created by: "+EditorUtil.formatExperimenter(exp);
     	setToolTipText(s);
     }
     
@@ -279,33 +278,25 @@ public class DataObjectListCellRenderer
 			ExperimenterData exp;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				if (currentUserID >= 0) {
-					try {
-						exp = tag.getOwner();
-						createTooltip(exp);
-						long id = exp.getId();
-						if (id == currentUserID) 
-							setIcon(TAG_SET_ICON);
-						else
-							setIcon(TAG_SET_OTHER_OWNER_ICON);
-					} catch (Exception e) {
+					exp = tag.getOwner();
+					createTooltip(exp);
+					long id = exp.getId();
+					if (id == currentUserID)
 						setIcon(TAG_SET_ICON);
-					}
-				} else 
+					else
+						setIcon(TAG_SET_OTHER_OWNER_ICON);
+				} else
 					setIcon(TAG_SET_ICON);
 			} else {
 				if (currentUserID >= 0) {
-					try {
-						exp = tag.getOwner();
-						createTooltip(exp);
-						long id = exp.getId();
-						if (id == currentUserID) 
-							setIcon(TAG_ICON);
-						else
-							setIcon(TAG_OTHER_OWNER_ICON);
-					} catch (Exception e) {
+					exp = tag.getOwner();
+					createTooltip(exp);
+					long id = exp.getId();
+					if (id == currentUserID)
 						setIcon(TAG_ICON);
-					}
-				} else 
+					else
+						setIcon(TAG_OTHER_OWNER_ICON);
+				} else
 					setIcon(TAG_ICON);
 			}
 			if (tag.getId() <= 0)
