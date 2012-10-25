@@ -116,6 +116,18 @@ public class OpenObjectLoader
     }
     
     /**
+     * Notifies the user that it wasn't possible to retrieve the file.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult() 
+    {
+    	if (activity != null && object instanceof FileAnnotationData) {
+    		activity.notifyError("File no longer exists", 
+    				"The file you wish to open no longer exists.", null);
+    	}
+    }
+    
+    /**
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
      */
