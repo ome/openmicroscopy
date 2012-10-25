@@ -106,12 +106,16 @@ public class PostgresSqlAction extends SqlAction.Impl {
 
     public Long findRepoFile(String uuid, String dirname, String basename,
             String mimetype) {
-        if (mimetype != null) {
-            return _jdbc().queryForLong(
-                    findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
-                    uuid, dirname, basename, mimetype);
-        } else {
-            return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
+        try {
+            if (mimetype != null) {
+                return _jdbc().queryForLong(
+                        findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
+                        uuid, dirname, basename, mimetype);
+            } else {
+                return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 

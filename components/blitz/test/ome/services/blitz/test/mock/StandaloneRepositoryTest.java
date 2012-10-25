@@ -10,8 +10,11 @@ import java.io.File;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.InternalRepositoryI;
+import ome.services.blitz.repo.PublicRepositoryI;
+import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 import omero.util.TempFileManager;
 
 import org.jmock.MockObjectTestCase;
@@ -45,8 +48,10 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
 
     @Test
     public void testSimple() throws Exception {
+        Principal p = new Principal("mock-uuid");
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,
-                null, "mock-uuid", dir.getAbsolutePath());
+                p, dir.getAbsolutePath(),
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex)));
     }
 
 }

@@ -124,6 +124,9 @@ public class OMEROWrapper extends MinMaxCalculator {
         iReader.setMetadataFiltered(true);
         filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
+        // Force images with multiple sub-resolutions to not "duplicate" their
+        // series.
+        iReader.setFlattenedResolutions(false);
     };
 
     public ImportConfig getConfig() {

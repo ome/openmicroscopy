@@ -69,7 +69,7 @@ class ImgSaverFileChooser
     
     /** Message used to indicate the directory in which the image is saved. */
     private static final String MSG_DIR = "The image has been successfully " +
-    		"saved in \n";
+    		"saved in";
     
     /** Reference to the model. */
     private ImgSaver    model;
@@ -160,10 +160,7 @@ class ImgSaverFileChooser
     	if (f == null) return Boolean.valueOf(false);
     	 String format = getFormat(getFileFilter());
          String fileName = f.getAbsolutePath();
-         String message = MSG_DIR+""+getCurrentDirectory();
-         //model.setFileName(fileName);
          model.setFileFormat(format);
-         model.setFileMessage(message);
          File[] l = getCurrentDirectory().listFiles();
          String n = model.getExtendedName(fileName, format);
          boolean exist = false;

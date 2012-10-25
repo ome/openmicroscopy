@@ -21,37 +21,40 @@ module omero {
     // See README.ice for a description of this module.
     //
     module grid {
-        
-        class RepositoryListConfig 
-        {
-            int depth;
-            bool files;
-            bool dirs;
-            bool hidden;
-            bool registered;
-            bool showOriginalFiles;
-        };
 
-        class FileSet 
+        /**
+         * Information passed back and forth during import.
+         * Needs to be reviewed.
+         **/
+        class RepositoryImportContainer
         {
-            bool importableImage;
-            string fileName;
-            omero::model::OriginalFile parentFile;
-            bool hidden;
-            bool dir;
+            string file;
+            long projectId;
+            omero::model::IObject target;
             string reader;
-	        int imageCount;
-            omero::api::IObjectList usedFiles;
-            omero::api::ImageList imageList;
+            omero::api::StringArray usedFiles;
+            bool isSPW;
+            int bfImageCount;
+            omero::api::PixelsList bfPixels;
+            omero::api::StringSet bfImageNames;
+            omero::api::DoubleArray userPixels;
+            string customImageName;
+            string customImageDescription;
+            string customPlateName;
+            string customPlateDescription;
+            bool doThumbnails;
+            omero::api::AnnotationList customAnnotationList;
         };
 
-        ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]
-            sequence<FileSet> FileSetList;
-        
         /**
          * Client-accessible interface representing a single mount point on the server-side.
          **/
         ["ami"] interface Repository {
+
+            //
+            // Repository-level methods not requiring any particular
+            // security method.
+            //
 
             /**
              * Return the OriginalFile descriptor for this Repository. It will have
@@ -59,23 +62,32 @@ module omero {
              **/
             omero::model::OriginalFile root() throws ServerError;
 
-            /*
-             * Directory listing methods. 
-             */
+            //
+            // Path-based methods which require a look-up in the
+            // OriginalFile table.
+            //
 
-            // A list of all files and/or directories, registered or not depending on cnfig.
-            omero::api::OriginalFileList listFiles(string path, RepositoryListConfig config) 
-                    throws ServerError;
-            
-            // A list of importable and non-importable file sets in a directory depending on config.
-            FileSetList listFileSets(string path, RepositoryListConfig config) 
-                    throws ServerError;
-            
             /**
              * Returns the best-guess mimetype for the given path.
              *
              **/
             string mimetype(string path) throws ServerError;
+
+            /**
+             * Returns a set of strings naming the files and directories in
+             * the directory denoted by an abstract pathname.
+             **/
+            omero::api::StringSet list(string path) throws ServerError;
+
+            /**
+             * Returns an array of abstract pathanam objects denoting the
+             * files in the directory denoted by an abstract pathname.  It
+             * is expected that at a minimum the "name", "path", "size" and
+             * "mtime" attributes will be present for each
+             * [omero::model::OriginalFile] instance.
+             **/
+            omero::api::OriginalFileList listFiles(string path)
+                    throws ServerError;
 
             /**
              * Create an OriginalFile in the database for the given path.
@@ -84,94 +96,128 @@ module omero {
             omero::model::OriginalFile register(string path, omero::RString mimetype)
                     throws ServerError;
 
-           /**
-             * Create an entry in the database for the given OriginalFile.
-             *
-             * If the given OriginalFile is null a ValidationException is thrown. 
-             * Otherwise, an entry is added and an unloaded IObject returned with id set.
-             *
-             **/
-            omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile omeroFile) 
-                    throws ServerError;
-            
-           /**
-             * Create entries in the database for the OriginalFile and Images in the imageList.
-             *
-             * If the given ImageList is null or empty the OriginalFile is registered only. 
-             * If the OriginalFile is null a ValidationException is thrown. 
-             * Otherwise, objects are added and list containing a loaded OriginalFile followed 
-             * by the loaded Images is returned with ids set.
-             *
-             **/
-            omero::api::IObjectList registerFileSet(omero::model::OriginalFile keyFile, omero::api::ImageList imageList) 
-                    throws ServerError;
-            
-           /**
-             * Import image metadata using the parent orginal file.
-             *
-             * If the id does not exist a ValidationException is thrown. 
-             * Otherwise, the image set linked to that original file will have its metadata imported.
-             * The imported pixels list is returned.
-             *
-             **/
-            omero::api::ImageList importFileSet(omero::model::OriginalFile keyFile) throws ServerError;
-            
             /**
-             * Load the OriginalFile at the given path with annotations and
-             * associated Pixels (if present). If the path does not point to
-             * an OriginalFile, a ValidationException exception is thrown.
-             *
-             * TODO should this just return null instead?
-             **/
-            omero::model::OriginalFile load(string path) throws ServerError;
-
-            /**
-             * Returns a special RawFileStore which permits only reading.
-             * Any call to a write or configuration method will throw an
-             * ApiUsageException.
-             **/
-            omero::api::RawFileStore* read(string path) throws ServerError;
-
-            /**
-             * Returns a special RawFileStore which permits only writing.
-             * Any call to a read or configuraiton method will throw an
+             * Returns a special RawFileStore which permits only the operations
+             * set out in the options string "wb", "a+", etc.
+             * FIXME: Initially only "r" and "rw" are supported as these are
+             * handled directly by RandomAccessFile and so don't break the current
+             * implementation.
+             * Any call to that tries to break the options will throw an
              * ApiUsageException. If a file exists at the given path, a
-             * ValidationException will be thrown. Once writing is complete,
-             * call close(), which will seal the file from all further writing.
-             * The SHA1 of the OriginalFile should be checked against the local
-             * value.
+             * ValidationException will be thrown.
              **/
-            omero::api::RawFileStore*    write(string path) throws ServerError;
-            omero::api::RawFileStore*    file(long id) throws ServerError;
+            omero::api::RawFileStore* file(string path, string mode) throws ServerError;
+
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
-            omero::api::RenderingEngine* render(string path) throws ServerError;
-            omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
-            
+
+            omero::api::RawFileStore* fileById(long id) throws ServerError;
+
             /**
              * Returns true if the file or path exists within the repository
              **/
             bool fileExists(string path) throws ServerError;
-            
-            ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
-            void rename(string path) throws ServerError;
-            void delete(string path) throws ServerError;
-            void transfer(string srcPath, Repository* target, string targetPath) 
-                    throws ServerError;
 
-            /* TODO for both methods: return binary data rather than paths to jpgs ? */
+            ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
+            void makeDir(string path) throws ServerError;
+
             /**
-             * Return the full path of a jpg thumbnail of the image file
-             * given in the path argument.
+             * Delete the path at the given location. If the file cannot be deleted
+             * for operating system reasons, a false will be returned, otherwise true.
+             * If a deletion is not permitted, then an exception will be thrown.
              **/
-            string getThumbnail(string path) throws ServerError;
-            
+            bool delete(string path) throws ServerError;
+
             /**
-             * Return the full path of a jpg thumbnail of the image 
-             * at the imageIndex in the file set represented by
-             * the file given in the path argument.
+             * Delete several individual paths as with [delete] but rather than
+             * a single boolean return all the paths for which a delete is not
+             * possible. If [delete] would throw, so would this method.
              **/
-            string getThumbnailByIndex(string path, int imageIndex) throws ServerError;
-            
+            omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
+
+        };
+
+        /**
+         * Returned by [ManagedRepository::prepareUpload] with
+         * the information needed to proceed with an FS import.
+         * For the examples that follow, assume that the used
+         * files passed to prepareUpload were:
+         *
+         * <pre>
+         *  /Users/jack/Documents/Data/Experiment-1/1.dv
+         *  /Users/jack/Documents/Data/Experiment-1/1.dv.log
+         *  /Users/jack/Documents/Data/Experiment-2/2.dv
+         *  /Users/jack/Documents/Data/Experiment-2/2.dv.log
+         * </pre>
+         *
+         **/
+        class Import {
+
+            /**
+             * The shared base of all the paths passed to
+             * the server.
+             **/
+            string sharedPath;
+
+            /**
+             * Number of directories which have been omitted
+             * from the original paths passed to the server.
+             **/
+            int omittedLevels;
+
+            /**
+             * Parsed string names which should be used by the
+             * clients during upload. This array will be of the
+             * same length as the argument passed to
+             * [ManagedRepository::prepareUpload] but will have
+             * shortened paths.
+             *
+             * <pre>
+             *  Experiment/1.dv
+             *  Experiment/1.dv.log
+             * </pre>
+             **/
+            omero::api::StringSet usedFiles;
+
+            /**
+             * Represents the directory to which all files
+             * will be uploaded.
+             **/
+            omero::model::OriginalFile directory;
+
+        };
+
+        /**
+         * FS-enabled repository which can convert uploaded files
+         * into Images by using Bio-Formats to import them.
+         **/
+        ["ami"] interface ManagedRepository extends Repository {
+
+            /**
+             * Returns the directory which should be the import location for
+             * the set of paths passed in. Each set of paths consitutes a
+             * single import session. In order to prevent files from being
+             * overwritten or interfering with one another, a new directory
+             * may be created for the current session.
+             **/
+            Import prepareImport(omero::api::StringSet paths) throws ServerError;
+
+            /**
+             *
+             **/
+            omero::api::RawFileStore* uploadUsedFile(Import importData, string usedFile) throws ServerError;
+
+            /**
+             * This will free any locks, etc in the Up
+             **/
+            omero::api::PixelsList importMetadata(Import importData, RepositoryImportContainer ic) throws ServerError;
+
+            /**
+             * If the user cancels the import, then this method should
+             * be called in order to delete any dangling files and free up resources.
+             **/
+            void cancelImport(Import importData) throws ServerError;
+
+
         };
 
         /**
@@ -182,21 +228,21 @@ module omero {
             //
             // Provides all the stateful services dealing with binary data
             //
-            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file) 
+            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file) 
+            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file) 
+            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file)
                     throws ServerError;
-            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file) 
+            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file)
                     throws ServerError;
 
             // Other repository methods
             omero::model::OriginalFile getDescription() throws ServerError;
             // If this returns null, user will have to wait
-            Repository* getProxy() throws ServerError;  
+            Repository* getProxy() throws ServerError;
 
-            string getFilePath(omero::model::OriginalFile file) 
+            string getFilePath(omero::model::OriginalFile file)
                     throws ServerError;
 
         };
@@ -206,15 +252,16 @@ module omero {
 
         /**
          * Return value for [omero::grid::SharedResources].acquireRepositories()
+         * The descriptions and proxies arrays will have the same size and each
+         * index in descriptions (non-null) will match a possibly null proxy, if
+         * the given repository is not currently accessible.
          */
         struct RepositoryMap {
             omero::api::OriginalFileList descriptions;
             RepositoryProxyList proxies;
         };
 
-
-};
-
+    };
 
 };
 

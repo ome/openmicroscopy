@@ -59,12 +59,12 @@ public class TimelineITest extends AbstractServantTest {
 
         user_t = new TimelineI(user.be);
         user_t.setServiceFactory(user.sf);
-        user_t.setSessionManager(user.sm);
+        user_t.setSessionManager(user.mgr);
         user_t.setSecuritySystem(user.ss);
 
         root_t = new TimelineI(root.be);
         root_t.setServiceFactory(root.sf);
-        root_t.setSessionManager(root.sm);
+        root_t.setSessionManager(root.mgr);
         root_t.setSecuritySystem(root.ss);
     }
 
