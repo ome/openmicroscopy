@@ -3936,9 +3936,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
-		
+		OriginalFile of = getOriginalFile(ctx, fileID);
+		//
+		if (of == null) return null;
 		if (size <= 0) {
-			OriginalFile of = getOriginalFile(ctx, fileID);
 			if (of != null) size = of.getSize().getValue();
 		}
 		RawFileStorePrx store = getRawFileService(ctx);
