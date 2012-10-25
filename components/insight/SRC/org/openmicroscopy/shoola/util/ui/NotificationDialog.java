@@ -37,9 +37,11 @@ import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXHeader;
@@ -70,6 +72,9 @@ public class NotificationDialog
 	extends JDialog
 {
 
+	/** Bound property indication to do something with the hyperlink.*/
+	public static final String HYPERLINK_OPEN_PROPERTY = "hyperlinkOpen";
+	
 	/** Bound property indication to close the notification dialog.*/
 	public static final String CLOSE_NOTIFICATION_PROPERTY = 
 		"closeNotification";
@@ -108,10 +113,10 @@ public class NotificationDialog
 	/** Hides and disposes of the dialog. */
 	protected JButton	okButton;
 		
-	/** Panel hosting the UI components. */
-	private JPanel 		mainPanel;
+	/** Component hosting the UI components. */
+	private JPanel mainPanel;
 	
-	/** Creates the various UI components that make up the dialog. */
+	/** Creates the various UI components that make up the dialog.*/
 	private void createComponents()
 	{
 		mainPanel = new JPanel();
@@ -122,7 +127,6 @@ public class NotificationDialog
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
-		//okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(okButton);
 	}
 	
@@ -160,11 +164,6 @@ public class NotificationDialog
 	 */
 	private JPanel buildCommentPanel(String msg, Icon icon)
 	{
-		/*
-		contentPanel.setBackgroundPainter(
-    			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
-    					null));
-    					*/
 		contentPanel.setDescription(msg);
 		if (icon != null) {
 			contentPanel.setIcon(icon);
@@ -182,15 +181,35 @@ public class NotificationDialog
 	 */
 	private JPanel buildControlPanel()
 	{
-		//controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlsPanel.setBorder(null);
 		controlsPanel.add(okButton);
 		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		JPanel p = UIUtilities.buildComponentPanelRight(controlsPanel);
-		//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		return p;
+		return UIUtilities.buildComponentPanelRight(controlsPanel);
 	}
 	
+	/** 
+	 * Formats the text as <code>HTML</code> text.
+	 * 
+	 * @param message The message to display.
+	 * @return See above.
+	 */
+	private JEditorPane buildHTMLPane(String message)
+	{
+		JEditorPane htmlPane =UIUtilities.buildTextEditorPane(message);
+		htmlPane.addHyperlinkListener(new HyperlinkListener() {
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if (HyperlinkEvent.EventType.ACTIVATED.equals(
+						e.getEventType())) {
+					String url;
+					if (e.getURL() == null) url = e.getDescription();
+					else url = e.getURL().toString();
+					firePropertyChange(HYPERLINK_OPEN_PROPERTY, null, url);
+				}
+					
+			}
+		});
+		return htmlPane;
+	}
 	/**
 	 * Builds and lays out the {@link #contentPanel}, then adds it to the
 	 * content pane.
@@ -198,19 +217,18 @@ public class NotificationDialog
 	 * @param message		The notification message.
 	 * @param messageIcon	The icon to display by the message.
 	 */
-	private void buildGUI(String message, Icon messageIcon)
+	private void buildGUI(String message, Icon messageIcon, boolean html)
 	{
-		//mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-	    mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	    mainPanel.setLayout(new GridBagLayout());
-	    GridBagConstraints c = new GridBagConstraints();
-	    c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridy = 0;
-		mainPanel.add(buildCommentPanel(message, messageIcon), c);
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		mainPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1.0;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridy = 0;
+		if (html) mainPanel.add(buildHTMLPane(message), c);
+		else mainPanel.add(buildCommentPanel(message, messageIcon), c);
 		c.gridy++;
 		mainPanel.add(Box.createVerticalStrut(5), c);
 		c.gridy++;
@@ -223,14 +241,16 @@ public class NotificationDialog
 	 * 
 	 * @param message		The message to display.
 	 * @param messageIcon   The icon laid out next to the message.
+	 * @param html Indicates to use an pane displaying <code>HTML</code> 
+	 * content if <code>true</code>, <code>false</code> otherwise.
 	 */
-	private void initiliaze(String message, Icon messageIcon)
+	private void initiliaze(String message, Icon messageIcon, boolean html)
 	{
 		createComponents();
 		attachListeners();
 		setAlwaysOnTop(true);
 		setModal(true);
-		buildGUI(message, messageIcon);
+		buildGUI(message, messageIcon, html);
 		pack();
 	}
 	
@@ -251,7 +271,7 @@ public class NotificationDialog
 		//setResizable(false);  
 		//Believe it or not the icon from owner won't be displayed if the
 		//dialog is not resizable. 
-		initiliaze(message, messageIcon);
+		initiliaze(message, messageIcon, false);
 	}
 	
 	/**
@@ -268,7 +288,7 @@ public class NotificationDialog
 															Icon messageIcon) 
 	{
 		super(owner, title);
-		initiliaze(message, messageIcon);
+		initiliaze(message, messageIcon, false);
 	}
 	
 	/**
@@ -283,7 +303,49 @@ public class NotificationDialog
 	public NotificationDialog(String title, String message, Icon messageIcon) 
 	{
 		setTitle(title);
-		initiliaze(message, messageIcon);
+		initiliaze(message, messageIcon, false);
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param html Indicates to use an pane displaying <code>HTML</code> 
+	 * content if <code>true</code>, <code>false</code> otherwise.
+	 */
+	public NotificationDialog(JDialog owner, String title, String message,
+			boolean html) 
+	{
+		super(owner, title);
+		//setResizable(false);  
+		//Believe it or not the icon from owner won't be displayed if the
+		//dialog is not resizable. 
+		initiliaze(message, null, html);
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param html Indicates to use an pane displaying <code>HTML</code> 
+	 * content if <code>true</code>, <code>false</code> otherwise.
+	 */
+	public NotificationDialog(JFrame owner, String title, String message,
+			boolean html) 
+	{
+		super(owner, title);
+		//setResizable(false);  
+		//Believe it or not the icon from owner won't be displayed if the
+		//dialog is not resizable. 
+		initiliaze(message, null, html);
 	}
 
 }
