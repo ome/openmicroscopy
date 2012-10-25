@@ -2536,3 +2536,21 @@ def run_script(request, conn, sId, inputMap, scriptName='Script'):
 
     return {'jobId': jobId, 'status': status}
 
+@login_required()
+@render_response()
+def ome_tiff_info(request, imageId, conn=None, **kwargs):
+    """
+    Query to see if we have an OME-TIFF attached to the image (assume only 1, since Batch Image Export will delete old ones)
+    """
+    # Any existing OME-TIFF will appear in list
+    links = list( conn.getAnnotationLinks("Image", [imageId], ns=omero.constants.namespaces.NSOMETIFF) )
+    rv = {}
+    if len(links) > 0:
+        links.sort(key=lambda x: x.getId(), reverse=True)   # use highest ID === most recent
+        annlink = links[0]
+        created = annlink.creationEventDate()
+        annId = annlink.getChild().getId()
+        from omeroweb.webgateway.templatetags.common_filters import ago
+        download = reverse("download_annotation", args=["download", annId])
+        rv = {"created": str(created), "ago": ago(created), "id":annId, "download": download}
+    return rv       # will get returned as json by default

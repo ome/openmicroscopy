@@ -47,15 +47,17 @@ def ago(value):
         ago = datetime.datetime.now() - value
     except TypeError:
         return str(value)
+    def plurals(val):
+        return val != 1 and "s" or ""
     hours, remainder = divmod(ago.seconds, 3600)
     mins, secs = divmod(remainder, 60)
     if ago.seconds < 60:
-        return "%s seconds" % ago.seconds
-    rv = "%s minutes" % (mins)
+        return "%s second%s" % (ago.seconds, plurals(ago.seconds))
+    rv = "%s minute%s" % (mins, plurals(mins))
     if hours > 0 or ago.days > 0:
-        rv = "%s hours %s" % (hours, rv)
+        rv = "%s hour %s" % (hours, plurals(hours), rv)
     if ago.days > 0:
-        rv = "%s days %s" % (ago.days, rv)
+        rv = "%s day%s %s" % (ago.days, plurals(ago.days), rv)
     return rv
     
 @register.filter
