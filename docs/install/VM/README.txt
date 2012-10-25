@@ -9,7 +9,7 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 
 	(C)	Via HTTP by download the scripts manually from:
 		http://git.openmicroscopy.org/?p=ome.git;a=tree;f=docs/install/VM;hb=HEAD
-	& saving ALL of the contents of that directory to a suitable location on your machine. NB. This is the least desireable option and requires more work on your part.
+	& saving ALL of the contents of that directory to a suitable location on your machine. NB. This is the least desirable option and requires more work on your part.
 
 2. Prerequisites:
 	A Linux or Mac OS X operating system
@@ -17,7 +17,7 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 	
 3. Environment Setup:
 	See
-        https://www.openmicroscopy.org/site/support/omero4/users/virtual-appliance.html
+	http://www.openmicroscopy.org/site/support/omero4/users/virtual-appliance.html
 	
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be $HOME/Library/VirtualBox/HardDisks/ and on Linux $HOME/.VirtualBox/HardDisks/
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
