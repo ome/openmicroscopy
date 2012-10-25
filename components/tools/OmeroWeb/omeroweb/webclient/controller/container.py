@@ -388,7 +388,7 @@ class BaseContainer(BaseController):
         return False
 
 
-    def loadBatchAnnotations(self, objDict):
+    def loadBatchAnnotations(self, objDict, ann_ids=None):
         """ 
         Look up the Tags, Files, Comments, Ratings etc that are on one or more of 
         the objects in objDect.
@@ -417,7 +417,7 @@ class BaseContainer(BaseController):
             if len(objList) == 0:
                 continue
             parent_ids = [o.getId() for o in objList]
-            for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids):
+            for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids):
                 ann = annLink.getAnnotation()
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
                     continue    # TODO: Handle ratings
@@ -435,7 +435,19 @@ class BaseContainer(BaseController):
                         annotationsMap[ann.getId()]['links'].append( annLink )
                     if annLink.canDelete():
                         annotationsMap[ann.getId()]['unlink'] += 1
-        return rv
+
+        # bit more preparation for display...
+        batchAnns = {}
+        for key, annMap in rv.items():
+            # E.g. key = 'Tag', 'Comment', 'File' etc
+            annList = []
+            for annId, annDict in annMap.items():
+                # ann is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
+                annDict['links'].sort(key=lambda x: x.parent.id.val)    # Each ann has links to several objects
+                annDict['can_remove'] = annDict['unlink'] > 0
+                annList.append(annDict)
+            batchAnns[key] = annList
+        return batchAnns
 
 
     def getTagsByObject(self):
@@ -613,7 +625,7 @@ class BaseContainer(BaseController):
             lnk = links.next()
             return lnk.getAnnotation()
         # Each tag will have several new links - Just return the tag
-        return ann
+        return ann.getId()
 
 
     def createFileAnnotations(self, newFile, oids, well_index=0):
@@ -661,7 +673,7 @@ class BaseContainer(BaseController):
             fa_link = links.next()  # get first item in generator
             fa = fa_link.getAnnotation()
             return fa
-        return self.conn.getObject("FileAnnotation", fa.getId())
+        return fa.getId()
 
 
     def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
@@ -686,8 +698,11 @@ class BaseContainer(BaseController):
                 else:
                     parent_type = k.lower().title()
                 parent_ids = [o.id for o in oids[k]]
-                # check for existing links
-                links = self.conn.getAnnotationLinks (parent_type, parent_ids=parent_ids, ann_ids=tids)
+                # check for existing links belonging to Current user
+                params = omero.sys.Parameters()
+                params.theFilter = omero.sys.Filter()
+                params.theFilter.ownerId = rlong(self.conn.getUserId())
+                links = self.conn.getAnnotationLinks (parent_type, parent_ids=parent_ids, ann_ids=tids, params=params)
                 pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
                 # Create link between each object and annotation
                 for ob in self.conn.getObjects(parent_type, parent_ids):
@@ -722,8 +737,7 @@ class BaseContainer(BaseController):
             links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=tids)
             fas = [fa_link.getAnnotation() for fa_link in links]
             return fas
-        # Each annotation will have several new links - Just return the annotations
-        return annotations
+        return  # For batch anns, need to reload again anyway
             
     ################################################################
     # Update
@@ -926,7 +940,6 @@ class BaseContainer(BaseController):
         
         @param parents:     List of parent IDs, E.g. ['image-123']
         """
-        print "Remove", parents
         for p in parents:
             parent = p.split('-')
             if self.tag:

@@ -29,7 +29,7 @@
 -->
 {% endcomment %}
 
-<span class="tag_annotation_wrapper">
+<span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}">
 	
 		<div class="tag">
 	        <a class='tooltip tag_inner' href="{% url load_template 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
@@ -50,7 +50,7 @@
                     {% if forloop.counter < 20 %}
                         <div>
                             <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
-                            {{ l.getParent.name|truncateafter:"40" }}
+                            {{ l.getParent.name|truncatebefor:"28" }}
                             {% if l.canDelete %}<b> X </b>{% endif %}
                         </div>
                     {% else %}
@@ -63,18 +63,12 @@
                 {% endfor %}
             </span>
             {% else %}
-                {% if new_batch_ann %}
-                    <span class="tooltip_html" style='display:none'>
-                        Can remove Tag from <b>all</b> objects
-                    </span>
-                {% else %}
-                    <span class="tooltip_html" style='display:none'>
-                        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
-                        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-                        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                        <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
-                    </span>
-                {% endif %}
+                <span class="tooltip_html" style='display:none'>
+                    <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
+                    <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
+                    <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+                    <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
+                </span>
 			{% endif %}
 			
 		</div>

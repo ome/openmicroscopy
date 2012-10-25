@@ -28,7 +28,8 @@
 -->
 {% endcomment %}
 
-
-{% for fileann in fileanns %}
-    {% include "webclient/annotations/fileann.html" %}
+{% for f in batchAnns.File %}
+    {% with fileann=f.ann links=f.links can_unlink_count=f.unlink can_remove=f.can_remove %}
+        {% include "webclient/annotations/fileann.html" %}
+    {% endwith %}
 {% endfor %}
