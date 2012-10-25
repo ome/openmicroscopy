@@ -5155,19 +5155,43 @@ class OMEROGateway
 			if (start != null || end != null) {
 				switch (context.getTimeIndex()) {
 					case SearchDataContext.CREATION_TIME:
-						service.onlyCreatedBetween(
-								omero.rtypes.rtime(start.getTime()), 
+						if (start != null && end != null)
+							service.onlyCreatedBetween(
+								omero.rtypes.rtime(start.getTime()),
 								omero.rtypes.rtime(end.getTime()));
+						else if (start != null && end == null)
+							service.onlyCreatedBetween(
+									omero.rtypes.rtime(start.getTime()),
+									null);
+						else if (start == null && end != null)
+							service.onlyCreatedBetween(null,
+									omero.rtypes.rtime(end.getTime()));
 						break;
 					case SearchDataContext.MODIFICATION_TIME:
-						service.onlyModifiedBetween(
-								omero.rtypes.rtime(start.getTime()), 
+						if (start != null && end != null)
+							service.onlyModifiedBetween(
+								omero.rtypes.rtime(start.getTime()),
 								omero.rtypes.rtime(end.getTime()));
+						else if (start != null && end == null)
+							service.onlyModifiedBetween(
+									omero.rtypes.rtime(start.getTime()),
+									null);
+						else if (start == null && end != null)
+							service.onlyModifiedBetween(null,
+									omero.rtypes.rtime(end.getTime()));
 						break;
 					case SearchDataContext.ANNOTATION_TIME:
-						service.onlyAnnotatedBetween(
-								omero.rtypes.rtime(start.getTime()), 
-								omero.rtypes.rtime(end.getTime()));	
+						if (start != null && end != null)
+							service.onlyAnnotatedBetween(
+								omero.rtypes.rtime(start.getTime()),
+								omero.rtypes.rtime(end.getTime()));
+						else if (start != null && end == null)
+							service.onlyAnnotatedBetween(
+									omero.rtypes.rtime(start.getTime()),
+									null);
+						else if (start == null && end != null)
+							service.onlyAnnotatedBetween(null,
+									omero.rtypes.rtime(end.getTime()));
 				}
 			}
 			List<ExperimenterData> users = context.getOwners();
