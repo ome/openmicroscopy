@@ -62,7 +62,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ProcessException;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
@@ -922,6 +921,7 @@ public abstract class ActivityComponent
 				firePropertyChange(REMOVE_ACTIVITY_PROPERTY, null, this);
 				break;
 			case CANCEL:
+				onActivityCancelled();
 				if (cancelButton != null) cancelButton.setEnabled(false);
 				if (loader != null) loader.cancel();
 				break;

@@ -73,6 +73,9 @@ public class ExportLoader
     /** The selected schema.*/
     private Target target;
     
+    /** Flag indicating that the export has been marked to be cancel.*/
+    private boolean cancelled;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -132,6 +135,7 @@ public class ExportLoader
      */
     public void cancel()
     {
+    	cancelled = true;
     	if (handle != null) handle.cancel();
     }
  
@@ -140,9 +144,13 @@ public class ExportLoader
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
-    	if (result == null) onException(MESSAGE_RESULT, null);
-    	else activity.endActivity(result); 
+    {
+    	if (cancelled) {
+    		file.delete();
+    	} else {
+        	if (result == null) onException(MESSAGE_RESULT, null);
+        	else activity.endActivity(result);
+    	}
     }
     
 }
