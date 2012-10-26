@@ -24,13 +24,19 @@
 
 {% comment %}
 <!--
-  This tag block is used as an AJAX response, when linking multiple tags to the metadata_general panel.
+  This tag block is used as an AJAX response, when linking tags to the metadata_general or batch_annotate panel.
 -->
 {% endcomment %}
 
 
-{% for t in batchAnns.Tag %}
-    {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
+{% if batch_ann %}
+    {% for t in batchAnns.Tag %}
+        {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
+            {% include "webclient/annotations/tag.html" %}
+        {% endwith %}
+    {% endfor %}
+{% else %}
+    {% for tag in tags %}
         {% include "webclient/annotations/tag.html" %}
-    {% endwith %}
-{% endfor %}
+    {% endfor %}
+{% endif %}

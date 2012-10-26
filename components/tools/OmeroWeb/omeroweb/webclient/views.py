@@ -1126,21 +1126,31 @@ def annotate_file(request, conn=None, **kwargs):
         if form_file.is_valid():
             # Link existing files...
             files = form_file.cleaned_data['files']
+            added_files = []
             if files is not None and len(files)>0:
-                manager.createAnnotationsLinks('file', files, oids, well_index=index)
+                added_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
             # upload new file
             fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
             if fileupload is not None and fileupload != "":
                 newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
-                files.append(newFileId)
+                added_files.append(newFileId)
             if len(files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
+            context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=files)
-            context = {"batchAnns": batchAnns}
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_files)
             if obj_count > 1:
+                context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                fileanns = []
+                for a in batchAnns['File']:
+                    for l in a['links']:
+                        fileanns.append(l.getAnnotation())
+                context['fileanns'] = fileanns
+                context['can_remove'] = True
         else:
             return HttpResponse(form_file.errors)
 
@@ -1234,19 +1244,29 @@ def annotate_tags(request, conn=None, **kwargs):
             tag = form_tags.cleaned_data['tag']
             description = form_tags.cleaned_data['description']
             tags = form_tags.cleaned_data['tags']
+            added_tags = [];
             if tags is not None and len(tags)>0:
-                manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+                added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
             if tag is not None and tag != "":
                 new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                tags.append(new_tag_id)
-            if len(tags) == 0:
+                added_tags.append(new_tag_id)
+            if len(added_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
+            context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=tags)
-            context = {"batchAnns": batchAnns}
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_tags)
             if obj_count > 1:
+                context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                taganns = []
+                for a in batchAnns['Tag']:
+                    for l in a['links']:
+                        taganns.append(l.getAnnotation())
+                context['tags'] = taganns
+                context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
