@@ -219,7 +219,7 @@
 												
 													<!-- Download -->
                                                     <li class="btn_download">
-														<a href="#" onClick="window.location.href='{% url download_annotation 'download' v.id %}'" title="Download File">Download</a>
+														<a href="{% url download_annotation v.id %}" title="Download File">Download</a>
 													</li>
                                                     
 													{% if v.fileId %}

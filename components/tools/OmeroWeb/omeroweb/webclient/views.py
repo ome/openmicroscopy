@@ -1727,11 +1727,11 @@ def archived_files(request, iid, conn=None, **kwargs):
     return rsp
 
 @login_required(doConnectionCleanup=False)
-def download_annotation(request, action, iid, conn=None, **kwargs):
+def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-    ann = conn.getObject("Annotation", iid)
+    ann = conn.getObject("Annotation", annId)
     if ann is None:
-        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (annId))
     
     rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
     rsp.conn = conn
