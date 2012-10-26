@@ -25,6 +25,7 @@ import Ice.Current;
  * in the form of a mock in unit tests.
  *
  * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
+ * @author Colin Blackburn <c.blackburn at dundee dot ac dot uk>
  * @since 4.5
  */
 public class RepositoryDaoImpl implements RepositoryDao {
@@ -140,6 +141,51 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     ofile.setMimetype("Directory");
                     ofile.setSha1("None");
                     ofile.setSize(0L);
+
+                    ofile = sf.getUpdateService().saveAndReturnObject(ofile);
+                    getSqlAction().setFileRepo(ofile.getId(), repoUuid);
+                    return ofile;
+                } else {
+                    return sf.getQueryService().get(
+                            ome.model.core.OriginalFile.class, fileId);
+                }
+            }
+        });
+        return (OriginalFile) new IceMapper().map(of);
+    }
+
+    // TODO: The follow method should clearly be refactored with the above method.
+    /**
+     * Create an {@link OriginalFile} in the given repository if it does
+     * not exist. Otherwise, return the id.
+     *
+     * @param repoUuid Not null. sha1 of the repository
+     * @param path Not null. {@link OriginalFile#getPath()}
+     * @param name Not null. {@link OriginalFile#getName()}
+     * @param currentUser Not null.
+     * @return ID of the object.
+     * @throws omero.ApiUsageException
+     */
+    public OriginalFile createUserFile(final String repoUuid,
+            final String path, final String name, final long size, Principal currentUser)
+                    throws omero.ApiUsageException {
+
+        ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
+                executor.execute(currentUser, new Executor.SimpleWork(this,
+                        "createUserFile", repoUuid, path, name) {
+
+                    @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                Long fileId = getSqlAction().findRepoFile(
+                        repoUuid, path, name, null /*mimetype*/);
+                if (fileId == null) {
+                    ome.model.core.OriginalFile ofile =
+                            new ome.model.core.OriginalFile();
+                    ofile.setPath(path);
+                    ofile.setName(name);
+                    ofile.setMimetype("FSLiteMarkerFile");
+                    ofile.setSha1("None");
+                    ofile.setSize(size);
 
                     ofile = sf.getUpdateService().saveAndReturnObject(ofile);
                     getSqlAction().setFileRepo(ofile.getId(), repoUuid);

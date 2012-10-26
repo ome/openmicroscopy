@@ -60,6 +60,22 @@ public interface RepositoryDao {
             throws omero.ApiUsageException;
 
     /**
+     * Create an {@link OriginalFile} in the given repository if it does
+     * not exist. Otherwise, return the id.
+     *
+     * @param repoUuid Not null. sha1 of the repository
+     * @param path Not null. {@link OriginalFile#getPath()}
+     * @param name Not null. {@link OriginalFile#getName()}
+     * @param size {@link OriginalFile#getSize()}
+     * @param currentUser Not null.
+     * @return ID of the object.
+     * @throws omero.ApiUsageException
+     */
+    OriginalFile createUserFile(final String repoUuid, final String path,
+            final String name, final long size, Principal currentUser)
+            throws omero.ApiUsageException;
+
+    /**
      * Look up information for the current session as specified in the ctx
      * field of the current.
      */

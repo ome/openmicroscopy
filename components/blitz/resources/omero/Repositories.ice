@@ -207,6 +207,11 @@ module omero {
             omero::api::RawFileStore* uploadUsedFile(Import importData, string usedFile) throws ServerError;
 
             /**
+             *
+             **/
+            omero::model::OriginalFile createOriginalFile(string path) throws ServerError;
+
+            /**
              * This will free any locks, etc in the Up
              **/
             omero::api::PixelsList importMetadata(Import importData, RepositoryImportContainer ic) throws ServerError;

@@ -46,6 +46,7 @@ import omero.grid.Import;
 import omero.grid.RepositoryImportContainer;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
@@ -403,9 +404,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 continue;
             }
         }
-        
-        return data;
 
+        return data;
+    }
+
+    public OriginalFile createOriginalFile(String path, Ice.Current __current)
+            throws omero.ApiUsageException {
+        long size = new File(root.file, path).length();
+        File file = new File(path);
+        OriginalFile of = repositoryDao.createUserFile(getRepoUuid(),
+                file.getParent(), file.getName(), size, currentUser(__current));
+        return of;
     }
 
     /**

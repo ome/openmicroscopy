@@ -482,6 +482,7 @@ public class ImportLibrary implements IObservable
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                             file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 }
+                repo.createOriginalFile(data.usedFiles.get(i));
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
             }
