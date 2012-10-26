@@ -1094,7 +1094,7 @@ class TreeViewerComponent
 		int n = l.size();
 		List selection = (List) l.get(0);
 		Object parent = null;
-		if (n == 1) parent = l.get(1);
+		if (n == 2) parent = l.get(1);
 		if (selection == null || selection.size() == 0) return;
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
