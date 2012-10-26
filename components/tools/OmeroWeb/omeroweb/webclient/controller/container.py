@@ -388,7 +388,7 @@ class BaseContainer(BaseController):
         return False
 
 
-    def loadBatchAnnotations(self, objDict, ann_ids=None):
+    def loadBatchAnnotations(self, objDict, ann_ids=None, addedByMe=False):
         """ 
         Look up the Tags, Files, Comments, Ratings etc that are on one or more of 
         the objects in objDect.
@@ -413,11 +413,15 @@ class BaseContainer(BaseController):
         for key, value in batchAnns.items():
             rv[value] = {}
         
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        if addedByMe:
+            params.theFilter.ownerId = omero.rtypes.rlong(self.conn.getUserId())
         for objType, objList in objDict.items():
             if len(objList) == 0:
                 continue
             parent_ids = [o.getId() for o in objList]
-            for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids):
+            for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
                 ann = annLink.getAnnotation()
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
                     continue    # TODO: Handle ratings
