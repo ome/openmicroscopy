@@ -51,55 +51,55 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
  * @since 4.4
  */
 public class RowSelectionVisitor
-	implements ImageDisplayVisitor
+    implements ImageDisplayVisitor
 {
 
     /** The upper left corner of the first image in the selection*/
     private Point first;
-    
+
     /** The upper left corner of the last image in the selection*/
     private Point last;
-    
-	/** The collection of selected nodes.*/
-	private List<ImageDisplay> selected;
-	
-	/** The colors to set when nodes are selected or not.*/
-	private Colors colors;
-	
-	/**
-	 * Creates a new instance.
-	 *
-	 * @param a The bounding rectangle of the first selected object
-	 * @param b The bounding rectangle of the second selected object
-	 * @param collect Pass <code>true</code> to collect the selected node,
-	 *                <code>false</code> otherwise.
-	 */
-	public RowSelectionVisitor(Rectangle a, Rectangle b, boolean collect)
-	{
-	    if (a.y < b.y || (a.y == b.y && a.x < b.x)) {
-	        first = new Point(a.x, a.y);
-	        last = new Point(b.x, b.y);
-	    }
-	    else {
-	        first = new Point(b.x, b.y);
-	        last = new Point(a.x, a.y);
-	    }
-	    
-		colors = Colors.getInstance();
-		if (collect) selected = new ArrayList<ImageDisplay>();
-	}
-	
-	/**
-	 * Returns the collection of selected nodes or <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public List<ImageDisplay> getSelected() { return selected; }
-	
-	/**
-	 * Highlights the selected nodes.
-	 * @see ImageDisplayVisitor#visit(ImageNode)
-	 */
+
+    /** The collection of selected nodes.*/
+    private List<ImageDisplay> selected;
+
+    /** The colors to set when nodes are selected or not.*/
+    private Colors colors;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param a The bounding rectangle of the first selected object
+     * @param b The bounding rectangle of the second selected object
+     * @param collect Pass <code>true</code> to collect the selected node,
+     *                <code>false</code> otherwise.
+     */
+    public RowSelectionVisitor(Rectangle a, Rectangle b, boolean collect)
+    {
+        if (a.y < b.y || (a.y == b.y && a.x < b.x)) {
+            first = new Point(a.x, a.y);
+            last = new Point(b.x, b.y);
+        }
+        else {
+            first = new Point(b.x, b.y);
+            last = new Point(a.x, a.y);
+        }
+
+        colors = Colors.getInstance();
+        if (collect) selected = new ArrayList<ImageDisplay>();
+    }
+
+    /**
+     * Returns the collection of selected nodes or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    public List<ImageDisplay> getSelected() { return selected; }
+
+    /**
+     * Highlights the selected nodes.
+     * @see ImageDisplayVisitor#visit(ImageNode)
+     */
     public void visit(ImageNode node)
     {
         Rectangle bounds = node.getBounds();
@@ -107,7 +107,7 @@ public class RowSelectionVisitor
                 (bounds.y > first.y && bounds.y < last.y) ||
                 (bounds.y == last.y && bounds.x <= last.x && bounds.y > first.y) ||
                 (bounds.y == first.y && bounds.y == last.y &&
-                    bounds.x >= first.x && bounds.x <= last.x)) {
+                bounds.x >= first.x && bounds.x <= last.x)) {
             node.setHighlight(colors.getSelectedHighLight(node, false));
             if (selected != null)
                 selected.add(node);
@@ -116,11 +116,11 @@ public class RowSelectionVisitor
             node.setHighlight(colors.getDeselectedHighLight(node));
         }
     }
-    
-	/**
-	 * Required by {@link ImageDisplayVisitor} I/F no-operation in our case
-	 * @see ImageDisplayVisitor#visit(ImageSet)
-	 */
-	public void visit(ImageSet node) {}
-	
+
+    /**
+     * Required by {@link ImageDisplayVisitor} I/F no-operation in our case
+     * @see ImageDisplayVisitor#visit(ImageSet)
+     */
+    public void visit(ImageSet node) {}
+
 }
