@@ -24,12 +24,18 @@
 
 {% comment %}
 <!--
-  This file-annotations block is used as an AJAX response, when linking multiple file-annotations to the metadata_general panel.
+  This file-annotations block is used as an AJAX response, when linking files to the metadata_general OR batch_annotate panel.
 -->
 {% endcomment %}
 
-{% for f in batchAnns.File %}
-    {% with fileann=f.ann links=f.links can_unlink_count=f.unlink can_remove=f.can_remove %}
+{% if batch_ann %}
+    {% for f in batchAnns.File %}
+        {% with fileann=f.ann links=f.links can_unlink_count=f.unlink can_remove=f.can_remove %}
+            {% include "webclient/annotations/fileann.html" %}
+        {% endwith %}
+    {% endfor %}
+{% else %}
+    {% for fileann in fileanns %}
         {% include "webclient/annotations/fileann.html" %}
-    {% endwith %}
-{% endfor %}
+    {% endfor %}
+{% endif %}

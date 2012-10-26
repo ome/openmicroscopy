@@ -618,13 +618,6 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(l)
                     except:
                         pass
-        # if we only annotated a single object, return file-anns with link loaded
-        if len(parent_objs) == 1:
-            parent = parent_objs[0]
-            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=[ann.id])
-            lnk = links.next()
-            return lnk.getAnnotation()
-        # Each tag will have several new links - Just return the tag
         return ann.getId()
 
 
@@ -666,13 +659,6 @@ class BaseContainer(BaseController):
                     new_links.append(l_ann)
         if len(new_links) > 0 :
             new_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.SERVICE_OPTS)
-        
-        # if we only annotated a single object, return file-ann with link loaded
-        if len(new_links) == 1:
-            links = self.conn.getAnnotationLinks (otype, ann_ids=[new_links[0].child.getId().getValue()])
-            fa_link = links.next()  # get first item in generator
-            fa = fa_link.getAnnotation()
-            return fa
         return fa.getId()
 
 
@@ -731,14 +717,8 @@ class BaseContainer(BaseController):
                 except:
                     failed+=1
 
-        # if we only annotated a single object, return file-anns with link loaded
-        if len(parent_objs) == 1:
-            parent = parent_objs[0]
-            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=tids)
-            fas = [fa_link.getAnnotation() for fa_link in links]
-            return fas
-        return  # For batch anns, need to reload again anyway
-            
+        return  tids
+
     ################################################################
     # Update
     
