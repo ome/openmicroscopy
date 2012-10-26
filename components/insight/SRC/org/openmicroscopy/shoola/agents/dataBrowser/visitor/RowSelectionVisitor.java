@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
  * on them all being aligned to the top left of the grid.
  *
  * @author Simon Li
- * <a href="mailto:splil@dundee.ac.uk">spli@dundee.ac.uk</a>
+ * <a href="mailto:spli@dundee.ac.uk">spli@dundee.ac.uk</a>
  * @since 4.4
  */
 public class RowSelectionVisitor
@@ -70,7 +70,7 @@ public class RowSelectionVisitor
 	 * Creates a new instance.
 	 *
 	 * @param a The bounding rectangle of the first selected object
-     * @param b The bounding rectangle of the second selected object
+	 * @param b The bounding rectangle of the second selected object
 	 * @param collect Pass <code>true</code> to collect the selected node,
 	 *                <code>false</code> otherwise.
 	 */
