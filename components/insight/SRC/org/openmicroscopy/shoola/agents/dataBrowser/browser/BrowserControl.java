@@ -50,6 +50,7 @@ import javax.swing.SwingUtilities;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.SelectionVisitor;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RowSelectionVisitor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -554,13 +555,7 @@ class BrowserControl
     		Rectangle rS = display.getBounds();
     		display = findParentDisplay(source);
     		Rectangle rAnchor =  display.getBounds();
-    		selection.width = Math.abs(rS.x-rAnchor.x)+rS.width;
-    		selection.height = Math.abs(rS.y-rAnchor.y)+rS.height;
-    		if (rAnchor.x < rS.x) selection.x = rAnchor.x;
-    		else selection.x = rS.x;
-    		if (rAnchor.y < rS.y) selection.y = rAnchor.y;
-    		else selection.y = rS.y;
-			SelectionVisitor visitor = new SelectionVisitor(selection, true);
+			RowSelectionVisitor visitor = new RowSelectionVisitor(rS, rAnchor, true);
 			view.accept(visitor);
 			shiftDown = me.isShiftDown();
 			if (!shiftDown) source = null;
