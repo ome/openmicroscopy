@@ -28,13 +28,11 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -46,8 +44,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
-
-
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout; 
@@ -77,10 +75,7 @@ class SoftwareUpdateDialog
 	
     /** The close button. */
     private JButton closeButton;
-    
-    /** The file of reference. */
-    private String	refFile;
-    
+
     /** Sets the properties of the window. */
     private void setWindowProperties()
     {
@@ -131,18 +126,17 @@ class SoftwareUpdateDialog
         content.setLayout(new TableLayout(size));
         Icon icon = IconManager.getLogoAbout();
         JEditorPane p = UIUtilities.buildTextEditorPane(aboutMessage);
-        p.addMouseListener(new MouseAdapter() {
-	
-			public void mouseClicked(MouseEvent e) {
-				JEditorPane c = (JEditorPane) e.getSource();
-				if (c.getCursor().equals(
-					Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) {
-					c.setCursor(Cursor.getDefaultCursor());
-					firePropertyChange(OPEN_URL_PROPERTY, null, refFile);
-				}
-			}
-		
-		});
+        p.setEditable(false);
+        p.setOpaque(false);
+        p.addHyperlinkListener(new HyperlinkListener() {
+        	public void hyperlinkUpdate(HyperlinkEvent e) {
+        		if (HyperlinkEvent.EventType.ACTIVATED.equals(
+        				e.getEventType())) {
+        			String url = e.getURL().toString();
+    				firePropertyChange(OPEN_URL_PROPERTY, null, url);
+        		}
+        	}
+        });
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(Color.WHITE);
         p.setOpaque(true);
@@ -179,12 +173,10 @@ class SoftwareUpdateDialog
      * 
      * @param owner 		The owner of the frame.
      * @param aboutMessage	The message retrieved from the About file.
-	 * @param refFile		The file of reference.
      */
-    SoftwareUpdateDialog(JFrame owner, String aboutMessage, String refFile)
+    SoftwareUpdateDialog(JFrame owner, String aboutMessage)
     {
         super(owner);
-        this.refFile = refFile;
         setWindowProperties();
         initComponents();
         buildGUI(aboutMessage);
