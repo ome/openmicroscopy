@@ -56,6 +56,8 @@ LONGHELP = """
         Password:
         $ bin/omero sessions login user@omero.example.com
         Password:
+        $ bin/omero sessions login user@omero.example.com:24064
+        Password:
         $ bin/omero sessions logout
         $ bin/omero sessions login
         Reuse current session? [Y/n]
