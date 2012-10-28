@@ -1109,14 +1109,16 @@
 {% block center %}
 
 <div id="center_panel_header">
-	<div id="center_panel_chooser">
-	    <select id="source">
-	        <option value="#content_details">Thumbnails</option>
-	        {% for cp in ome.center_plugins %}
-	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
-	        {% endfor %}
-	    </select>
-	</div>
+    <div id="center_panel_chooser">
+        {% if ome.center_plugins|length > 0 %}
+            <select id="source">
+                <option value="#content_details">Thumbnails</option>
+                {% for cp in ome.center_plugins %}
+                    <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
 </div>
 
 <div id="content_details" class="center_panel_content"> </div>
