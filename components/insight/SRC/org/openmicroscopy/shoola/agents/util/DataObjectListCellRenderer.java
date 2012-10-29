@@ -278,24 +278,35 @@ public class DataObjectListCellRenderer
 			ExperimenterData exp;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				if (currentUserID >= 0) {
-					exp = tag.getOwner();
-					createTooltip(exp);
-					long id = exp.getId();
-					if (id == currentUserID)
+					try {
+						exp = tag.getOwner();
+						createTooltip(exp);
+						long id = exp.getId();
+						if (id == currentUserID)
+							setIcon(TAG_SET_ICON);
+						else
+							setIcon(TAG_SET_OTHER_OWNER_ICON);
+					} catch (Exception e) {
+						// tag.getOwner() throws when creating a new tag which
+						// doesn't have owner information
 						setIcon(TAG_SET_ICON);
-					else
-						setIcon(TAG_SET_OTHER_OWNER_ICON);
+					}
 				} else
 					setIcon(TAG_SET_ICON);
 			} else {
 				if (currentUserID >= 0) {
-					exp = tag.getOwner();
-					createTooltip(exp);
-					long id = exp.getId();
-					if (id == currentUserID)
+					try {
+						exp = tag.getOwner();
+						createTooltip(exp);
+						long id = exp.getId();
+						if (id == currentUserID)
+							setIcon(TAG_ICON);
+						else
+							setIcon(TAG_OTHER_OWNER_ICON);
+					} catch (Exception e) {
+						// As above
 						setIcon(TAG_ICON);
-					else
-						setIcon(TAG_OTHER_OWNER_ICON);
+					}
 				} else
 					setIcon(TAG_ICON);
 			}
