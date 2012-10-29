@@ -1134,7 +1134,7 @@ def annotate_file(request, conn=None, **kwargs):
             if fileupload is not None and fileupload != "":
                 newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
                 added_files.append(newFileId)
-            if len(files) == 0:
+            if len(added_files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
             context = {}
