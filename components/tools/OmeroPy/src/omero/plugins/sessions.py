@@ -281,7 +281,10 @@ class SessionsControl(BaseControl):
                         self.ctx.err(pde.reason)
                         pasw = None
                 except Ice.ConnectionRefusedException:
-                    self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+                    if port:
+                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s:%s isn't running" % (server, port))
+                    else:
+                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
                 except exceptions.Exception, e:
