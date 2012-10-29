@@ -159,8 +159,8 @@ public class PlateLayout
     			wsNode = (WellSampleNode) i.next();
     			h = 0;
     			hh = 0;
-    			r = wsNode.getRow();
-    			c = wsNode.getColumn();
+    			r = wsNode.getLayedoutRow();
+    			c = wsNode.getLayedoutColumn();
     			d = wsNode.getPreferredSize();
     			//if (r > 0) h = wsNode.getTitleHeight();
     			if (r > 0) h = wsNode.getTitleHeight();
