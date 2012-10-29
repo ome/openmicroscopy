@@ -289,6 +289,7 @@ public class DataObjectListCellRenderer
 					} catch (Exception e) {
 						// tag.getOwner() throws when creating a new tag which
 						// doesn't have owner information
+						createTooltip(null);
 						setIcon(TAG_SET_ICON);
 					}
 				} else
@@ -305,6 +306,7 @@ public class DataObjectListCellRenderer
 							setIcon(TAG_OTHER_OWNER_ICON);
 					} catch (Exception e) {
 						// As above
+						createTooltip(null);
 						setIcon(TAG_ICON);
 					}
 				} else
