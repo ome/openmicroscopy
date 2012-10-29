@@ -200,8 +200,9 @@ class SessionsControl(BaseControl):
 
                 server_differs = (server is not None and server != previous[0])
                 name_differs = (name is not None and name != previous[1])
+                port_differs = (port is not None and port != previous_port)
 
-                if not create and not server_differs and not name_differs:
+                if not create and not server_differs and not name_differs and not port_differs:
                     try:
                         if previous[2] is not None: # Missing session uuid file. Deleted? See #4199
                             conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
