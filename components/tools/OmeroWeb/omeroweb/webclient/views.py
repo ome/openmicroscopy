@@ -2490,7 +2490,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
-    rsp = run_script(request, conn, sId, inputMap, scriptName='Export OME-TIFF')
+    rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
     return HttpResponse(simplejson.dumps(rsp), mimetype='json')
 
 

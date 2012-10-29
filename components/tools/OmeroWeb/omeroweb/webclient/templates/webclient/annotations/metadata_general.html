@@ -370,14 +370,14 @@
                     
                     var url = $(this).attr('href');
                     $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
-                    var dialog_opts = ['Cancel', 'Prepare'];
+                    var dialog_opts = ['Cancel', 'Create'];
                     $.getJSON("{% url ome_tiff_info manager.obj_id %}", function(data) {
                         
-                        var msg = "This will prepare an OME-TIFF file from this Image.";
+                        var msg = "This will create an OME-TIFF file from this Image.";
                         if (data.id && data.ago) {
                             msg += "<br>Or you can Download one that was prepared "+ data.ago +" ago";
                             var download_ometiff = data.download;
-                            dialog_opts[1] = "Prepare New";
+                            dialog_opts[1] = "Create New";
                             dialog_opts.push("Download");
                         } else {
                             msg += "<br>This will be attached to the Image and available to download.";
@@ -387,8 +387,8 @@
                             function() {
                                 var btn = confirm_ometiff.data("clicked_button");
                                 switch (btn) {
-                                    case "Prepare":   // two options for the same button
-                                    case "Prepare New":
+                                    case "Create":   // two options for the same button
+                                    case "Create New":
                                         $.post( url, function() {
                                             showActivities();
                                         });
@@ -398,7 +398,7 @@
                                         break;
                                 }
                             },
-                            "Prepare OME-TIFF?",
+                            "Create OME-TIFF?",
                             dialog_opts,
                             null, 200
                         );
@@ -481,7 +481,7 @@
                         {% endif %}
                         <li>
                             <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
-                                title="Prepare OME-TIFF File for Download">OME-TIFF</a>
+                                title="Create OME-TIFF File for Download">OME-TIFF</a>
                         </li>
                         <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
                     </ul>
