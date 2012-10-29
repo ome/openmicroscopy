@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
 
-        INITIAL_ICON_SIZE = 65;
+        var INITIAL_ICON_SIZE = 65;
 
         var handleRemove = function (e, data) {
             var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
@@ -41,7 +41,174 @@
         };
         
         $(document).ready(function(){
+            
             var $parent_container = $("#content_details");
+            
+            // when the jstree removes objects from the tree, handle each object...
+            $("#dataTree").bind("delete_node.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
+            
+            var datatree = $.jstree._focused();
+            
+            // double-click handler on image - launches image viewer
+            $("#dataIcons li").dblclick(function(event) {
+                openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+            });
+            
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("#dataIcons li.row").click(function(event) {
+                handleClickSelection(event);
+            });
+            
+            // handles selection for 'clicks' (not drags) 
+            var handleClickSelection = function(event) {
+                var parent_id = '#'+$('#content_details').attr('rel');
+                var targetId = $(event.target).attr('id');      // target could be img, etc
+                var $li;
+                if (event.target.nodeName.toLowerCase() == 'li') {
+                    $li = $(event.target);
+                } else if (event.target.nodeName.toLowerCase() == 'img') {
+                    $li = $(event.target).parent().parent();
+                } else {
+                    $li = $(event.target).parent();
+                }
+                var select_id = "image-" + $li.attr('id').split("-")[1];
+                // find the matching child node from the tree
+                var $children = datatree._get_children(parent_id);
+                var toSelect = $children.filter(function(index) {
+                    return ($(this).attr('id') == select_id);
+                });
+                // In case image not in tree (out of sync?), we refresh tree
+                if (toSelect.length == 0) {
+                    datatree.deselect_all();
+                    datatree.select_node(parent_id);
+                    datatree.refresh(parent_id);
+                } else {
+                    // manually add ui-selected class to range of icons etc
+                    highlightClickedIcons(event, $li);
+                    // finally, apply all the changes to the tree
+                    syncTreeSelection();
+                    return false;
+                }
+            }
+
+            var highlightClickedIcons = function(event, $clickedRow) {
+
+                var $rows = $("#dataIcons li.row:visible");
+                var selIndex = $rows.index($clickedRow);
+                var primaryIndex = -1;
+                var lastSelected = datatree.data.ui.last_selected;
+                if (lastSelected && (lastSelected.length > 0)) {
+                    var img_id = lastSelected.attr('id').split('-')[1];
+                    var $row = $('#image_icon-'+ img_id);
+                    primaryIndex = $rows.index($row);
+                }
+                var multiSelectKey = multi_key() + "Key";
+                if (event.shiftKey) {
+                    // user tried to select a range, but we don't have a first selection yet...
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                        $clickedRow.addClass("ui-selected");
+                        return;
+                    }
+                    // select range
+                    var start = Math.min(primaryIndex,selIndex);
+                    var end = Math.max(primaryIndex,selIndex);
+                    $rows.slice(start, end+1).addClass("ui-selected");
+                } else if (event[multiSelectKey]) {
+                    // user wants to add/remove a single image to selection
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                    }
+                    $clickedRow.toggleClass("ui-selected");
+                } else {
+                    // regular click - remove selection
+                    $rows.removeClass("ui-selected");
+                    $clickedRow.addClass("ui-selected");
+                    primaryIndex = selIndex;
+                }
+            }
+
+            // When we filter, need to make sure that the Tree doesn't have filtered images selected
+            var deselectFilteredFromTree = function(e, a){
+                // check if any selection change is needed... timeout allows selection sync
+                setTimeout(function(){
+                    if ($("#dataIcons li.ui-selected:hidden").length == 0) return;
+                    // if so, use selection by IDs...
+                    syncTreeSelection();
+                }, 20);
+            };
+
+            // use IDs of the selected visible thumbnails to sync tree selection
+            var syncTreeSelection = function() {
+                var toSelectIds = new Array();
+                $("#dataIcons li.ui-selected:visible").each(function(i){
+                    var iId = $(this).attr('id').split("-")[1];
+                    toSelectIds[i] = "image-"+iId;
+                });
+                
+                // find the matching child nodes from the tree
+                var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
+                var toSelect = $children.filter(function(index) {
+                    return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
+                });
+
+                if (toSelect.length == 0) {
+                    datatree.deselect_all();
+                    tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
+                    return;
+                }
+                // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
+                datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
+                // choose the first of our selection
+                var $first = toSelect.first();
+                toSelect = toSelect.slice(1);   // the rest
+                // manually select all apart from the first
+                datatree.data.ui.selected = toSelect;
+                toSelect.children("a").addClass("jstree-clicked");
+                // select the first (triggers selection event)
+                datatree.select_node($first);
+            }
+
+            // plugin to handle drag-select of images
+            $("#dataIcons").selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){  
+                    syncTreeSelection();
+                },
+                start: function(){
+                }
+            });
+
+            // switch between 'icon' or 'table' layout by switching CSS
+            var setLayout = function(layout) {
+                if (layout == "icon"){
+                    $("#dataIcons").removeClass("tableLayout");
+                    $("#dataIcons").addClass("iconLayout");
+                }
+                else {
+                    $("#dataIcons").removeClass("iconLayout");
+                    $("#dataIcons").addClass("tableLayout");
+                }
+            }
+            // handle Radio buttons 
+            $("#layout_chooser button").click(function(event) {
+                var layout = 'icon';
+                if ($(event.target).attr('id') == 'table_layout') {
+                    layout = 'table';
+                }
+                setLayout(layout);
+                $("#layout_chooser button").removeClass("checked");
+                $(event.target).addClass("checked");
+                $parent_container.data('layout', layout);   // preserve state for new datasets
+            });
+            // check if we've previously set layout - if so, configure UI accordingly
+            var existing_layout = $parent_container.data('layout');
+            if (existing_layout) {
+                setLayout(existing_layout);
+                $("#layout_chooser button").removeClass("checked");
+                $("#"+existing_layout+"_layout").addClass("checked");
+            }
 
             // Handle zooming of thumbnails with jQuery slider
             var icon_styles = [];
@@ -51,13 +218,17 @@
             $("#dataIcons img").each(function(){
                 icon_styles.push(this.style);
             });
-            var sizeX, sizeY
+
+            var sizeX, sizeY;
             $("#dataIcons li").each(function(){
-                li_styles.push(this.style);
-                sizeX = $(".sizeX", $(this)).text();
-                sizeY = $(".sizeY", $(this)).text();
-                aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
+                if (! $(this).hasClass('thead')) {
+                    li_styles.push(this.style);
+                    sizeX = $(".sizeX", $(this)).text();
+                    sizeY = $(".sizeY", $(this)).text();
+                    aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
+                }
             });
+
             var setIconSize = function(icon_size) {
                 for (s in icon_styles) {
                     if (aspect_ratios[s] < 1) {
@@ -83,7 +254,7 @@
                     $parent_container.data('icon_size', ui.value);   // preserve icon size for new datasets
                 }
             });
-            
+
             // check if we've previously set icon size - if so, configure UI accordingly
             var existing_icon_size = $parent_container.data('icon_size');
             if (existing_icon_size) {
@@ -92,74 +263,34 @@
             } else {
                 setIconSize(INITIAL_ICON_SIZE);
             }
-            
-            // when the jstree removes objects from the tree, handle each object...
-            $("#dataTree").bind("delete_node.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
-            
-            var datatree = $.jstree._focused();
-            
-            // double-click handler on image - launches image viewer
-            $("#dataIcons li").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
-            });
-            
-            // single click handler on image (container). Selection then update toolbar & metadata pane
-            $("#dataIcons li").click(function(event) {
-                var parent_id = '#'+$('#content_details').attr('rel');
-                var select_id = "image-" + $(this).attr('id').split("-")[1];
-                // find the matching child node from the tree
-                var $children = datatree._get_children(parent_id);
-                var toSelect = $children.filter(function(index) {
-                    return ($(this).attr('id') == select_id);
-                });
-                // In case image not in tree (out of sync?), we refresh tree
-                if (toSelect.length == 0) {
-                    datatree.deselect_all();
-                    datatree.select_node(parent_id);
-                    datatree.refresh(parent_id);
-                } else {
-                    // tree handles control/shift clicks for multi-select
-                    datatree.select_node(toSelect, true, event);
-                    return false;
-                }
-            });
-            
-            // plugin to handle drag-select of images
-            $("ul#dataIcons").selectable({
-                filter: 'li',
-                distance: 2,
-                stop: function(){  
-                    
-                    // get the image ids from the thumbnails
-                    var toSelectIds = new Array();
-                    $("li.ui-selected", this).each(function(i){
-                        var iId = $(this).attr('id').split("-")[1];
-                        toSelectIds[i] = "image-"+iId;
-                    });
-                    
-                    // find the matching child nodes from the tree
-                    var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
-                    var toSelect = $children.filter(function(index) {
-                        return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
-                    });
 
-                    // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
-                    datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
-                    // choose the first of our selection
-                    var $first = toSelect.first();
-                    toSelect = toSelect.slice(1);   // the rest
-                    // manually select all apart from the first
-                    datatree.data.ui.selected = toSelect;
-                    toSelect.children("a").addClass("jstree-clicked");
-                    // select the first (triggers selection event)
-                    datatree.select_node($first);
-                },
-                start: function(){
+            var $filter_input = $('#id_search');
+            var filter_txt = $filter_input.val();
+            $filter_input.quicksearch('#dataIcons li', {
+                'delay': 300,
+                'bind': 'keyup',
+                'loader': 'span.loading',
+                onAfter: function(){
+                    // onAfter can get triggered without text change, E.g. by tree selection!
+                    var new_txt = $filter_input.val();
+                    if (filter_txt != new_txt){     // test text has changed
+                        filter_txt = new_txt;
+                        deselectFilteredFromTree();
+                    }
                 }
+            });
+            $("#filtersearch label").inFieldLabels();
+
+            // simple emulation of table-sorter for other elements...
+            $(".element_sorter").elementsorter({
+                head: '.thead div',             // Selector for the equivalent of 'table head'
+                body: 'li.row',                 // Selector for the equivalent of 'table rows'
+                sort_key: '.hidden_sort_text'   // optional - how to find the text within each child of a 'row'.
             });
         });
 
     </script>
+
     <style type="text/css">
         #thumb_size_slider {
             border: 1px solid #aaa;
@@ -177,20 +308,53 @@
         .sizeX, .sizeY {display:none}
     </style>
 
+<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
+
+    <div id="layout_chooser">
+        <button id='icon_layout' title="View as Thumbnails" class="checked"/><button id='table_layout' title="View as List"/>
+    </div>
+
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px">
+        <div>
+            <label for="id_search"> Filter Images </label>
+            <input id="id_search" type="text" size="25">
+        </div>
+        <span class="loading" style="display: none;"></span>
+    </form>
+</div>
+
 <div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
     <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
 </div>
 
-<div style="position:absolute; bottom:25px; left:0px; top:0px; overflow:auto; margin-top:0px">
+<div style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px">
+
 {% if manager.containers.images %}
 
-        
-    <ul id="dataIcons">
-        {% for c in manager.containers.images %}
-        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.canEdit %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-            <span class="sizeX">{{ c.getSizeX }}</span> <span class="sizeY">{{ c.getSizeY }}</span>
+    
+    <ul id="dataIcons" class="element_sorter iconLayout">
+        <li class="thead"> 
+            <div></div> 
+            <div class='sort-alpha'>{% trans "Name" %}</div> 
+            <div class='sort-date'>{% trans "Date" %}</div> 
+            <div class='sort-numeric'>{% trans "Size X" %}</div> 
+            <div class='sort-numeric'>{% trans "Size Y" %}</div> 
+            <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
+        {% for c in manager.containers.images %}
+            <li class='row' id="image_icon-{{ c.id }}">
+                <div class="image" title="{{ c.name }}">
+                    <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                </div>
+                <div class="desc" valign="middle">
+                    {{ c.name|truncatebefor:"65" }}
+                    <span class="hidden_sort_text">{{ c.name }}</span>
+                </div>
+                <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }}</div>                    
+                <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
+                <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
+                <div class="sizeZ" valign="middle">{{ c.getSizeZ }}</div>
+            </li>
         {% endfor %}
     </ul>
     
