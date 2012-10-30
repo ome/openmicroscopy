@@ -791,7 +791,7 @@ class BlitzObjectWrapper (object):
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
     
-    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None):
+    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None, addedByMe=True):
         """
         Retrieve all Annotations not linked to the given Project, Dataset, Image,
         Screen, Plate, Well ID controlled by the security system. 
@@ -814,12 +814,19 @@ class BlitzObjectWrapper (object):
         if anntype.title() == "File":
             sql += " join fetch an.file "
         
-        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
-                "where obal.child=an.id and obal.parent.id=:oid) " % self.OMERO_CLASS
-        
-        q = self._conn.getQueryService()                
         p = omero.sys.Parameters()
         p.map = {}
+        
+        filterlink = ""
+        if addedByMe:
+            userId = self._conn.getUserId()
+            filterlink = " and obal.details.owner.id=:linkOwner"
+            p.map["linkOwner"] = rlong(userId)
+        
+        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
+                "where obal.child=an.id and obal.parent.id=:oid%s)" % (self.OMERO_CLASS, filterlink)
+        
+        q = self._conn.getQueryService()                
         p.map["oid"] = rlong(self._oid)
         if ns is None:            
             sql += " and an.ns is null"
@@ -3696,6 +3703,16 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
 
     def getAnnotation(self):
         return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
+
+    def getParent(self):
+        """
+        Gets the parent (Annotated Object) as a L{BlitzObjectWrapper }, but attempts
+        to wrap it in the correct subclass using L{KNOWN_WRAPPERS}, E.g. ImageWrapper
+        """
+        modelClass = self.parent.__class__.__name__[:-1].lower()    # E.g. 'image'
+        if modelClass in KNOWN_WRAPPERS:
+            return KNOWN_WRAPPERS[modelClass](self._conn, self.parent)
+        return BlitzObjectWrapper(self._conn, self.parent)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 

@@ -645,14 +645,9 @@
     
     
     .tooltip_title {
-        background-image: -moz-linear-gradient(center top , #D6E8F4 0%, #CBDAE6 100%);
-        border: 1px solid #9EA5AC;
-        border-radius: 4px;
         color: #3E5D74;
         display: inline-block;
-        font-size: 0.8em;
         line-height: 1.5em;
-        padding: 0 5px;
     }
     
     
@@ -764,7 +759,6 @@
         #tags_container, .lnfiles {
             clear:left;
             overflow:hidden;
-            width:99.5%;
         }
             
         
@@ -827,7 +821,7 @@
             }
             
             
-                .lnfiles li a.tooltip {
+                .lnfiles li>a {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
                     font-size:1em;
                     padding:8px 10px;
@@ -850,14 +844,8 @@
     			.attachment_actions {
     				float:right;
     				margin-right:4px;
-    				//display:none;
-    				opacity:0;
     			}
 				
-    			.lnfiles li:hover .attachment_actions {
-    				//display:block;
-    				opacity:1;
-    			}
 				
     				.action {
     					width:18px;
@@ -2210,7 +2198,7 @@ div.plane_info table div {
 #tooltip {
 position: absolute;
 background: #000;
-color:#999;
+color:#bbb;
 z-index: 3000;
 border:solid 1px black;
 -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 3px 3px 3px rgba(0,0,0,.3);
