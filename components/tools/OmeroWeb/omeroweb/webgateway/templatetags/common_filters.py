@@ -51,14 +51,21 @@ def ago(value):
         return val != 1 and "s" or ""
     hours, remainder = divmod(ago.seconds, 3600)
     mins, secs = divmod(remainder, 60)
-    if ago.seconds < 60:
-        return "%s second%s" % (ago.seconds, plurals(ago.seconds))
-    rv = "%s minute%s" % (mins, plurals(mins))
-    if hours > 0 or ago.days > 0:
-        rv = "%s hour %s" % (hours, plurals(hours), rv)
+    if ago.days >= 365:
+        years = ago.days / 365
+        return "%s year%s" % (years, plurals(years))
+    if ago.days > 28:
+        months = ago.days / 30
+        return "%s month%s" % (months, plurals(months))
     if ago.days > 0:
-        rv = "%s day%s %s" % (ago.days, plurals(ago.days), rv)
-    return rv
+        return "%s day%s" % (ago.days, plurals(ago.days))
+    if hours > 0:
+        return "%s hour%s" % (hours, plurals(hours))
+    if mins > 1:
+        return "%s minutes" % (mins)
+    if mins == 1:
+        return "a minute"
+    return "less than a minute"
     
 @register.filter
 def truncateafter(value, arg):
