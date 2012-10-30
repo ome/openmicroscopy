@@ -280,11 +280,11 @@ class Context:
 
         login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
         login.set_defaults(func=lambda args:sessions.login(args))
-        self.add_login(login)
         sessions._configure_login(login)
 
         logout = self.subparsers.add_parser("logout", help="Shortcut for 'sessions logout'")
-        logout.set_defaults(func=lambda args:self.controls["sessions"].logout(args))
+        logout.set_defaults(func=lambda args:sessions.logout(args))
+        sessions._configure_dir(logout)
 
     def add_login(self, parser):
         parser.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
