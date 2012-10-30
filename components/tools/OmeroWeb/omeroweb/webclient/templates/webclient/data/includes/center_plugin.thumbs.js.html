@@ -46,16 +46,15 @@ $(document).ready(function() {
         var datatree = $.jstree._focused();
         if (!datatree) return;
         
-        // if nothing selected, clear
-        var sel_objs = $("body").data("selected_objects.ome");
-        if (sel_objs.length == 0) {
-            $("div#content_details").empty();
-            $("div#content_details").removeAttr('rel');
-            return;
-        }
-        
         // we use the tree to access selected objects, since we can traverse to check parents etc...
         var selected = datatree.data.ui.selected;
+
+        // if nothing selected, simply update selection
+        var sel_objs = $("body").data("selected_objects.ome");
+        if (sel_objs.length == 0) {
+            syncPanels(selected);
+            return;
+        }
 
         if (selected.length > 1) {
             // if any non-images are selected, clear the centre panel

@@ -67,7 +67,7 @@
     <div id="toolbar" class="toolbar_noborder"></div>
     <div class="clear"> </div>
     
-    <ul id="dataIcons">
+    <ul id="dataIcons" class="iconLayout">
         {% for c in share.imageInShare %}
         {% if c.loaded %}
         <li id="image_icon-{{ c.id }}" title="{{ c.name }}">
