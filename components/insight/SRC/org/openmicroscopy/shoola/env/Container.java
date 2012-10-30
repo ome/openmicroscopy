@@ -383,10 +383,7 @@ public final class Container
 		int value = -1;
 		if (v != null) value = v.intValue();
 		if (value <= 0) {
-			long s = System.currentTimeMillis();
-			System.err.println("time"+s);
 			System.exit(0);
-			System.err.println(System.currentTimeMillis()-s);
 		}
 		else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));

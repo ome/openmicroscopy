@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.NetworkChecker;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -153,6 +154,9 @@ class RenderingControlProxy
     
     /** The security context associated to that control.*/
     private SecurityContext ctx;
+    
+    /** Check if the network is up or not.*/
+    private NetworkChecker checker;
     
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -733,6 +737,7 @@ class RenderingControlProxy
 	private void isSessionAlive()
 	{
 		try {
+			checker.isNetworkup();
 			servant.ice_ping();
 		} catch (Throwable e) {
 			handleConnectionException(e);
@@ -766,6 +771,7 @@ class RenderingControlProxy
             throw new NullPointerException("No registry.");
         if (ctx == null)
             throw new NullPointerException("No security context.");
+        checker = new NetworkChecker();
         this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
@@ -905,9 +911,8 @@ class RenderingControlProxy
     void shutDown()
     { 
     	try {
-    		servant.close();
-    		//remove the cache.
     		context.getCacheService().removeCache(cacheID);
+    		if (checker.isNetworkup()) servant.close();
 		} catch (Exception e) {} 
     }
     
