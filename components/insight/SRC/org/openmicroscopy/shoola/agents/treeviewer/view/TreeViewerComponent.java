@@ -1761,23 +1761,14 @@ class TreeViewerComponent
 		}
 		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,
-				objects.get(0).getClass(), 
-				TreeViewerAgent.getUserDetails().getId());
+				objects.get(0).getClass(), TreeViewerAgent.getUserDetails());
 		IconManager icons = IconManager.getInstance();
 		String title = "Experimenters Selection";
 		String text = "Select the Experimenters to add to the selected group.";
 		Icon icon = icons.getIcon(IconManager.OWNER_48);
 		d.setTitle(title, text, icon);
 		d.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(d);  
-		/*
-		Set n = TreeViewerTranslator.transformIntoCheckNodes(nodes, 
-				getUserDetails().getId(), model.getUserGroupID());
-		model.setState(LOADING_SELECTION);
-		AddExistingObjectsDialog dialog = new AddExistingObjectsDialog(view, n);
-		dialog.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(dialog);  
-		*/
+		UIUtilities.centerAndShow(d);
 	}
 
 	/**

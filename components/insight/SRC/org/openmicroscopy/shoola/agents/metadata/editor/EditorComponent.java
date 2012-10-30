@@ -142,10 +142,9 @@ class EditorComponent
 			text = "Select the Attachments to add or remove.";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
-		long userID = MetadataViewerAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
-				addCreation, userID);
+				addCreation, MetadataViewerAgent.getUserDetails());
 		wizard.setImmutableElements(model.getImmutableAnnotation());
 		if (model.isMultiSelection())
 			wizard.setAcceptButtonText("Save");
