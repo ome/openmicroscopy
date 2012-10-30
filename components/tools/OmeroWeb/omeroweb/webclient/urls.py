@@ -107,15 +107,15 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^annotate_tags/$', views.annotate_tags, name="annotate_tags" ),
     url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
     url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
-    url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
+    url( r'^annotation/(?P<annId>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     
     # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
     url( r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/(?P<obj_id>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # 'data_url' to load in REQUEST
-    url( r'^file/(?P<iid>[0-9]+)\.map$', views.download_annotation, {'action':'download'}, name='open_astex_map' ),# download file
-    url( r'^file/(?P<iid>[0-9]+)\.bit$', views.download_annotation, {'action':'download'}, name='open_astex_bit' ),# download file
+    url( r'^file/(?P<annId>[0-9]+)\.map$', views.download_annotation, name='open_astex_map' ),# download file
+    url( r'^file/(?P<annId>[0-9]+)\.bit$', views.download_annotation, name='open_astex_bit' ),# download file
     url( r'^image_as_map/(?P<imageId>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # convert image to map (full size)
     url( r'^image_as_map/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # image to map of max Size (side length)
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map

@@ -55,12 +55,12 @@ from omeroweb.connector import Connector
 logger = logging.getLogger(__name__)
 
 try:
-    import Image
-    import ImageDraw
+    from PIL import Image
+    from PIL import ImageDraw
 except: #pragma: nocover
     try:
-        from PIL import Image
-        from PIL import ImageDraw
+        import Image
+        import ImageDraw
     except:
         logger.error('No PIL installed')
 
