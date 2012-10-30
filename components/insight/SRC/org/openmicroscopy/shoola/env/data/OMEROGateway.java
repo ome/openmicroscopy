@@ -29,15 +29,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -407,6 +403,12 @@ class OMEROGateway
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
 
+	/** Tells whether or not the network is up.*/
+	private boolean networkup;
+	
+	/** Checks if the network is up or not.*/
+	private NetworkChecker networkChecker;
+	
 	/**
 	 * Checks if the network is up.
 	 * @throws Exception Throw
@@ -414,22 +416,8 @@ class OMEROGateway
 	private void isNetworkUp()
 		throws Exception
 	{
-		Enumeration<NetworkInterface> interfaces = 
-				NetworkInterface.getNetworkInterfaces();
-		boolean on = false;
-		NetworkInterface ni;
-		if (interfaces != null) {
-			while (interfaces.hasMoreElements()) {
-				ni = interfaces.nextElement();
-				if (ni.isUp() && !ni.isLoopback()) {
-					on = true;
-					break;
-				}
-			}
-		}
-		if (!on) {
-			throw new UnknownHostException("Network is not up.");
-		}
+		networkup = false;
+		networkup = networkChecker.isNetworkup();
 	}
 
 	/** 
@@ -459,7 +447,11 @@ class OMEROGateway
 	 */
 	boolean isServerRunning(SecurityContext ctx)
 	{
-		if (!connected) return false;
+		try {
+			isNetworkUp();
+		} catch (Exception e) {
+		}
+		if (!connected || !networkup) return false;
 		isSessionAlive(ctx);
 		return true;
 	}
@@ -2100,6 +2092,7 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
+		networkChecker = new NetworkChecker();
 	}
 	
 	/**
@@ -2557,6 +2550,7 @@ class OMEROGateway
 		//sList
 		connected = false;
 		clear();
+		if (!networkup) return false;
 		Iterator<Connector> i;
 		try {
 			i = connectors.iterator();
@@ -2583,10 +2577,18 @@ class OMEROGateway
 	/** Logs out. */
 	void logout()
 	{
-		connected = false;
-		shutDownServices(true);
 		try {
 			isNetworkUp();
+		} catch (Exception e) {
+			//ignore already registered.
+		}
+		connected = false;
+		if (!networkup) {
+			connectors.clear();
+			return;
+		}
+		shutDownServices(true);
+		try {
 			Iterator<Connector> i = connectors.iterator();
 			while (i.hasNext()) {
 				i.next().close();
