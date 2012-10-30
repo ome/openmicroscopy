@@ -605,10 +605,10 @@ public class AdvancedFinder
 				selected.add(tag);
 			else available.add(tag);
 		}
-		long id = DataBrowserAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
-				available, selected, TagAnnotationData.class, false, id);
+				available, selected, TagAnnotationData.class, false, 
+				DataBrowserAgent.getUserDetails());
 		wizard.setGroups(groups);
 		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_48));
 		wizard.addPropertyChangeListener(this);

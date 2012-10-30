@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
 
@@ -290,12 +291,12 @@ public class SelectionWizard
 	 * @param owner		The owner of this dialog.
 	 * @param available	The collection of available tags.
 	 * @param type		The type of object to handle.
-	 * @param userID    The if of the current user.
+	 * @param user      The current user.
 	 */
-	public SelectionWizard(JFrame owner, Collection<Object> available, 
-						Class type, long userID)
+	public SelectionWizard(JFrame owner, Collection<Object> available,
+						Class type, ExperimenterData user)
 	{
-		this(owner, available, null, type, userID);
+		this(owner, available, null, type, user);
 	}
 	
 	/**
@@ -307,12 +308,12 @@ public class SelectionWizard
 	 * @param addCreation	Pass <code>true</code> to add a component
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
-	 * @param userID        The id of the current user.
+	 * @param user         The current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
-						Class type, boolean addCreation, long userID)
+						Class type, boolean addCreation, ExperimenterData user)
 	{
-		this(owner, available, null, type, addCreation, userID);
+		this(owner, available, null, type, addCreation, user);
 	}
 	
 	/**
@@ -322,12 +323,13 @@ public class SelectionWizard
 	 * @param available	The collection of available items.
 	 * @param selected	The collection of selected items.
 	 * @param type		The type of object to handle. 
-	 * @param userID    The if of the current user.
+	 * @param user      The current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
-						Collection<Object> selected, Class type, long userID)
+						Collection<Object> selected, Class type,
+						ExperimenterData user)
 	{
-		this(owner, available, selected, type, false, userID);
+		this(owner, available, selected, type, false, user);
 	}
 	
 	/**
@@ -340,15 +342,15 @@ public class SelectionWizard
 	 * @param addCreation	Pass <code>true</code> to add a component
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
-	 * @param userID        The if of the current user.
+	 * @param user        The the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
 							Collection<Object> selected, Class type, 
-							boolean addCreation, long userID)
+							boolean addCreation, ExperimenterData user)
 	{
 		super(owner);
 		setModal(true);
-		uiDelegate = new SelectionWizardUI(available, selected, type, userID);
+		uiDelegate = new SelectionWizardUI(available, selected, type, user);
 		uiDelegate.addPropertyChangeListener(this);
 		this.type = type;
 		initComponents();
