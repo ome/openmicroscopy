@@ -762,7 +762,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype              L{(Long, Long)}
         """
         container = self.getContainerService()
-        return container.getCollectionCount(parent, child, ids, None)
+        return container.getCollectionCount(parent, child, ids, None, self.SERVICE_OPTS)
 
     ################################################
     ##   Validators     
