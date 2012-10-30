@@ -60,9 +60,17 @@ More information is available at:
         insert.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users added")
         insert.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be inserted")
 
-        remove = parser.add(sub, self.remove, "remove one or more users from a group")
+        remove = parser.add(sub, self.remove, "Remove one or more users from a group")
         remove.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users removed")
         remove.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be removed")
+
+        addowner = parser.add(sub, self.addowner, "Add one or more users to the owner list for a group")
+        addowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners added")
+        addowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to add to the group owner list")
+
+        removeowner = parser.add(sub, self.removeowner, "Remove one or more users to the owner list for a group")
+        removeowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners removed")
+        removeowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to remove from the group owner list")
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
@@ -168,7 +176,6 @@ More information is available at:
                 self.ctx.dbg(traceback.format_exc())
                 self.ctx.die(504, "Cannot change permissions for group %s (id=%s) to %s" % (g.name.val, gid, perms))
 
-
     def list(self, args):
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
@@ -220,6 +227,22 @@ More information is available at:
         uids = [self.find_user(a, x)[0] for x in args.USER]
         self.removeusersbyid(c, grp, uids)
 
+    def addowner(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        gid, grp = self.find_group(a, args.GROUP)
+        uids = [self.find_user(a, x)[0] for x in args.USER]
+        self.addownersbyid(c, grp, uids)
+
+    def removeowner(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        gid, grp = self.find_group(a, args.GROUP)
+        uids = [self.find_user(a, x)[0] for x in args.USER]
+        self.removeownersbyid(c, grp, uids)
+
     def addusersbyid(self, c, group, users):
         import omero
         a = c.sf.getAdminService()
@@ -233,6 +256,21 @@ More information is available at:
         for add in list(users):
             a.removeGroups(omero.model.ExperimenterI(add, False), [group])
             self.ctx.out("Removed %s from group %s" % (add, group.id.val))
+
+    def addownersbyid(self, c, group, users):
+        import omero
+        a = c.sf.getAdminService()
+        for add in list(users):
+            a.addGroupOwners(group, [omero.model.ExperimenterI(add, False)])
+            self.ctx.out("Added %s to the owner list of group %s" % (add, group.id.val))
+
+    def removeownersbyid(self, c, group, users):
+        import omero
+        a = c.sf.getAdminService()
+        for add in list(users):
+            a.removeGroupOwners(group, [omero.model.ExperimenterI(add, False)])
+            self.ctx.out("Removed %s from the owner list of group %s" % (add, group.id.val))
+
 
 try:
     register("group", GroupControl, HELP)
