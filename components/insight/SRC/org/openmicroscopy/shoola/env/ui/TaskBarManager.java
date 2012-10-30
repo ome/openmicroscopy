@@ -492,6 +492,7 @@ public class TaskBarManager
 	/** Reconnects to the server.*/
 	private void reconnect()
 	{
+		
 		Image img = IconManager.getOMEImageIcon();
     	Object version = container.getRegistry().lookup(
     			LookupNames.VERSION);

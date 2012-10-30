@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -73,7 +72,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -358,7 +356,7 @@ public class DataServicesFactory
     {
         connectionDialog = new NotificationDialog(new JFrame(), 
         		title, message, null);
-        connectionDialog.setModal(false);
+        //connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			
@@ -388,7 +386,7 @@ public class DataServicesFactory
 		String message;
 		if (exc != null) {
 			LogMessage msg = new LogMessage();
-			msg.print("Session Expired");
+			msg.print("Connection Error");
 			msg.print(exc);
 			registry.getLogger().debug(this, msg);
 		}
