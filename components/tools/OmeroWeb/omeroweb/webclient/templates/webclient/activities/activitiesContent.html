@@ -48,7 +48,7 @@
             {% for j in jobs %}
                 <!-- Chgrp jobs -->
                 {% ifequal j.job_type "chgrp" %}
-                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
+                    <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}" >
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %} <img class="icon" src="{% static "webgateway/img/success.png" %}" />
@@ -85,7 +85,7 @@
 
                 <!-- Delete jobs -->
                 {% ifequal j.job_type "delete" %}
-                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
+                    <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}">
                         <td class="activities_state">
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
@@ -138,7 +138,7 @@
 
                 <!-- Status -->
                 {% ifequal j.job_type "script" %}
-                    <tr class="script{% if j.new %} new_result{% endif %}" id="{{ j.id }}">
+                    <tr id="{{ j.id }}" class="script{% if j.new %} new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}">
 						
 						<!-- State -->
                         <td class="activities_state">
