@@ -61,6 +61,9 @@ public class SaveAsLoader
     /** The call-back returned by the server. */
     private ProcessCallback	callBack;
     
+    /** Flag indicating that the user cancelled the action.*/
+    private boolean cancelled;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -103,7 +106,8 @@ public class SaveAsLoader
      * @see UserNotifierLoader#cancel()
      */
     public void cancel()
-    { 
+    {
+    	cancelled = true;
     	try {
     		if (callBack != null) {
     			callBack.cancel();
@@ -131,6 +135,7 @@ public class SaveAsLoader
         		callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
             	activity.onCallBackSet();
+            	if (cancelled) cancel();
         	}
         }
     }
@@ -140,7 +145,7 @@ public class SaveAsLoader
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
+    {
     	if (result instanceof Boolean) {
     		Boolean b = (Boolean) result;
     		if (!b.booleanValue())
