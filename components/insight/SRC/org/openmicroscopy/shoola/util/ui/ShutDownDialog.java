@@ -169,9 +169,8 @@ public class ShutDownDialog
 	 */
 	protected void cancel()
 	{
+		super.cancel();
 		if (timer != null) timer.stop();
-		setVisible(false);
-		dispose();
 	}
 	
 	/**
