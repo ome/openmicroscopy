@@ -137,10 +137,8 @@ public class ArchivedLoader
     		} else {
     			if (cancelled) {
     				Iterator i = files.iterator();
-    				File f;
     				while (i.hasNext()) {
-						f = (File) i.next();
-						f.delete();
+						((File) i.next()).delete();
 					}
     			} else {
     				activity.endActivity(files.size());

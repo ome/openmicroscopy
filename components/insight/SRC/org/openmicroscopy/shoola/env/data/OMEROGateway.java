@@ -3873,6 +3873,7 @@ class OMEROGateway
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
+		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String fullPath;
 		while (i.hasNext()) {
@@ -3885,6 +3886,7 @@ class OMEROGateway
 			}
 			fullPath = folderPath+of.getName().getValue();
 			f = new File(fullPath);
+			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
 				size = of.getSize().getValue(); 
@@ -3900,13 +3902,19 @@ class OMEROGateway
 					}
 				} catch (Exception e) {
 					if (stream != null) stream.close();
-					if (f != null) f.delete();
+					if (f != null) {
+						f.delete();
+						results.remove(f);
+					}
 					notDownloaded.add(of.getName().getValue());
 					closeService(ctx, store);
 					handleConnectionException(e);
 				}
 			} catch (IOException e) {
-				if (f != null) f.delete();
+				if (f != null) {
+					f.delete();
+					results.remove(f);
+				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
 				throw new DSAccessException("Cannot create file with path " +
@@ -3914,7 +3922,7 @@ class OMEROGateway
 			}
 			closeService(ctx, store);
 		}
-		result.put(Boolean.valueOf(true), files);
+		result.put(Boolean.valueOf(true), results);
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
 	}
