@@ -659,6 +659,7 @@
 
 #activities_panel {
 	width:400px;
+	overflow-y: auto;
 }
 
 	#activities_spinner, #basket_spinner {
