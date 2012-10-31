@@ -158,7 +158,8 @@
                     ids = $IDs.val();
                 $Data_Type.data(dt, ids);
             };
-            $Data_Type.mousedown(noteIDs);      // before we change, note IDs
+            noteIDs();                  // note the initial value...
+            $IDs.keyup(noteIDs);                // ...update any changes
             $Data_Type.change(function() {      // Clear IDs (or add back previous data)
                 var dt = $Data_Type.val(),
                     ids = $Data_Type.data(dt);
@@ -167,7 +168,7 @@
                 } else {
                     $IDs.val("");
                 }
-            })
+            });
         });
     </script>
 {% endblock %}
