@@ -2551,6 +2551,6 @@ def ome_tiff_info(request, imageId, conn=None, **kwargs):
         created = annlink.creationEventDate()
         annId = annlink.getChild().getId()
         from omeroweb.webgateway.templatetags.common_filters import ago
-        download = reverse("download_annotation", args=["download", annId])
+        download = reverse("download_annotation", args=[annId])
         rv = {"created": str(created), "ago": ago(created), "id":annId, "download": download}
     return rv       # will get returned as json by default
