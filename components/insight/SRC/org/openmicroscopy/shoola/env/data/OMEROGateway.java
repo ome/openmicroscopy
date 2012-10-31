@@ -2550,16 +2550,17 @@ class OMEROGateway
 		//sList
 		connected = false;
 		clear();
-		if (!networkup) return false;
+		
 		Iterator<Connector> i;
 		try {
 			i = connectors.iterator();
 			while (i.hasNext()) {
-				i.next().close();
+				i.next().close(networkup);
 			}
 		} catch (Throwable t) {
 			connected = false;
 		}
+		if (!networkup) return false;
 		if (connected) return connected;
 		try {
 			i = connectors.iterator();
@@ -2583,15 +2584,11 @@ class OMEROGateway
 			//ignore already registered.
 		}
 		connected = false;
-		if (!networkup) {
-			connectors.clear();
-			return;
-		}
 		shutDownServices(true);
 		try {
 			Iterator<Connector> i = connectors.iterator();
 			while (i.hasNext()) {
-				i.next().close();
+				i.next().close(networkup);
 			}
 			connectors.clear();
 		} catch (Throwable e) {

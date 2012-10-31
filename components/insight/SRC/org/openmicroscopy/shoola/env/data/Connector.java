@@ -66,7 +66,6 @@ import omero.grid.SharedResourcesPrx;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
-import Ice.Properties;
 
 /** 
  * Manages the various services and entry points.
@@ -187,8 +186,6 @@ class Connector
 			ServiceFactoryPrx entryEncrypted, boolean encrypted)
 			throws Throwable
 	{
-		Properties p = secureClient.getCommunicator().getProperties();
-		p.setProperty("Ice.Override.ConnectTimeout", "500");
 		if (context == null)
 			throw new IllegalArgumentException("No Security context.");
 		if (secureClient == null)
@@ -619,12 +616,19 @@ class Connector
 		importStore = null;
 	}
 	
-	/** Closes the session.*/
-	void close()
+	/** Closes the session.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void close(boolean networkup)
 		throws Throwable
 	{
-		shutDownServices(true);
-		secureClient.closeSession();
+		secureClient.setNetworkup(networkup);
+		if (networkup) {
+			shutDownServices(true);
+			secureClient.closeSession();
+		}
 	}
 	
 	/** 
