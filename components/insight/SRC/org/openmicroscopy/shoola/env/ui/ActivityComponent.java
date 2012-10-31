@@ -863,7 +863,7 @@ public abstract class ActivityComponent
 						if (moreButton == null) {
 							moreButton = createButton(""+(m.size()-max)+" more",
 									ALL_RESULT, this);
-							content.add(moreButton);	
+							content.add(moreButton);
 						}
 					}
 					index++;
