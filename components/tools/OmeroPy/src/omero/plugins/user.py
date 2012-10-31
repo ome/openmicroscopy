@@ -10,12 +10,12 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.cli import CmdControl, CLI, ExceptionHandler
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
 
-class UserControl(BaseControl):
+class UserControl(CmdControl):
 
     def _configure(self, parser):
 
@@ -45,6 +45,14 @@ class UserControl(BaseControl):
         email.add_argument("-n", "--names", action="store_true", default=False, help = "Print user names along with email addresses")
         email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
         email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
+
+        addtogroup = parser.add(sub, self.addtogroup, "Add user to one or more users groups")
+        addtogroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to add to groups")
+        addtogroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of groups to add the user to")
+
+        removefromgroup = parser.add(sub, self.removefromgroup, "Remove one or more users from a group")
+        removefromgroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to remove from the groups")
+        removefromgroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of groups to remove the user from")
 
     def format_name(self, exp):
         record = ""
@@ -230,6 +238,24 @@ class UserControl(BaseControl):
                 self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
         except omero.SecurityViolation, se:
             self.ctx.die(68, "Security violation: %s" % se.message)
+
+    def addtogroup(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        uid = [self.find_user(a, args.USER)[0]]
+        for group in args.GROUP:
+            gid, grp = self.find_group(a, group)
+            self.addusersbyid(a, grp, uid)
+
+    def removefromgroup(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        uid = [self.find_user(a, args.USER)[0]]
+        for group in args.GROUP:
+            gid, grp = self.find_group(a, group)
+            self.removeusersbyid(a, grp, uid)
 
 try:
     register("user", UserControl, HELP)

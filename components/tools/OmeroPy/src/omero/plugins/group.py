@@ -10,11 +10,11 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.cli import CmdControl, CLI, ExceptionHandler
 
 HELP="""Group administration methods"""
 
-class GroupControl(BaseControl):
+class GroupControl(CmdControl):
 
     def _configure(self, parser):
 
@@ -126,32 +126,6 @@ More information is available at:
         except omero.ServerError, se:
             self.ctx.die(4, "%s: %s" % (type(se), se.message))
 
-    def find_group(self, admin, id_or_name):
-        import omero
-        try:
-            try:
-                gid = long(id_or_name)
-                g = admin.getGroup(gid)
-            except ValueError:
-                g = admin.lookupGroup(id_or_name)
-                gid = g.id.val
-            return gid, g
-        except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % id_or_name)
-
-    def find_user(self, admin, id_or_name):
-        import omero
-        try:
-            try:
-                uid = long(id_or_name)
-                u = admin.getExperimenter(uid)
-            except ValueError:
-                u = admin.lookupExperimenter(id_or_name)
-                uid = u.id.val
-            return uid, u
-        except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown experimenter: %s" % id_or_name)
-
     def perms(self, args):
 
         import omero
@@ -208,7 +182,7 @@ More information is available at:
             if add[0] in already:
                 self.ctx.out("%s already in group %s" % (add[1], args.to_group))
                 to_add.remove(add)
-        self.addusersbyid(c, t_grp, [x[0] for x in to_add])
+        self.addusersbyid(a, t_grp, [x[0] for x in to_add])
         self.ctx.out("%s copied to %s" % (args.from_group, args.to_group))
 
     def insert(self, args):
@@ -217,7 +191,7 @@ More information is available at:
         a = c.sf.getAdminService()
         gid, grp = self.find_group(a, args.GROUP)
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.addusersbyid(c, grp, uids)
+        self.addusersbyid(a, grp, uids)
 
     def remove(self, args):
         import omero
@@ -225,7 +199,7 @@ More information is available at:
         a = c.sf.getAdminService()
         gid, grp = self.find_group(a, args.GROUP)
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.removeusersbyid(c, grp, uids)
+        self.removeusersbyid(a, grp, uids)
 
     def addowner(self, args):
         import omero
@@ -233,7 +207,7 @@ More information is available at:
         a = c.sf.getAdminService()
         gid, grp = self.find_group(a, args.GROUP)
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.addownersbyid(c, grp, uids)
+        self.addownersbyid(a, grp, uids)
 
     def removeowner(self, args):
         import omero
@@ -241,35 +215,7 @@ More information is available at:
         a = c.sf.getAdminService()
         gid, grp = self.find_group(a, args.GROUP)
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.removeownersbyid(c, grp, uids)
-
-    def addusersbyid(self, c, group, users):
-        import omero
-        a = c.sf.getAdminService()
-        for add in list(users):
-            a.addGroups(omero.model.ExperimenterI(add, False), [group])
-            self.ctx.out("Added %s to group %s" % (add, group.id.val))
-
-    def removeusersbyid(self, c, group, users):
-        import omero
-        a = c.sf.getAdminService()
-        for add in list(users):
-            a.removeGroups(omero.model.ExperimenterI(add, False), [group])
-            self.ctx.out("Removed %s from group %s" % (add, group.id.val))
-
-    def addownersbyid(self, c, group, users):
-        import omero
-        a = c.sf.getAdminService()
-        for add in list(users):
-            a.addGroupOwners(group, [omero.model.ExperimenterI(add, False)])
-            self.ctx.out("Added %s to the owner list of group %s" % (add, group.id.val))
-
-    def removeownersbyid(self, c, group, users):
-        import omero
-        a = c.sf.getAdminService()
-        for add in list(users):
-            a.removeGroupOwners(group, [omero.model.ExperimenterI(add, False)])
-            self.ctx.out("Removed %s from the owner list of group %s" % (add, group.id.val))
+        self.removeownersbyid(a, grp, uids)
 
 
 try:
