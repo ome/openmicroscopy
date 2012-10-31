@@ -1355,6 +1355,56 @@ class CmdControl(BaseControl):
 
         return cb.getResponse(), cb.getStatus(), cb
 
+    def find_group(self, admin, id_or_name):
+        import omero
+        try:
+            try:
+                gid = long(id_or_name)
+                g = admin.getGroup(gid)
+            except ValueError:
+                g = admin.lookupGroup(id_or_name)
+                gid = g.id.val
+            return gid, g
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown group: %s" % id_or_name)
+
+    def find_user(self, admin, id_or_name):
+        import omero
+        try:
+            try:
+                uid = long(id_or_name)
+                u = admin.getExperimenter(uid)
+            except ValueError:
+                u = admin.lookupExperimenter(id_or_name)
+                uid = u.id.val
+            return uid, u
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown experimenter: %s" % id_or_name)
+
+    def addusersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.addGroups(omero.model.ExperimenterI(user, False), [group])
+            self.ctx.out("Added %s to group %s" % (user, group.id.val))
+
+    def removeusersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.removeGroups(omero.model.ExperimenterI(user, False), [group])
+            self.ctx.out("Removed %s from group %s" % (user, group.id.val))
+
+    def addownersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.addGroupOwners(group, [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Added %s to the owner list of group %s" % (user, group.id.val))
+
+    def removeownersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.removeGroupOwners(group, [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Removed %s from the owner list of group %s" % (user, group.id.val))
+
 class GraphControl(CmdControl):
 
     def cmd_type(self):
