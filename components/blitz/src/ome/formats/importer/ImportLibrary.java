@@ -647,17 +647,16 @@ public class ImportLibrary implements IObservable
             formatString = formatString.replace("Reader", "");
 
             // Save metadata and prepare the RawPixelsStore for our arrival.
-            List<File> metadataFiles;
             if (isScreeningDomain)
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
-                metadataFiles = store.setArchiveScreeningDomain(data);
+                store.setArchiveScreeningDomain(data);
             }
             else
             {
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
-                metadataFiles = store.setArchive(useMetadataFile, data);
+                store.setArchive(useMetadataFile, data);
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
@@ -687,45 +686,6 @@ public class ImportLibrary implements IObservable
                             md.digest());
                     pixels.setSha1(store.toRType(s));
                     saveSha1 = true;
-                }
-            }
-            // Original file absolute path to original file map for uploading
-            Map<String, OriginalFile> originalFileMap =
-                new HashMap<String, OriginalFile>();
-            for (Pixels pixels : pixList)
-            {
-                Image i = pixels.getImage();
-                for (Annotation annotation : i.linkedAnnotationList())
-                {
-                    if (annotation instanceof FileAnnotation)
-                    {
-                        FileAnnotation fa = (FileAnnotation) annotation;
-                        OriginalFile of = fa.getFile();
-                        String fullPath =
-                            of.getPath().getValue() + of.getName().getValue();
-                        originalFileMap.put(fullPath, of);
-                    }
-                }
-                for (OriginalFile of : pixels.linkedOriginalFileList())
-                {
-                    String fullPath =
-                        of.getPath().getValue() + of.getName().getValue();
-                    originalFileMap.put(fullPath, of);
-                }
-                for (WellSample ws : i.copyWellSamples())
-                {
-                    Plate plate = ws.getWell().getPlate();
-                    for (Annotation annotation : plate.linkedAnnotationList())
-                    {
-                        if (annotation instanceof FileAnnotation)
-                        {
-                            FileAnnotation fa = (FileAnnotation) annotation;
-                            OriginalFile of = fa.getFile();
-                            String fullPath =
-                                of.getPath().getValue() + of.getName().getValue();
-                            originalFileMap.put(fullPath, of);
-                        }
-                    }
                 }
             }
 
