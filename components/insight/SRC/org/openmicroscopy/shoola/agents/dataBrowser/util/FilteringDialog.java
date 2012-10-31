@@ -219,10 +219,10 @@ public class FilteringDialog
 				selected.add(tag);
 			else available.add(tag);
 		}
-		long id = DataBrowserAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
-				available, selected, TagAnnotationData.class, false, id);
+				available, selected, TagAnnotationData.class, false,
+				DataBrowserAgent.getUserDetails());
 		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_FILTER_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
