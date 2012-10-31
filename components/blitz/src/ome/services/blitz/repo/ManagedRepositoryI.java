@@ -126,6 +126,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return file(f.getAbsolutePath(), "rw", __current);
     }
 
+    public String getAbsolutePath(String path, Ice.Current __current)
+            throws omero.ServerError {
+        File f = new File(root.file, path);
+        return f.getAbsolutePath();
+    }
+
     public List<Pixels> importMetadata(Import importData,
             RepositoryImportContainer repoIC, Current __current) throws ServerError {
 
@@ -146,7 +152,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             store.initialize(sf);
             ImportLibrary library = new ImportLibrary(store, reader);
             ImportContainer ic = createImportContainer(repoIC, __current);
-            pix = library.importImageInternal(ic, 0, 0, 1);
+            pix = library.importImageInternal(ic, importData, 0, 0, 1);
         }
         catch (ServerError se) {
             error = false;

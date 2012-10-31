@@ -184,6 +184,11 @@ module omero {
              **/
             omero::model::OriginalFile directory;
 
+            /**
+             * A map of absolute path to uploaded original files.
+             **/
+            omero::api::OriginalFileMap originalFileMap;
+
         };
 
         /**
@@ -206,8 +211,14 @@ module omero {
              **/
             omero::api::RawFileStore* uploadUsedFile(Import importData, string usedFile) throws ServerError;
 
-            /**
-             *
+           /**
+             * Return the absolute path of a file.
+             * If this is needed outside of import it might be moved to PublicRepository
+             **/
+            string getAbsolutePath(string path) throws ServerError;
+
+           /**
+             * Create an OriginalFile object to represent an uploaded file.
              **/
             omero::model::OriginalFile createOriginalFile(string path) throws ServerError;
 
