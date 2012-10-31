@@ -107,9 +107,15 @@ public class NotificationDialog
 	
 	/** Hides and disposes of the dialog. */
 	protected JButton	okButton;
+	
+	/** Cancel any action. */
+	protected JButton	cancelButton;
 		
 	/** Panel hosting the UI components. */
 	private JPanel 		mainPanel;
+	
+	/** The original message displayed.*/
+	protected String message;
 	
 	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
@@ -122,6 +128,8 @@ public class NotificationDialog
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
+		cancelButton = new JButton("Cancel");
+		cancelButton.setVisible(false);
 		//okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(okButton);
 	}
@@ -138,10 +146,16 @@ public class NotificationDialog
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { close(); }
 		});
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { cancel(); }
+		});
 	}
 	
+	/** Cancels any action. */
+	protected void cancel() {}
+	
 	/** Hides and disposes of the dialog. */
-	private void close()
+	protected void close()
 	{
 		setVisible(false);
 		dispose();
@@ -160,11 +174,6 @@ public class NotificationDialog
 	 */
 	private JPanel buildCommentPanel(String msg, Icon icon)
 	{
-		/*
-		contentPanel.setBackgroundPainter(
-    			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
-    					null));
-    					*/
 		contentPanel.setDescription(msg);
 		if (icon != null) {
 			contentPanel.setIcon(icon);
@@ -182,8 +191,9 @@ public class NotificationDialog
 	 */
 	private JPanel buildControlPanel()
 	{
-		//controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlsPanel.setBorder(null);
+		controlsPanel.add(cancelButton);
+		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		controlsPanel.add(okButton);
 		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		JPanel p = UIUtilities.buildComponentPanelRight(controlsPanel);
@@ -226,6 +236,7 @@ public class NotificationDialog
 	 */
 	private void initiliaze(String message, Icon messageIcon)
 	{
+		this.message = message;
 		createComponents();
 		attachListeners();
 		setAlwaysOnTop(true);

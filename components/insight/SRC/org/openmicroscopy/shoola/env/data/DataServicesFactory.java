@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.ExperimenterData;
@@ -354,7 +355,23 @@ public class DataServicesFactory
      */
     private void showNotificationDialog(String title, String message)
     {
-        connectionDialog = new NotificationDialog(new JFrame(), 
+    	showNotificationDialog(title, message, false);
+    }
+    /**
+     * Brings up a notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     * @param shutdown Pass <code>true</code> to shut down the application 
+     * <code>false otherwise</code>
+     */
+    private void showNotificationDialog(String title, String message, boolean
+    		shutdown)
+    {
+    	if (shutdown) 
+    		connectionDialog = new ShutDownDialog(new JFrame(), title, message);
+    	else
+    		connectionDialog = new NotificationDialog(new JFrame(), 
         		title, message, null);
         //connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener() {
@@ -397,9 +414,8 @@ public class DataServicesFactory
 				showNotificationDialog("Connection Refused", message);
 				break;
 			case ConnectionExceptionHandler.NETWORK:
-				message = "The network is down." +
-						"\nThe application will now exit.";
-				showNotificationDialog("Network", message);
+				message = "The network is down.\n";
+				showNotificationDialog("Network", message, true);
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
 				UserCredentials uc = (UserCredentials) 
