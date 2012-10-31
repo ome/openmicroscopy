@@ -383,8 +383,12 @@ public class DataServicesFactory
 				{
 					connectionDialog = null;
 					exitApplication(true, true);
+				} else if (
+					NotificationDialog.CANCEL_NOTIFICATION_PROPERTY.equals(
+							name))
+				{
+					connectionDialog = null;
 				}
-					
 			}
 		});
         UIUtilities.centerAndShow(connectionDialog);
