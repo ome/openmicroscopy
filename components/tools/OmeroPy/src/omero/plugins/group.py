@@ -20,10 +20,12 @@ class GroupControl(CmdControl):
 
         self.exc = ExceptionHandler()
 
-        PERM_TXT = """Group permissions come in several styles:
+        PERM_TXT = """
 
-    * private (rw----)   [DEFAULT]
-    * read-only (rwr---)
+Group permissions come in several styles:
+
+    * private       (rw----)   [DEFAULT]
+    * read-only     (rwr---)
     * read-annotate (rwra--)   [Previously known as 'collaborative']
 
 In private groups, only group and system administrators will be able
@@ -33,8 +35,20 @@ annotation is permitted by group members.
 
 More information is available at:
 
-    http://www.openmicroscopy.org/site/support/omero4/server/permissions
+    https://www.openmicroscopy.org/site/support/omero4/sysadmins/server-permissions.html
         """
+
+        OWNER_TXT = """
+
+Your group may have one or more owners. The group owner has some additional
+rights within each group than a standard group member, including the ability
+to add other members to the group.
+
+More information is available at:
+
+    https://www.openmicroscopy.org/site/support/omero4/sysadmins/server-permissions.html
+        """
+
         sub = parser.sub()
         add = parser.add(sub, self.add, "Add a new group with given permissions. " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
@@ -56,19 +70,19 @@ More information is available at:
         copy.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
         copy.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
 
-        insert = parser.add(sub, self.insert, "Insert one or more users into a group")
+        insert = parser.add(sub, self.insert, "Insert one or more users into a group.")
         insert.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users added")
         insert.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be inserted")
 
-        remove = parser.add(sub, self.remove, "Remove one or more users from a group")
+        remove = parser.add(sub, self.remove, "Remove one or more users from a group.")
         remove.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users removed")
         remove.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be removed")
 
-        addowner = parser.add(sub, self.addowner, "Add one or more users to the owner list for a group")
+        addowner = parser.add(sub, self.addowner, "Add one or more users to the owner list for a group" + OWNER_TXT)
         addowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners added")
         addowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to add to the group owner list")
 
-        removeowner = parser.add(sub, self.removeowner, "Remove one or more users to the owner list for a group")
+        removeowner = parser.add(sub, self.removeowner, "Remove one or more users to the owner list for a group" + OWNER_TXT)
         removeowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners removed")
         removeowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to remove from the group owner list")
 
