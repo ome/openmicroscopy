@@ -421,8 +421,8 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
 
     bBox = None   # bounding box: (x, y, w, h)
     shape = {}
-    theT = s.getTheT().getValue()
-    theZ = s.getTheZ().getValue()
+    theT = s.getTheT() is not None and s.getTheT().getValue() or 0
+    theZ = s.getTheZ() is not None and s.getTheZ().getValue() or 0
     if type(s) == omero.model.RectI:
         shape['type'] = 'Rectangle'
         shape['x'] = s.getX().getValue()
@@ -583,12 +583,17 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
             return (int((x-newX + left_xs)*factor), int((y-newY + top_xs)*factor))
         resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
         #draw.polygon(resizedXY, outline=lineColour)    # doesn't support 'width' of line
+        x2 = y2 = None
         for l in range(1, len(resizedXY)):
             x1, y1 = resizedXY[l-1]
             x2, y2 = resizedXY[l]
             draw.line((x1, y1, x2, y2), fill=lineColour, width=2)
         start_x, start_y = resizedXY[0]
         if shape['type'] != 'PolyLine':
+            if x2 is None:          # Seems possible to have Polygon with only 1 point!
+                x2 = start_x + 1    # This will create a visible dot
+            if y2 is None:
+                y2 = start_y + 1
             draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
         
     rv = StringIO()
