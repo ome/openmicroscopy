@@ -2547,7 +2547,11 @@ class OMEROGateway
 	 */
 	boolean reconnect(String userName, String password)
 	{
-		//sList
+		try {
+			isNetworkUp();
+		} catch (Exception e) {
+			// no need to handle the exception.
+		}
 		connected = false;
 		clear();
 		

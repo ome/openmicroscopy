@@ -79,6 +79,10 @@ public class NotificationDialog
 	public static final String CLOSE_NOTIFICATION_PROPERTY = 
 		"closeNotification";
 	
+	/** Bound property indication to close the notification dialog.*/
+	public static final String CANCEL_NOTIFICATION_PROPERTY = 
+		"cancelNotification";
+	
 	/** 
 	 * The preferred size of the widget that displays the notification message.
 	 * Only the part of text that fits into this display area will be displayed.
@@ -157,7 +161,13 @@ public class NotificationDialog
 	}
 	
 	/** Cancels any action. */
-	protected void cancel() {}
+	protected void cancel()
+	{
+		setVisible(false);
+		dispose();
+		firePropertyChange(CANCEL_NOTIFICATION_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
 	
 	/** Hides and disposes of the dialog. */
 	protected void close()
