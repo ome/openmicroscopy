@@ -171,8 +171,8 @@ public class DataObjectListCellRenderer
 			icons.getIcon(IconManager.TAG_SET_OTHER_OWNER);
 	}
 	
-	/** The id of the user currently logged in. */
-	private long				currentUserID;
+	/** The user currently logged in. */
+	private ExperimenterData currentUser;
 	
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
@@ -241,13 +241,14 @@ public class DataObjectListCellRenderer
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param currentUserID The id of the user currently logged in.
+	 * @param currentUser The user currently logged in.
 	 * @param model Reference to the UI wizard.  
 	 */
-	DataObjectListCellRenderer(long currentUserID, SelectionWizardUI model)
+	DataObjectListCellRenderer(ExperimenterData currentUser,
+			SelectionWizardUI model)
 	{
 		this.model = model;
-		this.currentUserID = currentUserID;
+		this.currentUser = currentUser;
         filter = new EditorFileFilter();
 	}
 	
@@ -277,40 +278,44 @@ public class DataObjectListCellRenderer
 			String ns = tag.getNameSpace();
 			ExperimenterData exp;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-				if (currentUserID >= 0) {
+				if (currentUser != null) {
 					try {
 						exp = tag.getOwner();
 						createTooltip(exp);
-						long id = exp.getId();
-						if (id == currentUserID)
+						if (exp.getId() == currentUser.getId())
 							setIcon(TAG_SET_ICON);
 						else
 							setIcon(TAG_SET_OTHER_OWNER_ICON);
 					} catch (Exception e) {
 						// tag.getOwner() throws when creating a new tag which
 						// doesn't have owner information
-						createTooltip(null);
+						if (tag.getId() < 0) createTooltip(currentUser);
+						else createTooltip(null);
 						setIcon(TAG_SET_ICON);
 					}
-				} else
+				} else {
+					createTooltip(null);
 					setIcon(TAG_SET_ICON);
+				}
 			} else {
-				if (currentUserID >= 0) {
+				if (currentUser != null) {
 					try {
 						exp = tag.getOwner();
 						createTooltip(exp);
-						long id = exp.getId();
-						if (id == currentUserID)
+						if (exp.getId() == currentUser.getId())
 							setIcon(TAG_ICON);
 						else
 							setIcon(TAG_OTHER_OWNER_ICON);
 					} catch (Exception e) {
 						// As above
-						createTooltip(null);
+						if (tag.getId() < 0) createTooltip(currentUser);
+						else createTooltip(null);
 						setIcon(TAG_ICON);
 					}
-				} else
+				} else {
+					createTooltip(null);
 					setIcon(TAG_ICON);
+				}
 			}
 			if (tag.getId() <= 0)
 				setForeground(NEW_FOREGROUND_COLOR);

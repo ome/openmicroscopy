@@ -673,9 +673,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			text = "Select the Tags to add or remove, \nor Create new Tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		}
-		long userID = ImporterAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(reg.getTaskBar()
-				.getFrame(), available, selected, type, addCreation, userID);
+				.getFrame(), available, selected, type, addCreation,
+				ImporterAgent.getUserDetails());
 		wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);
 		wizard.addPropertyChangeListener(this);

@@ -53,6 +53,7 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
@@ -179,9 +180,9 @@ public class SelectionWizardUI
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
-	 * @param userID The id of the user currently logged in.
+	 * @param user The user currently logged in.
 	 */
-	private void initComponents(long userID)
+	private void initComponents(ExperimenterData user)
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
@@ -213,7 +214,7 @@ public class SelectionWizardUI
 				}
 			}
 		});
-		cellRendererLeft = new DataObjectListCellRenderer(userID, this);
+		cellRendererLeft = new DataObjectListCellRenderer(user, this);
 		availableItemsListbox.setCellRenderer(cellRendererLeft);
 		selectedItemsListbox = new JList();
 		selectedItemsListbox.addKeyListener(new KeyAdapter() {
@@ -244,7 +245,7 @@ public class SelectionWizardUI
 				}
 			}
 		});
-		cellRendererRight = new DataObjectListCellRenderer(userID, this);
+		cellRendererRight = new DataObjectListCellRenderer(user, this);
 		selectedItemsListbox.setCellRenderer(cellRendererRight);
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
@@ -518,13 +519,13 @@ public class SelectionWizardUI
 	 * Creates a new instance. 
 	 * 
 	 * @param available	The collection of available items.
-	 * @param type		The type of object to handle. 
-	 * @param userID    The if of the current user.
+	 * @param type		The type of object to handle.
+	 * @param user      The current user.
 	 */
 	public SelectionWizardUI(Collection<Object> available, Class type, 
-							long userID)
+							ExperimenterData user)
 	{
-		this(available, null, type, userID);
+		this(available, null, type, user);
 	}
 	
 	/**
@@ -533,11 +534,11 @@ public class SelectionWizardUI
 	 * @param available	The collection of available items.
 	 * @param selected	The collection of selected items.
 	 * @param type		The type of object to handle. 
-	 * @param userID    The if of the current user.
+	 * @param user      The current user.
 	 */
 	public SelectionWizardUI(Collection<Object> available, 
 							Collection<Object> selected, Class type, 
-							long userID)
+							ExperimenterData user)
 	{
 		if (selected == null) selected = new ArrayList<Object>();
 		if (available == null) available = new ArrayList<Object>();
@@ -545,7 +546,7 @@ public class SelectionWizardUI
 		this.selectedItems = selected;
 		this.type = type;
 		createOriginalSelections();
-		initComponents(userID);
+		initComponents(user);
 		sortLists();
 		buildGUI();
 	}
