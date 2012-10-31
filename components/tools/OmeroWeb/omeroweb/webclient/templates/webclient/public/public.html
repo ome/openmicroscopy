@@ -47,7 +47,8 @@
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {                            
+                        if((typeof selected.attr("rel") === 'undefined') ||
+                                (selected.attr("rel").indexOf("locked")>=0)) {
                             toolbar_config = {"adddiscussion":false, 'removecontent':false};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
