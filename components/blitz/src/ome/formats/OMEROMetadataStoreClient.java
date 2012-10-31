@@ -115,6 +115,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
+import omero.grid.Import;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -1517,7 +1518,7 @@ public class OMEROMetadataStoreClient
      * we are of the HCS domain.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchiveScreeningDomain()
+    public List<File> setArchiveScreeningDomain(Import data)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	String[] usedFiles = reader.getUsedFiles();
@@ -1547,19 +1548,32 @@ public class OMEROMetadataStoreClient
 	for (String usedFilename : usedFiles)
 	{
 		File usedFile = new File(usedFilename);
+		String absolutePath = usedFile.getAbsolutePath();
 		boolean isCompanionFile = companionFiles == null? false :
 			companionFiles.contains(usedFilename);
+		LinkedHashMap<Index, Integer> indexes =
+				new LinkedHashMap<Index, Integer>();
+		indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
 		if (isCompanionFile)
 		{
-			LinkedHashMap<Index, Integer> indexes =
-				new LinkedHashMap<Index, Integer>();
-			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
 			// The file is a companion file, create it,
 			// and increment the next original file's index.
 			String format = "Companion/" + formatString;
-			createOriginalFileFromFile(usedFile, indexes, format);
+			useOriginalFile(data.originalFileMap.get(absolutePath), indexes, format);
 			addCompanionFileAnnotationTo(plateKey, indexes,
 						                originalFileIndex);
+			originalFileIndex++;
+		}
+		else
+		{
+			// PATH 2: We're archiving and the file is not a
+			// companion file, create it, and increment the next
+			// original file's index.
+			useOriginalFile(data.originalFileMap.get(absolutePath), indexes,
+					formatString);
+			LSID originalFileKey =
+				new LSID(OriginalFile.class, originalFileIndex);
+			addReference(plateKey, originalFileKey);
 			originalFileIndex++;
 		}
 	}
@@ -1574,7 +1588,7 @@ public class OMEROMetadataStoreClient
      * file annotation on the server.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchive(boolean useMetadataFile)
+    public List<File> setArchive(boolean useMetadataFile, Import data)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
@@ -1636,7 +1650,7 @@ public class OMEROMetadataStoreClient
                 }
 		}
 
-		// Create all original file objects for later population based on
+		// Use uploaded original file objects for later population based on
 		// the existence or abscence of companion files.
 		// This increments the original file count by the number of
 		// files to actually be created.
@@ -1647,36 +1661,52 @@ public class OMEROMetadataStoreClient
 			String absolutePath = usedFile.getAbsolutePath();
 			boolean isCompanionFile = companionFiles == null? false :
 				                      companionFiles.contains(usedFilename);
+			LinkedHashMap<Index, Integer> indexes =
+				new LinkedHashMap<Index, Integer>();
+			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
+			int usedFileIndex = originalFileIndex;
+			if (pathIndexMap.containsKey(absolutePath))
+			{
+				// PATH 1: We've already seen this path before, re-use
+				// the same original file index.
+				usedFileIndex = pathIndexMap.get(absolutePath);
+			}
+			else if (isCompanionFile)
+			{
+				// PATH 2: The file is a companion file.
+				// add the original file index into our cached map
+				// and increment the next original file's index.
+				String format = "Companion/" + formatString;
+				useOriginalFile(data.originalFileMap.get(absolutePath), indexes, format);
+				pathIndexMap.put(absolutePath, usedFileIndex);
+				originalFileIndex++;
+			}
+			else
+			{
+				// PATH 3:The file is not a companion file, create it,
+				// add the original file index into our cached map
+				// and increment the next original file's index.
+				useOriginalFile(data.originalFileMap.get(absolutePath), indexes,
+				                           formatString);
+				pathIndexMap.put(absolutePath, usedFileIndex);
+				originalFileIndex++;
+			}
+
 			if (isCompanionFile)
 			{
-				LinkedHashMap<Index, Integer> indexes =
-					new LinkedHashMap<Index, Integer>();
-				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-				int usedFileIndex = originalFileIndex;
-				if (pathIndexMap.containsKey(absolutePath))
-				{
-					// PATH 1: We've already seen this path before, re-use
-					// the same original file index.
-					usedFileIndex = pathIndexMap.get(absolutePath);
-				}
-				else
-				{
-					// PATH 2: The file is a companion file, create it,
-					// put the new original file index into our cached map
-					// and increment the next original file's index.
-					String format = "Companion/" + formatString;
-					createOriginalFileFromFile(usedFile, indexes, format);
-					pathIndexMap.put(absolutePath, usedFileIndex);
-					originalFileIndex++;
-				}
-                // Add a companion file annotation to the Image.
-                indexes = new LinkedHashMap<Index, Integer>();
-                indexes.put(Index.IMAGE_INDEX, series);
-                indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
-                addCompanionFileAnnotationTo(imageKey, indexes,
-                                             usedFileIndex);
-                }
+            // Add a companion file annotation to the Image.
+            indexes = new LinkedHashMap<Index, Integer>();
+            indexes.put(Index.IMAGE_INDEX, series);
+            indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
+            addCompanionFileAnnotationTo(imageKey, indexes,
+                                         usedFileIndex);
             }
+            // Always link the original file to the Image even if
+            // it is a companion file.
+            LSID originalFileKey =
+                    new LSID(OriginalFile.class, usedFileIndex);
+            addReference(pixelsKey, originalFileKey);
+        }
         }
         return metadataFiles;
     }
@@ -2177,6 +2207,26 @@ public class OMEROMetadataStoreClient
 		o.setPath(toRType(file.getParent() + File.separator));
 		o.setSha1(toRType("Pending"));
 		return o;
+    }
+
+    /**
+     * Creates an original file object from a Java file object along with some
+     * metadata specific to OMERO in the container cache or returns the
+     * original file as already created in the supplied map.
+     * @param ofile OriginalFile object populated.
+     * @param indexes Container cache indexes to use.
+     * @param formatString Original file format as a string.
+     * @param existing Existing original files keyed by absolute path.
+     * @return Created original file source object.
+     */
+    private OriginalFile useOriginalFile(
+        OriginalFile ofile, LinkedHashMap<Index, Integer> indexes,
+		String formatString)
+    {
+        IObjectContainer ioc = getIObjectContainer(OriginalFile.class, indexes);
+		ofile.setMimetype(toRType(formatString));
+        ioc.sourceObject = ofile;
+		return ofile;
     }
 
     /**

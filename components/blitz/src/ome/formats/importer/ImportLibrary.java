@@ -458,7 +458,7 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
         final List<String> srcFiles = Arrays.asList(usedFiles);
         final int fileTotal = srcFiles.size();
-        final Import data = repo.prepareImport(srcFiles);
+        Import data = repo.prepareImport(srcFiles);
 
         notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                 null, 0, fileTotal, null, null, null));
@@ -482,7 +482,9 @@ public class ImportLibrary implements IObservable
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                             file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 }
-                repo.createOriginalFile(data.usedFiles.get(i));
+                OriginalFile ofile = repo.createOriginalFile(data.usedFiles.get(i));
+                String absolutePath = repo.getAbsolutePath(data.usedFiles.get(i));
+                data.originalFileMap.put(absolutePath, ofile);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
             }
@@ -587,7 +589,7 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      * @since OMERO Beta 4.5.
      */
-    public List<Pixels> importImageInternal(ImportContainer container, int index,
+    public List<Pixels> importImageInternal(ImportContainer container, Import data, int index,
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
@@ -649,13 +651,13 @@ public class ImportLibrary implements IObservable
             if (isScreeningDomain)
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
-                metadataFiles = store.setArchiveScreeningDomain();
+                metadataFiles = store.setArchiveScreeningDomain(data);
             }
             else
             {
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
-                metadataFiles = store.setArchive(useMetadataFile);
+                metadataFiles = store.setArchive(useMetadataFile, data);
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
