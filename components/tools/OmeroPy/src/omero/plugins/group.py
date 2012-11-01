@@ -70,6 +70,10 @@ More information is available at:
         copymembers.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
         copymembers.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
 
+        copyowners = parser.add(sub, self.copyowners, "Copy the owners of one group to another group")
+        copyowners.add_argument("from_group", help = "Source group ID or NAME whose owners will be copied")
+        copyowners.add_argument("to_group", help = "Target group ID or NAME which will have new owners added")
+
         addmember = parser.add(sub, self.addmember, "Add one or more users to a group member list")
         addmember.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have members added")
         addmember.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to add to the group owner list")
@@ -194,10 +198,26 @@ More information is available at:
         already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
         for add in list(to_add):
             if add[0] in already:
-                self.ctx.out("%s already in group %s" % (add[1], args.to_group))
+                self.ctx.out("%s already member of group %s" % (add[1], args.to_group))
                 to_add.remove(add)
         self.addusersbyid(a, t_grp, [x[0] for x in to_add])
-        self.ctx.out("%s copied to %s" % (args.from_group, args.to_group))
+        self.ctx.out("Members of %s copied to %s" % (args.from_group, args.to_group))
+
+    def copyowners(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        f_gid, f_grp = self.find_group(a, args.from_group)
+        t_gid, t_grp = self.find_group(a, args.to_group)
+
+        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap() if x.owner.val]
+        already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap() if x.owner.val]
+        for add in list(to_add):
+            if add[0] in already:
+                self.ctx.out("%s already owner of group %s" % (add[1], args.to_group))
+                to_add.remove(add)
+        self.addownersbyid(a, t_grp, [x[0] for x in to_add])
+        self.ctx.out("Owners of %s copied to %s" % (args.from_group, args.to_group))
 
     def addmember(self, args):
         import omero
