@@ -46,13 +46,13 @@ class UserControl(UserGroupControl):
         email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
         email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
 
-        addtogroup = parser.add(sub, self.addtogroup, "Add user to one or more users groups")
-        addtogroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to add to groups")
-        addtogroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of groups to add the user to")
+        addtogroup = parser.add(sub, self.addtogroup, "Add user as member of one or more groups")
+        addtogroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to add to the groups member list")
+        addtogroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of group to add the user to")
 
-        removefromgroup = parser.add(sub, self.removefromgroup, "Remove one or more users from a group")
-        removefromgroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to remove from the groups")
-        removefromgroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of groups to remove the user from")
+        removefromgroup = parser.add(sub, self.removefromgroup, "Remove user from the member list of one or more group")
+        removefromgroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to remove from the groups member list")
+        removefromgroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of group to remove the user from")
 
     def format_name(self, exp):
         record = ""
