@@ -88,6 +88,8 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', webgateway.render_birds_eye_view, name="web_render_birds_eye_view"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', webgateway.render_image, name="web_render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_download/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 
+        webgateway.render_image, {'download':True}, name="web_render_image_download"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', webgateway.imageData_json, name="web_imageData_json"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', webgateway.render_row_plot, name="web_render_row_plot"),
@@ -130,6 +132,10 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
     url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='script_run' ),  # runs the script - parameters in POST
     url( r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$', views.get_original_file, name="get_original_file"), # for stderr, stdout etc
+
+    # ome_tiff_script: generate OME-TIFF and attach to image (use script service). Must be POST
+    url( r'^ome_tiff_script/(?P<imageId>[0-9]+)/$', views.ome_tiff_script, name='ome_tiff_script' ),
+    url( r'^ome_tiff_info/(?P<imageId>[0-9]+)/$', views.ome_tiff_info, name='ome_tiff_info' ),
 
     # ping OMERO server to keep session alive
     url( r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),

@@ -152,6 +152,32 @@ button::-moz-focus-inner {
 	    height:18px;
 	    display:block;
 	}
+    
+    #general_tab .btn_download span {
+        width:20px;
+        height:18px;
+        display:block;
+    }
+    
+    #general_tab .btn_download {
+        background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
+    }
+    
+    #download_dropdown {
+        float:right;
+        margin: 0px 5px;
+    }
+    #download_dropdown .dropdown {
+        right: 0px;
+        left: auto;
+    }
+    #download_dropdown .dropdown:before {
+        left: 68% !important;
+    }
+    #download_dropdown ul a {
+        background: none;
+        font-size: 80%;
+    }
 	
 	
 	
