@@ -1512,9 +1512,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Populates archive flags on all images currently processed links
-     * relevant original metadata files as requested and performs graph logic
-     * to have the scafolding in place for later original file upload if
+     * Links relevant companion files for later original file upload if
      * we are of the HCS domain.
      * @return A list of the temporary metadata files created on local disk.
      */
@@ -1529,53 +1527,35 @@ public class OMEROMetadataStoreClient
 	formatString = formatString.replace("class loci.formats.in.", "");
 	formatString = formatString.replace("Reader", "");
 	LSID plateKey = new LSID(Plate.class, 0);
-		// Populate the archived flag on the image. This inadvertently
-		// ensures that an Image object (and corresponding container)
-		// exists.
+	// Set the archived flag to false as archiving is disabled for screens
 	for (int series = 0; series < reader.getSeriesCount(); series++)
 	{
 		LinkedHashMap<Index, Integer> imageIndexes =
 			new LinkedHashMap<Index, Integer>();
 		imageIndexes.put(Index.IMAGE_INDEX, series);
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(true));
+		image.setArchived(toRType(false));
 	}
-	// Create all original file objects for later population based on
-	// the existence or abscence of companion files and the archive
-	// flag. This increments the original file count by the number of
-	// files to actually be created.
+	// Create original file objects for later population for companion
+	// files. This increments the original file count by the
+	// number of files to actually be created.
 	int originalFileIndex = 0;
 	for (String usedFilename : usedFiles)
 	{
 		File usedFile = new File(usedFilename);
 		String absolutePath = usedFile.getAbsolutePath();
 		boolean isCompanionFile = companionFiles == null? false :
-			companionFiles.contains(usedFilename);
+			    companionFiles.contains(usedFilename);
 		LinkedHashMap<Index, Integer> indexes =
 				new LinkedHashMap<Index, Integer>();
 		indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-		if (isCompanionFile)
-		{
-			// The file is a companion file, create it,
-			// and increment the next original file's index.
-			String format = "Companion/" + formatString;
-			useOriginalFile(data.originalFileMap.get(absolutePath), indexes, format);
-			addCompanionFileAnnotationTo(plateKey, indexes,
-						                originalFileIndex);
-			originalFileIndex++;
-		}
-		else
-		{
-			// PATH 2: We're archiving and the file is not a
-			// companion file, create it, and increment the next
-			// original file's index.
-			useOriginalFile(data.originalFileMap.get(absolutePath), indexes,
-					formatString);
-			LSID originalFileKey =
-				new LSID(OriginalFile.class, originalFileIndex);
-			addReference(plateKey, originalFileKey);
-			originalFileIndex++;
-		}
+		// The file is a companion file, create it,
+		// and increment the next original file's index.
+		String format = "Companion/" + formatString;
+		createOriginalFileFromFile(usedFile, indexes, format);
+		addCompanionFileAnnotationTo(plateKey, indexes,
+		        originalFileIndex);
+		originalFileIndex++;
 	}
 	return metadataFiles;
     }
