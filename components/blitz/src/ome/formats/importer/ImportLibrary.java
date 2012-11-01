@@ -527,7 +527,7 @@ public class ImportLibrary implements IObservable
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
 
-                metadataFiles = store.setArchiveScreeningDomain(archive);
+                metadataFiles = store.setArchiveScreeningDomain();
             }
             else
             {
