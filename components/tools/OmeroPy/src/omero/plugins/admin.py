@@ -162,7 +162,7 @@ Examples:
         ports.add_argument("--prefix", help = "Adds a prefix to each port ON TOP OF any other settings")
         ports.add_argument("--registry", help = "Registry port. (default: %(default)s)", default = "4061")
         ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
-        ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s", default = "4064")
+        ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s)", default = "4064")
         ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
         ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
 
@@ -681,6 +681,23 @@ OMERO Diagnostics %s
         version(["psql",         "--version"])
 
 
+        def get_ports(input):
+            router_lines = [line for line in input.split("\n") if line.find("ROUTER") >= 0]
+
+            ssl_port = None
+            tcp_port = None
+            for line in router_lines:
+                if not ssl_port and line.find("ROUTERPORT") >= 0:
+                    m = re.match(".*?(\d+).*?$", line)
+                    if m:
+                        ssl_port = m.group(1)
+
+                if not tcp_port and line.find("INSECUREROUTER") >= 0:
+                    m = re.match("^.*?-p (\d+).*?$", line)
+                    if m:
+                        tcp_port = m.group(1)
+            return ssl_port, tcp_port
+
         self.ctx.out("")
         if not iga:
             self.ctx.out("No icegridadmin available: Cannot check server list")
@@ -710,6 +727,28 @@ OMERO Diagnostics %s
                         self.ctx.out(io2[0].strip())
                     else:
                         self.ctx.err("UNKNOWN!")
+
+                # Read SSL & TCP ports
+                p = self.ctx.popen(self._cmd("-e", "application describe OMERO"))
+                rv = p.wait()
+                io = p.communicate()
+
+                item("Server", "SSL port")
+                if io[1]:
+                    self.ctx.err(io[1].strip())
+                else:
+                    ssl_port, tcp_port = get_ports(io[0])
+
+                    if not ssl_port:
+                        self.ctx.err("Not found")
+                    else:
+                        self.ctx.out("%s" % ssl_port)
+
+                    item("Server", "TCP port")
+                    if not tcp_port:
+                        self.ctx.err("Not found")
+                    else:
+                        self.ctx.out("%s" % tcp_port)
 
         def log_dir(log, cat, cat2, knownfiles):
             self.ctx.out("")
