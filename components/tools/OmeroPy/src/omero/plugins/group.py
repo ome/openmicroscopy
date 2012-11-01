@@ -10,11 +10,11 @@
 import os
 import sys
 
-from omero.cli import CmdControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler
 
 HELP="""Group administration methods"""
 
-class GroupControl(CmdControl):
+class GroupControl(UserGroupControl):
 
     def _configure(self, parser):
 
