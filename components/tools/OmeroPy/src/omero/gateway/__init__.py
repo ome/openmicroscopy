@@ -43,7 +43,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
 except: #pragma: nocover
     try:
         import Image, ImageDraw, ImageFont
