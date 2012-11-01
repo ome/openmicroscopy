@@ -10,12 +10,12 @@
 import os
 import sys
 
-from omero.cli import CmdControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
 
-class UserControl(CmdControl):
+class UserControl(UserGroupControl):
 
     def _configure(self, parser):
 
