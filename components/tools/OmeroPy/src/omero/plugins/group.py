@@ -50,11 +50,11 @@ More information is available at:
         """
 
         sub = parser.sub()
-        add = parser.add(sub, self.add, "Add a new group with given permissions. " + PERM_TXT)
+        add = parser.add(sub, self.add, "Add a new group with given permissions " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("name", help="ExperimenterGroup.name value")
 
-        perms = parser.add(sub, self.perms, "Modify a group's permissions. " + PERM_TXT)
+        perms = parser.add(sub, self.perms, "Modify a group's permissions " + PERM_TXT)
         perms.add_argument("id_or_name", help="ExperimenterGroup's id or name")
 
         for x in (add, perms):
@@ -66,25 +66,25 @@ More information is available at:
         list = parser.add(sub, self.list, "List current groups")
         list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
 
-        copy = parser.add(sub, self.copy, "Copy the members of one group to another group")
-        copy.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
-        copy.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
+        copymembers = parser.add(sub, self.copymembers, "Copy the members of one group to another group")
+        copymembers.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
+        copymembers.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
 
-        insert = parser.add(sub, self.insert, "Insert one or more users into a group.")
-        insert.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users added")
-        insert.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be inserted")
+        addmember = parser.add(sub, self.addmember, "Add one or more users to a group member list")
+        addmember.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have members added")
+        addmember.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to add to the group owner list")
 
-        remove = parser.add(sub, self.remove, "Remove one or more users from a group.")
-        remove.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have users removed")
-        remove.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to be removed")
+        removemember = parser.add(sub, self.removemember, "Remove one or more users from a group member list")
+        removemember.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have members removed")
+        removemember.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to remove from the group member list")
 
-        addowner = parser.add(sub, self.addowner, "Add one or more users to the owner list for a group" + OWNER_TXT)
+        addowner = parser.add(sub, self.addowner, "Add one or more users to a group owner list" + OWNER_TXT)
         addowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners added")
-        addowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to add to the group owner list")
+        addowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to add to the group owner list")
 
-        removeowner = parser.add(sub, self.removeowner, "Remove one or more users to the owner list for a group" + OWNER_TXT)
+        removeowner = parser.add(sub, self.removeowner, "Remove one or more users from a group owner list" + OWNER_TXT)
         removeowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners removed")
-        removeowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of user to remove from the group owner list")
+        removeowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to remove from the group owner list")
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
@@ -183,7 +183,7 @@ More information is available at:
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
-    def copy(self, args):
+    def copymembers(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
@@ -199,7 +199,7 @@ More information is available at:
         self.addusersbyid(a, t_grp, [x[0] for x in to_add])
         self.ctx.out("%s copied to %s" % (args.from_group, args.to_group))
 
-    def insert(self, args):
+    def addmember(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
@@ -207,7 +207,7 @@ More information is available at:
         uids = [self.find_user(a, x)[0] for x in args.USER]
         self.addusersbyid(a, grp, uids)
 
-    def remove(self, args):
+    def removemember(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
