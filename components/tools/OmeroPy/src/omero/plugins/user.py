@@ -46,13 +46,13 @@ class UserControl(UserGroupControl):
         email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
         email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
 
-        joingroup = parser.add(sub, self.joingroup, "Join one or more group as a member/owner")
+        joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
         joingroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to join")
-        joingroup.add_argument("--owner", action="store_true", default=False, help="Join the group as owner. If not set, join the group as member.")
+        joingroup.add_argument("--owner", action="store_true", default=False, help="Join the group as an owner")
 
-        leavegroup = parser.add(sub, self.leavegroup, "Leave one or more groups as a member/owner")
+        leavegroup = parser.add(sub, self.leavegroup, "Leave one or more groups")
         leavegroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to leave")
-        leavegroup.add_argument("--owner", action="store_true", default=False, help="Leave the owner list of the group. If not set leave the member list of the group.")
+        leavegroup.add_argument("--owner", action="store_true", default=False, help="Leave the owner list of the group")
 
         for x in (joingroup, leavegroup):
             group = x.add_mutually_exclusive_group()
@@ -258,19 +258,19 @@ class UserControl(UserGroupControl):
 
         for group in list(groups):
             if owner:
-                uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
-                role = "owner"
+                uid_list = self.getownerids(group)
+                relation = "owner of"
             else:
-                uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
-                role = "member"
+                uid_list = self.getuserids(group)
+                relation = "in"
 
             if join:
                 if uid in uid_list:
-                    self.ctx.out("%s already %s of group %s" % (uid, role, group.id.val))
+                    self.ctx.out("%s is already %s group %s" % (uid, relation, group.id.val))
                     groups.remove(group)
             else:
                 if uid not in uid_list:
-                    self.ctx.out("%s not %s of group %s" % (uid, role, group.id.val))
+                    self.ctx.out("%s is not %s group %s" % (uid, relation, group.id.val))
                     groups.remove(group)
         return groups
 

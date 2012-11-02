@@ -1510,3 +1510,18 @@ class UserGroupControl(BaseControl):
         for user in list(users):
             admin.removeGroupOwners(group, [omero.model.ExperimenterI(user, False)])
             self.ctx.out("Removed %s from the owner list of group %s" % (user, group.id.val))
+
+    def getuserids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
+        return ids
+
+    def getmemberids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if not x.owner.val]
+        return ids
+
+    def getownerids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
+        return ids
