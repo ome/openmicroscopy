@@ -262,6 +262,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
         } */
         loadError('A "Pyramid" of zoom levels is currently being calculated for this image. Please try viewing again later.');
         return;
+    } else if (data["Exception"] !== undefined) {
+        loadError(data["Exception"]);
+        return;
     }
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
