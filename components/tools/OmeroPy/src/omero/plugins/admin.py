@@ -728,27 +728,41 @@ OMERO Diagnostics %s
                     else:
                         self.ctx.err("UNKNOWN!")
 
-                # Read SSL & TCP ports
-                p = self.ctx.popen(self._cmd("-e", "application describe OMERO"))
-                rv = p.wait()
-                io = p.communicate()
+            # List SSL & TCP ports of deployed applications
+            self.ctx.out("")
+            p = self.ctx.popen(self._cmd("-e", "application list")) # popen
+            rv = p.wait()
+            io = p.communicate()
+            if rv != 0:
+                self.ctx.out("Cannot list deployed applications.")
+                self.ctx.dbg("""
+                Stdout:\n%s
+                Stderr:\n%s
+                """ % io)
+            else:
+                applications = io[0].split()
+                applications.sort()
+                for s in applications:
+                    p2 = self.ctx.popen(self._cmd("-e", "application describe %s" % s)) # popen
+                    rv2 = p2.wait()
+                    io2 = p2.communicate()
+                    if io2[1]:
+                        self.ctx.err(io2[1].strip())
+                    elif io2[0]:
+                        ssl_port, tcp_port = get_ports(io2[0])
+                        item("%s" % s, "SSL port")
+                        if not ssl_port:
+                            self.ctx.err("Not found")
+                        else:
+                            self.ctx.out("%s" % ssl_port)
 
-                item("Server", "SSL port")
-                if io[1]:
-                    self.ctx.err(io[1].strip())
-                else:
-                    ssl_port, tcp_port = get_ports(io[0])
-
-                    if not ssl_port:
-                        self.ctx.err("Not found")
+                        item("%s" % s, "TCP port")
+                        if not tcp_port:
+                            self.ctx.err("Not found")
+                        else:
+                            self.ctx.out("%s" % tcp_port)
                     else:
-                        self.ctx.out("%s" % ssl_port)
-
-                    item("Server", "TCP port")
-                    if not tcp_port:
-                        self.ctx.err("Not found")
-                    else:
-                        self.ctx.out("%s" % tcp_port)
+                        self.ctx.err("UNKNOWN!")
 
         def log_dir(log, cat, cat2, knownfiles):
             self.ctx.out("")
