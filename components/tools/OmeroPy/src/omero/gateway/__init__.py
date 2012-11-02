@@ -43,10 +43,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
 except: #pragma: nocover
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        import Image, ImageDraw, ImageFont          # see ticket:2597
     except:
         logger.error('No PIL installed, line plots and split channel will fail!')
 from cStringIO import StringIO
