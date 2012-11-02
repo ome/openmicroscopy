@@ -30,7 +30,7 @@ public interface RepositoryDao {
      *
      */
     OriginalFile register(OriginalFile omeroFile, omero.RString mimetype,
-            Current __current) throws ServerError;
+            final Principal currentUser) throws ServerError;
 
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if

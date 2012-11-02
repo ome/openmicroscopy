@@ -65,11 +65,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      */
     public OriginalFile register(OriginalFile omeroFile,
-            omero.RString mimetype, Current __current) throws ServerError {
+            omero.RString mimetype, final Principal currentUser) throws ServerError {
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
                 .reverse(omeroFile);
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+        Long id = (Long) executor.execute(currentUser, new Executor.SimpleWork(
                 this, "register", omeroFile.getPath().getValue()) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
