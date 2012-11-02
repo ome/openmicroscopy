@@ -66,29 +66,24 @@ More information is available at:
         list = parser.add(sub, self.list, "List current groups")
         list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
 
-        copymembers = parser.add(sub, self.copymembers, "Copy the members of one group to another group")
-        copymembers.add_argument("from_group", help = "Source group ID or NAME whose members will be copied")
-        copymembers.add_argument("to_group", help = "Target group ID or NAME which will have new members added")
+        copyusers = parser.add(sub, self.copyusers, "Copy the members/owners of one group to another group")
+        copyusers.add_argument("from_group", help = "ID or name of the source group  whose members/owners will be copied")
+        copyusers.add_argument("to_group", help = "ID or name of the target group  which will have new members/owners added")
+        copyusers.add_argument("--owner", action="store_true", default=False, help="Copy the group owners. If not set, copy the group members")
 
-        copyowners = parser.add(sub, self.copyowners, "Copy the owners of one group to another group")
-        copyowners.add_argument("from_group", help = "Source group ID or NAME whose owners will be copied")
-        copyowners.add_argument("to_group", help = "Target group ID or NAME which will have new owners added")
-
-        addmember = parser.add(sub, self.addmember, "Add one or more users to a group member list")
-        addmember.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have members added")
-        addmember.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to add to the group owner list")
-
-        removemember = parser.add(sub, self.removemember, "Remove one or more users from a group member list")
-        removemember.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have members removed")
-        removemember.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to remove from the group member list")
-
-        addowner = parser.add(sub, self.addowner, "Add one or more users to a group owner list" + OWNER_TXT)
-        addowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners added")
-        addowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to add to the group owner list")
-
-        removeowner = parser.add(sub, self.removeowner, "Remove one or more users from a group owner list" + OWNER_TXT)
-        removeowner.add_argument("GROUP", metavar="group", help = "ID or NAME of the group which is to have owners removed")
-        removeowner.add_argument("USER", metavar="user", nargs="+", help = "ID or NAME of the user to remove from the group owner list")
+        adduser = parser.add(sub, self.adduser, "Add one or more users to a group member/owner list")
+        adduser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to add to the group owner list")
+        adduser.add_argument("--owner", action="store_true", default=False, help="Add the users as owners of the group. If not set, add the users as members of the group")
+        
+        removeuser = parser.add(sub, self.removeuser, "Remove one or more users from a group member/owner list")
+        removeuser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to remove from the group member list")
+        removeuser.add_argument("--owner", action="store_true", default=False, help="Remove the user from the group owner list. If not set, remove the user from the group member list")
+        
+        for x in (adduser, removeuser):
+            group = x.add_mutually_exclusive_group()
+            group.add_argument("--id", metavar="group", help="ID of the group.")
+            group.add_argument("--name", metavar="group", help="Name of the group.")
+        
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
@@ -187,70 +182,81 @@ More information is available at:
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
-    def copymembers(self, args):
+
+    def parse_groupid(self, a, args):
+        if args.id:
+            group = getattr(args, "id", None)
+        elif args.name == "name":
+            group = getattr(args, "name", None)
+        else:
+            self.ctx.die(503, "No group specified")
+        return self.find_group(a, group)
+
+    def filter_users(self, uids, group, owner = False, join = True):
+
+        if owner:
+            uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
+            role = "owner"
+        else:
+            uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
+            role = "member"
+            
+        for uid in list(uids):            
+            if join:
+                if uid in uid_list:
+                    self.ctx.out("%s already %s of group %s" % (uid, role, group.id.val))
+                    uids.remove(uid)
+            else:
+                if uid not in uid_list:
+                    self.ctx.out("%s not %s of group %s" % (uid, role, group.id.val))
+                    uids.remove(uid)
+        return uids
+
+    def copyusers(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         f_gid, f_grp = self.find_group(a, args.from_group)
         t_gid, t_grp = self.find_group(a, args.to_group)
 
-        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap()]
-        already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
-        for add in list(to_add):
-            if add[0] in already:
-                self.ctx.out("%s already member of group %s" % (add[1], args.to_group))
-                to_add.remove(add)
-        self.addusersbyid(a, t_grp, [x[0] for x in to_add])
-        self.ctx.out("Members of %s copied to %s" % (args.from_group, args.to_group))
+        if args.owner:
+            uids = [x.child.id.val for x in f_grp.copyGroupExperimenterMap() if x.owner.val]
+        else:
+            uids = [x.child.id.val for x in f_grp.copyGroupExperimenterMap()]
+        uids = self.filter_users(uids, t_grp, args.owner, True)
+        
+        if args.owner:
+            self.addownersbyid(a, t_grp, uids)
+            self.ctx.out("Owners of %s copied to %s" % (args.from_group, args.to_group))
+        else:
+            self.addusersbyid(a, t_grp, uids)
+            self.ctx.out("Members of %s copied to %s" % (args.from_group, args.to_group))
 
-    def copyowners(self, args):
+    def adduser(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        f_gid, f_grp = self.find_group(a, args.from_group)
-        t_gid, t_grp = self.find_group(a, args.to_group)
-
-        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap() if x.owner.val]
-        already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap() if x.owner.val]
-        for add in list(to_add):
-            if add[0] in already:
-                self.ctx.out("%s already owner of group %s" % (add[1], args.to_group))
-                to_add.remove(add)
-        self.addownersbyid(a, t_grp, [x[0] for x in to_add])
-        self.ctx.out("Owners of %s copied to %s" % (args.from_group, args.to_group))
-
-    def addmember(self, args):
-        import omero
-        c = self.ctx.conn(args)
-        a = c.sf.getAdminService()
-        gid, grp = self.find_group(a, args.GROUP)
+        group = self.parse_groupid(a, args)[1]
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.addusersbyid(a, grp, uids)
+        uids = self.filter_users(uids, group, args.owner, True)
+        
+        if args.owner:
+            self.addownersbyid(a, group, uids)
+        else:
+            self.addusersbyid(a, group, uids)
 
-    def removemember(self, args):
+    def removeuser(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        gid, grp = self.find_group(a, args.GROUP)
+        group = self.parse_groupid(a, args)[1]
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.removeusersbyid(a, grp, uids)
-
-    def addowner(self, args):
-        import omero
-        c = self.ctx.conn(args)
-        a = c.sf.getAdminService()
-        gid, grp = self.find_group(a, args.GROUP)
-        uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.addownersbyid(a, grp, uids)
-
-    def removeowner(self, args):
-        import omero
-        c = self.ctx.conn(args)
-        a = c.sf.getAdminService()
-        gid, grp = self.find_group(a, args.GROUP)
-        uids = [self.find_user(a, x)[0] for x in args.USER]
-        self.removeownersbyid(a, grp, uids)
-
+        uids = self.filter_users(uids, group, args.owner, False)
+        
+        if args.owner:
+            self.removeownersbyid(a, group, uids)
+        else:
+            self.removeusersbyid(a, group, uids)
 
 try:
     register("group", GroupControl, HELP)
