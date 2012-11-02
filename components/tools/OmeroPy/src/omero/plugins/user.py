@@ -23,7 +23,7 @@ class UserControl(UserGroupControl):
 
         sub = parser.sub()
 
-        add = parser.add(sub, self.add, help = "Add users")
+        add = parser.add(sub, self.add, help = "Add user")
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("-m", "--middlename", help = "Middle name, if available")
         add.add_argument("-e", "--email")
@@ -46,13 +46,19 @@ class UserControl(UserGroupControl):
         email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
         email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
 
-        addtogroup = parser.add(sub, self.addtogroup, "Add user as member of one or more groups")
-        addtogroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to add to the groups member list")
-        addtogroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of group to add the user to")
+        joingroup = parser.add(sub, self.joingroup, "Join one or more group as a member/owner")
+        joingroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to join")
+        joingroup.add_argument("--owner", action="store_true", default=False, help="Join the group as owner. If not set, join the group as member.")
 
-        removefromgroup = parser.add(sub, self.removefromgroup, "Remove user from the member list of one or more group")
-        removefromgroup.add_argument("USER", metavar="user", help = "ID or NAME of the user to remove from the groups member list")
-        removefromgroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or NAME of group to remove the user from")
+        leavegroup = parser.add(sub, self.leavegroup, "Leave one or more groups as a member/owner")
+        leavegroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to leave")
+        leavegroup.add_argument("--owner", action="store_true", default=False, help="Leave the owner list of the group. If not set leave the member list of the group.")
+
+        for x in (joingroup, leavegroup):
+            group = x.add_mutually_exclusive_group()
+            group.add_argument("--id", help="ID of the user. Default to the current user")
+            group.add_argument("--name", help="Name of the user. Default to the current user")
+
 
     def format_name(self, exp):
         record = ""
@@ -239,24 +245,64 @@ class UserControl(UserGroupControl):
         except omero.SecurityViolation, se:
             self.ctx.die(68, "Security violation: %s" % se.message)
 
-    def addtogroup(self, args):
+    def parse_userid(self, a, args):
+        if args.id:
+            user = getattr(args, "id", None)
+        elif args.name == "name":
+            user = getattr(args, "name", None)
+        else:
+            user = self.ctx._event_context.userName
+        return self.find_user(a,user)
+
+    def filter_groups(self, groups, uid, owner = False, join = True):
+
+        for group in list(groups):
+            if owner:
+                uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
+                role = "owner"
+            else:
+                uid_list = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
+                role = "member"
+
+            if join:
+                if uid in uid_list:
+                    self.ctx.out("%s already %s of group %s" % (uid, role, group.id.val))
+                    groups.remove(group)
+            else:
+                if uid not in uid_list:
+                    self.ctx.out("%s not %s of group %s" % (uid, role, group.id.val))
+                    groups.remove(group)
+        return groups
+
+    def joingroup(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        uid = [self.find_user(a, args.USER)[0]]
-        for group in args.GROUP:
-            gid, grp = self.find_group(a, group)
-            self.addusersbyid(a, grp, uid)
 
-    def removefromgroup(self, args):
+        uid, username = self.parse_userid(a, args)
+        groups = [self.find_group(a, group)[1] for group in args.GROUP]
+        groups = self.filter_groups(groups, uid, args.owner, True)
+
+        for group in groups:
+            if args.owner:
+                self.addownersbyid(a, group, [uid])
+            else:
+                self.addusersbyid(a, group, [uid])
+
+    def leavegroup(self, args):
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        uid = [self.find_user(a, args.USER)[0]]
-        for group in args.GROUP:
-            gid, grp = self.find_group(a, group)
-            self.removeusersbyid(a, grp, uid)
 
+        uid, username = self.parse_userid(a, args)
+        groups = [self.find_group(a, group)[1] for group in args.GROUP]
+        groups = self.filter_groups(groups, uid, args.owner, False)
+
+        for group in list(groups):
+            if args.owner:
+                self.removeownersbyid(a, group, [uid])
+            else:
+                self.removeusersbyid(a, group, [uid])
 try:
     register("user", UserControl, HELP)
 except NameError:
