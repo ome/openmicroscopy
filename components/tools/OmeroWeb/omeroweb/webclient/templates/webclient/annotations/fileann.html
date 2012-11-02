@@ -32,7 +32,7 @@
 
 {% if fileann.getFileName %}
 <li class="file_ann_wrapper" id="file_ann-{{ fileann.id }}">
-    <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
+    <a class='tooltip' href="{% url download_annotation fileann.id %}">
         {{ fileann.getFileName|shortening:40 }}
 		<span>{% if fileann.getFileSize %}({{ fileann.getFileSize|default:0|filesizeformat }}){% endif %}</span>
     </a>

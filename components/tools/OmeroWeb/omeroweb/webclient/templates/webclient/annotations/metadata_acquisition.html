@@ -88,7 +88,7 @@
                 <div>
                     {% for fileann in manager.companion_files %}
                     <p>
-                        <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
+                        <a href="{% url download_annotation fileann.id %}">
                             {{ fileann.getFileName|shortening:40 }}
                         </a>
                         ({{ fileann.getFileSize|default:0|filesizeformat }})
@@ -101,7 +101,7 @@
             <h1 class="can-collapse defclose">{% trans "Original Metadata" %}</h1>
                 <div>
                     <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/>
+                        onClick="document.location.href='{% url download_annotation manager.original_metadata.id %}';"/>
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
