@@ -811,9 +811,16 @@ abstract class DataBrowserModel
 					loader = new TabularDataLoader(component, ctx,
 							(DataObject) grandParent,
 							canRetrieveAll(grandParent));
+					loader.load();
+					if (parent instanceof PlateData) {
+						loader = new TabularDataLoader(component, ctx,
+								(DataObject) parent, canRetrieveAll(parent));
+						loader.load();
+					}
 				} else if (parent instanceof PlateData) {
 					loader = new TabularDataLoader(component, ctx,
 							(DataObject) parent, canRetrieveAll(parent));
+					loader.load();
 				}
 			}
 		} else if (data.size() > 0) {
@@ -824,8 +831,8 @@ abstract class DataBrowserModel
 			}
 			loader = new TabularDataLoader(component, ctx, ids,
 					canRetrieveAll(parent));
+			loader.load();
 		}
-		if (loader != null) loader.load();
 	}
 	
 	/**

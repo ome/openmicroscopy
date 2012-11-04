@@ -81,7 +81,7 @@ public class WellSampleNode
 		this.index = index;
 		this.parent = parent;
 	}
-	
+
 	/** 
 	 * Returns the height of the title.
 	 * 
@@ -131,6 +131,26 @@ public class WellSampleNode
 	 * @return See above.
 	 */
 	public int getColumn() { return parent.getColumn(); }
+	
+	/**
+	 * Returns the position of the well within the plate.
+	 * 
+	 * @return See above.
+	 */
+	public int getLayedoutRow()
+	{
+		return parent.getRow()-parent.getIndentRow();
+	}
+	
+	/**
+	 * Returns the position of the well within the plate.
+	 * 
+	 * @return See above.
+	 */
+	public int getLayedoutColumn()
+	{
+		return parent.getColumn()-parent.getIndentColumn();
+	}
 	
 	/**
 	 * Returns the well related to that wellSample.

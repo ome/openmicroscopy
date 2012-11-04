@@ -320,7 +320,6 @@ class WellsModel
 				minColumn = column;
 				titleColumn = true;
 			}
-			
 			columnSequence = "";
 			if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
 				columnSequence = UIUtilities.LETTERS.get(column+1);
@@ -346,6 +345,16 @@ class WellsModel
 			}
 			validWells.add(new WellGridElement(row, column, b));
 		}
+		//
+		if (minRow > 0 || minColumn > 0) {
+			j = wellNodes.iterator();
+			while (j.hasNext()) {
+				node = (WellImageSet) j.next();
+				node.setIndentRow(minRow);
+				node.setIndentColumn(minColumn);
+			}
+		}
+		
 		columns++;
 		rows++;
 		CellDisplay cell;
