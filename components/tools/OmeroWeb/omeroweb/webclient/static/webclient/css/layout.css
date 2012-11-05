@@ -2164,8 +2164,8 @@ div.paging input.button_pagination {
     background: #eee;
 }
 
-#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
-#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
+#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
 
 

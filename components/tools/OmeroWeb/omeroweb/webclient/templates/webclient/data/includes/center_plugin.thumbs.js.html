@@ -29,7 +29,7 @@
 $(document).ready(function() {
     
     var syncPanels = function(get_selected) {
-        $("#content_details .ui-selectee").removeClass('ui-selected');    // clear selection
+        $("#dataIcons").find("li.ui-selectee").removeClass('ui-selected');    // clear selection
         get_selected.each(function(i) {
             var dtype = $(this).attr("rel").replace("-locked", "");
             if (dtype == "image") {
