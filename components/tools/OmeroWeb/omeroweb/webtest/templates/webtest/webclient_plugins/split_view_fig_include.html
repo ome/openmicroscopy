@@ -20,8 +20,13 @@
 
 <style type="text/css">
 .img_panel {
-    {% if size.height %} max-height: {{ size.height }}px;{% endif %}
-    {% if size.width %} max-width: {{ size.width }}px;{% endif %}
+    <!--[if lte IE 8]>
+        {% if size.width %} width: {{ size.width }}px;{% endif %}
+    <![endif]-->
+    {% if size.width %}
+        max-width: {{ size.width }}px;
+        max-height: {{ size.width }}px;
+    {% endif %}
     border-width: 0px;
     margin: 5px;
 }
