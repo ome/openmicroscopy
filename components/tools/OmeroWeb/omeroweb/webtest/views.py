@@ -335,7 +335,10 @@ def split_view_figure (request, conn=None, **kwargs):
             else:
                 active = True
                 merged = True
-            colour = c.getColor().getHtml()
+            colour = c.getColor()
+            if colour is None:
+                return None     # rendering engine problems
+            colour = colour.getHtml()
             start = request.REQUEST.get('cStart%s' % i, c.getWindowStart())
             end = request.REQUEST.get('cEnd%s' % i, c.getWindowEnd())
             render_all = (None != request.REQUEST.get('cRenderAll%s' % i, None) )
@@ -359,7 +362,7 @@ def split_view_figure (request, conn=None, **kwargs):
             width = image.getSizeX()
     
     if channels is None:
-        return HttpResponse("Couldn't load channels for images")
+        return HttpResponse("Couldn't load channels for this image")
     size = {"height": height, "width": width}
     c_strs = []
     if channels:    # channels will be none when page first loads (no images)
@@ -414,7 +417,12 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     def getChannelData(image):
         channels = []
         i = 0;
-        for i, c in enumerate(image.getChannels()):
+        chs = image.getChannels()
+        if chs is None:
+            return []
+        for i, c in enumerate(chs):
+            if c is None:
+                continue
             name = c.getLogicalChannel().getName()
             # if we have channel info from a form, we know that checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cStart%s' % i, None):
@@ -423,7 +431,10 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
             else:
                 active_left = True
                 active_right = True
-            colour = c.getColor().getHtml()
+            colour = c.getColor()
+            if colour is None:
+                continue    # serious rendering engine problems
+            colour = colour.getHtml();
             start = request.REQUEST.get('cStart%s' % i, c.getWindowStart())
             end = request.REQUEST.get('cEnd%s' % i, c.getWindowEnd())
             render_all = (None != request.REQUEST.get('cRenderAll%s' % i, None) )
@@ -435,7 +446,7 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     channels = None
     
     for image in dataset.listChildren():
-        if channels == None:
+        if channels == None or len(channels) == 0:
             channels = getChannelData(image)
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
