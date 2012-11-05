@@ -1461,6 +1461,26 @@ class GraphControl(CmdControl):
 
 class UserGroupControl(BaseControl):
 
+    def find_group_by_id(self, admin, group_id):
+        import omero
+        try:
+            gid = long(group_id)
+            g = admin.getGroup(gid)
+        except ValueError:
+            self.ctx.die(502, "Not a valid group ID: %s" % group_id)
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown group: %s" % gid)
+        return gid, g
+
+    def find_group_by_name(self, admin, group_name):
+        import omero
+        try:
+            g = admin.lookupGroup(group_name)
+            gid = g.id.val
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown group: %s" % group_name)
+        return gid, g
+
     def find_group(self, admin, id_or_name):
         import omero
         try:
@@ -1470,9 +1490,29 @@ class UserGroupControl(BaseControl):
             except ValueError:
                 g = admin.lookupGroup(id_or_name)
                 gid = g.id.val
-            return gid, g
         except omero.ApiUsageException:
             self.ctx.die(503, "Unknown group: %s" % id_or_name)
+        return gid, g
+
+    def find_user_by_id(self, admin, user_id):
+        import omero
+        try:
+            uid = long(user_id)
+            u = admin.getExperimenter(uid)
+        except ValueError:
+            self.ctx.die(502, "Not a valid user ID: %s" % user_id)
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown experimenter: %s" % uid)
+        return uid, u
+
+    def find_user_by_name(self, admin, user_name):
+        import omero
+        try:
+            u = admin.lookupExperimenter(user_name)
+            uid = u.id.val
+        except omero.ApiUsageException:
+            self.ctx.die(503, "Unknown experimenter: %s" % user_name)
+        return uid, u
 
     def find_user(self, admin, id_or_name):
         import omero
@@ -1483,9 +1523,9 @@ class UserGroupControl(BaseControl):
             except ValueError:
                 u = admin.lookupExperimenter(id_or_name)
                 uid = u.id.val
-            return uid, u
         except omero.ApiUsageException:
             self.ctx.die(503, "Unknown experimenter: %s" % id_or_name)
+        return uid, u
 
     def addusersbyid(self, admin, group, users):
         import omero

@@ -248,11 +248,13 @@ class UserControl(UserGroupControl):
     def parse_userid(self, a, args):
         if args.id:
             user = getattr(args, "id", None)
-        elif args.name == "name":
+            return self.find_user_by_id(a, user)
+        elif args.name:
             user = getattr(args, "name", None)
+            return self.find_user_by_name(a, user)
         else:
             user = self.ctx._event_context.userName
-        return self.find_user(a,user)
+            return self.find_user_by_name(a, user)
 
     def filter_groups(self, groups, uid, owner = False, join = True):
 
