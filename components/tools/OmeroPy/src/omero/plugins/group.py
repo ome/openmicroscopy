@@ -188,11 +188,12 @@ More information is available at:
     def parse_groupid(self, a, args):
         if args.id:
             group = getattr(args, "id", None)
-        elif args.name == "name":
+            return self.find_group_by_id(a, group)
+        elif args.name:
             group = getattr(args, "name", None)
+            return self.find_group_by_name(a, group)
         else:
             self.ctx.die(503, "No group specified")
-        return self.find_group(a, group)
 
     def filter_users(self, uids, group, owner = False, join = True):
 
