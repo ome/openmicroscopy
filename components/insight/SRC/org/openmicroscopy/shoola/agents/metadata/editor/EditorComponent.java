@@ -545,7 +545,6 @@ class EditorComponent
 	public void download(File folder)
 	{
 		model.download(folder);
-		//setStatus(true);
 	}
 
 	/** 
