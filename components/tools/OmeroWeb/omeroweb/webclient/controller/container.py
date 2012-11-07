@@ -932,22 +932,26 @@ class BaseContainer(BaseController):
         """
         for p in parents:
             parent = p.split('-')
+            dtype = str(parent[0])
+            parentId = long(parent[1])
+            if dtype == "acquisition":
+                dtype = "PlateAcquisition"
             if self.tag:
-                for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.tag.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
             elif self.file:
-                for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
-                for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
                 # if comment is orphan, delete it directly
                 orphan = True
-                for parentType in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+                for parentType in ["Project", "Dataset", "Image", "Screen", "Plate", "PlateAcquisition", "Well"]:
                     annLinks = list(self.conn.getAnnotationLinks(parentType, ann_ids=[self.comment.id]))
                     if len(annLinks) > 0:
                         orphan = False
@@ -956,18 +960,18 @@ class BaseContainer(BaseController):
                     self.conn.deleteObjectDirect(self.comment._obj)
 
             elif self.dataset is not None:
-                if parent[0] == 'project':
-                    for pdl in self.dataset.getParentLinks([parent[1]]):
+                if dtype == 'project':
+                    for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
                             self.conn.deleteObjectDirect(pdl._obj)
             elif self.plate is not None:
-                if parent[0] == 'screen':
-                    for spl in self.plate.getParentLinks([parent[1]]):
+                if dtype == 'screen':
+                    for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
                             self.conn.deleteObjectDirect(spl._obj)
             elif self.image is not None:
-                if parent[0] == 'dataset':
-                    for dil in self.image.getParentLinks([parent[1]]):
+                if dtype == 'dataset':
+                    for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
                             self.conn.deleteObjectDirect(dil._obj)
             else:
