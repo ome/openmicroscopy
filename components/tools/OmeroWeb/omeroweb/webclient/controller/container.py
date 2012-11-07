@@ -421,6 +421,8 @@ class BaseContainer(BaseController):
             if len(objList) == 0:
                 continue
             parent_ids = [o.getId() for o in objList]
+            if isinstance(objList[0]._obj, omero.model.PlateAcquisitionI):
+                objType = 'PlateAcquisition'
             for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
                 ann = annLink.getAnnotation()
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
@@ -687,7 +689,7 @@ class BaseContainer(BaseController):
         parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
-                if k.lower() == 'acquisitions':
+                if k.lower() == 'acquisition':
                     parent_type = 'PlateAcquisition'
                 else:
                     parent_type = k.lower().title()

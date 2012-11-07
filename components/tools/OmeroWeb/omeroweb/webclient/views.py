@@ -1039,7 +1039,7 @@ def getObjects(request, conn=None):
             w.index=index
             wells.append(w)
     return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
-            'plate':plates, 'acquisitions':acquisitions, 'well':wells, 'share':shares}
+            'plate':plates, 'acquisition':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
     """ Used by forms to indicate the currently selected objects prepared above """
@@ -1061,7 +1061,7 @@ def batch_annotate(request, conn=None, **kwargs):
     objs = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
-            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisitions'], 'wells':objs['well']}
+            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
     
     form_comment = CommentAnnotationForm(initial=initial)
 
@@ -1095,7 +1095,7 @@ def annotate_file(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     
     obj_count = sum( [len(selected[types]) for types in selected] )
     
@@ -1178,7 +1178,7 @@ def annotate_comment(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well'],
             'shares':oids['share']}
     
     # Handle form submission...
@@ -1235,7 +1235,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     tags = manager.getTagsByObject()
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
 
     if request.method == 'POST':
