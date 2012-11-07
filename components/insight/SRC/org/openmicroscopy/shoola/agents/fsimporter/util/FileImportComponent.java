@@ -1112,8 +1112,8 @@ public class FileImportComponent
 	 */
 	public boolean hasImportFailed()
 	{
-		if (file.isFile()) return errorBox.isVisible();
-		return false;
+		//if (file.isFile()) return errorBox.isVisible();
+		return errorBox.isVisible();
 	}
 	
 	/**
@@ -1141,6 +1141,8 @@ public class FileImportComponent
 			return false;
 		}
 		if (components == null) {
+			if (errorBox.isVisible())
+				return errorBox.isEnabled() && errorBox.isSelected();
 			return false;
 		}
 		Iterator<FileImportComponent> i = components.values().iterator();
@@ -1200,12 +1202,16 @@ public class FileImportComponent
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
-				if (file.isDirectory() && isCancelled()) {
+				if (file.isDirectory()) {
+					if  (isCancelled()) return SUCCESS;
+					if (errorBox.isVisible()) return FAILURE;
 					return SUCCESS;
 				} else {
 					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
 						return FAILURE;
 				}
+			} else {
+				if (errorBox.isVisible()) return FAILURE;
 			}
 			return SUCCESS;
 		}
