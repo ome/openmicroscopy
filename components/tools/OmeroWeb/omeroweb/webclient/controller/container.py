@@ -476,6 +476,8 @@ class BaseContainer(BaseController):
             return sort_tags(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+        elif self.acquisition is not None:
+            return sort_tags(self.acquisition.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             if eid is not None:
                 params = omero.sys.Parameters()
@@ -507,6 +509,8 @@ class BaseContainer(BaseController):
             return sort_file_anns(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+        elif self.acquisition is not None:
+            return sort_file_anns(self.acquisition.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
