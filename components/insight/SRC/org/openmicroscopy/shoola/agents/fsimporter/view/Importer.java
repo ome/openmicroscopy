@@ -92,12 +92,6 @@ public interface Importer
 	/** Flag to denote the <i>Importing</i> state. */
 	public static final int     IMPORTING = 4;
 	
-	/** Flag to denote the <i>Loading Container</i> state. */
-	public static final int     LOADING_CONTAINER = 5;
-	
-	/** Flag to denote the <i>Creating Container</i> state. */
-	public static final int     CREATING_CONTAINER = 6;
-	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.

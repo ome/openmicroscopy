@@ -293,7 +293,9 @@ class ImporterComponent
 					return;
 				}
 				element = view.getElementToStartImportFor();
-				if (element != null) importData(element);
+				if (element != null) {
+					importData(element);
+				}
 			}	
 			fireStateChange();
 		}
