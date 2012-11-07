@@ -184,7 +184,10 @@ public class ImporterFactory
 	 */
 	private Importer getImporter(ImporterModel model)
 	{
-		if (importer != null) return importer;
+		if (importer != null) {
+			((ImporterComponent) importer).resetGroup(model.getGroupId());
+			return importer;
+		}
 		ImporterComponent comp = new ImporterComponent(model);
 		model.initialize(comp);
 		comp.initialize();

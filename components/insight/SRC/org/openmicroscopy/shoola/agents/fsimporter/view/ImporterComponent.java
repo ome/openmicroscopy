@@ -154,6 +154,13 @@ class ImporterComponent
 		view.initialize(model, controller);
 	}
 	
+	/**
+	 * Resets the identifier of the group.
+	 * 
+	 * @param groupID The id to set.
+	 */
+	void resetGroup(long groupID) { model.setGroupId(groupID); }
+	
 	/** 
 	 * Indicates that the group has been successfully switched if 
 	 * <code>true</code>, unsuccessfully if <code>false</code>.
