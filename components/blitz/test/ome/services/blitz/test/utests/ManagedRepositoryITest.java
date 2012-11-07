@@ -227,7 +227,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     @Test
     public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
         String actual = this.tmri.getStringFromToken("", null, null);
-        Assert.assertTrue(actual.length() == 0);
+        Assert.assertEquals(actual.length(), 0);
     }
 
     @Test
