@@ -46,7 +46,6 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -313,7 +312,10 @@ class EditorControl
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Download", "Select where to download the file.", null, true);
-		chooser.setSelectedFileFull(view.getRefObjectName());
+		try {
+			File file = UIUtilities.getDefaultFolder();
+			if (file != null) chooser.setCurrentDirectory(file);
+		} catch (Exception ex) {}
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setApproveButtonText("Download");
@@ -342,6 +344,10 @@ class EditorControl
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Save As", "Select where to save locally the images as JPEG.",
 				saveAsFilters);
+		try {
+			File file = UIUtilities.getDefaultFolder();
+			if (file != null) chooser.setCurrentDirectory(file);
+		} catch (Exception ex) {}
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
 		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
 		chooser.setApproveButtonText("Save");
