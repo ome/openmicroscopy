@@ -1062,8 +1062,8 @@ def batch_annotate(request, conn=None, **kwargs):
     selected = getIds(request)
     initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
             'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
-    
     form_comment = CommentAnnotationForm(initial=initial)
+    index = int(request.REQUEST.get('index', 0))
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
@@ -1078,7 +1078,7 @@ def batch_annotate(request, conn=None, **kwargs):
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1158,7 +1158,7 @@ def annotate_file(request, conn=None, **kwargs):
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
-        context = {'form_file': form_file}
+        context = {'form_file': form_file, 'index': index}
         template = "webclient/annotations/files_form.html"
     context['template'] = template
     return context
@@ -1274,7 +1274,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags}
+        context = {'form_tags': form_tags, 'index': index}
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context

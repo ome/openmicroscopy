@@ -290,7 +290,7 @@
                 
 		<h2>{% trans "Tags" %}</h2>
 
-        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver btn_add"><span></span></a>
+        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
 				
         <div id="tags_container" class="lntags">
             {% for t in batchAnns.Tag %}
@@ -312,7 +312,7 @@
 
            
 			
-            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}" class="btn silver btn_add">
+            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
                 <span></span>
             </a>
 			
