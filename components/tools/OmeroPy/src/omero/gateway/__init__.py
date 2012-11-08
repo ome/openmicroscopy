@@ -3680,6 +3680,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         raise NotImplementedError
     
     def getParentLinks(self, ptype, pids=None):
+        ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
         if not ptype in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
             raise AttributeError("getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
