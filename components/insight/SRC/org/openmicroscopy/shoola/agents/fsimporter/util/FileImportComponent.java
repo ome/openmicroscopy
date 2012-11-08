@@ -366,18 +366,11 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
+		if (busyLabel.isBusy() && !statusLabel.isCancellable())
 			return;
-		String s = CANCEL_TEXT;
-		if (file.isDirectory()) {
-			busyLabel.setBusy(true);
-			busyLabel.setVisible(true);
-			s += " waiting on scanning to finish";
-		} else {
-			busyLabel.setBusy(false);
-			busyLabel.setVisible(false);
-		}
-		statusLabel.setText(s);
+		busyLabel.setBusy(false);
+		busyLabel.setVisible(false);
+		statusLabel.setText(CANCEL_TEXT);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
