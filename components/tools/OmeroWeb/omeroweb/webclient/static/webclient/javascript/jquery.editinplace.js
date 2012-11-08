@@ -91,7 +91,9 @@
                                                 if (new_name.length > 30) {
                                                     new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
                                                 }
-                                                window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), new_name);
+                                                if (data.o_type != "well") {
+                                                    window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), new_name);
+                                                }
                                             }
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {

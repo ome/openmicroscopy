@@ -1401,6 +1401,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
+            if (o_type == "well"):
+                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
             context = {'manager':manager, 'form':form}
@@ -1415,8 +1417,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
-                manager.updateName(o_type, o_id, name)                
-                rdict = {'bad':'false' }
+                rdict = {'bad':'false', 'o_type': o_type}
+                if (o_type == "well"):
+                    manager.image = manager.well.getWellSample(index).image()
+                    o_type = "image"
+                manager.updateName(o_type, name)
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
             else:
@@ -1432,6 +1437,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # start editing description in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
+            if (o_type == "well"):
+                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerDescriptionForm(initial={'description': obj.description})
             context = {'manager':manager, 'form':form}
@@ -1446,7 +1453,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 description = form.cleaned_data['description']
-                manager.updateDescription(o_type, o_id, description)                
+                if (o_type == "well"):
+                    manager.image = manager.well.getWellSample(index).image()
+                    o_type = "image"
+                manager.updateDescription(o_type, description)
                 rdict = {'bad':'false' }
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')

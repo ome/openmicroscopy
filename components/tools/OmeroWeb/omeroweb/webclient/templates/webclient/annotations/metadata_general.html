@@ -35,12 +35,12 @@
                 
                 {% if manager.canEdit %}
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
@@ -636,9 +636,9 @@
             {% if manager.well %}            
             {% if manager.well.getWellSample.image.canEdit %}
 			
-			<div id="wellname-{{ manager.well.getWellSample.image.id }}" class="data_heading">
+			<div id="wellname-{{ manager.well.id }}" class="data_heading">
 				<h1>
-					<p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
+					<p id="wellname-{{ manager.well.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
 				</h1>
 				<button class="btn silver btn_edit" alt="e" title="edit">
 					<span></span>
@@ -660,9 +660,9 @@
 			
             <div class="description">
                 {% if manager.well.getWellSample.image.canEdit %}
-                <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
+                <div class="data_heading" id="welldescription-{{ manager.well.id }}">
                     <p>
-                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
+                        <span id="welldescription-{{ manager.well.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
                         <button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>

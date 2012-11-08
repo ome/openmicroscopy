@@ -738,7 +738,7 @@ class BaseContainer(BaseController):
     ################################################################
     # Update
     
-    def updateDescription(self, o_type, o_id, description=None):
+    def updateDescription(self, o_type, description=None):
         obj = getattr(self, o_type)._obj
         if description is not None and description != "" :
             obj.description = rstring(str(description))
@@ -746,7 +746,7 @@ class BaseContainer(BaseController):
             obj.description = None
         self.conn.saveObject(obj)
     
-    def updateName(self, o_type, o_id, name):
+    def updateName(self, o_type, name):
         obj = getattr(self, o_type)._obj
         if o_type not in ('tag', 'tagset'):
             obj.name = rstring(str(name))
