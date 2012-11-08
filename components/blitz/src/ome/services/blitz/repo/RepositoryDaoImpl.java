@@ -50,22 +50,18 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     /**
-     * Register an OriginalFile using its path
+     * Register an OriginalFile object
      *
-     * @param checkedPath
-     *            CheckedPath object wrapper around the path string.
-     * @param path
-     *            Absolute path of the file to be registered.
-     * @param mimetype
-     *            Mimetype as an RString.
-     * @param __current
-     *            ice context.
+     * @param omeroFile
+     *            OriginalFile object.
+     * @param currentUser
+     *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    public OriginalFile register(OriginalFile omeroFile,
-            omero.RString mimetype, final Principal currentUser) throws ServerError {
+    public OriginalFile register(OriginalFile omeroFile, final Principal currentUser)
+            throws ServerError {
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
                 .reverse(omeroFile);

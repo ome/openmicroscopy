@@ -15,22 +15,18 @@ public interface RepositoryDao {
     OriginalFile getOriginalFile(final long repoId);
 
     /**
-     * Register an OriginalFile using its path
+     * Register an OriginalFile object
      *
-     * @param checkedPath
-     *            CheckedPath object wrapper around the path string.
-     * @param path
-     *            Absolute path of the file to be registered.
-     * @param mimetype
-     *            Mimetype as an RString.
-     * @param __current
-     *            ice context.
+     * @param omeroFile
+     *            OriginalFile object.
+     * @param currentUser
+     *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    OriginalFile register(OriginalFile omeroFile, omero.RString mimetype,
-            final Principal currentUser) throws ServerError;
+    OriginalFile register(OriginalFile omeroFile, final Principal currentUser)
+            throws ServerError;
 
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if

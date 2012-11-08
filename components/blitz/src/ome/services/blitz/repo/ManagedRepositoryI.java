@@ -416,10 +416,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     public OriginalFile createOriginalFile(String path, Ice.Current __current)
             throws omero.ApiUsageException {
-        long size = new File(root.file, path).length();
-        File file = new File(path);
+        CheckedPath check = checkPath(path, __current).mustExist();
         OriginalFile of = repositoryDao.createUserFile(getRepoUuid(),
-                file.getParent(), file.getName(), size, currentUser(__current));
+                check.getRelativePath(), check.file.getName(),
+                check.file.length(), currentUser(__current));
         return of;
     }
 

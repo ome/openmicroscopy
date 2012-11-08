@@ -174,12 +174,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      */
     public OriginalFile register(String path, omero.RString mimetype,
-            Current __current)
-            throws ServerError {
+            Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
         CheckedPath checkedPath = checkPath(path, __current);
         OriginalFile omeroFile = checkedPath.createOriginalFile(mimetype);
-        return this.repositoryDao.register(omeroFile, mimetype, currentUser);
+        return this.repositoryDao.register(omeroFile, currentUser);
     }
 
     public boolean delete(String path, Current __current) throws ServerError {
