@@ -258,7 +258,7 @@ class ImporterModel
 	 */
 	void cancel()
 	{
-		state = Importer.READY;
+		//state = Importer.READY;
 	}
 
 	/**

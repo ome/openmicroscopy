@@ -388,10 +388,8 @@ class ImporterComponent
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
 				element.cancelLoading();
-				//if (element.isDone())
 				model.cancel(element.getID());
 			}
-			model.setState(READY);
 		}
 	}
 
