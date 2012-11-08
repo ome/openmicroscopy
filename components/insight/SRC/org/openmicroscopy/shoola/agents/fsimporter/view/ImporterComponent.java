@@ -690,7 +690,7 @@ class ImporterComponent
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case IMPORTING:
+			//case IMPORTING:
 				return;
 		}
 		if (group == null) return;
