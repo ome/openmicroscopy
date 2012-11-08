@@ -2077,6 +2077,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			}
 			container.repaint();
 		}
+		locationPane.validate();
 		locationPane.repaint();
 		tagsPane.removeAll();
 		tagsMap.clear();
@@ -2235,7 +2236,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				selected = o;
 			}
 		}
-		if (selected != null) groupSelection.setSelectedItem(selected);
+		if (selected != null) {
+			ActionListener[] listeners = groupSelection.getActionListeners();
+			for (int i = 0; i < listeners.length; i++) {
+				groupSelection.removeActionListener(listeners[i]);
+			}
+			groupSelection.setSelectedItem(selected);
+			for (int i = 0; i < listeners.length; i++) {
+				groupSelection.addActionListener(listeners[i]);
+			}
+		}
 	}
 
 	/**
