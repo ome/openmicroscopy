@@ -421,6 +421,12 @@ class BaseContainer(BaseController):
             if len(objList) == 0:
                 continue
             parent_ids = [o.getId() for o in objList]
+            # If we're working with a 'well', we're actually annotating the image
+            for i in range(len(objList)):
+                o = objList[i]
+                if isinstance(o._obj, omero.model.WellI):
+                    objType = "Image"
+                    parent_ids[i] = o.getWellSample().image().getId() # index has already been set
             if isinstance(objList[0]._obj, omero.model.PlateAcquisitionI):
                 objType = 'PlateAcquisition'
             for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
