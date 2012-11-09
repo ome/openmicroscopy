@@ -1048,8 +1048,8 @@ public class ScreenLogin
 			 */
 			public void mouseClicked(MouseEvent e) { 
 				
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false),
+									Boolean.valueOf(true));
 				requestFocusOnField();
 			}
 		});
