@@ -165,6 +165,13 @@ class HeaderResolver(object):
                 column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
                                       list())
             columns.append(column)
+        for column in columns:
+            if column.__class__ is PlateColumn:
+                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
+            if column.__class__ is WellColumn:
+                columns.append(StringColumn(WELL_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
         return columns
 
     def create_columns_dataset(self):
@@ -233,14 +240,18 @@ class ValueResolver(object):
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
+        self.wells_by_id = dict()
         wells_by_location = dict()
+        wells_by_id = dict()
         self.wells_by_location[self.target_object.name.val] = wells_by_location
-        self.parse_plate(self.target_object, wells_by_location)
+        self.wells_by_id[self.target_object.id.val] = wells_by_id
+        self.parse_plate(self.target_object, wells_by_location, wells_by_id)
 
-    def parse_plate(self, plate, wells_by_location):
+    def parse_plate(self, plate, wells_by_location, wells_by_id):
         # TODO: This should use the PlateNamingConvention. We're assuming rows
         # as alpha and columns as numeric.
         for well in plate.copyWells():
+            wells_by_id[well.id.val] = well
             row = well.row.val
             # 0 offsetted is not what people use in reality
             column = str(well.column.val + 1)
@@ -266,7 +277,7 @@ class ValueResolver(object):
                         'Cannot parse well identifier "%s" from row: %r' % \
                                 (value, [o[1] for o in row]))
             plate_row = m.group(1).lower()
-            plate_column = m.group(2)
+            plate_column = str(long(m.group(2)))
             if len(self.wells_by_location) == 1:
                 wells_by_location = self.wells_by_location.values()[0]
                 log.debug('Parsed "%s" row: %s column: %s' % \
@@ -401,9 +412,15 @@ class ParsingContext(object):
             log.info('Nothing to do during post processing.')
         for i in range(0, len(self.columns[0].values)):
             if well_name_column is not None:
+                if PlateI is self.value_resolver.target_class:
+                    plate = self.value_resolver.target_object.id.val
+                elif ScreenI is self.value_resolver.target_class:
+                    plate = columns_by_name['Plate'].values[i]
                 try:
-                    row = columns_by_name['Row'].values[i]
-                    col = columns_by_name['Column'].values[i]
+                    well = self.value_resolver.wells_by_id[plate]
+                    well = well[well_column.values[i]]
+                    row = well.row.val
+                    col = well.column.val
                 except KeyError:
                     log.error('Missing row or column for well name population!')
                     raise
