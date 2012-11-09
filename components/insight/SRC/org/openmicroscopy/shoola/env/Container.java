@@ -36,6 +36,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.NetworkChecker;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
@@ -383,9 +384,24 @@ public final class Container
 		int value = -1;
 		if (v != null) value = v.intValue();
 		if (value <= 0) {
+			NetworkChecker checker = new NetworkChecker();
+			boolean up = true;
+			try {
+				up = checker.isNetworkup();
+			} catch (Exception e) {
+				//Exception thrown if network is down.
+				up = false;
+			}
+			if (!up) { //no network 
+				//halt will bail out without calling further shutdown hooks
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					public void run() {
+						Runtime.getRuntime().halt(1);
+					}
+				});
+			}
 			System.exit(0);
-		}
-		else {
+		} else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
 			singleton = null;
 		}

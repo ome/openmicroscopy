@@ -616,7 +616,8 @@ class Connector
 		importStore = null;
 	}
 	
-	/** Closes the session.
+	/** 
+	 * Closes the session.
 	 * 
 	 * @param networkup Pass <code>true</code> if the network is up,
 	 * <code>false</code> otherwise.
@@ -624,7 +625,6 @@ class Connector
 	void close(boolean networkup)
 		throws Throwable
 	{
-		secureClient.setNetworkup(networkup);
 		if (networkup) {
 			shutDownServices(true);
 			secureClient.closeSession();
