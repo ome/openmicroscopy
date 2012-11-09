@@ -85,7 +85,8 @@
             var selected = datatree.get_selected();
 
             var del_form = $( "#delete-dialog-form" );
-            del_form.dialog( "open" );
+            del_form.dialog( "open" )
+                .removeData("clicked_button");
             // clear previous stuff from form
             $.removeData(del_form, "clicked_button");
             $("#delete_contents_form").show();
