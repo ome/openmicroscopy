@@ -15,7 +15,6 @@ import re
 
 import omero
 import omero.clients
-import sys
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
 from django.utils.encoding import smart_str
@@ -362,7 +361,7 @@ def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwarg
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
-    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params, conn.SERVICE_OPTS)
 
     if shape is None:
         raise Http404
@@ -755,7 +754,7 @@ def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     if 'download' in kwargs and kwargs['download']:
         rsp['Content-Type'] = 'application/force-download'
-        rsp['Content-Length'] = sys.getsizeof(jpeg_data)
+        rsp['Content-Length'] = len(jpeg_data)
         rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (img.getName().replace(" ","_"))
     return rsp
 
