@@ -23,6 +23,7 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
+from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
 from marshal import imageMarshal, shapeMarshal
 
@@ -37,6 +38,7 @@ from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
 
 import Ice
+import glob
 
 
 import settings
@@ -49,7 +51,7 @@ cache = CacheBase()
 
 import logging, os, traceback, time, zipfile, shutil
 
-from omeroweb.decorators import login_required
+from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -1593,6 +1595,75 @@ def full_viewer (request, iid, conn=None, **kwargs):
     except omero.SecurityViolation:
         raise Http404
     return HttpResponse(rsp)
+
+
+@login_required(doConnectionCleanup=False)
+def archived_files(request, iid, conn=None, **kwargs):
+    """
+    Downloads the archived file(s) as a single file or as a zip (if more than one file)
+    """
+    image = conn.getObject("Image", iid)
+    if image is None:
+        logger.debug("Cannot download archived file becuase Image does not exist.")
+        return HttpResponseServerError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
+    
+    files = list(image.getArchivedFiles())
+
+    if len(files) == 0:
+        logger.debug("Tried downloading archived files from image with no files archived.")
+        return HttpResponseServerError("This image has no Archived Files.")
+
+    if len(files) == 1:
+        orig_file = files[0]
+        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+        rsp.conn = conn
+        rsp['Content-Length'] = orig_file.getSize()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
+    else:
+        import tempfile
+        temp = tempfile.NamedTemporaryFile(suffix='.archive')
+        try:
+            temp_zip_dir = tempfile.mkdtemp()
+            logger.debug("download dir: %s" % temp_zip_dir)
+            try:
+                for a in files:
+                    temp_f = os.path.join(temp_zip_dir, a.name)
+                    f = open(str(temp_f),"wb")
+                    try:
+                        for chunk in a.getFileInChunks():
+                            f.write(chunk)
+                    finally:
+                        f.close()
+
+                # create zip
+                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+                try:
+                    a_files = os.path.join(temp_zip_dir, "*")
+                    for name in glob.glob(a_files):
+                        zip_file.write(name, os.path.basename(name))
+                finally:
+                    zip_file.close()
+                    # delete temp dir
+            finally:
+                shutil.rmtree(temp_zip_dir, ignore_errors=True)
+            
+            file_name = "%s.zip" % image.getName().replace(" ","_")
+
+            # return the zip or single file
+            archivedFile_data = FileWrapper(temp)
+            rsp = ConnCleaningHttpResponse(archivedFile_data)
+            rsp.conn = conn
+            rsp['Content-Length'] = temp.tell()
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+            temp.seek(0)
+        except Exception, x:
+            temp.close()
+            stack = traceback.format_exc()
+            logger.error(stack)
+            return HttpResponseServerError("Cannot download file (id:%s).\n%s" % (iid, stack))
+
+    rsp['Content-Type'] = 'application/force-download'
+    return rsp
 
 
 @login_required()
