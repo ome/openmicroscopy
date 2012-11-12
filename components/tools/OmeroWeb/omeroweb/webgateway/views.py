@@ -1769,3 +1769,46 @@ def su (request, user, conn=None, **kwargs):
     conn.revertGroupForSession()
     conn.seppuku()
     return True
+
+
+@login_required()
+@jsonp
+def plate_bulk_annotations_by_image(request, imageid, conn=None, **kwargs):
+    r = conn.getSharedResources()
+    q = conn.getQueryService()
+
+    well = q.findByQuery("""
+        select w from Well w
+        join w.wellSamples s
+        join fetch w.plate p
+        join fetch p.annotationLinks links
+        join fetch links.child child
+        join fetch child.file file
+        where s.image.id=:id
+        and file.path='bulk_annotations'""",
+        omero.sys.ParametersI().addId(imageid))
+
+    if not well:
+        return dict(error='Plate with image ID %s not found' % imageid)
+
+    plate = well.plate
+
+    f = plate.linkedAnnotationList()[0].file.id.val
+
+    t = r.openTable(omero.model.OriginalFileI(f))
+    cols = t.getHeaders()
+    rows = t.getNumberOfRows()
+
+    try:
+        idx = t.getWhereList("(Well==%s)" % well.id.val,
+                             None,
+                             0, rows, 1)[0]
+    except Exception, e:
+        print e
+        return dict(error='Could not retrieve table row')
+
+    result = []
+    for col in t.read(range(len(cols)), idx, idx+1).columns:
+        result.append((col.name, col.values[0]))
+
+    return dict(data=result)
