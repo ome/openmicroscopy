@@ -275,37 +275,41 @@
                     var url = $(this).attr('href');
                     $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
                     var dialog_opts = ['Cancel', 'Create'];
-                    $.getJSON("{% url ome_tiff_info manager.obj_id %}", function(data) {
-                        
-                        var msg = "This will create an OME-TIFF file from this Image.";
-                        if (data.id && data.ago) {
-                            msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
-                            var download_ometiff = data.download;
-                            dialog_opts[1] = "Create New";
-                            dialog_opts.push("Download");
-                        } else {
-                            msg += "<br>This will be attached to the Image and available to download.";
-                        }
+                    $.ajax({
+                        url: "{% url ome_tiff_info manager.obj_id %}",
+                        cache: false,
+                        dataType: 'json',
+                        success: function(data) {
+                            var msg = "This will create an OME-TIFF file from this Image.";
+                            if (data.id && data.ago) {
+                                msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
+                                var download_ometiff = data.download;
+                                dialog_opts[1] = "Create New";
+                                dialog_opts.push("Download");
+                            } else {
+                                msg += "<br>This will be attached to the Image and available to download.";
+                            }
 
-                        var confirm_ometiff = confirm_dialog(msg,
-                            function() {
-                                var btn = confirm_ometiff.data("clicked_button");
-                                switch (btn) {
-                                    case "Create":   // two options for the same button
-                                    case "Create New":
-                                        $.post( url, function() {
-                                            showActivities();
-                                        });
-                                        break;
-                                    case "Download":
-                                        window.location.href = download_ometiff;
-                                        break;
-                                }
-                            },
-                            "Create OME-TIFF?",
-                            dialog_opts,
-                            null, 200
-                        );
+                            var confirm_ometiff = confirm_dialog(msg,
+                                function() {
+                                    var btn = confirm_ometiff.data("clicked_button");
+                                    switch (btn) {
+                                        case "Create":   // two options for the same button
+                                        case "Create New":
+                                            $.post( url, function() {
+                                                showActivities();
+                                            });
+                                            break;
+                                        case "Download":
+                                            window.location.href = download_ometiff;
+                                            break;
+                                    }
+                                },
+                                "Create OME-TIFF?",
+                                dialog_opts,
+                                null, 200
+                            );
+                        }
                     });
                     
                     e.preventDefault();
