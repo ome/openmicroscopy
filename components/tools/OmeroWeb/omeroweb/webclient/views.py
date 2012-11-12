@@ -329,7 +329,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'well'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -344,7 +344,17 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                 first_sel = conn.getObject("TagAnnotation", long(first_id))
             else:
                 first_sel = conn.getObject(first_obj, long(first_id))
-        except ValueError:
+                # Wells aren't in the tree, so we need parent...
+                if first_obj == "well":
+                    parentNode = first_sel.getWellSample().getPlateAcquisition()
+                    ptype = "acquisition"
+                    if parentNode is None:      # No Acquisition for this well...
+                        parentNode = first_sel.getParent()  #...use Plate instead
+                        ptype = "plate"
+                    first_sel = parentNode
+                    init['initially_open'] = ["%s-%s" % (ptype, parentNode.getId())]
+                    init['initially_select'] = init['initially_open'][:]
+        except:
             pass    # invalid id
         if first_obj not in ("project", "screen"):
             # need to see if first item has parents
