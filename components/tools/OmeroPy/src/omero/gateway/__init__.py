@@ -4955,6 +4955,18 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         """
         return self.getImage()
 
+    def getPlateAcquisition (self):
+        """
+        Gets the PlateAcquisition for this well sample, or None
+
+        @return:    The PlateAcquisition
+        @rtype:     L{PlateAcquisitionWrapper} or None
+        """
+        aquisition = self._obj.plateAcquisition
+        if aquisition is None:
+            return None
+        return PlateAcquisitionWrapper(self._conn, aquisition)
+
 WellSampleWrapper = _WellSampleWrapper
 
 #class CategoryWrapper (BlitzObjectWrapper):
