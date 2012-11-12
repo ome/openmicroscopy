@@ -244,6 +244,8 @@
     $('#wblitz-image-pubid').html(tmp.projectId);
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
 
+	$("#bulk-annotations").hide();
+	$("#bulk-annotations").next().hide();
 	if (tmp.wellId) {
 		var wellId = tmp.wellId;
 		// Load bulk annotations for plate
