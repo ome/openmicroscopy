@@ -329,7 +329,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
