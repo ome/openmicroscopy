@@ -4724,7 +4724,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
                 name = "Plate %i" % self.id
         return name
     name = property(getName)
-    
+
+    def listParents (self, withlinks=False):
+        """
+        Because PlateAcquisitions are direct children of plates, with no links in between,
+        a special listParents is needed
+        """
+        rv = self._conn.getObject('Plate', self.plate.id.val)
+        if withlinks:
+            return [(rv, None)]
+        return [rv]
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
