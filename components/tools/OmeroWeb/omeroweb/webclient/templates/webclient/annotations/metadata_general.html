@@ -728,7 +728,17 @@
 				
 				<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
                 
-                <h2 class="data_heading_id">Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong></h2>
+                <h2 class="data_heading_id">
+                    Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong>
+                    <!-- open link -->
+                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
+                        <span></span>
+                    </button>
+                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                        <input type="text" size="30">
+                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                    </div>
+                </h2>
                 
 				<hr/>
 				
