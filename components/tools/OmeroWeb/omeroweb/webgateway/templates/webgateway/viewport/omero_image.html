@@ -244,25 +244,48 @@
     $('#wblitz-image-pubid').html(tmp.projectId);
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
 
-	$.getJSON('{% url plate_bulk_annotations_by_image 999 %}?callback=?'.replace('999', tmp.imageId),
-	  function(result) {
-		if (result.error) {
-			$("#bulk-annotations").hide().next().hide();
-		}
-		var table = $("#bulk-annotations").show().next().show().children("table");
-		table.find("tr").remove();
-		for (var bulkannotation in result.data) {
-			var label = result.data[bulkannotation][0];
-			var value = result.data[bulkannotation][1];
-			var row = $('<tr><td class="title"></td><td></td></tr>');
-			row.addClass(bulkannotation % 2 == 1 ? 'odd' : 'even');
-			$('td:first-child', row).html(label + ":&nbsp;");
-			$('td:last-child', row).html(value);
-			table.append(row);
-		}
-	  }
-	);
-
+	if (tmp.wellId) {
+		var wellId = tmp.wellId;
+		// Load bulk annotations for plate
+		var onAnnotations = function(result) {
+			console.log(result);
+			if (result.data && result.data.rows) {
+				var table = $("#bulk-annotations").show().next().show().children("table");
+				table.find("tr").remove();
+				for (var col in result.data.columns) {
+					var label = result.data.columns[col];
+					var value = '';
+					for (var row in result.data.rows) {
+						value += result.data.rows[row][col] + '<br />';
+					}
+					var row = $('<tr><td class="title"></td><td></td></tr>');
+					row.addClass(col % 2 == 1 ? 'odd' : 'even');
+					$('td:first-child', row).html(label + ":&nbsp;");
+					$('td:last-child', row).html(value);
+					table.append(row);
+				}
+			}
+		};
+		var onFileId = function(result) {
+			if (result.data) {
+				$.ajax({
+					url: '{% url webgateway_table_query 999 %}?callback=?'.replace('999', result.data[0].file),
+					dataType: 'json',
+					data: {data: JSON.stringify({'query': '(Well==' + wellId + ')'})},
+					success: onAnnotations,
+					type: 'POST'
+				});
+			}
+		};
+		var onPlateId = function(result) {
+			if (result.plateId) {
+				$.getJSON('{% url webgateway_annotations 'Plate' 999 %}?callback=?'.replace('999', result.plateId),
+						  onFileId);
+			}
+		};
+		$.getJSON('{% url webgateway_wellData_json 999 %}?callback=?'.replace('999', tmp.wellId),
+				  onPlateId);
+	}
 
     {% block xtra_metadata %}{% endblock %}
 
@@ -969,8 +992,8 @@
         </table>
       </div>
 
-      <h3 class="can-collapse" id="bulk-annotations">Bulk Annotations</h3>
-      <div>
+      <h3 class="can-collapse" id="bulk-annotations" style="display: none;">Bulk Annotations</h3>
+      <div style="display: none;">
 		<table cellspacing="0">
 		</table>
       </div>
