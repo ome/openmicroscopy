@@ -69,15 +69,15 @@ More information is available at:
         copyusers = parser.add(sub, self.copyusers, "Copy the users of one group to another group")
         copyusers.add_argument("from_group", help = "ID or name of the source group whose users will be copied")
         copyusers.add_argument("to_group", help = "ID or name of the target group which will have new users added")
-        copyusers.add_argument("--owner", action="store_true", default=False, help="Copy the group owners only")
+        copyusers.add_argument("--as-owner", action="store_true", default=False, help="Copy the group owners only")
 
         adduser = parser.add(sub, self.adduser, "Add one or more users to a group")
         adduser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to add to the group")
-        adduser.add_argument("--owner", action="store_true", default=False, help="Add the users as owners of the group")
+        adduser.add_argument("--as-owner", action="store_true", default=False, help="Add the users as owners of the group")
         
         removeuser = parser.add(sub, self.removeuser, "Remove one or more users from a group")
         removeuser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to remove")
-        removeuser.add_argument("--owner", action="store_true", default=False, help="Remove the users from the group owner list")
+        removeuser.add_argument("--as-owner", action="store_true", default=False, help="Remove the users from the group owner list")
         
         for x in (adduser, removeuser):
             group = x.add_mutually_exclusive_group()
@@ -222,13 +222,13 @@ More information is available at:
         f_gid, f_grp = self.find_group(a, args.from_group)
         t_gid, t_grp = self.find_group(a, args.to_group)
 
-        if args.owner:
+        if args.as_owner:
             uids = self.getownerids(f_grp)
         else:
             uids = self.getuserids(f_grp)
-        uids = self.filter_users(uids, t_grp, args.owner, True)
+        uids = self.filter_users(uids, t_grp, args.as_owner, True)
         
-        if args.owner:
+        if args.as_owner:
             self.addownersbyid(a, t_grp, uids)
             self.ctx.out("Owners of %s copied to %s" % (args.from_group, args.to_group))
         else:
@@ -241,9 +241,9 @@ More information is available at:
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        uids = self.filter_users(uids, group, args.owner, True)
+        uids = self.filter_users(uids, group, args.as_owner, True)
         
-        if args.owner:
+        if args.as_owner:
             self.addownersbyid(a, group, uids)
         else:
             self.addusersbyid(a, group, uids)
@@ -254,9 +254,9 @@ More information is available at:
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
         uids = [self.find_user(a, x)[0] for x in args.USER]
-        uids = self.filter_users(uids, group, args.owner, False)
+        uids = self.filter_users(uids, group, args.as_owner, False)
         
-        if args.owner:
+        if args.as_owner:
             self.removeownersbyid(a, group, uids)
         else:
             self.removeusersbyid(a, group, uids)
