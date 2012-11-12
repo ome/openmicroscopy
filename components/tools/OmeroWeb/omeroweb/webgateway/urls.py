@@ -267,6 +267,9 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
+
+plate_bulk_annotations_by_image  = url(r'^bulkannotations/plate/image/(?P<imageid>\d+)/$', 'webgateway.views.plate_bulk_annotations_by_image', name="plate_bulk_annotations_by_image")
+
 urlpatterns = patterns('',
     webgateway,
     render_image,
@@ -305,6 +308,8 @@ urlpatterns = patterns('',
     # switch user
     webgateway_su,
     
+    plate_bulk_annotations_by_image,
+
     # Debug stuff
 
 )
