@@ -19,12 +19,14 @@ from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedir
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
+from django.views.decorators.http import require_POST
 from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
+from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
 
 try:
@@ -1812,3 +1814,66 @@ def plate_bulk_annotations_by_image(request, imageid, conn=None, **kwargs):
         result.append((col.name, col.values[0]))
 
     return dict(data=result)
+
+
+@login_required()
+@jsonp
+def annotations(request, objtype, objid, conn=None, **kwargs):
+
+    q = conn.getQueryService()
+
+    try:
+        obj = q.findByQuery("""
+            select obj from %s obj
+            join fetch obj.annotationLinks links
+            join fetch links.child
+            where obj.id=:id
+            """ % objtype,
+            omero.sys.ParametersI().addId(objid))
+    except omero.QueryException:
+        return dict(error='%s cannot be queried' % objtype)
+
+    if not obj:
+        return dict(error='%s with id %s not found' % (objtype, objid))
+
+    return dict(data=[
+        dict(id=annotation.id.val,
+             file=annotation.file.id.val)
+        for annotation in obj.linkedAnnotationList()
+        if annotation.getNs().val == NSBULKANNOTATIONS
+        ])
+
+
+@require_POST
+@login_required()
+@jsonp
+def table_query(request, fileid, conn=None, **kwargs):
+
+    r = conn.getSharedResources()
+
+    try:
+        data = simplejson.loads(request.POST.get('data'))
+        query = data['query']
+    except Exception, ex:
+        return dict(error='Invalid query: %s' % ex)
+
+    t = r.openTable(omero.model.OriginalFileI(fileid))
+    if not t:
+        return dict(error="Table %s not found" % fileid)
+
+    cols = t.getHeaders()
+    rows = t.getNumberOfRows()
+
+    try:
+        hits = t.getWhereList(query, None, 0, rows, 1)
+    except Exception, e:
+        return dict(error='Error executing query: %s' % query)
+
+    return dict(data=dict(
+        columns=[col.name for col in cols],
+        rows=[
+            [col.values[0] for col in t.read(range(len(cols)), hit, hit+1).columns]
+            for hit in hits
+        ],
+        )
+    )
