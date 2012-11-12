@@ -48,11 +48,11 @@ class UserControl(UserGroupControl):
 
         joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
         joingroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to join")
-        joingroup.add_argument("--owner", action="store_true", default=False, help="Join the group as an owner")
+        joingroup.add_argument("--as-owner", action="store_true", default=False, help="Join the group as an owner")
 
         leavegroup = parser.add(sub, self.leavegroup, "Leave one or more groups")
         leavegroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to leave")
-        leavegroup.add_argument("--owner", action="store_true", default=False, help="Leave the owner list of the group")
+        leavegroup.add_argument("--as-owner", action="store_true", default=False, help="Leave the owner list of the group")
 
         for x in (joingroup, leavegroup):
             group = x.add_mutually_exclusive_group()
@@ -283,10 +283,10 @@ class UserControl(UserGroupControl):
 
         uid, username = self.parse_userid(a, args)
         groups = [self.find_group(a, group)[1] for group in args.GROUP]
-        groups = self.filter_groups(groups, uid, args.owner, True)
+        groups = self.filter_groups(groups, uid, args.as_owner, True)
 
         for group in groups:
-            if args.owner:
+            if args.as_owner:
                 self.addownersbyid(a, group, [uid])
             else:
                 self.addusersbyid(a, group, [uid])
@@ -298,10 +298,10 @@ class UserControl(UserGroupControl):
 
         uid, username = self.parse_userid(a, args)
         groups = [self.find_group(a, group)[1] for group in args.GROUP]
-        groups = self.filter_groups(groups, uid, args.owner, False)
+        groups = self.filter_groups(groups, uid, args.as_owner, False)
 
         for group in list(groups):
-            if args.owner:
+            if args.as_owner:
                 self.removeownersbyid(a, group, [uid])
             else:
                 self.removeusersbyid(a, group, [uid])
