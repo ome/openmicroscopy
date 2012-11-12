@@ -211,6 +211,7 @@ class ValueResolver(object):
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
+        self.wells_by_id = dict()
         self.plates_by_name = dict()
         self.plates_by_id = dict()
         for plate in (l.child for l in self.target_object.copyPlateLinks()):
@@ -224,8 +225,10 @@ class ValueResolver(object):
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
+            wells_by_id = dict()
             self.wells_by_location[plate.name.val] = wells_by_location
-            self.parse_plate(plate, wells_by_location)
+            self.wells_by_id[plate.id.val] = wells_by_id
+            self.parse_plate(plate, wells_by_location, wells_by_id)
 
     def load_plate(self):
         query_service = self.client.getSession().getQueryService()
