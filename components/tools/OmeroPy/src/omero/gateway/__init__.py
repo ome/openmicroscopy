@@ -7922,6 +7922,7 @@ def refreshWrappers ():
                   "screen":ScreenWrapper,
                   "plate":PlateWrapper,
                   "plateacquisition": PlateAcquisitionWrapper,
+                  "acquisition": PlateAcquisitionWrapper,
                   "well":WellWrapper,
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,
