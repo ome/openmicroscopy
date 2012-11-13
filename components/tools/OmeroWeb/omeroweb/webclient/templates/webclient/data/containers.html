@@ -883,7 +883,7 @@
                             }
                         });
                     });
-                    tree_selection_changed();   // clear center and right panels etc
+                    clear_selected(true);   // clear center and right panels etc
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
@@ -945,7 +945,7 @@
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
-                    tree_selection_changed();
+                    clear_selected(true);   // force refresh: true
                     $("#dataTree").jstree("refresh");
                     data = $.jstree._focused().get_selected();
                     tree_selection_changed(data);
