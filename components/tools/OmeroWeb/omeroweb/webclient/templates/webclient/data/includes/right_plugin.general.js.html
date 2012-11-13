@@ -94,7 +94,19 @@ $(function () {
                     }
                 }
                 if (url !== null) {
-                    $metadata_general.load(url);
+                    // We are effectively doing $metadata_general.load(url) BUT we need to check that selection
+                    // is still correct (hasn't changed during the AJAX call);
+                    $.ajax({
+                        url: url,
+                        dataType: "html",
+                        success: function(data) {
+                            var selected_id = $("body").data("selected_objects.ome")[0].id;
+                            var oid = $(data).filter("#object-id").text();
+                            if (oid === selected_id) {
+                                $metadata_general.html(data);
+                            }
+                        }
+                    });
                 }
             }
         }
