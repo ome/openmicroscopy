@@ -188,12 +188,24 @@ More information is available at:
     def parse_groupid(self, a, args):
         if args.id:
             group = getattr(args, "id", None)
-            return self.find_group_by_id(a, group)
+            return self.find_group_by_id(a, group, die = True)
         elif args.name:
             group = getattr(args, "name", None)
-            return self.find_group_by_name(a, group)
+            return self.find_group_by_name(a, group, die = True)
         else:
-            self.ctx.die(503, "No group specified")
+            self.die_no_input_group()
+
+    def list_users(self, a, users):
+
+        uid_list = []
+        for user in users:
+            [uid, u] = self.find_user(a, user, die = False)
+            if uid:
+                uid_list.append(uid)
+        if not uid_list:
+            self.die_no_user_found()
+
+        return uid_list
 
     def filter_users(self, uids, group, owner = False, join = True):
 
@@ -219,8 +231,8 @@ More information is available at:
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        f_gid, f_grp = self.find_group(a, args.from_group)
-        t_gid, t_grp = self.find_group(a, args.to_group)
+        f_gid, f_grp = self.find_group(a, args.from_group, die = True)
+        t_gid, t_grp = self.find_group(a, args.to_group, die = True)
 
         if args.as_owner:
             uids = self.getownerids(f_grp)
@@ -240,7 +252,7 @@ More information is available at:
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
-        uids = [self.find_user(a, x)[0] for x in args.USER]
+        uids = self.list_users(a, args.USER)
         uids = self.filter_users(uids, group, args.as_owner, True)
         
         if args.as_owner:
@@ -253,7 +265,7 @@ More information is available at:
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
-        uids = [self.find_user(a, x)[0] for x in args.USER]
+        uids = self.list_users(a, args.USER)
         uids = self.filter_users(uids, group, args.as_owner, False)
         
         if args.as_owner:
