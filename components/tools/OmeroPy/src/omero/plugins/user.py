@@ -248,13 +248,25 @@ class UserControl(UserGroupControl):
     def parse_userid(self, a, args):
         if args.id:
             user = getattr(args, "id", None)
-            return self.find_user_by_id(a, user)
+            return self.find_user_by_id(a, user, die=True)
         elif args.name:
             user = getattr(args, "name", None)
-            return self.find_user_by_name(a, user)
+            return self.find_user_by_name(a, user, die=True)
         else:
             user = self.ctx._event_context.userName
-            return self.find_user_by_name(a, user)
+            return self.find_user_by_name(a, user, die=True)
+
+    def list_groups(self, a, groups):
+
+        group_list = []
+        for group in groups:
+            [gid, g] = self.find_group(a, group, die = False)
+            if g:
+                group_list.append(g)
+        if not group_list:
+            self.die_no_group_found()
+
+        return group_list
 
     def filter_groups(self, groups, uid, owner = False, join = True):
 
@@ -282,7 +294,7 @@ class UserControl(UserGroupControl):
         a = c.sf.getAdminService()
 
         uid, username = self.parse_userid(a, args)
-        groups = [self.find_group(a, group)[1] for group in args.GROUP]
+        groups = self.list_groups(a, args.GROUP)
         groups = self.filter_groups(groups, uid, args.as_owner, True)
 
         for group in groups:
@@ -297,7 +309,7 @@ class UserControl(UserGroupControl):
         a = c.sf.getAdminService()
 
         uid, username = self.parse_userid(a, args)
-        groups = [self.find_group(a, group)[1] for group in args.GROUP]
+        groups = self.list_groups(a, args.GROUP)
         groups = self.filter_groups(groups, uid, args.as_owner, False)
 
         for group in list(groups):

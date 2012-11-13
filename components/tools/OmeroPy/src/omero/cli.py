@@ -1461,70 +1461,136 @@ class GraphControl(CmdControl):
 
 class UserGroupControl(BaseControl):
 
-    def find_group_by_id(self, admin, group_id):
+    def die_no_input_group(self):
+        self.ctx.die(501,"No input group is specified")
+
+    def die_invalid_groupID(self, error_msg):
+        self.ctx.die(502, error_msg)
+
+    def die_invalid_group(self, error_msg):
+        self.ctx.die(503, error_msg)
+
+    def die_no_group_found(self):
+        self.ctx.die(504, "No group found")
+
+    def die_no_input_user(self):
+        self.ctx.die(511,"No input user is specified")
+
+    def die_invalid_userID(self, error_msg):
+        self.ctx.die(512, error_msg)
+
+    def die_invalid_user(self, error_msg):
+        self.ctx.die(513, error_msg)
+
+    def die_no_user_found(self):
+        self.ctx.die(514, "No user found")
+
+    def find_group_by_id(self, admin, group_id, die = False):
         import omero
         try:
             gid = long(group_id)
             g = admin.getGroup(gid)
         except ValueError:
-            self.ctx.die(502, "Not a valid group ID: %s" % group_id)
+            error_msg = "Not a valid group ID: %s" % group_id
+            if die:
+                self.die_invalid_groupID(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % gid)
+            error_msg = "Unknown group: %s" % gid
+            if die:
+                self.die_invalid_group(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return gid, g
 
-    def find_group_by_name(self, admin, group_name):
+    def find_group_by_name(self, admin, group_name, die = False):
         import omero
         try:
             g = admin.lookupGroup(group_name)
             gid = g.id.val
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % group_name)
+            error_msg = "Unknown group: %s" % group_name
+            if die:
+                self.die_invalid_group(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return gid, g
 
-    def find_group(self, admin, id_or_name):
+    def find_group(self, admin, id_or_name, die = False):
         import omero
         try:
             try:
                 gid = long(id_or_name)
-                g = admin.getGroup(gid)
             except ValueError:
                 g = admin.lookupGroup(id_or_name)
                 gid = g.id.val
+            else:
+                g = admin.getGroup(gid)
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown group: %s" % id_or_name)
+            error_msg = "Unknown group: %s" % id_or_name
+            if die:
+                self.die_invalid_group(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return gid, g
 
-    def find_user_by_id(self, admin, user_id):
+    def find_user_by_id(self, admin, user_id, die = False):
         import omero
         try:
             uid = long(user_id)
             u = admin.getExperimenter(uid)
         except ValueError:
-            self.ctx.die(502, "Not a valid user ID: %s" % user_id)
+            error_msg = "Not a valid user ID: %s" % user_id
+            if die:
+                self.die_invalid_userID(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown experimenter: %s" % uid)
+            error_msg = "Unknown experimenter: %s" % uid
+            if die:
+                self.die_invalid_user(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return uid, u
 
-    def find_user_by_name(self, admin, user_name):
+    def find_user_by_name(self, admin, user_name, die = False):
         import omero
         try:
             u = admin.lookupExperimenter(user_name)
             uid = u.id.val
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown experimenter: %s" % user_name)
+            error_msg = "Unknown user: %s" % user_name
+            if die:
+                self.die_invalid_user(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return uid, u
 
-    def find_user(self, admin, id_or_name):
+    def find_user(self, admin, id_or_name, die =  False):
         import omero
         try:
             try:
                 uid = long(id_or_name)
-                u = admin.getExperimenter(uid)
             except ValueError:
                 u = admin.lookupExperimenter(id_or_name)
                 uid = u.id.val
+            else:
+                u = admin.getExperimenter(uid)
         except omero.ApiUsageException:
-            self.ctx.die(503, "Unknown experimenter: %s" % id_or_name)
+            error_msg = "Unknown user: %s" % id_or_name
+            if die:
+                self.die_invalid_user(error_msg)
+            else:
+                self.ctx.err(error_msg)
+                return None, None
         return uid, u
 
     def addusersbyid(self, admin, group, users):
