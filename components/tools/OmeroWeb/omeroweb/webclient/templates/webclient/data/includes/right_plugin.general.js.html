@@ -58,7 +58,29 @@ $(function () {
             if (well_index) {
                 query += "&index=" + well_index;
             }
-            $metadata_general.load(query);
+            // Load right hand panel...
+            $.ajax({
+                url: query,
+                dataType: "html",
+                // Need to check that the selected objects haven't changed during AJAX call...
+                success: function(data) {
+                    var selected_ids = [], i,
+                        selected_data = $("body").data("selected_objects.ome");
+                    for(i=0; i<selected_data.length; i++) {
+                        selected_ids.push(selected_data[i].id);
+                    }
+                    var oids = $(data).filter("#object-ids").text().split("|");
+                    // need to compare two arrays of strings...
+                    selected_ids.sort();
+                    oids.sort();
+                    for(i=0;i<oids.length; i++) {
+                        if (oids[i] !== selected_ids[i]) {
+                            return;     // any differences, don't load panel.
+                        }
+                    }
+                    $metadata_general.html(data);
+                }
+            });
             
         } else {
             $("#annotation_tabs").tabs("enable", general_tab_index);    // always want metadata_general enabled
