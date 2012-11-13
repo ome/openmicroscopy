@@ -276,9 +276,9 @@ downloaded directly. For multiple files, they are assembled into a zip file on t
 original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgateway.views.original_file_paths', name="original_file_paths" )
 """ Get a json array of path/name strings for original files for the Image"""
 
-plate_bulk_annotations_by_image  = url(r'^bulkannotations/plate/image/(?P<imageid>\d+)/$', 'webgateway.views.plate_bulk_annotations_by_image', name="plate_bulk_annotations_by_image")
 annotations = url(r'^annotations/(?P<objtype>\w+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
 table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+object_table_query = url(r'^table/(?P<objtype>\w+)/(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
 
 urlpatterns = patterns('',
     webgateway,
@@ -321,9 +321,9 @@ urlpatterns = patterns('',
     # switch user
     webgateway_su,
     
-    plate_bulk_annotations_by_image,
     annotations,
     table_query,
+    object_table_query,
 
     # Debug stuff
 

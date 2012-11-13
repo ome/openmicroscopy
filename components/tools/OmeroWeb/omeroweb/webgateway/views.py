@@ -1773,52 +1773,7 @@ def su (request, user, conn=None, **kwargs):
     return True
 
 
-@login_required()
-@jsonp
-def plate_bulk_annotations_by_image(request, imageid, conn=None, **kwargs):
-    r = conn.getSharedResources()
-    q = conn.getQueryService()
-
-    well = q.findByQuery("""
-        select w from Well w
-        join w.wellSamples s
-        join fetch w.plate p
-        join fetch p.annotationLinks links
-        join fetch links.child child
-        join fetch child.file file
-        where s.image.id=:id
-        and file.path='bulk_annotations'""",
-        omero.sys.ParametersI().addId(imageid))
-
-    if not well:
-        return dict(error='Plate with image ID %s not found' % imageid)
-
-    plate = well.plate
-
-    f = plate.linkedAnnotationList()[0].file.id.val
-
-    t = r.openTable(omero.model.OriginalFileI(f))
-    cols = t.getHeaders()
-    rows = t.getNumberOfRows()
-
-    try:
-        idx = t.getWhereList("(Well==%s)" % well.id.val,
-                             None,
-                             0, rows, 1)[0]
-    except Exception, e:
-        print e
-        return dict(error='Could not retrieve table row')
-
-    result = []
-    for col in t.read(range(len(cols)), idx, idx+1).columns:
-        result.append((col.name, col.values[0]))
-
-    return dict(data=result)
-
-
-@login_required()
-@jsonp
-def annotations(request, objtype, objid, conn=None, **kwargs):
+def _annotations(request, objtype, objid, conn=None, **kwargs):
 
     q = conn.getQueryService()
 
@@ -1843,20 +1798,15 @@ def annotations(request, objtype, objid, conn=None, **kwargs):
         if annotation.getNs().val == NSBULKANNOTATIONS
         ])
 
+annotations = login_required()(jsonp(_annotations))
 
-@require_POST
-@login_required()
-@jsonp
-def table_query(request, fileid, conn=None, **kwargs):
+
+def _table_query(request, fileid, conn=None, **kwargs):
+    query = request.GET.get('query')
+    if not query:
+        return dict(error='Must specify query parameter, use * to retrieve all')
 
     r = conn.getSharedResources()
-
-    try:
-        data = simplejson.loads(request.POST.get('data'))
-        query = data['query']
-    except Exception, ex:
-        return dict(error='Invalid query: %s' % ex)
-
     t = r.openTable(omero.model.OriginalFileI(fileid))
     if not t:
         return dict(error="Table %s not found" % fileid)
@@ -1864,10 +1814,13 @@ def table_query(request, fileid, conn=None, **kwargs):
     cols = t.getHeaders()
     rows = t.getNumberOfRows()
 
-    try:
-        hits = t.getWhereList(query, None, 0, rows, 1)
-    except Exception, e:
-        return dict(error='Error executing query: %s' % query)
+    if query == '*':
+        hits = range(rows)
+    else:
+        try:
+            hits = t.getWhereList(query, None, 0, rows, 1)
+        except Exception, e:
+            return dict(error='Error executing query: %s' % query)
 
     return dict(data=dict(
         columns=[col.name for col in cols],
@@ -1877,3 +1830,19 @@ def table_query(request, fileid, conn=None, **kwargs):
         ],
         )
     )
+
+table_query = login_required()(jsonp(_table_query))
+
+
+@login_required()
+@jsonp
+def object_table_query(request, objtype, objid, conn=None, **kwargs):
+
+    a = _annotations(request, objtype, objid, conn, **kwargs)
+    if (a.has_key('error')):
+        return a
+
+    if len(a['data']) != 1:
+        return dict(error='Could not retrieve single bulk annotations table')
+
+    return _table_query(request, a['data'][0]['file'], conn, **kwargs)

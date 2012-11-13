@@ -268,21 +268,12 @@
 				}
 			}
 		};
-		var onFileId = function(result) {
-			if (result.data) {
-				$.ajax({
-					url: '{% url webgateway_table_query 999 %}?callback=?'.replace('999', result.data[0].file),
-					dataType: 'json',
-					data: {data: JSON.stringify({'query': '(Well==' + wellId + ')'})},
-					success: onAnnotations,
-					type: 'POST'
-				});
-			}
-		};
 		var onPlateId = function(result) {
 			if (result.plateId) {
-				$.getJSON('{% url webgateway_annotations 'Plate' 999 %}?callback=?'.replace('999', result.plateId),
-						  onFileId);
+				$.getJSON('{% url webgateway_object_table_query 'Plate' 999 %}'.replace('999', result.plateId) +
+						  '?query=' + encodeURIComponent('(Well==' + wellId + ')') +
+						  '&callback=?',
+						  onAnnotations);
 			}
 		};
 		$.getJSON('{% url webgateway_wellData_json 999 %}?callback=?'.replace('999', tmp.wellId),
