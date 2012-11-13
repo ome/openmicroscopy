@@ -35,7 +35,7 @@
                 } else if ($(this).attr('id').split("-")[0] == "image") {
                     // else, remove image
                     var imgId = $(this).attr('id').split("-")[1];
-                    $("ul#dataIcons li [id='" + imgId + "']").parent().remove();
+                    $("#image_icon-" + imgId).remove();
                 }
             });
         };
