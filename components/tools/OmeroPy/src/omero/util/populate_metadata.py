@@ -207,7 +207,7 @@ class ValueResolver(object):
                 'select s from Screen as s '
                 'join fetch s.plateLinks as p_link '
                 'join fetch p_link.child as p '
-                'where s.id = :id', parameters, {'omero.group', '-1'})
+                'where s.id = :id', parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
@@ -221,7 +221,7 @@ class ValueResolver(object):
                     'select p from Plate as p '
                     'join fetch p.wells as w '
                     'join fetch w.wellSamples as ws '
-                    'where p.id = :id', parameters, {'omero.group', '-1'})
+                    'where p.id = :id', parameters, {'omero.group': '-1'})
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
@@ -239,7 +239,7 @@ class ValueResolver(object):
                 'select p from Plate as p '
                 'join fetch p.wells as w '
                 'join fetch w.wellSamples as ws '
-                'where p.id = :id', parameters, {'omero.group', '-1'})
+                'where p.id = :id', parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
@@ -466,8 +466,8 @@ class ParsingContext(object):
         link.parent = self.target_object
         link.child = file_annotation
         update_service.saveObject(link, {
-            'omero.group', str(self.target_object.details.group.id.val),
-            'omero.user', str(self.target_object.details.user.id.val)
+            'omero.group': str(self.target_object.details.group.id.val),
+            'omero.user': str(self.target_object.details.user.id.val)
         })
 
 def parse_target_object(target_object):
