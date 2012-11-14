@@ -45,3 +45,14 @@ Regular usage steps consist of:
     ``STAGING=1 ./gen.py 4.4.4 b3097 | mail you@example.com``
 
 These instructions should be unified with ReleaseProcess.
+
+Bio-Formats Release
+===================
+
+Similar to the OMERO release, a BF release requires:
+
+ * Copying all the artifacts to ../bioformats/VERSION/
+
+ * Then executing `./bfgen.py VERSION` from inside of the **omero** directory.
+
+ * STAGING and other flags are respected.
