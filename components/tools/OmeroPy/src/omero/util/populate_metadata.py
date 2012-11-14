@@ -448,10 +448,10 @@ class ParsingContext(object):
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
         table = sr.newTable(1, name)
-        original_file = table.getOriginalFile()
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
+        original_file = table.getOriginalFile()
         log.info('Created new table OriginalFile:%d' % original_file.id.val)
         table.initialize(self.columns)
         log.info('Table initialized with %d columns.' % (len(self.columns)))
