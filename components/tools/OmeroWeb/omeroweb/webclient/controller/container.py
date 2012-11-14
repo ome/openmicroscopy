@@ -81,6 +81,8 @@ class BaseContainer(BaseController):
             self.acquisition = self.conn.getObject("PlateAcquisition", acquisition)
             self.assertNotNone(self.acquisition, acquisition, "Plate Acquisition")
             self.assertNotNone(self.acquisition._obj, acquisition, "Plate Acquisition")
+            if self.plate is None:
+                self.plate = self.conn.getObject("Plate", self.acquisition._obj.plate.id.val)
         if image is not None:
             self.image = self.conn.getObject("Image", image)
             self.assertNotNone(self.image, image, "Image")
@@ -248,15 +250,18 @@ class BaseContainer(BaseController):
         im_list = list(self.conn.getObjectsByAnnotations('Image',[self.tag.id]))
         sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
         pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
+        pa_list = list(self.conn.getObjectsByAnnotations('PlateAcquisition',[self.tag.id]))
         
         pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
         ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
         im_list.sort(key=lambda x: x.getName() and x.getName().lower())
         sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
         pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
         
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 
+            'screens':sc_list, 'plates':pl_list, 'aquisitions': pa_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)+len(pa_list)
         
     def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
