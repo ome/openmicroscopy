@@ -268,9 +268,9 @@ Returns 'true' if switch went OK.
 """
 
 
-annotations = url(r'^annotations/(?P<objtype>\w+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+annotations = url(r'^annotations/(?P<objtype>(\w+/)+)(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
 table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
-object_table_query = url(r'^table/(?P<objtype>\w+)/(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+object_table_query = url(r'^table/(?P<objtype>(\w+/)+)(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
 
 urlpatterns = patterns('',
     webgateway,
