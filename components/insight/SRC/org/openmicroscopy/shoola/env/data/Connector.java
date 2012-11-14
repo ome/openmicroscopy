@@ -66,6 +66,8 @@ import omero.grid.SharedResourcesPrx;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+import Ice.Properties;
+
 
 /** 
  * Manages the various services and entry points.

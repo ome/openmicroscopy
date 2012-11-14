@@ -25,9 +25,13 @@ package org.openmicroscopy.shoola.env;
 
 //Java imports
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -392,13 +396,33 @@ public final class Container
 				//Exception thrown if network is down.
 				up = false;
 			}
-			if (!up) { //no network 
-				//halt will bail out without calling further shutdown hooks
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-					public void run() {
-						Runtime.getRuntime().halt(1);
-					}
-				});
+			try {
+				if (!up) {
+					Class clazz = Class.forName(
+							"java.lang.ApplicationShutdownHooks");
+				    Field field = clazz.getDeclaredField("hooks");
+				    field.setAccessible(true);
+				    Object hooks = field.get(null);
+				    if (hooks != null) {
+				    	Map<Thread, Thread> map = (Map<Thread, Thread>) hooks;
+				    	Entry<Thread, Thread> e;
+				    	Iterator<Entry<Thread, Thread>>
+				    	i = map.entrySet().iterator();
+				    	Thread key;
+				    	List<Thread> toRemove = new ArrayList<Thread>();
+				    	while (i.hasNext()) {
+							e = i.next();
+							key = e.getKey();
+							if (omero.client.NAME.equals(key.getName()))
+								toRemove.add(key);
+						}
+				    	Iterator<Thread> j = toRemove.iterator();
+				    	while (j.hasNext()) {
+				    		Runtime.getRuntime().removeShutdownHook(j.next());
+						}
+				    }
+				}
+			} catch (Exception e) {
 			}
 			System.exit(0);
 		} else {

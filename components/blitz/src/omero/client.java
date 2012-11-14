@@ -28,7 +28,6 @@ import java.util.UUID;
 import ome.util.Utils;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
-import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -39,10 +38,8 @@ import omero.api.StatefulServiceInterface;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
-import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.PermissionsI;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
 import omero.util.Resources.Entry;
@@ -75,6 +72,9 @@ import Ice.Current;
  */
 public class client {
 
+	/** The name of the shutdown hook.*/
+	public static final String NAME = "omero.client.shutdownhook";
+	
     /**
      * A {@link java.util.Collection} of all the {@link omero.client} instances
      * created so that we can guarantee that we at least <i>attempt</i> to shut
@@ -83,7 +83,7 @@ public class client {
     private final static Set<client> CLIENTS = Collections
             .synchronizedSet(new HashSet<client>());
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+    	Thread hook = new Thread() {
             @Override
             public void run() {
                 Set<client> clients = new HashSet<client>(CLIENTS);
@@ -96,7 +96,9 @@ public class client {
 
                 }
             }
-        });
+        };
+        hook.setName(NAME);
+        Runtime.getRuntime().addShutdownHook(hook);
     }
 
     /**
