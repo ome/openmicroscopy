@@ -67,6 +67,7 @@ if "STAGING" in os.environ:
     repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/bio-formats-staging"
 else:
     repl["@DOC_URL@"] = "https://www.openmicroscopy.org/site/support/bio-formats"
+repl["@PDF_URL@"] = repl["@DOC_URL@"] + "/Bio-Formats-%s.pdf" % version
 
 if "SNAPSHOT_PATH" in os.environ:
     SNAPSHOT_PATH =  os.environ.get('SNAPSHOT_PATH')
