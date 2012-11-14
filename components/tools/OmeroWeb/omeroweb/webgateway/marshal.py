@@ -65,6 +65,7 @@ def imageMarshal (image, key=None):
     image.loadRenderOptions()
     pr = image.getProject()
     ds = None
+    wellsample = None
     well = None
     try:
         # Replicating the functionality of the deprecated
@@ -75,7 +76,11 @@ def imageMarshal (image, key=None):
             if parents[0].OMERO_CLASS == 'Dataset':
                 ds = parents[0]
             elif parents[0].OMERO_CLASS == 'WellSample':
-                well = parents[0]
+                wellsample = parents[0]
+                wellparents = wellsample.listParents()
+                if (wellparents is not None and len(wellparents) == 1
+                    and wellparents[0].OMERO_CLASS == 'Well'):
+                    well = wellparents[0]
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
@@ -93,6 +98,7 @@ def imageMarshal (image, key=None):
                      'datasetName': ds and ds.name or 'Multiple',
                      'datasetId': ds and ds.id or '',
                      'datasetDescription': ds and ds.description or '',
+                     'wellSampleId': wellsample and wellsample.id or '',
                      'wellId': well and well.id or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
                      'imageId': image.id,},
