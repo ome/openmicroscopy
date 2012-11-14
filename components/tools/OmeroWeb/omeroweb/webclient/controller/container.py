@@ -421,6 +421,14 @@ class BaseContainer(BaseController):
             if len(objList) == 0:
                 continue
             parent_ids = [o.getId() for o in objList]
+            # If we're working with a 'well', we're actually annotating the image
+            for i in range(len(objList)):
+                o = objList[i]
+                if isinstance(o._obj, omero.model.WellI):
+                    objType = "Image"
+                    parent_ids[i] = o.getWellSample().image().getId() # index has already been set
+            if isinstance(objList[0]._obj, omero.model.PlateAcquisitionI):
+                objType = 'PlateAcquisition'
             for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
                 ann = annLink.getAnnotation()
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
@@ -476,6 +484,8 @@ class BaseContainer(BaseController):
             return sort_tags(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+        elif self.acquisition is not None:
+            return sort_tags(self.acquisition.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             if eid is not None:
                 params = omero.sys.Parameters()
@@ -507,6 +517,8 @@ class BaseContainer(BaseController):
             return sort_file_anns(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+        elif self.acquisition is not None:
+            return sort_file_anns(self.acquisition.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
@@ -683,7 +695,7 @@ class BaseContainer(BaseController):
         parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
-                if k.lower() == 'acquisitions':
+                if k.lower() == 'acquisition':
                     parent_type = 'PlateAcquisition'
                 else:
                     parent_type = k.lower().title()
@@ -726,7 +738,7 @@ class BaseContainer(BaseController):
     ################################################################
     # Update
     
-    def updateDescription(self, o_type, o_id, description=None):
+    def updateDescription(self, o_type, description=None):
         obj = getattr(self, o_type)._obj
         if description is not None and description != "" :
             obj.description = rstring(str(description))
@@ -734,7 +746,7 @@ class BaseContainer(BaseController):
             obj.description = None
         self.conn.saveObject(obj)
     
-    def updateName(self, o_type, o_id, name):
+    def updateName(self, o_type, name):
         obj = getattr(self, o_type)._obj
         if o_type not in ('tag', 'tagset'):
             obj.name = rstring(str(name))
@@ -926,22 +938,26 @@ class BaseContainer(BaseController):
         """
         for p in parents:
             parent = p.split('-')
+            dtype = str(parent[0])
+            parentId = long(parent[1])
+            if dtype == "acquisition":
+                dtype = "PlateAcquisition"
             if self.tag:
-                for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.tag.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
             elif self.file:
-                for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
-                for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
+                for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjectDirect(al._obj)
                 # if comment is orphan, delete it directly
                 orphan = True
-                for parentType in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+                for parentType in ["Project", "Dataset", "Image", "Screen", "Plate", "PlateAcquisition", "Well"]:
                     annLinks = list(self.conn.getAnnotationLinks(parentType, ann_ids=[self.comment.id]))
                     if len(annLinks) > 0:
                         orphan = False
@@ -950,18 +966,18 @@ class BaseContainer(BaseController):
                     self.conn.deleteObjectDirect(self.comment._obj)
 
             elif self.dataset is not None:
-                if parent[0] == 'project':
-                    for pdl in self.dataset.getParentLinks([parent[1]]):
+                if dtype == 'project':
+                    for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
                             self.conn.deleteObjectDirect(pdl._obj)
             elif self.plate is not None:
-                if parent[0] == 'screen':
-                    for spl in self.plate.getParentLinks([parent[1]]):
+                if dtype == 'screen':
+                    for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
                             self.conn.deleteObjectDirect(spl._obj)
             elif self.image is not None:
-                if parent[0] == 'dataset':
-                    for dil in self.image.getParentLinks([parent[1]]):
+                if dtype == 'dataset':
+                    for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
                             self.conn.deleteObjectDirect(dil._obj)
             else:
