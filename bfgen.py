@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import github
+import subprocess
 from doc_generator import *
 
 fingerprint_url = "http://hudson.openmicroscopy.org.uk/fingerprint"
@@ -44,7 +45,17 @@ MD5(scifio.jar)= f25a2e7ac7af8c5513daa0f03ac74dc2
 MD5s = [x.split(" ")[1] for x in MD5s.split("\n") if x.strip()]
 
 
-gh = github.Github()
+# Creating Github instance
+try:
+    p = subprocess.Popen("git","config","--get","github.token", stdout = subprocess.PIPE)
+    rc = p.wait()
+    if rc:
+        raise Exception("rc=%s" % rc)
+    token = p.communicate()
+except Exception:
+    token = None
+
+gh = github.Github(token)
 org = gh.get_organization("openmicroscopy")
 repo = org.get_repo("openmicroscopy")
 for tag in repo.get_tags():
