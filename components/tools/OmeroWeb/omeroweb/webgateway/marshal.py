@@ -77,10 +77,8 @@ def imageMarshal (image, key=None):
                 ds = parents[0]
             elif parents[0].OMERO_CLASS == 'WellSample':
                 wellsample = parents[0]
-                wellparents = wellsample.listParents()
-                if (wellparents is not None and len(wellparents) == 1
-                    and wellparents[0].OMERO_CLASS == 'Well'):
-                    well = wellparents[0]
+                if wellsample.well is not None:
+                    well = wellsample.well
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
@@ -99,7 +97,7 @@ def imageMarshal (image, key=None):
                      'datasetId': ds and ds.id or '',
                      'datasetDescription': ds and ds.description or '',
                      'wellSampleId': wellsample and wellsample.id or '',
-                     'wellId': well and well.id or '',
+                     'wellId': well and well.id.val or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
                      'imageId': image.id,},
             }
