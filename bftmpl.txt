@@ -156,4 +156,4 @@ Bio-Formats is an open source project. You can access the source code from the B
 
 ## Previous versions ##
 
-Previous versions of Bio-Formats can be found on the [Bio-Formats archive](@SNAPSHOT_URL@) page.
+Previous versions of Bio-Formats can be found on the [Bio-Formats archive](@SNAPSHOT_URL@?C=M;O=D) page.
