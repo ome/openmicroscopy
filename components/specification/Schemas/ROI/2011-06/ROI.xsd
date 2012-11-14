@@ -104,6 +104,12 @@
 					<xsd:element ref="Polyline" minOccurs="1" maxOccurs="1"/>
 					<xsd:element ref="Path" minOccurs="1" maxOccurs="1"/>
 					<xsd:element ref="Text" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Line3D" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Rectangle3D" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Mask3D" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Ellipse3D" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Point3D" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Polyline3D" minOccurs="1" maxOccurs="1"/>
 				</xsd:choice>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
 					<xsd:annotation>
@@ -261,14 +267,30 @@
 			<xsd:attribute name="Transform" use="optional" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
-						This is a matrix used to transform the the shape.
+						This is a matrix used for an affine transformation of the shape.
 						It is a string of 6 numbers "a, b, c, d, e, f" that
-						represent the 3 by 3 matrix.
-						--       --
-						| a, c, e |
-						| b, d, f |
-						| 0, 0, 1 |
-						--       --
+						represent the 3 × 3 matrix.
+						⎡       ⎤
+						⎢ a c e ⎥
+						⎢ b d f ⎥
+						⎢ 0 0 1 ⎥
+						⎣       ⎦
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Transform3D" use="optional" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						This is a matrix used for an affine transformation of the shape.
+						It is a string of 12 numbers
+						"a, b, c, d, e, f, g, h, i, j, k, l" that
+						represent the 4 × 4 matrix.
+						⎡         ⎤
+						⎢ a d g j ⎥
+						⎢ b e h k ⎥
+						⎢ c f i l ⎥
+						⎢ 0 0 0 1 ⎥
+						⎣         ⎦
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -278,7 +300,7 @@
 	<xsd:element name="Rectangle"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				A simple rectangle object. If rotation is required apply a 
+				A 2D rectangle object. If rotation is required apply a
 				transformation at the Shape level.
 			</xsd:documentation>
 		</xsd:annotation>
@@ -300,26 +322,81 @@
 					<xsd:attribute name="Width" use="required" type="xsd:float">
 						<xsd:annotation>
 							<xsd:documentation>
-								The width of the rectangle. [units pixels]
+								The width of the rectangle (x size). [units pixels]
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="Height" use="required" type="xsd:float">
 						<xsd:annotation>
 							<xsd:documentation>
-								The height of the rectangle. [units pixels]
+								The height of the rectangle (y size). [units pixels]
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
-	
+	<xsd:element name="Rectangle2D" substitutionGroup="Rectangle"/>
+
+	<xsd:element name="Rectangle3D"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				A 3D rectangle (cuboid) object. If rotation is required apply a
+				transformation at the Shape level.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+					<xsd:attribute name="X" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The X value of the left edge or the rectangle. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Y" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The y value of the top edge or the rectangle. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Z" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The z value of the top edge or the rectangle. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Width" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The width of the rectangle (x size). [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Height" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The height of the rectangle (y size). [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Depth" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The depth of the rectangle (z size). [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Cuboid" substitutionGroup="Rectangle3D"/>
+
 	<xsd:element name="Mask"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				The Mask ROI shape is a link to a BIN:BinData object that is 
-				a BIT mask drawn on top of the image as an ROI. It is applied 
-				at the same scale, pixel to pixel, as the Image the ROI is 
+				The 2D Mask ROI shape is a link to a BIN:BinData object that is
+				a BIT mask drawn on top of the image as an ROI. It is applied
+				at the same scale, pixel to pixel, as the Image the ROI is
 				applied to, unless a transform is applied at the shape level.
 			</xsd:documentation>
 		</xsd:annotation>
@@ -344,14 +421,73 @@
 			<xsd:attribute name="Width" use="required" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation>
-						The width of the mask. [units pixels]
+						The width of the mask (x size). [units pixels]
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="Height" use="required" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation> 
-						The height of the mask. [units pixels]
+						The height of the mask (y size). [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Mask2D" substitutionGroup="Mask"/>
+
+	<xsd:element name="Mask3D"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				The Mask3D ROI shape is a link to a BIN:BinData object that is
+				a BIT mask drawn on top of the image as an ROI. It is applied
+				at the same scale, pixel to pixel, as the Image the ROI is
+				applied to, unless a transform is applied at the shape level.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="X" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The X coordinate of the left side of the image. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Y" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The Y coordinate of the top side of the image. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Z" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The Z coordinate of the top side of the image. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Width" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The width of the mask (x size). [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Height" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The height of the mask (y size). [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Depth" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation>
+						The depth of the mask (z size). [units pixels]
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -376,11 +512,38 @@
 					</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
+	<xsd:element name="Point2D" substitutionGroup="Point"/>
+
+	<xsd:element name="Point3D"> <!-- top level definition -->
+		<xsd:complexType>
+					<xsd:attribute name="X" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The X coordinate of the point. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Y" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Y coordinate of the point. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Z" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Z coordinate of the point. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
 	
 	<xsd:element name="Ellipse"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				A simple ellipse object. If rotation is required apply a 
+				A 2D ellipse object. If rotation is required apply a
 				transformation at the Shape level.
 			</xsd:documentation>
 		</xsd:annotation>		
@@ -402,24 +565,79 @@
 					<xsd:attribute name="RadiusX" use="required" type="xsd:float">
 						<xsd:annotation>
 							<xsd:documentation>
-								The horizontal radius of the ellipse. [units pixels]
+								The x radius of the ellipse. [units pixels]
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="RadiusY" use="required" type="xsd:float">
 						<xsd:annotation>
 							<xsd:documentation>
-								The vertical radius of the ellipse. [units pixels]
+								The y radius of the ellipse. [units pixels]
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
-	
+	<xsd:element name="Ellipse2D" substitutionGroup="Ellipse"/>
+
+	<xsd:element name="Ellipse3D"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				A 3D ellipse (ellipsoid) object. If rotation is required apply a
+				transformation at the Shape level.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+					<xsd:attribute name="X" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The X coordinate of the center of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Y" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Y coordinate of the center of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Z" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Z coordinate of the center of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="RadiusX" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The x radius of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="RadiusY" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The y radius of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="RadiusZ" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The z radius of the ellipse. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Ellipsoid" substitutionGroup="Ellipse3D"/>
+
 	<xsd:element name="Line"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				A straight line defined by it's end points.
+				A straight 2D line defined by its end points.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -453,6 +671,59 @@
 					</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
+	<xsd:element name="Line2D" substitutionGroup="Line"/>
+
+	<xsd:element name="Line3D"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				A straight 3D line defined by its end points.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+					<xsd:attribute name="X1" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The X coordinate of the start of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Y1" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Y coordinate of the start of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Z1" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Z coordinate of the start of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="X2" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The X coordinate of the end of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Y2" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Y coordinate of the end of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Z2" use="required" type="xsd:float">
+						<xsd:annotation>
+							<xsd:documentation>
+								The Z coordinate of the end of the line. [units pixels]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
 	
 	<xsd:element name="Polyline"> <!-- top level definition -->
 		<xsd:annotation>
@@ -461,9 +732,9 @@
 				replaced in the next major release to provide support for 
 				3-dimensional objects. see http://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/roi
 				
-				The Polyline defines open and closed shapes formed of straight 
+				The 2D Polyline defines open and closed shapes formed of straight
 				lines. Note: Polyline uses counterclockwise winding (this is the 
-				default OpenGL behavior)
+				default OpenGL behavior).
 			</xsd:documentation>
 		</xsd:annotation>		
 		<xsd:complexType>
@@ -472,7 +743,42 @@
 							<xsd:documentation>
 								The points of the polyline are defined as a list 
 								of comma separated x,y coordinates seperated by 
-								spaces like "x1,y1 x2,y2 x3,y3" e.g. "0,0 1,2 3,5"
+								spaces like "x1,y1 x2,y2 x3,y3" e.g.
+								"0,0 1,2 3,5"
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="Closed" use="optional" type="xsd:boolean" default="false">
+						<xsd:annotation>
+							<xsd:documentation>
+								Indicates if the shape is closed with an extra
+								line form the end point back to the start point. [flag]
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Polyline2D" substitutionGroup="Polyline"/>
+
+	<xsd:element name="Polyline3D"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				NOTE: Polyline and Path are DEPRECATED as they are due to be
+				replaced in the next major release to provide support for
+				3-dimensional objects. see http://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/roi
+				The Polyline3D defines open and closed shapes formed of straight
+				3D lines. Note: Polyline uses counterclockwise winding (this is the
+				default OpenGL behavior).
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+					<xsd:attribute name="Points" use="required" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation>
+								The points of the polyline are defined as a list
+								of comma separated x,y coordinates seperated by
+								spaces like "x1,y1,z1 x2,y2,z2 x3,y3,z3" e.g.
+								"0,0,0 1,2,3 3,5,8"
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
