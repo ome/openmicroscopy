@@ -1776,17 +1776,25 @@ def su (request, user, conn=None, **kwargs):
 def _annotations(request, objtype, objid, conn=None, **kwargs):
 
     q = conn.getQueryService()
+    # If more than one objtype is specified, use all in query to
+    # traverse object model graph
+    # Example: /annotations/Plate/wells/1/
+    #          retrieves annotations from Plate that contains Well 1
+    objtype = objtype.strip('/').split('/')
+
+    query = "select obj0 from %s obj0\n" % objtype[0]
+    for i, t in enumerate(objtype[1:]):
+        query += "join fetch obj%d.%s obj%d\n" % (i, t, i+1)
+    query += """
+        join fetch obj0.annotationLinks links
+        join fetch links.child
+        where obj%d.id=:id""" % (len(objtype) - 1)
 
     try:
-        obj = q.findByQuery("""
-            select obj from %s obj
-            join fetch obj.annotationLinks links
-            join fetch links.child
-            where obj.id=:id
-            """ % objtype,
-            omero.sys.ParametersI().addId(objid))
-    except omero.QueryException:
-        return dict(error='%s cannot be queried' % objtype)
+        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid))
+    except omero.QueryException, ex:
+        return dict(error='%s cannot be queried' % objtype,
+                    query=query)
 
     if not obj:
         return dict(error='%s with id %s not found' % (objtype, objid))

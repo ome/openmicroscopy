@@ -244,41 +244,33 @@
     $('#wblitz-image-pubid').html(tmp.projectId);
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
 
-	$("#bulk-annotations").hide();
-	$("#bulk-annotations").next().hide();
-	if (tmp.wellId) {
-		var wellId = tmp.wellId;
-		// Load bulk annotations for plate
-		var onAnnotations = function(result) {
-			console.log(result);
-			if (result.data && result.data.rows) {
-				var table = $("#bulk-annotations").show().next().show().children("table");
-				table.find("tr").remove();
-				for (var col in result.data.columns) {
-					var label = result.data.columns[col];
-					var value = '';
-					for (var row in result.data.rows) {
-						value += result.data.rows[row][col] + '<br />';
-					}
-					var row = $('<tr><td class="title"></td><td></td></tr>');
-					row.addClass(col % 2 == 1 ? 'odd' : 'even');
-					$('td:first-child', row).html(label + ":&nbsp;");
-					$('td:last-child', row).html(value);
-					table.append(row);
-				}
-			}
-		};
-		var onPlateId = function(result) {
-			if (result.plateId) {
-				$.getJSON('{% url webgateway_object_table_query 'Plate' 999 %}'.replace('999', result.plateId) +
-						  '?query=' + encodeURIComponent('(Well==' + wellId + ')') +
-						  '&callback=?',
-						  onAnnotations);
-			}
-		};
-		$.getJSON('{% url webgateway_wellData_json 999 %}?callback=?'.replace('999', tmp.wellId),
-				  onPlateId);
-	}
+    $("#bulk-annotations").hide();
+    $("#bulk-annotations").next().hide();
+    if (tmp.wellId) {
+	// Load bulk annotations for plate
+	var onAnnotations = function(result) {
+	    if (result.data && result.data.rows) {
+		var table = $("#bulk-annotations").show().next().show().children("table");
+		table.find("tr").remove();
+		for (var col in result.data.columns) {
+		    var label = result.data.columns[col];
+		    var value = '';
+		    for (var row in result.data.rows) {
+			value += result.data.rows[row][col] + '<br />';
+		    }
+		    var row = $('<tr><td class="title"></td><td></td></tr>');
+		    row.addClass(col % 2 == 1 ? 'odd' : 'even');
+		    $('td:first-child', row).html(label + ":&nbsp;");
+		    $('td:last-child', row).html(value);
+		    table.append(row);
+		}
+	    }
+	};
+	$.getJSON('{% url webgateway_object_table_query 'Plate/wells/' 999 %}'.replace('999', tmp.wellId) +
+	    '?query=' + encodeURIComponent('(Well==' + tmp.wellId + ')') +
+	    '&callback=?',
+	     onAnnotations);
+    }
 
     {% block xtra_metadata %}{% endblock %}
 
