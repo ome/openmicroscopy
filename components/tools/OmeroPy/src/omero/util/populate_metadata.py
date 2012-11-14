@@ -465,10 +465,8 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        update_service.saveObject(link, {
-            'omero.group': str(self.target_object.details.group.id.val),
-            'omero.user': str(self.target_object.details.user.id.val)
-        })
+        group = str(self.value_resolver.target_object.details.group.id.val)
+        update_service.saveObject(link, {'omero.group': group})
 
 def parse_target_object(target_object):
     type, id = target_object.split(':')
