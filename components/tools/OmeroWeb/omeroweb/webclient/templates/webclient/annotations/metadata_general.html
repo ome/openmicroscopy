@@ -351,6 +351,63 @@
                     return false;
                 });
 
+
+                // -- Download options --
+                $("#download_dropdown ul").css('visibility', 'hidden');
+                // show on click
+                $("#show_download_dropdown").click(function(e) {
+                    $("ul", $(this).parent()).css('visibility', 'visible');
+                    e.preventDefault();
+                    return false;
+                });
+                // on hover-out, hide drop-down menus
+                $("#download_dropdown ul").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                });
+                
+                // Handle Download actions
+                $("#create-ometiff").click(function(e){
+                    
+                    var url = $(this).attr('href');
+                    $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
+                    var dialog_opts = ['Cancel', 'Create'];
+                    $.getJSON("{% url ome_tiff_info manager.obj_id %}", function(data) {
+                        
+                        var msg = "This will create an OME-TIFF file from this Image.";
+                        if (data.id && data.ago) {
+                            msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
+                            var download_ometiff = data.download;
+                            dialog_opts[1] = "Create New";
+                            dialog_opts.push("Download");
+                        } else {
+                            msg += "<br>This will be attached to the Image and available to download.";
+                        }
+
+                        var confirm_ometiff = confirm_dialog(msg,
+                            function() {
+                                var btn = confirm_ometiff.data("clicked_button");
+                                switch (btn) {
+                                    case "Create":   // two options for the same button
+                                    case "Create New":
+                                        $.post( url, function() {
+                                            showActivities();
+                                        });
+                                        break;
+                                    case "Download":
+                                        window.location.href = download_ometiff;
+                                        break;
+                                }
+                            },
+                            "Create OME-TIFF?",
+                            dialog_opts,
+                            null, 200
+                        );
+                    });
+                    
+                    e.preventDefault();
+                    return false;
+                });
+
             });
             
     </script>
@@ -389,40 +446,51 @@
 					<button class="btn silver btn_edit" alt="e" title="edit">
 						<span></span>
 					</button>
-						
-					{% comment %}
-					<img src="{% static "webclient/image/color_line12.png" %}" /> 
-					{% endcomment %}
 					
 				</div>{% else %}
 				
 				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
+            
+            <div style="position:relative">
+                <h2 class="data_heading_id" id='image_id' style="float:left">
+                    Image ID: <strong>{{ manager.image.id }}</strong>
+                </h2>
+
+                <!-- open-image link -->
+                <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
+                    <span></span>
+                </button>
+                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                    <input type="text" size="30">
+                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                </div>
                 
-            	<h2 class="data_heading_id" id='image_id'>
-            	    Image ID: <strong>{{ manager.image.id }}</strong>
-            	    <!-- open-image link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
-    					<span></span>
-    				</button>
-    				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-    				    <input type="text" size="30">
-    				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-    				</div>
-            	</h2>
-            	
-				
+                <!-- download options -->
+                <span id="download_dropdown">
+                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Image as...">
+                        <span></span>
+                    </button>
+                    <ul class="dropdown">
+                        {% if manager.image.countArchivedFiles %}
+                            <li>
+                                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
+    title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
+                                    Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
+                                title="Create OME-TIFF File for Download">OME-TIFF</a>
+                        </li>
+                        <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+                    </ul>
+                </span>
+            </div>
+
+            <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
-                
-                {% if manager.image.countArchivedFiles %}
-                    <div style="float:right; top:30px; padding:4px">
-                        <a href="{% url archived_files manager.image.id %}">
-                        <img src="{% static "webclient/image/nuvola_download_manager16.png" %}"
-                            title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}"/>
-                        </a>
-                    </div>
-                {% endif %}
-				
+
 				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"
 				        title="Open full image viewer in new window">
 					<span>

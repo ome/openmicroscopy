@@ -160,6 +160,7 @@ module omero {
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
         const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
+        const string NSOMETIFF = "openmicroscopy.org/omero/ome_tiff";
         //
         // omero.grid.Param.namespaces in Scripts.ice
         //

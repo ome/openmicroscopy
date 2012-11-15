@@ -747,6 +747,10 @@ def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    if 'download' in kwargs and kwargs['download']:
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = len(jpeg_data)
+        rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (img.getName().replace(" ","_"))
     return rsp
 
 @login_required()

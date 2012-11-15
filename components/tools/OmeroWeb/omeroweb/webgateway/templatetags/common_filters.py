@@ -41,6 +41,33 @@ def hash(value, key):
     return value[key]
 
 @register.filter
+def ago(value):
+    """ Formats a datetime.datetime object as time Ago. E.g. '3 days 2 hours 10 minutes' """
+    try:
+        ago = datetime.datetime.now() - value
+    except TypeError:
+        return str(value)
+    def plurals(val):
+        return val != 1 and "s" or ""
+    hours, remainder = divmod(ago.seconds, 3600)
+    mins, secs = divmod(remainder, 60)
+    if ago.days >= 365:
+        years = ago.days / 365
+        return "%s year%s" % (years, plurals(years))
+    if ago.days > 28:
+        months = ago.days / 30
+        return "%s month%s" % (months, plurals(months))
+    if ago.days > 0:
+        return "%s day%s" % (ago.days, plurals(ago.days))
+    if hours > 0:
+        return "%s hour%s" % (hours, plurals(hours))
+    if mins > 1:
+        return "%s minutes" % (mins)
+    if mins == 1:
+        return "a minute"
+    return "less than a minute"
+    
+@register.filter
 def truncateafter(value, arg):
     """
     Truncates a string after a given number of chars  
