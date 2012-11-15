@@ -181,13 +181,8 @@
 
 {% block body %}
 
-{% comment %}
-    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
-    {% include "webtest/webtest-toolbar-include.html" %}
-{% endcomment %}
-
-
-
+    <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
+    <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
         
         {% if manager.image %}
         <!-- VIEWER "Preview"-->

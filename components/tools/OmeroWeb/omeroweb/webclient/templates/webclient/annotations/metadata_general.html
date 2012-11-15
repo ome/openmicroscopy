@@ -35,12 +35,12 @@
                 
                 {% if manager.canEdit %}
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
@@ -133,23 +133,23 @@
                 // bind removeItem to various [-] buttons
                 $("#comments_container").on("click", ".removeComment", function(event){
                     var url = $(this).attr('url');
-                    OME.removeItem(event, ".ann_comment_wrapper", url, $.trim($("#parent-id").text()));
+                    OME.removeItem(event, ".ann_comment_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
                 $("#tags_container").on("click", ".removeTag", function(event){
                     var url = $(this).attr('url');
-                    OME.removeItem(event, ".tag_annotation_wrapper", url, $.trim($("#parent-id").text()));
+                    OME.removeItem(event, ".tag_annotation_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
                 $("#fileanns_container").on("click", ".removeFile", function(event) {
                     var url = $(this).attr('href');
-                    OME.removeItem(event, ".file_ann_wrapper", url, $.trim($("#parent-id").text()));
+                    OME.removeItem(event, ".file_ann_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
                 
                 $("#fileanns_container").on("click", ".deleteFile", function(event) {
                     var url = $(this).attr('href');
-                    OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#parent-id").text()));
+                    OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#object-id").text()));
                 });
                 
                 $(".dropdown_menu .menu_launch").click(function(e){
@@ -165,7 +165,7 @@
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'>")
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $("#launch_tags_form").click(function(event) {
@@ -206,7 +206,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'>")
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
@@ -317,22 +317,8 @@
     </script>
 
 
-
-        
-        <div id='parent-id' style="display:none">
-            {% if manager.image %}image-{{ manager.image.id}}{% else %}
-                {% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}
-                    {% if manager.project %}project-{{ manager.project.id }}{% endif %}
-                {% endif %}
-            {% endif %}
-            {% if manager.well %}image-{{ manager.well.getWellSample.image.id }}{% else %}
-                {% if manager.acquisition %}acquisition-{{ manager.acquisition.id}}{% else %}
-                    {% if manager.plate %}plate-{{ manager.plate.id}}{% else %}
-                        {% if manager.screen %}screen-{{ manager.screen.id}}{% endif %}
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-        </div>
+        <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
+        <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
 
 
         {% if not manager.tag %}
@@ -636,9 +622,9 @@
             {% if manager.well %}            
             {% if manager.well.getWellSample.image.canEdit %}
 			
-			<div id="wellname-{{ manager.well.getWellSample.image.id }}" class="data_heading">
+			<div id="wellname-{{ manager.well.id }}" class="data_heading">
 				<h1>
-					<p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
+					<p id="wellname-{{ manager.well.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
 				</h1>
 				<button class="btn silver btn_edit" alt="e" title="edit">
 					<span></span>
@@ -660,9 +646,9 @@
 			
             <div class="description">
                 {% if manager.well.getWellSample.image.canEdit %}
-                <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
+                <div class="data_heading" id="welldescription-{{ manager.well.id }}">
                     <p>
-                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
+                        <span id="welldescription-{{ manager.well.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
                         <button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>
@@ -962,7 +948,7 @@
 				
                 {% if manager.canAnnotate %}
 					<div>
-						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
+						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
 					</div>
                 {% endif %}
 
@@ -987,7 +973,7 @@
                 <h2>{% trans "Attachments" %}</h2>
 
                     {% if manager.canAnnotate %}
-                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add">
+                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
                     {% endif %}
