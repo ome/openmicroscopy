@@ -188,22 +188,22 @@ More information is available at:
     def parse_groupid(self, a, args):
         if args.id:
             group = getattr(args, "id", None)
-            return self.find_group_by_id(a, group, die = True)
+            return self.find_group_by_id(a, group, fatal = True)
         elif args.name:
             group = getattr(args, "name", None)
-            return self.find_group_by_name(a, group, die = True)
+            return self.find_group_by_name(a, group, fatal = True)
         else:
-            self.die_no_input_group()
+            self.error_no_input_group(fatal = True)
 
     def list_users(self, a, users):
 
         uid_list = []
         for user in users:
-            [uid, u] = self.find_user(a, user, die = False)
+            [uid, u] = self.find_user(a, user, fatal = False)
             if uid:
                 uid_list.append(uid)
         if not uid_list:
-            self.die_no_user_found()
+            self.error_no_user_found(fatal = True)
 
         return uid_list
 
@@ -231,8 +231,8 @@ More information is available at:
         import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        f_gid, f_grp = self.find_group(a, args.from_group, die = True)
-        t_gid, t_grp = self.find_group(a, args.to_group, die = True)
+        f_gid, f_grp = self.find_group(a, args.from_group, fatal = True)
+        t_gid, t_grp = self.find_group(a, args.to_group, fatal = True)
 
         if args.as_owner:
             uids = self.getownerids(f_grp)
