@@ -244,6 +244,10 @@ public class CheckedPath {
         return ofile;
     }
 
+    protected String getRelativePath() {
+        return getRelativePath(file);
+    }
+
     protected String getRelativePath(File f) {
         String path = f.getParent()
                 .substring(root.file.getAbsolutePath().length(), f.getParent().length());
