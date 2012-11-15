@@ -482,6 +482,9 @@ public class ImportLibrary implements IObservable
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                             file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 }
+                OriginalFile ofile = repo.createOriginalFile(data.usedFiles.get(i));
+                String absolutePath = repo.getAbsolutePath(data.usedFiles.get(i));
+                data.originalFileMap.put(absolutePath, ofile);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
             }
@@ -586,7 +589,7 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      * @since OMERO Beta 4.5.
      */
-    public List<Pixels> importImageInternal(ImportContainer container, int index,
+    public List<Pixels> importImageInternal(ImportContainer container, Import data, int index,
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
@@ -644,17 +647,16 @@ public class ImportLibrary implements IObservable
             formatString = formatString.replace("Reader", "");
 
             // Save metadata and prepare the RawPixelsStore for our arrival.
-            List<File> metadataFiles;
             if (isScreeningDomain)
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
-                metadataFiles = store.setArchiveScreeningDomain();
+                store.setArchiveScreeningDomain(data);
             }
             else
             {
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
-                metadataFiles = store.setArchive(useMetadataFile);
+                store.setArchive(useMetadataFile, data);
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
@@ -684,45 +686,6 @@ public class ImportLibrary implements IObservable
                             md.digest());
                     pixels.setSha1(store.toRType(s));
                     saveSha1 = true;
-                }
-            }
-            // Original file absolute path to original file map for uploading
-            Map<String, OriginalFile> originalFileMap =
-                new HashMap<String, OriginalFile>();
-            for (Pixels pixels : pixList)
-            {
-                Image i = pixels.getImage();
-                for (Annotation annotation : i.linkedAnnotationList())
-                {
-                    if (annotation instanceof FileAnnotation)
-                    {
-                        FileAnnotation fa = (FileAnnotation) annotation;
-                        OriginalFile of = fa.getFile();
-                        String fullPath =
-                            of.getPath().getValue() + of.getName().getValue();
-                        originalFileMap.put(fullPath, of);
-                    }
-                }
-                for (OriginalFile of : pixels.linkedOriginalFileList())
-                {
-                    String fullPath =
-                        of.getPath().getValue() + of.getName().getValue();
-                    originalFileMap.put(fullPath, of);
-                }
-                for (WellSample ws : i.copyWellSamples())
-                {
-                    Plate plate = ws.getWell().getPlate();
-                    for (Annotation annotation : plate.linkedAnnotationList())
-                    {
-                        if (annotation instanceof FileAnnotation)
-                        {
-                            FileAnnotation fa = (FileAnnotation) annotation;
-                            OriginalFile of = fa.getFile();
-                            String fullPath =
-                                of.getPath().getValue() + of.getName().getValue();
-                            originalFileMap.put(fullPath, of);
-                        }
-                    }
                 }
             }
 
