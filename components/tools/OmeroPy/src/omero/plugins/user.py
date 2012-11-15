@@ -220,10 +220,7 @@ class UserControl(UserGroupControl):
         except omero.ApiUsageException, aue:
             pass # Apparently no such user exists
 
-        try:
-            groups = [admin.lookupGroup(group) for group in args.member_of]
-        except omero.ApiUsageException, aue:
-            self.ctx.die(68, aue.message)
+        groups = self.list_groups(admin, args.member_of)
 
         roles = admin.getSecurityRoles()
         groups.append(Grp(roles.userGroupId, False))
