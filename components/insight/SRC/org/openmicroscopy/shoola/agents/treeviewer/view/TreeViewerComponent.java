@@ -1734,14 +1734,17 @@ class TreeViewerComponent
 				Object value = values[0].getUserObject();
 				if (value instanceof GroupData) {
 					GroupData group = (GroupData) value;
+					long groupId = group.getId();
 					Set l = group.getExperimenters();
+					selected = new HashSet();
+					
+					DataObject o;
+					List<Long> ids = new ArrayList<Long>();
+					ExperimenterData exp = TreeViewerAgent.getUserDetails();
+					Iterator i;
+					long userID = exp.getId();
 					if (l != null) {
-						selected = new HashSet();
-						Iterator i = l.iterator();
-						DataObject o;
-						List<Long> ids = new ArrayList<Long>();
-						ExperimenterData exp = TreeViewerAgent.getUserDetails();
-						long userID = exp.getId();
+						i = l.iterator();
 						while (i.hasNext()) {
 							o = (DataObject) i.next();
 							if (o.getId() != userID) {
@@ -1749,12 +1752,31 @@ class TreeViewerComponent
 								selected.add(o);
 							}
 						}
-						i = objects.iterator();
-						while (i.hasNext()) {
-							o = (DataObject) i.next();
-							if (!ids.contains(o.getId()) && o.getId() != userID)
-								available.add(o);
+					}
+					
+					i = objects.iterator();
+					List<GroupData> groups;
+					Iterator<GroupData> j;
+					ExperimenterData e;
+					while (i.hasNext()) {
+						o = (DataObject) i.next();
+						if (o.getId() != userID) {
+							//check if the user is in the group when not 
+							//loaded.
+							if (l == null) { 
+								e = (ExperimenterData) o;
+								groups = e.getGroups();
+								j = groups.iterator();
+								while (j.hasNext()) {
+									if (j.next().getId() == groupId) {
+										selected.add(o);
+										ids.add(o.getId());
+									}
+								}
+							}
 						}
+						if (!ids.contains(o.getId()) && o.getId() != userID)
+							available.add(o);
 					}
 				}
 			} else available.addAll(objects);
