@@ -29,12 +29,15 @@ class UserControl(UserGroupControl):
         add.add_argument("-e", "--email")
         add.add_argument("-i", "--institution")
         # Capitalized since conflict with main values
-        add.add_argument("-P", "--userpassword", help = "Password for user")
         add.add_argument("-a", "--admin", action="store_true", help = "Whether the user should be an admin")
         add.add_argument("username", help = "User's login name")
         add.add_argument("firstname", help = "User's given name")
         add.add_argument("lastname", help = "User's surname name")
         add.add_argument("member_of", nargs="+", help = "Groups which the user is to be a member of")
+
+        password_group = add.add_mutually_exclusive_group()
+        password_group.add_argument("-P", "--password", help = "Password for user")
+        password_group.add_argument("--no-password", action="store_true", default = False, help = "Create user with empty password")
 
         list = parser.add(sub, self.list, help = "List current users")
 
@@ -230,10 +233,12 @@ class UserControl(UserGroupControl):
         group = groups.pop(0)
 
         try:
-            if pasw is None:
+            if args.no_password:
                 id = admin.createExperimenter(e, group, groups)
-                self.ctx.out("Added user %s" % id)
+                self.ctx.out("Added user %s without password" % id)
             else:
+                if pasw is None:
+                    self._ask_for_password(" for your new user (%s)" % login, strict = True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
                 self.ctx.out("Added user %s with password" % id)
         except omero.ValidationException, ve:
