@@ -248,23 +248,23 @@ class UserControl(UserGroupControl):
     def parse_userid(self, a, args):
         if args.id:
             user = getattr(args, "id", None)
-            return self.find_user_by_id(a, user, die=True)
+            return self.find_user_by_id(a, user, fatal = True)
         elif args.name:
             user = getattr(args, "name", None)
-            return self.find_user_by_name(a, user, die=True)
+            return self.find_user_by_name(a, user, fatal = True)
         else:
             user = self.ctx._event_context.userName
-            return self.find_user_by_name(a, user, die=True)
+            return self.find_user_by_name(a, user, fatal=True)
 
     def list_groups(self, a, groups):
 
         group_list = []
         for group in groups:
-            [gid, g] = self.find_group(a, group, die = False)
+            [gid, g] = self.find_group(a, group, fatal = False)
             if g:
                 group_list.append(g)
         if not group_list:
-            self.die_no_group_found()
+            self.error_no_group_found(fatal = True)
 
         return group_list
 
