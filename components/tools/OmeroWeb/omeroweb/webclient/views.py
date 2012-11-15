@@ -2108,7 +2108,7 @@ def activities(request, conn=None, **kwargs):
                                 obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
-                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
+                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'text/plain': 'text'}
                                     if v.file.mimetype.val in mimetypes:
                                         obj_data['fileType'] = mimetypes[v.file.mimetype.val]
                                         obj_data['fileId'] = v.file.id.val
@@ -2470,15 +2470,47 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     continue
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+    rsp = run_script(request, conn, sId, inputMap, scriptName)
+    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+
+
+@login_required(setGroupContext=True)
+def ome_tiff_script(request, imageId, conn=None, **kwargs):
+    """
+    Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
+    image and attach this as a file annotation to the image.
+    Script will show up in the 'Activities' for users to monitor and download result etc.
+    """
+    #if not request.method == 'POST':
+    #    return HttpResponse("Need to use POST")
+    
+    scriptService = conn.getScriptService()
+    sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
+    
+    imageIds = [long(imageId)]
+    inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
+    inputMap['Format'] = wrap('OME-TIFF')
+    rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
+    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+
+
+def run_script(request, conn, sId, inputMap, scriptName='Script'):
+    """
+    Starts running a script, adding details to the request.session so that it shows up
+    in the webclient Activities panel and results are available there etc.
+    """
+    request.session.modified = True
+    scriptService = conn.getScriptService()
     try:
         handle = scriptService.runScript(sId, inputMap, None, conn.SERVICE_OPTS)
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
+        status = 'in progress'
         request.session['callback'][jobId] = {
             'job_type': "script",
             'job_name': scriptName,
             'start_time': datetime.datetime.now(),
-            'status':'in progress'}
+            'status':status}
         request.session.modified = True
     except Exception, x:
         jobId = str(time())      # E.g. 1312803670.6076391
@@ -2500,9 +2532,25 @@ def script_run(request, scriptId, conn=None, **kwargs):
             'status':status,
             'Message': message,
             'error':error}
-        request.session.modified = True
-        # we return this, although it is now ignored (script window closes)
-        return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
+        return {'status': status, 'error': error}
 
-    return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
+    return {'jobId': jobId, 'status': status}
 
+@login_required()
+@render_response()
+def ome_tiff_info(request, imageId, conn=None, **kwargs):
+    """
+    Query to see if we have an OME-TIFF attached to the image (assume only 1, since Batch Image Export will delete old ones)
+    """
+    # Any existing OME-TIFF will appear in list
+    links = list( conn.getAnnotationLinks("Image", [imageId], ns=omero.constants.namespaces.NSOMETIFF) )
+    rv = {}
+    if len(links) > 0:
+        links.sort(key=lambda x: x.getId(), reverse=True)   # use highest ID === most recent
+        annlink = links[0]
+        created = annlink.creationEventDate()
+        annId = annlink.getChild().getId()
+        from omeroweb.webgateway.templatetags.common_filters import ago
+        download = reverse("download_annotation", args=[annId])
+        rv = {"created": str(created), "ago": ago(created), "id":annId, "download": download}
+    return rv       # will get returned as json by default
