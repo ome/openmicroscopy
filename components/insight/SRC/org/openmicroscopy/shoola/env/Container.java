@@ -388,42 +388,6 @@ public final class Container
 		int value = -1;
 		if (v != null) value = v.intValue();
 		if (value <= 0) {
-			NetworkChecker checker = new NetworkChecker();
-			boolean up = true;
-			try {
-				up = checker.isNetworkup();
-			} catch (Exception e) {
-				//Exception thrown if network is down.
-				up = false;
-			}
-			try {
-				if (!up) {
-					Class clazz = Class.forName(
-							"java.lang.ApplicationShutdownHooks");
-				    Field field = clazz.getDeclaredField("hooks");
-				    field.setAccessible(true);
-				    Object hooks = field.get(null);
-				    if (hooks != null) {
-				    	Map<Thread, Thread> map = (Map<Thread, Thread>) hooks;
-				    	Entry<Thread, Thread> e;
-				    	Iterator<Entry<Thread, Thread>>
-				    	i = map.entrySet().iterator();
-				    	Thread key;
-				    	List<Thread> toRemove = new ArrayList<Thread>();
-				    	while (i.hasNext()) {
-							e = i.next();
-							key = e.getKey();
-							if (omero.client.NAME.equals(key.getName()))
-								toRemove.add(key);
-						}
-				    	Iterator<Thread> j = toRemove.iterator();
-				    	while (j.hasNext()) {
-				    		Runtime.getRuntime().removeShutdownHook(j.next());
-						}
-				    }
-				}
-			} catch (Exception e) {
-			}
 			System.exit(0);
 		} else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));

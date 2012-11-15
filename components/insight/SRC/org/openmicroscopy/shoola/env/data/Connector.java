@@ -627,10 +627,19 @@ class Connector
 	void close(boolean networkup)
 		throws Throwable
 	{
+		secureClient.setFastShutdown(!networkup);
+		unsecureClient.setFastShutdown(!networkup);
 		if (networkup) {
 			shutDownServices(true);
-			secureClient.closeSession();
+		} else {
+			thumbnailService = null;
+			pixelsStore = null;
+			fileStore = null;
+			searchService = null;
+			importStore = null;
+			reServices.clear();
 		}
+		secureClient.closeSession();
 	}
 	
 	/** 
