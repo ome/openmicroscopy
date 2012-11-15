@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -524,7 +525,8 @@ class OmeroDataServiceImpl
 		Pixels pixels = gateway.getPixels(ctx, pixelsID);
 		long imageID = pixels.getImage().getId().getValue();
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		String name = image.getName()+"."+OMETIFFFilter.OME_TIF;
+		String name = UIUtilities.removeFileExtension(
+				image.getName())+"."+OMETIFFFilter.OME_TIF;
 		Map<Boolean, Object> result = 
 			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
 		if (result != null) return result;
