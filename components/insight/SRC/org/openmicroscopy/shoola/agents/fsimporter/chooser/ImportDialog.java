@@ -1564,11 +1564,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 
 		buildLocationPane();
-		if (!popUpLocation) {
-			pane.add(new JScrollPane(locationPane));
-			container.add(pane, "3, 0");
-		}
-
+		
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser,
 				container);
@@ -1824,7 +1820,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		this.type = type;
 		this.selectedContainer = selectedContainer;
-		popUpLocation = selectedContainer == null;
+		popUpLocation = true;
 		initComponents(filters);
 		buildGUI();
 	}
@@ -2077,7 +2073,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			}
 			container.repaint();
 		}
-		locationPane.validate();
 		locationPane.repaint();
 		tagsPane.removeAll();
 		tagsMap.clear();
@@ -2225,27 +2220,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public void setSelectedGroup(GroupData group) {
 		this.group = group;
-		if (groupSelection == null) return;
-		JComboBoxImageObject o;
-		JComboBoxImageObject selected = null;
-		GroupData g;
-		for (int i = 0; i < groupSelection.getItemCount(); i++) {
-			o = (JComboBoxImageObject) groupSelection.getItemAt(i);
-			g = (GroupData) o.getData();
-			if (g.getId() == group.getId()) {
-				selected = o;
-			}
-		}
-		if (selected != null) {
-			ActionListener[] listeners = groupSelection.getActionListeners();
-			for (int i = 0; i < listeners.length; i++) {
-				groupSelection.removeActionListener(listeners[i]);
-			}
-			groupSelection.setSelectedItem(selected);
-			for (int i = 0; i < listeners.length; i++) {
-				groupSelection.addActionListener(listeners[i]);
-			}
-		}
 	}
 
 	/**
