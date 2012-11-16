@@ -735,12 +735,18 @@ class RenderingControlProxy
 	
 	/** Checks if the proxy is still active.*/
 	private void isSessionAlive()
+		throws RenderingServiceException
 	{
 		try {
 			checker.isNetworkup();
 			servant.ice_ping();
 		} catch (Throwable e) {
-			handleConnectionException(e);
+			boolean b = handleConnectionException(e);
+			int index = 0;
+			if (!b) index = RenderingServiceException.CONNECTION;
+			RenderingServiceException ex = new RenderingServiceException(e);
+			ex.setIndex(index);
+			throw ex;
 		}
 	}
 	
@@ -1553,8 +1559,8 @@ class RenderingControlProxy
 	 */
 	public void setCompression(int compression)
 	{
-		isSessionAlive();
 		try {
+			isSessionAlive();
 			float f = PixelsServicesFactory.getCompressionQuality(compression);
 			rndDef.setCompression(f);
 			servant.setCompressionLevel(f);
