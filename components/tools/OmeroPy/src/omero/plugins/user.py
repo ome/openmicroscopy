@@ -192,7 +192,7 @@ class UserControl(UserGroupControl):
         middle = args.middlename
         last = args.lastname
         inst = args.institution
-        pasw = args.userpassword
+        pasw = args.password
 
         import omero
         from omero.rtypes import rstring
