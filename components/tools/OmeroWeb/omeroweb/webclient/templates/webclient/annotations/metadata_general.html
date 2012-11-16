@@ -29,34 +29,18 @@
         
         $(document).ready(function()
             {
-                jQuery.fn.tooltip_init = function() {
-                    $(this).tooltip({
-                        bodyHandler: function() {
-                                return $(this).parent().children("span.tooltip_html").html();
-                            },
-                        track: true,
-                        delay: 0,
-                        showURL: false,
-                        fixPNG: true,
-                        showBody: " - ",
-                        top: 10,
-                        left: -100
-                    });
-                  return this;
-                };
-
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
                 
                 {% if manager.canEdit %}
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}',
-                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}',
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}?index={{index}}',
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}?index={{index}}',
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
@@ -132,44 +116,6 @@
                     $("#link_info_popup").hide();
                 });
 
-
-                // handle deleting of Tag, File, Comment
-                // on successful delete via AJAX, the parent .domClass is hidden
-                var removeItem = function(event, domClass) {
-                    var removeId = $(event.target).attr('id');
-                    var dType = removeId.split("-")[1]; // E.g. 461-comment
-                    var annId = parseInt(removeId);
-                    // /webclient/action/remove/comment/461/?parent=image-257
-                    var parentId = $.trim($("#parent-id").text());
-                    var url = '{% url manage_action_containers "remove" %}'+ dType +'/'+ annId +'/';
-                    var $parent = $(event.target).parents("."+domClass);
-                    var $annContainer = $parent.parent();
-                    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    data: {'parent':parentId},
-									contentType: 'application/javascript',
-                                    dataType: 'json',
-                                    success: function(r){
-                                        if(eval(r.bad)) {
-                                            alert(r.errs);
-                                        } else {
-                                            // simply remove the item (parent class div)
-                                            //console.log("Success function");
-                                            $parent.remove();
-                                            $annContainer.hide_if_empty();
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    );
-                    return false;
-                }
-
                 // handle submit of Add Comment form
                 $("#add_comment_form").ajaxForm({
                     beforeSubmit: function(data) {
@@ -179,64 +125,31 @@
                     success: function(html) {
                         var $comment = $(html)
                         $('#comments_container').prepend( $comment ).show();
-                        $(".removeComment", $comment).click(function(event) {
-                            removeItem(event, "ann_comment_wrapper");
-                        });
                         var textArea = $('#add_comment_form textarea');
                         textArea.val('');
                     },
                 });
 
                 // bind removeItem to various [-] buttons
-                $(".removeComment").click(function(event) {
-                    removeItem(event, "ann_comment_wrapper");
+                $("#comments_container").on("click", ".removeComment", function(event){
+                    var url = $(this).attr('url');
+                    OME.removeItem(event, ".ann_comment_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
-                $(".removeTag").click(function(event) {
-                    removeItem(event, "tag_annotation_wrapper");
+                $("#tags_container").on("click", ".removeTag", function(event){
+                    var url = $(this).attr('url');
+                    OME.removeItem(event, ".tag_annotation_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
-                $(".removeFile").click(function(event) {
-                    removeItem(event, "file_ann_wrapper");
+                $("#fileanns_container").on("click", ".removeFile", function(event) {
+                    var url = $(this).attr('href');
+                    OME.removeItem(event, ".file_ann_wrapper", url, $.trim($("#object-id").text()));
                     return false;
                 });
                 
-                var deleteItem = function(event, domClass) {
-                    var deleteId = $(event.target).attr('id');
-                    var dType = deleteId.split("-")[1]; // E.g. 461-comment
-                    var annId = parseInt(deleteId);
-                    // /webclient/action/remove/comment/461/?parent=image-257
-                    var parentId = $.trim($("#parent-id").text());
-                    var url = '{% url manage_action_containers "delete" %}'+ dType +'/'+ annId +'/';
-                    var $parent = $(event.target).parents("."+domClass);
-                    var $annContainer = $parent.parent();
-                    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    contentType: 'application/javascript',
-									dataType:'json',
-                                    success: function(r){
-                                        if(eval(r.bad)) {
-                                            alert(r.errs);
-                                        } else {
-                                            // simply remove the item (parent class div)
-                                            $parent.remove();
-                                            $annContainer.hide_if_empty();
-                                            window.parent.refreshActivities();
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    );
-                    return false;
-                }
-                
-                $(".deleteFile").click(function(event) {
-                    deleteItem(event, "file_ann_wrapper");
+                $("#fileanns_container").on("click", ".deleteFile", function(event) {
+                    var url = $(this).attr('href');
+                    OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#object-id").text()));
                 });
                 
                 $(".dropdown_menu .menu_launch").click(function(e){
@@ -251,6 +164,10 @@
 
 
                 // Choose to add tags...
+                if ($("#add_tags_form").length === 0) {
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'></form>")
+                        .hide().appendTo('body');
+                }
                 $("#launch_tags_form").click(function(event) {
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
@@ -282,15 +199,16 @@
                         // update the list of tags
                         var $tag = $(data);
                         $("#tags_container").prepend($tag).hide_if_empty();
-                        $(".removeTag", $tag).click(function(event) {
-                            removeItem(event, "tag_annotation_wrapper");
-                        });
                         $(".tooltip", $tag).tooltip_init();
                     }
                 });
 
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+                if ($("#choose_attachments_form").length === 0) {
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'></form>")
+                        .hide().appendTo('body');
+                }
                 $('#choose_attachments_form').ajaxForm({
                     beforeSubmit: function(data) {
                         $("#batch_attachments_form").dialog( "close" );
@@ -301,12 +219,6 @@
                         // update the list of file annotations and bind actions
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns ).show();
-                        $(".deleteFile", $fileanns).click(function(event) {
-                            deleteItem(event, "file_ann_wrapper");
-                        });
-                        $(".removeFile", $fileanns).click(function(event) {
-                            removeItem(event, "file_ann_wrapper");
-                        });
                         $(".tooltip", $fileanns).tooltip_init();
                     },
                     error: function(data){
@@ -343,27 +255,70 @@
                     return false;
                 });
 
+
+                // -- Download options --
+                $("#download_dropdown ul").css('visibility', 'hidden');
+                // show on click
+                $("#show_download_dropdown").click(function(e) {
+                    $("ul", $(this).parent()).css('visibility', 'visible');
+                    e.preventDefault();
+                    return false;
+                });
+                // on hover-out, hide drop-down menus
+                $("#download_dropdown ul").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                });
+                
+                // Handle Download actions
+                $("#create-ometiff").click(function(e){
+                    
+                    var url = $(this).attr('href');
+                    $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
+                    var dialog_opts = ['Cancel', 'Create'];
+                    $.getJSON("{% url ome_tiff_info manager.obj_id %}", function(data) {
+                        
+                        var msg = "This will create an OME-TIFF file from this Image.";
+                        if (data.id && data.ago) {
+                            msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
+                            var download_ometiff = data.download;
+                            dialog_opts[1] = "Create New";
+                            dialog_opts.push("Download");
+                        } else {
+                            msg += "<br>This will be attached to the Image and available to download.";
+                        }
+
+                        var confirm_ometiff = confirm_dialog(msg,
+                            function() {
+                                var btn = confirm_ometiff.data("clicked_button");
+                                switch (btn) {
+                                    case "Create":   // two options for the same button
+                                    case "Create New":
+                                        $.post( url, function() {
+                                            showActivities();
+                                        });
+                                        break;
+                                    case "Download":
+                                        window.location.href = download_ometiff;
+                                        break;
+                                }
+                            },
+                            "Create OME-TIFF?",
+                            dialog_opts,
+                            null, 200
+                        );
+                    });
+                    
+                    e.preventDefault();
+                    return false;
+                });
+
             });
             
     </script>
 
 
-
-        
-        <div id='parent-id' style="display:none">
-            {% if manager.image %}image-{{ manager.image.id}}{% else %}
-                {% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}
-                    {% if manager.project %}project-{{ manager.project.id }}{% endif %}
-                {% endif %}
-            {% endif %}
-            {% if manager.well %}image-{{ manager.well.getWellSample.image.id }}{% else %}
-                {% if manager.acquisition %}acquisition-{{ manager.acquisition.id}}{% else %}
-                    {% if manager.plate %}plate-{{ manager.plate.id}}{% else %}
-                        {% if manager.screen %}screen-{{ manager.screen.id}}{% endif %}
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-        </div>
+        <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
+        <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
 
 
         {% if not manager.tag %}
@@ -381,40 +336,51 @@
 					<button class="btn silver btn_edit" alt="e" title="edit">
 						<span></span>
 					</button>
-						
-					{% comment %}
-					<img src="{% static "webclient/image/color_line12.png" %}" /> 
-					{% endcomment %}
 					
 				</div>{% else %}
 				
 				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
+            
+            <div style="position:relative">
+                <h2 class="data_heading_id" id='image_id' style="float:left">
+                    Image ID: <strong>{{ manager.image.id }}</strong>
+                </h2>
+
+                <!-- open-image link -->
+                <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
+                    <span></span>
+                </button>
+                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                    <input type="text" size="30">
+                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                </div>
                 
-            	<h2 class="data_heading_id" id='image_id'>
-            	    Image ID: <strong>{{ manager.image.id }}</strong>
-            	    <!-- open-image link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
-    					<span></span>
-    				</button>
-    				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-    				    <input type="text" size="30">
-    				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-    				</div>
-            	</h2>
-            	
-				
+                <!-- download options -->
+                <span id="download_dropdown">
+                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Image as...">
+                        <span></span>
+                    </button>
+                    <ul class="dropdown">
+                        {% if manager.image.countArchivedFiles %}
+                            <li>
+                                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
+    title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
+                                    Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
+                                title="Create OME-TIFF File for Download">OME-TIFF</a>
+                        </li>
+                        <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+                    </ul>
+                </span>
+            </div>
+
+            <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
-                
-                {% if manager.image.countArchivedFiles %}
-                    <div style="float:right; top:30px; padding:4px">
-                        <a href="{% url archived_files manager.image.id %}">
-                        <img src="{% static "webclient/image/nuvola_download_manager16.png" %}"
-                            title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}"/>
-                        </a>
-                    </div>
-                {% endif %}
-				
+
 				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"
 				        title="Open full image viewer in new window">
 					<span>
@@ -656,9 +622,9 @@
             {% if manager.well %}            
             {% if manager.well.getWellSample.image.canEdit %}
 			
-			<div id="wellname-{{ manager.well.getWellSample.image.id }}" class="data_heading">
+			<div id="wellname-{{ manager.well.id }}" class="data_heading">
 				<h1>
-					<p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
+					<p id="wellname-{{ manager.well.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
 				</h1>
 				<button class="btn silver btn_edit" alt="e" title="edit">
 					<span></span>
@@ -680,9 +646,9 @@
 			
             <div class="description">
                 {% if manager.well.getWellSample.image.canEdit %}
-                <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
+                <div class="data_heading" id="welldescription-{{ manager.well.id }}">
                     <p>
-                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
+                        <span id="welldescription-{{ manager.well.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
                         <button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>
@@ -982,18 +948,16 @@
 				
                 {% if manager.canAnnotate %}
 					<div>
-						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
+						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
 					</div>
                 {% endif %}
-                
-				<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
-                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
-                </form>
-				
+
                 <!-- display existing Tags -->
                 <div id="tags_container" class="lntags">
                 {% for tag in manager.tag_annotations %}
-                    {% include "webclient/annotations/tag.html" %}
+                    {% with can_remove=tag.link.canDelete %}
+                        {% include "webclient/annotations/tag.html" %}
+                    {% endwith %}
                 {% endfor %}
                 </div>
  
@@ -1009,22 +973,19 @@
                 <h2>{% trans "Attachments" %}</h2>
 
                     {% if manager.canAnnotate %}
-                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add">
+                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-                    
-                    <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
-                    <form id="choose_attachments_form" style="display:none" title="Choose Attachments" action="{% url annotate_file %}" method="post">
-                    </form>
-                    
 
                 <!-- display existing file annotations -->
 
                     <ul id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
-                            {% include "webclient/annotations/fileann.html" %}
+                            {% with can_remove=fileann.link.canDelete %}
+                                {% include "webclient/annotations/fileann.html" %}
+                            {% endwith %}
                         {% endfor %}
                     </ul>
 

@@ -22,12 +22,12 @@
 
 {% block link %}
 {{ block.super }}
-
+    <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <!-- javascript links -->
+    <!-- Include our current version of jQuery-UI and an ome utility script used by many pages -->
     {% include "webgateway/base/includes/jquery-ui.html" %}
     {% include "webgateway/base/includes/script_src_popup.html" %}
 {% endblock %}

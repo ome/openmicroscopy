@@ -53,12 +53,14 @@ var handle_tree_selection = function(data) {
         }
         selected.each(function(){
             var oid = $(this).attr('id');
-            // after copy & paste, node will have id E.g. copy_dataset-123
-            if (oid.substring(0,5) == "copy_") oid = oid.substring(5, oid.length);
-            var selected_obj = {"id":oid, "rel":$(this).attr('rel')}
-            selected_obj["class"] = $(this).attr('class');
-            if (share_id) selected_obj["share"] = share_id;
-            selected_objs.push(selected_obj);
+            if (typeof oid !== "undefined") {
+                // after copy & paste, node will have id E.g. copy_dataset-123
+                if (oid.substring(0,5) == "copy_") oid = oid.substring(5, oid.length);
+                var selected_obj = {"id":oid, "rel":$(this).attr('rel')}
+                selected_obj["class"] = $(this).attr('class');
+                if (share_id) selected_obj["share"] = share_id;
+                selected_objs.push(selected_obj);
+            };
         });
     }
     $("body")
@@ -76,6 +78,15 @@ var tree_selection_changed = function(data, evt) {
     select_timeout = setTimeout(function() {
         handle_tree_selection(data);
     }, 10);
+}
+
+// Short-cut to setting selection to [], with option to force refresh.
+// (by default, center panel doesn't clear when nothing is selected)
+var clear_selected = function(force_refresh) {
+    var refresh = (force_refresh === true);
+    $("body")
+        .data("selected_objects.ome", [])
+        .trigger("selection_change.ome", [refresh]);
 }
 
 // called when we change the index of a plate or acquisition
@@ -183,3 +194,89 @@ function doPagination(view, page) {
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
 }
+
+
+var OME = {}
+
+
+// handle deleting of Tag, File, Comment
+// on successful delete via AJAX, the parent .domClass is hidden
+OME.removeItem = function(event, domClass, url, parentId) {
+    var removeId = $(event.target).attr('id');
+    var dType = removeId.split("-")[1]; // E.g. 461-comment
+    // /webclient/action/remove/comment/461/?parent=image-257
+    var $parent = $(event.target).parents(domClass);
+    var $annContainer = $parent.parent();
+    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
+        function() {
+            if(confirm_remove.data("clicked_button") == "OK") {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: {'parent':parentId},
+					contentType: 'application/javascript',
+                    dataType: 'json',
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            alert(r.errs);
+                        } else {
+                            // simply remove the item (parent class div)
+                            //console.log("Success function");
+                            $parent.remove();
+                            $annContainer.hide_if_empty();
+                        }
+                    }
+                });
+            }
+        }
+    );
+    return false;
+}
+
+OME.deleteItem = function(event, domClass, url) {
+    var deleteId = $(event.target).attr('id');
+    var dType = deleteId.split("-")[1]; // E.g. 461-comment
+    // /webclient/action/delete/file/461/?parent=image-257
+    var $parent = $(event.target).parents("."+domClass);
+    var $annContainer = $parent.parent();
+    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
+        function() {
+            if(confirm_remove.data("clicked_button") == "OK") {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/javascript',
+                    dataType:'json',
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            alert(r.errs);
+                        } else {
+                            // simply remove the item (parent class div)
+                            $parent.remove();
+                            $annContainer.hide_if_empty();
+                            window.parent.refreshActivities();
+                        }
+                    }
+                });
+            }
+        }
+    );
+    event.preventDefault();
+    return false;
+}
+
+jQuery.fn.tooltip_init = function() {
+    $(this).tooltip({
+        bodyHandler: function() {
+                return $(this).parent().children("span.tooltip_html").html();
+            },
+        track: true,
+        delay: 0,
+        showURL: false,
+        fixPNG: true,
+        showBody: " - ",
+        top: 10,
+        left: -100
+    });
+  return this;
+};

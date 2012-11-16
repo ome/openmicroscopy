@@ -55,12 +55,12 @@ from omeroweb.connector import Connector
 logger = logging.getLogger(__name__)
 
 try:
-    import Image
-    import ImageDraw
+    from PIL import Image
+    from PIL import ImageDraw
 except: #pragma: nocover
     try:
-        from PIL import Image
-        from PIL import ImageDraw
+        import Image
+        import ImageDraw
     except:
         logger.error('No PIL installed')
 
@@ -361,7 +361,7 @@ def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwarg
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
-    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params, conn.SERVICE_OPTS)
 
     if shape is None:
         raise Http404
@@ -421,8 +421,8 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
 
     bBox = None   # bounding box: (x, y, w, h)
     shape = {}
-    theT = s.getTheT().getValue()
-    theZ = s.getTheZ().getValue()
+    theT = s.getTheT() is not None and s.getTheT().getValue() or 0
+    theZ = s.getTheZ() is not None and s.getTheZ().getValue() or 0
     if type(s) == omero.model.RectI:
         shape['type'] = 'Rectangle'
         shape['x'] = s.getX().getValue()
@@ -583,12 +583,17 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
             return (int((x-newX + left_xs)*factor), int((y-newY + top_xs)*factor))
         resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
         #draw.polygon(resizedXY, outline=lineColour)    # doesn't support 'width' of line
+        x2 = y2 = None
         for l in range(1, len(resizedXY)):
             x1, y1 = resizedXY[l-1]
             x2, y2 = resizedXY[l]
             draw.line((x1, y1, x2, y2), fill=lineColour, width=2)
         start_x, start_y = resizedXY[0]
         if shape['type'] != 'PolyLine':
+            if x2 is None:          # Seems possible to have Polygon with only 1 point!
+                x2 = start_x + 1    # This will create a visible dot
+            if y2 is None:
+                y2 = start_y + 1
             draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
         
     rv = StringIO()
@@ -747,6 +752,10 @@ def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    if 'download' in kwargs and kwargs['download']:
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = len(jpeg_data)
+        rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (img.getName().replace(" ","_"))
     return rsp
 
 @login_required()

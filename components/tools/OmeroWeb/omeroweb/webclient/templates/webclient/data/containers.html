@@ -85,7 +85,8 @@
             var selected = datatree.get_selected();
 
             var del_form = $( "#delete-dialog-form" );
-            del_form.dialog( "open" );
+            del_form.dialog( "open" )
+                .removeData("clicked_button");
             // clear previous stuff from form
             $.removeData(del_form, "clicked_button");
             $("#delete_contents_form").show();
@@ -556,6 +557,7 @@
                         "select_limit" : -1,
                         "select_multiple_modifier": multi_key(),
                         "selected_parent_close": "select_parent",
+                        "disable_selecting_children": true,
                         "select_prev_on_delete": false,
                         "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
                     },
@@ -819,7 +821,8 @@
                     
                 })
                 .delegate("a", "dblclick", function(e) {
-                    if ($(this).parent().attr('rel')=='image') {
+                    var obj_rel = $(this).parent().attr('rel');
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
                         openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
@@ -862,8 +865,11 @@
                             type: "POST",
                             success: function(r){
                                 if(eval(r.bad)) {
-                                      $.jstree.rollback(data.rlbk);
-                                      alert(r.errs);
+                                      if (data.rslt.o.length === 1) {
+                                          // only safe to rollback for single objects
+                                          $.jstree.rollback(data.rlbk);
+                                      };
+                                      // alert(r.errs);  // We've already handled the error - don't need to notify user
                                   }
                                   else {
                                       refresh = true;
@@ -877,7 +883,7 @@
                             }
                         });
                     });
-                    tree_selection_changed();   // clear center and right panels etc
+                    clear_selected(true);   // clear center and right panels etc
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
@@ -939,7 +945,7 @@
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
-                    tree_selection_changed();
+                    clear_selected(true);   // force refresh: true
                     $("#dataTree").jstree("refresh");
                     data = $.jstree._focused().get_selected();
                     tree_selection_changed(data);
@@ -1109,14 +1115,16 @@
 {% block center %}
 
 <div id="center_panel_header">
-	<div id="center_panel_chooser">
-	    <select id="source">
-	        <option value="#content_details">Thumbnails</option>
-	        {% for cp in ome.center_plugins %}
-	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
-	        {% endfor %}
-	    </select>
-	</div>
+    <div id="center_panel_chooser">
+        {% if ome.center_plugins|length > 0 %}
+            <select id="source">
+                <option value="#content_details">Thumbnails</option>
+                {% for cp in ome.center_plugins %}
+                    <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
 </div>
 
 <div id="content_details" class="center_panel_content"> </div>

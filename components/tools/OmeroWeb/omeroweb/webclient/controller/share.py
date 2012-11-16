@@ -60,6 +60,14 @@ class BaseShare(BaseController):
             if self.share is not None and not self.share.active and not self.share.isOwned():
                 raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
 
+    def obj_type(self):
+        """ Same as BaseContainer. Used to create identifier E.g. share-123 in right-hand panel """
+        return self.share.getShareType().lower()
+
+    def obj_id(self):
+        """ Same as BaseContainer. Used to create identifier E.g. share-123 in right-hand panel """
+        return self.share.getId()
+
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")

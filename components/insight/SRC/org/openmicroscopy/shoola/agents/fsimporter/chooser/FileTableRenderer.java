@@ -58,18 +58,19 @@ public class FileTableRenderer
 	/** Reference to the <code>File</code> icon. */
 	private static final Icon FILE_ICON;
 	
-	/** Reference to the <code>Project</code> icon. */
-	private static final Icon PROJECT_ICON;
-	
-	/** Reference to the <code>Project</code> icon. */
+	/** Reference to the <code>Screen</code> icon. */
 	private static final Icon SCREEN_ICON;
+
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ICON;
+
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
 		DIRECTORY_ICON = icons.getIcon(IconManager.DIRECTORY);
 		FILE_ICON = icons.getIcon(IconManager.IMAGE);
-		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
+		DATASET_ICON = icons.getIcon(IconManager.DATASET);
 	}
 
 	/** Creates a default instance. */
@@ -104,7 +105,7 @@ public class FileTableRenderer
 			Boolean b = n.isHCSContainer();
 			if (b != null) {
 				if (b.booleanValue()) setIcon(SCREEN_ICON);
-				else setIcon(PROJECT_ICON);
+				else setIcon(DATASET_ICON);
 			}
 		}
 		return this;

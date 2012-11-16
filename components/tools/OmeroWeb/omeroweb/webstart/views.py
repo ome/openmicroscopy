@@ -31,6 +31,7 @@ from django.template import RequestContext as Context
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
+from omero_version import omero_version
 
 def index(request):
     template = settings.INDEX_TEMPLATE
@@ -41,7 +42,7 @@ def index(request):
     if settings.WEBSTART:
         insight_url = request.build_absolute_uri(reverse("webstart_insight"))
     
-    return render_to_response(template,{'insight_url':insight_url})
+    return render_to_response(template,{'insight_url':insight_url, "version": omero_version})
 
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')

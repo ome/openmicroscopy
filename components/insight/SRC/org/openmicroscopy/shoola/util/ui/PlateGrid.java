@@ -156,6 +156,8 @@ public class PlateGrid
 	 * @param typeRow     One of the constants defined by this class.
 	 * @param typeColumn  One of the constants defined by this class.
 	 * @param values Host the valid wells.
+	 * @param rows The maximum number of rows.
+	 * @param columns The maximum number of columns.
 	 */
 	public PlateGrid(int typeRow, int typeColumn, List<WellGridElement> values, 
 			int rows, int columns)
@@ -185,7 +187,7 @@ public class PlateGrid
 	 */
 	public PlateGrid(int columns)
 	{
-		validValues = new ArrayList<WellGridElement>();//boolean[1][columns];
+		validValues = new ArrayList<WellGridElement>();
 		for (int i = 0; i < columns; i++)
 			validValues.add(new WellGridElement(0, i));
 		initialize(1, columns);
@@ -199,6 +201,8 @@ public class PlateGrid
 	 */
 	public void selectCell(int row, int column)
 	{
+		if (row < 0 || row >= getModel().getRowCount() ||
+			column < 0 || column >= getModel().getColumnCount()) return;
 		if (!isCellValid(row, column)) return;
 		setColumnSelectionInterval(column, column);
 		setRowSelectionInterval(row, row);

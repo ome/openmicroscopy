@@ -766,9 +766,9 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
     pixelsService = session.getPixelsService()
 
     try:
-        from PIL import Image
+        from PIL import Image   # see ticket:2597
     except:
-        import Image
+        import Image        # see ticket:2597
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
     pixels = queryService.findByQuery(query_string, None)

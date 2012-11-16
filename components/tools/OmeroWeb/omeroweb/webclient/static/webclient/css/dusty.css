@@ -152,6 +152,32 @@ button::-moz-focus-inner {
 	    height:18px;
 	    display:block;
 	}
+    
+    #general_tab .btn_download span {
+        width:20px;
+        height:18px;
+        display:block;
+    }
+    
+    #general_tab .btn_download {
+        background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
+    }
+    
+    #download_dropdown {
+        float:right;
+        margin: 0px 5px;
+    }
+    #download_dropdown .dropdown {
+        right: 0px;
+        left: auto;
+    }
+    #download_dropdown .dropdown:before {
+        left: 68% !important;
+    }
+    #download_dropdown ul a {
+        background: none;
+        font-size: 80%;
+    }
 	
 	
 	
@@ -443,15 +469,13 @@ button::-moz-focus-inner {
 
 
 .removeTag {
-	color:hsl(210,20%,60%);
+	color: #000;
 	cursor:pointer;
 	font-weight:bold; 
 	text-shadow: 0 1px 0 rgba(255,255,255,.7);
 	display:inline-block;
-	text-indent:-99px;
 	width:12px;
 	height:12px;
-	background:url(../image/icon_tag_delete.png) center center no-repeat;
 	position:absolute;
 	z-index:99;
 	right:5px;
@@ -463,6 +487,8 @@ button::-moz-focus-inner {
 	margin-left:5px;
 	overflow:hidden;
 	display:block !important;
+	background:url(../image/icon_tag_delete.png) center center no-repeat;
+	text-indent:-99px;
 }
 
 
@@ -711,7 +737,7 @@ button::-moz-focus-inner {
 	
 			.ui-datepicker tbody a{
 				font-size:1.2em;
-				color:#999;
+				border: 1px solid #CCCCCC;
 			}
 
 
@@ -894,6 +920,7 @@ button::-moz-focus-inner {
 		border-radius:50px;
 		border:solid 1px hsl(215,15%,30%);
 		border-top:solid 1px hsl(215,15%,18%);
+		border-color: #727F8C #9199A0 #9199A0;
 		padding: .2em .5em;
 		font-size:1.2em;
 		color:#333;

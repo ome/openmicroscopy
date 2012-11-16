@@ -123,6 +123,9 @@
                 }
                 
                 // Edit share: launch dialog with edit-share form
+                if ($("#edit_share_div").length === 0) {
+                    $("<div id='edit_share_div'></div>").appendTo('body').hide();
+                }
                 $("#edit_share").click(function(){
                     // set-up the edit-share form to use dialog
                     $("#edit_share_div").dialog({
@@ -151,11 +154,11 @@
                                 $("#edit_share_div").dialog( "close" );      // hide in case it was submitted via 'Enter'
                                 // update the UI  - only available if the owner is editing share
                                 {% if manager.share.id %}
-                                share_selection_changed({{ manager.share.id }});
+                                share_selection_changed("share-{{ manager.share.id }}");
                                 {% endif %}
                             }
                         });
-                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
                         $("#markup_c, #enable, #expire").tooltip({ 
                               track: true, 
                               delay: 0, 
@@ -178,13 +181,8 @@
 
 {% block body %}
 
-{% comment %}
-    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
-    {% include "webtest/webtest-toolbar-include.html" %}
-{% endcomment %}
-
-
-
+    <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
+    <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
         
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
@@ -265,8 +263,6 @@
             {% endif %}
 
             {% if manager.share %}
-                <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
-                <div id='edit_share_div'></div>
                 <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
                         <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">

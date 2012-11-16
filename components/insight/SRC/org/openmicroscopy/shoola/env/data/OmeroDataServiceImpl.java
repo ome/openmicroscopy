@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -80,6 +79,7 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -524,10 +524,12 @@ class OmeroDataServiceImpl
 		Pixels pixels = gateway.getPixels(ctx, pixelsID);
 		long imageID = pixels.getImage().getId().getValue();
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		String name = image.getName()+"."+OMETIFFFilter.OME_TIF;
+		String name = UIUtilities.removeFileExtension(
+				image.getName())+"."+OMETIFFFilter.OME_TIF;
 		Map<Boolean, Object> result = 
 			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
 		if (result != null) return result;
+		//Returns the file.
 		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
 				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
 				new File(FilenameUtils.concat(folderPath, name)), null);
