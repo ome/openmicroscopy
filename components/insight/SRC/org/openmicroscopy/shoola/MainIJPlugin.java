@@ -141,7 +141,7 @@ public class MainIJPlugin
 		buffer.append("<p>The plugin requires ");
 		buffer.append(LOCI_TOOL);
 		buffer.append("<br>Download the stable release version from<br>");
-		buffer.append("<a href=\"http://loci.wisc.edu/bio-formats/downloads\">" +
+		buffer.append("<a href=\"http://www.openmicroscopy.org/site/products/bio-formats/downloads\">" +
 				"bio-formats/downloads</a><br>");
 		buffer.append("Add ");
 		buffer.append(LOCI_TOOL);
