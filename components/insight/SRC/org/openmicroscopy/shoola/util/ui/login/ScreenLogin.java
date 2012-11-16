@@ -352,6 +352,7 @@ public class ScreenLogin
 	{
 		ServerDialog d;
 		String s = serverText.getText().trim();
+		/*
 		if (!hostConfigurable) {
 			d = new ServerDialog(this, speedIndex);
 		} else {
@@ -359,6 +360,10 @@ public class ScreenLogin
 				d = new ServerDialog(this, editor, s, speedIndex);
 			else d = new ServerDialog(this, editor, s);
 		}
+		*/
+		if (connectionSpeed) 
+			d = new ServerDialog(this, editor, s, speedIndex);
+		else d = new ServerDialog(this, editor, s);
 		if (editor.getRowCount() == 0 && configureServerName != null)
 			editor.addRow(configureServerName);
 		d.addPropertyChangeListener(this);
