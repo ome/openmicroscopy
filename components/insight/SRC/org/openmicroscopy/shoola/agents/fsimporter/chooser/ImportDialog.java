@@ -1564,11 +1564,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 
 		buildLocationPane();
-		if (!popUpLocation) {
-			pane.add(new JScrollPane(locationPane));
-			container.add(pane, "3, 0");
-		}
-
+		
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser,
 				container);
@@ -1824,7 +1820,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		this.type = type;
 		this.selectedContainer = selectedContainer;
-		popUpLocation = selectedContainer == null;
+		popUpLocation = true;
 		initComponents(filters);
 		buildGUI();
 	}
