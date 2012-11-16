@@ -1139,7 +1139,6 @@ public class ScreenLogin
 		configButton.setEnabled(b);
 		encryptedButton.setEnabled(b);
 		if (groupsBox != null) groupsBox.setEnabled(b);
-		
 		if (b) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			setButtonDefault(login);
@@ -1285,13 +1284,16 @@ public class ScreenLogin
     /** 
      * Shows or hides the progress bar and the tasks label. 
      * 
-     * @param b Pass <code>true</code> to show, <code>false</code> to hide.
+     * @param visible Pass <code>true</code> to show, <code>false</code> to
+     * hide.
+     * @param requestFocus Pass <code>true</code> to request focus,
+     * <code>false</code> otherwise.
      */
-    public void setStatusVisible(boolean b)
+    public void setStatusVisible(boolean visible, boolean requestFocus)
     {
-    	currentTask.setVisible(b);
-    	progressBar.setVisible(b);
-    	if (!b) {
+    	currentTask.setVisible(visible);
+    	progressBar.setVisible(visible);
+    	if (requestFocus) {
     		login.setEnabled(true);
     		requestFocusOnField();
     	}
