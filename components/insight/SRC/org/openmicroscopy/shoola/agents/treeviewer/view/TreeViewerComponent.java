@@ -1726,60 +1726,33 @@ class TreeViewerComponent
 		if (objects == null || objects.size() == 0)
 			return;
 		Browser b = model.getSelectedBrowser();
+		List<Object> available = new ArrayList<Object>();
 		Set selected = null;
-		List available = new ArrayList();
 		if (b != null) {
 			TreeImageDisplay[] values = b.getSelectedDisplays();
 			if (values != null && values.length == 1) {
 				Object value = values[0].getUserObject();
 				if (value instanceof GroupData) {
-					GroupData group = (GroupData) value;
-					long groupId = group.getId();
-					Set l = group.getExperimenters();
-					selected = new HashSet();
-					
-					DataObject o;
+					long groupId = ((GroupData) value).getId();
+					long currentUserId = TreeViewerAgent.getUserDetails().getId();
+					selected = new HashSet<ExperimenterData>();
 					List<Long> ids = new ArrayList<Long>();
-					ExperimenterData exp = TreeViewerAgent.getUserDetails();
-					Iterator i;
-					long userID = exp.getId();
-					if (l != null) {
-						i = l.iterator();
-						while (i.hasNext()) {
-							o = (DataObject) i.next();
-							if (o.getId() != userID) {
-								ids.add(o.getId());
-								selected.add(o);
-							}
+					for (ExperimenterData experimenter :
+						(List<ExperimenterData>) objects) {
+						if (experimenter.getId() != currentUserId &&
+								experimenter.isMemberOfGroup(groupId)) {
+							selected.add(experimenter);
+							ids.add(experimenter.getId());
 						}
-					}
-					
-					i = objects.iterator();
-					List<GroupData> groups;
-					Iterator<GroupData> j;
-					ExperimenterData e;
-					while (i.hasNext()) {
-						o = (DataObject) i.next();
-						if (o.getId() != userID) {
-							//check if the user is in the group when not 
-							//loaded.
-							if (l == null) { 
-								e = (ExperimenterData) o;
-								groups = e.getGroups();
-								j = groups.iterator();
-								while (j.hasNext()) {
-									if (j.next().getId() == groupId) {
-										selected.add(o);
-										ids.add(o.getId());
-									}
-								}
-							}
+						if (!ids.contains(experimenter.getId()) &&
+								experimenter.getId() != currentUserId) {
+							available.add(experimenter);
 						}
-						if (!ids.contains(o.getId()) && o.getId() != userID)
-							available.add(o);
 					}
 				}
-			} else available.addAll(objects);
+			} else {
+				available.addAll(objects);
+			}
 		}
 		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,
