@@ -376,9 +376,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Flag indicating that the containers view needs to be refreshed. */
 	private boolean refreshLocation;
 
-	/** Indicates to pop-up the location. */
-	private boolean popUpLocation;
-
 	/** The selected container if screen view. */
 	private TreeImageDisplay selectedScreen;
 
@@ -531,13 +528,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		if (!popUpLocation) {
+		LocationDialog dialog = new LocationDialog(owner, locationPane);
+		if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
 			addFiles();
-		} else {
-			LocationDialog dialog = new LocationDialog(owner, locationPane);
-			if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
-				addFiles();
-			}
 		}
 	}
 
@@ -1820,7 +1813,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		this.type = type;
 		this.selectedContainer = selectedContainer;
-		popUpLocation = true;
 		initComponents(filters);
 		buildGUI();
 	}
@@ -2049,31 +2041,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			chooser.setFileFilter(filters[0]);
 		initializeLocationBoxes();
 		buildLocationPane();
-		boolean b = popUpLocation;
-		if (!changeGroup)
-			popUpLocation = this.selectedContainer == null;
-		if (b != popUpLocation && !changeGroup) {
-			if (b) {
-				Component[] comps = container.getComponents();
-				boolean in = false;
-				for (int i = 0; i < comps.length; i++) {
-					if (comps[i] == pane) {
-						in = true;
-						break;
-					}
-				}
-				if (!in) {
-					pane.removeAll();
-					pane.add(new JScrollPane(locationPane));
-					container.add(pane, "3, 0");
-				}
-			} else {
-				if (remove)
-					container.remove(pane);
-			}
-			container.repaint();
-		}
-		locationPane.repaint();
+
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}
