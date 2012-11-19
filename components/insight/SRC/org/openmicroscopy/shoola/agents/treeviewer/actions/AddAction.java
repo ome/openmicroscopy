@@ -119,9 +119,16 @@ public class AddAction
         } else if (ho instanceof GroupData) {
             //setEnabled(TreeViewerAgent.isAdministrator() 
             	//	|| model.isLeaderOfGroup((GroupData) ho));
-        	setEnabled(TreeViewerAgent.isAdministrator());
+            boolean multipleNodesSelected = false;
+            Browser browser = this.model.getSelectedBrowser();
+            TreeImageDisplay[] array = browser.getSelectedDisplays();
+            if (array != null && array.length > 1) {
+                multipleNodesSelected = true;
+            }
+            setEnabled(TreeViewerAgent.isAdministrator()
+                    && !multipleNodesSelected);
             putValue(Action.NAME, NAME_USER);
-            putValue(Action.SHORT_DESCRIPTION, 
+            putValue(Action.SHORT_DESCRIPTION,
                     UIUtilities.formatToolTipText(DESCRIPTION_USER));
         } else {
             setEnabled(false);
