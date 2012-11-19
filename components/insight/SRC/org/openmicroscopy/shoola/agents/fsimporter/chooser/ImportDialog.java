@@ -1548,23 +1548,23 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			JPanel groupRow = createRow(null);
 			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
 			groupRow.add(groupSelection);
-			projectPanel.add(projectPanel);
+			projectPanel.add(groupRow);
 			projectPanel.add(Box.createVerticalStrut(2));
 		}
 		
 		JPanel projectRow = createRow(null);
 		projectRow.add(UIUtilities.setTextFont(PROJECT_TXT));
-		projectRow.add(addProjectButton);
 		projectRow.add(projectsBox);
-
+		projectRow.add(addProjectButton);
+		
 		projectPanel.add(projectRow);
 		projectPanel.add(Box.createVerticalStrut(8));
 		
 		JPanel dataSetRow = createRow(null);
 		dataSetRow.add(UIUtilities.setTextFont(DATASET_TXT));
-		dataSetRow.add(addDatasetButton);
 		dataSetRow.add(datasetsBox);
-
+		dataSetRow.add(addDatasetButton);
+		
 		projectPanel.add(dataSetRow);
 		projectPanel.add(new JSeparator());
 		
@@ -1579,14 +1579,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			JPanel groupRow = createRow(null);
 			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
 			groupRow.add(groupSelection);
-			screenPanel.add(screenPanel);
+			screenPanel.add(groupRow);
 			screenPanel.add(Box.createVerticalStrut(2));
 		}
 		
 		JPanel screenRow = createRow(null);
 		screenRow.add(UIUtilities.setTextFont(SCREEN_TXT));
-		screenRow.add(addScreenButton);
 		screenRow.add(screensBox);
+		screenRow.add(addScreenButton);
 
 		screenPanel.add(screenRow);
 		screenPanel.add(new JSeparator());
