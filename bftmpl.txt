@@ -9,7 +9,7 @@ Please note:
 * Internet Explorer sometimes renames JAR files to ZIP (e.g., loci_tools.jar becomes loci_tools.zip); if this happens to you, simply rename the file back to its original name after the download is complete.
 * For some browsers, you may need to right-click or control-click the link and choose "Save link as..." or a similar option to download the file.
 
-After downloading the relevant files, you may want to take a look at our Bio-Formats 4.4.4 [online documentation](@DOC_URL@) page.
+After downloading the relevant files, you may want to take a look at our Bio-Formats @VERSION@ [online documentation](@DOC_URL@) page.
 
 
 ## Bio-Formats trunk/daily builds ##
@@ -47,7 +47,7 @@ Developers can access builds of individual JAR libraries below.
 <table>
 <tr>
 <th>Project</th>
-<th>4.4.4</th>
+<th>@VERSION@</th>
 <th>Trunk build</th>
 <th>Daily build</th>
 </tr>

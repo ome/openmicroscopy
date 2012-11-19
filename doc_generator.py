@@ -12,6 +12,45 @@ import urlparse
 import fileinput
 
 
+class Filesize(object):
+    """
+    Container for a size in bytes with a human readable representation
+    Use it like this::
+
+        >>> size = Filesize(123123123)
+        >>> print size
+
+        '117.4 MB'
+
+    See: http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+    """
+
+    chunk = 1024
+    units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
+    precisions = [0, 0, 1, 2, 2, 2]
+
+    def __init__(self, size):
+        self.size = size
+
+    def __int__(self):
+        return self.size
+
+    def __str__(self):
+        if self.size == 0: return '0 bytes'
+        from math import log
+        unit = self.units[min(int(log(self.size, self.chunk)), len(self.units) - 1)]
+        return self.format(unit)
+
+    def format(self, unit):
+        if unit not in self.units: raise Exception("Not a valid file size unit: %s" % unit)
+        if self.size == 1 and unit == 'bytes': return '1 byte'
+        exponent = self.units.index(unit)
+        quotient = float(self.size) / self.chunk**exponent
+        precision = self.precisions[exponent]
+        format_string = '{:.%sf} {}' % (precision)
+        return format_string.format(quotient, unit)
+
+
 def get_server_status_code(url):
     """
     Download just the header of a URL and
@@ -83,3 +122,5 @@ def find_pkg(repl, fingerprint_url, snapshot_path, snapshot_url, name, path, ign
     repl["@%s@" % name] = snapshot_url + path[len(snapshot_path):]
     repl["@%s_MD5@" % name] = hash
     repl["@%s_BASE@" % name] = os.path.basename(path)
+    #repl["@%s_SIZE@" % name] = str(Filesize(os.path.getsize(path)))
+

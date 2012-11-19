@@ -3,6 +3,9 @@
 set -e
 set -u
 
+
+BRANCH=${BRANCH:-dev_4_4}
+
 merge(){
 
     path=$1
@@ -19,7 +22,7 @@ merge(){
 }
 
 git fetch origin
-git merge --ff-only origin/develop
-merge docs/sphinx docs/sphinx master
-merge components/tools/OmeroPy/scripts scripts master
-merge components/bioformats bioformats develop
+git merge --ff-only origin/$BRANCH
+merge docs/sphinx docs/sphinx $BRANCH
+merge components/tools/OmeroPy/scripts scripts $BRANCH
+merge components/bioformats bioformats $BRANCH
