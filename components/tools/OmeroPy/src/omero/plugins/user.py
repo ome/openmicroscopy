@@ -36,7 +36,7 @@ class UserControl(UserGroupControl):
         add.add_argument("member_of", nargs="+", help = "Groups which the user is to be a member of")
 
         password_group = add.add_mutually_exclusive_group()
-        password_group.add_argument("-P", "--password", help = "Password for user")
+        password_group.add_argument("-P", "--userpassword", help = "Password for user")
         password_group.add_argument("--no-password", action="store_true", default = False, help = "Create user with empty password")
 
         list = parser.add(sub, self.list, help = "List current users")
@@ -62,6 +62,9 @@ class UserControl(UserGroupControl):
             group.add_argument("--id", help="ID of the user. Default to the current user")
             group.add_argument("--name", help="Name of the user. Default to the current user")
 
+        for x in (email, password, list, add, joingroup, leavegroup):
+            group = x.add_argument_group('Login arguments', 'Optional session arguments')
+            self.ctx.add_login(group)
 
     def format_name(self, exp):
         record = ""
@@ -192,7 +195,7 @@ class UserControl(UserGroupControl):
         middle = args.middlename
         last = args.lastname
         inst = args.institution
-        pasw = args.password
+        pasw = args.userpassword
 
         import omero
         from omero.rtypes import rstring
