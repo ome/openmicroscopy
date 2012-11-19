@@ -84,6 +84,9 @@ More information is available at:
             group.add_argument("--id", metavar="group", help="ID of the group")
             group.add_argument("--name", metavar="group", help="Name of the group")
         
+        for x in (add, perms, list, copyusers, adduser, removeuser):
+            group = x.add_argument_group('Login arguments', 'Optional session arguments')
+            self.ctx.add_login(group)
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
