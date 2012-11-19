@@ -1730,7 +1730,8 @@ class TreeViewerComponent
 		Set selected = null;
 		if (b != null) {
 			TreeImageDisplay[] values = b.getSelectedDisplays();
-			if (values != null && values.length == 1) {
+			if (values != null && values.length > 0) {
+				// Only modify the first group from the list of groups
 				Object value = values[0].getUserObject();
 				if (value instanceof GroupData) {
 					long groupId = ((GroupData) value).getId();
