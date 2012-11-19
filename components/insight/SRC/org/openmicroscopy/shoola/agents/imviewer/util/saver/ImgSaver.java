@@ -31,6 +31,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -153,9 +156,6 @@ public class ImgSaver
     /** The file's format. */
     private String          format;
     
-    /** The message displayed when the file is saved. */
-    private String          saveMessage;
-    
     /** The main image i.e. the one displayed in the viewer. */
     private BufferedImage   mainImage;
     
@@ -169,7 +169,51 @@ public class ImgSaver
     private int				imageType;
     
     /** One of the following constants: {@link #FULL}, {@link #PARTIAL}. */
-    private int				savingType;
+    private int savingType;
+    
+    /** 
+     * Notifies that the image has been saved locally.
+     * 
+     * @param name The path to the local file.
+     */
+    private void notifySave(String name)
+    {
+    	NotificationDialog dialog = new NotificationDialog(this, "Save Image",
+				getSaveMessage(name), true);
+    	dialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			/**
+			 * Opens the image with default viewer.
+			 */
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (NotificationDialog.HYPERLINK_OPEN_PROPERTY.equals(
+						evt.getPropertyName())) {
+					UserNotifier un = 
+							ImViewerAgent.getRegistry().getUserNotifier();
+					un.openApplication(null, (String) evt.getNewValue());
+				}
+			}
+		});
+		dialog.pack();
+		UIUtilities.centerAndShow(dialog);
+    }
+    
+    /**
+     * Creates and returns the save message.
+     * 
+     * @return See above.
+     */
+    private String getSaveMessage(String name)
+    {
+    	StringBuffer buffer = new StringBuffer();
+		buffer.append("<html><body>");
+		buffer.append("<p>The image has been saved successfully.<br>");
+		buffer.append("<a href=\"");
+		buffer.append(name);
+		buffer.append("\">View Image</a>.");
+		buffer.append("</body><html>");
+    	return buffer.toString();
+    }
     
     /**
      * Creates a single image.
@@ -196,7 +240,6 @@ public class ImgSaver
         if (constrain)
             ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
         writeImage(newImage, name);
-        //writeImage(image, name);
     }
     
     /**
@@ -268,7 +311,7 @@ public class ImgSaver
         String extendedName = getExtendedName(n, format);
         File f = new File(extendedName);
         try {
-            if (format.equals(TIFFFilter.TIF)) {
+            if (TIFFFilter.TIF.equals(format)) {
                 Encoder encoder = new TIFFEncoder(Factory.createImage(image), 
                         new DataOutputStream(new FileOutputStream(f)));
                 WriterImage.saveImage(encoder);
@@ -324,7 +367,7 @@ public class ImgSaver
     		"the image.");
     		return;
     	}
-    	un.notifyInfo("Saving Image", saveMessage);
+    	notifySave(getExtendedName(uiDelegate.getSelectedFilePath(), format));
     	if (uiDelegate.isSetDefaultFolder())
     		UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
     }
@@ -406,13 +449,6 @@ public class ImgSaver
      * @param format The file's format.
      */
     void setFileFormat(String format) { this.format = format; }
-    
-    /** 
-     * Sets the save message.
-     * 
-     * @param saveMessage The message to set.
-     */
-    void setFileMessage(String saveMessage) { this.saveMessage = saveMessage; }
     
     /** Brings up a preview of the image or images to save. */
     void previewImage()
@@ -543,7 +579,7 @@ public class ImgSaver
 			 		"the image.");
 			 return;
 		}
-        un.notifyInfo("Saving Image", saveMessage);
+        notifySave(getExtendedName(uiDelegate.getSelectedFilePath(), format));
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
     }

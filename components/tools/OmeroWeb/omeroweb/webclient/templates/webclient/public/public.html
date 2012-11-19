@@ -47,7 +47,8 @@
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {                            
+                        if((typeof selected.attr("rel") === 'undefined') ||
+                                (selected.attr("rel").indexOf("locked")>=0)) {
                             toolbar_config = {"adddiscussion":false, 'removecontent':false};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
@@ -218,6 +219,11 @@
                     var data = $.jstree._focused();
                     if(!data.is_open()) {
                         data.open_node(data.get_selected());
+                    }
+                })
+                .delegate("a", "dblclick", function(e) {
+                    if ($(this).parent().attr('rel')=='image') {
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

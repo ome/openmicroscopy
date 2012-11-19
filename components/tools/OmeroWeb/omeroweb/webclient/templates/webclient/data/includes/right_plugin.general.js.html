@@ -45,15 +45,42 @@ $(function () {
         if (selected.length > 1) {
             // handle batch annotation...
             var productListQuery = new Array();
+            var well_index;
             for (var i=0; i<selected.length; i++) {
                 // if any items don't have the canAnnotate class, we don't show batch annotation
                 if (typeof selected[i]['class'] != 'undefined' && selected[i]['class'].indexOf("canAnnotate") < 0) {
                     return;
                 }
                 productListQuery[i] = selected[i]["id"].replace("-","=");
+                well_index = well_index || selected[i]["index"];
             }
             var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&");
-            $metadata_general.load(query);
+            if (well_index) {
+                query += "&index=" + well_index;
+            }
+            // Load right hand panel...
+            $.ajax({
+                url: query,
+                dataType: "html",
+                // Need to check that the selected objects haven't changed during AJAX call...
+                success: function(data) {
+                    var selected_ids = [], i,
+                        selected_data = $("body").data("selected_objects.ome");
+                    for(i=0; i<selected_data.length; i++) {
+                        selected_ids.push(selected_data[i].id);
+                    }
+                    var oids = $(data).filter("#object-ids").text().split("|");
+                    // need to compare two arrays of strings...
+                    selected_ids.sort();
+                    oids.sort();
+                    for(i=0;i<oids.length; i++) {
+                        if (oids[i] !== selected_ids[i]) {
+                            return;     // any differences, don't load panel.
+                        }
+                    }
+                    $metadata_general.html(data);
+                }
+            });
             
         } else {
             $("#annotation_tabs").tabs("enable", general_tab_index);    // always want metadata_general enabled
@@ -89,7 +116,19 @@ $(function () {
                     }
                 }
                 if (url !== null) {
-                    $metadata_general.load(url);
+                    // We are effectively doing $metadata_general.load(url) BUT we need to check that selection
+                    // is still correct (hasn't changed during the AJAX call);
+                    $.ajax({
+                        url: url,
+                        dataType: "html",
+                        success: function(data) {
+                            var selected_id = $("body").data("selected_objects.ome")[0].id;
+                            var oid = $(data).filter("#object-id").text();
+                            if (oid === selected_id) {
+                                $metadata_general.html(data);
+                            }
+                        }
+                    });
                 }
             }
         }

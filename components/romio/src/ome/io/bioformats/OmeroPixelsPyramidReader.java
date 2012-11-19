@@ -102,40 +102,6 @@ public class OmeroPixelsPyramidReader extends MinimalTiffReader {
         super.close();
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.in.MinimalTiffReader#initFile(java.lang.String)
-     */
-    @Override
-    protected void initFile(String id) throws FormatException, IOException
-    {
-        super.initFile(id);
-        IFDList newIFDs = new IFDList();
-        for (IFD ifd : ifds)
-        {
-            Integer resolutionLevel = (Integer) 
-                    ifd.get(OmeroPixelsPyramidWriter.IFD_TAG_SERIES);
-            Integer imageNumber = (Integer)
-                    ifd.get(OmeroPixelsPyramidWriter.IFD_TAG_PLANE_NUMBER);
-            if (resolutionLevel != null)
-            {
-                subResolutionIFDs.get(imageNumber).set(resolutionLevel, ifd);
-                for (CoreMetadata coreMetadata : core)
-                {
-                    coreMetadata.sizeT--;
-                    coreMetadata.imageCount--;
-                }
-            }
-            else
-            {
-                newIFDs.add(ifd);
-            }
-        }
-        ifds = newIFDs;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.in.MinimalTiffReader#setResolutionLevel(loci.formats.tiff.IFD)
-     */
     @Override
     protected void setResolutionLevel(IFD ifd)
     {

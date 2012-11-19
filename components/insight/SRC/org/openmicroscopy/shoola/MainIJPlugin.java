@@ -116,9 +116,9 @@ public class MainIJPlugin
         		BorderLayout.SOUTH);
 
        	final JDialog frame = new JDialog(IJ.getInstance(), "Warning");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        frame.setSize(250, 200);
+        frame.setSize(350, 200);
         frame.setResizable(false);
         okay.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -138,10 +138,14 @@ public class MainIJPlugin
 	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><body>");
-		buffer.append("<p>The plugin requires loci_tools.jar<br>" +
-				"Download the release version from<br>");
-		buffer.append("<a href=\"http://loci.wisc.edu/bio-formats/downloads\">" +
-				"bio-formats/downloads</a>");
+		buffer.append("<p>The plugin requires ");
+		buffer.append(LOCI_TOOL);
+		buffer.append("<br>Download the stable release version from<br>");
+		buffer.append("<a href=\"http://www.openmicroscopy.org/site/products/bio-formats/downloads\">" +
+				"bio-formats/downloads</a><br>");
+		buffer.append("Add ");
+		buffer.append(LOCI_TOOL);
+		buffer.append(" to Plugins folder and restart ImageJ.</p>");
 		buffer.append("</body><html>");
 		return buffer.toString();
 	}
@@ -156,6 +160,7 @@ public class MainIJPlugin
 			LogMessage msg = new LogMessage();
 			msg.println("Exit Plugin:"+UIUtilities.printErrorText(e));
 			if (IJ.debugMode) IJ.log(msg.toString());
+			msg.close();
 		}
 	}
 	
@@ -234,24 +239,29 @@ public class MainIJPlugin
 			} catch (Exception e) {}
 		}
 		//Check if plugin is there
+		boolean exist = false;
 		try {
 			jarFile = new File(src.getLocation().toURI().getPath());
 		    //Plugin folder
 			File dir = new File(System.getProperty("user.dir"), PLUGINS_DIR);
 		    File[] l = dir.listFiles();
-		    boolean exist = false;
+		    
 		    for (int i = 0; i < l.length; i++) {
 				if (l[i].getName().equals(LOCI_TOOL)) {
 					exist = true;
 					break;
 				}
 			}
-		    if (!exist) {
-		    	showMessage();
-				return;
-		    }
-		    
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			String msg = "An error occurred while checking if " +
+					""+LOCI_TOOL+" is installed."+e.toString();
+			if (IJ.debugMode)
+				IJ.log(msg);
+		}
+		if (!exist) {
+	    	showMessage();
+			return;
+	    }
 		attachListeners();
 		container = Container.startupInPluginMode(homeDir, configFile,
 				LookupNames.IMAGE_J);

@@ -134,7 +134,7 @@ public class FileLoader
 	
 	/** 
 	 * Downloads the file. 
-	 * @see UserNotifierLoader#cancel()
+	 * @see UserNotifierLoader#load()
 	 */
 	public void load()
 	{
@@ -170,15 +170,27 @@ public class FileLoader
         registry.getLogger().info(this, info);
     }
 
+    /**
+     * Notifies the user that it wasn't possible to retrieve the file.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult() 
+    {
+    	if (activity != null) {
+    		activity.notifyError("File no longer exists", 
+    				"The file you wish to download no longer exists.", null);
+    	}
+    }
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
+    {
     	if (result == null) onException(MESSAGE_RESULT, null);
     	else {
-    		if (activity != null) activity.endActivity(result); 
+    		if (activity != null) activity.endActivity(result);
     	}
     }
     

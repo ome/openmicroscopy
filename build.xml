@@ -550,6 +550,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <gitdescribe select="\2"> </gitdescribe>
 
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
+            <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
             <env key="OMERO_RELEASE" value="${version.describe}"/>
             <arg line="clean html latexpdf"/>
         </exec>
@@ -885,7 +886,7 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="true">
+        <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="false">
             <path>
                 <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
             </path>
@@ -899,7 +900,7 @@ omero.version=${omero.version}
         </apply>
     </target>
 
-    <target name="release-webstart" depends="init">
+    <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
         <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
             <patternset>
                 <include name="**/*.jar"/>

@@ -371,7 +371,7 @@ class ImporterControl
 					(Throwable) evt.getNewValue());
 			UIUtilities.centerAndShow(d);
 		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
-			
+			//need to update the count
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
 			Integer value = (Integer) evt.getNewValue();
 			int v = Importer.PROJECT_TYPE;

@@ -133,10 +133,9 @@ class DataBrowserComponent
 		String title = "Datasets Selection";
 		String text = "Select the Datasets to add the images to";
 		Icon icon = icons.getIcon(IconManager.DATASET_48);
-		long userID = DataBrowserAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				DataBrowserAgent.getRegistry().getTaskBar().getFrame(),
-				datasets, DatasetData.class, userID);
+				datasets, DatasetData.class, DataBrowserAgent.getUserDetails());
 		wizard.setTitle(title, text, icon);
 		wizard.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(wizard);

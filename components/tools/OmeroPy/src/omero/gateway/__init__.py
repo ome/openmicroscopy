@@ -43,10 +43,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
 except: #pragma: nocover
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        import Image, ImageDraw, ImageFont          # see ticket:2597
     except:
         logger.error('No PIL installed, line plots and split channel will fail!')
 from cStringIO import StringIO
@@ -791,7 +791,7 @@ class BlitzObjectWrapper (object):
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
     
-    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None):
+    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None, addedByMe=True):
         """
         Retrieve all Annotations not linked to the given Project, Dataset, Image,
         Screen, Plate, Well ID controlled by the security system. 
@@ -814,12 +814,19 @@ class BlitzObjectWrapper (object):
         if anntype.title() == "File":
             sql += " join fetch an.file "
         
-        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
-                "where obal.child=an.id and obal.parent.id=:oid) " % self.OMERO_CLASS
-        
-        q = self._conn.getQueryService()                
         p = omero.sys.Parameters()
         p.map = {}
+        
+        filterlink = ""
+        if addedByMe:
+            userId = self._conn.getUserId()
+            filterlink = " and obal.details.owner.id=:linkOwner"
+            p.map["linkOwner"] = rlong(userId)
+        
+        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
+                "where obal.child=an.id and obal.parent.id=:oid%s)" % (self.OMERO_CLASS, filterlink)
+        
+        q = self._conn.getQueryService()                
         p.map["oid"] = rlong(self._oid)
         if ns is None:            
             sql += " and an.ns is null"
@@ -2377,6 +2384,8 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
+                if d is None:
+                    continue
                 if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
@@ -2399,7 +2408,7 @@ class _BlitzGateway (object):
         default = self.getObject("ExperimenterGroup", gid)
         if not default.isPrivate() or self.isLeader() or self.isAdmin():
             for d in default.copyGroupExperimenterMap():
-                if d.child.id.val == userId:
+                if d is None or d.child.id.val == userId:
                     continue
                 if d.owner.val:
                     leaders.append(ExperimenterWrapper(self, d.child))
@@ -2441,6 +2450,8 @@ class _BlitzGateway (object):
             
         exp = self.getUser()
         for gem in exp.copyGroupExperimenterMap():
+            if gem is None:
+                continue
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
@@ -3668,16 +3679,16 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
     
-    def getParentLinks(self, ptype, pids=None): 
-        ptype = ptype.lower()
-        if not ptype in ('project', 'dataset', 'image', 'screen', 'plate', 'well'):
-            AttributeError('Annotation can be linked only to: project, dataset, image, screen, plate, well')
+    def getParentLinks(self, ptype, pids=None):
+        ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
+        if not ptype in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
+            raise AttributeError("getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["aid"] = rlong(self.id)
         sql = "select oal from %sAnnotationLink as oal left outer join fetch oal.child as ch " \
                 "left outer join fetch oal.parent as pa " \
-                "where ch.id=:aid " % (ptype.title())
+                "where ch.id=:aid " % (ptype)
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql+=" and pa.id in (:pids)" 
@@ -3692,6 +3703,16 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
 
     def getAnnotation(self):
         return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
+
+    def getParent(self):
+        """
+        Gets the parent (Annotated Object) as a L{BlitzObjectWrapper }, but attempts
+        to wrap it in the correct subclass using L{KNOWN_WRAPPERS}, E.g. ImageWrapper
+        """
+        modelClass = self.parent.__class__.__name__[:-1].lower()    # E.g. 'image'
+        if modelClass in KNOWN_WRAPPERS:
+            return KNOWN_WRAPPERS[modelClass](self._conn, self.parent)
+        return BlitzObjectWrapper(self._conn, self.parent)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 
@@ -4341,6 +4362,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "system":
                 return True
         return False
@@ -4369,6 +4392,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         for ob in self._obj.copyGroupExperimenterMap():
+            if ob is None:
+                continue
             if ob.parent.name.val == "guest":
                 return True
         return False
@@ -5142,8 +5167,8 @@ class _LightPathWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'LightPath'
 
     def getExcitationFilters(self):
-        """ Returns list of excitation L{FilterWrapper}s """
-        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink()]
+        """ Returns list of excitation L{FilterWrapper}s. Ordered collections can contain nulls"""
+        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink() if link is not None]
 
     def getEmissionFilters(self):
         """ Returns list of emission L{FilterWrapper}s """
@@ -5451,8 +5476,17 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    Min pixel value
         @rtype:     double
         """
-        
-        return self._obj.getStatsInfo().getGlobalMin().val
+        si = self._obj.getStatsInfo()
+        if si is None:
+            logger.error("getStatsInfo() is null. See #9695")
+            try:
+                minVals = {'int8':-128, 'uint8':0, 'int16':-32768, 'uint16':0, 'int32':-32768,
+                    'uint32':0, 'float':-32768, 'double':-32768}
+                pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
+                return minVals[pixtype]
+            except:     # Just in case we don't support pixType above
+                return None
+        return si.getGlobalMin().val
 
     def getWindowMax (self):
         """
@@ -5461,8 +5495,17 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    Min pixel value
         @rtype:     double
         """
-        
-        return self._obj.getStatsInfo().getGlobalMax().val
+        si = self._obj.getStatsInfo()
+        if si is None:
+            logger.error("getStatsInfo() is null. See #9695")
+            try:
+                maxVals = {'int8':127, 'uint8':255, 'int16':32767, 'uint16':65535, 'int32':32767,
+                    'uint32':65535, 'float':32767, 'double':32767}
+                pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
+                return maxVals[pixtype]
+            except:     # Just in case we don't support pixType above
+                return None
+        return si.getGlobalMax().val
 
 ChannelWrapper = _ChannelWrapper
 

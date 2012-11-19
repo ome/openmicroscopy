@@ -149,6 +149,26 @@
                 e.preventDefault();
                 return false;
             });
+
+            // If 'Data_Type' changes, clear 'IDs' (but note values to add back)
+            var $Data_Type = $("select[name=Data_Type]"),
+                $IDs = $("input[name=IDs]");
+            var noteIDs = function() {
+                var dt = $Data_Type.val(),
+                    ids = $IDs.val();
+                $Data_Type.data(dt, ids);
+            };
+            noteIDs();                  // note the initial value...
+            $IDs.keyup(noteIDs);                // ...update any changes
+            $Data_Type.change(function() {      // Clear IDs (or add back previous data)
+                var dt = $Data_Type.val(),
+                    ids = $Data_Type.data(dt);
+                if (typeof ids !== "undefined") {
+                    $IDs.val(ids);
+                } else {
+                    $IDs.val("");
+                }
+            });
         });
     </script>
 {% endblock %}

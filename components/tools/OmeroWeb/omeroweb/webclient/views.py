@@ -399,7 +399,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
             user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('user_id') is not None and request.session.get('user_id') or -1
+        user_id = request.session.get('user_id', -1)
         if int(user_id) not in userIds:
             user_id = conn.getEventContext().userId
 
@@ -473,8 +473,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         manager.listOrphanedImages(filter_user_id, page)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/container_subtree.html"
     elif len(kw.keys()) > 0 :
@@ -483,8 +481,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
-            elif view =='table':
-                template = "webclient/data/containers_table.html"
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
@@ -502,8 +498,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/containers.html"
 
@@ -631,8 +625,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
                 template = "webclient/data/container_tags_containers.html"
             elif view == "icon":
                 template = "webclient/data/containers_icon.html"
-            elif view == "table":
-                template = "webclient/data/containers_table.html"
             
         elif o_type == "dataset":
             manager.listImagesInDataset(o_id, filter_user_id)
@@ -908,32 +900,33 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                lightPath = logicalChannel.getLightPath()
-                if lightPath is not None:
-                    channel['form_dichroic'] = None
-                    channel['form_excitation_filters'] = list()
-                    channel['form_emission_filters'] = list()
-                    lightPathDichroic = lightPath.getDichroic()
-                    if lightPathDichroic is not None:
-                        channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
-                    filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
-                    for f in lightPath.getEmissionFilters():
-                        channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
-                    for f in lightPath.getExcitationFilters():
-                        channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
-                if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
-                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
-                        'detector': logicalChannel.getDetectorSettings().getDetector(),
-                        'types':list(conn.getEnumerationEntries("DetectorTypeI")),
-                        'binnings':list(conn.getEnumerationEntries("Binning"))})
+                if share_id is None:        #9853 Much metadata is not available to 'shares'
+                    lightPath = logicalChannel.getLightPath()
+                    if lightPath is not None:
+                        channel['form_dichroic'] = None
+                        channel['form_excitation_filters'] = list()
+                        channel['form_emission_filters'] = list()
+                        lightPathDichroic = lightPath.getDichroic()
+                        if lightPathDichroic is not None:
+                            channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
+                        filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
+                        for f in lightPath.getEmissionFilters():
+                            channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                        for f in lightPath.getExcitationFilters():
+                            channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                    if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
+                        channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
+                            'detector': logicalChannel.getDetectorSettings().getDetector(),
+                            'types':list(conn.getEnumerationEntries("DetectorTypeI")),
+                            'binnings':list(conn.getEnumerationEntries("Binning"))})
 
-                lightSourceSettings = logicalChannel.getLightSourceSettings()
-                if lightSourceSettings is not None and lightSourceSettings._obj is not None:
-                    if lightSourceSettings.getLightSource() is not None:
-                        channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
-                                        'lstypes': list(conn.getEnumerationEntries("LaserType")), 
-                                        'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                        'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                    lightSourceSettings = logicalChannel.getLightSourceSettings()
+                    if lightSourceSettings is not None and lightSourceSettings._obj is not None:
+                        if lightSourceSettings.getLightSource() is not None:
+                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                                            'lstypes': list(conn.getEnumerationEntries("LaserType")), 
+                                            'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
+                                            'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
                 channel['label'] = ch.getLabel()
                 color = ch.getColor()
@@ -947,58 +940,59 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
         except:
             image = manager.image
 
-        if image.getObjectiveSettings() is not None:
-            # load the enums if needed and create our Objective Form
-            if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
-            if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
-            if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
-            form_objective = MetadataObjectiveSettingsForm(initial={'objectiveSettings': image.getObjectiveSettings(),
-                                    'objective': image.getObjectiveSettings().getObjective(),
-                                    'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
-        if image.getImagingEnvironment() is not None:
-            form_environment = MetadataEnvironmentForm(initial={'image': image})
-        if image.getStageLabel() is not None:
-            form_stageLabel = MetadataStageLabelForm(initial={'image': image })
-
-        instrument = image.getInstrument()
-        if instrument is not None:
-            if instrument.getMicroscope() is not None:
-                form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
-
-            objectives = instrument.getObjectives()
-            for o in objectives:
+        if share_id is None:    #9853
+            if image.getObjectiveSettings() is not None:
                 # load the enums if needed and create our Objective Form
                 if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
                 if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
                 if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
-                obj_form = MetadataObjectiveForm(initial={'objective': o,
+                form_objective = MetadataObjectiveSettingsForm(initial={'objectiveSettings': image.getObjectiveSettings(),
+                                        'objective': image.getObjectiveSettings().getObjective(),
                                         'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
-                form_instrument_objectives.append(obj_form)
-            filters = list(instrument.getFilters())
-            if len(filters) > 0:
-                for f in filters:
-                    form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
-                    form_filters.append(form_filter)
+            if image.getImagingEnvironment() is not None:
+                form_environment = MetadataEnvironmentForm(initial={'image': image})
+            if image.getStageLabel() is not None:
+                form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
-            dichroics = list(instrument.getDichroics())
-            for d in dichroics:
-                form_dichroic = MetadataDichroicForm(initial={'dichroic': d})
-                form_dichroics.append(form_dichroic)
+            instrument = image.getInstrument()
+            if instrument is not None:
+                if instrument.getMicroscope() is not None:
+                    form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
 
-            detectors = list(instrument.getDetectors())
-            if len(detectors) > 0:
-                for d in detectors:
-                    form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                    form_detectors.append(form_detector)
+                objectives = instrument.getObjectives()
+                for o in objectives:
+                    # load the enums if needed and create our Objective Form
+                    if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
+                    if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
+                    if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
+                    obj_form = MetadataObjectiveForm(initial={'objective': o,
+                                            'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
+                    form_instrument_objectives.append(obj_form)
+                filters = list(instrument.getFilters())
+                if len(filters) > 0:
+                    for f in filters:
+                        form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                        form_filters.append(form_filter)
 
-            lasers = list(instrument.getLightSources())
-            if len(lasers) > 0:
-                for l in lasers:
-                    form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
-                                    'lstypes':list(conn.getEnumerationEntries("LaserType")),
-                                    'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                    'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                    form_lasers.append(form_laser)
+                dichroics = list(instrument.getDichroics())
+                for d in dichroics:
+                    form_dichroic = MetadataDichroicForm(initial={'dichroic': d})
+                    form_dichroics.append(form_dichroic)
+
+                detectors = list(instrument.getDetectors())
+                if len(detectors) > 0:
+                    for d in detectors:
+                        form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                        form_detectors.append(form_detector)
+
+                lasers = list(instrument.getLightSources())
+                if len(lasers) > 0:
+                    for l in lasers:
+                        form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
+                                        'lstypes':list(conn.getEnumerationEntries("LaserType")),
+                                        'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
+                                        'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                        form_lasers.append(form_laser)
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
@@ -1045,7 +1039,7 @@ def getObjects(request, conn=None):
             w.index=index
             wells.append(w)
     return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
-            'plate':plates, 'acquisitions':acquisitions, 'well':wells, 'share':shares}
+            'plate':plates, 'acquisition':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
     """ Used by forms to indicate the currently selected objects prepared above """
@@ -1064,24 +1058,27 @@ def batch_annotate(request, conn=None, **kwargs):
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
 
-    oids = getObjects(request, conn)
+    objs = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
-    
+    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
+            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
     form_comment = CommentAnnotationForm(initial=initial)
+    index = int(request.REQUEST.get('index', 0))
+
+    manager = BaseContainer(conn)
+    batchAnns = manager.loadBatchAnnotations(objs)
 
     obj_ids = []
     obj_labels = []
-    for key in oids:
-        obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
-        for o in oids[key]:
+    for key in objs:
+        obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
+        for o in objs[key]:
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1098,7 +1095,7 @@ def annotate_file(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     
     obj_count = sum( [len(selected[types]) for types in selected] )
     
@@ -1130,25 +1127,38 @@ def annotate_file(request, conn=None, **kwargs):
         form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
         if form_file.is_valid():
             # Link existing files...
-            linked_files = []
             files = form_file.cleaned_data['files']
+            added_files = []
             if files is not None and len(files)>0:
-                linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+                added_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
             # upload new file
             fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
             if fileupload is not None and fileupload != "":
-                upload = manager.createFileAnnotations(fileupload, oids, well_index=index)
-                linked_files.append(upload)
-            if len(linked_files) == 0:
+                newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                added_files.append(newFileId)
+            if len(added_files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
-            context = {'fileanns':linked_files}
+            context = {}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_files, addedByMe=(obj_count==1))
+            if obj_count > 1:
+                context["batchAnns"] = batchAnns
+                context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                fileanns = []
+                for a in batchAnns['File']:
+                    for l in a['links']:
+                        fileanns.append(l.getAnnotation())
+                context['fileanns'] = fileanns
+                context['can_remove'] = True
         else:
             return HttpResponse(form_file.errors)
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
-        context = {'form_file': form_file}
+        context = {'form_file': form_file, 'index': index}
         template = "webclient/annotations/files_form.html"
     context['template'] = template
     return context
@@ -1168,7 +1178,7 @@ def annotate_comment(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well'],
             'shares':oids['share']}
     
     # Handle form submission...
@@ -1225,7 +1235,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     tags = manager.getTagsByObject()
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
 
     if request.method == 'POST':
@@ -1236,22 +1246,35 @@ def annotate_tags(request, conn=None, **kwargs):
             tag = form_tags.cleaned_data['tag']
             description = form_tags.cleaned_data['description']
             tags = form_tags.cleaned_data['tags']
-            linked_tags = []
+            added_tags = [];
             if tags is not None and len(tags)>0:
-                linked_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+                added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
             if tag is not None and tag != "":
-                new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                linked_tags.append(new_tag)
-            if len(linked_tags) == 0:
+                new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
+                added_tags.append(new_tag_id)
+            if len(added_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
-            context = {'tags':linked_tags}
+            context = {}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_tags, addedByMe=(obj_count==1))
+            if obj_count > 1:
+                context["batchAnns"] = batchAnns
+                context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                taganns = []
+                for a in batchAnns['Tag']:
+                    for l in a['links']:
+                        taganns.append(l.getAnnotation())
+                context['tags'] = taganns
+                context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags}
+        context = {'form_tags': form_tags, 'index': index}
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context
@@ -1378,6 +1401,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
+            if (o_type == "well"):
+                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
             context = {'manager':manager, 'form':form}
@@ -1392,8 +1417,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
-                manager.updateName(o_type, o_id, name)                
-                rdict = {'bad':'false' }
+                rdict = {'bad':'false', 'o_type': o_type}
+                if (o_type == "well"):
+                    manager.image = manager.well.getWellSample(index).image()
+                    o_type = "image"
+                manager.updateName(o_type, name)
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
             else:
@@ -1409,6 +1437,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # start editing description in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
+            if (o_type == "well"):
+                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerDescriptionForm(initial={'description': obj.description})
             context = {'manager':manager, 'form':form}
@@ -1423,7 +1453,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 description = form.cleaned_data['description']
-                manager.updateDescription(o_type, o_id, description)                
+                if (o_type == "well"):
+                    manager.image = manager.well.getWellSample(index).image()
+                    o_type = "image"
+                manager.updateDescription(o_type, description)
                 rdict = {'bad':'false' }
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
@@ -1471,9 +1504,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
-        parent = request.REQUEST['parent'].split('-')
+        parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parent)            
+            manager.remove(parents.split('|'))
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
@@ -1706,11 +1739,11 @@ def archived_files(request, iid, conn=None, **kwargs):
     return rsp
 
 @login_required(doConnectionCleanup=False)
-def download_annotation(request, action, iid, conn=None, **kwargs):
+def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-    ann = conn.getObject("Annotation", iid)
+    ann = conn.getObject("Annotation", annId)
     if ann is None:
-        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (annId))
     
     rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
     rsp.conn = conn
@@ -1986,8 +2019,7 @@ def getObjectUrl(conn, obj):
     if obj.__class__.__name__ in ("ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
         otype = obj.__class__.__name__[:-1].lower()
         base_url += "?show=%s-%s" % (otype, obj.id.val)
-
-    return base_url
+        return base_url
 
 
 ######################
@@ -2117,7 +2149,7 @@ def activities(request, conn=None, **kwargs):
                                 obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
-                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
+                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'text/plain': 'text'}
                                     if v.file.mimetype.val in mimetypes:
                                         obj_data['fileType'] = mimetypes[v.file.mimetype.val]
                                         obj_data['fileId'] = v.file.id.val
@@ -2479,15 +2511,47 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     continue
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+    rsp = run_script(request, conn, sId, inputMap, scriptName)
+    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+
+
+@login_required(setGroupContext=True)
+def ome_tiff_script(request, imageId, conn=None, **kwargs):
+    """
+    Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
+    image and attach this as a file annotation to the image.
+    Script will show up in the 'Activities' for users to monitor and download result etc.
+    """
+    #if not request.method == 'POST':
+    #    return HttpResponse("Need to use POST")
+    
+    scriptService = conn.getScriptService()
+    sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
+    
+    imageIds = [long(imageId)]
+    inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
+    inputMap['Format'] = wrap('OME-TIFF')
+    rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
+    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+
+
+def run_script(request, conn, sId, inputMap, scriptName='Script'):
+    """
+    Starts running a script, adding details to the request.session so that it shows up
+    in the webclient Activities panel and results are available there etc.
+    """
+    request.session.modified = True
+    scriptService = conn.getScriptService()
     try:
         handle = scriptService.runScript(sId, inputMap, None, conn.SERVICE_OPTS)
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
+        status = 'in progress'
         request.session['callback'][jobId] = {
             'job_type': "script",
             'job_name': scriptName,
             'start_time': datetime.datetime.now(),
-            'status':'in progress'}
+            'status':status}
         request.session.modified = True
     except Exception, x:
         jobId = str(time())      # E.g. 1312803670.6076391
@@ -2509,9 +2573,25 @@ def script_run(request, scriptId, conn=None, **kwargs):
             'status':status,
             'Message': message,
             'error':error}
-        request.session.modified = True
-        # we return this, although it is now ignored (script window closes)
-        return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
+        return {'status': status, 'error': error}
 
-    return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
+    return {'jobId': jobId, 'status': status}
 
+@login_required()
+@render_response()
+def ome_tiff_info(request, imageId, conn=None, **kwargs):
+    """
+    Query to see if we have an OME-TIFF attached to the image (assume only 1, since Batch Image Export will delete old ones)
+    """
+    # Any existing OME-TIFF will appear in list
+    links = list( conn.getAnnotationLinks("Image", [imageId], ns=omero.constants.namespaces.NSOMETIFF) )
+    rv = {}
+    if len(links) > 0:
+        links.sort(key=lambda x: x.getId(), reverse=True)   # use highest ID === most recent
+        annlink = links[0]
+        created = annlink.creationEventDate()
+        annId = annlink.getChild().getId()
+        from omeroweb.webgateway.templatetags.common_filters import ago
+        download = reverse("download_annotation", args=[annId])
+        rv = {"created": str(created), "ago": ago(created), "id":annId, "download": download}
+    return rv       # will get returned as json by default

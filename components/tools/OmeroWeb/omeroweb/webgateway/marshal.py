@@ -22,6 +22,7 @@ import omero
 import time
 import re
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +106,10 @@ def imageMarshal (image, key=None):
             }
         }
         return rv
+    except Exception, ex:   # Handle everything else.
+        rv['Exception'] = ex.message
+        logger.error(traceback.format_exc())
+        return rv       # Return what we have already, in case it's useful
 
     #big images
     tiles = image._re.requiresPixelsPyramid()

@@ -198,10 +198,6 @@ table#drivespaceTable tbody tr:hover{
 				 margin:0 auto;
 				 text-align:center;
 			 }
-			 
-			 	.tablesorter tbody .image img{
-		 		    width:16px;
-				}
 				
 				   
 			 .tablesorter tbody .date {

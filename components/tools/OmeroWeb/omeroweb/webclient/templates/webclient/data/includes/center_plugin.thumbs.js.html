@@ -29,9 +29,10 @@
 $(document).ready(function() {
     
     var syncPanels = function(get_selected) {
-        $("#content_details .ui-selectee").removeClass('ui-selected');    // clear selection
+        $("#dataIcons").find("li.ui-selectee").removeClass('ui-selected');    // clear selection
         get_selected.each(function(i) {
-            var dtype = $(this).attr("rel").replace("-locked", "");
+            var dtype = $(this).attr("rel");
+            dtype = dtype && dtype.replace("-locked", "");
             if (dtype == "image") {
                 var imgId = $(this).attr("id").split("-")[1];
                 $("#image_icon-"+imgId).addClass('ui-selected');
@@ -40,22 +41,25 @@ $(document).ready(function() {
     }
 
     // on change of selection in tree, update center panel
-    var update_thumbnails_panel = function() {
+    var update_thumbnails_panel = function(event, force_update) {
 
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
         if (!datatree) return;
         
-        // if nothing selected, clear
-        var sel_objs = $("body").data("selected_objects.ome");
-        if (sel_objs.length == 0) {
-            $("div#content_details").empty();
-            $("div#content_details").removeAttr('rel');
-            return;
-        }
-        
         // we use the tree to access selected objects, since we can traverse to check parents etc...
         var selected = datatree.data.ui.selected;
+
+        // if nothing selected, simply update selection
+        var sel_objs = $("body").data("selected_objects.ome");
+        if (sel_objs.length == 0) {
+            syncPanels(selected);
+            if (force_update === true) {
+                $("div#content_details").empty();
+                $("div#content_details").removeAttr('rel');
+            }
+            return;
+        }
 
         if (selected.length > 1) {
             // if any non-images are selected, clear the centre panel
@@ -139,6 +143,9 @@ $(document).ready(function() {
 
         var page_change = ((page != null) && (page!=cpage));
         var need_refresh = ((oid!==crel) || page_change || (current_well_index != well_index));
+        if (force_update === true) {
+            need_refresh = true;
+        }
         // if nothing to show - clear panel
         if (update.empty) {
             $("div#content_details").empty();

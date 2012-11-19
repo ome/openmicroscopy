@@ -258,7 +258,7 @@ class ImporterModel
 	 */
 	void cancel()
 	{
-		state = Importer.READY;
+		//state = Importer.READY;
 	}
 
 	/**
@@ -361,7 +361,6 @@ class ImporterModel
 		DataLoader loader = new DataLoader(component, ctx, rootType,
 				refreshImport, changeGroup);
 		loader.load();
-		state = Importer.LOADING_CONTAINER;
 	}
 
 	/**

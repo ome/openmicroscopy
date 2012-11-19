@@ -289,6 +289,9 @@ public class ImportLibrary implements IObservable
                     importImage(ic, index, numDone, containers.size());
                     numDone++;
                 } catch (Throwable t) {
+                    notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                        ic.getFile().toString(), new RuntimeException(t),
+                        ic.getUsedFiles(), ic.getReader()));
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
                         return false;
@@ -527,7 +530,7 @@ public class ImportLibrary implements IObservable
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
 
-                metadataFiles = store.setArchiveScreeningDomain(archive);
+                metadataFiles = store.setArchiveScreeningDomain();
             }
             else
             {
