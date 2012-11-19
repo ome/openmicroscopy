@@ -92,7 +92,10 @@
                                                     new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
                                                 }
                                                 if (data.o_type != "well") {
-                                                    window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), new_name);
+                                                    // Check we have a jsTree (not in Search or History page etc)
+                                                    if ($.jstree && $("#dataTree").jstree) {
+                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
+                                                    }
                                                 }
                                             }
                                         }); // this.each
