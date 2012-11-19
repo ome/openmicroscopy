@@ -9,7 +9,7 @@ Please note:
 * Internet Explorer sometimes renames JAR files to ZIP (e.g., loci_tools.jar becomes loci_tools.zip); if this happens to you, simply rename the file back to its original name after the download is complete.
 * For some browsers, you may need to right-click or control-click the link and choose "Save link as..." or a similar option to download the file.
 
-After downloading the relevant files, you may want to take a look at our Bio-Formats @VERSION@ [online documentation](@DOC_URL@) page.
+After downloading the relevant files, you may want to take a look at our Bio-Formats @VERSION@ [online documentation](@DOC_URL@) page or at the [PDF documentation](@PDF_URL@).
 
 
 ## Bio-Formats trunk/daily builds ##
