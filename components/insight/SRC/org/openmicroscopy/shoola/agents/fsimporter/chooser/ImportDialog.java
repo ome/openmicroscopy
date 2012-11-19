@@ -55,6 +55,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -67,7 +68,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -183,6 +183,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Action id indicating to select the Project/Dataset or Screen. */
 	private static final int CANCEL_ALL_IMPORT = 10;
 
+	/** Action id indicating to create a new screen. */
+	private static final int CREATE_SCREEN = 11;
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 
@@ -319,8 +322,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Component used to select the default dataset. */
 	private JComboBox datasetsBox;
 
-	/** Component used to select the default dataset. */
-	private JComboBox parentsBox;
+	/** Component used to select the default screen. */
+	private JComboBox screensBox;
+	
+	/** Component used to select the default project. */
+	private JComboBox projectsBox;
 
 	/** The component displaying where the data will be imported. */
 	private JPanel locationPane;
@@ -328,11 +334,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The type associated to the import. */
 	private int type;
 
-	/** Button to create a new dataset or screen. */
-	private JButton addButton;
+	/** Button to create a new dataset. */
+	private JButton addDatasetButton;
 
-	/** Button to create a new dataset or screen. */
+	/** Button to create a new project. */
 	private JButton addProjectButton;
+	
+	/** Button to create a new screen. */
+	private JButton addScreenButton;
 
 	/** Sorts the objects from the display. */
 	private ViewerSorter sorter;
@@ -341,7 +350,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private JCheckBox showThumbnails;
 
 	/** The listener linked to the parents box. */
-	private ActionListener parentsBoxListener;
+	private ActionListener screensBoxListener;
+	
+	/** The listener linked to the parents box. */
+	private ActionListener projectsBoxListener;
 
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> hcsFilters;
@@ -409,7 +421,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private void createDataset(DatasetData dataset) {
 		if (dataset == null)
 			return;
-		DataNode node = (DataNode) parentsBox.getSelectedItem();
+		DataNode node = (DataNode) projectsBox.getSelectedItem();
 		DataNode nn = new DataNode(dataset, node);
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		nodes.add(nn);
@@ -433,75 +445,89 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Creates a project or screen.
+	 * Creates a screen.
 	 * 
 	 * @param data
-	 *            The project or screen to create.
+	 *            The screen to create.
 	 */
-	private void createContainer(DataObject data) {
+	private void createScreen(DataObject data) {
 		if (data == null)
 			return;
+		
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		DataNode dn = null;
-		for (int i = 0; i < parentsBox.getItemCount(); i++) {
-			n = (DataNode) parentsBox.getItemAt(i);
+		
+		for (int i = 0; i < screensBox.getItemCount(); i++) {
+			n = (DataNode) screensBox.getItemAt(i);
+			if (!n.isDefaultScreen())
+				nodes.add(n);
+			else
+				dn = n;
+		}
+		
+		DataNode nn = new DataNode(data);
+		nodes.add(nn);
+		
+		List<DataNode> l = sorter.sort(nodes);
+		if (dn != null)
+			l.add(dn);
+		
+		screensBox.removeActionListener(screensBoxListener);
+		screensBox.removeAllItems();
+		
+		Iterator<DataNode> i = l.iterator();
+		while (i.hasNext()) {
+			screensBox.addItem(i.next());
+		}
+		
+		screensBox.addActionListener(screensBoxListener);
+		screensBox.setSelectedItem(nn);
+		
+		repaint();
+	}
+	
+	/**
+	 * Creates a project.
+	 * 
+	 * @param data
+	 *            The project to create.
+	 */
+	private void createProject(DataObject data) {
+		if (data == null)
+			return;
+		
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode dn = null;
+		
+		for (int i = 0; i < projectsBox.getItemCount(); i++) {
+			n = (DataNode) projectsBox.getItemAt(i);
 			if (!n.isDefaultProject())
 				nodes.add(n);
 			else
 				dn = n;
 		}
+		
 		DataNode nn = new DataNode(data);
-		if (data instanceof ProjectData)
-			nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
+		nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
 		nodes.add(nn);
+		
 		List<DataNode> l = sorter.sort(nodes);
 		if (dn != null)
 			l.add(dn);
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.removeAllItems();
+		
+		projectsBox.removeActionListener(screensBoxListener);
+		projectsBox.removeAllItems();
+		
 		Iterator<DataNode> i = l.iterator();
 		while (i.hasNext()) {
-			parentsBox.addItem(i.next());
+			projectsBox.addItem(i.next());
 		}
-		parentsBox.addActionListener(parentsBoxListener);
-		parentsBox.setSelectedItem(nn);
-		repaint();
-	}
-
-	/**
-	 * Creates a screen.
-	 * 
-	 * @param screen
-	 *            The screen to create.
-	 */
-	private void createScreen(ScreenData screen) {
-		if (screen == null || screen.getName().trim().length() == 0)
-			return;
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode defaultNode = null;
-		for (int i = 0; i < parentsBox.getItemCount(); i++) {
-			n = (DataNode) parentsBox.getItemAt(i);
-			if (!n.isDefaultNode())
-				nodes.add(n);
-			else
-				defaultNode = n;
-		}
-		n = new DataNode(screen);
-		if (newNodesS == null)
-			newNodesS = new ArrayList<DataNode>();
-		newNodesS.add(n);
-		nodes.add(n);
-		List<DataNode> l = sorter.sort(nodes);
-		if (defaultNode != null)
-			l.add(defaultNode);
-		parentsBox.removeAllItems();
-		Iterator<DataNode> i = l.iterator();
-		while (i.hasNext()) {
-			parentsBox.addItem(i.next());
-		}
-		parentsBox.setSelectedItem(n);
+		
+		projectsBox.addActionListener(screensBoxListener);
+		projectsBox.setSelectedItem(nn);
+		
 		repaint();
 	}
 
@@ -681,7 +707,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param t
 	 *            The type to handle.
 	 */
-	private void formatSwitchButton(int t) {
+	private void changeImportDataType(int t) {
 		IconManager icons = IconManager.getInstance();
 		if (t == Importer.PROJECT_TYPE) {
 			locationButton.setIcon(icons.getIcon(IconManager.PROJECT));
@@ -712,7 +738,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			display = selectedProject;
 		}
 
-		formatSwitchButton(t);
+		changeImportDataType(t);
 		if (nodes == null || nodes.size() == 0) // load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 		else
@@ -750,30 +776,37 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
 
-		parentsBox = new JComboBox();
-		parentsBoxListener = new ActionListener() {
+		screensBox = new JComboBox();
+		
+		projectsBox = new JComboBox();
+		projectsBoxListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				populateDatasetsBox();
 			}
 		};
-		parentsBox.addActionListener(parentsBoxListener);
+		projectsBox.addActionListener(projectsBoxListener);
+		
 		datasetsBox = new JComboBox();
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
+		
 		addProjectButton = new JButton("New...");
 		addProjectButton.setToolTipText("Create a new Project.");
-		if (type == Importer.SCREEN_TYPE) {
-			addProjectButton.setToolTipText("Create a new Screen.");
-		}
-
 		addProjectButton.setActionCommand("" + CREATE_PROJECT);
 		addProjectButton.addActionListener(this);
+		
+		addScreenButton = new JButton("New...");
+		addScreenButton.setToolTipText("Create a new Screen.");
+		addScreenButton.setActionCommand("" + CREATE_SCREEN);
+		addScreenButton.addActionListener(this);
 
-		addButton = new JButton("New...");
-		addButton.setToolTipText("Create a new Dataset.");
-		addButton.setActionCommand("" + CREATE_DATASET);
-		addButton.addActionListener(this);
+		
+		
+		addDatasetButton = new JButton("New...");
+		addDatasetButton.setToolTipText("Create a new Dataset.");
+		addDatasetButton.setActionCommand("" + CREATE_DATASET);
+		addDatasetButton.addActionListener(this);
 
 		IconManager icons = IconManager.getInstance();
 		reloadContainerButton = new JToggleButton(
@@ -792,7 +825,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		locationLabel = new JLabel();
 		locationLabel.setFont(locationLabel.getFont().deriveFont(Font.BOLD));
-		formatSwitchButton(getType());
+		/*formatSwitchButton(getType());*/
 		listener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -1250,30 +1283,30 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 	}
 
-	/** Initializes the selection boxes. */
+	/** Initialises the selection boxes. */
 	private void initializeLocationBoxes() {
-		parentsBox.removeActionListener(parentsBoxListener);
-		parentsBox.removeAllItems();
-		//parentsBox.addActionListener(parentsBoxListener);
+		projectsBox.removeActionListener(screensBoxListener);
+		projectsBox.removeAllItems();
+		
 		datasetsBox.removeAllItems();
 
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataNode n;
-		Object ho;
+		Object hostObject = null;
 		TreeImageDisplay node;
 		if (objects != null && objects.size() > 0) {
 			Iterator<TreeImageDisplay> i = objects.iterator();
 			while (i.hasNext()) {
 				node = i.next();
-				ho = node.getUserObject();
-				if (ho instanceof ProjectData || ho instanceof ScreenData) {
-					n = new DataNode((DataObject) ho);
-					getNewDataset((DataObject) ho, n);
+				hostObject = node.getUserObject();
+				if (hostObject instanceof ProjectData || hostObject instanceof ScreenData) {
+					n = new DataNode((DataObject) hostObject);
+					getNewDataset((DataObject) hostObject, n);
 					n.setRefNode(node);
 					topList.add(n);
-				} else if (ho instanceof DatasetData) {
-					n = new DataNode((DataObject) ho);
+				} else if (hostObject instanceof DatasetData) {
+					n = new DataNode((DataObject) hostObject);
 					n.setRefNode(node);
 					datasetsList.add(n);
 				}
@@ -1308,88 +1341,93 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
-		int size;
+
+		loadProjects(hostObject, datasetsList,sortedList);
+		loadScreens(hostObject, datasetsList,sortedList);
+
+	}
+
+	private void loadScreens(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList)
+	{
 		List<DataNode> finalList = new ArrayList<DataNode>();
+		finalList.add(new DataNode(DataNode.createDefaultScreen()));
+		finalList.addAll(sortedList);
+		
+		populateAndAddTooltipsToComboBox(finalList, screensBox);
+
+		screensBox.addActionListener(screensBoxListener);
+
+		int size = screensBox.getItemCount();
 		int index = 0;
-
-		if (type == Importer.PROJECT_TYPE) {
-			// sort the node
-			List<DataNode> l = getOrphanedNewDatasetNode();
-			if (datasetsList.size() > 0) { // orphaned datasets.
-				datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
-				if (l != null)
-					datasetsList.addAll(l);
-				n = new DataNode(datasetsList);
-			} else {
-				List<DataNode> list = new ArrayList<DataNode>();
-				list.add(new DataNode(DataNode.createDefaultDataset()));
-				if (l != null && l.size() > 0)
-					list.addAll(l);
-				n = new DataNode(list);
-			}
-			finalList.add(n);
-			finalList.addAll(sortedList);
-
-			//parentsBox.removeActionListener(parentsBoxListener);
-			
-			populateAndAddTooltipsToComboBox(finalList, parentsBox);
-
-			parentsBox.addActionListener(parentsBoxListener);
-
-			// Determine the node to select.
-			size = parentsBox.getItemCount();
-			if (selectedContainer != null) {
-				ho = selectedContainer.getUserObject();
-				ProjectData p = null;
-				if (ho instanceof ProjectData) {
-					p = (ProjectData) ho;
-				} else if (ho instanceof DatasetData) {
-					node = selectedContainer.getParentDisplay();
-					if (node != null
-							&& node.getUserObject() instanceof ProjectData) {
-						p = (ProjectData) node.getUserObject();
+		if (selectedContainer != null) {
+			hostObject = selectedContainer.getUserObject();
+			if (hostObject instanceof ScreenData) {
+				long id = ((ScreenData) hostObject).getId();
+				for (int i = 0; i < size; i++) {
+					DataNode n = (DataNode) screensBox.getItemAt(i);
+					if (n.getDataObject().getId() == id) {
+						index = i;
+						break;
 					}
 				}
-				if (p != null) {
-					long id = p.getId();
-					for (int i = 0; i < size; i++) {
-						n = (DataNode) parentsBox.getItemAt(i);
-						if (n.getDataObject().getId() == id) {
-							index = i;
-							break;
-						}
-					}
-				}
+
 			}
-			parentsBox.setSelectedIndex(index);
-		} else if (type == Importer.SCREEN_TYPE) {
-			finalList.add(new DataNode(DataNode.createDefaultScreen()));
-			finalList.addAll(sortedList);
-
-			//parentsBox.removeActionListener(parentsBoxListener);
-			
-			populateAndAddTooltipsToComboBox(finalList, parentsBox);
-
-			parentsBox.addActionListener(parentsBoxListener);
-
-			size = parentsBox.getItemCount();
-			index = 0;
-			if (selectedContainer != null) {
-				ho = selectedContainer.getUserObject();
-				if (ho instanceof ScreenData) {
-					long id = ((ScreenData) ho).getId();
-					for (int i = 0; i < size; i++) {
-						n = (DataNode) parentsBox.getItemAt(i);
-						if (n.getDataObject().getId() == id) {
-							index = i;
-							break;
-						}
-					}
-
-				}
-			}
-			parentsBox.setSelectedIndex(index);
 		}
+		screensBox.setSelectedIndex(index);
+	}
+	
+	private void loadProjects(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList) {
+		List<DataNode> finalList = new ArrayList<DataNode>();
+		DataNode n;
+		List<DataNode> l = getOrphanedNewDatasetNode();
+		if (datasetsList.size() > 0) { // orphaned datasets.
+			datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
+			if (l != null)
+				datasetsList.addAll(l);
+			n = new DataNode(datasetsList);
+		} else {
+			List<DataNode> list = new ArrayList<DataNode>();
+			list.add(new DataNode(DataNode.createDefaultDataset()));
+			if (l != null && l.size() > 0)
+				list.addAll(l);
+			n = new DataNode(list);
+		}
+		finalList.add(n);
+		finalList.addAll(sortedList);
+		
+		populateAndAddTooltipsToComboBox(finalList, projectsBox);
+
+		projectsBox.addActionListener(screensBoxListener);
+
+		int index = 0;
+		TreeImageDisplay node;
+		
+		// Determine the node to select.
+		int size = projectsBox.getItemCount();
+		if (selectedContainer != null) {
+			hostObject = selectedContainer.getUserObject();
+			ProjectData p = null;
+			if (hostObject instanceof ProjectData) {
+				p = (ProjectData) hostObject;
+			} else if (hostObject instanceof DatasetData) {
+				node = selectedContainer.getParentDisplay();
+				if (node != null
+						&& node.getUserObject() instanceof ProjectData) {
+					p = (ProjectData) node.getUserObject();
+				}
+			}
+			if (p != null) {
+				long id = p.getId();
+				for (int i = 0; i < size; i++) {
+					n = (DataNode) projectsBox.getItemAt(i);
+					if (n.getDataObject().getId() == id) {
+						index = i;
+						break;
+					}
+				}
+			}
+		}
+		projectsBox.setSelectedIndex(index);
 	}
 
 	/**
@@ -1422,10 +1460,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Populates the datasets box depending on the selected project. */
 	private void populateDatasetsBox() {
-		if (type == Importer.SCREEN_TYPE)
-			return;
-
-		DataNode n = (DataNode) parentsBox.getSelectedItem();
+		DataNode n = (DataNode) projectsBox.getSelectedItem();
 		List<DataNode> list = n.getDatasetNodes();
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null)
@@ -1483,42 +1518,80 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	private void buildLocationPane() {
 		locationPane.removeAll();
+		JTabbedPane tabPane = new JTabbedPane();
 		
-		JPanel row = createRow(null);
-		String message = PROJECT_TXT;
-		if (type == Importer.SCREEN_TYPE)
-			message = SCREEN_TXT;
-		row.add(locationButton);
-		row.add(Box.createHorizontalStrut(5));
-		row.add(locationLabel);
-		locationPane.add(row);
-		locationPane.add(Box.createVerticalStrut(2));
-		locationPane.add(new JSeparator());
-		if (groupSelection != null) {
-			row = createRow(null);
-			row.add(UIUtilities.setTextFont(MESSAGE_GROUP));
-			row.add(groupSelection);
-			locationPane.add(row);
-			locationPane.add(Box.createVerticalStrut(2));
-		}
-		row = createRow(null);
-		row.add(UIUtilities.setTextFont(message));
-		row.add(addProjectButton);
-		row.add(parentsBox);
+		IconManager icons = IconManager.getInstance();
+		
+		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
+		JPanel projectPanel = createProjectPanel();
+		
+		Icon screenIcon = icons.getIcon(IconManager.PROJECT);
+		JPanel screenPanel = createScreenPanel();
 
-		locationPane.add(row);
-		if (type == Importer.PROJECT_TYPE) {
-			locationPane.add(Box.createVerticalStrut(8));
-			row = createRow(null);
-			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			row.add(addButton);
-			row.add(datasetsBox);
-
-			locationPane.add(row);
-			locationPane.add(new JSeparator());
-		}
+		tabPane.addTab("Projects", projectIcon, projectPanel,
+		                  "Import settings for Projects");
+		
+		tabPane.addTab("Screens", screenIcon, screenPanel,
+                "Import settings for Screens");
+		
+		locationPane.add(tabPane);
+		
 		locationPane.validate();
 		locationPane.repaint();
+	}
+
+	private JPanel createProjectPanel() {
+		JPanel projectPanel = new JPanel();
+		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
+		
+		if (groupSelection != null) {
+			JPanel groupRow = createRow(null);
+			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
+			groupRow.add(groupSelection);
+			projectPanel.add(projectPanel);
+			projectPanel.add(Box.createVerticalStrut(2));
+		}
+		
+		JPanel projectRow = createRow(null);
+		projectRow.add(UIUtilities.setTextFont(PROJECT_TXT));
+		projectRow.add(addProjectButton);
+		projectRow.add(projectsBox);
+
+		projectPanel.add(projectRow);
+		projectPanel.add(Box.createVerticalStrut(8));
+		
+		JPanel dataSetRow = createRow(null);
+		dataSetRow.add(UIUtilities.setTextFont(DATASET_TXT));
+		dataSetRow.add(addDatasetButton);
+		dataSetRow.add(datasetsBox);
+
+		projectPanel.add(dataSetRow);
+		projectPanel.add(new JSeparator());
+		
+		return projectPanel;
+	}
+	
+	private JPanel createScreenPanel() {
+		JPanel screenPanel = new JPanel();
+		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
+		
+		if (groupSelection != null) {
+			JPanel groupRow = createRow(null);
+			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
+			groupRow.add(groupSelection);
+			screenPanel.add(screenPanel);
+			screenPanel.add(Box.createVerticalStrut(2));
+		}
+		
+		JPanel screenRow = createRow(null);
+		screenRow.add(UIUtilities.setTextFont(SCREEN_TXT));
+		screenRow.add(addScreenButton);
+		screenRow.add(screensBox);
+
+		screenPanel.add(screenRow);
+		screenPanel.add(new JSeparator());
+		
+		return screenPanel;
 	}
 
 	/**
@@ -1891,9 +1964,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	DataNode getImportLocation() {
+		// based on the selected tab?
+		
 		if (type == Importer.SCREEN_TYPE) {
-			if (parentsBox.getItemCount() > 0)
-				return (DataNode) parentsBox.getSelectedItem();
+			if (screensBox.getItemCount() > 0)
+				return (DataNode) screensBox.getSelectedItem();
 			return null;
 		}
 		if (datasetsBox.getItemCount() > 0) {
@@ -1908,8 +1983,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	DataNode getParentImportLocation() {
-		if (parentsBox.getItemCount() > 0)
-			return (DataNode) parentsBox.getSelectedItem();
+		// base it on the selected tab
+		if (screensBox.getItemCount() > 0)
+			return (DataNode) screensBox.getSelectedItem();
 		return null;
 	}
 
@@ -1998,7 +2074,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
+		
 		int oldType = this.type;
+		
 		this.type = type;
 		if (type == Importer.PROJECT_TYPE) {
 			pdNodes = objects;
@@ -2007,7 +2085,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			screenNodes = objects;
 			selectedScreen = selectedContainer;
 		}
-		formatSwitchButton(type);
+		changeImportDataType(type);
+		
 		if (oldType != this.type) {
 			// change filters.
 			// reset name
@@ -2032,6 +2111,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				chooser.setFileFilter(combinedFilter);
 			}
 		}
+		
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList<TagAnnotationData>());
@@ -2163,8 +2243,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The parent of the object.
 	 */
 	public void onDataObjectSaved(DataObject d, DataObject parent) {
-		if (d instanceof ProjectData || d instanceof ScreenData) {
-			createContainer(d);
+		if (d instanceof ProjectData)
+		{
+			createProject(d);
+		} else if (d instanceof ScreenData) {
+			createScreen(d);
 		} else if (d instanceof DatasetData) {
 			createDataset((DatasetData) d);
 		}
@@ -2234,7 +2317,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				child = (DataObject) ho;
 			} else if (ho instanceof DatasetData) {
 				child = (DataObject) ho;
-				DataNode n = (DataNode) parentsBox.getSelectedItem();
+				DataNode n = (DataNode) projectsBox.getSelectedItem();
 				if (!n.isDefaultNode()) {
 					parent = n.getDataObject();
 				}
@@ -2290,14 +2373,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			UIUtilities.centerAndShow(d);
 			break;
 		case CREATE_PROJECT:
-			if (type == Importer.PROJECT_TYPE)
-				d = new EditorDialog(owner, new ProjectData(), false);
-			else
-				d = new EditorDialog(owner, new ScreenData(), false);
+			d = new EditorDialog(owner, new ProjectData(), false);
 			d.addPropertyChangeListener(this);
 			d.setModal(true);
 			UIUtilities.centerAndShow(d);
 			break;
+		case CREATE_SCREEN:
+			d = new EditorDialog(owner, new ScreenData(), false);
+			d.addPropertyChangeListener(this);
+			d.setModal(true);
+			UIUtilities.centerAndShow(d);
 		case REFRESH_LOCATION:
 			refreshLocation = false;
 			chooser.rescanCurrentDirectory();
