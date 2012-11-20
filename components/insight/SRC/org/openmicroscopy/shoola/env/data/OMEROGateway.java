@@ -3846,13 +3846,12 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
-<<<<<<< HEAD
 		isSessionAlive(ctx);
-=======
+
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		//
 		if (of == null) return null;
->>>>>>> official/dev_4_4
+
 		if (size <= 0) {
 			if (of != null) size = of.getSize().getValue();
 		}
