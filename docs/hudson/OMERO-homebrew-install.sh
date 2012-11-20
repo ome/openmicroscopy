@@ -36,13 +36,16 @@ then
     rm -rf $BREW_DIR
 fi
 
+# Install Homebrew in BREW_DIR
 mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
 cd $BREW_DIR
+
+# Clean cache before any operation to test full installation
+rm -rf $(bin/brew --cache)
 
 # Re-install git and update homebrew
 bin/brew install git
 bin/brew update
-
 
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
