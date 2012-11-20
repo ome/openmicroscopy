@@ -19,6 +19,11 @@ from doc_generator import *
 
 
 fingerprint_url = "http://hudson.openmicroscopy.org.uk/fingerprint"
+MD5s = """
+MD5(4.4.5/OMERO-4.4.5.pdf)= d92d4bd40e2defb328756780c77a633e
+"""
+MD5s = [x.split(" ")[1] for x in MD5s.split("\n") if x.strip()]
+
 
 
 def usage():
@@ -68,7 +73,7 @@ for x, y in (
     ("VM", "virtualbox/omero-vm-@VERSION@.ova"),
     ("DOC", "@VERSION@/OMERO-@VERSION@.pdf")):
 
-    find_pkg(repl, fingerprint_url, SNAPSHOT_PATH, SNAPSHOT_URL, x, y)
+    find_pkg(repl, fingerprint_url, SNAPSHOT_PATH, SNAPSHOT_URL, x, y, MD5s)
 
 
 for line in fileinput.input(["tmpl.txt"]):
