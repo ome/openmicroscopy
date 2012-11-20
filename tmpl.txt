@@ -36,10 +36,8 @@ entire folder under the ImageJ/Fiji plugins folder. If you are using
 [ImageJ1](http://rsbweb.nih.gov/ij), you must also have loci_tools.jar
 installed in the `ImageJ/plugins` folder. It is available for download
 under [Products > Bio-Formats](/site/products/bio-formats/downloads).
-Watch the  [ImageJ Plugin Movie]("http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-4/mov/ImageJ-4.4.mov")
-for more details. (Note: if you are testing 
-[ImageJ2](http://developer.imagej.net/) then you should NOT add 
-loci_tools.jar) 
+Watch the  [ImageJ Plugin Movie]("http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-4/mov/ImageJ-4.4.mov") for more details. (Note: if you are testing 
+[ImageJ2](http://developer.imagej.net/) then you should NOT add loci_tools.jar)
 
  * For the OMERO Matlab plugin to work, follow the instructions indicated 
 [here](@DOC_URL@/developers/Matlab.html).
