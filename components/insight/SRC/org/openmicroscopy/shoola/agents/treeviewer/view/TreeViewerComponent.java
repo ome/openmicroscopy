@@ -1726,38 +1726,34 @@ class TreeViewerComponent
 		if (objects == null || objects.size() == 0)
 			return;
 		Browser b = model.getSelectedBrowser();
+		List<Object> available = new ArrayList<Object>();
 		Set selected = null;
-		List available = new ArrayList();
 		if (b != null) {
 			TreeImageDisplay[] values = b.getSelectedDisplays();
-			if (values != null && values.length == 1) {
+			if (values != null && values.length > 0) {
+				// Only modify the first group from the list of groups
 				Object value = values[0].getUserObject();
 				if (value instanceof GroupData) {
-					GroupData group = (GroupData) value;
-					Set l = group.getExperimenters();
-					if (l != null) {
-						selected = new HashSet();
-						Iterator i = l.iterator();
-						DataObject o;
-						List<Long> ids = new ArrayList<Long>();
-						ExperimenterData exp = TreeViewerAgent.getUserDetails();
-						long userID = exp.getId();
-						while (i.hasNext()) {
-							o = (DataObject) i.next();
-							if (o.getId() != userID) {
-								ids.add(o.getId());
-								selected.add(o);
-							}
+					long groupId = ((GroupData) value).getId();
+					long currentUserId = TreeViewerAgent.getUserDetails().getId();
+					selected = new HashSet<ExperimenterData>();
+					List<Long> ids = new ArrayList<Long>();
+					for (ExperimenterData experimenter :
+						(List<ExperimenterData>) objects) {
+						if (experimenter.getId() != currentUserId &&
+								experimenter.isMemberOfGroup(groupId)) {
+							selected.add(experimenter);
+							ids.add(experimenter.getId());
 						}
-						i = objects.iterator();
-						while (i.hasNext()) {
-							o = (DataObject) i.next();
-							if (!ids.contains(o.getId()) && o.getId() != userID)
-								available.add(o);
+						if (!ids.contains(experimenter.getId()) &&
+								experimenter.getId() != currentUserId) {
+							available.add(experimenter);
 						}
 					}
 				}
-			} else available.addAll(objects);
+			} else {
+				available.addAll(objects);
+			}
 		}
 		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,

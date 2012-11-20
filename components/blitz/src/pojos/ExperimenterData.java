@@ -298,4 +298,21 @@ public class ExperimenterData extends DataObject {
     	return g.getId();
     }
 
+    /**
+     * Checks if supplied group id matches any group to which the current
+     * experimenter belongs to.
+     * @param long groupId
+     * @return bolean <code>true</code>/<code>false</code> depending if matching
+     *                id found
+     */
+    public boolean isMemberOfGroup(long groupId) {
+        boolean isMember = false;
+        for (GroupData group : this.getGroups()) {
+            if (group.getId() == groupId) {
+                isMember = true;
+            }
+        }
+        return isMember;
+    }
+
 }
