@@ -275,7 +275,7 @@
                     var selected = $.jstree._focused().get_selected();
                     var group_id = $("#chgrp-form").data('group_id');
                     $("#chgrp-form").dialog("close");
-                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + OME.get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
                     var chgrp_target = $("#move_group_tree a.jstree-clicked");
                     if (chgrp_target.length == 1){
                         actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
@@ -823,7 +823,7 @@
                 .delegate("a", "dblclick", function(e) {
                     var obj_rel = $(this).parent().attr('rel');
                     if ((obj_rel=='image') || (obj_rel=='image-locked')) {
-                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
