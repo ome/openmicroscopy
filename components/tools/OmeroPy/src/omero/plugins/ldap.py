@@ -63,6 +63,9 @@ user never had a password, one will need to be set!""")
         discover.add_argument("--urls", help = "Override OMERO omero.ldap.urls setting")
         discover.add_argument("--base", help = "Override OMERO omero.ldap.base setting")
 
+        for x in (active, list, getdn, setdn, discover):
+            x.add_login_arguments()
+
     def __import_ldap__(self):
         try:
             import ldap

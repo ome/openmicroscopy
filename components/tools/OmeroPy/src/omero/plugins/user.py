@@ -63,8 +63,7 @@ class UserControl(UserGroupControl):
             group.add_argument("--name", help="Name of the user. Default to the current user")
 
         for x in (email, password, list, add, joingroup, leavegroup):
-            group = x.add_argument_group('Login arguments', 'Optional session arguments')
-            self.ctx.add_login(group)
+            x.add_login_arguments()
 
     def format_name(self, exp):
         record = ""

@@ -141,6 +141,8 @@ class ScriptControl(BaseControl):
         run.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
 
         # log = parser.add(sub, self.log, help = "TBD", tbd="TRUE")
+        for x in (demo, cat, edit, params, launch, disable, enable, jobs, serve, upload, replace, delete, run):
+            x.add_login_arguments()
 
     def help(self, args):
         self.ctx.out("""

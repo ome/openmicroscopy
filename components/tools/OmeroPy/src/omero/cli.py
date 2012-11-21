@@ -160,6 +160,16 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_login_arguments(self):
+        group = self.add_argument_group('Login arguments', 'Optional session arguments')
+        group.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
+        group.add_argument("-s", "--server")
+        group.add_argument("-p", "--port")
+        group.add_argument("-g", "--group")
+        group.add_argument("-u", "--user")
+        group.add_argument("-w", "--password")
+        group.add_argument("-k", "--key", help="UUID of an active session")
+
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
@@ -286,20 +296,11 @@ class Context:
         logout.set_defaults(func=lambda args:sessions.logout(args))
         sessions._configure_dir(logout)
 
-    def add_login(self, parser):
-        parser.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
-        parser.add_argument("-s", "--server")
-        parser.add_argument("-p", "--port")
-        parser.add_argument("-g", "--group")
-        parser.add_argument("-u", "--user")
-        parser.add_argument("-w", "--password")
-        parser.add_argument("-k", "--key", help="UUID of an active session")
-
     def parser_init(self, parser):
         parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
         parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
         parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
-        self.add_login(parser)
+        parser.add_login_arguments()
         subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
