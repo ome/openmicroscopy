@@ -4,6 +4,7 @@
 
 import unittest, time, os, datetime
 import tempfile
+from StringIO import StringIO
 
 #from models import StoredConnection
 from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTempFile
@@ -17,6 +18,7 @@ from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
 from django.http import QueryDict
+from django.utils import simplejson
 
 #omero.gateway.BlitzGateway = omero.gateway._BlitzGateway
 #omero.gateway.ProjectWrapper = omero.gateway._ProjectWrapper
@@ -26,7 +28,7 @@ from django.http import QueryDict
 
 CLIENT_BASE='test'
 
-def fakeRequest (**kwargs):
+def fakeRequest (body=None, **kwargs):
     def bogus_request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -55,6 +57,8 @@ def fakeRequest (**kwargs):
         environ.update(self.defaults)
         environ.update(request)
         r = WSGIRequest(environ)
+        if body is not None:
+            r._stream = StringIO(body)
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
             engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
         r.session = engine.SessionStore()
@@ -68,7 +72,7 @@ def fakeRequest (**kwargs):
         return r
     Client.bogus_request = bogus_request
     c = Client()
-    return c.bogus_request(**kwargs)
+    return c.bogus_request(body=None, **kwargs)
 
 class WGTest (GTest):
     def doLogin (self, user=None):
@@ -133,7 +137,7 @@ def _testCacheFSBlockSize (cache):
 class FileCacheTest(unittest.TestCase):
     def setUp (self):
         self.cache = FileCache('test_cache')
-    
+
     def tearDown (self):
         os.system('rm -fr test_cache')
 
@@ -264,7 +268,7 @@ class WebGatewayCacheTempFileTest(unittest.TestCase):
             self.assertEqual(fpath[-5:], 'aaaaa')
         except:
             self.fail('WebGatewayTempFile.new not handling long file names properly')
-        
+
 
 class WebGatewayCacheTest(unittest.TestCase):
     def setUp (self):
@@ -398,8 +402,8 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertNotEqual(self.wcache._json_cache._num_entries, 0)
         self.wcache.clear()
         self.assertEqual(self.wcache._json_cache._num_entries, 0)
-        
-        
+
+
 
 class JsonTest (WGTest):
     def testImageData (self):
@@ -443,3 +447,135 @@ class ZZ_TDTest(WGTest):
 
     def runTest (self):
         pass
+
+
+
+class WGTestUsersOnly(WGTest):
+    def setUp(self):
+        super(WGTestUsersOnly, self).setUp(skipTestDB=True)
+
+
+class RepositoryApiBaseTest(WGTestUsersOnly):
+
+    def setUp(self):
+        super(RepositoryApiBaseTest, self).setUp()
+        self.toDelete = []
+        self.repoindex = 1
+        self.loginmethod = self.loginAsAdmin
+
+    def tearDown(self):
+        if self.toDelete:
+            if hasattr(self, 'gateway'):
+                sr = self.gateway.getSharedResources()
+                repositories = sr.repositories()
+                for repo, name in self.toDelete:
+                    repository = repositories.proxies[repo]
+                    try:
+                        repository.delete(name)
+                    except Exception, ex:
+                        print "\nCould not clean up %s in repository %d" % (name, repo)
+                self.toDelete = []
+            else:
+                print "\nNeed to cleanup files, but don't have gateway"
+        super(RepositoryApiBaseTest, self).tearDown()
+
+
+class RepositoryApiTest(RepositoryApiBaseTest):
+
+    def testRepositories(self):
+        self.loginmethod()
+        r = fakeRequest()
+        v = views.repositories(r, server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"name": "ManagedRepository"' in v)
+
+    def testRepository(self):
+        self.loginmethod()
+        r = fakeRequest()
+        v = views.repository(r, index=1, server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"name": "omero.data"' in v)
+        self.assertTrue('"type": "OriginalFile"' in v)
+        v = views.repository(r, index=2, server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"name": "ManagedRepository"' in v)
+        self.assertTrue('"type": "OriginalFile"' in v)
+
+    def testRepositoryUploadDownload(self):
+        self.toDelete.append((self.repoindex, 'test'))
+
+        self.loginmethod()
+        view = views.repository_upload()
+        viewargs = dict(index=self.repoindex, filepath='test', server_id=1,
+                        conn=self.gateway, _internal=True)
+
+        r = fakeRequest(QUERY_STRING='uploads')
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        self.assertTrue('"uploadId": "' in v)
+        uploadid = simplejson.loads(v)['uploadId']
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=1' % uploadid)
+        r._stream = StringIO('ABC')
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=2' % uploadid)
+        r._stream = StringIO('123')
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.get(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        parts = simplejson.loads(v)['parts']
+        self.assertEqual(2, len(parts))
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest()
+        v = views.repository_download(r, **viewargs)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('ABC123', v.content)
+
+        r = fakeRequest()
+        viewargs['filepath'] = None
+        v = views.repository_listfiles(r, **viewargs)
+        self.assertTrue('"name": "test"' in v)
+        self.assertTrue('"size": 6' in v)
+
+    def testRepositoryMkdir(self):
+        self.toDelete.append((1, 'testRepositoryMkdir'))
+
+        self.loginmethod()
+        r = fakeRequest(REQUEST_METHOD='POST', body='')
+        v = views.repository_makedir(r, dirpath='testRepositoryMkdir', index=self.repoindex,
+                                     server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"bad": "false"' in v)
+
+
+class ManagedRepositoryApiTest(RepositoryApiTest):
+
+    def setUp(self):
+        super(ManagedRepositoryApiTest, self).setUp()
+        self.repoindex = 2
+
+
+class RepositoryApiAsAuthorTest(RepositoryApiTest):
+
+    def setUp(self):
+        super(RepositoryApiAsAuthorTest, self).setUp()
+        self.loginmethod = self.loginAsAuthor
+
+
+class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
+
+    def setUp(self):
+        super(ManagedRepositoryApiAsAuthorTest, self).setUp()
+        self.repoindex = 2
+        self.loginmethod = self.loginAsAuthor
+
+
+#class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
+#
+#    def testAdminFileAccess(self):
+#
