@@ -141,14 +141,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Bound property indicating to refresh the location. */
 	public static final String REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
-	/** The default text. */
-	private static final String PROJECT_TXT = "Project: ";
-
-	/** The default text. */
-	private static final String SCREEN_TXT = "Screen: ";
-
-	/** The default text. */
-	private static final String DATASET_TXT = "Dataset: ";
 
 	/** Action id indicating to import the selected files. */
 	private static final int IMPORT = 0;
@@ -188,13 +180,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
-
-	/** The message to display in the header. */
-	private static final String MESSAGE_LOCATION = "Select where to import "
-			+ "the data";
-
-	/** The message to display in the header. */
-	private static final String MESSAGE_GROUP = "Group";
 
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
@@ -319,29 +304,12 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The collection of datasets to use by default. */
 	private List<DataNode> datasets;
 
-	/** Component used to select the default dataset. */
-	private JComboBox datasetsBox;
-
-	/** Component used to select the default screen. */
-	private JComboBox screensBox;
-	
-	/** Component used to select the default project. */
-	private JComboBox projectsBox;
 
 	/** The component displaying where the data will be imported. */
 	private JPanel locationPane;
 
 	/** The type associated to the import. */
 	private int type;
-
-	/** Button to create a new dataset. */
-	private JButton addDatasetButton;
-
-	/** Button to create a new project. */
-	private JButton addProjectButton;
-	
-	/** Button to create a new screen. */
-	private JButton addScreenButton;
 
 	/** Sorts the objects from the display. */
 	private ViewerSorter sorter;

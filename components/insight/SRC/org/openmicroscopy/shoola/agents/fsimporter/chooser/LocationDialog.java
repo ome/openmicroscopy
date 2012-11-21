@@ -72,8 +72,17 @@ class LocationDialog
 	/** The message to display in the header. */
 	private static final String MESSAGE_LOCATION = "Select where to import the data";
 
+	/** The default text for a project. */
+	private static final String LABEL_PROJECT = "Project";
+
+	/** The default text for a dataset. */
+	private static final String LABEL_DATASET = "Dataset";
+	
+	/** The default text for a screen. */
+	private static final String LABEL_SCREEN = "Screen";
+	
 	/** The message to display in the header. */
-	private static final String MESSAGE_GROUP = "Group";
+	private static final String LABEL_GROUP = "Group";
 	
 	/** User has selected to add the files. */
 	public final static int			ADD_OPTION = 1;
@@ -93,8 +102,26 @@ class LocationDialog
 	/** Option chosen by the user.*/
 	private int option;
 	
-	/** The component used to select the group. */
+	/** component used to select the import group. */
 	private JComboBox groupSelection;
+	
+	/** Component used to select the default project. */
+	private JComboBox projectsBox;
+	
+	/** Component used to select the default dataset. */
+	private JComboBox datasetsBox;
+
+	/** Component used to select the default screen. */
+	private JComboBox screensBox;
+	
+	/** Button to create a new project. */
+	private JButton addProjectButton;
+
+	/** Button to create a new dataset. */
+	private JButton addDatasetButton;
+	
+	/** Button to create a new screen. */
+	private JButton addScreenButton;
 	
 	/** Initializes the components.*/
 	private void initComponents()
@@ -149,7 +176,7 @@ class LocationDialog
                 "Import settings for Screens");
 		
 		JPanel groupPane = new JPanel();
-		groupPane.add(UIUtilities.setTextFont(MESSAGE_GROUP), BorderLayout.WEST);
+		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
 		groupPane.add(groupSelection, BorderLayout.CENTER);
 		
 		locationPane.add(groupPane, BorderLayout.NORTH);
@@ -162,20 +189,20 @@ class LocationDialog
 		JPanel projectPanel = new JPanel();
 		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
 		
-		JPanel projectRow = createRow(null);
-		projectRow.add(UIUtilities.setTextFont(PROJECT_TXT));
-		projectRow.add(projectsBox);
-		projectRow.add(addProjectButton);
+		JPanel projectRow = new JPanel();
+		projectRow.add(UIUtilities.setTextFont(LABEL_PROJECT), BorderLayout.WEST);
+		projectRow.add(projectsBox, BorderLayout.CENTER);
+		projectRow.add(addProjectButton, BorderLayout.EAST);
+		
+		JPanel datasetRow = new JPanel();
+		datasetRow.add(UIUtilities.setTextFont(LABEL_DATASET), BorderLayout.WEST);
+		datasetRow.add(datasetsBox, BorderLayout.CENTER);
+		datasetRow.add(addDatasetButton, BorderLayout.EAST);
 		
 		projectPanel.add(projectRow);
 		projectPanel.add(Box.createVerticalStrut(8));
+		projectPanel.add(datasetRow);
 		
-		JPanel dataSetRow = createRow(null);
-		dataSetRow.add(UIUtilities.setTextFont(DATASET_TXT));
-		dataSetRow.add(datasetsBox);
-		dataSetRow.add(addDatasetButton);
-		
-		projectPanel.add(dataSetRow);
 		projectPanel.add(new JSeparator());
 		
 		return projectPanel;
@@ -185,10 +212,10 @@ class LocationDialog
 		JPanel screenPanel = new JPanel();
 		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
 		
-		JPanel screenRow = createRow(null);
-		screenRow.add(UIUtilities.setTextFont(SCREEN_TXT));
-		screenRow.add(screensBox);
-		screenRow.add(addScreenButton);
+		JPanel screenRow = new JPanel();
+		screenRow.add(UIUtilities.setTextFont(LABEL_SCREEN), BorderLayout.WEST);
+		screenRow.add(screensBox, BorderLayout.CENTER);
+		screenRow.add(addScreenButton, BorderLayout.EAST);
 
 		screenPanel.add(screenRow);
 		screenPanel.add(new JSeparator());
