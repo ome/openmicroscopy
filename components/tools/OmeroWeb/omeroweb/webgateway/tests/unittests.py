@@ -465,6 +465,7 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
 
     def tearDown(self):
         if self.toDelete:
+            self.loginAsAdmin()
             if hasattr(self, 'gateway'):
                 sr = self.gateway.getSharedResources()
                 repositories = sr.repositories()
@@ -575,7 +576,81 @@ class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
         self.loginmethod = self.loginAsAuthor
 
 
-#class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
-#
-#    def testAdminFileAccess(self):
-#
+class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
+
+    # Upload file as admin, try downloading as user
+
+    def _getrepo(self):
+        sr = self.gateway.getSharedResources()
+        repositories = sr.repositories()
+        return repositories.proxies[self.repoindex]
+
+    def setUp(self, repoindex=None):
+        super(RepositoryApiPermissionsTest, self).setUp()
+        if repoindex is not None:
+            self.repoindex = repoindex
+        self.FILENAME = 'RepositoryApiPermissionsTest'
+        self.loginAsAdmin()
+        repository = self._getrepo()
+        targetfile = repository.file(self.FILENAME, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('ABC123', 0, 6)
+
+    def tearDown(self):
+        self.loginAsAdmin()
+        repository = self._getrepo()
+        repository.delete(self.FILENAME)
+        super(RepositoryApiPermissionsTest, self).tearDown()
+
+    def testFileAccess(self):
+        self.loginAsUser()
+        repository = self._getrepo()
+        targetfile = repository.file(self.FILENAME, 'r')
+        filesize = targetfile.size()
+        self.assertEqual(6, filesize)
+
+    def _test(self):
+        print "\nUser"
+        self.loginAsUser()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+        print "\nAuthor"
+        self.loginAsAuthor()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+        print "\nAdmin"
+        self.loginAsAdmin()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+
+class ManagedRepositoryApiPermissionsTest(RepositoryApiPermissionsTest):
+
+    def setUp(self):
+        super(ManagedRepositoryApiPermissionsTest, self).setUp(repoindex=2)
+
+    def testFileAccess(self):
+        self.loginAsUser()
+        repository = self._getrepo()
+        #self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+        targetfile = repository.file(self.FILENAME, 'r')
+        filesize = targetfile.size()
+        self.assertEqual(6, filesize)
+
+    def testAdminFileAccess(self):
+        self.loginAsAdmin()
+        repository = self._getrepo()
+        targetfile = repository.file(self.FILENAME, 'r')
+        filesize = targetfile.size()
+        self.assertEqual(6, filesize)
