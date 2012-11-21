@@ -167,6 +167,7 @@ Examples:
         ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
 
         sessionlist = Action("sessionlist", """List currently running sessions""").parser
+        sessionlist.add_login_arguments()
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO.
 
@@ -186,6 +187,7 @@ Examples:
 """).parser
         cleanse.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
         cleanse.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
+        cleanse.add_login_arguments()
 
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
         Action("checkice", """Run simple check of the Ice installation""")

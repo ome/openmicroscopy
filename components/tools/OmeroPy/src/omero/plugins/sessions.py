@@ -115,7 +115,7 @@ class SessionsControl(BaseControl):
             self._configure_dir(x)
 
     def _configure_login(self, login):
-        self.ctx.add_login(login)
+        login.add_login_arguments()
         login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
         login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
         self._configure_dir(login)
