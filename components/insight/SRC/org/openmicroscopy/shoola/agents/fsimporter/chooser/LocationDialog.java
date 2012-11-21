@@ -32,13 +32,19 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -46,7 +52,21 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.GroupData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 //Third-party libraries
 
@@ -67,11 +87,23 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class LocationDialog 
 	extends JDialog
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
+	/** The possible nodes. */
+	private Collection<TreeImageDisplay> objects;
+	
 	/** The message to display in the header. */
 	private static final String MESSAGE_LOCATION = "Select where to import the data";
 
+	/** Action id indicating to create a new project. */
+	private static final int CMD_CREATE_PROJECT = 1;
+	
+	/** Action id indicating to create a new dataset. */
+	private static final int CMD_CREATE_DATASET = 2;
+
+	/** Action id indicating to create a new screen. */
+	private static final int CMD_CREATE_SCREEN = 3;
+	
 	/** The default text for a project. */
 	private static final String LABEL_PROJECT = "Project";
 
@@ -85,10 +117,10 @@ class LocationDialog
 	private static final String LABEL_GROUP = "Group";
 	
 	/** User has selected to add the files. */
-	public final static int			ADD_OPTION = 1;
+	public final static int CMD_ADD = 1;
 
 	/** User has selected to cancel. */
-	public final static int			CANCEL_OPTION = 0;
+	public final static int CMD_CLOSE = 0;
 	
 	/** The title of the dialog.*/
 	private static String TITLE = "Location selection";
@@ -103,7 +135,7 @@ class LocationDialog
 	private int option;
 	
 	/** component used to select the import group. */
-	private JComboBox groupSelection;
+	private JComboBox groupBox;
 	
 	/** Component used to select the default project. */
 	private JComboBox projectsBox;
@@ -126,9 +158,61 @@ class LocationDialog
 	/** The listener linked to the parents box. */
 	private ActionListener projectsBoxListener;
 	
-	/** Initializes the components.*/
+	/** The map holding the new nodes to create if in th P/D view. */
+	private Map<DataNode, List<DataNode>> newNodesPD;
+
+	/** The new nodes to create in the screen view. */
+	private List<DataNode> newNodesS;
+
+	/** Sorts the objects from the display. */
+	private ViewerSorter sorter;
+
+	private TreeImageDisplay selectedContainer;
+
+	private ImportLocationSettings importSettings;
+
+	private int importDataType;
+
+	private JFrame owner;
+
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent The parent of the dialog.
+	 * @param objects 
+	 * @param groupBox 
+	 * @param location The component displaying the option.
+	 */
+	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,int importDataType, Collection<TreeImageDisplay> objects, JComboBox groupBox)
+	{
+		super(parent);
+
+		this.owner = parent;
+		this.selectedContainer = selectedContainer;
+		this.importDataType = importDataType;
+		this.objects = objects;
+		this.groupBox = groupBox;
+		
+		setModal(true);
+		setTitle(TITLE);
+		initComponents();
+		buildGUI();
+		pack();
+		
+		
+		int minHeight = this.getHeight();
+		int minWidth = this.getWidth();
+		Dimension minimumSize = new Dimension(minWidth, minHeight);
+		
+		setMinimumSize(minimumSize);
+	}
+	
+	/** Initialises the components.*/
 	private void initComponents()
 	{
+		sorter = new ViewerSorter();
+		
 		// main components
 		screensBox = new JComboBox();
 		
@@ -143,36 +227,58 @@ class LocationDialog
 		
 		datasetsBox = new JComboBox();
 
+		initializeLocationBoxes();
 		
 		addProjectButton = new JButton("New...");
 		addProjectButton.setToolTipText("Create a new Project.");
-		addProjectButton.setActionCommand("" + CREATE_PROJECT);
+		addProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
 		addProjectButton.addActionListener(this);
+
+		addDatasetButton = new JButton("New...");
+		addDatasetButton.setToolTipText("Create a new Dataset.");
+		addDatasetButton.setActionCommand("" + CMD_CREATE_DATASET);
+		addDatasetButton.addActionListener(this);
 		
 		addScreenButton = new JButton("New...");
 		addScreenButton.setToolTipText("Create a new Screen.");
-		addScreenButton.setActionCommand("" + CREATE_SCREEN);
+		addScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
 		addScreenButton.addActionListener(this);
-
-		
-		
-		addDatasetButton = new JButton("New...");
-		addDatasetButton.setToolTipText("Create a new Dataset.");
-		addDatasetButton.setActionCommand("" + CREATE_DATASET);
-		addDatasetButton.addActionListener(this);
-
-		
 		
 		// lower buttons
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close and do not add the files to the " +
 				"queue.");
+		
+		ActionListener buttonListener = new ActionListener(){
+
+
+			public void actionPerformed(ActionEvent ae) {
+				// TODO Auto-generated method stub  21 Nov 2012 15:05:13 scott
+				int commandId = Integer.parseInt(ae.getActionCommand());
+				
+				switch(commandId)
+				{
+				case CMD_ADD:
+					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupBox.getSelectedItem()).getData();
+					importSettings = new FakeImportSettings(importDataType, selectedGroup);
+					close();
+					break;
+				case CMD_CLOSE:
+					close();
+				}
+			
+			}
+
+		};
+		
 		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_OPTION);
+		cancelButton.setActionCommand(""+CMD_CLOSE);
+		
 		addButton = new JButton("Add to the Queue");
 		addButton.setToolTipText("Add the files to the queue.");
 		addButton.addActionListener(this);
-		addButton.setActionCommand(""+ADD_OPTION);
+		addButton.setActionCommand(""+CMD_ADD);
+		
 		getRootPane().setDefaultButton(addButton);
 	}
 	
@@ -215,7 +321,7 @@ class LocationDialog
 		
 		JPanel groupPane = new JPanel();
 		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
-		groupPane.add(groupSelection, BorderLayout.CENTER);
+		groupPane.add(groupBox, BorderLayout.CENTER);
 		
 		locationPane.add(groupPane, BorderLayout.NORTH);
 		locationPane.add(tabPane, BorderLayout.CENTER);
@@ -266,7 +372,7 @@ class LocationDialog
 	 * 
 	 * @param location The component displaying the option.
 	 */
-	private void buildGUI(JComponent location)
+	private void buildGUI()
 	{
 		Container c = getContentPane();
 		c.add(layoutMainPanel(), BorderLayout.CENTER);
@@ -278,28 +384,6 @@ class LocationDialog
 	{
 		setVisible(false);
 		dispose();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param parent The parent of the dialog.
-	 * @param location The component displaying the option.
-	 */
-	LocationDialog(JFrame parent, JComponent location)
-	{
-		super(parent);
-		setModal(true);
-		setTitle(TITLE);
-		initComponents();
-		buildGUI(location);
-		pack();
-		
-		int minHeight = this.getHeight();
-		int minWidth = this.getWidth();
-		Dimension minimumSize = new Dimension(minWidth, minHeight);
-		
-		setMinimumSize(minimumSize);
 	}
 
     /**
@@ -330,15 +414,445 @@ class LocationDialog
 	 * Sets the option.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed(ActionEvent ae)
 	{
-		option = Integer.parseInt(e.getActionCommand());
-		close();
+		int commandId = Integer.parseInt(ae.getActionCommand());
+		
+		DataObject emptyObject = null;
+		switch(commandId)
+		{
+			case CMD_CREATE_PROJECT:
+				emptyObject = new ProjectData();
+				break;
+			case CMD_CREATE_DATASET:
+				emptyObject = new DatasetData();
+				break;
+			case CMD_CREATE_SCREEN:
+				emptyObject = new ScreenData();
+				break;
+		}
+		
+		EditorDialog d = new EditorDialog(owner, emptyObject, false);
+		d.addPropertyChangeListener(this);
+		d.setModal(true);
+		UIUtilities.centerAndShow(d);
 	}
 
 	public ImportLocationSettings getImportSettings() {
 		// TODO Auto-generated method stub  21 Nov 2012 12:43:08 scott
 		return null;
 	}
+
+	/**
+	 * Takes the dataNdoes and populates the combo box with the values as well
+	 * as adding a tooltip for each item
+	 * 
+	 * @param dataNodes the nodes used to be displayed in the combo box
+	 * @param comboBox the JComboBox that hosts the options
+	 */
+	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
+			JComboBox comboBox) {
+		List<String> tooltips = new ArrayList<String>(dataNodes.size());
+
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+
+		comboBox.setRenderer(renderer);
+
+		for (DataNode projectNode : dataNodes) {
+			comboBox.addItem(projectNode);
+			
+			String projectName = projectNode.getFullName();
+
+			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
+			
+			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
+		}
+
+		renderer.setTooltips(tooltips);
+	}
 	
+	/**
+	 * Creates a project.
+	 * 
+	 * @param data
+	 *            The project to create.
+	 */
+	public void createProject(DataObject data) {
+		if (data == null)
+			return;
+		
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode dn = null;
+		
+		for (int i = 0; i < projectsBox.getItemCount(); i++) {
+			n = (DataNode) projectsBox.getItemAt(i);
+			if (!n.isDefaultProject())
+				nodes.add(n);
+			else
+				dn = n;
+		}
+		
+		DataNode nn = new DataNode(data);
+		nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
+		nodes.add(nn);
+		
+		List<DataNode> l = sorter.sort(nodes);
+		if (dn != null)
+			l.add(dn);
+		
+		projectsBox.removeActionListener(projectsBoxListener);
+		projectsBox.removeAllItems();
+		
+		for (DataNode dataNode : l) {
+			projectsBox.addItem(dataNode);
+		}
+		
+		projectsBox.addActionListener(projectsBoxListener);
+		projectsBox.setSelectedItem(nn);
+		
+		repaint();
+	}
+
+	/**
+	 * Creates the dataset.
+	 * 
+	 * @param dataset
+	 *            The dataset to create.
+	 */
+	public void createDataset(DatasetData dataset) {
+		if (dataset == null)
+			return;
+		DataNode node = (DataNode) projectsBox.getSelectedItem();
+		DataNode nn = new DataNode(dataset, node);
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		nodes.add(nn);
+		DataNode n, dn = null;
+		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
+			n = (DataNode) datasetsBox.getItemAt(i);
+			if (!n.isDefaultNode())
+				nodes.add(n);
+			else
+				dn = n;
+		}
+		List<DataNode> l = sorter.sort(nodes);
+		if (dn != null)
+			l.add(dn);
+		datasetsBox.removeAllItems();
+		
+		for (DataNode dataNode : l) {
+			datasetsBox.addItem(dataNode);
+		}
+		
+		datasetsBox.setSelectedItem(nn);
+	}
+
+	/**
+	 * Creates a screen.
+	 * 
+	 * @param data
+	 *            The screen to create.
+	 */
+	public void createScreen(DataObject data) {
+		if (data == null)
+			return;
+		
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode dn = null;
+		
+		for (int i = 0; i < screensBox.getItemCount(); i++) {
+			n = (DataNode) screensBox.getItemAt(i);
+			if (!n.isDefaultScreen())
+				nodes.add(n);
+			else
+				dn = n;
+		}
+		
+		DataNode nn = new DataNode(data);
+		nodes.add(nn);
+		
+		List<DataNode> l = sorter.sort(nodes);
+		if (dn != null)
+			l.add(dn);
+		
+		screensBox.removeAllItems();
+		
+		for (DataNode dataNode : l) {
+			screensBox.addItem(dataNode);
+		}
+		
+		screensBox.setSelectedItem(nn);
+		
+		repaint();
+	}
+
+	/** Populates the datasets box depending on the selected project. */
+	private void populateDatasetsBox() {
+		DataNode n = (DataNode) projectsBox.getSelectedItem();
+		List<DataNode> list = n.getDatasetNodes();
+		List<DataNode> nl = n.getNewNodes();
+		if (nl != null)
+			list.addAll(nl);
+		List<DataNode> sortedDatasets = sorter.sort(list);
+		datasetsBox.removeAllItems();
+
+		populateAndAddTooltipsToComboBox(sortedDatasets, datasetsBox);
+
+		if (selectedContainer != null) {
+			Object o = selectedContainer.getUserObject();
+			if (o instanceof DatasetData) {
+				DatasetData d = (DatasetData) o;
+				Iterator<DataNode> i = sortedDatasets.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (n.getDataObject().getId() == d.getId()) {
+						datasetsBox.setSelectedItem(n);
+						break;
+					}
+				}
+			}
+		} else { // no node selected
+			if (sortedDatasets.size() > 1) {
+				Iterator<DataNode> i = sortedDatasets.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (n.isDefaultDataset()) {
+						datasetsBox.setSelectedItem(n);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Reacts to property fired by the table.
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		
+		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
+			Object ho = evt.getNewValue();
+			DataObject child = null, parent = null;
+			if (ho instanceof ProjectData || ho instanceof ScreenData) {
+				child = (DataObject) ho;
+			} else if (ho instanceof DatasetData) {
+				child = (DataObject) ho;
+				DataNode n = (DataNode) projectsBox.getSelectedItem();
+				if (!n.isDefaultNode()) {
+					parent = n.getDataObject();
+				}
+			}
+			JComboBoxImageObject selectedGroup = 
+						(JComboBoxImageObject) groupBox.getSelectedItem();
+			GroupData g = (GroupData) selectedGroup.getData();
+				
+			if (child != null) {
+				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null, new ObjectToCreate(g, child, parent));
+			}
+		}
+	}
+	
+
+	/** Initialises the selection boxes. */
+	private void initializeLocationBoxes() {	
+		projectsBox.removeActionListener(projectsBoxListener);
+		projectsBox.removeAllItems();
+		
+		datasetsBox.removeAllItems();
+
+		//loadGroups();
+		//loadProjects();
+		//loadScreens();
+		//loadDatasets();
+		
+		List<DataNode> topList = new ArrayList<DataNode>();
+		List<DataNode> datasetsList = new ArrayList<DataNode>();
+		DataNode n;
+		Object hostObject = null;
+		TreeImageDisplay node;
+		if (objects != null && objects.size() > 0) {
+			Iterator<TreeImageDisplay> i = objects.iterator();
+			while (i.hasNext()) {
+				node = i.next();
+				hostObject = node.getUserObject();
+				if (hostObject instanceof ProjectData || hostObject instanceof ScreenData) {
+					n = new DataNode((DataObject) hostObject);
+					getNewDataset((DataObject) hostObject, n);
+					n.setRefNode(node);
+					topList.add(n);
+				} else if (hostObject instanceof DatasetData) {
+					n = new DataNode((DataObject) hostObject);
+					n.setRefNode(node);
+					datasetsList.add(n);
+				}
+			}
+		}
+		// check if new top nodes
+		DataObject data;
+		Iterator<DataNode> j;
+		if (importDataType == Importer.PROJECT_TYPE) {
+			if (newNodesPD != null) {
+				j = newNodesPD.keySet().iterator();
+				while (j.hasNext()) {
+					n = j.next();
+					data = n.getDataObject();
+					if (data.getId() <= 0) {
+						topList.add(n);
+					}
+				}
+			}
+		} else if (importDataType == Importer.SCREEN_TYPE) {
+			if (newNodesS != null) {
+				j = newNodesS.iterator();
+				while (j.hasNext()) {
+					n = j.next();
+					data = n.getDataObject();
+					if (data.getId() <= 0)
+						topList.add(n);
+				}
+			}
+		}
+		List<DataNode> sortedList = new ArrayList<DataNode>();
+		if (topList.size() > 0) {
+			sortedList = sorter.sort(topList);
+		}
+
+		loadProjects(hostObject, datasetsList,sortedList);
+		loadScreens(hostObject, datasetsList,sortedList);
+
+	}
+
+	private void loadScreens(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList)
+	{
+		List<DataNode> finalList = new ArrayList<DataNode>();
+		finalList.add(new DataNode(DataNode.createDefaultScreen()));
+		finalList.addAll(sortedList);
+		
+		populateAndAddTooltipsToComboBox(finalList, screensBox);
+
+		int size = screensBox.getItemCount();
+		int index = 0;
+		if (selectedContainer != null) {
+			hostObject = selectedContainer.getUserObject();
+			if (hostObject instanceof ScreenData) {
+				long id = ((ScreenData) hostObject).getId();
+				for (int i = 0; i < size; i++) {
+					DataNode n = (DataNode) screensBox.getItemAt(i);
+					if (n.getDataObject().getId() == id) {
+						index = i;
+						break;
+					}
+				}
+
+			}
+		}
+		screensBox.setSelectedIndex(index);
+	}
+	
+
+	/**
+	 * Returns the collection of new datasets.
+	 * 
+	 * @return See above.
+	 */
+	private List<DataNode> getOrphanedNewDatasetNode() {
+		if (newNodesPD == null)
+			return null;
+		Iterator<DataNode> i = newNodesPD.keySet().iterator();
+		DataNode n;
+		while (i.hasNext()) {
+			n = i.next();
+			if (n.isDefaultNode())
+				return newNodesPD.get(n);
+		}
+		return null;
+	}
+	
+	private void loadProjects(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList) {
+		List<DataNode> finalList = new ArrayList<DataNode>();
+		DataNode n;
+		List<DataNode> l = getOrphanedNewDatasetNode();
+		if (datasetsList.size() > 0) { // orphaned datasets.
+			datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
+			if (l != null)
+				datasetsList.addAll(l);
+			n = new DataNode(datasetsList);
+		} else {
+			List<DataNode> list = new ArrayList<DataNode>();
+			list.add(new DataNode(DataNode.createDefaultDataset()));
+			if (l != null && l.size() > 0)
+				list.addAll(l);
+			n = new DataNode(list);
+		}
+		finalList.add(n);
+		finalList.addAll(sortedList);
+		
+		populateAndAddTooltipsToComboBox(finalList, projectsBox);
+
+		int index = 0;
+		TreeImageDisplay node;
+		
+		// Determine the node to select.
+		int size = projectsBox.getItemCount();
+		if (selectedContainer != null) {
+			hostObject = selectedContainer.getUserObject();
+			ProjectData p = null;
+			if (hostObject instanceof ProjectData) {
+				p = (ProjectData) hostObject;
+			} else if (hostObject instanceof DatasetData) {
+				node = selectedContainer.getParentDisplay();
+				if (node != null
+						&& node.getUserObject() instanceof ProjectData) {
+					p = (ProjectData) node.getUserObject();
+				}
+			}
+			if (p != null) {
+				long id = p.getId();
+				for (int i = 0; i < size; i++) {
+					n = (DataNode) projectsBox.getItemAt(i);
+					if (n.getDataObject().getId() == id) {
+						index = i;
+						break;
+					}
+				}
+			}
+		}
+		projectsBox.setSelectedIndex(index);
+	}
+	
+	/**
+	 * Retrieves the new nodes to add the project.
+	 * 
+	 * @param data
+	 *            The data object to handle.
+	 * @param node
+	 *            The node hosting the data object.
+	 */
+	private void getNewDataset(DataObject data, DataNode node) {
+		if (newNodesPD == null || data instanceof ScreenData)
+			return;
+		Iterator<DataNode> i = newNodesPD.keySet().iterator();
+		DataNode n;
+		DataObject ho;
+		List<DataNode> l;
+		Iterator<DataNode> k;
+		while (i.hasNext()) {
+			n = i.next();
+			ho = n.getDataObject();
+			if (ho.getClass().equals(data.getClass())
+					&& data.getId() == ho.getId()) {
+				l = newNodesPD.get(n);
+				if (l != null) {
+					k = l.iterator();
+					while (k.hasNext()) {
+						node.addNewNode(k.next());
+					}
+				}
+			}
+		}
+	}
 }

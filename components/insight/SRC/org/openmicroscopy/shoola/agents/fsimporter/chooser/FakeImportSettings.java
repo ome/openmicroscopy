@@ -31,41 +31,23 @@ import pojos.GroupData;
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public abstract class ImportLocationSettings {
+public class FakeImportSettings extends ImportLocationSettings {
 
-	/** Defines the group data to be imported in to */
-	private GroupData importGroup;
-	
-	/** Defines the type of data being imported */
-	private int importDataType;
-	
-	protected ImportLocationSettings(int type, GroupData group)
-	{
-		this.importDataType = type;
-		this.importGroup = group;
-	}
-	
-	/**
-	 * @return The group to import data in to.
-	 */
-	public GroupData getImportGroup()
-	{
-		return importGroup;
-	}
-	
-	/**
-	 * @return The type of data being imported, Project / Screen.
-	 */
-	public int getImportDataType()
-	{
-		return importDataType;
+	protected FakeImportSettings(int type, GroupData group) {
+		super(type, group);
+		// TODO Auto-generated constructor stub 21 Nov 2012 15:05:43 scott
 	}
 
-	/** To be implemented by the subclass to say which object an item should be imported in to */
-	public abstract DataNode getImportLocation();
+	@Override
+	public DataNode getImportLocation() {
+		// TODO Auto-generated method stub  21 Nov 2012 15:05:38 scott
+		return null;
+	}
 
-	/** To be implemented by the subclass to say which parent object an item should be imported in to */
-	public abstract DataNode getParentImportLocation();
+	@Override
+	public DataNode getParentImportLocation() {
+		// TODO Auto-generated method stub  21 Nov 2012 15:05:38 scott
+		return null;
+	}
 
 }
-
