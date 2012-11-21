@@ -42,7 +42,7 @@ public class ImageImportLocationSettings extends ImportLocationSettings
 	private DataNode importToDataset;
 	
 	
-	public ImageImportLocationSettings(int type, GroupData group, ProjectData project, DatasetData dataset) {
+	public ImageImportLocationSettings(int type, GroupData group, DataNode project, DataNode dataset) {
 		super(type, group);
 		
 		this.importToProject = project;
@@ -52,7 +52,19 @@ public class ImageImportLocationSettings extends ImportLocationSettings
 	
 	public boolean isParentFolderAsDataset()
 	{
-		if (importToDataset == null) return false;
-    	return importToDataset.isDefaultDataset();
+		if (importToDataset == null)
+			return false;
+    	
+		return importToDataset.isDefaultDataset();
+	}
+
+	@Override
+	public DataNode getImportLocation() {
+		return importToDataset;
+	}
+
+	@Override
+	public DataNode getParentImportLocation() {
+		return importToProject;
 	}
 }
