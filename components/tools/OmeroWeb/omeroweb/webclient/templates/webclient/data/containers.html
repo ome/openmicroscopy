@@ -820,7 +820,8 @@
                     
                 })
                 .delegate("a", "dblclick", function(e) {
-                    if ($(this).parent().attr('rel')=='image') {
+                    var obj_rel = $(this).parent().attr('rel');
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
                         openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })

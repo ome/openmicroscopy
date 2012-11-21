@@ -361,7 +361,7 @@ def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwarg
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
-    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params, conn.SERVICE_OPTS)
 
     if shape is None:
         raise Http404
