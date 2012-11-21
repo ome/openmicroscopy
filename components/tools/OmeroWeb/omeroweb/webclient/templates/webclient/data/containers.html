@@ -134,7 +134,7 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  tree_selection_changed();   // clear center and right panels etc
+                                  OME.tree_selection_changed();   // clear center and right panels etc
                                   datatree.delete_node(selected);
                                   first_parent.children("a").click();
                                   refreshActivities();
@@ -281,7 +281,7 @@
                         actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
                     }
                     $.post(actionUrl, function(data){
-                        showActivities();
+                        OME.showActivities();
                         $("#dataTree").jstree('remove', selected);
                         
                     });
@@ -555,7 +555,7 @@
                     // the UI plugin - it handles selecting/deselecting/hovering nodes
                     "ui" : {
                         "select_limit" : -1,
-                        "select_multiple_modifier": multi_key(),
+                        "select_multiple_modifier": OME.multi_key(),
                         "selected_parent_close": "select_parent",
                         "disable_selecting_children": true,
                         "select_prev_on_delete": false,
@@ -672,7 +672,7 @@
                                 "label" : "Add to Basket",
                                 "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',                                    
                                 "action": function(){
-                                    addToBasket(this.get_selected(), '{% url update_basket %}');
+                                    OME.addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
                             };
                             
@@ -828,7 +828,7 @@
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    tree_selection_changed(data, e);
+                    OME.tree_selection_changed(data, e);
                 })
                 .bind("open_node.jstree", function (e, data) {
 
@@ -883,7 +883,7 @@
                             }
                         });
                     });
-                    clear_selected(true);   // clear center and right panels etc
+                    OME.clear_selected(true);   // clear center and right panels etc
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
@@ -941,14 +941,14 @@
                         handleDelete();
                     break;
                 case "basketButton":
-                    addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
+                    OME.addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
-                    clear_selected(true);   // force refresh: true
+                    OME.clear_selected(true);   // force refresh: true
                     $("#dataTree").jstree("refresh");
                     data = $.jstree._focused().get_selected();
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                     break;
                 default:
                     break;

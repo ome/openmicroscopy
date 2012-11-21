@@ -3,7 +3,7 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
-var multi_key = function() {
+OME.multi_key = function() {
     if (navigator.appVersion.indexOf("Mac")!=-1) {
         return "meta";
     } else {
@@ -20,7 +20,7 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-var addToBasket = function(selected, prefix) {
+OME.addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
     if (selected != null && selected.length > 0) {
         selected.each(function(i) {
@@ -45,8 +45,8 @@ var addToBasket = function(selected, prefix) {
     });
 };
 
-// called from tree_selection_changed() below
-var handle_tree_selection = function(data) {
+// called from OME.tree_selection_changed() below
+OME.handle_tree_selection = function(data) {
     var selected_objs = [];
 
     if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
@@ -80,21 +80,20 @@ var handle_tree_selection = function(data) {
         .trigger("selection_change.ome");
 };
 
-var select_timeout;
 // called on selection and deselection changes in jstree
-var tree_selection_changed = function(data, evt) {
+OME.tree_selection_changed = function(data, evt) {
     // handle case of deselection immediately followed by selection - Only fire on selection
-    if (typeof select_timeout != 'undefined') {
-        clearTimeout(select_timeout);
+    if (typeof OME.select_timeout != 'undefined') {
+        clearTimeout(OME.select_timeout);
     }
-    select_timeout = setTimeout(function() {
-        handle_tree_selection(data);
+    OME.select_timeout = setTimeout(function() {
+        OME.handle_tree_selection(data);
     }, 10);
 };
 
 // Short-cut to setting selection to [], with option to force refresh.
 // (by default, center panel doesn't clear when nothing is selected)
-var clear_selected = function(force_refresh) {
+OME.clear_selected = function(force_refresh) {
     var refresh = (force_refresh === true);
     $("body")
         .data("selected_objects.ome", [])
@@ -102,7 +101,7 @@ var clear_selected = function(force_refresh) {
 };
 
 // called when we change the index of a plate or acquisition
-var field_selection_changed = function(field) {
+OME.field_selection_changed = function(field) {
     
     var datatree = $.jstree._focused();
     datatree.data.ui.last_selected;
@@ -112,13 +111,13 @@ var field_selection_changed = function(field) {
 };
 
 // actually called when share is edited, to refresh right-hand panel
-var share_selection_changed = function(share_id) {
+OME.share_selection_changed = function(share_id) {
     $("body")
         .data("selected_objects.ome", [{"id": share_id}])
         .trigger("selection_change.ome");
 };
 
-var table_selection_changed = function($selected) {
+OME.table_selection_changed = function($selected) {
     var selected_objs = [];
     if (typeof $selected != 'undefined') {
         $selected.each(function(i){
@@ -132,7 +131,7 @@ var table_selection_changed = function($selected) {
 
 // handles selection for 'clicks' on table (search, history & basket)
 // including multi-select for shift and meta keys
-var handleTableClickSelection = function(event) {
+OME.handleTableClickSelection = function(event) {
 
     var $clickedRow = $(event.target).parents('tr:first');
     var rows = $("table#dataTable tbody tr");
@@ -143,7 +142,7 @@ var handleTableClickSelection = function(event) {
         var $s = $("table#dataTable tbody tr.ui-selected");
         if ($s.length === 0) {
             $clickedRow.addClass("ui-selected");
-            table_selection_changed($clickedRow);
+            OME.table_selection_changed($clickedRow);
             return;
         }
         var sel_start = rows.index($s.first());
@@ -179,11 +178,11 @@ var handleTableClickSelection = function(event) {
         $clickedRow.addClass("ui-selected");
     }
     // update right hand panel etc
-    table_selection_changed($("table#dataTable tbody tr.ui-selected"));
+    OME.table_selection_changed($("table#dataTable tbody tr.ui-selected"));
 };
 
 // called from click events on plate. Selected wells
-var well_selection_changed = function($selected, well_index, plate_class) {
+OME.well_selection_changed = function($selected, well_index, plate_class) {
     var selected_objs = [];
     $selected.each(function(i){
         selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
@@ -200,7 +199,7 @@ var well_selection_changed = function($selected, well_index, plate_class) {
 
 // This is called by the Pagination controls at the bottom of icon or table pages.
 // We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
-function doPagination(view, page) {
+OME.doPagination = function(view, page) {
     var $container;
     if (view == "icon") {
         $container = $("#content_details");
@@ -273,7 +272,7 @@ OME.deleteItem = function(event, domClass, url) {
                             // simply remove the item (parent class div)
                             $parent.remove();
                             $annContainer.hide_if_empty();
-                            window.parent.refreshActivities();
+                            window.parent.OME.refreshActivities();
                         }
                     }
                 });

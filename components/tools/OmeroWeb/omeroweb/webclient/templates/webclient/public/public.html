@@ -228,7 +228,7 @@
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     var pr = $(data.args[1]);

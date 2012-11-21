@@ -102,7 +102,7 @@
                     var $row = $('#image_icon-'+ img_id);
                     primaryIndex = $rows.index($row);
                 }
-                var multiSelectKey = multi_key() + "Key";
+                var multiSelectKey = OME.multi_key() + "Key";
                 if (event.shiftKey) {
                     // user tried to select a range, but we don't have a first selection yet...
                     if ( primaryIndex == -1 ) {
@@ -154,7 +154,7 @@
 
                 if (toSelect.length == 0) {
                     datatree.deselect_all();
-                    tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
+                    OME.tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
                     return;
                 }
                 // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
