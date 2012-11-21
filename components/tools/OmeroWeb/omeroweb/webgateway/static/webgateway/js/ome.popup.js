@@ -34,17 +34,17 @@ jQuery.fn.alternateRowColors = function() {
   return this;
 };
 
-function openPopup(url) {
+OME.openPopup = function(url) {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
     var owindow = window.open(url, '', 'height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
     if(!owindow.closed) {
         owindow.focus();
     }
     return false;
-}
+};
 
 
-function openCenteredWindow(url) {
+OME.openCenteredWindow = function(url) {
     var width = 550;
     var height = 600;
     var left = parseInt((screen.availWidth/2) - (width/2), 10);
@@ -62,7 +62,7 @@ function openCenteredWindow(url) {
  *  Returns a string representing the currently selected items in the $.jstree.
  * E.g.     "Image=23,34,98&Dataset=678"
 **/
-function get_tree_selection() {
+OME.get_tree_selection = function() {
     if (typeof $.jstree === "undefined") {
         return "";
     }
@@ -171,7 +171,7 @@ OME.alert_dialog = function(message) {
  * A dialog for sending feedback.
  * Loads and submits the feedback form at "/feedback/feedback"
  */
-var feedback_dialog = function(error, feedbackUrl) {
+OME.feedback_dialog = function(error, feedbackUrl) {
 
     var $feedback_dialog = $("#feedback_dialog");
     if ($feedback_dialog.length > 0) {       // get rid of any old dialogs
@@ -217,7 +217,7 @@ var feedback_dialog = function(error, feedbackUrl) {
  * Handle jQuery load() errors (E.g. timeout)
  * In this case we simply refresh (will redirect to login page)
 **/
-var setupAjaxError = function(feedbackUrl){
+OME.setupAjaxError = function(feedbackUrl){
     $("body").ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
@@ -228,7 +228,7 @@ var setupAjaxError = function(feedbackUrl){
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
             var error = req.responseText;
-            feedback_dialog(error, feedbackUrl);
+            OME.feedback_dialog(error, feedbackUrl);
         }
     });
 };
@@ -239,7 +239,7 @@ var setupAjaxError = function(feedbackUrl){
  * A dialog for logging-in on the fly (without redirect to login page).
  * On clicking 'Connect' we post username & password to login url and on callback, the callback function is called
  */
-var login_dialog = function(login_url, callback) {
+OME.login_dialog = function(login_url, callback) {
 
     var $dialog = $("#login_dialog");
     if ($dialog.length > 0) {       // get rid of any old dialogs
