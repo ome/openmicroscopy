@@ -34,12 +34,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
@@ -63,7 +69,12 @@ class LocationDialog
 	extends JDialog
 	implements ActionListener
 {
+	/** The message to display in the header. */
+	private static final String MESSAGE_LOCATION = "Select where to import the data";
 
+	/** The message to display in the header. */
+	private static final String MESSAGE_GROUP = "Group";
+	
 	/** User has selected to add the files. */
 	public final static int			ADD_OPTION = 1;
 
@@ -81,6 +92,9 @@ class LocationDialog
 	
 	/** Option chosen by the user.*/
 	private int option;
+	
+	/** The component used to select the group. */
+	private JComboBox groupSelection;
 	
 	/** Initializes the components.*/
 	private void initComponents()
@@ -112,6 +126,76 @@ class LocationDialog
 		return bar;
 	}
 	
+	
+	private JPanel layoutMainPanel()
+	{
+		JPanel locationPane = new JPanel();
+		locationPane.setLayout(new BorderLayout());
+		
+		JTabbedPane tabPane = new JTabbedPane();
+		
+		IconManager icons = IconManager.getInstance();
+		
+		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
+		JPanel projectPanel = createProjectPanel();
+		
+		Icon screenIcon = icons.getIcon(IconManager.PROJECT);
+		JPanel screenPanel = createScreenPanel();
+
+		tabPane.addTab("Projects", projectIcon, projectPanel,
+		                  "Import settings for Projects");
+		
+		tabPane.addTab("Screens", screenIcon, screenPanel,
+                "Import settings for Screens");
+		
+		JPanel groupPane = new JPanel();
+		groupPane.add(UIUtilities.setTextFont(MESSAGE_GROUP), BorderLayout.WEST);
+		groupPane.add(groupSelection, BorderLayout.CENTER);
+		
+		locationPane.add(groupPane, BorderLayout.NORTH);
+		locationPane.add(tabPane, BorderLayout.CENTER);
+		
+		return locationPane;
+	}
+	
+	private JPanel createProjectPanel() {
+		JPanel projectPanel = new JPanel();
+		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
+		
+		JPanel projectRow = createRow(null);
+		projectRow.add(UIUtilities.setTextFont(PROJECT_TXT));
+		projectRow.add(projectsBox);
+		projectRow.add(addProjectButton);
+		
+		projectPanel.add(projectRow);
+		projectPanel.add(Box.createVerticalStrut(8));
+		
+		JPanel dataSetRow = createRow(null);
+		dataSetRow.add(UIUtilities.setTextFont(DATASET_TXT));
+		dataSetRow.add(datasetsBox);
+		dataSetRow.add(addDatasetButton);
+		
+		projectPanel.add(dataSetRow);
+		projectPanel.add(new JSeparator());
+		
+		return projectPanel;
+	}
+	
+	private JPanel createScreenPanel() {
+		JPanel screenPanel = new JPanel();
+		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
+		
+		JPanel screenRow = createRow(null);
+		screenRow.add(UIUtilities.setTextFont(SCREEN_TXT));
+		screenRow.add(screensBox);
+		screenRow.add(addScreenButton);
+
+		screenPanel.add(screenRow);
+		screenPanel.add(new JSeparator());
+		
+		return screenPanel;
+	}
+	
 	/** 
 	 * Builds and lays out the UI.
 	 * 
@@ -120,7 +204,7 @@ class LocationDialog
 	private void buildGUI(JComponent location)
 	{
 		Container c = getContentPane();
-		c.add(location, BorderLayout.CENTER);
+		c.add(layoutMainPanel(), BorderLayout.CENTER);
 		c.add(buildToolbar(), BorderLayout.SOUTH);
 	}
 	
@@ -185,6 +269,11 @@ class LocationDialog
 	{
 		option = Integer.parseInt(e.getActionCommand());
 		close();
+	}
+
+	public ImportLocationSettings getImportSettings() {
+		// TODO Auto-generated method stub  21 Nov 2012 12:43:08 scott
+		return null;
 	}
 	
 }
