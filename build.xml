@@ -214,7 +214,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
@@ -295,7 +294,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="eclipse"/>
         <iterate buildpathref="insight.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
-        <iterate buildpathref="OmeroImporter.buildpath" target="eclipse"/>
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
 
@@ -417,9 +415,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
-	<copy todir="target">
-	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
-	</copy>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
@@ -866,9 +861,6 @@ omero.version=${omero.version}
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
             <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>

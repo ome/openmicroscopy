@@ -126,7 +126,7 @@ target_artifacts += find(EDITOR + "*win.zip")
 target_artifacts += find(INSIGHT + "*win.zip")
 target_artifacts += find(IMPORTER + "*win.zip")
 target = '%s.win' % TARGET_PREFIX
-ignore = ['omero_client.jar', 'OmeroImporter-Beta-4.2.0-DEV.jar',
+ignore = ['omero_client.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 os.makedirs(target)
