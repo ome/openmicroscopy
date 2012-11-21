@@ -55,7 +55,7 @@ OME.openCenteredWindow = function(url) {
         myWindow.focus();
     }
     return false;
-}
+};
 
 
 /*
@@ -94,7 +94,7 @@ OME.get_tree_selection = function() {
         ids_list.push(key+"="+selected_ids[key]);
     }
     return ids_list.join("&");
-}
+};
 
 
 /*
@@ -593,3 +593,44 @@ OME.login_dialog = function(login_url, callback) {
     };
 
 }(jQuery));
+
+// ** TESTING ONLY **
+// http://remysharp.com/2007/11/01/detect-global-variables/
+if (false) {                    // set to 'true' to run. NB: Need to uncomment 'console.log..' below.
+    setTimeout(function(){      // use timeout to allow all scripts to load etc
+        console.log("SHOWING GLOBAL VARIABLES...");
+        var differences = {},
+            exceptions,
+            globals = {},
+            //ignoreList = (prompt('Ignore filter (comma sep)?', '') || '').split(','),
+            ignoreList = [],    // E.g. ["function"]
+            i = ignoreList.length,
+            iframe = document.createElement('iframe');
+        while (i--) {
+          globals[ignoreList[i]] = 1;
+        }
+        for (i in window) {
+          differences[i] = {
+            'type': typeof window[i],
+            'val': window[i]
+          };
+        }
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.src = 'about:blank';
+        iframe = iframe.contentWindow || iframe.contentDocument;
+        for (i in differences) {
+          if (typeof iframe[i] != 'undefined') {delete differences[i];}
+          else if (globals[differences[i].type]) {delete differences[i];}
+        }
+        exceptions = 'addEventListener,document,location,navigator,window'.split(',');
+        exceptions.push("jQuery", "$", "PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid");  // Add a few of our own...
+        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
+        exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl");
+        i = exceptions.length;
+        while (--i) {
+          delete differences[exceptions[i]];
+        }
+        console.dir(differences);     // commented out to keep jsHint happy!
+    }, 1000);
+}

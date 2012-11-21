@@ -330,7 +330,7 @@
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
