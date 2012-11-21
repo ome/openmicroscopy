@@ -90,7 +90,7 @@ public class UserManagerDialog
 	static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
 	
 	/** The window's title. */
-	private static final String		TITLE = "Experimenters Selection";
+	private static final String		TITLE = "Users Selection";
 	
 	/** The window's description. */
 	private static final String		TEXT = "Select the experimenters.";
