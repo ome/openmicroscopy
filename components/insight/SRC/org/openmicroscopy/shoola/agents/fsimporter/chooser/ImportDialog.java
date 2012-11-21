@@ -406,9 +406,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The selected group. */
 	private GroupData group;
 
-	/** The component used to select the group. */
-	private JComboBox groupSelection;
-
 	/** The pane hosting the location information. */
 	private JXTaskPane pane;
 
@@ -556,7 +553,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	{
 		LocationDialog dialog = new LocationDialog(owner, locationPane);
 		if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
-			addFiles();
+			ImportLocationSettings importSettings = dialog.getImportSettings();
+			addFiles(importSettings);
 		}
 	}
 
@@ -1538,60 +1536,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		locationPane.validate();
 		locationPane.repaint();
-	}
-
-	private JPanel createProjectPanel() {
-		JPanel projectPanel = new JPanel();
-		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
-		
-		if (groupSelection != null) {
-			JPanel groupRow = createRow(null);
-			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
-			groupRow.add(groupSelection);
-			projectPanel.add(groupRow);
-			projectPanel.add(Box.createVerticalStrut(2));
-		}
-		
-		JPanel projectRow = createRow(null);
-		projectRow.add(UIUtilities.setTextFont(PROJECT_TXT));
-		projectRow.add(projectsBox);
-		projectRow.add(addProjectButton);
-		
-		projectPanel.add(projectRow);
-		projectPanel.add(Box.createVerticalStrut(8));
-		
-		JPanel dataSetRow = createRow(null);
-		dataSetRow.add(UIUtilities.setTextFont(DATASET_TXT));
-		dataSetRow.add(datasetsBox);
-		dataSetRow.add(addDatasetButton);
-		
-		projectPanel.add(dataSetRow);
-		projectPanel.add(new JSeparator());
-		
-		return projectPanel;
-	}
-	
-	private JPanel createScreenPanel() {
-		JPanel screenPanel = new JPanel();
-		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
-		
-		if (groupSelection != null) {
-			JPanel groupRow = createRow(null);
-			groupRow.add(UIUtilities.setTextFont(MESSAGE_GROUP));
-			groupRow.add(groupSelection);
-			screenPanel.add(groupRow);
-			screenPanel.add(Box.createVerticalStrut(2));
-		}
-		
-		JPanel screenRow = createRow(null);
-		screenRow.add(UIUtilities.setTextFont(SCREEN_TXT));
-		screenRow.add(screensBox);
-		screenRow.add(addScreenButton);
-
-		screenPanel.add(screenRow);
-		screenPanel.add(new JSeparator());
-		
-		return screenPanel;
 	}
 
 	/**
