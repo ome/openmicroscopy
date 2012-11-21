@@ -469,15 +469,13 @@ button::-moz-focus-inner {
 
 
 .removeTag {
-	color:hsl(210,20%,60%);
+	color: #000;
 	cursor:pointer;
 	font-weight:bold; 
 	text-shadow: 0 1px 0 rgba(255,255,255,.7);
 	display:inline-block;
-	text-indent:-99px;
 	width:12px;
 	height:12px;
-	background:url(../image/icon_tag_delete.png) center center no-repeat;
 	position:absolute;
 	z-index:99;
 	right:5px;

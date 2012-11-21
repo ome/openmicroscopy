@@ -121,3 +121,9 @@ def shortening(value, arg):
     except Exception, x:
         logger.error(traceback.format_exc())
         return value
+
+# See https://code.djangoproject.com/ticket/361
+@register.filter
+def subtract(value, arg):
+    "Subtracts the arg from the value"
+    return int(value) - int(arg)
