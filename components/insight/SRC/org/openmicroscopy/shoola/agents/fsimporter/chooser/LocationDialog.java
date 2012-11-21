@@ -123,9 +123,47 @@ class LocationDialog
 	/** Button to create a new screen. */
 	private JButton addScreenButton;
 	
+	/** The listener linked to the parents box. */
+	private ActionListener projectsBoxListener;
+	
 	/** Initializes the components.*/
 	private void initComponents()
 	{
+		// main components
+		screensBox = new JComboBox();
+		
+		projectsBox = new JComboBox();
+		projectsBoxListener = new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				populateDatasetsBox();
+			}
+		};
+		projectsBox.addActionListener(projectsBoxListener);
+		
+		datasetsBox = new JComboBox();
+
+		
+		addProjectButton = new JButton("New...");
+		addProjectButton.setToolTipText("Create a new Project.");
+		addProjectButton.setActionCommand("" + CREATE_PROJECT);
+		addProjectButton.addActionListener(this);
+		
+		addScreenButton = new JButton("New...");
+		addScreenButton.setToolTipText("Create a new Screen.");
+		addScreenButton.setActionCommand("" + CREATE_SCREEN);
+		addScreenButton.addActionListener(this);
+
+		
+		
+		addDatasetButton = new JButton("New...");
+		addDatasetButton.setToolTipText("Create a new Dataset.");
+		addDatasetButton.setActionCommand("" + CREATE_DATASET);
+		addDatasetButton.addActionListener(this);
+
+		
+		
+		// lower buttons
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close and do not add the files to the " +
 				"queue.");
@@ -166,7 +204,7 @@ class LocationDialog
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
 		JPanel projectPanel = createProjectPanel();
 		
-		Icon screenIcon = icons.getIcon(IconManager.PROJECT);
+		Icon screenIcon = icons.getIcon(IconManager.SCREEN);
 		JPanel screenPanel = createScreenPanel();
 
 		tabPane.addTab("Projects", projectIcon, projectPanel,

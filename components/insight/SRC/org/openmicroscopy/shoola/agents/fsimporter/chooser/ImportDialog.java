@@ -317,12 +317,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox showThumbnails;
 
-	/** The listener linked to the parents box. */
-	private ActionListener screensBoxListener;
-	
-	/** The listener linked to the parents box. */
-	private ActionListener projectsBoxListener;
-
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> hcsFilters;
 
@@ -741,39 +735,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		b = (Boolean) ImporterAgent.getRegistry().lookup(FOLDER_AS_DATASET);
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
-
-		screensBox = new JComboBox();
 		
-		projectsBox = new JComboBox();
-		projectsBoxListener = new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				populateDatasetsBox();
-			}
-		};
-		projectsBox.addActionListener(projectsBoxListener);
-		
-		datasetsBox = new JComboBox();
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		
-		addProjectButton = new JButton("New...");
-		addProjectButton.setToolTipText("Create a new Project.");
-		addProjectButton.setActionCommand("" + CREATE_PROJECT);
-		addProjectButton.addActionListener(this);
-		
-		addScreenButton = new JButton("New...");
-		addScreenButton.setToolTipText("Create a new Screen.");
-		addScreenButton.setActionCommand("" + CREATE_SCREEN);
-		addScreenButton.addActionListener(this);
-
-		
-		
-		addDatasetButton = new JButton("New...");
-		addDatasetButton.setToolTipText("Create a new Dataset.");
-		addDatasetButton.setActionCommand("" + CREATE_DATASET);
-		addDatasetButton.addActionListener(this);
-
 		IconManager icons = IconManager.getInstance();
 		reloadContainerButton = new JToggleButton(
 				icons.getIcon(IconManager.REFRESH));
