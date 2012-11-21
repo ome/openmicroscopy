@@ -2076,7 +2076,7 @@ def repository_root(request, index, conn=None, **kwargs):
 @jsonp
 def repository_makedir(request, index, dirpath, conn=None, **kwargs):
     """
-    Returns the root and name property of a repository
+    Creates a directory in a repository
     """
     sr = conn.getSharedResources()
     repositories = sr.repositories()
