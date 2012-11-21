@@ -24,7 +24,8 @@
 
 <script>
 
-var calculateCartTotal = function(total){
+if (typeof OME === "undefined") {OME = {}}
+OME.calculateCartTotal = function(total){
     if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
         // turning off, see #9154 $("#launch_basket").css('opacity', 0.5);
         $('#cartTotal').hide();
@@ -46,7 +47,7 @@ var showBasket = function() {
 }
 
 $(document).ready(function() {
-    calculateCartTotal({{ ome.basket_counter }});
+    OME.calculateCartTotal({{ ome.basket_counter }});
     
     $("#basket_panel").hide();
     

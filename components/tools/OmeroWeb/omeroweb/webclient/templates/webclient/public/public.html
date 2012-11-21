@@ -265,7 +265,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "removecontentButton":
-                    var confirm_remove = confirm_dialog('Remove Image?',
+                    var confirm_remove = OME.confirm_dialog('Remove Image?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 var jstree = $.jstree._focused();

@@ -366,7 +366,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    var confirm_delete = confirm_dialog('Delete selected Tags?',
+                    var confirm_delete = OME.confirm_dialog('Delete selected Tags?',
                         function() {
                             if(confirm_delete.data("clicked_button") == "OK") {
                                 $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
