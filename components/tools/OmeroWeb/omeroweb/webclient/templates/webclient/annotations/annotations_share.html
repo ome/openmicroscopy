@@ -97,7 +97,7 @@
                     var url = '{% url manage_action_containers "delete" %}'+ dType +'/'+ annId +'/';
                     var $parent = $(event.target).parents("."+domClass);
                     var $annContainer = $parent.parent();
-                    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
+                    var confirm_remove = OME.confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 $.ajax({

@@ -79,19 +79,19 @@ $(document).ready(function() {
 
         var selected = data.inst.get_selected();
         if (selected.length == 0) {
-            set_center_plugin_enabled(fullviewer_plugin_index, false);
+            OME.set_center_plugin_enabled(fullviewer_plugin_index, false);
             return;
         }
         var orel = selected.attr('rel').replace("-locked", "");
 
         // update enabled state... split-view supports multiple 'image' or single dataset
         if ((orel=="image") && (selected.length === 1)) {
-            set_center_plugin_enabled(fullviewer_plugin_index, true);
+            OME.set_center_plugin_enabled(fullviewer_plugin_index, true);
             // update tab content
             update_dataset_full_viewer();
         } else {
             // otherwise, disable this option
-            set_center_plugin_enabled(fullviewer_plugin_index, false);
+            OME.set_center_plugin_enabled(fullviewer_plugin_index, false);
         }
 
     });

@@ -290,7 +290,7 @@
                                 msg += "<br>This will be attached to the Image and available to download.";
                             }
 
-                            var confirm_ometiff = confirm_dialog(msg,
+                            var confirm_ometiff = OME.confirm_dialog(msg,
                                 function() {
                                     var btn = confirm_ometiff.data("clicked_button");
                                     switch (btn) {

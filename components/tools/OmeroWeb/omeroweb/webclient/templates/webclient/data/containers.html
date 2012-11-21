@@ -166,7 +166,7 @@
                     removeTxt += plates.length + " Plate" + ((datasets.length>1) && "s from their" || " from its") +" Screen";
                 }
                 removeTxt += "?"
-                var confirm_remove = confirm_dialog(removeTxt,
+                var confirm_remove = OME.confirm_dialog(removeTxt,
                     function() {
                         if (confirm_remove.data('clicked_button') == "OK") {
                             if (images.length > 0) tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
