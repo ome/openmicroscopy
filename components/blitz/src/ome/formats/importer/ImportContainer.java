@@ -37,34 +37,9 @@ public class ImportContainer
     private String[] usedFiles;
     private Boolean isSPW;
 	private File file;
-
-    /**
-     * The number of Images (also referred to as <i>Series</i>) that
-     * Bio-Formats has detected.
-     */
     private Integer bfImageCount;
-
-	/**
-     * Image dimensions populated OMERO Pixels objects for each of the Images
-     * (also referred to as <i>Series</i>) that Bio-Formats has detected.
-     * The length of this collection is equivilent to the <i>Series</i> count
-     * and is ordered as the <i>Series</i> are ordered. <b>NOTE:</b> Each
-     * OMERO Pixels object is populated with a bogus <code>PixelsType</code>
-     * whose value has been extracted from Bio-Formats. It <b>must not</b> be
-     * saved into OMERO.
-     */
     private List<Pixels> bfPixels;
-
-    /**
-     * Image names populated for each of the Images (also referred to as
-     * <i>Series</i>)that Bio-Formats has detected. The length of this
-     * collection is equivilent to the <i>Series</i> count and is ordered as
-     * the <i>Series</i> are ordered. <b>NOTE:</b> This listmay be sparse,
-     * contain <code>null</code> values or empty length strings. Caution should
-     * be exercised when working directly with this metadata.
-     */
     private List<String> bfImageNames;
-
     private Boolean archive;
     private Double[] userPixels;
     private String customImageName;
@@ -94,6 +69,10 @@ public class ImportContainer
 
 	// Various Getters and Setters //
 
+    /**
+     * The number of Images (also referred to as <i>Series</i>) that
+     * Bio-Formats has detected.
+     */
     public Integer getBfImageCount() {
 		return bfImageCount;
 	}
@@ -102,6 +81,15 @@ public class ImportContainer
 		this.bfImageCount = bfImageCount;
 	}
 
+	/**
+     * Image dimensions populated OMERO Pixels objects for each of the Images
+     * (also referred to as <i>Series</i>) that Bio-Formats has detected.
+     * The length of this collection is equivilent to the <i>Series</i> count
+     * and is ordered as the <i>Series</i> are ordered. <b>NOTE:</b> Each
+     * OMERO Pixels object is populated with a bogus <code>PixelsType</code>
+     * whose value has been extracted from Bio-Formats. It <b>must not</b> be
+     * saved into OMERO.
+     */
 	public List<Pixels> getBfPixels() {
 		return bfPixels;
 	}
@@ -110,6 +98,14 @@ public class ImportContainer
 		this.bfPixels = bfPixels;
 	}
 
+    /**
+     * Image names populated for each of the Images (also referred to as
+     * <i>Series</i>)that Bio-Formats has detected. The length of this
+     * collection is equivilent to the <i>Series</i> count and is ordered as
+     * the <i>Series</i> are ordered. <b>NOTE:</b> This listmay be sparse,
+     * contain <code>null</code> values or empty length strings. Caution should
+     * be exercised when working directly with this metadata.
+     */
 	public List<String> getBfImageNames() {
 		return bfImageNames;
 	}
