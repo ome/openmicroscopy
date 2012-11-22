@@ -106,7 +106,7 @@
         $(document).ready(function(){
             
             // since we are using 3-column layout (to extend the )
-            hide_left_panel();
+            OME.nav.hide_left_panel();
 
 
             // AJAX handling of create-discussion form
@@ -167,7 +167,7 @@
             });
 
             $("table#dataTable tbody tr").click(function(event) {
-                handleTableClickSelection(event);
+                OME.handleTableClickSelection(event);
 
                 var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
                 if ($new_selected.length > 0) {
