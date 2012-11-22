@@ -37,10 +37,8 @@ public class ImportContainer
     private Boolean isSPW;
 	private File file;
     private Double[] userPixels;
-    private String customImageName;
-    private String customImageDescription;
-    private String customPlateName;
-    private String customPlateDescription;
+    private String userSpecifiedName;
+    private String userSpecifiedDescription;
     private boolean doThumbnails = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
@@ -84,89 +82,45 @@ public class ImportContainer
     }
 
     /**
-     * Retrieves the current custom image name string.
+     * Retrieves the current custom image/plate name string.
      * @return As above. <code>null</code> if it has not been set.
      */
-    public String getCustomImageName()
+    public String getUserSpecifiedName()
     {
-        return customImageName;
+        return userSpecifiedName;
     }
 
     /**
-     * Sets the custom image name for import. If this value is left
-     * null, the image description supplied by Bio-Formats will be used.
-     * @param v A custom image name to use for all images represented
+     * Sets the custom image/plate name for import. If this value is left
+     * null, the image/plate name supplied by Bio-Formats will be used.
+     * @param v A custom image/plate name to use for all entities represented
      * by this container.
      */
-    public void setCustomImageName(String v)
+    public void setUserSpecifiedName(String v)
     {
-        customImageName = v;
+        userSpecifiedName = v;
     }
 
     /**
-     * Retrieves the current custom image description string.
-     * @return As above. <code>null</code> if it has not been set.
-     * @since OMERO Beta 4.2.1.
-     */
-    public String getCustomImageDescription()
-    {
-        return customImageDescription;
-    }
-
-    /**
-     * Sets the custom image description for import. If this value is left
-     * null, the image description supplied by Bio-Formats will be used.
-     * @param v A custom image description to use for all images represented
-     * by this container.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setCustomImageDescription(String v)
-    {
-        customImageDescription = v;
-    }
-
-    /**
-     * Retrieves the current custom plate name string.
+     * Retrieves the current custom image/plate description string.
      * @return As above. <code>null</code> if it has not been set.
      * @since OMERO Beta 4.2.1.
      */
-    public String getCustomPlateName()
+    public String getUserSpecifiedDescription()
     {
-        return customPlateName;
+        return userSpecifiedDescription;
     }
 
     /**
-     * Sets the custom plate name for import. If this value is left
-     * null, the plate description supplied by Bio-Formats will be used.
-     * @param v A custom plate name to use for all plates represented
+     * Sets the custom image/plate description for import. If this value is left
+     * null, the image/plate description supplied by Bio-Formats will be used.
+     * @param v A custom image/plate description to use for all images represented
      * by this container.
      * @since OMERO Beta 4.2.1.
      */
-    public void setCustomPlateName(String v)
+    public void setUserSpecifiedDescription(String v)
     {
-        customPlateName = v;
-    }
-
-    /**
-     * Retrieves the current custom plate description string.
-     * @return As above. <code>null</code> if it has not been set.
-     * @since OMERO Beta 4.2.1.
-     */
-    public String getCustomPlateDescription()
-    {
-        return customPlateDescription;
-    }
-
-    /**
-     * Sets the custom plate description for import. If this value is left
-     * null, the plate description supplied by Bio-Formats will be used.
-     * @param v A custom plate description to use for all plates represented
-     * by this container.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setCustomPlateDescription(String v)
-    {
-        customPlateDescription = v;
+        userSpecifiedDescription = v;
     }
 
     /**

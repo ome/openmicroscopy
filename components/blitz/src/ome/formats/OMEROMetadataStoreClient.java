@@ -289,17 +289,11 @@ public class OMEROMetadataStoreClient
     /** Annotations from the user for use by model processors. */
     private List<Annotation> userSpecifiedAnnotations;
 
-    /** Image name the user specified for use by model processors. */
-    private String userSpecifiedImageName;
+    /** Image/Plate name the user specified for use by model processors. */
+    private String userSpecifiedName;
 
-    /** Image description the user specified for use by model processors. */
-    private String userSpecifiedImageDescription;
-
-    /** Plate name the user specified for use by model processors. */
-    private String userSpecifiedPlateName;
-
-    /** Plate description the user specified for use by model processors. */
-    private String userSpecifiedPlateDescription;
+    /** Image/Plate description the user specified for use by model processors. */
+    private String userSpecifiedDescription;
 
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
@@ -1051,8 +1045,8 @@ public class OMEROMetadataStoreClient
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedAnnotations = null;
-            userSpecifiedImageName = null;
-            userSpecifiedImageDescription = null;
+            userSpecifiedName = null;
+            userSpecifiedDescription = null;
             userSpecifiedTarget = null;
             userSpecifiedPhysicalPixelSizes = null;
             delegate.createRoot();
@@ -1159,81 +1153,49 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateName()
      */
-    public String getUserSpecifiedPlateName()
+    public String getUserSpecifiedName()
     {
-        return userSpecifiedPlateName;
+        return userSpecifiedName;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateName(java.lang.String)
-     */
-    public void setUserSpecifiedPlateName(String name)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Using user specified plate name: " + name);
-        }
-        userSpecifiedPlateName = name;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateDescription()
-     */
-    public String getUserSpecifiedPlateDescription()
-    {
-        return userSpecifiedPlateDescription;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateDescription(java.lang.String)
-     */
-    public void setUserSpecifiedPlateDescription(String description)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Using user specified plate description: " + description);
-        }
-        userSpecifiedPlateDescription = description;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedName()
      */
     public String getUserSpecifiedImageName()
     {
-        return userSpecifiedImageName;
+        return userSpecifiedName;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageName(java.lang.String)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedName(java.lang.String)
      */
-    public void setUserSpecifiedImageName(String name)
+    public void setUserSpecifiedName(String name)
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Using user specified image name: " + name);
+            log.debug("Using user specified name: " + name);
         }
-        this.userSpecifiedImageName = name;
+        this.userSpecifiedName = name;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageDescription()
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedDescription()
      */
-    public String getUserSpecifiedImageDescription()
+    public String getUserSpecifiedDescription()
     {
-        return userSpecifiedImageDescription;
+        return userSpecifiedDescription;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageDescription(java.lang.String)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedDescription(java.lang.String)
      */
-    public void setUserSpecifiedImageDescription(String description)
+    public void setUserSpecifiedDescription(String description)
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Using user specified image description: " + description);
+            log.debug("Using user specified description: " + description);
         }
-        this.userSpecifiedImageDescription = description;
+        this.userSpecifiedDescription = description;
     }
 
     /* (non-Javadoc)

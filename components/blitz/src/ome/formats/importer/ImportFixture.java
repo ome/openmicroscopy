@@ -124,7 +124,7 @@ public class ImportFixture
         {
 		ic = new ImportContainer(file, fads.get(file),
 					null, null, null, null);
-		ic.setCustomImageName(file.getAbsolutePath());
+		ic.setUserSpecifiedName(file.getAbsolutePath());
 		library.importImage(ic, 0, 0, 1);
         /*
 		library.importImage(file, 0, 0, 1, file.getAbsolutePath(),

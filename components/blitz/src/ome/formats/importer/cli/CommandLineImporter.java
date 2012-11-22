@@ -191,19 +191,22 @@ public class CommandLineImporter {
                                         + "  -k\tOMERO session key (can be used in place of -u and -w)\n"
                                         + "  -f\tDisplay the used files (does not require other mandatory arguments)\n"
                                         + "\n"
+                                        + "Naming arguments:\n"
+                                        + "(All are optional but only image OR plate values should be set)\n"
+                                        + "  -n\tImage name to use\n"
+                                        + "  -x\tImage description to use\n"
+                                        + "  --plate_name\t\tPlate name to use\n"
+                                        + "  --plate_description\tPlate description to use\n"
+                                        + "\n"
                                         + "Optional arguments:\n"
                                         + "  -c\tContinue importing after errors\n"
                                         + "  -l\tUse the list of readers rather than the default\n"
                                         + "  -d\tOMERO dataset Id to import image into\n"
                                         + "  -r\tOMERO screen Id to import plate into\n"
-                                        + "  -n\tImage name to use\n"
-                                        + "  -x\tImage description to use\n"
                                         + "  -p\tOMERO server port [defaults to 4064]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
                                         + "  --no_thumbnails\tDo not perform thumbnailing after import\n"
-                                        + "  --plate_name\t\tPlate name to use\n"
-                                        + "  --plate_description\tPlate description to use\n"
                                         + "  --debug[=ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
                                         + "  --report\t\tReport errors to the OME team\n"
                                         + "  --upload\t\tUpload broken files with report\n"
@@ -312,6 +315,11 @@ public class CommandLineImporter {
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
+        // Once one of the properties has been set, setting the other
+        // is likely a bug and so we'll through an exception.
+        boolean userSpecifiedNameAlreadySet = false;
+        boolean userSpecifiedDescriptionAlreadySet = false;
+
         List<String> annotationNamespaces = new ArrayList<String>();
         List<String> textAnnotations = new ArrayList<String>();
         List<Long> annotationIds = new ArrayList<Long>();
@@ -338,11 +346,19 @@ public class CommandLineImporter {
                 break;
             }
             case 6: {
-                config.plateName.set(g.getOptarg());
+                if (userSpecifiedNameAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedName.set(g.getOptarg());
+                userSpecifiedNameAlreadySet = true;
                 break;
             }
             case 7: {
-                config.plateDescription.set(g.getOptarg());
+                if (userSpecifiedDescriptionAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedDescription.set(g.getOptarg());
+                userSpecifiedDescriptionAlreadySet = true;
                 break;
             }
             case 8: {
@@ -396,13 +412,19 @@ public class CommandLineImporter {
                 break;
             }
             case 'n': {
-                config.imageName.set(g.getOptarg());
-                break;
-            }
+                if (userSpecifiedNameAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedName.set(g.getOptarg());
+                userSpecifiedNameAlreadySet = true;
+                break;            }
             case 'x': {
-                config.imageDescription.set(g.getOptarg());
-                break;
-            }
+                if (userSpecifiedDescriptionAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedDescription.set(g.getOptarg());
+                userSpecifiedDescriptionAlreadySet = true;
+                break;            }
             case 'f': {
                 getUsedFiles = true;
                 break;

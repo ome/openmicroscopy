@@ -104,10 +104,8 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final StrValue email;
-    public final StrValue imageName;
-    public final StrValue imageDescription;
-    public final StrValue plateName;
-    public final StrValue plateDescription;
+    public final StrValue userSpecifiedName;
+    public final StrValue userSpecifiedDescription;
     public final StrValue targetClass;
     public final LongValue targetId;
 
@@ -214,10 +212,8 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
-        imageName    = new StrValue("imageName", this);
-        imageDescription  = new StrValue("imageDescription", this);
-        plateName    = new StrValue("plateName", this);
-        plateDescription  = new StrValue("plateDescription", this);
+        userSpecifiedName = new StrValue("userSpecifiedName", this);
+        userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0L);
 

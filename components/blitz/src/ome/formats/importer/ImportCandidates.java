@@ -420,18 +420,16 @@ public class ImportCandidates extends DirectoryWalker
                 ImportContainer ic = new ImportContainer(file,
                         null, null, format, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
-                String configImageName = config.imageName.get();
+                String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
                 {
-                    ic.setCustomImageName(path);
+                    ic.setUserSpecifiedName(path);
                 }
                 else
                 {
-                    ic.setCustomImageName(configImageName);
+                    ic.setUserSpecifiedName(configImageName);
                 }
-                ic.setCustomImageDescription(config.imageDescription.get());
-                ic.setCustomPlateName(config.plateName.get());
-                ic.setCustomPlateDescription(config.plateDescription.get());
+                ic.setUserSpecifiedDescription(config.userSpecifiedDescription.get());
                 ic.setCustomAnnotationList(config.annotations.get());
                 return ic;
             } finally

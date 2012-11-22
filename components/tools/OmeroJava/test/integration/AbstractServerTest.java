@@ -943,7 +943,7 @@ public class AbstractServerTest
 		ImportContainer ic = candidates.getContainers().get(0);
 		//new ImportContainer(
         //        file, null, target, false, null, null, null, null);
-		ic.setCustomImageName(format);
+		ic.setUserSpecifiedName(format);
 		ic.setTarget(target);
 		//ic = library.uploadFilesToRepository(ic);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);

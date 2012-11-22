@@ -71,52 +71,28 @@ public interface IObjectContainerStore
     void setUserSpecifiedAnnotations(List<Annotation> annotations);
 
     /**
-     * Returns the user specified image name.
+     * Returns the user specified image/plate name.
      * @return See above.
      */
-    String getUserSpecifiedImageName();
+    String getUserSpecifiedName();
 
     /**
-     * Sets the user specified image name.
-     * @param name user specified image name
+     * Sets the user specified image/plate name.
+     * @param name user specified image/plate name
      */
-    void setUserSpecifiedImageName(String name);
+    void setUserSpecifiedName(String name);
 
     /**
-     * Returns the user specified image description.
+     * Returns the user specified image/plate description.
      * @return See above.
      */
-    String getUserSpecifiedImageDescription();
+    String getUserSpecifiedDescription();
 
     /**
-     * Sets the user specified image description.
-     * @param name user specified image description
+     * Sets the user specified image/plate description.
+     * @param name user specified image/plate description
      */
-    void setUserSpecifiedImageDescription(String description);
-
-    /**
-     * Returns the user specified plate name.
-     * @return See above.
-     */
-    String getUserSpecifiedPlateName();
-
-    /**
-     * Sets the user specified plate name.
-     * @param name user specified plate name
-     */
-    void setUserSpecifiedPlateName(String name);
-
-    /**
-     * Returns the user specified plate description.
-     * @return See above.
-     */
-    String getUserSpecifiedPlateDescription();
-
-    /**
-     * Sets the user specified plate description.
-     * @param name user specified plate description
-     */
-    void setUserSpecifiedPlateDescription(String description);
+    void setUserSpecifiedDescription(String description);
 
     /**
      * Returns the user specified linkage target (usually a Dataset for Images

@@ -309,10 +309,6 @@ public class ImportLibrary implements IObservable
             }
             repoIC.userPixels = userPixels;
         }
-        repoIC.customImageName = ic.getCustomImageName();
-        repoIC.customImageDescription = ic.getCustomImageDescription();
-        repoIC.customPlateName = ic.getCustomPlateName();
-        repoIC.customPlateDescription = ic.getCustomPlateDescription();
         repoIC.doThumbnails = ic.getDoThumbnails();
         repoIC.customAnnotationList = ic.getCustomAnnotationList();
         return repoIC;
