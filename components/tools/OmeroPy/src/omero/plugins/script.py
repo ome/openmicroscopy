@@ -93,6 +93,7 @@ class ScriptControl(BaseControl):
         def _who(parser):
             return parser.add_argument("who", nargs="*", help="Who to execute for: user, group, user=1, group=5 (default=official)")
 
+        parser.add_login_arguments()
         sub = parser.sub()
 
         ## Disabling for 4.2 release. help = parser.add(sub, self.help, "Extended help")

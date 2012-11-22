@@ -21,6 +21,7 @@ class UserControl(UserGroupControl):
 
         self.exc = ExceptionHandler()
 
+        parser.add_login_arguments()
         sub = parser.sub()
 
         add = parser.add(sub, self.add, help = "Add user")

@@ -89,6 +89,7 @@ class SessionsControl(BaseControl):
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
+        parser.add_login_arguments()
         sub = parser.sub()
         help = parser.add(sub, self.help, "Extended help")
         login = parser.add(sub, self.login, "Login to a given server, and store session key locally")

@@ -49,6 +49,7 @@ More information is available at:
     https://www.openmicroscopy.org/site/support/omero4/sysadmins/server-permissions.html
         """
 
+        parser.add_login_arguments()
         sub = parser.sub()
         add = parser.add(sub, self.add, "Add a new group with given permissions " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
