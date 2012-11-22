@@ -21,6 +21,7 @@ class DownloadControl(BaseControl):
         parser.add_argument("id", help="OriginalFile id")
         parser.add_argument("filename", help="Local filename to be saved to. '-' for stdout")
         parser.set_defaults(func=self.__call__)
+        parser.add_login_arguments()
 
     def __call__(self, args):
         from omero_model_OriginalFileI import OriginalFileI as OFile
