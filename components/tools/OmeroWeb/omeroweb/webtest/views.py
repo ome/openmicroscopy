@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 try:
-    import Image
+    from PIL import Image
 except: #pragma: nocover
     try:
-        from PIL import Image
+        import Image
     except:
         logger.error('No PIL installed, line plots and split channel will fail!')
 

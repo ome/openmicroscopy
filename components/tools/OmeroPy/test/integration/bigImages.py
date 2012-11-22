@@ -13,6 +13,14 @@ import integration.library as lib
 from omero.rtypes import *
 
 try:
+    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
+except: #pragma: nocover
+    try:
+        import Image, ImageDraw, ImageFont          # see ticket:2597
+    except:
+        logger.error('No PIL installed')
+
+try:
     import hashlib
     hash_sha1 = hashlib.sha1
 except:
@@ -77,7 +85,6 @@ class TestFigureExportScripts(lib.ITest):
         planeDef.z = long(0)
         planeDef.t = long(0)
 
-        from PIL import Image
         import StringIO
         
         # First, get the full rendered plane...
