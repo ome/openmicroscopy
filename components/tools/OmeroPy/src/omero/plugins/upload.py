@@ -51,6 +51,7 @@ class UploadControl(BaseControl):
         parser.add_argument("--pytable", action="store_true", help="If set, the following files are interpreted as pytable files" )
         parser.add_argument("file", nargs="+")
         parser.set_defaults(func=self.upload)
+        parser.add_login_arguments()
 
     def upload(self, args):
         client = self.ctx.conn(args)

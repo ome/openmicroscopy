@@ -10,31 +10,35 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
 
-class UserControl(BaseControl):
+class UserControl(UserGroupControl):
 
     def _configure(self, parser):
 
         self.exc = ExceptionHandler()
 
+        parser.add_login_arguments()
         sub = parser.sub()
 
-        add = parser.add(sub, self.add, help = "Add users")
+        add = parser.add(sub, self.add, help = "Add user")
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("-m", "--middlename", help = "Middle name, if available")
         add.add_argument("-e", "--email")
         add.add_argument("-i", "--institution")
         # Capitalized since conflict with main values
-        add.add_argument("-P", "--userpassword", help = "Password for user")
         add.add_argument("-a", "--admin", action="store_true", help = "Whether the user should be an admin")
         add.add_argument("username", help = "User's login name")
         add.add_argument("firstname", help = "User's given name")
         add.add_argument("lastname", help = "User's surname name")
         add.add_argument("member_of", nargs="+", help = "Groups which the user is to be a member of")
+
+        password_group = add.add_mutually_exclusive_group()
+        password_group.add_argument("-P", "--userpassword", help = "Password for user")
+        password_group.add_argument("--no-password", action="store_true", default = False, help = "Create user with empty password")
 
         list = parser.add(sub, self.list, help = "List current users")
 
@@ -45,6 +49,22 @@ class UserControl(BaseControl):
         email.add_argument("-n", "--names", action="store_true", default=False, help = "Print user names along with email addresses")
         email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
         email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
+
+        joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
+        joingroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to join")
+        joingroup.add_argument("--as-owner", action="store_true", default=False, help="Join the group as an owner")
+
+        leavegroup = parser.add(sub, self.leavegroup, "Leave one or more groups")
+        leavegroup.add_argument("GROUP", metavar="group", nargs="+", help = "ID or name of the group to leave")
+        leavegroup.add_argument("--as-owner", action="store_true", default=False, help="Leave the owner list of the group")
+
+        for x in (joingroup, leavegroup):
+            group = x.add_mutually_exclusive_group()
+            group.add_argument("--id", help="ID of the user. Default to the current user")
+            group.add_argument("--name", help="Name of the user. Default to the current user")
+
+        for x in (email, password, list, add, joingroup, leavegroup):
+            x.add_login_arguments()
 
     def format_name(self, exp):
         record = ""
@@ -203,10 +223,7 @@ class UserControl(BaseControl):
         except omero.ApiUsageException, aue:
             pass # Apparently no such user exists
 
-        try:
-            groups = [admin.lookupGroup(group) for group in args.member_of]
-        except omero.ApiUsageException, aue:
-            self.ctx.die(68, aue.message)
+        groups = self.list_groups(admin, args.member_of)
 
         roles = admin.getSecurityRoles()
         groups.append(Grp(roles.userGroupId, False))
@@ -216,10 +233,12 @@ class UserControl(BaseControl):
         group = groups.pop(0)
 
         try:
-            if pasw is None:
+            if args.no_password:
                 id = admin.createExperimenter(e, group, groups)
-                self.ctx.out("Added user %s" % id)
+                self.ctx.out("Added user %s without password" % id)
             else:
+                if pasw is None:
+                    self._ask_for_password(" for your new user (%s)" % login, strict = True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
                 self.ctx.out("Added user %s with password" % id)
         except omero.ValidationException, ve:
@@ -231,6 +250,78 @@ class UserControl(BaseControl):
         except omero.SecurityViolation, se:
             self.ctx.die(68, "Security violation: %s" % se.message)
 
+    def parse_userid(self, a, args):
+        if args.id:
+            user = getattr(args, "id", None)
+            return self.find_user_by_id(a, user, fatal = True)
+        elif args.name:
+            user = getattr(args, "name", None)
+            return self.find_user_by_name(a, user, fatal = True)
+        else:
+            user = self.ctx._event_context.userName
+            return self.find_user_by_name(a, user, fatal=True)
+
+    def list_groups(self, a, groups):
+
+        group_list = []
+        for group in groups:
+            [gid, g] = self.find_group(a, group, fatal = False)
+            if g:
+                group_list.append(g)
+        if not group_list:
+            self.error_no_group_found(fatal = True)
+
+        return group_list
+
+    def filter_groups(self, groups, uid, owner = False, join = True):
+
+        for group in list(groups):
+            if owner:
+                uid_list = self.getownerids(group)
+                relation = "owner of"
+            else:
+                uid_list = self.getuserids(group)
+                relation = "in"
+
+            if join:
+                if uid in uid_list:
+                    self.ctx.out("%s is already %s group %s" % (uid, relation, group.id.val))
+                    groups.remove(group)
+            else:
+                if uid not in uid_list:
+                    self.ctx.out("%s is not %s group %s" % (uid, relation, group.id.val))
+                    groups.remove(group)
+        return groups
+
+    def joingroup(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+
+        uid, username = self.parse_userid(a, args)
+        groups = self.list_groups(a, args.GROUP)
+        groups = self.filter_groups(groups, uid, args.as_owner, True)
+
+        for group in groups:
+            if args.as_owner:
+                self.addownersbyid(a, group, [uid])
+            else:
+                self.addusersbyid(a, group, [uid])
+
+    def leavegroup(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+
+        uid, username = self.parse_userid(a, args)
+        groups = self.list_groups(a, args.GROUP)
+        groups = self.filter_groups(groups, uid, args.as_owner, False)
+
+        for group in list(groups):
+            if args.as_owner:
+                self.removeownersbyid(a, group, [uid])
+            else:
+                self.removeusersbyid(a, group, [uid])
 try:
     register("user", UserControl, HELP)
 except NameError:

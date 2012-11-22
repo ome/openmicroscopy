@@ -62,6 +62,7 @@ class ImportControl(BaseControl):
 
         parser.add_argument("arg", nargs="*", help="Arguments to be passed to the Java process")
         parser.set_defaults(func=self.importer)
+        parser.add_login_arguments()
 
 
     def importer(self, args):
