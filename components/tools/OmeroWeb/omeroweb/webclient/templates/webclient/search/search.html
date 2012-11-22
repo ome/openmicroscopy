@@ -134,7 +134,7 @@
                     var delimiter = $("input[name='delimiter']:checked").val();
                     var lines = batch_query.split('\n');
                     var regex = new RegExp("\\w+D\\d+D\\d+".replace(/D/g, delimiter));
-                    for (i in lines) {
+                    for (var i=0; i<lines.length; i++) {
                         if (!regex.test(lines[i])) {
                             alert("Format error at line " + i + ": \n\"" + lines[i] + "\"\n\nDid you select the correct delimiter?");
                             return false;

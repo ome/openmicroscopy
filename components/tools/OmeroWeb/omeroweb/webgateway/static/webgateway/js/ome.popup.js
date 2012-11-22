@@ -624,13 +624,17 @@ if (false) {                    // set to 'true' to run. NB: Need to uncomment '
           else if (globals[differences[i].type]) {delete differences[i];}
         }
         exceptions = 'addEventListener,document,location,navigator,window'.split(',');
-        exceptions.push("jQuery", "$", "PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");  // Add a few of our own...
+        exceptions.push("jQuery", "$");  // Ignore jQuery etc...
+        exceptions.push("isClientPhone", "callback", "isClientTouch", "isIE");      // from panojs/utils.js
+        exceptions.push("sanitizeHexColor", "toRGB", "rgbToHex", "parseQuery", "downloadLandingDialog"); // from ome.gs_utils.js
+        // All these from PanoJS
+        exceptions.push("PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");
         exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
-        exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl");
+        exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl", "trim");
         i = exceptions.length;
         while (--i) {
           delete differences[exceptions[i]];
         }
-        console.dir(differences);     // commented out to keep jsHint happy!
+        console.dir(differences);     // comment out to keep jsHint happy!
     }, 1000);
 }
