@@ -104,7 +104,6 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final StrValue email;
-    public final StrValue serverList;
     public final StrValue imageName;
     public final StrValue imageDescription;
     public final StrValue plateName;
@@ -215,7 +214,6 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
-        serverList   = new StrValue("serverList", this);
         imageName    = new StrValue("imageName", this);
         imageDescription  = new StrValue("imageDescription", this);
         plateName    = new StrValue("plateName", this);
@@ -512,73 +510,6 @@ public class ImportConfig {
      */
     public void setNumOfDirectories(int i) {
         ini.setNumOfDirectories(i);
-    }
-
-    //
-    // Server list
-    //
-
-    /**
-     * @return server list
-     */
-    public List<String> getServerList() {
-        if (serverList.empty() || serverList.get().trim().length() == 0) {
-            return null;
-        } else {
-            List<String> list = new ArrayList<String>();
-            String[] l = serverList.get().split(SERVER_NAME_SEPARATOR, 0);
-            if (l == null || l.length == 0) {
-                return null;
-            } else {
-                if (list != null)
-                    list.clear();
-                for (int index = 0; index < l.length; index++) {
-                    if (list != null)
-                        list.add(l[index].trim());
-                }
-            }
-            return list;
-        }
-    }
-
-    /**
-     * Save the current serverList if the currentServer is not on the list. Make
-     * sure that the server is a valid string and does not represent fake input
-     * text like "--> Enter server"
-     */
-    public void updateServerList(String currentServer) {
-
-        List<String> l = getServerList();
-        if (l != null && l.contains(currentServer)) {
-            return;
-        }
-
-        if (serverList.empty() || serverList.get().length() == 0) {
-            serverList.set(currentServer.trim());
-        } else {
-            serverList.set(serverList + SERVER_NAME_SEPARATOR + currentServer);
-        }
-    }
-
-    /**
-     * @param server - remove this server from the server list
-     */
-    public void removeServer(String server) {
-        List<String> l = getServerList();
-        if (l == null)
-            return;
-        l.remove(server);
-        Iterator<String> i = l.iterator();
-        String list = "";
-        int n = l.size() - 1;
-        int index = 0;
-        while (i.hasNext()) {
-            list += (String) i.next();
-            if (index != n)
-                list += SERVER_NAME_SEPARATOR;
-            index++;
-        }
-        serverList.set(list);
     }
 
     //
