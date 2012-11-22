@@ -20,17 +20,17 @@
 
 <script type="text/javascript">
 
-    function openScriptWindow(event) {
-        // open script url, providing Data_Type and IDs params in request
-        var script_url = $(this).attr('href');
-        if (script_url == "#") return false;
-
-        script_url += "?"+ OME.get_tree_selection();
-        OME.openCenteredWindow(script_url);
-        return false;
-    }
-
     $(document).ready(function(){
+        
+        function openScriptWindow(event) {
+            // open script url, providing Data_Type and IDs params in request
+            var script_url = $(this).attr('href');
+            if (script_url == "#") return false;
+
+            script_url += "?"+ OME.get_tree_selection();
+            OME.openCenteredWindow(script_url);
+            return false;
+        }
 
         $('body').click(function(event) {
             if (event.target.id != 'scriptButton') {

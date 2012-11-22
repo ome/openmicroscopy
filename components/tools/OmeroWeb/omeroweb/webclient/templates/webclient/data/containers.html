@@ -150,7 +150,7 @@
             });
         }
 
-        var remove_nodes = function(tree, selected) {
+        OME.remove_nodes = function(tree, selected) {
             if (selected.length>0) {
                 var images = selected.filter('li[id|=image]');
                 var datasets = selected.filter('li[id|=dataset]');
@@ -629,7 +629,7 @@
                                             tree.data.crrm.ct_nodes = false;
                                             tree.data.crrm.cp_nodes = false;
                                             var selected = tree.get_selected();
-                                            remove_nodes(tree, selected);
+                                            OME.remove_nodes(tree, selected);
                                         }
                                     }
                                 }
@@ -936,7 +936,7 @@
                     jstree.data.crrm.ct_nodes = false;
                     jstree.data.crrm.cp_nodes = false;
                     var selected = jstree.get_selected();
-                    remove_nodes(jstree, selected);
+                    OME.remove_nodes(jstree, selected);
                     break;
                 case "deleteButton":
                         OME.handleDelete();

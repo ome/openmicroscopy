@@ -35,18 +35,19 @@ OME.calculateCartTotal = function(total){
     }
 };
 
-var showBasket = function() {
-    $("#basket_panel").toggle();
-    if ($("#basket_content").is(":visible")) {
-        
-        $("#basket_content").load("{% url basket_content %}", function(data) {
-            $('#basket_spinner').hide();
-            $('#basket_content table').alternateRowColors();
-        });
-    }
-}
-
 $(document).ready(function() {
+    
+    var showBasket = function() {
+        $("#basket_panel").toggle();
+        if ($("#basket_content").is(":visible")) {
+
+            $("#basket_content").load("{% url basket_content %}", function(data) {
+                $('#basket_spinner').hide();
+                $('#basket_content table').alternateRowColors();
+            });
+        }
+    }
+
     OME.calculateCartTotal({{ ome.basket_counter }});
     
     $("#basket_panel").hide();
