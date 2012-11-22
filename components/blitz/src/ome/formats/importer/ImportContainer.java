@@ -36,9 +36,6 @@ public class ImportContainer
     private String[] usedFiles;
     private Boolean isSPW;
 	private File file;
-    private Integer bfImageCount;
-    private List<Pixels> bfPixels;
-    private List<String> bfImageNames;
     private Double[] userPixels;
     private String customImageName;
     private String customImageDescription;
@@ -62,51 +59,6 @@ public class ImportContainer
 	}
 
 	// Various Getters and Setters //
-
-    /**
-     * The number of Images (also referred to as <i>Series</i>) that
-     * Bio-Formats has detected.
-     */
-    public Integer getBfImageCount() {
-		return bfImageCount;
-	}
-
-	public void setBfImageCount(Integer bfImageCount) {
-		this.bfImageCount = bfImageCount;
-	}
-
-	/**
-     * Image dimensions populated OMERO Pixels objects for each of the Images
-     * (also referred to as <i>Series</i>) that Bio-Formats has detected.
-     * The length of this collection is equivilent to the <i>Series</i> count
-     * and is ordered as the <i>Series</i> are ordered. <b>NOTE:</b> Each
-     * OMERO Pixels object is populated with a bogus <code>PixelsType</code>
-     * whose value has been extracted from Bio-Formats. It <b>must not</b> be
-     * saved into OMERO.
-     */
-	public List<Pixels> getBfPixels() {
-		return bfPixels;
-	}
-
-	public void setBfPixels(List<Pixels> bfPixels) {
-		this.bfPixels = bfPixels;
-	}
-
-    /**
-     * Image names populated for each of the Images (also referred to as
-     * <i>Series</i>)that Bio-Formats has detected. The length of this
-     * collection is equivilent to the <i>Series</i> count and is ordered as
-     * the <i>Series</i> are ordered. <b>NOTE:</b> This listmay be sparse,
-     * contain <code>null</code> values or empty length strings. Caution should
-     * be exercised when working directly with this metadata.
-     */
-	public List<String> getBfImageNames() {
-		return bfImageNames;
-	}
-
-	public void setBfImageNames(List<String> bfImageNames) {
-		this.bfImageNames = bfImageNames;
-	}
 
     /**
      * Retrieves whether or not we are performing thumbnail creation upon

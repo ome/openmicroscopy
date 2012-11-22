@@ -126,7 +126,6 @@ public class ManagedRepositoryITest extends AbstractServantTest {
                 null /*user pixels */,
                 null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
                 Boolean.FALSE /*spw*/);
-        ic.setBfImageCount(1);
         return ic;
     }
 

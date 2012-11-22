@@ -254,9 +254,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
         ImportContainer ic = new ImportContainer(cp.file,
 			    repoIC.target, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
-		ic.setBfImageCount(repoIC.bfImageCount);
-		ic.setBfPixels(repoIC.bfPixels);
-		ic.setBfImageNames(repoIC.bfImageNames);
         // Assuming that if the array is not null all values are not null.
         if (repoIC.userPixels == null || repoIC.userPixels.length == 0) {
             ic.setUserPixels(null);

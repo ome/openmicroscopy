@@ -420,9 +420,6 @@ public class ImportCandidates extends DirectoryWalker
                 ImportContainer ic = new ImportContainer(file,
                         null, null, format, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
-                ic.setBfImageCount(reader.getSeriesCount());
-                ic.setBfPixels(getPixelsWithDimensions());
-                ic.setBfImageNames(getImageNames());
                 String configImageName = config.imageName.get();
                 if (configImageName == null)
                 {
