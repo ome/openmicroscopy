@@ -624,7 +624,7 @@ if (false) {                    // set to 'true' to run. NB: Need to uncomment '
           else if (globals[differences[i].type]) {delete differences[i];}
         }
         exceptions = 'addEventListener,document,location,navigator,window'.split(',');
-        exceptions.push("jQuery", "$", "PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid");  // Add a few of our own...
+        exceptions.push("jQuery", "$", "PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");  // Add a few of our own...
         exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
         exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl");
         i = exceptions.length;

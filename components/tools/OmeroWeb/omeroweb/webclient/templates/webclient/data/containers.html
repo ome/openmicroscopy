@@ -39,7 +39,8 @@
     <!-- set-up left panel tabs, jstree etc -->
     <script type="text/javascript">
 
-        var handleChgrp = function(gid, gname, oid) {
+        if (typeof OME === "undefined") { OME={}; }
+        OME.handleChgrp = function(gid, gname, oid) {
             $("#chgrp-form").dialog( "option" , "title" ,"Move to Group: "+ gname);
             $("#chgrp-form").data('group_id', gid);
             $("#chgrp-form").dialog('open');
@@ -71,7 +72,7 @@
             }
         }
 
-        var handleNewContainer = function(container_type) {
+        OME.handleNewContainer = function(container_type) {
             
             $("#new_container_type").text(container_type.capitalize());
             var $f = $("#new-container-form");
@@ -80,7 +81,7 @@
             $("#new-container-form").dialog('open');
         }
 
-        var handleDelete = function() {
+        OME.handleDelete = function() {
             var datatree = $.jstree._focused();
             var selected = datatree.get_selected();
 
@@ -137,7 +138,7 @@
                                   OME.tree_selection_changed();   // clear center and right panels etc
                                   datatree.delete_node(selected);
                                   first_parent.children("a").click();
-                                  refreshActivities();
+                                  OME.refreshActivities();
                               }
                         },
                         error: function(response) {
@@ -409,7 +410,7 @@
                                 var r = { "view" : "tree" };
                                 if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
                                     // pagination supported for 'dataset' and 'orphaned'...
-                                    var page = n.data("page") || null;      // this data is added by doPagination()
+                                    var page = n.data("page") || null;      // this data is added by OME.doPagination()
                                     if (page) r["page"] = page;
                                 } 
                                 return r;
@@ -579,17 +580,17 @@
                                     "project": {
                                         "label" : "Project",
                                         "icon"  : '{% static "webclient/image/folder16.png" %}',
-                                        action: function (obj) {handleNewContainer("project"); },
+                                        action: function (obj) {OME.handleNewContainer("project"); },
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
                                         "icon"  : '{% static "webclient/image/folder_image16.png" %}',
-                                        action: function (obj) {handleNewContainer("dataset"); },
+                                        action: function (obj) {OME.handleNewContainer("dataset"); },
                                       },
                                       "screen": {
                                         "label" : "Screen",
                                         "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
-                                        action: function (obj) {handleNewContainer("screen"); },
+                                        action: function (obj) {OME.handleNewContainer("screen"); },
                                       }
                                 }
                             };
@@ -637,7 +638,7 @@
                             config["delete"] = {
                                 "label" : "Delete",
                                 "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
-                                "action": handleDelete
+                                "action": OME.handleDelete
                             };
                             
                             config["chgrp"] = {
@@ -660,7 +661,7 @@
                                                     {% endif %}
                                                 {% endif %},
                                                 "action": function(obj) {
-                                                    handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
+                                                    OME.handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
                                                 }
                                             },
                                         {% endifnotequal %}
@@ -913,13 +914,13 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
-                    handleNewContainer("project");
+                    OME.handleNewContainer("project");
                     break;
                 case "adddatasetButton":
-                    handleNewContainer("dataset");
+                    OME.handleNewContainer("dataset");
                     break;
                 case "addscreenButton":
-                    handleNewContainer("screen");
+                    OME.handleNewContainer("screen");
                     break;
                 case "copyButton":
                     $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
@@ -938,7 +939,7 @@
                     remove_nodes(jstree, selected);
                     break;
                 case "deleteButton":
-                        handleDelete();
+                        OME.handleDelete();
                     break;
                 case "basketButton":
                     OME.addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
