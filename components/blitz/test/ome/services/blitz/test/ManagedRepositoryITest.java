@@ -122,7 +122,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         File ics = new File(dir, "test.ics");
         FileUtils.touch(fake);
         FormatTools.convert(fake.getAbsolutePath(), ids.getAbsolutePath());
-        ImportContainer ic = new ImportContainer(ids, null /*proj*/, null /*target*/,
+        ImportContainer ic = new ImportContainer(ids, null /*target*/,
                 Boolean.FALSE /*archive*/, null /*user pixels */,
                 null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
                 Boolean.FALSE /*spw*/);

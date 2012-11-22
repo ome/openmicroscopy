@@ -293,7 +293,6 @@ public class ImportLibrary implements IObservable
     public static RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
         RepositoryImportContainer repoIC = new RepositoryImportContainer();
         repoIC.file = ic.getUsedFiles()[0];
-        repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();
         repoIC.target = ic.getTarget();
         repoIC.reader = ic.getReader();
         repoIC.usedFiles = ic.getUsedFiles();

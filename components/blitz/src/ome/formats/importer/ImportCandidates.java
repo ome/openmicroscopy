@@ -417,7 +417,7 @@ public class ImportCandidates extends DirectoryWalker
                 String[] domains = reader.getReader().getDomains();
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-                ImportContainer ic = new ImportContainer(file, null,
+                ImportContainer ic = new ImportContainer(file,
                         null, false, null, format, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
                 ic.setBfImageCount(reader.getSeriesCount());

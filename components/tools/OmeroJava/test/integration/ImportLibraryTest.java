@@ -166,7 +166,7 @@ public class ImportLibraryTest
 		ImportLibrary library = new ImportLibrary(importer,
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = new ImportContainer(f, -1L, null, 
+		ic = new ImportContainer(f, null,
 				false, null, null, ic.getUsedFiles(), null);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);

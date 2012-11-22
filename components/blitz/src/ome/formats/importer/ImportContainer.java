@@ -32,7 +32,6 @@ import omero.model.Pixels;
 
 public class ImportContainer
 {
-	private Long projectID;
 	private String reader;
     private String[] usedFiles;
     private Boolean isSPW;
@@ -51,13 +50,12 @@ public class ImportContainer
     private List<Annotation> customAnnotationList;
     private IObject target;
 
-	public ImportContainer(File file, Long projectID,
+	public ImportContainer(File file,
 			IObject target,
 			Boolean archive,
 			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
-		this.projectID = projectID;
 		this.target = target;
 		this.archive = archive;
 		this.userPixels = userPixels;
@@ -304,22 +302,6 @@ public class ImportContainer
 	{
 	    this.file = file;
 	}
-
-    /**
-     * @return Returns the projectID.
-     */
-    public Long getProjectID()
-    {
-        return projectID;
-    }
-
-    /**
-     * @return Returns the projectID.
-     */
-    public void setProjectID(Long projectID)
-    {
-        this.projectID = projectID;
-    }
 
 	public IObject getTarget()
 	{

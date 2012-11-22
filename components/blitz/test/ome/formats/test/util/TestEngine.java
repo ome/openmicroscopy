@@ -202,7 +202,7 @@ public class TestEngine
 				start = new Date();
 				interceptor.setSourceFile(file);
 				ImportContainer ic =
-				new ImportContainer(file, -1L, target,
+				new ImportContainer(file, target,
 						false, null, null, null, null);
 				ic.setUseMetadataFile(true);
 				ic.setCustomImageName(fileList[j]);
