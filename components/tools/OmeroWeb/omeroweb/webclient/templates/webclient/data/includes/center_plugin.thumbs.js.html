@@ -31,7 +31,8 @@ $(document).ready(function() {
     var syncPanels = function(get_selected) {
         $("#dataIcons").find("li.ui-selectee").removeClass('ui-selected');    // clear selection
         get_selected.each(function(i) {
-            var dtype = $(this).attr("rel").replace("-locked", "");
+            var dtype = $(this).attr("rel");
+            dtype = dtype && dtype.replace("-locked", "");
             if (dtype == "image") {
                 var imgId = $(this).attr("id").split("-")[1];
                 $("#image_icon-"+imgId).addClass('ui-selected');

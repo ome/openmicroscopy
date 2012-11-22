@@ -63,6 +63,7 @@
 
 
 <div id="login">
+    {% block login %}
     <form class="standard_form inlined" action="{% url weblogin %}{% if url %}?{{url}}{% endif %}" method="post">
         
 			
@@ -122,6 +123,7 @@
 
         	<input type="submit" value="Login" />
     </form>
+    {% endblock %}
 </div>
 
 <div id="login-footer">
