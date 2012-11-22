@@ -29,22 +29,6 @@
         
         $(document).ready(function()
             {
-                jQuery.fn.tooltip_init = function() {
-                    $(this).tooltip({
-                        bodyHandler: function() {
-                                return $(this).parent().children("span.tooltip_html").html();
-                            },
-                        track: true,
-                        delay: 0,
-                        showURL: false,
-                        fixPNG: true,
-                        showBody: " - ",
-                        top: 10,
-                        left: -100
-                    });
-                  return this;
-                };
-
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
@@ -132,44 +116,6 @@
                     $("#link_info_popup").hide();
                 });
 
-
-                // handle deleting of Tag, File, Comment
-                // on successful delete via AJAX, the parent .domClass is hidden
-                var removeItem = function(event, domClass) {
-                    var removeId = $(event.target).attr('id');
-                    var dType = removeId.split("-")[1]; // E.g. 461-comment
-                    var annId = parseInt(removeId);
-                    // /webclient/action/remove/comment/461/?parent=image-257
-                    var parentId = $.trim($("#parent-id").text());
-                    var url = '{% url manage_action_containers "remove" %}'+ dType +'/'+ annId +'/';
-                    var $parent = $(event.target).parents("."+domClass);
-                    var $annContainer = $parent.parent();
-                    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    data: {'parent':parentId},
-									contentType: 'application/javascript',
-                                    dataType: 'json',
-                                    success: function(r){
-                                        if(eval(r.bad)) {
-                                            alert(r.errs);
-                                        } else {
-                                            // simply remove the item (parent class div)
-                                            //console.log("Success function");
-                                            $parent.remove();
-                                            $annContainer.hide_if_empty();
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    );
-                    return false;
-                }
-
                 // handle submit of Add Comment form
                 $("#add_comment_form").ajaxForm({
                     beforeSubmit: function(data) {
@@ -179,64 +125,31 @@
                     success: function(html) {
                         var $comment = $(html)
                         $('#comments_container').prepend( $comment ).show();
-                        $(".removeComment", $comment).click(function(event) {
-                            removeItem(event, "ann_comment_wrapper");
-                        });
                         var textArea = $('#add_comment_form textarea');
                         textArea.val('');
                     },
                 });
 
                 // bind removeItem to various [-] buttons
-                $(".removeComment").click(function(event) {
-                    removeItem(event, "ann_comment_wrapper");
+                $("#comments_container").on("click", ".removeComment", function(event){
+                    var url = $(this).attr('url');
+                    OME.removeItem(event, ".ann_comment_wrapper", url, $.trim($("#parent-id").text()));
                     return false;
                 });
-                $(".removeTag").click(function(event) {
-                    removeItem(event, "tag_annotation_wrapper");
+                $("#tags_container").on("click", ".removeTag", function(event){
+                    var url = $(this).attr('url');
+                    OME.removeItem(event, ".tag_annotation_wrapper", url, $.trim($("#parent-id").text()));
                     return false;
                 });
-                $(".removeFile").click(function(event) {
-                    removeItem(event, "file_ann_wrapper");
+                $("#fileanns_container").on("click", ".removeFile", function(event) {
+                    var url = $(this).attr('href');
+                    OME.removeItem(event, ".file_ann_wrapper", url, $.trim($("#parent-id").text()));
                     return false;
                 });
                 
-                var deleteItem = function(event, domClass) {
-                    var deleteId = $(event.target).attr('id');
-                    var dType = deleteId.split("-")[1]; // E.g. 461-comment
-                    var annId = parseInt(deleteId);
-                    // /webclient/action/remove/comment/461/?parent=image-257
-                    var parentId = $.trim($("#parent-id").text());
-                    var url = '{% url manage_action_containers "delete" %}'+ dType +'/'+ annId +'/';
-                    var $parent = $(event.target).parents("."+domClass);
-                    var $annContainer = $parent.parent();
-                    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    contentType: 'application/javascript',
-									dataType:'json',
-                                    success: function(r){
-                                        if(eval(r.bad)) {
-                                            alert(r.errs);
-                                        } else {
-                                            // simply remove the item (parent class div)
-                                            $parent.remove();
-                                            $annContainer.hide_if_empty();
-                                            window.parent.refreshActivities();
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    );
-                    return false;
-                }
-                
-                $(".deleteFile").click(function(event) {
-                    deleteItem(event, "file_ann_wrapper");
+                $("#fileanns_container").on("click", ".deleteFile", function(event) {
+                    var url = $(this).attr('href');
+                    OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#parent-id").text()));
                 });
                 
                 $(".dropdown_menu .menu_launch").click(function(e){
@@ -286,9 +199,6 @@
                         // update the list of tags
                         var $tag = $(data);
                         $("#tags_container").prepend($tag).hide_if_empty();
-                        $(".removeTag", $tag).click(function(event) {
-                            removeItem(event, "tag_annotation_wrapper");
-                        });
                         $(".tooltip", $tag).tooltip_init();
                     }
                 });
@@ -309,12 +219,6 @@
                         // update the list of file annotations and bind actions
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns ).show();
-                        $(".deleteFile", $fileanns).click(function(event) {
-                            deleteItem(event, "file_ann_wrapper");
-                        });
-                        $(".removeFile", $fileanns).click(function(event) {
-                            removeItem(event, "file_ann_wrapper");
-                        });
                         $(".tooltip", $fileanns).tooltip_init();
                     },
                     error: function(data){
@@ -1065,7 +969,9 @@
                 <!-- display existing Tags -->
                 <div id="tags_container" class="lntags">
                 {% for tag in manager.tag_annotations %}
-                    {% include "webclient/annotations/tag.html" %}
+                    {% with can_remove=tag.link.canDelete %}
+                        {% include "webclient/annotations/tag.html" %}
+                    {% endwith %}
                 {% endfor %}
                 </div>
  
@@ -1091,7 +997,9 @@
 
                     <ul id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
-                            {% include "webclient/annotations/fileann.html" %}
+                            {% with can_remove=fileann.link.canDelete %}
+                                {% include "webclient/annotations/fileann.html" %}
+                            {% endwith %}
                         {% endfor %}
                     </ul>
 

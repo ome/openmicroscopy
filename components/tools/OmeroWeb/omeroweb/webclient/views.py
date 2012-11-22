@@ -1058,24 +1058,27 @@ def batch_annotate(request, conn=None, **kwargs):
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
 
-    oids = getObjects(request, conn)
+    objs = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
+            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisitions'], 'wells':objs['well']}
     
     form_comment = CommentAnnotationForm(initial=initial)
 
+    manager = BaseContainer(conn)
+    batchAnns = manager.loadBatchAnnotations(objs)
+
     obj_ids = []
     obj_labels = []
-    for key in oids:
-        obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
-        for o in oids[key]:
+    for key in objs:
+        obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
+        for o in objs[key]:
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1124,19 +1127,32 @@ def annotate_file(request, conn=None, **kwargs):
         form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
         if form_file.is_valid():
             # Link existing files...
-            linked_files = []
             files = form_file.cleaned_data['files']
+            added_files = []
             if files is not None and len(files)>0:
-                linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+                added_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
             # upload new file
             fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
             if fileupload is not None and fileupload != "":
-                upload = manager.createFileAnnotations(fileupload, oids, well_index=index)
-                linked_files.append(upload)
-            if len(linked_files) == 0:
+                newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                added_files.append(newFileId)
+            if len(added_files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
-            context = {'fileanns':linked_files}
+            context = {}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_files, addedByMe=(obj_count==1))
+            if obj_count > 1:
+                context["batchAnns"] = batchAnns
+                context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                fileanns = []
+                for a in batchAnns['File']:
+                    for l in a['links']:
+                        fileanns.append(l.getAnnotation())
+                context['fileanns'] = fileanns
+                context['can_remove'] = True
         else:
             return HttpResponse(form_file.errors)
 
@@ -1230,16 +1246,29 @@ def annotate_tags(request, conn=None, **kwargs):
             tag = form_tags.cleaned_data['tag']
             description = form_tags.cleaned_data['description']
             tags = form_tags.cleaned_data['tags']
-            linked_tags = []
+            added_tags = [];
             if tags is not None and len(tags)>0:
-                linked_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+                added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
             if tag is not None and tag != "":
-                new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                linked_tags.append(new_tag)
-            if len(linked_tags) == 0:
+                new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
+                added_tags.append(new_tag_id)
+            if len(added_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
-            context = {'tags':linked_tags}
+            context = {}
+            # Now we lookup the object-annotations (same as for def batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_tags, addedByMe=(obj_count==1))
+            if obj_count > 1:
+                context["batchAnns"] = batchAnns
+                context['batch_ann'] = True
+            else:
+                # We only need a subset of the info in batchAnns
+                taganns = []
+                for a in batchAnns['Tag']:
+                    for l in a['links']:
+                        taganns.append(l.getAnnotation())
+                context['tags'] = taganns
+                context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
@@ -1465,9 +1494,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
-        parent = request.REQUEST['parent'].split('-')
+        parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parent)            
+            manager.remove(parents.split('|'))
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
@@ -1700,11 +1729,11 @@ def archived_files(request, iid, conn=None, **kwargs):
     return rsp
 
 @login_required(doConnectionCleanup=False)
-def download_annotation(request, action, iid, conn=None, **kwargs):
+def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-    ann = conn.getObject("Annotation", iid)
+    ann = conn.getObject("Annotation", annId)
     if ann is None:
-        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (annId))
     
     rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
     rsp.conn = conn
