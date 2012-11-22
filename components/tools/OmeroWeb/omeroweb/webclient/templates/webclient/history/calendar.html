@@ -38,7 +38,8 @@
             });
         })
         
-        function load_details(y,m,d) {
+        if (typeof OME === "undefined"){ OME={}; }
+        OME.load_details = function(y,m,d) {
             $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
             $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/');
             OME.table_selection_changed();    // clear selection - E.g. right-hand panel 
@@ -81,7 +82,7 @@
 				    {% else %}
 	                    <td class="calendar_day">
                        
-						   	<a href="#" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" > 
+						   	<a href="#" onClick="OME.load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" > 
    
 								<div class="calendar_numerical_day">
 									<span>{{ day.cell.day }}</span>

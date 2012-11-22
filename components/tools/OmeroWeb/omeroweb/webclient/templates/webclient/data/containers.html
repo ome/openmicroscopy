@@ -122,7 +122,7 @@
                     var delete_content = true;      // $("#delete_content").attr('checked');
                     if (delete_content) ajax_data[ajax_data.length] = 'child=on';
                     if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
-                    url = '{% url manage_action_containers "deletemany" %}'
+                    var url = '{% url manage_action_containers "deletemany" %}'
                     datatree.deselect_all();
                     $.ajax({
                         async : false,
@@ -228,6 +228,7 @@
                     }
                     // if "project" is selected, createDataset under it
                     var selected = $.jstree._focused().get_selected();
+                    var url;
                     if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
                     // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
@@ -392,6 +393,7 @@
                         "ajax" : {
                             // the URL to fetch the data
                             "url" : function(n) {
+                                var url;
                                 if (n.attr) {
                                     var parent = this._get_parent(n);
                                     if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
@@ -838,6 +840,7 @@
                     var refresh = false;
                     data.rslt.o.each(function (i) {
                         var remove = false;
+                        var url;
                         if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {

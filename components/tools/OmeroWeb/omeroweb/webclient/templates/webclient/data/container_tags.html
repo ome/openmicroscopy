@@ -85,6 +85,7 @@
                             "ajax" : {
                                 // the URL to fetch the data
                                 "url" : function(n) {
+                                    var url;
                                     if (n.attr) {
                                         var parent = this._get_parent(n);
                                         if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
@@ -334,7 +335,7 @@
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
-                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        var url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
                             async : false,
