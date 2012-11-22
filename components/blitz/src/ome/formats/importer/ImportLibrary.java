@@ -51,7 +51,6 @@ import omero.api.ServiceFactoryPrx;
 import omero.grid.Import;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
-import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
@@ -285,35 +284,6 @@ public class ImportLibrary implements IObservable
         return true;
     }
 
-    /**
-     * Create a RepositoryImportContainer from an ImportContainer.
-     * Currently public static for testing purposes.
-     * @TODO This method and the RIC return type should be removed post-haste.
-     */
-    public static RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
-        RepositoryImportContainer repoIC = new RepositoryImportContainer();
-        repoIC.file = ic.getUsedFiles()[0];
-        repoIC.target = ic.getTarget();
-        repoIC.reader = ic.getReader();
-        repoIC.usedFiles = ic.getUsedFiles();
-        repoIC.isSPW = (ic.getIsSPW() == null) ? false :
-        	ic.getIsSPW().booleanValue();
-        // Assuming that if the array is not null all values are not null.
-        if (ic.getUserPixels() == null || ic.getUserPixels().length == 0) {
-            repoIC.userPixels = null;
-        }
-        else {
-            double[] userPixels = new double[ic.getUserPixels().length];
-            for (int i=0; i < userPixels.length; i++) {
-                userPixels[i] = ic.getUserPixels()[i].doubleValue();
-            }
-            repoIC.userPixels = userPixels;
-        }
-        repoIC.doThumbnails = ic.getDoThumbnails();
-        repoIC.customAnnotationList = ic.getCustomAnnotationList();
-        return repoIC;
-    }
-
     /** opens the file using the {@link FormatReader} instance */
     private void open(String fileName) throws IOException, FormatException
     {
@@ -340,26 +310,23 @@ public class ImportLibrary implements IObservable
      * @throws FormatException if there is an error parsing metadata.
      * @throws IOException if there is an error reading the file.
      */
-    private List<Pixels> importMetadata(
-            int index, ImportContainer container)
+    private List<Pixels> importMetadata(final int index,
+            final IObject target, final String userSpecifiedName,
+            final String userSpecifiedDescription,
+            final double[] userPixels,
+            final List<Annotation> annotationList)
             throws FormatException, IOException
     {
         // 1st we post-process the metadata that we've been given.
-        IObject target = container.getTarget();
         notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
                 index, null, target, null, 0, null));
-        store.setUserSpecifiedPlateName(container.getCustomPlateName());
-        store.setUserSpecifiedPlateDescription(
-                container.getCustomPlateDescription());
-        store.setUserSpecifiedImageName(container.getCustomImageName());
-        store.setUserSpecifiedImageDescription(
-                container.getCustomImageDescription());
-        Double[] userPixels = container.getUserPixels();
+        store.setUserSpecifiedName(userSpecifiedName);
+        store.setUserSpecifiedDescription(userSpecifiedDescription);
         if (userPixels != null)
             store.setUserSpecifiedPhysicalPixelSizes(
                     userPixels[0], userPixels[1], userPixels[2]);
-        store.setUserSpecifiedTarget(container.getTarget());
-        store.setUserSpecifiedAnnotations(container.getCustomAnnotationList());
+        store.setUserSpecifiedTarget(target);
+        store.setUserSpecifiedAnnotations(annotationList);
         store.postProcess();
         notifyObservers(new ImportEvent.END_POST_PROCESS(
                 index, null, target, null, 0, null));
@@ -546,8 +513,8 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException, Throwable
     {
         Import data = uploadFilesToRepository(container);
-        RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
-        List<Pixels> pixList = repo.importMetadata(data, repoIc);
+        // FIXME:fill in the importData here
+        List<Pixels> pixList = repo.importMetadata(data);
         notifyObservers(new ImportEvent.IMPORT_DONE(
                 index, container.getFile().getAbsolutePath(),
                 null, null, 0, null, pixList));
@@ -576,19 +543,29 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      * @since OMERO Beta 4.5.
      */
-    public List<Pixels> importImageInternal(ImportContainer container, Import data, int index,
-                                    int numDone, int total)
+    public List<Pixels> importImageInternal(
+            Import data, int index,
+            int numDone, int total,
+            final File file)
             throws FormatException, IOException, Throwable
     {
-        File file = container.getFile();
+
+        final IObject userSpecifiedTarget = data.userSpecifiedTarget;
+        final String userSpecifiedName = data.userSpecifiedName == null ? null :
+            data.userSpecifiedName.getValue();
+        final String userSpecifiedDescription = data.userSpecifiedDescription == null ? null :
+            data.userSpecifiedDescription.getValue();
+        final double[] userPixels = data.userSpecifiedPixels;
+        final List<Annotation> annotationList = data.userSpecifiedAnnotationList;
+        final boolean doThumbnails = data.doThumbnails == null ? true :
+            data.doThumbnails.getValue();
+
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
         String[] domains = null;
         String[] usedFiles = new String[1];
         boolean isScreeningDomain = false;
-
-        IObject userSpecifiedTarget = container.getTarget();
 
         usedFiles[0] = file.getAbsolutePath();
 
@@ -644,7 +621,11 @@ public class ImportLibrary implements IObservable
                         + useMetadataFile);
                 store.setArchive(useMetadataFile, data);
             }
-            List<Pixels> pixList = importMetadata(index, container);
+
+            List<Pixels> pixList = importMetadata(index, userSpecifiedTarget,
+                    userSpecifiedName, userSpecifiedDescription, userPixels,
+                    annotationList);
+
             List<Long> plateIds = new ArrayList<Long>();
             Image image = pixList.get(0).getImage();
             if (image.sizeOfWellSamples() > 0)
@@ -677,7 +658,7 @@ public class ImportLibrary implements IObservable
 
             // As we're in metadata only mode  on we need to
             // tell the server which Pixels set matches up to which series.
-            String targetName = container.getFile().getAbsolutePath();
+            String targetName = file.getAbsolutePath();
             int series = 0;
             for (Long pixelsId : pixelsIds)
             {
@@ -701,7 +682,7 @@ public class ImportLibrary implements IObservable
 
             notifyObservers(new ImportEvent.IMPORT_PROCESSING(
                     index, null, userSpecifiedTarget, null, 0, null));
-            if (container.getDoThumbnails())
+            if (doThumbnails)
             {
                 store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             }

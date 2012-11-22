@@ -45,7 +45,6 @@ import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api._RawFileStoreTie;
 import omero.grid.Import;
-import omero.grid.RepositoryImportContainer;
 import omero.model.Pixels;
 import omero.util.TempFileManager;
 
@@ -139,10 +138,8 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         upload(repo.uploadUsedFile(i, i.usedFiles.get(0), curr()));
         upload(repo.uploadUsedFile(i, i.usedFiles.get(1), curr()));
 
-        // FIXME: This should be a much simpler method call.
-        RepositoryImportContainer repoIc =
-                ImportLibrary.createRepositoryImportContainer(ic);
-        List<Pixels> pixList = repo.importMetadata(i, repoIc, curr());
+        // FIXME: fill import data here
+        List<Pixels> pixList = repo.importMetadata(i, curr());
 
     }
 

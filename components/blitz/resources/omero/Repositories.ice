@@ -23,30 +23,6 @@ module omero {
     module grid {
 
         /**
-         * Information passed back and forth during import.
-         * Needs to be reviewed.
-         **/
-        class RepositoryImportContainer
-        {
-            string file;
-            long projectId;
-            omero::model::IObject target;
-            string reader;
-            omero::api::StringArray usedFiles;
-            bool isSPW;
-            int bfImageCount;
-            omero::api::PixelsList bfPixels;
-            omero::api::StringSet bfImageNames;
-            omero::api::DoubleArray userPixels;
-            string customImageName;
-            string customImageDescription;
-            string customPlateName;
-            string customPlateDescription;
-            bool doThumbnails;
-            omero::api::AnnotationList customAnnotationList;
-        };
-
-        /**
          * Client-accessible interface representing a single mount point on the server-side.
          **/
         ["ami"] interface Repository {
@@ -189,6 +165,40 @@ module omero {
              **/
             omero::api::OriginalFileMap originalFileMap;
 
+            //
+            // ImportContainer information
+            //
+
+            /**
+             * The container which this object should be added to.
+             **/
+             omero::model::IObject userSpecifiedTarget;
+
+            /**
+             * Custom name suggested by the user.
+             **/
+             omero::RString userSpecifiedName;
+
+            /**
+             * Custom description suggested by the user.
+             **/
+             omero::RString userSpecifiedDescription;
+
+            /**
+             * User choice of pixels sizes.
+             **/
+             omero::api::DoubleArray userSpecifiedPixels;
+
+             /**
+              * Annotations that the user
+              **/
+             omero::api::AnnotationList userSpecifiedAnnotationList;
+
+             /**
+              * Whether or not the thumbnailing action should be performed.
+              **/
+             omero::RBool doThumbnails;
+
         };
 
         /**
@@ -225,7 +235,7 @@ module omero {
             /**
              * This will free any locks, etc in the Up
              **/
-            omero::api::PixelsList importMetadata(Import importData, RepositoryImportContainer ic) throws ServerError;
+            omero::api::PixelsList importMetadata(Import importData) throws ServerError;
 
             /**
              * If the user cancels the import, then this method should

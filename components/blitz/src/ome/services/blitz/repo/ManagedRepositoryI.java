@@ -51,7 +51,6 @@ import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.Import;
-import omero.grid.RepositoryImportContainer;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.OriginalFile;
@@ -149,8 +148,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return f.getAbsolutePath();
     }
 
-    public List<Pixels> importMetadata(Import importData,
-            RepositoryImportContainer repoIC, Current __current) throws ServerError {
+    public List<Pixels> importMetadata(Import importData, Current __current) throws ServerError {
+        File f = new File(root.file, importData.usedFiles.get(0));//repoIC.file);
+        CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
 
         ServiceFactoryPrx sf = null;
         OMEROMetadataStoreClient store = null;
@@ -168,8 +168,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
             ImportLibrary library = new ImportLibrary(store, reader);
-            ImportContainer ic = createImportContainer(repoIC, __current);
-            pix = library.importImageInternal(ic, importData, 0, 0, 1);
+            pix = library.importImageInternal(importData, 0, 0, 1, f);
         }
         catch (ServerError se) {
             error = false;
@@ -243,35 +242,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             stacks.append("==========================");
             stacks.append(stackTraceAsString(err));
         }
-    }
-
-    /**
-     * Create an ImportContainer from a RepositoryImportContainer
-     */
-    protected ImportContainer createImportContainer(RepositoryImportContainer repoIC,
-            Ice.Current __current) throws omero.ValidationException {
-        File f = new File(root.file, repoIC.file);
-        CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
-        ImportContainer ic = new ImportContainer(cp.file,
-			    repoIC.target, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
-        // Assuming that if the array is not null all values are not null.
-        if (repoIC.userPixels == null || repoIC.userPixels.length == 0) {
-            ic.setUserPixels(null);
-        }
-        else {
-            Double[] userPixels = new Double[repoIC.userPixels.length];
-            for (int i=0; i < userPixels.length; i++) {
-                userPixels[i] = repoIC.userPixels[i];
-            }
-            ic.setUserPixels(userPixels);
-        }
-		ic.setCustomImageName(repoIC.customImageName);
-		ic.setCustomImageDescription(repoIC.customImageDescription);
-		ic.setCustomPlateName(repoIC.customPlateName);
-		ic.setCustomPlateDescription(repoIC.customPlateDescription);
-		ic.setDoThumbnails(repoIC.doThumbnails);
-		ic.setCustomAnnotationList(repoIC.customAnnotationList);
-        return ic;
     }
 
     /**
