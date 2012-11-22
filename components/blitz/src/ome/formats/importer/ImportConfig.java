@@ -117,7 +117,6 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
-    public final BoolValue companionFile;
 
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
@@ -232,7 +231,6 @@ public class ImportConfig {
         contOnError  = new BoolValue("contOnError", this, false);
         sendReport   = new BoolValue("sendReport", this, false);
         sendFiles    = new BoolValue("sendFiles", this, true);
-        companionFile = new BoolValue("companionFile", this, true);
         sendLogFile  = new BoolValue("sendLogFile", this, true);
 
         useFullPath  = new BoolValue("useFullPath", this, true);
@@ -695,7 +693,6 @@ public class ImportConfig {
         useFullPath.load();
         numOfDirectories.load();
         savedDirectory.load();
-        companionFile.load();
 
 
         sendLogFile.load();
@@ -724,7 +721,6 @@ public class ImportConfig {
         useFullPath.store();
         numOfDirectories.store();
         savedDirectory.store();
-        companionFile.store();
 
         sendLogFile.store();
         sendFiles.store();

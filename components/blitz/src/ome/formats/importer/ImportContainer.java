@@ -42,7 +42,6 @@ public class ImportContainer
     private String customPlateName;
     private String customPlateDescription;
     private boolean doThumbnails = true;
-    private boolean useMetadataFile = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
 
@@ -168,25 +167,6 @@ public class ImportContainer
     public void setCustomPlateDescription(String v)
     {
         customPlateDescription = v;
-    }
-
-    /**
-     * Whether or not we're using an original metadata file.
-     * @return See above.
-     * @since OMERO Beta 4.2.1.
-     */
-    public boolean getUseMetadataFile()
-    {
-        return useMetadataFile;
-    }
-
-    /**
-     * Sets whether or not we're using an original metadata file.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setUseMetadataFile(boolean v)
-    {
-        useMetadataFile = v;
     }
 
     /**

@@ -204,7 +204,6 @@ public class TestEngine
 				ImportContainer ic =
 				new ImportContainer(file, target,
 						null, null, null, null);
-				ic.setUseMetadataFile(true);
 				ic.setCustomImageName(fileList[j]);
 				importLibrary.importImage(ic, 0, 0, 1);
 				iniFile.flush();
