@@ -50,7 +50,6 @@ public class ImportContainer
     private boolean useMetadataFile = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
-    private boolean isMetadataOnly = false;
 
 	public ImportContainer(File file, Long projectID,
 			IObject target,
@@ -113,26 +112,6 @@ public class ImportContainer
 	public void setBfImageNames(List<String> bfImageNames) {
 		this.bfImageNames = bfImageNames;
 	}
-
-    /**
-     * Retrieves the metadata only flag.
-     * @return See above.
-     */
-    public boolean getMetadataOnly()
-    {
-        return isMetadataOnly;
-    }
-
-    /**
-     * Sets the metadata only flag.
-     * @param isMetadataOnly Whether or not to perform metadata only imports
-     * with this container.
-     * @since OMERO Beta 4.3.0.
-     */
-    public void setMetadataOnly(boolean isMetadataOnly)
-    {
-        this.isMetadataOnly = isMetadataOnly;
-    }
 
     /**
      * Retrieves whether or not we are performing thumbnail creation upon

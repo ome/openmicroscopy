@@ -554,10 +554,6 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
-        if(container.getMetadataOnly()) {
-            throw new RuntimeException("Unsupported");
-        }
-
         Import data = uploadFilesToRepository(container);
         RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
         List<Pixels> pixList = repo.importMetadata(data, repoIc);
