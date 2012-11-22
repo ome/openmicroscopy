@@ -5650,7 +5650,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	PlateData getImportedPlate(SecurityContext ctx, long imageID)
+	PlateData getImportedPlate(SecurityContext ctx, long imageID) // should be removed
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
@@ -6481,32 +6481,35 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importImage(SecurityContext ctx, ImportableObject object,
-			IObject container, ImportContainer ic, StatusLabel status,
-			boolean close, boolean hcs)
-		throws ImportException, DSAccessException, DSOutOfServiceException
+    Object importImage(SecurityContext ctx, ImportableObject object,
+            IObject container, ImportContainer ic, StatusLabel status,
+            boolean close, boolean hcs)
+        throws ImportException, DSAccessException, DSOutOfServiceException
 	{
-		isSessionAlive(ctx);
-		OMEROMetadataStoreClient omsc = getImportStore(ctx);
+        ImportConfig config = new ImportConfig();
+        //FIXME: unclear why we would need to set these values on
+        // both the ImportConfig and the ImportContainer.
+        config.targetClass.set(container.getClass().getSimpleName());
+        config.targetId.set(container.getId().getValue());
+        ic.setTarget(container);
+        ic.setUserPixels(object.getPixelsSize());
+        return importImageNew(ctx,
+                config, ic ,status, close, hcs);
+	}
+
+    Object importImageNew(SecurityContext ctx,
+            ImportConfig config, ImportContainer ic, StatusLabel status,
+            boolean close, boolean hcs)
+        throws ImportException
+    {
+        isSessionAlive(ctx);
+        OMEROMetadataStoreClient omsc = null;
 		try {
-			ImportConfig config = new ImportConfig();
+			omsc = getImportStore(ctx);
 			ImportLibrary library = new ImportLibrary(omsc,
 					new OMEROWrapper(config));
 			library.addObserver(status);
-			/*
-			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					false, object.getPixelsSize(), null, usedFiles, null);
-					*/
-			ic.setTarget(container);
-			ic.setUserPixels(object.getPixelsSize());
-			ic.setUseMetadataFile(true);
-			/*
-			if (object.isOverrideName()) {
-				int depth = object.getDepthForName();
-				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
-						file.getAbsolutePath(), depth));
-			}*/
-			//library.importCandidates(new ImportConfig(), c);
+
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
@@ -6519,9 +6522,7 @@ class OMEROGateway
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
-				//if (isLargeImage(p)) {
-					//return new ThumbnailData(getImage(id, params), true);
-				//}
+
 				if (hcs) {
 					PlateData plate = getImportedPlate(ctx, id);
 					if (plate != null) return plate;
