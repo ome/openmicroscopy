@@ -138,7 +138,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         upload(repo.uploadUsedFile(i, i.usedFiles.get(0), curr()));
         upload(repo.uploadUsedFile(i, i.usedFiles.get(1), curr()));
 
-        // FIXME: fill import data here
+        ic.fillData(i);
         List<Pixels> pixList = repo.importMetadata(i, curr());
 
     }

@@ -23,9 +23,13 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rstring;
+
 import java.io.File;
 import java.util.List;
 
+import omero.grid.Import;
 import omero.model.Annotation;
 import omero.model.IObject;
 import omero.model.Pixels;
@@ -203,6 +207,28 @@ public class ImportContainer
     public void setUserPixels(Double[] userPixels)
     {
         this.userPixels = userPixels;
+    }
+
+    public void fillData(Import data) {
+        // TODO: These should possible be a separate option like
+        // ImportUserSettings rather than mis-using ImportContainer.
+        data.doThumbnails = rbool(getDoThumbnails());
+        data.userSpecifiedTarget = getTarget();
+        data.userSpecifiedName = rstring(getUserSpecifiedName());
+        data.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
+        data.userSpecifiedAnnotationList = getCustomAnnotationList();
+        if (getUserPixels() != null) {
+            Double[] source = getUserPixels();
+            double[] target = new double[source.length];
+            for (int i = 0; i < source.length; i++) {
+                if (source[i] == null) {
+                    target = null;
+                    break;
+                }
+                target[i] = source[i];
+            }
+            data.userSpecifiedPixels = target; // May be null.
+        }
     }
 
 }

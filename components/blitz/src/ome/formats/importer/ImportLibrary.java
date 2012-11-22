@@ -322,7 +322,8 @@ public class ImportLibrary implements IObservable
                 index, null, target, null, 0, null));
         store.setUserSpecifiedName(userSpecifiedName);
         store.setUserSpecifiedDescription(userSpecifiedDescription);
-        if (userPixels != null)
+        if (userPixels != null && userPixels.length >= 3)
+            // The array could be empty due to Ice-non-null semantics.
             store.setUserSpecifiedPhysicalPixelSizes(
                     userPixels[0], userPixels[1], userPixels[2]);
         store.setUserSpecifiedTarget(target);
@@ -513,7 +514,8 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException, Throwable
     {
         Import data = uploadFilesToRepository(container);
-        // FIXME:fill in the importData here
+        container.fillData(data);
+
         List<Pixels> pixList = repo.importMetadata(data);
         notifyObservers(new ImportEvent.IMPORT_DONE(
                 index, container.getFile().getAbsolutePath(),
