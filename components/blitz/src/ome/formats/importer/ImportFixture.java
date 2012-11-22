@@ -123,10 +123,10 @@ public class ImportFixture
         for (File file : fads.keySet())
         {
 		ic = new ImportContainer(file, fads.get(file),
-					false, null, null, null, null);
-        	ic.setCustomImageName(file.getAbsolutePath());
-        	library.importImage(ic, 0, 0, 1);
-        /*	
+					null, null, null, null);
+		ic.setCustomImageName(file.getAbsolutePath());
+		library.importImage(ic, 0, 0, 1);
+        /*
 		library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
 				        null,
 				        false,  // To archive?

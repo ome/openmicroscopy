@@ -193,7 +193,6 @@ public class CommandLineImporter {
                                         + "\n"
                                         + "Optional arguments:\n"
                                         + "  -c\tContinue importing after errors\n"
-                                        + "  -a\tArchive the original file on the server\n"
                                         + "  -l\tUse the list of readers rather than the default\n"
                                         + "  -d\tOMERO dataset Id to import image into\n"
                                         + "  -r\tOMERO screen Id to import plate into\n"
@@ -303,7 +302,7 @@ public class CommandLineImporter {
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
 
-        Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
@@ -410,10 +409,6 @@ public class CommandLineImporter {
             }
             case 'c': {
                 config.contOnError.set(true);
-                break;
-            }
-            case 'a': {
-                config.archiveImage.set(true);
                 break;
             }
             case 'l': {

@@ -84,10 +84,9 @@ public class ImportCandidatesTest extends TestCase {
         File file = new File("a");
         String imageName = "";
         String reader = "";
-        Boolean archive = false;
         Boolean isSPW = false;
         omero.model.IObject target = null;
-        return new ImportContainer(file, target, archive,
+        return new ImportContainer(file, target,
                 null, reader, usedFiles, isSPW);
 
     }

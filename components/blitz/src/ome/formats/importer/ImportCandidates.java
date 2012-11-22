@@ -418,7 +418,7 @@ public class ImportCandidates extends DirectoryWalker
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
                 ImportContainer ic = new ImportContainer(file,
-                        null, false, null, format, usedFiles, isSPW);
+                        null, null, format, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
                 ic.setBfImageCount(reader.getSeriesCount());
                 ic.setBfPixels(getPixelsWithDimensions());
@@ -435,7 +435,6 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setCustomImageDescription(config.imageDescription.get());
                 ic.setCustomPlateName(config.plateName.get());
                 ic.setCustomPlateDescription(config.plateDescription.get());
-                ic.setArchive(config.archiveImage.get());
                 ic.setCustomAnnotationList(config.annotations.get());
                 return ic;
             } finally

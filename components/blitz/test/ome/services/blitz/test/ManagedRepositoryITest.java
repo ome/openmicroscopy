@@ -123,7 +123,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         FileUtils.touch(fake);
         FormatTools.convert(fake.getAbsolutePath(), ids.getAbsolutePath());
         ImportContainer ic = new ImportContainer(ids, null /*target*/,
-                Boolean.FALSE /*archive*/, null /*user pixels */,
+                null /*user pixels */,
                 null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
                 Boolean.FALSE /*spw*/);
         ic.setBfImageCount(1);

@@ -119,7 +119,6 @@ public class ImportConfig {
     public final BoolValue sendLogFile;
     public final BoolValue companionFile;
 
-    public final BoolValue archiveImage;
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
     public final IntValue numOfDirectories;
@@ -236,7 +235,6 @@ public class ImportConfig {
         companionFile = new BoolValue("companionFile", this, true);
         sendLogFile  = new BoolValue("sendLogFile", this, true);
 
-        archiveImage = new BoolValue("archive", this, false);
         useFullPath  = new BoolValue("useFullPath", this, true);
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
@@ -667,7 +665,6 @@ public class ImportConfig {
      */
     public void loadGui() {
          email.load();
-         archiveImage.load();
     }
 
      /**
@@ -677,7 +674,6 @@ public class ImportConfig {
       */
      public void saveGui() {
           email.store();
-          archiveImage.store();
      }
 
     /**

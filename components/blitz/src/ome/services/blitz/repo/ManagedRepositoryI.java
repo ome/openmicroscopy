@@ -253,7 +253,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         File f = new File(root.file, repoIC.file);
         CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
         ImportContainer ic = new ImportContainer(cp.file,
-			    repoIC.target, false, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
+			    repoIC.target, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
 		ic.setBfImageCount(repoIC.bfImageCount);
 		ic.setBfPixels(repoIC.bfPixels);
 		ic.setBfImageNames(repoIC.bfImageNames);

@@ -39,7 +39,6 @@ public class ImportContainer
     private Integer bfImageCount;
     private List<Pixels> bfPixels;
     private List<String> bfImageNames;
-    private Boolean archive;
     private Double[] userPixels;
     private String customImageName;
     private String customImageDescription;
@@ -52,12 +51,10 @@ public class ImportContainer
 
 	public ImportContainer(File file,
 			IObject target,
-			Boolean archive,
 			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
 		this.target = target;
-		this.archive = archive;
 		this.userPixels = userPixels;
 		this.reader = reader;
 		this.usedFiles = usedFiles;
@@ -322,12 +319,4 @@ public class ImportContainer
         this.userPixels = userPixels;
     }
 
-    public void setArchive(boolean archive)
-    {
-        this.archive = archive;
-    }
-
-    public boolean getArchive() {
-        return this.archive;
-    }
 }

@@ -203,7 +203,7 @@ public class TestEngine
 				interceptor.setSourceFile(file);
 				ImportContainer ic =
 				new ImportContainer(file, target,
-						false, null, null, null, null);
+						null, null, null, null);
 				ic.setUseMetadataFile(true);
 				ic.setCustomImageName(fileList[j]);
 				importLibrary.importImage(ic, 0, 0, 1);
