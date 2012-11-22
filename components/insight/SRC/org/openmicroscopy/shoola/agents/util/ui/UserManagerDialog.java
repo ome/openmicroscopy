@@ -93,14 +93,14 @@ public class UserManagerDialog
 	private static final String		TITLE = "Users Selection";
 	
 	/** The window's description. */
-	private static final String		TEXT = "Select the experimenters.";
+	private static final String		TEXT = "Select the users.";
 	
 	/** The description of the {@link #cancel} button. */
 	private static final String		CANCEL_DESCRIPTION = "Close the window.";
 	
 	/** The description of the {@link #apply} button. */
 	private static final String		APPLY_DESCRIPTION = "Select the " +
-			"experimenters.";
+			"users.";
 	
 	/** Action command ID indicating to close the window. */
 	private static final int		CANCEL = 0;
