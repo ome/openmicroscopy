@@ -637,7 +637,6 @@ public class ImportLibrary implements IObservable
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
-                log.info("Big image? " + container.getBigImage());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));

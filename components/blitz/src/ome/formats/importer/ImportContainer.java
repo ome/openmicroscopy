@@ -76,7 +76,6 @@ public class ImportContainer
     private List<Annotation> customAnnotationList;
     private IObject target;
     private boolean isMetadataOnly = false;
-    private boolean isBigImage = false;
 
 	public ImportContainer(File file, Long projectID,
 			IObject target,
@@ -137,26 +136,6 @@ public class ImportContainer
     public void setMetadataOnly(boolean isMetadataOnly)
     {
         this.isMetadataOnly = isMetadataOnly;
-    }
-
-    /**
-     * Retrieves the BigImage flag.
-     * @return See above.
-     */
-    public boolean getBigImage()
-    {
-        return isBigImage;
-    }
-
-    /**
-     * Sets the BigImage flag.
-     * @param isBigImage Whether or not to perform BigImage imports
-     * with this container.
-     * @since OMERO Beta 4.3.0.
-     */
-    public void setBigImage(boolean isBigImage)
-    {
-        this.isBigImage = isBigImage;
     }
 
     /**
