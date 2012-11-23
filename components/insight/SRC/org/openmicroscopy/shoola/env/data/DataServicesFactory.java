@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -368,15 +369,17 @@ public class DataServicesFactory
     private void showNotificationDialog(String title, String message, boolean
     		shutdown)
     {
+    	JFrame f = new JFrame();
+    	f.setIconImage(AbstractIconManager.getOMEImageIcon());
+    	
     	if (shutdown) 
-    		connectionDialog = new ShutDownDialog(new JFrame(), title, message);
+    		connectionDialog = new ShutDownDialog(f, title, message);
     	else
-    		connectionDialog = new NotificationDialog(new JFrame(), 
-        		title, message, null);
+    		connectionDialog = new NotificationDialog(f, title, message, null);
         //connectionDialog.setModal(false);
-        connectionDialog.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			
+        connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
+        {
+
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
