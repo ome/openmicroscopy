@@ -684,7 +684,7 @@ class BrowserUI
     }
 
     /** 
-     * Handles multi-selection using <codeCtrl-A</code> or <code>Meta-A</code>.
+     * Handles multi-selection using <code>Ctrl-A</code> or <code>Meta-A</code>.
      */
     private void handleMultiSelection()
     {

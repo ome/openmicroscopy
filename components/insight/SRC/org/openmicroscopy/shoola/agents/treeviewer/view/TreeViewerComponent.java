@@ -1041,8 +1041,9 @@ class TreeViewerComponent
 		
 		if (display != null) { 
 			Object object = display.getUserObject();
+			metadata.setSelectionMode(single);
 			if (!single) {
-				List l = new ArrayList();
+				List<Object> l = new ArrayList<Object>(selection.length);
 				Object child;
 				for (int i = 0; i < selection.length; i++) {
 					child = selection[i].getUserObject();
@@ -1051,10 +1052,10 @@ class TreeViewerComponent
 				}
 				if (l.size() > 0)
 					metadata.setRelatedNodes(l);
-				metadata.setSelectionMode(single);
 			} else {
 				ExperimenterData exp = browser.getNodeOwner(display);
 				if (exp == null) exp = model.getUserDetails();
+				// setRootObject relies on selection mode set above
 				metadata.setRootObject(object, exp.getId(),
 						browser.getSecurityContext(display));
 				TreeImageDisplay p = display.getParentDisplay();
@@ -1064,7 +1065,6 @@ class TreeViewerComponent
 					if (pp != null) gpp = pp.getUserObject();
 					metadata.setParentRootObject(p.getUserObject(), gpp);
 				}
-				metadata.setSelectionMode(single);
 			}
 			if (!model.isFullScreen()) {
 				showDataBrowser(object, display, false);
