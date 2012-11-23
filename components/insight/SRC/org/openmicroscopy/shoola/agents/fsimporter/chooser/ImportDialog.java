@@ -1576,7 +1576,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param bar
 	 *            The component to add.
 	 */
-	public void addToolBar(JComboBox bar) {
+	public void addToolBar(Collection<GroupData> groups, long currentGroupId) {
 		if (bar == null)
 			return;
 		groupSelection = bar;

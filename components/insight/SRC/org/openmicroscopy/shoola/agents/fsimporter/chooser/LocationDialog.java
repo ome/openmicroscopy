@@ -855,4 +855,10 @@ class LocationDialog
 			}
 		}
 	}
+
+	public void reset(JFrame owner2, TreeImageDisplay selectedContainer2,
+			int type, Collection<TreeImageDisplay> objects2, boolean changeGroup) {
+		// TODO Auto-generated method stub  23 Nov 2012 10:51:47 scott
+		
+	}
 }

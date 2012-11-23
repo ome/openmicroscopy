@@ -187,6 +187,10 @@ class ImporterUI
     
     /** The debug text.*/
     private JTextPane	debugTextPane;
+
+	private Collection<GroupData> groups;
+
+	private long selectedGroupId;
 	
     /**
      * Returns the icon associated to the group.
@@ -483,7 +487,7 @@ class ImporterUI
 	{
 		if (chooser == null) return;
 		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
-		chooser.addToolBar(buildToolBar());
+		chooser.addToolBar(buildToolBar(groups, selectedGroupId));
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
@@ -760,35 +764,31 @@ class ImporterUI
 	
     /** 
      * Builds the toolbar when the importer is the entry point.
+     * @param availableGroups 
      * 
      * @return See above.
      */
-    JComboBox buildToolBar()
+    JComboBox buildToolBar(Collection<GroupData> availableGroups, long selectedGroupId)
     {
-    	Collection set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() <= 1) return null;
-        ViewerSorter sorter = new ViewerSorter();
-        List sorted = sorter.sort(set);
-        JComboBoxImageObject[] objects = new JComboBoxImageObject[sorted.size()];
-        Iterator i = sorted.iterator();
+        JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
+        
+        int selectedIndex = 0;
         int index = 0;
-        GroupData g;
-        long gid = model.getGroupId();
-        int selected = 0;
-        while (i.hasNext()) {
-        	g = (GroupData) i.next();
-        	if (g.getId() == gid) selected = index;
-        	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
+        
+        for (GroupData group : availableGroups) {
+        	if (group.getId() == selectedGroupId) selectedIndex = index;
+        	comboBoxObjects[index] = new JComboBoxImageObject(group, getGroupIcon(group));
 			index++;
 		}
-        JComboBox groups = new JComboBox(objects);
-        groups.setSelectedIndex(selected);
+        
+        JComboBox groupBox = new JComboBox(comboBoxObjects);
+        groupBox.setSelectedIndex(selectedIndex);
         JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
-        groups.setRenderer(rnd);
+        groupBox.setRenderer(rnd);
         rnd.setPreferredSize(new Dimension(200, 130));
-        groups.setActionCommand(""+ImporterControl.GROUP_BUTTON);
-        groups.addActionListener(controller);
-    	return groups;
+        groupBox.setActionCommand(""+ImporterControl.GROUP_BUTTON);
+        groupBox.addActionListener(controller);
+    	return groupBox;
     }
     
     /**
