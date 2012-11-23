@@ -24,9 +24,13 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -52,6 +56,8 @@ public class NetworkChecker {
 	public boolean isNetworkup()
 		throws Exception
 	{
+		//Code work for 1.6. only. Tmp solution for now
+		/*
 		boolean networkup = false;
 		Enumeration<NetworkInterface> interfaces =
 				NetworkInterface.getNetworkInterfaces();
@@ -62,6 +68,47 @@ public class NetworkChecker {
 				if (ni.isUp() && !ni.isLoopback()) {
 					networkup = true;
 					break;
+				}
+			}
+		}
+		if (!networkup) {
+			throw new UnknownHostException("Network is down.");
+		}
+		return networkup;
+		*/
+		//tmp code
+		boolean networkup = false;
+		if (UIUtilities.isLinuxOS()) {
+			try {
+				Socket s = new Socket("www.openmicroscopy.org.uk", 80);
+				s.close();
+				networkup = true;
+			} catch (Exception e) {}
+		} else {
+			Enumeration<NetworkInterface> interfaces =
+					NetworkInterface.getNetworkInterfaces();
+			if (interfaces != null) {
+				NetworkInterface ni;
+				InetAddress ia;
+				while (interfaces.hasMoreElements()) {
+					ni = interfaces.nextElement();
+					Enumeration<InetAddress> e = ni.getInetAddresses();
+					if (!ni.getDisplayName().startsWith("lo")) {
+						while (e.hasMoreElements()) {
+							ia = (InetAddress) e.nextElement();
+							if (!ia.isAnyLocalAddress() &&
+									!ia.isLoopbackAddress()) {
+								if (!ia.isSiteLocalAddress()) {
+										if (!ia.getHostName().equals(
+												ia.getHostAddress())) {
+											networkup = true;
+											break;
+										}
+								}
+							}
+						}
+						if (networkup) break;
+					}
 				}
 			}
 		}
