@@ -482,27 +482,12 @@ public class TaskBarManager
 					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
-						/*
-						if (success) {
-							reconnectDialog = null;
-						}
-						*/
 					}
 				}
 			}
 		});
 		reconnectDialog.setModal(true);
 		UIUtilities.centerAndShow(reconnectDialog);
-		/*
-		if (reconnectDialog != null) {
-			reconnectDialog.requestFocusOnField();
-			reconnectDialog.setAlwaysOnTop(true);
-		}
-		if (success) {
-			container.getRegistry().getEventBus().post(new ReconnectedEvent());
-			success = false;
-		}
-		*/
 	}
 	
 	/** Disconnects from the current server.*/
