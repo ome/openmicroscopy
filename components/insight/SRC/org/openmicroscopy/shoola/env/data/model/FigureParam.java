@@ -219,6 +219,9 @@ public class FigureParam
 	/** The data object the figure is attached to. */
 	private pojos.DataObject 		anchor;
 	
+	/** The maximum number of images per columns.*/
+	private int maxPerColumn;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
@@ -788,6 +791,22 @@ public class FigureParam
 				return SPLIT_VIEW_SCRIPT;
 		}
 	}
-	
-	
+
+	/**
+	 * Returns the maximum number of items per column.
+	 * 
+	 * @return See above.
+	 */
+	public int getMaxPerColumn() { return maxPerColumn; }
+
+	/**
+	 * Sets the maximum of items per columns.
+	 * 
+	 * @param maxPerColumn The value to set.
+	 */
+	public void setMaxPerColumn(int maxPerColumn)
+	{
+		this.maxPerColumn = maxPerColumn;
+	}
+
 }
