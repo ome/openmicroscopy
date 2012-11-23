@@ -113,7 +113,7 @@ public class AdminCreator
 				List<Long> ids = new ArrayList<Long>();
 				DataObject o;
 				Iterator i;
-				if (null != existing) {
+				if (existing != null) {
 					i = existing.iterator();
 					while (i.hasNext()) {
 						o = (DataObject) i.next();
@@ -134,7 +134,7 @@ public class AdminCreator
 					if (!ids.contains(id))
 						toAdd.add(o);
 				}
-				if (null != existing) {
+				if (existing != null) {
 					i = existing.iterator();
 					while (i.hasNext()) {
 						o = (DataObject) i.next();
