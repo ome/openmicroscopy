@@ -135,7 +135,7 @@ class LocationDialog
 	private int option;
 	
 	/** component used to select the import group. */
-	private JComboBox groupBox;
+	private JComboBox groupsBox;
 	
 	/** Component used to select the default project. */
 	private JComboBox projectsBox;
@@ -175,16 +175,22 @@ class LocationDialog
 
 	private JFrame owner;
 
+	private Collection<GroupData> groups;
+
+	private long currentGroupId;
+
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent The parent of the dialog.
 	 * @param objects 
-	 * @param groupBox 
+	 * @param groupsBox 
 	 * @param location The component displaying the option.
 	 */
-	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,int importDataType, Collection<TreeImageDisplay> objects, JComboBox groupBox)
+	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
+			int importDataType, Collection<TreeImageDisplay> objects,
+			Collection<GroupData> groups, long currentGroupId)
 	{
 		super(parent);
 
@@ -192,7 +198,9 @@ class LocationDialog
 		this.selectedContainer = selectedContainer;
 		this.importDataType = importDataType;
 		this.objects = objects;
-		this.groupBox = groupBox;
+		
+		this.groups = groups;
+		this.currentGroupId = currentGroupId;
 		
 		setModal(true);
 		setTitle(TITLE);
@@ -214,6 +222,8 @@ class LocationDialog
 		sorter = new ViewerSorter();
 		
 		// main components
+		groupsBox = new JComboBox();
+		
 		screensBox = new JComboBox();
 		
 		projectsBox = new JComboBox();
@@ -259,7 +269,7 @@ class LocationDialog
 				switch(commandId)
 				{
 				case CMD_ADD:
-					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupBox.getSelectedItem()).getData();
+					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox.getSelectedItem()).getData();
 					importSettings = new FakeImportSettings(importDataType, selectedGroup);
 					close();
 					break;
@@ -321,7 +331,7 @@ class LocationDialog
 		
 		JPanel groupPane = new JPanel();
 		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
-		groupPane.add(groupBox, BorderLayout.CENTER);
+		groupPane.add(groupsBox, BorderLayout.CENTER);
 		
 		locationPane.add(groupPane, BorderLayout.NORTH);
 		locationPane.add(tabPane, BorderLayout.CENTER);
@@ -647,7 +657,7 @@ class LocationDialog
 				}
 			}
 			JComboBoxImageObject selectedGroup = 
-						(JComboBoxImageObject) groupBox.getSelectedItem();
+						(JComboBoxImageObject) groupsBox.getSelectedItem();
 			GroupData g = (GroupData) selectedGroup.getData();
 				
 			if (child != null) {
@@ -663,11 +673,6 @@ class LocationDialog
 		projectsBox.removeAllItems();
 		
 		datasetsBox.removeAllItems();
-
-		//loadGroups();
-		//loadProjects();
-		//loadScreens();
-		//loadDatasets();
 		
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
@@ -856,9 +861,9 @@ class LocationDialog
 		}
 	}
 
-	public void reset(JFrame owner2, TreeImageDisplay selectedContainer2,
-			int type, Collection<TreeImageDisplay> objects2, boolean changeGroup) {
-		// TODO Auto-generated method stub  23 Nov 2012 10:51:47 scott
+	public void reset(TreeImageDisplay container, int type,
+			Collection<TreeImageDisplay> objects,
+			Collection<GroupData> availableGroups, long currentGroupId) {
 		
 	}
 }

@@ -210,7 +210,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private GenericFileChooser chooser;
 
 	/** Button to close the dialog. */
-	private JButton cancelButton;
+	private JButton closeButton;
 
 	/** Button to cancel all imports. */
 	private JButton cancelImportButton;
@@ -340,6 +340,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** The import settings that are returned from the ImportLocation dialogue */
 	private ImportLocationSettings importSettings;
+
+	private long currentGroupId;
+
+	private Collection<GroupData> availableGroups;
 
 	/** Adds the files to the selection. */
 	private void addFiles(ImportLocationSettings importSettings) {
@@ -553,7 +557,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
-		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, groupSelection);
+		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, availableGroups, currentGroupId);
 
 		listener = new ActionListener() {
 
@@ -682,10 +686,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		table = new FileSelectionTable(this);
 		table.addPropertyChangeListener(this);
-		cancelButton = new JButton("Close");
-		cancelButton.setToolTipText("Close the dialog and do not import.");
-		cancelButton.setActionCommand("" + CANCEL);
-		cancelButton.addActionListener(this);
+		closeButton = new JButton("Close");
+		closeButton.setToolTipText("Close the dialog and do not import.");
+		closeButton.setActionCommand("" + CANCEL);
+		closeButton.addActionListener(this);
 
 		cancelImportButton = new JButton("Cancel All");
 		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
@@ -775,7 +779,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		bar.add(cancelImportButton);
 		bar.add(Box.createHorizontalStrut(5));
-		bar.add(cancelButton);
+		bar.add(closeButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(importButton);
 		bar.add(Box.createHorizontalStrut(10));
@@ -961,20 +965,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Builds and lays out the controls for the location.
-	 * 
-	 * @return See above.
-	 */
-	private JComponent buildLocationBar() {
-		toolBar = new JPanel();
-		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		toolBar.add(reloadContainerButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		tbItems = toolBar.getComponentCount();
-		return toolBar;
-	}
-
-	/**
 	 * Lays out the quota.
 	 * 
 	 * @return See above.
@@ -998,7 +988,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI() {
 		setLayout(new BorderLayout(0, 0));
-		add(buildLocationBar(), BorderLayout.NORTH);
 		JPanel p = new JPanel();
 		p.setBorder(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -1493,7 +1482,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
 		
-		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, groupSelection);
+		locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
 
 		tagsPane.removeAll();
 		tagsMap.clear();
@@ -1568,19 +1557,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			return;
 		canvas.setPercentage(quota);
 		canvas.setVisible(true);
-	}
-
-	/**
-	 * Adds the component.
-	 * 
-	 * @param bar
-	 *            The component to add.
-	 */
-	public void addToolBar(Collection<GroupData> groups, long currentGroupId) {
-		if (bar == null)
-			return;
-		groupSelection = bar;
-		cancelButton.setVisible(false);
 	}
 
 	/**
