@@ -306,13 +306,12 @@ public class ExperimenterData extends DataObject {
      *                id found
      */
     public boolean isMemberOfGroup(long groupId) {
-        boolean isMember = false;
         for (GroupData group : this.getGroups()) {
             if (group.getId() == groupId) {
-                isMember = true;
+                return true;
             }
         }
-        return isMember;
+        return false;
     }
 
 }
