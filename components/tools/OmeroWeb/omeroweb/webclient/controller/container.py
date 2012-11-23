@@ -131,8 +131,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return self.dataset
         if self.image is not None: return self.image
         if self.screen is not None: return self.screen
-        if self.plate is not None: return self.plate
         if self.acquisition is not None: return self.acquisition
+        if self.plate is not None: return self.plate
         if self.well is not None: return self.well
         if self.tag is not None: return self.tag
         if self.file is not None: return self.file
@@ -142,8 +142,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return "dataset"
         if self.image is not None: return "image"
         if self.screen is not None: return "screen"
+        if self.acquisition is not None: return "acquisition"   # NB: plate is also not None
         if self.plate is not None: return "plate"
-        if self.acquisition is not None: return "acquisition"
         if self.well is not None: return "well"
         if self.tag is not None: return "tag"
         if self.file is not None: return "file"
