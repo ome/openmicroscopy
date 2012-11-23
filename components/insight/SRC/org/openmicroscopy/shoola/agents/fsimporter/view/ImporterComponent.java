@@ -665,16 +665,18 @@ class ImporterComponent
 	 */
 	public GroupData getSelectedGroup()
 	{
-		Collection m = ImporterAgent.getAvailableUserGroups();
-		if (m == null) return null;
-		Iterator i = m.iterator();
+		Collection<GroupData> m = loadGroups();
+		
+		if (m == null) {
+			ExperimenterData exp = ImporterAgent.getUserDetails();
+			return exp.getDefaultGroup();
+		}
+		
 		long id = model.getGroupId();
-		GroupData group = null;
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			if (group.getId() == id) {
+		
+		for (GroupData group : m) {
+			if (group.getId() == id)
 				return group;
-			}
 		}
 		return null;
 	}

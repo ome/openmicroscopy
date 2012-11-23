@@ -487,7 +487,8 @@ class ImporterUI
 	{
 		if (chooser == null) return;
 		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
-		chooser.addToolBar(buildToolBar(groups, selectedGroupId));
+		buildToolBar(groups, selectedGroupId);
+		
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
