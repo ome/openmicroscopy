@@ -187,10 +187,6 @@ class ImporterUI
     
     /** The debug text.*/
     private JTextPane	debugTextPane;
-
-	private Collection<GroupData> groups;
-
-	private long selectedGroupId;
 	
     /**
      * Returns the icon associated to the group.
@@ -487,7 +483,8 @@ class ImporterUI
 	{
 		if (chooser == null) return;
 		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
-		buildToolBar(groups, selectedGroupId);
+		
+		buildToolBar(ImporterAgent.getAvailableUserGroups(), model.getGroupId());
 		
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
