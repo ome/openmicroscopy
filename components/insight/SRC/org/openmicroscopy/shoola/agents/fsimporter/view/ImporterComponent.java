@@ -43,8 +43,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
@@ -186,12 +188,26 @@ class ImporterComponent
 			return;
 		view.reset();
 		model.setGroupId(group.getId());
-		chooser.onReconnected(view.buildToolBar());
+		
+		Collection<GroupData> availableGroups = loadGroups();
+		chooser.onReconnected(view.buildToolBar(availableGroups,model.getGroupId() ));
+		
 		refreshContainers(chooser.getType());
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
 				model.getGroupId());
 	}
 	
+	private Collection<GroupData> loadGroups() {
+		Collection set = ImporterAgent.getAvailableUserGroups();
+		
+        if (set == null || set.size() <= 1) return null;
+        
+        ViewerSorter sorter = new ViewerSorter();
+        List<GroupData> sortedGroups = sorter.sort(set);
+        
+        return sortedGroups;
+	}
+
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, TreeImageDisplay, Collection)
