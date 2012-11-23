@@ -115,18 +115,20 @@
 
         <!-- Should likely be a constant -->
 	<enum id="ome.model.enums.FilesetActivityType">
-		<entry name="upload"/>
-		<entry name="import"/>
-		<entry name="thumbnails"/>
-		<entry name="pyramids"/>
-		<entry name="indexing"/>
+		<entry name="Upload"/>
+		<entry name="Import"/>
+		<entry name="Thumbnails"/>
+		<entry name="Pyramids"/>
+		<entry name="Checksum"/>
+		<entry name="IntegrityCheck"/>
+		<entry name="Other"/>
+		<entry name="Unknown"/>
 	</enum>
-        <type id="ome.model.core.FilesetActivity" named="true" described="true">
+        <type id="ome.model.core.FilesetActivity" described="true">
                 <properties>
+                    <required name="filesetActivityType" type="ome.model.enums.FilesetActivityType"/>
                     <required name="fileset" type="ome.model.core.Fileset"/>
-                    <required name="start" type="timestamp"/>
-                    <required name="stop" type="timestamp"/>
-                    <required name="error" type="string"/>
+                    <required name="job" type="ome.model.jobs.Job"/>
                     <required name="hideUntilDone" type="boolean"/>
                 </properties>
         </type>
@@ -139,6 +141,7 @@
         </type>
         <type id="ome.model.core.FilesetVersionInfo">
                 <properties>
+                    <required name="bioformatsReader" type="string"/>
                     <required name="bioformatsVersion" type="string"/>
                     <required name="omeroVersion" type="string"/>
                     <required name="osArchitecture" type="string"/>
@@ -148,17 +151,14 @@
                 </properties>
         </type>
         <type id="ome.model.core.Fileset" annotated="true">
-            <properties>
-                <required name="target" type="ome.model.core.FilesetEntry"/>
-                <zeromany name="usedFile" type="ome.model.core.FilesetEntry" inverse="fileset"/>
-                <!-- FIXME: "filesetEntry"? ordered -->
-                <zeromany name="activity" type="ome.model.core.FilesetActivity" inverse="fileset"/>
-                <required name="clientVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
-                <required name="serverVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
-                <required name="bioformatsReader" type="string"/>
-                <!-- FIXME: include user/group -->
-                <!-- config options -->
-            </properties>
+                <properties>
+                    <zeromany name="filesetEntry" type="ome.model.core.FilesetEntry" inverse="fileset" ordered="true"/>
+                    <zeromany name="filesetActivity" type="ome.model.core.FilesetActivity" inverse="fileset"/>
+                    <required name="clientVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
+                    <required name="serverVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
+                    <!-- FIXME: include user/group -->
+                    <!-- config options -->
+                </properties>
         </type>
 
 	<type id="ome.model.core.PlaneInfo" annotated="true">

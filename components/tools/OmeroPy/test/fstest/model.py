@@ -63,6 +63,7 @@ class TestModel(unittest.TestCase):
 
         # This will be created server-side
         serverInfo = omero.model.FilesetVersionInfoI()
+        serverInfo.bioformatsReader = _("ExampleReader")
         serverInfo.bioformatsVersion = _("v4.4.5 git: abc123")
         serverInfo.omeroVersion = _("v.4.4.4 git: def456")
         serverInfo.osName = _("Linux")
@@ -74,10 +75,9 @@ class TestModel(unittest.TestCase):
         # Now that the basics are setup, we
         # need to link to all of the original files.
         fs = omero.model.FilesetI()
-        fs.bioformatsReader = _("ExampleReader")
-        fs.target = self.mkentry("main_file.txt")
-        fs.addUsedFile(self.mkentry("uf1.data"))
-        fs.addUsedFile(self.mkentry("uf2.data"))
+        fs.addFilesetEntry(self.mkentry("main_file.txt")) # First!
+        fs.addFilesetEntry(self.mkentry("uf1.data"))
+        fs.addFilesetEntry(self.mkentry("uf2.data"))
 
         # Now that the files are all added, we
         # add the "activities" that will be
@@ -88,7 +88,8 @@ class TestModel(unittest.TestCase):
         # before any other activity.
         act1 = omero.model.FilesetActivityI()
         act1.name = _("upload")
-        act1.start = rtime(time.time() * 1000)
+        act1.job = omero.model.ImportJobI() # TODO: better types
+        act1.job.scheduledFor = rtime(time.time() * 1000) # Now
         # Set this "started" since we're expecting
         # upload to be in process.
 
