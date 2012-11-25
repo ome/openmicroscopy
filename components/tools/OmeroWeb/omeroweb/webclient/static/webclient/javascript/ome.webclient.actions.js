@@ -80,6 +80,15 @@ var tree_selection_changed = function(data, evt) {
     }, 10);
 }
 
+// Short-cut to setting selection to [], with option to force refresh.
+// (by default, center panel doesn't clear when nothing is selected)
+var clear_selected = function(force_refresh) {
+    var refresh = (force_refresh === true);
+    $("body")
+        .data("selected_objects.ome", [])
+        .trigger("selection_change.ome", [refresh]);
+}
+
 // called when we change the index of a plate or acquisition
 var field_selection_changed = function(field) {
     

@@ -36,20 +36,20 @@
 	</div>
 
     <div class="ann_comment_text">
-        <span class="ann_comment_header">
+        <div class="ann_comment_header">
             <strong>{{ tann.getOwner.getFullName }}</strong> 
             {% trans "at" %} 
             {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}
-        </span>
+        </div>
     
         {% if tann.canDelete %}
             <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/icon_basic_delete.png"%}" 
                 url='{% url manage_action_containers "remove" %}comment/{{ tann.id }}/' title="Delete comment"/>
         {% endif %}
     
-        <span class='commentText'>
+        <div class='commentText'>
         {{ tann.getTextValue|linebreaksbr }}
-        </span>
+        </div>
     </div>
 
 </div>
