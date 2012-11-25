@@ -1548,6 +1548,7 @@ class _BlitzGateway (object):
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
+            self._proxies['managedrepository'] = ProxyObjectWrapper(self, 'getManagedRepository')
         self._userid = None
         self._user = None
         self._ctx = None
@@ -2180,6 +2181,21 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return ProxyObjectWrapper(self, 'createExporter')
+
+    def lookupManagedRepository (self):
+        """
+        Returns reference to the first ManagedRepository.
+
+        @return:    omero.grid.ManagedRepositoryPrx
+        """
+        repos = self.getSharedResources().repositories().proxies
+        for proxy in repos:
+            if proxy != None:
+                rv = omero.grid.ManagedRepositoryPrx.checkedCast(proxy)
+                if rv != None:
+                    return rv
+        return None;
+
 
     #############################
     # Top level object fetchers #
