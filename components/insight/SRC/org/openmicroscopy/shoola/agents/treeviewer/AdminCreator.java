@@ -111,12 +111,15 @@ public class AdminCreator
 				Set experimenters = object.getExperimenters().keySet();
 				Set existing = group.getExperimenters();
 				List<Long> ids = new ArrayList<Long>();
-				Iterator i = existing.iterator();
 				DataObject o;
-				while (i.hasNext()) {
-					o = (DataObject) i.next();
-					if (o.getId() != userID) {
-						ids.add(o.getId());
+				Iterator i;
+				if (existing != null) {
+					i = existing.iterator();
+					while (i.hasNext()) {
+						o = (DataObject) i.next();
+						if (o.getId() != userID) {
+							ids.add(o.getId());
+						}
 					}
 				}
 				Set toAdd = new HashSet();
@@ -131,12 +134,14 @@ public class AdminCreator
 					if (!ids.contains(id))
 						toAdd.add(o);
 				}
-				i = existing.iterator();
-				while (i.hasNext()) {
-					o = (DataObject) i.next();
-					if (o.getId() != userID && 
-						!selectedIds.contains(o.getId())) {
-						toRemove.add(o);
+				if (existing != null) {
+					i = existing.iterator();
+					while (i.hasNext()) {
+						o = (DataObject) i.next();
+						if (o.getId() != userID &&
+							!selectedIds.contains(o.getId())) {
+							toRemove.add(o);
+						}
 					}
 				}
 				m.put(group, toAdd);
