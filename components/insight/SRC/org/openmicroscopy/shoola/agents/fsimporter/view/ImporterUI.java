@@ -125,35 +125,7 @@ class ImporterUI
 	
 	/** The maximum number of characters in the debug text.*/
 	private static final int 	MAX_CHAR = 2000;
-	
-	/** Reference to the <code>Group Private</code> icon. */
-	private static final Icon GROUP_PRIVATE_ICON;
-	
-	/** Reference to the <code>Group RWR---</code> icon. */
-	private static final Icon GROUP_READ_ONLY_ICON;
-	
-	/** Reference to the <code>Group RWRA--</code> icon. */
-	private static final Icon GROUP_READ_LINK_ICON;
-	
-	/** Reference to the <code>Group RWRW--</code> icon. */
-	private static final Icon GROUP_READ_WRITE_ICON;
-	
-	/** Reference to the <code>Group</code> icon. */
-	private static final Icon GROUP_PUBLIC_READ_ICON;
-	
-	/** Reference to the <code>Group</code> icon. */
-	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
-	
-	static { 
-		IconManager icons = IconManager.getInstance();
-		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
-		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
-		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
-		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
-		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
-		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
-				IconManager.PUBLIC_GROUP);
-	}
+
 	
 	/** Reference to the model. */
 	private ImporterModel	model;
@@ -187,31 +159,6 @@ class ImporterUI
     
     /** The debug text.*/
     private JTextPane	debugTextPane;
-	
-    /**
-     * Returns the icon associated to the group.
-     * 
-     * @param group The group to handle.
-     * @return See above.
-     */
-    private Icon getGroupIcon(GroupData group)
-    {
-    	switch (group.getPermissions().getPermissionsLevel()) {
-	    	case GroupData.PERMISSIONS_PRIVATE:
-	    		return GROUP_PRIVATE_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ:
-	    		return GROUP_READ_ONLY_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
-	    		return GROUP_READ_LINK_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-	    		return GROUP_READ_WRITE_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ:
-	    		return GROUP_PUBLIC_READ_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-	    		return GROUP_PUBLIC_READ_WRITE_ICON;
-		}
-    	return null;
-    }
     
 	/**
 	 * Creates the component hosting the debug text.
@@ -484,7 +431,7 @@ class ImporterUI
 		if (chooser == null) return;
 		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
 		
-		buildToolBar(ImporterAgent.getAvailableUserGroups(), model.getGroupId());
+		//buildToolBar(ImporterAgent.getAvailableUserGroups(), model.getGroupId());
 		
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
@@ -759,35 +706,6 @@ class ImporterUI
 			//ignore
 		}
 	}
-	
-    /** 
-     * Builds the toolbar when the importer is the entry point.
-     * @param availableGroups 
-     * 
-     * @return See above.
-     */
-    JComboBox buildToolBar(Collection<GroupData> availableGroups, long selectedGroupId)
-    {
-        JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
-        
-        int selectedIndex = 0;
-        int index = 0;
-        
-        for (GroupData group : availableGroups) {
-        	if (group.getId() == selectedGroupId) selectedIndex = index;
-        	comboBoxObjects[index] = new JComboBoxImageObject(group, getGroupIcon(group));
-			index++;
-		}
-        
-        JComboBox groupBox = new JComboBox(comboBoxObjects);
-        groupBox.setSelectedIndex(selectedIndex);
-        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
-        groupBox.setRenderer(rnd);
-        rnd.setPreferredSize(new Dimension(200, 130));
-        groupBox.setActionCommand(""+ImporterControl.GROUP_BUTTON);
-        groupBox.addActionListener(controller);
-    	return groupBox;
-    }
     
     /**
      * Returns <code>true</code> if the selected pane has failures to send,

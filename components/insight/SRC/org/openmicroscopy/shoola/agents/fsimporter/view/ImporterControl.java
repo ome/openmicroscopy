@@ -387,7 +387,8 @@ class ImporterControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
-		}
+		} // location dialo prop
+		//model.setUSerGroup (( )model.getNEwVAlue
 	}
 
 	/**
