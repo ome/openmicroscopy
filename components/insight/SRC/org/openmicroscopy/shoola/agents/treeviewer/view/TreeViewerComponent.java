@@ -914,7 +914,7 @@ class TreeViewerComponent
         			 //Notify user
         			 UserNotifier un = 
         				 TreeViewerAgent.getRegistry().getUserNotifier();
-        			 un.notifyInfo("Experimenter Creation", 
+                                 un.notifyInfo("User Creation",
         				"No group available. Please create a group first.");
         			 return;
         		 }
@@ -1467,7 +1467,7 @@ class TreeViewerComponent
 			if (nodes.size() == 0) {
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Add experimenter", 
+				un.notifyInfo("Add User",
 						"The group is not displayed.");
 				return;
 			}
@@ -1759,8 +1759,8 @@ class TreeViewerComponent
 		SelectionWizard d = new SelectionWizard(view, available, selected,
 				objects.get(0).getClass(), TreeViewerAgent.getUserDetails());
 		IconManager icons = IconManager.getInstance();
-		String title = "Experimenters Selection";
-		String text = "Select the Experimenters to add to the selected group.";
+		String title = "User Selection";
+		String text = "Select the Users to add to the selected group.";
 		Icon icon = icons.getIcon(IconManager.OWNER_48);
 		d.setTitle(title, text, icon);
 		d.addPropertyChangeListener(controller);
