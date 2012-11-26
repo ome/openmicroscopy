@@ -557,7 +557,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
-		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, availableGroups, currentGroupId);
+		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, (Collection<GroupData>) ImporterAgent.getAvailableUserGroups(), ImporterAgent.getUserDetails().getGroupId());
 
 		listener = new ActionListener() {
 
@@ -1432,6 +1432,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	public void reset(TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, int type, boolean remove,
 			boolean changeGroup) {
+		
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
@@ -1482,7 +1483,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
 		
-		locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
+		//locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
 
 		tagsPane.removeAll();
 		tagsMap.clear();
@@ -1565,8 +1566,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param bar
 	 *            The component to add.
 	 */
-	public void onReconnected(JComboBox bar) {
-		int n = toolBar.getComponentCount();
+	public void onReconnected(Collection<GroupData> availableGroups, long currentGroupId) {
+		/*int n = toolBar.getComponentCount();
 		int diff = n - tbItems;
 		if (diff > 0) {
 			for (int i = 0; i < diff; i++) {
@@ -1576,8 +1577,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			toolBar.validate();
 			toolBar.repaint();
 		}
+		*/
 		table.removeAllFiles();
-		//locationPane.repaint();
+		locationDialog.onReconnected(availableGroups, currentGroupId);
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}

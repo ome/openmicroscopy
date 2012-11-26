@@ -190,7 +190,7 @@ class ImporterComponent
 		model.setGroupId(group.getId());
 		
 		Collection<GroupData> availableGroups = loadGroups();
-		chooser.onReconnected(view.buildToolBar(availableGroups,model.getGroupId() ));
+		//chooser.onReconnected(view.buildToolBar(availableGroups,model.getGroupId() ));
 		
 		refreshContainers(chooser.getType());
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 

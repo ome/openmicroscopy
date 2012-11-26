@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
 import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -89,6 +90,36 @@ class LocationDialog
 	extends JDialog
 	implements ActionListener, PropertyChangeListener
 {
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
+	}
+	
 	/** The possible nodes. */
 	private Collection<TreeImageDisplay> objects;
 	
@@ -281,12 +312,12 @@ class LocationDialog
 
 		};
 		
-		cancelButton.addActionListener(this);
+		cancelButton.addActionListener(buttonListener);
 		cancelButton.setActionCommand(""+CMD_CLOSE);
 		
 		addButton = new JButton("Add to the Queue");
 		addButton.setToolTipText("Add the files to the queue.");
-		addButton.addActionListener(this);
+		addButton.addActionListener(buttonListener);
 		addButton.setActionCommand(""+CMD_ADD);
 		
 		getRootPane().setDefaultButton(addButton);
@@ -377,6 +408,67 @@ class LocationDialog
 		return screenPanel;
 	}
 	
+	 /** 
+     * Builds the toolbar when the importer is the entry point.
+     * @param availableGroups 
+     * 
+     * @return See above.
+     */
+    private void populateGroupBox(Collection<GroupData> availableGroups, long selectedGroupId)
+    {
+        JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
+        
+        int selectedIndex = 0;
+        int index = 0;
+
+        for (GroupData group : availableGroups) {
+        	if (group.getId() == selectedGroupId) selectedIndex = index;
+        	comboBoxObjects[index] = new JComboBoxImageObject(group, getGroupIcon(group));
+        	groupsBox.addItem(comboBoxObjects[index]);
+			index++;
+		}
+        
+        groupsBox.setSelectedIndex(selectedIndex);
+        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
+        groupsBox.setRenderer(rnd);
+        rnd.setPreferredSize(new Dimension(200, 130));
+        
+        ActionListener groupListener = new ActionListener(){
+
+			public void actionPerformed(ActionEvent arg0) {
+				// firePropertychangeEvent(GROUP_CHANGED, oldGroupId, newGroupId)
+				
+			}
+        	
+        };
+        
+        groupsBox.addActionListener(groupListener);
+    }
+    
+	/**
+     * Returns the icon associated to the group.
+     * 
+     * @param group The group to handle.
+     * @return See above.
+     */
+    private Icon getGroupIcon(GroupData group)
+    {
+    	switch (group.getPermissions().getPermissionsLevel()) {
+	    	case GroupData.PERMISSIONS_PRIVATE:
+	    		return GROUP_PRIVATE_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ:
+	    		return GROUP_READ_ONLY_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	    		return GROUP_READ_LINK_ICON;
+	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	    		return GROUP_READ_WRITE_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ:
+	    		return GROUP_PUBLIC_READ_ICON;
+	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	    		return GROUP_PUBLIC_READ_WRITE_ICON;
+		}
+    	return null;
+    }
 	/** 
 	 * Builds and lays out the UI.
 	 * 
@@ -668,11 +760,16 @@ class LocationDialog
 	
 
 	/** Initialises the selection boxes. */
-	private void initializeLocationBoxes() {	
+	private void initializeLocationBoxes() {
+		groupsBox.removeAllItems();
+		populateGroupBox(groups, currentGroupId);
+		
 		projectsBox.removeActionListener(projectsBoxListener);
 		projectsBox.removeAllItems();
 		
 		datasetsBox.removeAllItems();
+		
+		screensBox.removeAllItems();
 		
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
@@ -727,11 +824,12 @@ class LocationDialog
 		}
 
 		loadProjects(hostObject, datasetsList,sortedList);
-		loadScreens(hostObject, datasetsList,sortedList);
+		loadScreens(hostObject,sortedList);
 
+		projectsBox.addActionListener(projectsBoxListener);
 	}
 
-	private void loadScreens(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList)
+	private void loadScreens(Object hostObject, List<DataNode> sortedList)
 	{
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		finalList.add(new DataNode(DataNode.createDefaultScreen()));
@@ -781,6 +879,7 @@ class LocationDialog
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		DataNode n;
 		List<DataNode> l = getOrphanedNewDatasetNode();
+		
 		if (datasetsList.size() > 0) { // orphaned datasets.
 			datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
 			if (l != null)
@@ -827,6 +926,8 @@ class LocationDialog
 			}
 		}
 		projectsBox.setSelectedIndex(index);
+		
+		populateDatasetsBox();
 	}
 	
 	/**
@@ -862,8 +963,14 @@ class LocationDialog
 	}
 
 	public void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects,
-			Collection<GroupData> availableGroups, long currentGroupId) {
+			Collection<TreeImageDisplay> objects) {
+
+		this.objects = objects;
+		initializeLocationBoxes();
+	}
+
+	public void onReconnected(Collection<GroupData> availableGroups,
+			long currentGroupId) {
 		
 	}
 }
