@@ -1034,7 +1034,7 @@ class ImViewerModel
 	double setImage(BufferedImage image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImage(image);
+		if (image != null) browser.setRenderedImage(image);
 		loaders.remove(IMAGE);
 		firstTime = false;
 		//update image icon
@@ -1045,6 +1045,7 @@ class ImViewerModel
 			imageIcon = Factory.magnifyImage(factor, image);
 		}
 		*/
+		if (image == null) return 1;
 		return initZoomFactor();
 	}
 
@@ -2385,7 +2386,7 @@ class ImViewerModel
 	double setImageAsTexture(TextureData image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImage(image);
+		if (image != null) browser.setRenderedImage(image);
 		loaders.remove(IMAGE);
 		firstTime = false;
 		//update image icon
@@ -2396,6 +2397,7 @@ class ImViewerModel
 			imageIcon = Factory.magnifyImage(factor, image);
 		}
 		*/
+		if (image == null) return 1;
 		return initZoomFactor();
 	}
 
