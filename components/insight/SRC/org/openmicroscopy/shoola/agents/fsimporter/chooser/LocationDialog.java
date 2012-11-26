@@ -23,7 +23,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -50,6 +49,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -73,122 +74,117 @@ import pojos.ScreenData;
 
 //Application-internal dependencies
 
-/** 
+/**
  * Displays the possible location of the imports.
- *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:donald@lifesci.dundee.ac.uk"
+ *         >donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-class LocationDialog 
-	extends JDialog
-	implements ActionListener, PropertyChangeListener
-{
-	
+class LocationDialog extends JDialog implements ActionListener,
+		PropertyChangeListener {
+
 	/** Reference to the <code>Group Private</code> icon. */
 	private static final Icon GROUP_PRIVATE_ICON;
-	
+
 	/** Reference to the <code>Group RWR---</code> icon. */
 	private static final Icon GROUP_READ_ONLY_ICON;
-	
+
 	/** Reference to the <code>Group RWRA--</code> icon. */
 	private static final Icon GROUP_READ_LINK_ICON;
-	
+
 	/** Reference to the <code>Group RWRW--</code> icon. */
 	private static final Icon GROUP_READ_WRITE_ICON;
-	
+
 	/** Reference to the <code>Group</code> icon. */
 	private static final Icon GROUP_PUBLIC_READ_ICON;
-	
+
 	/** Reference to the <code>Group</code> icon. */
 	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
-	
-	static { 
+
+	static {
 		IconManager icons = IconManager.getInstance();
 		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
 		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
 		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
 		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
 		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
-		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
-				IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
 	}
-	
+
 	/** The possible nodes. */
 	private Collection<TreeImageDisplay> objects;
-	
+
 	/** The message to display in the header. */
 	private static final String MESSAGE_LOCATION = "Select where to import the data";
 
 	/** Action id indicating to create a new project. */
 	private static final int CMD_CREATE_PROJECT = 1;
-	
+
 	/** Action id indicating to create a new dataset. */
 	private static final int CMD_CREATE_DATASET = 2;
 
 	/** Action id indicating to create a new screen. */
 	private static final int CMD_CREATE_SCREEN = 3;
-	
+
 	/** The default text for a project. */
 	private static final String LABEL_PROJECT = "Project";
 
 	/** The default text for a dataset. */
 	private static final String LABEL_DATASET = "Dataset";
-	
+
 	/** The default text for a screen. */
 	private static final String LABEL_SCREEN = "Screen";
-	
+
 	/** The message to display in the header. */
 	private static final String LABEL_GROUP = "Group";
-	
+
 	/** User has selected to add the files. */
 	public final static int CMD_ADD = 1;
 
 	/** User has selected to cancel. */
 	public final static int CMD_CLOSE = 0;
-	
-	/** The title of the dialog.*/
+
+	/** The title of the dialog. */
 	private static String TITLE = "Location selection";
-	
-	/** Component indicating to add to the queue.*/
+
+	/** Component indicating to add to the queue. */
 	private JButton addButton;
-	
-	/** Component indicating to cancel the addition.*/
+
+	/** Component indicating to cancel the addition. */
 	private JButton cancelButton;
-	
-	/** Option chosen by the user.*/
+
+	/** Option chosen by the user. */
 	private int option;
-	
+
 	/** component used to select the import group. */
 	private JComboBox groupsBox;
-	
+
 	/** Component used to select the default project. */
 	private JComboBox projectsBox;
-	
+
 	/** Component used to select the default dataset. */
 	private JComboBox datasetsBox;
 
 	/** Component used to select the default screen. */
 	private JComboBox screensBox;
-	
+
 	/** Button to create a new project. */
 	private JButton addProjectButton;
 
 	/** Button to create a new dataset. */
 	private JButton addDatasetButton;
-	
+
 	/** Button to create a new screen. */
 	private JButton addScreenButton;
-	
+
 	/** The listener linked to the parents box. */
 	private ActionListener projectsBoxListener;
-	
+
 	/** The map holding the new nodes to create if in th P/D view. */
 	private Map<DataNode, List<DataNode>> newNodesPD;
 
@@ -210,53 +206,51 @@ class LocationDialog
 
 	private long currentGroupId;
 
-	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent The parent of the dialog.
-	 * @param objects 
-	 * @param groupsBox 
-	 * @param location The component displaying the option.
+	 * @param parent
+	 *            The parent of the dialog.
+	 * @param objects
+	 * @param groupsBox
+	 * @param location
+	 *            The component displaying the option.
 	 */
 	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Collection<GroupData> groups, long currentGroupId)
-	{
+			Collection<GroupData> groups, long currentGroupId) {
 		super(parent);
 
 		this.owner = parent;
 		this.selectedContainer = selectedContainer;
 		this.importDataType = importDataType;
 		this.objects = objects;
-		
+
 		this.groups = groups;
 		this.currentGroupId = currentGroupId;
-		
+
 		setModal(true);
 		setTitle(TITLE);
 		initComponents();
 		buildGUI();
 		pack();
-		
-		
+
 		int minHeight = this.getHeight();
 		int minWidth = this.getWidth();
 		Dimension minimumSize = new Dimension(minWidth, minHeight);
-		
+
 		setMinimumSize(minimumSize);
 	}
-	
-	/** Initialises the components.*/
-	private void initComponents()
-	{
+
+	/** Initialises the components. */
+	private void initComponents() {
 		sorter = new ViewerSorter();
-		
+
 		// main components
 		groupsBox = new JComboBox();
-		
+
 		screensBox = new JComboBox();
-		
+
 		projectsBox = new JComboBox();
 		projectsBoxListener = new ActionListener() {
 
@@ -265,11 +259,13 @@ class LocationDialog
 			}
 		};
 		projectsBox.addActionListener(projectsBoxListener);
-		
+
 		datasetsBox = new JComboBox();
 
-		initializeLocationBoxes();
+		populateGroupBox(groups, currentGroupId);
 		
+		initializeLocationBoxes();
+
 		addProjectButton = new JButton("New...");
 		addProjectButton.setToolTipText("Create a new Project.");
 		addProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
@@ -279,57 +275,56 @@ class LocationDialog
 		addDatasetButton.setToolTipText("Create a new Dataset.");
 		addDatasetButton.setActionCommand("" + CMD_CREATE_DATASET);
 		addDatasetButton.addActionListener(this);
-		
+
 		addScreenButton = new JButton("New...");
 		addScreenButton.setToolTipText("Create a new Screen.");
 		addScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
 		addScreenButton.addActionListener(this);
-		
+
 		// lower buttons
 		cancelButton = new JButton("Cancel");
-		cancelButton.setToolTipText("Close and do not add the files to the " +
-				"queue.");
-		
-		ActionListener buttonListener = new ActionListener(){
+		cancelButton.setToolTipText("Close and do not add the files to the "
+				+ "queue.");
 
+		ActionListener buttonListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent ae) {
-				// TODO Auto-generated method stub  21 Nov 2012 15:05:13 scott
+				// TODO Auto-generated method stub 21 Nov 2012 15:05:13 scott
 				int commandId = Integer.parseInt(ae.getActionCommand());
-				
-				switch(commandId)
-				{
+
+				switch (commandId) {
 				case CMD_ADD:
-					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox.getSelectedItem()).getData();
-					importSettings = new FakeImportSettings(importDataType, selectedGroup);
+					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox
+							.getSelectedItem()).getData();
+					importSettings = new FakeImportSettings(importDataType,
+							selectedGroup);
 					close();
 					break;
 				case CMD_CLOSE:
 					close();
 				}
-			
+
 			}
 
 		};
-		
+
 		cancelButton.addActionListener(buttonListener);
-		cancelButton.setActionCommand(""+CMD_CLOSE);
-		
+		cancelButton.setActionCommand("" + CMD_CLOSE);
+
 		addButton = new JButton("Add to the Queue");
 		addButton.setToolTipText("Add the files to the queue.");
 		addButton.addActionListener(buttonListener);
-		addButton.setActionCommand(""+CMD_ADD);
-		
+		addButton.setActionCommand("" + CMD_ADD);
+
 		getRootPane().setDefaultButton(addButton);
 	}
-	
+
 	/**
 	 * Builds and lays out the UI.
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildToolbar()
-	{
+	private JPanel buildToolbar() {
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		bar.add(addButton);
@@ -337,66 +332,77 @@ class LocationDialog
 		bar.add(cancelButton);
 		return bar;
 	}
-	
-	
-	private JPanel layoutMainPanel()
-	{
+
+	private JPanel layoutMainPanel() {
 		JPanel locationPane = new JPanel();
 		locationPane.setLayout(new BorderLayout());
-		
+
 		JTabbedPane tabPane = new JTabbedPane();
-		
+
 		IconManager icons = IconManager.getInstance();
-		
+
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
 		JPanel projectPanel = createProjectPanel();
-		
+
 		Icon screenIcon = icons.getIcon(IconManager.SCREEN);
 		JPanel screenPanel = createScreenPanel();
 
 		tabPane.addTab("Projects", projectIcon, projectPanel,
-		                  "Import settings for Projects");
-		
+				"Import settings for Projects");
+
 		tabPane.addTab("Screens", screenIcon, screenPanel,
-                "Import settings for Screens");
+				"Import settings for Screens");
+
+		ChangeListener changeListener = new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent evt) {
+				JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
+				int selectedTabIndex = tabbedPane.getSelectedIndex();
+				reset(selectedContainer, selectedTabIndex, objects);
+			}
+		};
+		
+		tabPane.addChangeListener(changeListener);
 		
 		JPanel groupPane = new JPanel();
 		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
 		groupPane.add(groupsBox, BorderLayout.CENTER);
-		
+
 		locationPane.add(groupPane, BorderLayout.NORTH);
 		locationPane.add(tabPane, BorderLayout.CENTER);
-		
+
 		return locationPane;
 	}
-	
+
 	private JPanel createProjectPanel() {
 		JPanel projectPanel = new JPanel();
 		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
-		
+
 		JPanel projectRow = new JPanel();
-		projectRow.add(UIUtilities.setTextFont(LABEL_PROJECT), BorderLayout.WEST);
+		projectRow.add(UIUtilities.setTextFont(LABEL_PROJECT),
+				BorderLayout.WEST);
 		projectRow.add(projectsBox, BorderLayout.CENTER);
 		projectRow.add(addProjectButton, BorderLayout.EAST);
-		
+
 		JPanel datasetRow = new JPanel();
-		datasetRow.add(UIUtilities.setTextFont(LABEL_DATASET), BorderLayout.WEST);
+		datasetRow.add(UIUtilities.setTextFont(LABEL_DATASET),
+				BorderLayout.WEST);
 		datasetRow.add(datasetsBox, BorderLayout.CENTER);
 		datasetRow.add(addDatasetButton, BorderLayout.EAST);
-		
+
 		projectPanel.add(projectRow);
 		projectPanel.add(Box.createVerticalStrut(8));
 		projectPanel.add(datasetRow);
-		
+
 		projectPanel.add(new JSeparator());
-		
+
 		return projectPanel;
 	}
-	
+
 	private JPanel createScreenPanel() {
 		JPanel screenPanel = new JPanel();
 		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
-		
+
 		JPanel screenRow = new JPanel();
 		screenRow.add(UIUtilities.setTextFont(LABEL_SCREEN), BorderLayout.WEST);
 		screenRow.add(screensBox, BorderLayout.CENTER);
@@ -404,136 +410,139 @@ class LocationDialog
 
 		screenPanel.add(screenRow);
 		screenPanel.add(new JSeparator());
-		
+
 		return screenPanel;
 	}
-	
-	 /** 
-     * Builds the toolbar when the importer is the entry point.
-     * @param availableGroups 
-     * 
-     * @return See above.
-     */
-    private void populateGroupBox(Collection<GroupData> availableGroups, long selectedGroupId)
-    {
-        JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
-        
-        int selectedIndex = 0;
-        int index = 0;
 
-        for (GroupData group : availableGroups) {
-        	if (group.getId() == selectedGroupId) selectedIndex = index;
-        	comboBoxObjects[index] = new JComboBoxImageObject(group, getGroupIcon(group));
-        	groupsBox.addItem(comboBoxObjects[index]);
+	/**
+	 * Builds the toolbar when the importer is the entry point.
+	 * 
+	 * @param availableGroups
+	 * 
+	 * @return See above.
+	 */
+	private void populateGroupBox(Collection<GroupData> availableGroups,
+			long selectedGroupId) {
+		JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups
+				.size()];
+
+		int selectedIndex = 0;
+		int index = 0;
+
+		for (GroupData group : availableGroups) {
+			if (group.getId() == selectedGroupId)
+				selectedIndex = index;
+			comboBoxObjects[index] = new JComboBoxImageObject(group,
+					getGroupIcon(group));
+			groupsBox.addItem(comboBoxObjects[index]);
 			index++;
 		}
-        
-        groupsBox.setSelectedIndex(selectedIndex);
-        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
-        groupsBox.setRenderer(rnd);
-        rnd.setPreferredSize(new Dimension(200, 130));
-        
-        ActionListener groupListener = new ActionListener(){
+
+		groupsBox.setSelectedIndex(selectedIndex);
+		JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
+		groupsBox.setRenderer(rnd);
+		rnd.setPreferredSize(new Dimension(200, 130));
+
+		ActionListener groupListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				// firePropertychangeEvent(GROUP_CHANGED, oldGroupId, newGroupId)
-				
+				// firePropertychangeEvent(GROUP_CHANGED, oldGroupId,
+				// newGroupId)
+
 			}
-        	
-        };
-        
-        groupsBox.addActionListener(groupListener);
-    }
-    
+
+		};
+
+		groupsBox.addActionListener(groupListener);
+	}
+
 	/**
-     * Returns the icon associated to the group.
-     * 
-     * @param group The group to handle.
-     * @return See above.
-     */
-    private Icon getGroupIcon(GroupData group)
-    {
-    	switch (group.getPermissions().getPermissionsLevel()) {
-	    	case GroupData.PERMISSIONS_PRIVATE:
-	    		return GROUP_PRIVATE_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ:
-	    		return GROUP_READ_ONLY_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
-	    		return GROUP_READ_LINK_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-	    		return GROUP_READ_WRITE_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ:
-	    		return GROUP_PUBLIC_READ_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-	    		return GROUP_PUBLIC_READ_WRITE_ICON;
+	 * Returns the icon associated to the group.
+	 * 
+	 * @param group
+	 *            The group to handle.
+	 * @return See above.
+	 */
+	private Icon getGroupIcon(GroupData group) {
+		switch (group.getPermissions().getPermissionsLevel()) {
+		case GroupData.PERMISSIONS_PRIVATE:
+			return GROUP_PRIVATE_ICON;
+		case GroupData.PERMISSIONS_GROUP_READ:
+			return GROUP_READ_ONLY_ICON;
+		case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			return GROUP_READ_LINK_ICON;
+		case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			return GROUP_READ_WRITE_ICON;
+		case GroupData.PERMISSIONS_PUBLIC_READ:
+			return GROUP_PUBLIC_READ_ICON;
+		case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+			return GROUP_PUBLIC_READ_WRITE_ICON;
 		}
-    	return null;
-    }
-	/** 
+		return null;
+	}
+
+	/**
 	 * Builds and lays out the UI.
 	 * 
-	 * @param location The component displaying the option.
+	 * @param location
+	 *            The component displaying the option.
 	 */
-	private void buildGUI()
-	{
+	private void buildGUI() {
 		Container c = getContentPane();
 		c.add(layoutMainPanel(), BorderLayout.CENTER);
 		c.add(buildToolbar(), BorderLayout.SOUTH);
 	}
-	
-	/** Closes the dialog.*/
-	private void close()
-	{
+
+	/** Closes the dialog. */
+	private void close() {
 		setVisible(false);
 		dispose();
 	}
 
-    /**
-     * Shows the message box and returns the option selected by the user. 
-     * 
-     * @return The option selected by the user. 
-     */
-    int centerLocation()
-    {
-    	UIUtilities.centerAndShow(this);
-    	return option;
-    }
-   
-    /**
-     * Shows the message box and returns the option selected by the user. 
-     * 
-     * @param location The location of the top-left corner of the dialog.
-     * @return The option selected by the user. 
-     */
-    int showLocation(Point location)
-    {
-    	setLocation(location);
-    	setVisible(true);
-    	return option;
-    }
-    
+	/**
+	 * Shows the message box and returns the option selected by the user.
+	 * 
+	 * @return The option selected by the user.
+	 */
+	int centerLocation() {
+		UIUtilities.centerAndShow(this);
+		return option;
+	}
+
+	/**
+	 * Shows the message box and returns the option selected by the user.
+	 * 
+	 * @param location
+	 *            The location of the top-left corner of the dialog.
+	 * @return The option selected by the user.
+	 */
+	int showLocation(Point location) {
+		setLocation(location);
+		setVisible(true);
+		return option;
+	}
+
 	/**
 	 * Sets the option.
+	 * 
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent ae)
-	{
+	public void actionPerformed(ActionEvent ae) {
 		int commandId = Integer.parseInt(ae.getActionCommand());
-		
+
 		DataObject emptyObject = null;
-		switch(commandId)
-		{
-			case CMD_CREATE_PROJECT:
-				emptyObject = new ProjectData();
-				break;
-			case CMD_CREATE_DATASET:
-				emptyObject = new DatasetData();
-				break;
-			case CMD_CREATE_SCREEN:
-				emptyObject = new ScreenData();
-				break;
+		switch (commandId) {
+		case CMD_CREATE_PROJECT:
+			emptyObject = new ProjectData();
+			break;
+		case CMD_CREATE_DATASET:
+			emptyObject = new DatasetData();
+			break;
+		case CMD_CREATE_SCREEN:
+			emptyObject = new ScreenData();
+			break;
 		}
-		
+
 		EditorDialog d = new EditorDialog(owner, emptyObject, false);
 		d.addPropertyChangeListener(this);
 		d.setModal(true);
@@ -541,7 +550,7 @@ class LocationDialog
 	}
 
 	public ImportLocationSettings getImportSettings() {
-		// TODO Auto-generated method stub  21 Nov 2012 12:43:08 scott
+		// TODO Auto-generated method stub 21 Nov 2012 12:43:08 scott
 		return null;
 	}
 
@@ -549,8 +558,10 @@ class LocationDialog
 	 * Takes the dataNdoes and populates the combo box with the values as well
 	 * as adding a tooltip for each item
 	 * 
-	 * @param dataNodes the nodes used to be displayed in the combo box
-	 * @param comboBox the JComboBox that hosts the options
+	 * @param dataNodes
+	 *            the nodes used to be displayed in the combo box
+	 * @param comboBox
+	 *            the JComboBox that hosts the options
 	 */
 	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
 			JComboBox comboBox) {
@@ -562,17 +573,18 @@ class LocationDialog
 
 		for (DataNode projectNode : dataNodes) {
 			comboBox.addItem(projectNode);
-			
+
 			String projectName = projectNode.getFullName();
 
-			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
-			
+			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName,
+					50);
+
 			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
 		}
 
 		renderer.setTooltips(tooltips);
 	}
-	
+
 	/**
 	 * Creates a project.
 	 * 
@@ -582,11 +594,11 @@ class LocationDialog
 	public void createProject(DataObject data) {
 		if (data == null)
 			return;
-		
+
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		DataNode dn = null;
-		
+
 		for (int i = 0; i < projectsBox.getItemCount(); i++) {
 			n = (DataNode) projectsBox.getItemAt(i);
 			if (!n.isDefaultProject())
@@ -594,25 +606,25 @@ class LocationDialog
 			else
 				dn = n;
 		}
-		
+
 		DataNode nn = new DataNode(data);
 		nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
 		nodes.add(nn);
-		
+
 		List<DataNode> l = sorter.sort(nodes);
 		if (dn != null)
 			l.add(dn);
-		
+
 		projectsBox.removeActionListener(projectsBoxListener);
 		projectsBox.removeAllItems();
-		
+
 		for (DataNode dataNode : l) {
 			projectsBox.addItem(dataNode);
 		}
-		
+
 		projectsBox.addActionListener(projectsBoxListener);
 		projectsBox.setSelectedItem(nn);
-		
+
 		repaint();
 	}
 
@@ -641,11 +653,11 @@ class LocationDialog
 		if (dn != null)
 			l.add(dn);
 		datasetsBox.removeAllItems();
-		
+
 		for (DataNode dataNode : l) {
 			datasetsBox.addItem(dataNode);
 		}
-		
+
 		datasetsBox.setSelectedItem(nn);
 	}
 
@@ -658,11 +670,11 @@ class LocationDialog
 	public void createScreen(DataObject data) {
 		if (data == null)
 			return;
-		
+
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		DataNode dn = null;
-		
+
 		for (int i = 0; i < screensBox.getItemCount(); i++) {
 			n = (DataNode) screensBox.getItemAt(i);
 			if (!n.isDefaultScreen())
@@ -670,22 +682,22 @@ class LocationDialog
 			else
 				dn = n;
 		}
-		
+
 		DataNode nn = new DataNode(data);
 		nodes.add(nn);
-		
+
 		List<DataNode> l = sorter.sort(nodes);
 		if (dn != null)
 			l.add(dn);
-		
+
 		screensBox.removeAllItems();
-		
+
 		for (DataNode dataNode : l) {
 			screensBox.addItem(dataNode);
 		}
-		
+
 		screensBox.setSelectedItem(nn);
-		
+
 		repaint();
 	}
 
@@ -735,7 +747,7 @@ class LocationDialog
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
-		
+
 		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			Object ho = evt.getNewValue();
 			DataObject child = null, parent = null;
@@ -748,29 +760,24 @@ class LocationDialog
 					parent = n.getDataObject();
 				}
 			}
-			JComboBoxImageObject selectedGroup = 
-						(JComboBoxImageObject) groupsBox.getSelectedItem();
+			JComboBoxImageObject selectedGroup = (JComboBoxImageObject) groupsBox
+					.getSelectedItem();
 			GroupData g = (GroupData) selectedGroup.getData();
-				
+
 			if (child != null) {
-				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null, new ObjectToCreate(g, child, parent));
+				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null,
+						new ObjectToCreate(g, child, parent));
 			}
 		}
 	}
-	
 
 	/** Initialises the selection boxes. */
 	private void initializeLocationBoxes() {
-		groupsBox.removeAllItems();
-		populateGroupBox(groups, currentGroupId);
-		
 		projectsBox.removeActionListener(projectsBoxListener);
 		projectsBox.removeAllItems();
-		
 		datasetsBox.removeAllItems();
-		
 		screensBox.removeAllItems();
-		
+
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataNode n;
@@ -781,7 +788,8 @@ class LocationDialog
 			while (i.hasNext()) {
 				node = i.next();
 				hostObject = node.getUserObject();
-				if (hostObject instanceof ProjectData || hostObject instanceof ScreenData) {
+				if (hostObject instanceof ProjectData
+						|| hostObject instanceof ScreenData) {
 					n = new DataNode((DataObject) hostObject);
 					getNewDataset((DataObject) hostObject, n);
 					n.setRefNode(node);
@@ -823,25 +831,27 @@ class LocationDialog
 			sortedList = sorter.sort(topList);
 		}
 
-		loadProjects(hostObject, datasetsList,sortedList);
-		loadScreens(hostObject,sortedList);
-
+		if(importDataType == Importer.PROJECT_TYPE)
+			loadProjects(hostObject, datasetsList, sortedList);
+		
+		if(importDataType == Importer.SCREEN_TYPE)
+			loadScreens(hostObject, sortedList);
+		
 		projectsBox.addActionListener(projectsBoxListener);
 	}
 
-	private void loadScreens(Object hostObject, List<DataNode> sortedList)
-	{
+	private void loadScreens(Object hostObject, List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		finalList.add(new DataNode(DataNode.createDefaultScreen()));
 		finalList.addAll(sortedList);
 		
-		populateAndAddTooltipsToComboBox(finalList, screensBox);
-
-		int size = screensBox.getItemCount();
-		int index = 0;
-		if (selectedContainer != null) {
-			hostObject = selectedContainer.getUserObject();
-			if (hostObject instanceof ScreenData) {
+		if (hostObject instanceof ScreenData) {
+			populateAndAddTooltipsToComboBox(finalList, screensBox);
+	
+			int size = screensBox.getItemCount();
+			int index = 0;
+			if (selectedContainer != null) {
+			
 				long id = ((ScreenData) hostObject).getId();
 				for (int i = 0; i < size; i++) {
 					DataNode n = (DataNode) screensBox.getItemAt(i);
@@ -852,10 +862,10 @@ class LocationDialog
 				}
 
 			}
+			screensBox.setSelectedIndex(index);
 		}
-		screensBox.setSelectedIndex(index);
+		
 	}
-	
 
 	/**
 	 * Returns the collection of new datasets.
@@ -874,12 +884,13 @@ class LocationDialog
 		}
 		return null;
 	}
-	
-	private void loadProjects(Object hostObject, List<DataNode> datasetsList, List<DataNode> sortedList) {
+
+	private void loadProjects(Object hostObject, List<DataNode> datasetsList,
+			List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		DataNode n;
 		List<DataNode> l = getOrphanedNewDatasetNode();
-		
+
 		if (datasetsList.size() > 0) { // orphaned datasets.
 			datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
 			if (l != null)
@@ -894,12 +905,12 @@ class LocationDialog
 		}
 		finalList.add(n);
 		finalList.addAll(sortedList);
-		
+
 		populateAndAddTooltipsToComboBox(finalList, projectsBox);
 
 		int index = 0;
 		TreeImageDisplay node;
-		
+
 		// Determine the node to select.
 		int size = projectsBox.getItemCount();
 		if (selectedContainer != null) {
@@ -909,8 +920,7 @@ class LocationDialog
 				p = (ProjectData) hostObject;
 			} else if (hostObject instanceof DatasetData) {
 				node = selectedContainer.getParentDisplay();
-				if (node != null
-						&& node.getUserObject() instanceof ProjectData) {
+				if (node != null && node.getUserObject() instanceof ProjectData) {
 					p = (ProjectData) node.getUserObject();
 				}
 			}
@@ -926,10 +936,10 @@ class LocationDialog
 			}
 		}
 		projectsBox.setSelectedIndex(index);
-		
+
 		populateDatasetsBox();
 	}
-	
+
 	/**
 	 * Retrieves the new nodes to add the project.
 	 * 
@@ -965,12 +975,15 @@ class LocationDialog
 	public void reset(TreeImageDisplay container, int type,
 			Collection<TreeImageDisplay> objects) {
 
+		this.selectedContainer = container;
+		this.importDataType = type;
 		this.objects = objects;
+		
 		initializeLocationBoxes();
 	}
 
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
-		
+
 	}
 }
