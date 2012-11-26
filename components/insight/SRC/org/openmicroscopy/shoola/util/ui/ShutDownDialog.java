@@ -90,7 +90,7 @@ public class ShutDownDialog
 		formatText(time);
 		int speed = 1000;
 		int pause = 1000;
-		Timer timer = new Timer(speed, this);
+		timer = new Timer(speed, this);
 		timer.setInitialDelay(pause);
 		timer.start();
 		pack();
@@ -160,8 +160,8 @@ public class ShutDownDialog
 	 */
 	protected void close()
 	{
-		super.close();
 		if (timer != null) timer.stop();
+		super.close();
 	}
 
 	/** 
@@ -169,8 +169,8 @@ public class ShutDownDialog
 	 */
 	protected void cancel()
 	{
-		super.cancel();
 		if (timer != null) timer.stop();
+		super.cancel();
 	}
 	
 	/**
