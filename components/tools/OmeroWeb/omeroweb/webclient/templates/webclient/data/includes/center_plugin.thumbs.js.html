@@ -41,7 +41,7 @@ $(document).ready(function() {
     }
 
     // on change of selection in tree, update center panel
-    var update_thumbnails_panel = function() {
+    var update_thumbnails_panel = function(event, force_update) {
 
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
@@ -54,6 +54,10 @@ $(document).ready(function() {
         var sel_objs = $("body").data("selected_objects.ome");
         if (sel_objs.length == 0) {
             syncPanels(selected);
+            if (force_update === true) {
+                $("div#content_details").empty();
+                $("div#content_details").removeAttr('rel');
+            }
             return;
         }
 
@@ -139,6 +143,9 @@ $(document).ready(function() {
 
         var page_change = ((page != null) && (page!=cpage));
         var need_refresh = ((oid!==crel) || page_change || (current_well_index != well_index));
+        if (force_update === true) {
+            need_refresh = true;
+        }
         // if nothing to show - clear panel
         if (update.empty) {
             $("div#content_details").empty();

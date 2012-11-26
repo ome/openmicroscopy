@@ -85,7 +85,8 @@
             var selected = datatree.get_selected();
 
             var del_form = $( "#delete-dialog-form" );
-            del_form.dialog( "open" );
+            del_form.dialog( "open" )
+                .removeData("clicked_button");
             // clear previous stuff from form
             $.removeData(del_form, "clicked_button");
             $("#delete_contents_form").show();
@@ -882,7 +883,7 @@
                             }
                         });
                     });
-                    tree_selection_changed();   // clear center and right panels etc
+                    clear_selected(true);   // clear center and right panels etc
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
@@ -944,7 +945,7 @@
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
-                    tree_selection_changed();
+                    clear_selected(true);   // force refresh: true
                     $("#dataTree").jstree("refresh");
                     data = $.jstree._focused().get_selected();
                     tree_selection_changed(data);

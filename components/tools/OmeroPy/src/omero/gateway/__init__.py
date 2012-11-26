@@ -3679,16 +3679,16 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
     
-    def getParentLinks(self, ptype, pids=None): 
-        ptype = ptype.lower()
-        if not ptype in ('project', 'dataset', 'image', 'screen', 'plate', 'well'):
-            AttributeError('Annotation can be linked only to: project, dataset, image, screen, plate, well')
+    def getParentLinks(self, ptype, pids=None):
+        ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
+        if not ptype in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
+            raise AttributeError("getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["aid"] = rlong(self.id)
         sql = "select oal from %sAnnotationLink as oal left outer join fetch oal.child as ch " \
                 "left outer join fetch oal.parent as pa " \
-                "where ch.id=:aid " % (ptype.title())
+                "where ch.id=:aid " % (ptype)
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql+=" and pa.id in (:pids)" 

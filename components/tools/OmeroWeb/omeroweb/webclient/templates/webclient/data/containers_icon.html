@@ -35,7 +35,7 @@
                 } else if ($(this).attr('id').split("-")[0] == "image") {
                     // else, remove image
                     var imgId = $(this).attr('id').split("-")[1];
-                    $("ul#dataIcons li [id='" + imgId + "']").parent().remove();
+                    $("#image_icon-" + imgId).remove();
                 }
             });
         };
@@ -266,7 +266,7 @@
 
             var $filter_input = $('#id_search');
             var filter_txt = $filter_input.val();
-            $filter_input.quicksearch('#dataIcons li', {
+            $filter_input.quicksearch('#dataIcons li.row', {
                 'delay': 300,
                 'bind': 'keyup',
                 'loader': 'span.loading',
