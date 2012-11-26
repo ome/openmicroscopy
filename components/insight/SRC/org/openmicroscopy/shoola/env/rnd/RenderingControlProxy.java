@@ -732,18 +732,28 @@ class RenderingControlProxy
         
         return img;
 	}
+
+	private boolean networkUp = true;
 	
 	/** Checks if the proxy is still active.*/
 	private void isSessionAlive()
 		throws RenderingServiceException
 	{
+		if (!networkUp) {
+			RenderingServiceException ex = new RenderingServiceException();
+			ex.setIndex(RenderingServiceException.CONNECTION);
+			//throw ex;
+		}
 		try {
-			checker.isNetworkup();
+			networkUp = checker.isNetworkup();
 			servant.ice_ping();
 		} catch (Throwable e) {
 			boolean b = handleConnectionException(e);
 			int index = 0;
-			if (!b) index = RenderingServiceException.CONNECTION;
+			if (!b) {
+				networkUp = false;
+				index = RenderingServiceException.CONNECTION;
+			}
 			RenderingServiceException ex = new RenderingServiceException(e);
 			ex.setIndex(index);
 			throw ex;
@@ -1544,7 +1554,16 @@ class RenderingControlProxy
     {
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
-    	isSessionAlive();
+    	try {
+    		networkUp = checker.isNetworkup();
+			servant.ice_ping();
+		} catch (Exception e) {
+			return null;
+		}
+    	
+    	//since this method is always invoked after another change in
+    	//the settings and due to the fact that the proxy is usually invoked
+    	//in the swing thread.
     	if (value != compression) setCompression(value);
     	BufferedImage img;
         if (isCompressed()) img = renderCompressedBI(pDef);
@@ -1806,7 +1825,12 @@ class RenderingControlProxy
 	{
 		if (pDef == null) 
 			throw new IllegalArgumentException("Plane def cannot be null.");
-		isSessionAlive();
+		try {
+    		networkUp = checker.isNetworkup();
+			servant.ice_ping();
+		} catch (Exception e) {
+			return null;
+		}
 		if (isCompressed()) return renderCompressedAsTexture(pDef);
 	     return renderUncompressedAsTexture(pDef);
 	}
