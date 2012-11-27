@@ -41,23 +41,15 @@ script.
     def _configure(self, parser):
         sub = parser.sub()
 
-        class Action(object):
-
-            def __init__(this, name):
-                func = getattr(self, name)
-                this.parser = sub.add_parser(name, help=func.__doc__, description=func.__doc__)
-                this.parser.set_defaults(func=func)
-
-            def add_argument(this, *args, **kwargs):
-                this.parser.add_argument(*args, **kwargs)
-                return this
-
-        merge = Action("merge")
+        merge = parser.add(sub, self.merge, self.merge.__doc__)
         merge.add_argument("path", help="Path to image files")
 
-        rois = Action("rois")
+        rois = parser.add(sub, self.rois, self.rois.__doc__)
         rois.add_argument("-f", "--file", required=True, help="Details file to be parsed")
         rois.add_argument("-i", "--image", required=True, help="Image id which should have ids attached")
+
+        for x in (merge, rois):
+            x.add_login_arguments()
 
     ##
     ## Public methods
