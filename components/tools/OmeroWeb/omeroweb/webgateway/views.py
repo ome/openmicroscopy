@@ -1701,7 +1701,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         where obj%d.id=:id""" % (len(objtype) - 1)
 
     try:
-        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid))
+        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
+                            conn.createServiceOptsDict())
     except omero.QueryException, ex:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
@@ -1725,7 +1726,8 @@ def _table_query(request, fileid, conn=None, **kwargs):
         return dict(error='Must specify query parameter, use * to retrieve all')
 
     r = conn.getSharedResources()
-    t = r.openTable(omero.model.OriginalFileI(fileid))
+    t = r.openTable(omero.model.OriginalFileI(fileid),
+                    conn.createServiceOptsDict())
     if not t:
         return dict(error="Table %s not found" % fileid)
 
