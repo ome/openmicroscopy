@@ -493,7 +493,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate') or kw.has_key('acquisition'):
-            fields = manager.plate.getNumberOfFields(kw.get('acquisition', None))
+            fields = manager.getNumberOfFields()
             if fields is not None:
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
