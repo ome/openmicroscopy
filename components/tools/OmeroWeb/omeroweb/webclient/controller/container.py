@@ -81,8 +81,6 @@ class BaseContainer(BaseController):
             self.acquisition = self.conn.getObject("PlateAcquisition", acquisition)
             self.assertNotNone(self.acquisition, acquisition, "Plate Acquisition")
             self.assertNotNone(self.acquisition._obj, acquisition, "Plate Acquisition")
-            if self.plate is None:
-                self.plate = self.conn.getObject("Plate", self.acquisition._obj.plate.id.val)
         if image is not None:
             self.image = self.conn.getObject("Image", image)
             self.assertNotNone(self.image, image, "Image")
@@ -161,6 +159,21 @@ class BaseContainer(BaseController):
         return obj is not None and obj.canEdit() or None
 
 
+    def getNumberOfFields(self):
+        """ Applies to Plates (all fields) or PlateAcquisitions"""
+        if self.plate is not None:
+            return self.plate.getNumberOfFields()
+        elif self.acquisition:
+            p = self.conn.getObject("Plate", self.acquisition._obj.plate.id.val)
+            return p.getNumberOfFields(self.acquisition.getId())
+    
+    def getPlateId(self):
+        """ Used by templates that display Plates or PlateAcquisitions """
+        if self.plate is not None:
+            return self.plate.getId()
+        elif self.acquisition:
+            return self.acquisition._obj.plate.id.val
+        
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?

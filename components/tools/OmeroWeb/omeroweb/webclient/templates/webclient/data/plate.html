@@ -94,7 +94,7 @@
                     openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
-            wpv.load({{ manager.plate.id }}, {{ index }});
+            wpv.load({{ manager.getPlateId }}, {{ index }});
             wpv.self.selectable({
                 filter: 'td.well',
                 distance: 2,
