@@ -21,7 +21,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data;
+package org.openmicroscopy.shoola.util;
 
 //Java imports
 import java.net.InetAddress;
@@ -30,11 +30,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
