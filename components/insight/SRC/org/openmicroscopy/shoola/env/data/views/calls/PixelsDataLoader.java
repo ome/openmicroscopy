@@ -54,6 +54,10 @@ public class PixelsDataLoader
 	/** Flag indicating to load the pixels set. */
 	public static final int SET = 1;
 	
+	/** Flag indicating to load the pixels' size. */
+	public static final int SIZE = 2;
+	
+	
 	 /** The id of the pixels set this loader is for. */
     private long pixelsID;
     
@@ -67,7 +71,7 @@ public class PixelsDataLoader
     private SecurityContext ctx;
     
     /**
-     * Creates a {@link BatchCall} to retrieve dimension of the pixels set.
+     * Creates a {@link BatchCall} to laod the pixels set.
      * 
      * @return See above.
      */
@@ -78,6 +82,22 @@ public class PixelsDataLoader
             {
                 OmeroImageService rds = context.getImageService();
                 result = rds.loadPixels(ctx, pixelsID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to check if the pixels is a big image.
+     * 
+     * @return See above.
+     */
+    private BatchCall makePixelsSizeBatchCall()
+    {
+    	return new BatchCall("Loading pixels: ") {
+            public void doCall() throws Exception
+            {
+                OmeroImageService rds = context.getImageService();
+                result = rds.isLargeImage(ctx, pixelsID);
             }
         };
     }
@@ -109,6 +129,9 @@ public class PixelsDataLoader
     	switch (index) {
 			case SET:
 				loadCall = makePixelsBatchCall();
+				break;
+			case SIZE:
+				loadCall = makePixelsSizeBatchCall();
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
