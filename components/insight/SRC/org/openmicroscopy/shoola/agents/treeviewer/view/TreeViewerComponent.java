@@ -1039,7 +1039,7 @@ class TreeViewerComponent
 			return;
 		} 
 		
-		if (display != null) { 
+		if (display != null) {
 			Object object = display.getUserObject();
 			if (!single) {
 				List l = new ArrayList();
@@ -1199,11 +1199,12 @@ class TreeViewerComponent
 		if (browser != null) last = browser.getLastSelectedDisplay();
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
+		Object grandParent = null;
 		if (selected instanceof WellSampleData) {
-			if (parent instanceof WellData)
-				parent = ((WellData) parent).getPlate();
+			if (parent instanceof WellData) 
+				grandParent = ((WellData) parent).getPlate();
 		}
-		mv.setParentRootObject(parent, null);
+		
 		if (browser == null) {
 			if (selected instanceof DataObject) {
 				SecurityContext ctx = new SecurityContext(
@@ -1214,6 +1215,8 @@ class TreeViewerComponent
 			mv.setRootObject(selected, exp.getId(),
 					browser.getSecurityContext(last));
 		}
+		mv.setParentRootObject(parent, grandParent);
+		
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
 
