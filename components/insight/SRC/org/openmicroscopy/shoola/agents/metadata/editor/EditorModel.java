@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileLoader;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.ImageSizeLoader;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -236,6 +237,24 @@ class EditorModel
 	
     /** The photo of the current user.*/
     private Map<Long, BufferedImage>				usersPhoto;
+    
+    /** Flag indicating if the image is a big image or not.*/
+    private boolean largeImage;
+    
+    /** Checks if the image is a large image or not. */
+    private void fireLargeImageLoading()
+    {
+    	ImageData img = null;
+		if (refObject instanceof ImageData) {
+    		img = (ImageData) refObject;
+    	} else if (refObject instanceof WellSampleData) {
+    		img = ((WellSampleData) refObject).getImage();
+    	}
+		PixelsData data = img.getDefaultPixels();
+		ImageSizeLoader loader = new  ImageSizeLoader(component, 
+				parent.getSecurityContext(), data.getId()); 
+		loader.load();
+    }
     
 	/**
 	 * Downloads the files.
@@ -1740,6 +1759,7 @@ class EditorModel
 	    			refObject instanceof WellSampleData) {
 	    		fireChannelEnumerationsLoading();
 	    		fireImageEnumerationsLoading();
+	    		fireLargeImageLoading();
 	    	} else if (refObject instanceof ExperimenterData) {
 	    		fireExperimenterPhotoLoading();
 	    	}
@@ -3196,26 +3216,19 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isLargeImage()
-	{
-		ImageData img = null;
-		if (refObject instanceof ImageData) {
-    		img = (ImageData) refObject;
-    	} else if (refObject instanceof WellSampleData) {
-    		img = ((WellSampleData) refObject).getImage();
-    	}
-		if (img == null) return false;
-		Boolean b = null;
-		try {
-			PixelsData data = img.getDefaultPixels();
-			b = 
-			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
-					parent.getSecurityContext(), data.getId());
-		} catch (Exception e) {}
-		if (b != null) return b.booleanValue();
-		return false;
-	}
+	boolean isLargeImage() { return largeImage; }
 
+	/**
+	 * Indicates if the image is a big image or not.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setLargeImage(Boolean value)
+	{
+		if (value == null) largeImage = false;
+		largeImage = value.booleanValue();
+	}
+	
 	/**
 	 * Returns the parent UI.
 	 * 
