@@ -25,13 +25,9 @@ package org.openmicroscopy.shoola.env;
 
 //Java imports
 import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -40,7 +36,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.data.NetworkChecker;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
