@@ -319,10 +319,21 @@ public interface DataManagerView
 	 * Moves the passed collection to another group.
 	 * 
 	 * @param object The objects to transfer.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle changeGroup(TransferableObject object,
+			AgentEventListener observer);
+
+	/**
+	 * Checks if the image is a large image or not.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels set.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle isLargeImage(SecurityContext ctx, long pixelsID,
 			AgentEventListener observer);
 	
 }
