@@ -1708,32 +1708,25 @@ def repositories(request, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository(request, index, conn=None, **kwargs):
+def repository(request, conn=None, **kwargs):
     """
     Returns a repository and its root property
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    return dict(repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal(),
+    repository = conn.lookupManagedRepository()
+    return dict(repository=OriginalFileWrapper(conn=conn, obj=repository.root()).simpleMarshal(),
                 root=unwrap(repository.root().path))
 
 
 @login_required()
 @jsonp
-def repository_list(request, index, filepath=None, conn=None, **kwargs):
+def repository_list(request, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files in a repository.  If filepath is not specified,
     returns files at the top level of the repository, otherwise files within
     the specified filepath
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), name)
+    repository = conn.lookupManagedRepository()
+    root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
     if filepath:
         root = os.path.join(root, filepath)
     if repository.fileExists(root):
@@ -1745,18 +1738,14 @@ def repository_list(request, index, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
+def repository_listfiles(request, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files and some of their metadata in a repository.
     If filepath is not specified, returns files at the top level of the
     repository, otherwise files within the specified filepath
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), name)
+    repository = conn.lookupManagedRepository()
+    root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
     if filepath:
         root = os.path.join(root, filepath)
 
@@ -1774,16 +1763,13 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_sha(request, index, filepath, conn=None, **kwargs):
+def repository_sha(request, filepath, conn=None, **kwargs):
     """
     json method: Returns the sha1 checksum of the specified file
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    repository = conn.lookupManagedRepository()
+    root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
+    fullpath = os.path.join(root, filepath)
 
     try:
         sourcefile = repository.file(fullpath, 'r')
@@ -1800,35 +1786,29 @@ def repository_sha(request, index, filepath, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_root(request, index, conn=None, **kwargs):
+def repository_root(request, conn=None, **kwargs):
     """
     Returns the root and name property of a repository
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository = conn.lookupManagedRepository()
     return dict(root=unwrap(repository.root().path),
-                name=OriginalFileWrapper(conn=conn, obj=description).getName())
+                name=unwrap(repository.root().name))
 
 
 @require_POST
 @login_required()
 @jsonp
-def repository_makedir(request, index, dirpath, conn=None, **kwargs):
+def repository_makedir(request, dirpath, conn=None, **kwargs):
     """
     Returns the root and name property of a repository
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    root = unwrap(repository.root().path)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    repository = conn.lookupManagedRepository()
+    root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
+    fullpath = os.path.join(root, dirpath)
 
     try:
         rdict = {'bad': 'false'}
-        repository.makeDir(os.path.join(root, name, dirpath))
+        repository.makeDir(fullpath)
     except Exception, ex:
         logger.error(traceback.format_exc())
         rdict = {'bad': 'true', 'errs': str(ex)}
@@ -1849,17 +1829,14 @@ def iterate_content(source, start, end):
 
 
 @login_required(doConnectionCleanup=False)
-def repository_download(request, index, filepath, conn=None, **kwargs):
+def repository_download(request, filepath, conn=None, **kwargs):
     """
     Downloads a file from a repository.  Supports the HTTP_RANGE header to
     perform partial downloads or download continuation
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    repository = conn.lookupManagedRepository()
+    root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
+    fullpath = os.path.join(root, filepath)
 
     try:
         sourcefile = repository.file(fullpath, 'r')
@@ -1971,14 +1948,11 @@ def process_request(require_uploadId):
         @login_required_no_redirect()
         @jsonp
         @uncloak_self
-        def decorated(self, request, index, filepath, conn, **kwargs):
+        def decorated(self, request, filepath, conn, **kwargs):
 
-            sr = conn.getSharedResources()
-            repositories = sr.repositories()
-            repository = repositories.proxies[int(index)]
-            description = repositories.descriptions[int(index)]
-            name = OriginalFileWrapper(conn=conn, obj=description).getName()
-            fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+            repository = conn.lookupManagedRepository()
+            root = os.path.join(unwrap(repository.root().path), unwrap(repository.root().name))
+            fullpath = os.path.join(root, filepath)
 
             objectname = os.path.basename(fullpath)
             uploadId = request.GET.get('uploadId')
