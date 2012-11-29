@@ -434,6 +434,7 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			isNetworkUp();
+			connected = true;
 			c.ping();
 		} catch (Exception e) {
 			handleConnectionException(e);
@@ -908,6 +909,7 @@ class OMEROGateway
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
+		connected = false;
 		dsFactory.sessionExpiredExit(index, e);
 		return false;
 	}
