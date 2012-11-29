@@ -6262,38 +6262,43 @@ class OMEROGateway
 		RString dataType;
 		dataType = omero.rtypes.rstring("Image");
 		map.put("Data_Type", dataType);
-		if (scriptIndex == FigureParam.THUMBNAILS) {
-			DataObject d = (DataObject) param.getAnchor();
-			long parentID = -1;
-			if (d instanceof DatasetData ||
-					d instanceof ProjectData) parentID = d.getId();
-			if (DatasetData.class.equals(type)) {
-				dataType = omero.rtypes.rstring("Dataset");
-			} 
-			map.put("Data_Type", dataType);
-			map.put("IDs", omero.rtypes.rlist(ids));
-			List<Long> tags = param.getTags();
-			if (tags != null && tags.size() > 0) {
-				ids = new ArrayList<RType>(tags.size());
-				i = tags.iterator();
-				while (i.hasNext()) 
-					ids.add(omero.rtypes.rlong(i.next()));
-				map.put("Tag_IDs", omero.rtypes.rlist(ids));
-			}
+		switch (scriptIndex) {
+			case FigureParam.THUMBNAILS:
+				DataObject d = (DataObject) param.getAnchor();
+				long parentID = -1;
+				if (d instanceof DatasetData ||
+						d instanceof ProjectData) parentID = d.getId();
+				if (DatasetData.class.equals(type)) {
+					dataType = omero.rtypes.rstring("Dataset");
+				} 
+				map.put("Data_Type", dataType);
+				map.put("IDs", omero.rtypes.rlist(ids));
+				List<Long> tags = param.getTags();
+				if (tags != null && tags.size() > 0) {
+					ids = new ArrayList<RType>(tags.size());
+					i = tags.iterator();
+					while (i.hasNext()) 
+						ids.add(omero.rtypes.rlong(i.next()));
+					map.put("Tag_IDs", omero.rtypes.rlist(ids));
+				}
 
-			if (parentID > 0)
-				map.put("Parent_ID", omero.rtypes.rlong(parentID));
-			map.put("Show_Untagged_Images", 
-					omero.rtypes.rbool(param.isIncludeUntagged()));
+				if (parentID > 0)
+					map.put("Parent_ID", omero.rtypes.rlong(parentID));
+				map.put("Show_Untagged_Images", 
+						omero.rtypes.rbool(param.isIncludeUntagged()));
 
-			map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
-			map.put("Max_Columns", omero.rtypes.rint(param.getHeight()));
-			map.put("Format", 
-					omero.rtypes.rstring(param.getFormatAsString()));
-			map.put("Figure_Name", 
-					omero.rtypes.rstring(param.getName()));
-			return runScript(ctx, id, map);	
-		} 
+				map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
+				map.put("Max_Columns", omero.rtypes.rint(
+						param.getMaxPerColumn()));
+				map.put("Format", 
+						omero.rtypes.rstring(param.getFormatAsString()));
+				map.put("Figure_Name", 
+						omero.rtypes.rstring(param.getName()));
+				return runScript(ctx, id, map);
+			case FigureParam.MOVIE:
+				map.put("Max_Columns",
+						omero.rtypes.rint(param.getMaxPerColumn()));
+		}
 		//merge channels
 		Iterator j;
 		Map<String, RType> merge = new LinkedHashMap<String, RType>();
