@@ -1176,16 +1176,7 @@ class ImViewerModel
 	boolean isBigImage()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) {
-			try {
-				Boolean 
-				b = ImViewerAgent.getRegistry().getImageService().isLargeImage(
-						ctx, getImage().getDefaultPixels().getId());
-				if (b != null) return b.booleanValue();
-			} catch (Exception e) {} //ingore
-			
-			return false;
-		}
+		if (rnd == null) return false;
 		return rnd.isBigImage();
 	}
 	
