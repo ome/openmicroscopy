@@ -1067,8 +1067,8 @@ class OMEROGateway
 		else if (Plate.class.equals(klass) ||
 				PlateData.class.equals(klass)) 
 			table = "ScreenAnnotationLink";
-		else if (Plate.class.equals(klass) ||
-				PlateData.class.equals(klass)) 
+		else if (PlateAcquisition.class.equals(klass) ||
+				PlateAcquisitionData.class.equals(klass)) 
 			table = "ScreenAnnotationLink";
 		else if (WellSample.class.equals(klass) ||
 				WellSampleData.class.equals(klass)) 
