@@ -16,25 +16,27 @@ After downloading the relevant files, you may want to take a look at our Bio-For
 
 To access bug fixes between stable releases, you can download the daily build (updated every night) or the trunk build (updated within minutes of every Git push) for the latest bug fixes, but  **please be aware** that these builds are not always thoroughly tested and should be considered beta quality.
 
-<div class="alt-table">
-<table>
-<tr>
-<th>Build</th>
-<th>LOCI Tools</th>
-<th>OME Tools</th>
-</tr>
-<tr>
-<td>Trunk</td>
-<td><a href="@TRUNK_loci_tools.jar@">loci_tools.jar</a></td>
-<td><a href="@TRUNK_ome_tools.jar@">ome_tools.jar</a></td>
-</tr>
-<tr>
-<td>Daily</td>
-<td><a href="@DAILY_loci_tools.jar@">loci_tools.jar</a></td>
-<td><a href="@DAILY_ome_tools.jar@">ome_tools.jar</a></td>
-</tr>
-</table>
-</div>
+<p>
+    <div class="alt-table">
+        <table>
+            <tr>
+                <th>Build</th>
+                <th>LOCI Tools</th>
+                <th>OME Tools</th>
+            </tr>
+            <tr>
+                <td>Trunk</td>
+                <td><a href="@TRUNK_loci_tools.jar@">loci_tools.jar</a></td>
+                <td><a href="@TRUNK_ome_tools.jar@">ome_tools.jar</a></td>
+            </tr>
+            <tr>
+                <td>Daily</td>
+                <td><a href="@DAILY_loci_tools.jar@">loci_tools.jar</a></td>
+                <td><a href="@DAILY_ome_tools.jar@">ome_tools.jar</a></td>
+            </tr>
+        </table>
+    </div>
+</p>
 
 ## Bio-Formats examples ## 
 
@@ -144,8 +146,8 @@ Developers can access builds of individual JAR libraries below.
 <tr>
 <td>OME Metadata Editor</td>
 <td><a href="@ome-editor.jar@">ome-editor.jar</a></td>
-<td><a href="@TRUNK_ome-editor.jar@">ome-editor.jar</a></td>
-<td><a href="@DAILY_ome-editor.jar@">ome-editor.jar</a></td>
+<td>--</td>
+<td>--</td>
 </tr>
 </table>
 </div>
