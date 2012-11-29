@@ -404,7 +404,7 @@ public class DataServicesFactory
 	 * @param index One of the connection constants defined by the gateway.
 	 * @param exc The exception to register.
 	 */
-	public synchronized void sessionExpiredExit(int index, Throwable exc)
+	public void sessionExpiredExit(int index, Throwable exc)
 	{
 		if (connectionDialog != null) return;
 		String message;
