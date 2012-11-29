@@ -115,7 +115,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
-import omero.grid.Import;
+import omero.grid.ImportSettings;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -1478,7 +1478,7 @@ public class OMEROMetadataStoreClient
      * we are of the HCS domain.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchiveScreeningDomain(Import data)
+    public List<File> setArchiveScreeningDomain(ImportSettings data)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	String[] usedFiles = reader.getUsedFiles();
@@ -1514,7 +1514,7 @@ public class OMEROMetadataStoreClient
 		// The file is a companion file, create it,
 		// and increment the next original file's index.
 		String format = "Companion/" + formatString;
-		createOriginalFileFromFile(usedFile, indexes, format);
+		useOriginalFile(getFileByPath(absolutePath), indexes, format);
 		addCompanionFileAnnotationTo(plateKey, indexes,
 		        originalFileIndex);
 		originalFileIndex++;
@@ -1530,7 +1530,7 @@ public class OMEROMetadataStoreClient
      * file annotation on the server.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchive(boolean useMetadataFile, Import data)
+    public List<File> setArchive(boolean useMetadataFile, ImportSettings data)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
@@ -1619,7 +1619,7 @@ public class OMEROMetadataStoreClient
 				// add the original file index into our cached map
 				// and increment the next original file's index.
 				String format = "Companion/" + formatString;
-				useOriginalFile(data.originalFileMap.get(absolutePath), indexes, format);
+				useOriginalFile(getFileByPath(absolutePath), indexes, format);
 				pathIndexMap.put(absolutePath, usedFileIndex);
 				originalFileIndex++;
 			}
@@ -1628,7 +1628,7 @@ public class OMEROMetadataStoreClient
 				// PATH 3:The file is not a companion file, create it,
 				// add the original file index into our cached map
 				// and increment the next original file's index.
-				useOriginalFile(data.originalFileMap.get(absolutePath), indexes,
+				useOriginalFile(getFileByPath(absolutePath), indexes,
 				                           formatString);
 				pathIndexMap.put(absolutePath, usedFileIndex);
 				originalFileIndex++;
@@ -1651,6 +1651,15 @@ public class OMEROMetadataStoreClient
         }
         }
         return metadataFiles;
+    }
+
+    /**
+     * This method has been added to get this class compiling. The intent
+     * is that very soon the methods using it (setArchive*) will be
+     * removed.
+     */
+    OriginalFile getFileByPath(String path) {
+        throw new UnsupportedOperationException("NYI");
     }
 
     /**
@@ -2502,38 +2511,6 @@ public class OMEROMetadataStoreClient
         {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * @param in
-     * @return
-     */
-    public static String byteArrayToHexString(byte in[]) {
-
-        byte ch = 0x00;
-        int i = 0;
-
-        if (in == null || in.length <= 0) {
-            return null;
-        }
-
-        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "a", "b", "c", "d", "e", "f" };
-
-        StringBuffer out = new StringBuffer(in.length * 2);
-
-        while (i < in.length) {
-            ch = (byte) (in[i] & 0xF0);
-            ch = (byte) (ch >>> 4);
-            ch = (byte) (ch & 0x0F);
-            out.append(pseudo[ch]);
-            ch = (byte) (in[i] & 0x0F);
-            out.append(pseudo[ch]);
-            i++;
-        }
-
-        String rslt = new String(out);
-        return rslt;
     }
 
     /**

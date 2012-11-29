@@ -14,6 +14,7 @@
 #include <omero/System.ice>
 #include <omero/Collections.ice>
 #include <omero/ServerErrors.ice>
+#include <omero/cmd/API.ice>
 
 module omero {
 
@@ -126,7 +127,7 @@ module omero {
          * </pre>
          *
          **/
-        class Import {
+        class ImportLocation {
 
             /**
              * The shared base of all the paths passed to
@@ -160,14 +161,13 @@ module omero {
              **/
             omero::model::OriginalFile directory;
 
-            /**
-             * A map of absolute path to uploaded original files.
-             **/
-            omero::api::OriginalFileMap originalFileMap;
+        };
 
-            //
-            // ImportContainer information
-            //
+        /**
+         * User configuration options. These are likely set in the UI
+         * before the import is initiated.
+         **/
+        class ImportSettings {
 
             /**
              * The container which this object should be added to.
@@ -201,6 +201,100 @@ module omero {
 
         };
 
+
+        /**
+         * User configuration options. These are likely set in the UI
+         * before the import is initiated.
+         **/
+        interface ImportProcess extends omero::api::StatefulServiceInterface{
+
+            //
+            // PRIMARY WORKFLOW
+            //
+
+            /**
+             * Step 1: Returns a RawFileStore that can be used to upload one of
+             * the used files. The index is the same as the used file listed in
+             * [ImportLocation]. [omero::api::RawFileStore::close] should be
+             * called once all data has been transferred. If the file must be
+             * re-written, call [getUploader] with the same index again. Once
+             * all uploads have been completed, [verifyUpload] should be called
+             * to initiate background processing
+             **/
+             omero::api::RawFileStore* getUploader(int i) throws ServerError;
+
+            /**
+             * Step 2: Passes a set of client-side calculated hashes to the server
+             * for verifying that all of the files were correctly uploaded. If this
+             * passes then [omero::cmd::Handle*] proxies are returned, each of which
+             * represents a step of the import. Each will be run in turn. Calling
+             * [pauseImport] will prevent the next step from completing, but it's
+             * not possible to pause the running activity.
+             **/
+             omero::cmd::HandleList verifyUpload(omero::api::StringSet hash) throws ServerError;
+
+            // permit skipVerification()?
+            // Get pixels here or on the cmd/status objects
+            // What happens if there's not a thread for the session heartbeat?
+            //    single heartbeat for all of the managedrepo, or endless sessions?
+
+            /**
+             * Pauses future activities from starting. If one is running,
+             * the argument will determine whether to wait for the current
+             * activity to finish. If the activity is taking too long, an
+             * [omero::LockTimeout] will be thrown. If pausing is otherwise
+             * unsuccessful, then a false will be returned.
+             **/
+            bool pauseImport(bool wait) throws ServerError;
+
+            /**
+             * If the user wishes to cancel the import, then this method should be
+             * called in order to delete any dangling files and free up
+             * resources.
+             **/
+            void cancelImport() throws ServerError;
+
+            //
+            // INTROSPECTION
+            //
+
+            /**
+             * In case an upload must be resumed, this provides the
+             * location of the last successful upload.
+             **/
+             long getUploadOffset(int i) throws ServerError;
+
+            /**
+             * Returns the session that the import is taking part in.
+             **/
+             string getSession() throws ServerError;
+
+            /**
+             * Defines what the server knows about the files to be
+             * uploaded, where they are going, etc.
+             **/
+             ImportLocation getLocation() throws ServerError;
+
+            /**
+             * Returns the original settings that were set
+             * on creating the process
+             **/
+             ImportSettings getSettings() throws ServerError;
+
+            /**
+             * Once all the uploads have been taken care of
+             * the server will begin the process of importing
+             * the data and performing other activities like
+             * thumbnailing, etc. This returns the current
+             * step of the import.
+             *
+             * Might be null if no activity is currently running.
+             * See [pauseImport].
+             **/
+             omero::model::FilesetActivity getCurrentActivity() throws ServerError;
+
+        };
+
         /**
          * FS-enabled repository which can convert uploaded files
          * into Images by using Bio-Formats to import them.
@@ -214,35 +308,12 @@ module omero {
              * overwritten or interfering with one another, a new directory
              * may be created for the current session.
              **/
-            Import prepareImport(omero::api::StringSet paths) throws ServerError;
-
-            /**
-             *
-             **/
-            omero::api::RawFileStore* uploadUsedFile(Import importData, string usedFile) throws ServerError;
-
-           /**
-             * Return the absolute path of a file.
-             * If this is needed outside of import it might be moved to PublicRepository
-             **/
-            string getAbsolutePath(string path) throws ServerError;
+            ImportProcess* prepareImport(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
 
            /**
              * Create an OriginalFile object to represent an uploaded file.
              **/
             omero::model::OriginalFile createOriginalFile(string path) throws ServerError;
-
-            /**
-             * This will free any locks, etc in the Up
-             **/
-            omero::api::PixelsList importMetadata(Import importData) throws ServerError;
-
-            /**
-             * If the user cancels the import, then this method should
-             * be called in order to delete any dangling files and free up resources.
-             **/
-            void cancelImport(Import importData) throws ServerError;
-
 
         };
 

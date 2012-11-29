@@ -17,6 +17,9 @@
  */
 package ome.services.blitz.repo;
 
+import static org.apache.commons.io.FilenameUtils.concat;
+import static org.apache.commons.io.FilenameUtils.normalize;
+
 import java.io.File;
 import java.net.URI;
 import java.text.DateFormatSymbols;
@@ -35,6 +38,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,17 +46,19 @@ import Ice.Current;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.fire.Registry;
 
 import omero.ServerError;
-import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.grid.Import;
+import omero.grid.ImportLocation;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportSettings;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.sys.EventContext;
@@ -111,8 +117,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
      *
      * @FIXME For the moment only the top-level directory is being incremented.
      */
-    public Import prepareImport(java.util.List<String> paths, Ice.Current __current)
-            throws omero.ServerError {
+    public ImportProcessPrx prepareImport(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        if (fs == null || fs.sizeOfFilesetEntry() < 1) {
+            throw new omero.ApiUsageException(null, null, "No paths provided");
+        }
+
+        final List<String> paths = new ArrayList<String>();
+        for (FilesetEntry entry : fs.copyFilesetEntry()) {
+            paths.add(entry.getClientPath().getValue());
+        }
 
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
@@ -127,30 +142,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
-        return suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
+        ImportLocation location =
+                suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
+
+        return createImportProcess(fs, location, settings, __current);
     }
 
-
-    public RawFileStorePrx uploadUsedFile(Import importData, String usedFile, Ice.Current __current)
-            throws omero.ServerError {
-        File f = new File(root.file, usedFile);
-        if (!fileExists(f.getParent(), __current)) {
-            // TODO: should be able to remove the fileExists once
-            // makeDir has -p semantics.
-            makeDir(f.getParent(), __current);
-        }
-        return file(f.getAbsolutePath(), "rw", __current);
-    }
-
-    public String getAbsolutePath(String path, Ice.Current __current)
-            throws omero.ServerError {
-        File f = new File(root.file, path);
-        return f.getAbsolutePath();
-    }
-
-    public List<Pixels> importMetadata(Import importData, Current __current) throws ServerError {
-        File f = new File(root.file, importData.usedFiles.get(0));//repoIC.file);
-        CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
+    /** Now an internal, trusted method */
+    public List<Pixels> importMetadata(CheckedPath cp, ImportLocation location,
+            ImportSettings settings, Current __current) throws ServerError {
 
         ServiceFactoryPrx sf = null;
         OMEROMetadataStoreClient store = null;
@@ -168,7 +168,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
             ImportLibrary library = new ImportLibrary(store, reader);
-            pix = library.importImageInternal(importData, 0, 0, 1, f);
+            pix = library.importImageInternal(settings, 0, 0, 1, cp.file);
         }
         catch (ServerError se) {
             error = false;
@@ -224,14 +224,23 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
 
-    public void cancelImport(Import importData, Ice.Current __current)
-               throws ServerError {
-        throw new omero.InternalException(null, null, "NYI"); // FIXME
-    }
-
     //
     // HELPERS
     //
+
+    /**
+     * Creating the process will register itself in an appropriate
+     * container (i.e. a SessionI or similar) for the current
+     * user and therefore this instance no longer needs to worry
+     * about the maintenance of the object.
+     */
+    protected ImportProcessPrx createImportProcess(Fileset fs,
+            ImportLocation location, ImportSettings settings, Current __current)
+                throws ServerError {
+        ManagedImportProcessI proc = new ManagedImportProcessI(this, fs,
+                location, settings, __current);
+        return proc.getProxy();
+    }
 
     protected void append(StringBuilder stacks, StringBuilder message,
             Throwable err) {
@@ -377,12 +386,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return {@link Import} instance with the suggested new basePath in the
      *          case of conflicts.
      */
-    protected Import suggestOnConflict(String trueRoot, String relPath,
+    protected ImportLocation suggestOnConflict(String trueRoot, String relPath,
             String basePath, List<String> paths, Ice.Current __current)
             throws omero.ApiUsageException {
 
         // Static elements which will be re-used throughout
-        final Import data = new Import(); // Return value
+        final ImportLocation data = new ImportLocation(); // Return value
         final List<String> parts = splitElements(basePath);
         final File relFile = new File(relPath);
         final File trueFile = new File(trueRoot, relPath);

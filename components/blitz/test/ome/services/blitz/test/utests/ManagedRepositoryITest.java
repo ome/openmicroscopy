@@ -22,7 +22,7 @@ import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
 
-import omero.grid.Import;
+import omero.grid.ImportLocation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
@@ -90,7 +90,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public Import suggestOnConflict(String trueRoot, String relPath,
+        public ImportLocation suggestOnConflict(String trueRoot, String relPath,
                 String basePath, List<String> paths, Ice.Current curr) throws omero.ApiUsageException {
             return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
         }
@@ -152,9 +152,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     private String getSuggestion(String base, String...paths) throws Exception {
-        Import i = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
+        ImportLocation l = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
                 "template", base, Arrays.asList(paths), curr);
-        return new File(i.sharedPath).getName();
+        return new File(l.sharedPath).getName();
     }
 
     private void assertReturnFile(String checkedPathString, Long id) {

@@ -29,10 +29,12 @@ import static omero.rtypes.rstring;
 import java.io.File;
 import java.util.List;
 
-import omero.grid.Import;
+import omero.grid.ImportSettings;
 import omero.model.Annotation;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
+import omero.model.FilesetEntryI;
 import omero.model.IObject;
-import omero.model.Pixels;
 
 public class ImportContainer
 {
@@ -209,14 +211,14 @@ public class ImportContainer
         this.userPixels = userPixels;
     }
 
-    public void fillData(Import data) {
+    public void fillData(ImportSettings settings, Fileset fs) {
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than mis-using ImportContainer.
-        data.doThumbnails = rbool(getDoThumbnails());
-        data.userSpecifiedTarget = getTarget();
-        data.userSpecifiedName = rstring(getUserSpecifiedName());
-        data.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
-        data.userSpecifiedAnnotationList = getCustomAnnotationList();
+        settings.doThumbnails = rbool(getDoThumbnails());
+        settings.userSpecifiedTarget = getTarget();
+        settings.userSpecifiedName = rstring(getUserSpecifiedName());
+        settings.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
+        settings.userSpecifiedAnnotationList = getCustomAnnotationList();
         if (getUserPixels() != null) {
             Double[] source = getUserPixels();
             double[] target = new double[source.length];
@@ -227,7 +229,17 @@ public class ImportContainer
                 }
                 target[i] = source[i];
             }
-            data.userSpecifiedPixels = target; // May be null.
+            settings.userSpecifiedPixels = target; // May be null.
+        }
+        FilesetEntry entry = null;
+
+        entry = new FilesetEntryI();
+        entry.setClientPath(rstring(this.file.getAbsolutePath()));
+        fs.addFilesetEntry(entry);
+        for (String usedFile : getUsedFiles()) {
+            entry = new FilesetEntryI();
+            entry.setClientPath(rstring(usedFile));
+            fs.addFilesetEntry(entry);
         }
     }
 

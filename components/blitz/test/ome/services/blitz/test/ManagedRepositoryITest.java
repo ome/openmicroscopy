@@ -19,7 +19,6 @@
 package ome.services.blitz.test;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
@@ -44,7 +42,10 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api._RawFileStoreTie;
-import omero.grid.Import;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportSettings;
+import omero.model.Fileset;
+import omero.model.FilesetI;
 import omero.model.Pixels;
 import omero.util.TempFileManager;
 
@@ -129,17 +130,20 @@ public class ManagedRepositoryITest extends AbstractServantTest {
     }
 
     public void testBasicImportExample() throws Exception {
+
         File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
         ImportContainer ic = makeFake(tmpDir);
+        ImportSettings settings = new ImportSettings();
+        Fileset fs = new FilesetI();
+        ic.fillData(settings, fs);
 
-        Import i = repo.prepareImport(Arrays.asList(ic.getUsedFiles()), curr());
+        ImportProcessPrx i = repo.prepareImport(fs, settings, curr());
         assertNotNull(i);
 
-        upload(repo.uploadUsedFile(i, i.usedFiles.get(0), curr()));
-        upload(repo.uploadUsedFile(i, i.usedFiles.get(1), curr()));
+        upload(i.getUploader(0));
+        upload(i.getUploader(1));
 
-        ic.fillData(i);
-        List<Pixels> pixList = repo.importMetadata(i, curr());
+        // FIXME: TBD
 
     }
 

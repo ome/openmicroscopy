@@ -45,10 +45,15 @@ import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import ome.util.PixelData;
+import ome.util.Utils;
+
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.grid.Import;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.HandlePrx;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportSettings;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
@@ -56,6 +61,8 @@ import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.FileAnnotation;
+import omero.model.Fileset;
+import omero.model.FilesetI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
@@ -393,17 +400,11 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Upload files to the managed repository.
-     *
-     * This is done by first passing in the possibly absolute local file paths.
-     * A common selection of those are chosen and passed back to the client.
-     *
-     * @param container The current import container we're to handle.
-     * @return Rewritten container after files have been copied to repository.
+     * Provide initial configuration to the server in order to create the
+     * {@link ImportProcessPrx} which will manage state server-side.
      */
-    public Import uploadFilesToRepository(final ImportContainer container)
-            throws ServerError
-    {
+    public ImportProcessPrx createImport(final ImportContainer container)
+        throws ServerError {
         checkManagedRepo();
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
@@ -414,36 +415,77 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
+
+        final ImportSettings settings = new ImportSettings();
+        final Fileset fs = new FilesetI();
+        container.fillData(settings, fs);
+        return repo.prepareImport(fs, settings);
+
+    }
+
+    /**
+     * Upload files to the managed repository.
+     *
+     * This is done by first passing in the possibly absolute local file paths.
+     * A common selection of those are chosen and passed back to the client.
+     *
+     * As each file is written to the server, a message digest is kept updated
+     * of the bytes that are being written. These are then returned to the
+     * caller so they can be checked against the values found on the server.
+     *
+     * @param container The current import container we're to handle.
+     * @return A list of the client-side (i.e. local) hashes for each file.
+     */
+    public List<String> uploadFilesToRepository(
+            final String[] srcFiles, final ImportProcessPrx proc)
+            throws ServerError
+    {
+
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
-        final List<String> srcFiles = Arrays.asList(usedFiles);
-        final int fileTotal = srcFiles.size();
-        final Import data = repo.prepareImport(srcFiles);
+        final int fileTotal = srcFiles.length;
 
         notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                 null, 0, fileTotal, null, null, null));
 
+        log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
-            File file = new File(srcFiles.get(i));
+
+            md.reset();
+
+            File file = new File(srcFiles[i]);
             long length = file.length();
             FileInputStream stream = null;
             RawFileStorePrx rawFileStore = null;
             try {
                 stream = new FileInputStream(file);
-                rawFileStore = repo.uploadUsedFile(data, data.usedFiles.get(i));
+                rawFileStore = proc.getUploader(i);
                 int rlen = 0;
                 long offset = 0;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 while (stream.available() != 0) {
                     rlen = stream.read(buf);
+                    md.update(buf);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                             file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 }
-                OriginalFile ofile = repo.createOriginalFile(data.usedFiles.get(i));
-                String absolutePath = repo.getAbsolutePath(data.usedFiles.get(i));
-                data.originalFileMap.put(absolutePath, ofile);
+
+                byte[] digest = md.digest();
+                checksums.add(Utils.bytesToHex(digest));
+
+                OriginalFile ofile = rawFileStore.save();
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("%s/%s id=%s",
+                            ofile.getPath().getValue(),
+                            ofile.getName().getValue(),
+                            ofile.getId().getValue()));
+                    log.debug(String.format("checksums: client=%s,server=%s",
+                            checksums.get(i), ofile.getSha1().getValue()));
+                }
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
             }
@@ -460,16 +502,7 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
                 null, fileTotal, fileTotal, null, null, null));
 
-        usedFiles = data.usedFiles.toArray(new String[data.usedFiles.size()]);
-        if (log.isDebugEnabled()) {
-            log.debug("Used files after:");
-            for (String f : usedFiles) {
-                log.debug(f);
-            }
-        }
-        container.setUsedFiles(usedFiles);
-        container.setFile(new File(usedFiles[0]));
-        return data;
+        return checksums;
     }
 
     private void cleanupUpload(RawFileStorePrx rawFileStore,
@@ -513,10 +546,30 @@ public class ImportLibrary implements IObservable
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
-        Import data = uploadFilesToRepository(container);
-        container.fillData(data);
+        final ImportProcessPrx proc = createImport(container);
+        final List<String> hashes = uploadFilesToRepository(
+                container.getUsedFiles(), proc);
 
-        List<Pixels> pixList = repo.importMetadata(data);
+        // At this point the import is running, one handle after the next.
+        final List<HandlePrx> handles = proc.verifyUpload(hashes);
+
+        // Adapter which should be used for callbacks. This is more
+        // complicated than it needs to be at the moment. We're only sure that
+        // the OMSClient has a ServiceFactory (and not necessarily a client)
+        // so we have to inspect various fields to get the adapter.
+        final ServiceFactoryPrx sf = store.getServiceFactory();
+        final Ice.ObjectAdapter oa = sf.ice_getConnection().getAdapter();
+        final String category = "FIXME"; //FIXME
+        // return getRouter(getCommunicator()).getCategoryForClient();
+
+        for (HandlePrx handle : handles) {
+            final CmdCallbackI cb = new CmdCallbackI(oa, category, handle);
+            cb.loop(60*60, 1000); // Wait 1 hr per step.
+        }
+
+        List<Pixels> pixList = new ArrayList<Pixels>();
+        // TODO: Need to retrieve this from the handles status or the proc.
+
         notifyObservers(new ImportEvent.IMPORT_DONE(
                 index, container.getFile().getAbsolutePath(),
                 null, null, 0, null, pixList));
@@ -546,7 +599,7 @@ public class ImportLibrary implements IObservable
      * @since OMERO Beta 4.5.
      */
     public List<Pixels> importImageInternal(
-            Import data, int index,
+            ImportSettings data, int index,
             int numDone, int total,
             final File file)
             throws FormatException, IOException, Throwable
@@ -651,8 +704,7 @@ public class ImportLibrary implements IObservable
                 long pixId = pixels.getId().getValue();
                 MessageDigest md = parseData(fileName, series, size);
                 if (md != null) {
-                    String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                            md.digest());
+                    String s = Utils.bytesToHex(md.digest());
                     pixels.setSha1(store.toRType(s));
                     saveSha1 = true;
                 }

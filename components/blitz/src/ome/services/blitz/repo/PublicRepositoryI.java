@@ -41,6 +41,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.RawFileBean;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
@@ -407,11 +408,29 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
-        // TODO: Refactor all this into a single helper method.
-        // If there is no listener available who will take responsibility
-        // for this servant, then we bail.
         final _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
-        final RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
+        Ice.ObjectPrx prx = registerServant(tie, rfs, adjustedCurr);
+        return RawFileStorePrxHelper.uncheckedCast(prx);
+
+    }
+
+    /**
+     * Registers the given tie/servant combo with the service factory connected
+     * to the current connection. If none is found, and exception will be
+     * thrown. Once the tie/servant pair is registered, cleanup by the client
+     * will cause this servant to be closed, etc.
+     *
+     * @param tie
+     * @param servant
+     * @param current
+     * @return
+     * @throws ServerError
+     */
+    Ice.ObjectPrx registerServant(Ice.Object tie,
+            AbstractAmdServant servant, Ice.Current current)
+                    throws ServerError {
+
+        final RegisterServantMessage msg = new RegisterServantMessage(this, tie, current);
         try {
             this.context.publishMessage(msg);
         } catch (Throwable t) {
@@ -427,8 +446,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         if (prx == null) {
             throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
         }
-        return RawFileStorePrxHelper.uncheckedCast(prx);
-
+        return prx;
     }
 
     /**

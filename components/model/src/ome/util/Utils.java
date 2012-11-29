@@ -292,7 +292,7 @@ public class Utils {
     }
 
 
-    private static MessageDigest newSha1MessageDigest() {
+    public static MessageDigest newSha1MessageDigest() {
         try {
             return MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
