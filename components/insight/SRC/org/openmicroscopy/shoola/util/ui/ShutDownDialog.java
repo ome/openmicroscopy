@@ -35,6 +35,7 @@ import javax.swing.Timer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.NetworkChecker;
 
 /**
  *  Window uses to let the user know the time before the application will shut
@@ -62,6 +63,9 @@ public class ShutDownDialog
 	/** The remaining time before shutting down.*/
 	private int remainingTime;
 	
+	/** Use to check if the network is up.*/
+	private NetworkChecker checker;
+	
 	/** 
 	 * Formats the displayed text. 
 	 * 
@@ -84,6 +88,7 @@ public class ShutDownDialog
 	 */
 	private void initialize(int time)
 	{
+		checker = new NetworkChecker();
 		remainingTime = time;
 		okButton.setText("Shut Down");
 		cancelButton.setVisible(true);
@@ -182,6 +187,13 @@ public class ShutDownDialog
 	{
 		remainingTime--;
 		formatText(remainingTime);
+		try {
+			checker.isNetworkup();
+			cancel();
+			return;
+		} catch (Exception ex) {
+			//continue the network is still down.
+		}
 		if (remainingTime == 0) close();
 	}
 	
