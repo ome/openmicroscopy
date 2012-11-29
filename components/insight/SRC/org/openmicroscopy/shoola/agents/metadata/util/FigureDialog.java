@@ -1737,10 +1737,10 @@ public class FigureDialog
 		p.setIndex(FigureParam.MOVIE);
 		p.setTime(timesBox.getSelectedIndex());
 		p.setTimepoints(sorter.sort(movieSlider.getSelectedCells()));
+		collectParam(p);
 		Number n = numberPerRow.getValueAsNumber();
 		if (n != null && n instanceof Integer)
-			p.setHeight((Integer) n);
-		collectParam(p);
+			p.setMaxPerColumn((Integer) n);
 		return p;
 	}
 	
@@ -1778,9 +1778,6 @@ public class FigureDialog
 			case SIZE_160:
 				width = 160;
 		}
-		Number n = numberPerRow.getValueAsNumber();
-		if (n != null && n instanceof Integer)
-			p.setHeight((Integer) n);
 		p.setWidth(width);
 		
 		p.setSelectedObjects(selectedObjects.isSelected());
@@ -1800,6 +1797,9 @@ public class FigureDialog
 			}
 			p.setTags(ids);
 		}
+		Number n = numberPerRow.getValueAsNumber();
+		if (n != null && n instanceof Integer)
+			p.setMaxPerColumn((Integer) n);
 		return p;
 	}
 	
