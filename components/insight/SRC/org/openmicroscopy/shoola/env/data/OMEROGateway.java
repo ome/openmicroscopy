@@ -1033,7 +1033,7 @@ class OMEROGateway
 		else if (ProjectI.class.equals(klass)) table = "ProjectDatasetLink";
 		else if (Screen.class.equals(klass)) table = "ScreenPlateLink";
 		else if (ScreenI.class.equals(klass)) table = "ScreenPlateLink";
-		else if (PlateAcquisitionData.class.equals(klass))
+		else if (PlateAcquisition.class.equals(klass))
 			table = "PlateAcquisitionWellSampleLink";
 		else if (PlateAcquisitionI.class.equals(klass))
 			table = "PlateAcquisitionWellSampleLink";
@@ -1066,6 +1066,9 @@ class OMEROGateway
 			table = "ScreenAnnotationLink";
 		else if (Plate.class.equals(klass) ||
 				PlateData.class.equals(klass)) 
+			table = "ScreenAnnotationLink";
+		else if (PlateAcquisition.class.equals(klass) ||
+				PlateAcquisitionData.class.equals(klass)) 
 			table = "ScreenAnnotationLink";
 		else if (WellSample.class.equals(klass) ||
 				WellSampleData.class.equals(klass)) 
@@ -1132,6 +1135,8 @@ class OMEROGateway
 			table = "PlateAcquisitionAnnotationLink";
 		else if (klass.equals(PlateAcquisitionI.class.getName())) 
 			table = "PlateAcquisitionAnnotationLink";
+		else if (klass.equals(PlateAcquisition.class.getName())) 
+			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
 	
@@ -1148,6 +1153,8 @@ class OMEROGateway
 		else if (ImageData.class.equals(klass)) return "Image";
 		else if (ScreenData.class.equals(klass)) return "Screen";
 		else if (PlateData.class.equals(klass)) return "Plate";
+		else if (PlateAcquisitionData.class.equals(klass))
+			return "PlateAcquisition";
 		return null;
 	}
 	
