@@ -28,6 +28,7 @@ class PerfControl(BaseControl):
         parser.add_argument("-l", "--list", action="store_true", help="List available commands")
         parser.add_argument("file", nargs="*", type=FileType('r'), default=None, help="Read from files or standard in")
         parser.set_defaults(func=self.__call__)
+        parser.add_login_arguments()
 
     def __call__(self, args):
         if args.list:

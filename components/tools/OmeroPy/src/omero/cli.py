@@ -160,6 +160,23 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_login_arguments(self):
+        group = self.add_argument_group('Login arguments',
+            'Optional session arguments')
+        group.add_argument("-C", "--create", action = "store_true",
+            help = "Create a new session regardless of existing ones")
+        group.add_argument("-s", "--server",
+            help = "Hostname of the OMERO server")
+        group.add_argument("-p", "--port",
+            help = "Port of the OMERO server")
+        group.add_argument("-g", "--group",
+            help = "OMERO server default group")
+        group.add_argument("-u", "--user",
+            help = "OMERO server login username")
+        group.add_argument("-w", "--password",
+            help = "OMERO server login password")
+        group.add_argument("-k", "--key", help = "UUID of an active session")
+
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
@@ -280,26 +297,17 @@ class Context:
 
         login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
         login.set_defaults(func=lambda args:sessions.login(args))
-        self.add_login(login)
         sessions._configure_login(login)
 
         logout = self.subparsers.add_parser("logout", help="Shortcut for 'sessions logout'")
-        logout.set_defaults(func=lambda args:self.controls["sessions"].logout(args))
-
-    def add_login(self, parser):
-        parser.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
-        parser.add_argument("-s", "--server")
-        parser.add_argument("-p", "--port")
-        parser.add_argument("-g", "--group")
-        parser.add_argument("-u", "--user")
-        parser.add_argument("-w", "--password")
-        parser.add_argument("-k", "--key", help="UUID of an active session")
+        logout.set_defaults(func=lambda args:sessions.logout(args))
+        sessions._configure_dir(logout)
 
     def parser_init(self, parser):
         parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
         parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
         parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
-        self.add_login(parser)
+        parser.add_login_arguments()
         subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
@@ -1458,3 +1466,168 @@ class GraphControl(CmdControl):
             if optkey in specmap:
                 start_text += self.append_options(optkey, specmap, indent+1)
         return start_text
+
+class UserGroupControl(BaseControl):
+
+    def error_no_input_group(self, msg="No input group is specified", code = 501, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
+
+    def error_invalid_groupid(self, group_id, msg="Not a valid group ID: %s", code = 502, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % group_id)
+        else:
+            self.ctx.err(msg % group_id)
+
+    def error_invalid_group(self, group, msg="Unknown group: %s", code = 503, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % group)
+        else:
+            self.ctx.err(msg % group)
+
+    def error_no_group_found(self, msg="No group found", code = 504, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
+
+    def error_no_input_user(self, msg="No input user is specified", code = 511, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
+
+    def error_invalid_userid(self, user_id, msg="Not a valid user ID: %s", code = 512, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % user_id)
+        else:
+            self.ctx.err(msg % user_id)
+
+    def error_invalid_user(self, user, msg="Unknown user: %s", code = 513, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % user)
+        else:
+            self.ctx.err(msg % user)
+
+    def error_no_user_found(self, msg="No user found", code = 514, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
+
+    def find_group_by_id(self, admin, group_id, fatal = False):
+        import omero
+        try:
+            gid = long(group_id)
+            g = admin.getGroup(gid)
+        except ValueError:
+            self.error_invalid_groupid(group_id, fatal = fatal)
+            return None, None
+        except omero.ApiUsageException:
+            self.error_invalid_group(gid, fatal = fatal)
+            return None, None
+        return gid, g
+
+    def find_group_by_name(self, admin, group_name, fatal = False):
+        import omero
+        try:
+            g = admin.lookupGroup(group_name)
+            gid = g.id.val
+        except omero.ApiUsageException:
+            self.error_invalid_group(group_name, fatal = fatal)
+            return None, None
+        return gid, g
+
+    def find_group(self, admin, id_or_name, fatal = False):
+        import omero
+        try:
+            try:
+                gid = long(id_or_name)
+            except ValueError:
+                g = admin.lookupGroup(id_or_name)
+                gid = g.id.val
+            else:
+                g = admin.getGroup(gid)
+        except omero.ApiUsageException:
+            self.error_invalid_group(id_or_name, fatal = fatal)
+            return None, None
+        return gid, g
+
+    def find_user_by_id(self, admin, user_id, fatal = False):
+        import omero
+        try:
+            uid = long(user_id)
+            u = admin.getExperimenter(uid)
+        except ValueError:
+            self.error_invalid_userid(user_id, fatal = fatal)
+            return None, None
+        except omero.ApiUsageException:
+            self.error_invalid_user(uid, fatal = fatal)
+            return None, None
+        return uid, u
+
+    def find_user_by_name(self, admin, user_name, fatal = False):
+        import omero
+        try:
+            u = admin.lookupExperimenter(user_name)
+            uid = u.id.val
+        except omero.ApiUsageException:
+            self.error_invalid_user(user_name, fatal = fatal)
+            return None, None
+        return uid, u
+
+    def find_user(self, admin, id_or_name, fatal =  False):
+        import omero
+        try:
+            try:
+                uid = long(id_or_name)
+            except ValueError:
+                u = admin.lookupExperimenter(id_or_name)
+                uid = u.id.val
+            else:
+                u = admin.getExperimenter(uid)
+        except omero.ApiUsageException:
+            self.error_invalid_user(id_or_name, fatal = fatal)
+            return None, None
+        return uid, u
+
+    def addusersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.addGroups(omero.model.ExperimenterI(user, False), [group])
+            self.ctx.out("Added %s to group %s" % (user, group.id.val))
+
+    def removeusersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.removeGroups(omero.model.ExperimenterI(user, False), [group])
+            self.ctx.out("Removed %s from group %s" % (user, group.id.val))
+
+    def addownersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.addGroupOwners(group, [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Added %s to the owner list of group %s" % (user, group.id.val))
+
+    def removeownersbyid(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.removeGroupOwners(group, [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Removed %s from the owner list of group %s" % (user, group.id.val))
+
+    def getuserids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
+        return ids
+
+    def getmemberids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if not x.owner.val]
+        return ids
+
+    def getownerids(self, group):
+        import omero
+        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
+        return ids
