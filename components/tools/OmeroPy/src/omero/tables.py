@@ -374,7 +374,10 @@ class HdfStorage(object):
             names.extend(col.names())
             arrays.extend(col.arrays())
             col.append(self.__mea) # Potential corruption !!!
-        records = numpy.rec.fromarrays(arrays, names=names)
+        # Is this necessary?
+        #records = numpy.rec.fromarrays(arrays, names=names)
+        records = arrays
+        self.logger.info("records:%s", records)
         self.__mea.append(records)
         self.__mea.flush()
 
