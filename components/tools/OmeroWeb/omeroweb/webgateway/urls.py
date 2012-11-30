@@ -269,8 +269,21 @@ Returns 'true' if switch went OK.
 
 
 annotations = url(r'^annotations/(?P<objtype>(\w+/)+)(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+"""
+Retrieve annotations for object specified by object type and identifier,
+optionally traversing object model graph.
+"""
+
 table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+"""
+Query a table specified by fileid
+"""
+
 object_table_query = url(r'^table/(?P<objtype>(\w+/)+)(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+"""
+Query bulk annotations table attached to an object specified by
+object type and identifier, optionally traversing object model graph.
+"""
 
 urlpatterns = patterns('',
     webgateway,
@@ -309,7 +322,7 @@ urlpatterns = patterns('',
     copy_image_rdef_json,
     # switch user
     webgateway_su,
-    
+    # bulk annotations
     annotations,
     table_query,
     object_table_query,
