@@ -277,8 +277,21 @@ original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgatewa
 """ Get a json array of path/name strings for original files for the Image"""
 
 annotations = url(r'^annotations/(?P<objtype>(\w+/)+)(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+"""
+Retrieve annotations for object specified by object type and identifier,
+optionally traversing object model graph.
+"""
+
 table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+"""
+Query a table specified by fileid
+"""
+
 object_table_query = url(r'^table/(?P<objtype>(\w+/)+)(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+"""
+Query bulk annotations table attached to an object specified by
+object type and identifier, optionally traversing object model graph.
+"""
 
 urlpatterns = patterns('',
     webgateway,
@@ -320,7 +333,7 @@ urlpatterns = patterns('',
     original_file_paths,
     # switch user
     webgateway_su,
-    
+    # bulk annotations
     annotations,
     table_query,
     object_table_query,

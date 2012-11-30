@@ -1774,7 +1774,29 @@ def su (request, user, conn=None, **kwargs):
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
+    """
+    Retrieve annotations for object specified by object type and identifier,
+    optionally traversing object model graph.
+    Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
+    if successful, error information otherwise
 
+    Example:  /annotations/Plate/1/
+              retrieves annotations for plate with identifier 1
+    Example:  /annotations/Plate/wells/1/
+              retrieves annotations for plate that contains well with
+              identifier 1
+
+    @param request:     http request.
+    @param objtype:     Type of target object, or type of target object followed
+                        by a slash-separated list of properties to resolve
+    @param objid:       Identifier of target object, or identifier of object
+                        reached by resolving given properties
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message or
+                        with key 'data' containing an array of dictionaries
+                        with keys 'id' and 'file' of the retrieved annotations
+    """
     q = conn.getQueryService()
     # If more than one objtype is specified, use all in query to
     # traverse object model graph
@@ -1811,6 +1833,21 @@ annotations = login_required()(jsonp(_annotations))
 
 
 def _table_query(request, fileid, conn=None, **kwargs):
+    """
+    Query a table specified by fileid
+    Returns a dictionary with query result if successful, error information
+    otherwise
+
+    @param request:     http request; querystring must contain key 'query'
+                        with query to be executed, or '*' to retrieve all rows
+    @param fileid:      Numeric identifier of file containing the table
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message
+                        or with key 'data' containing a dictionary with keys
+                        'columns' (an array of column names) and 'rows'
+                        (an array of rows, each an array of values)
+    """
     query = request.GET.get('query')
     if not query:
         return dict(error='Must specify query parameter, use * to retrieve all')
@@ -1847,7 +1884,30 @@ table_query = login_required()(jsonp(_table_query))
 @login_required()
 @jsonp
 def object_table_query(request, objtype, objid, conn=None, **kwargs):
+    """
+    Query bulk annotations table attached to an object specified by
+    object type and identifier, optionally traversing object model graph.
+    Returns a dictionary with query result if successful, error information
+    otherwise
 
+    Example:  /table/Plate/1/query/?query=*
+              queries bulk annotations table for plate with identifier 1
+    Example:  /table/Plate/wells/1/query/?query=*
+              queries bulk annotations table for plate that contains well with
+              identifier 1
+
+    @param request:     http request.
+    @param objtype:     Type of target object, or type of target object followed
+                        by a slash-separated list of properties to resolve
+    @param objid:       Identifier of target object, or identifier of object
+                        reached by resolving given properties
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message
+                        or with key 'data' containing a dictionary with keys
+                        'columns' (an array of column names) and 'rows'
+                        (an array of rows, each an array of values)
+    """
     a = _annotations(request, objtype, objid, conn, **kwargs)
     if (a.has_key('error')):
         return a
