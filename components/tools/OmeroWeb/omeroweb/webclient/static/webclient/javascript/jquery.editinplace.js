@@ -103,6 +103,7 @@
                                                         // OR we may be in the search page: Update image name in table...
                                                         var objId = field_id.replace("name","");    // E.g. imagename-123
                                                         $("#"+objId+" td.desc a").text(new_name);
+                                                        $("#"+objId+" td.image img").attr('title', new_name);
                                                     }
                                                 }
                                             }
