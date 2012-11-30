@@ -25,28 +25,24 @@ import ome.model.core.OriginalFile;
  * @since OMERO3.0
  */
 public class FileBuffer extends AbstractBuffer {
-    /** The original file object that this file buffer maps to. */
-    private OriginalFile file;
 
     /** The file's I/O channel. */
     FileChannel channel;
 
+    final private String mode;
+
     /**
-     * Default constructor.
+     * Default constructor allowing to pass in a non-"rw" file mode.
      * 
      * @param path
      *            path to the root of the <code>File</code> repository.
-     * @param file
-     *            the original file this buffer maps to.
+     * @param mode
+     *            will be passed to the constructor of {@link RandomAccessFile}
      * @throws FileNotFoundException
      */
-    FileBuffer(String path, OriginalFile file) {
+     public FileBuffer(String path, String mode) {
         super(path);
-        if (file == null) {
-            throw new NullPointerException("Expecting a not-null file element.");
-        }
-
-        this.file = file;
+        this.mode = mode;
     }
 
     /**
@@ -68,7 +64,7 @@ public class FileBuffer extends AbstractBuffer {
      */
     private FileChannel getFileChannel() throws FileNotFoundException {
         if (channel == null) {
-            RandomAccessFile file = new RandomAccessFile(getPath(), "rw");
+            RandomAccessFile file = new RandomAccessFile(getPath(), mode);
             channel = file.getChannel();
         }
 
@@ -111,29 +107,31 @@ public class FileBuffer extends AbstractBuffer {
         return getFileChannel().write(src);
     }
 
-    /**
-     * Retrieve the file's identifier.
-     * 
-     * @return the file's id.
-     */
-    long getId() {
-        return file.getId();
-    }
-
-    /**
-     * Retrieve the file's name.
-     * 
-     * @return the file's name.
-     */
-    String getName() {
-        return file.getName();
-    }
-
     public long size() throws IOException {
         return getFileChannel().size();
     }
 
     public void truncate(long size) throws IOException {
         getFileChannel().truncate(size);
+    }
+
+    /**
+     * Only truncate if the size of the file is less than the size argument.
+     *
+     * @param size
+     * @return true if truncation was performed.
+     */
+    public boolean truncateIfSmaller(long size) throws IOException {
+        FileChannel fc = getFileChannel();
+        if (fc.size() < size) {
+            return false;
+        } else {
+            fc.truncate(size);
+            return true;
+        }
+    }
+
+    public void force(boolean metadata) throws IOException {
+        getFileChannel().force(metadata);
     }
 }

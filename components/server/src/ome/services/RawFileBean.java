@@ -12,15 +12,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.NonWritableChannelException;
 import java.sql.SQLException;
 
 import ome.annotations.RolesAllowed;
+import ome.api.IAdmin;
 import ome.api.IRepositoryInfo;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.conditions.RootException;
+import ome.conditions.SecurityViolation;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
@@ -71,6 +74,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /** the disk space checking service */
     private transient IRepositoryInfo iRepositoryInfo;
 
+    /** admin for checking permissions of writes */
+    private transient IAdmin admin;
+
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
     
@@ -111,6 +117,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         this.iRepositoryInfo = iRepositoryInfo;
     }
 
+    public final void setAdminService(IAdmin admin) {
+        getBeanHelper().throwIfAlreadySet(this.admin, admin);
+        this.admin = admin;
+    }
 
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
@@ -138,9 +148,17 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                 return null;
             }
 
-            String path = ioService.getFilesPath(id);
-            try {
+            String path = buffer.getPath();
 
+            try {
+                buffer.force(true); // Flush to disk.
+            } catch (IOException ie) {
+                log.error("Failed to flush to disk.", ie);
+                throw new ResourceError("Failed to flush to disk:"
+                        + ie.getMessage());
+            }
+
+            try {
                 byte[] hash = Utils.pathToSha1(path);
                 file.setSha1(Utils.bytesToHex(hash));
 
@@ -224,29 +242,47 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public synchronized void setFileId(final long fileId) {
+        setFileIdWithBuffer(fileId, null);
+    }
+
+    public synchronized void setFileIdWithBuffer(final long fileId,
+            final FileBuffer buffer) {
+
         if (id == null || id.longValue() != fileId) {
             id = new Long(fileId);
             file = null;
             closeFileBuffer();
-            buffer = null;
+            this.buffer = null;
 
             modified = false;
             file = iQuery.get(OriginalFile.class, fileId);
-            String repo = (String) iQuery.execute(new HibernateCallback<String>(){
-                public String doInHibernate(Session arg0)
-                        throws HibernateException, SQLException {
-                    return (String) arg0.createSQLQuery(
-                            "select repo from originalfile where id = ?")
-                            .setParameter(0, fileId)
-                            .uniqueResult();
-                }});
-            if (repo != null) {
-                throw new RuntimeException(repo);
+
+            String mode = admin.canUpdate(file) ? "rw" : "r";
+
+            if (buffer == null) {
+                // If no buffer has been provided, then we check that this is
+                // omero.data.dir (i.e. no repository) since otherwise our
+                // use of ioService will not function.
+                String repo = (String) iQuery.execute(new HibernateCallback<String>(){
+                    public String doInHibernate(Session arg0)
+                            throws HibernateException, SQLException {
+                        return (String) arg0.createSQLQuery(
+                                "select repo from originalfile where id = ?")
+                                .setParameter(0, fileId)
+                                .uniqueResult();
+                    }});
+                if (repo != null) {
+                    throw new RuntimeException(repo);
+                }
+
+                this.buffer = ioService.getFileBuffer(file, mode);
+            } else {
+                this.buffer = buffer;
             }
-            buffer = ioService.getFileBuffer(file);
         }
     }
-    
+
+
     private synchronized void errorIfNotLoaded() {
         // If we're not loaded because of passivation, then load.
         if (reset != null) {
@@ -267,7 +303,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public boolean exists() {
         errorIfNotLoaded();
-        return ioService.exists(file);
+        return new File(buffer.getPath()).exists();
     }
 
     @RolesAllowed("user")
@@ -298,6 +334,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                 return true;
             }
             return false;
+        } catch (NonWritableChannelException nwce) {
+            throw new SecurityViolation("File not writeable!");
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Buffer write did not occur.", e);
@@ -334,6 +372,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         try {
             buffer.write(nioBuffer, position);
             modified();
+        } catch (NonWritableChannelException nwce) {
+            throw new SecurityViolation("File not writeable!");
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Buffer write did not occur.", e);
