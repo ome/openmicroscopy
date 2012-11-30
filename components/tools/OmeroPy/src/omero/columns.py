@@ -227,6 +227,71 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
             self.size = 1
         return tables.StringCol(pos=pos, itemsize=self.size)
 
+class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        self.initialised = False
+        omero.grid.DoubleArrayColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+        self.initialised = True
+
+    def settable(self, tbl):
+        AbstractColumn.settable(self, tbl)
+        shape = getattr(tbl.cols, self.name).shape
+        assert(len(shape) == 2)
+        self.size = shape[1]
+
+    def arrays(self):
+        """
+        Overriding to correct for size.
+        """
+        sz = self.size
+        # Must be a tuple:
+        # http://docs.scipy.org/doc/numpy/user/basics.rec.html#filling-structured-arrays
+        # This could potentially be done on the Ice side:
+        # http://doc.zeroc.com/display/Ice/Python+Mapping+for+Sequences
+        return [numpy.array(map(tuple, self.values), dtype="(%s,)float64"%sz)]
+
+    def descriptor(self, pos):
+        # During initialization, size might be zero
+        if not self.initialised:
+            return tables.Float64Col(pos=pos)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+        return tables.Float64Col(pos=pos, shape=self.size)
+
+class LongArrayColumnI(AbstractColumn, omero.grid.LongArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        self.initialised = False
+        omero.grid.LongArrayColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+        self.initialised = True
+
+    def settable(self, tbl):
+        AbstractColumn.settable(self, tbl)
+        shape = getattr(tbl.cols, self.name).shape
+        assert(len(shape) == 2)
+        self.size = shape[1]
+
+    def arrays(self):
+        """
+        Overriding to correct for size.
+        """
+        sz = self.size
+        # Must be a tuple
+        return [numpy.array(map(tuple, self.values), dtype="(%s,)int64"%sz)]
+
+    def descriptor(self, pos):
+        # During initialization, size might be zero
+        if not self.initialised:
+            return tables.Int64Col(pos=pos)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+        return tables.Int64Col(pos=pos, shape=self.size)
+
 class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
     def __init__(self, name = "Unknown", *args):
@@ -392,5 +457,7 @@ ObjectFactories = {
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
     StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
+    DoubleArrayColumnI: ObjectFactory(DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
+    LongArrayColumnI: ObjectFactory(LongArrayColumnI, lambda: LongArrayColumnI()),
     MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
     }
