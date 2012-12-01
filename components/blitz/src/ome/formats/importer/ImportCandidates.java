@@ -458,9 +458,16 @@ public class ImportCandidates extends DirectoryWalker
         } catch (MissingLibraryException mle)
         {
             safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
-        } catch (Throwable e)
+        } catch (Throwable t)
         {
-            safeUpdate(new ErrorHandler.FILE_EXCEPTION(path, new Exception(e), usedFiles, format));
+            Exception e = null;
+            if (t instanceof Exception) {
+                e = (Exception) t;
+            }
+            else {
+                e = new Exception(t);
+            }
+            safeUpdate(new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format));
         }
 
         return null;
