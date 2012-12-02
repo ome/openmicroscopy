@@ -41,6 +41,10 @@ class UserControl(UserGroupControl):
         password_group.add_argument("--no-password", action="store_true", default = False, help = "Create user with empty password")
 
         list = parser.add(sub, self.list, help = "List current users")
+        printgroup = list.add_mutually_exclusive_group()
+        printgroup.add_argument("--long", action = "store_true", help = "Print comma-separated list of all groups (default)", default = True)
+        printgroup.add_argument("--count", action = "store_true", help = "Print count of all groups", default = False)
+
         sortgroup = list.add_mutually_exclusive_group()
         sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort users by ID (default)")
         sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort users by login name")
@@ -152,8 +156,12 @@ class UserControl(UserGroupControl):
         sys_group = roles.systemGroupId
 
         from omero.util.text import TableBuilder
-        tb = TableBuilder("id", "omeName", "firstName", "lastName", "email", \
-            "active", "admin", "member of", "leader of")
+        if args.count:
+            tb = TableBuilder("id", "omeName", "firstName", "lastName", \
+            "email", "active", "admin", "# group memberships", "# group ownerships")
+        else:
+            tb = TableBuilder("id", "omeName", "firstName", "lastName", \
+            "email", "active", "admin", "member of", "owner of")
 
         # Sort users
         if args.sort_by_name:
@@ -185,11 +193,17 @@ class UserControl(UserGroupControl):
             row.append(admin)
 
             if member_of:
-                row.append(",".join(member_of))
+                if args.count:
+                    row.append(len(member_of))
+                else:
+                    row.append(",".join(member_of))
             else:
                 row.append("")
             if leader_of:
-                row.append(",".join(leader_of))
+                if args.count:
+                    row.append(len(leader_of))
+                else:
+                    row.append(",".join(leader_of))
             else:
                 row.append("")
 

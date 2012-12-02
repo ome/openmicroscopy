@@ -65,7 +65,9 @@ More information is available at:
                 choices=("private", "read-only", "read-annotate", "collaborative"))
 
         list = parser.add(sub, self.list, "List current groups")
-        list.add_argument("--long", action="store_true", help = "Print comma-separated list of all users, not just counts")
+        printgroup = list.add_mutually_exclusive_group()
+        printgroup.add_argument("--count", action = "store_true", help = "Print count of all users and owners (default)", default = True)
+        printgroup.add_argument("--long", action = "store_true", help = "Print comma-separated list of all users and owners", default = False)
         sortgroup = list.add_mutually_exclusive_group()
         sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort groups by ID (default)")
         sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort groups by name")
