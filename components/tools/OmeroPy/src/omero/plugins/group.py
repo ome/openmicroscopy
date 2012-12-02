@@ -13,6 +13,9 @@ import sys
 from omero.cli import UserGroupControl, CLI, ExceptionHandler
 
 HELP="""Group administration methods"""
+defaultperms = {'private':'rw----',
+'read-only': 'rwr---',
+'read-annotate': 'rwra--'}
 
 class GroupControl(UserGroupControl):
 
@@ -60,9 +63,8 @@ More information is available at:
 
         for x in (add, perms):
             group = x.add_mutually_exclusive_group()
-            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-            group.add_argument("--type", help="Group permission set symbollically", default="private",
-                choices=("private", "read-only", "read-annotate", "collaborative"))
+            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ", choices = defaultperms.values())
+            group.add_argument("--type", help="Group permission set symbollically", default="private", choices = defaultperms.keys())
 
         list = parser.add(sub, self.list, "List current groups")
         printgroup = list.add_mutually_exclusive_group()
@@ -96,16 +98,7 @@ More information is available at:
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
         if not perms:
-            if args.type == "private":
-                perms = "rw----"
-            elif args.type == "read-only":
-                perms = "rwr---"
-            elif args.type in ("read-annotate", "collaborative"):
-                perms = "rwra--"
-            elif args.type == "read-write":
-                perms = "rwrw--"
-        if not perms:
-            perms = "rw----"
+            perms = defaultperms[args.type]
         return perms
 
     def add(self, args):
