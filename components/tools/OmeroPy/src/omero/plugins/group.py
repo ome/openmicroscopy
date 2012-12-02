@@ -65,7 +65,10 @@ More information is available at:
                 choices=("private", "read-only", "read-annotate", "collaborative"))
 
         list = parser.add(sub, self.list, "List current groups")
-        list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
+        list.add_argument("--long", action="store_true", help = "Print comma-separated list of all users, not just counts")
+        sortgroup = list.add_mutually_exclusive_group()
+        sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort groups by ID (default)")
+        sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort groups by name")
 
         copyusers = parser.add(sub, self.copyusers, "Copy the users of one group to another group")
         copyusers.add_argument("from_group", help = "ID or name of the source group whose users will be copied")
@@ -170,6 +173,13 @@ More information is available at:
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
         from omero.util.text import TableBuilder
+
+        # Sort groups
+        if args.sort_by_name:
+            groups.sort(key=lambda x: x.name.val)
+        elif args.sort_by_id:
+            groups.sort(key=lambda x: x.id.val)
+
         if args.long:
             tb = TableBuilder("id", "name", "perms", "owner ids", "member ids")
         else:
