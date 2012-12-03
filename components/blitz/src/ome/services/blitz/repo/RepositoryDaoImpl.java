@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
 
+import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
@@ -140,13 +141,27 @@ public class RepositoryDaoImpl implements RepositoryDao {
                          "getOriginalFiles", repoUuid, path) {
                      @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
+
+                         File f = new File(path);
+                         String dir = f.getPath();
+                         String name = f.getName();
+                         Long id = getSqlAction().findRepoFile(repoUuid, dir, name, null);
+                         if (id == null) {
+                             throw new ome.conditions.SecurityViolation(
+                                     "No such parent dir: " + path);
+                         }
+                         final IQuery q = sf.getQueryService();
+                         // Load parent directory to possibly cause
+                         // a read sec-vio.
+                         q.get(ome.model.core.OriginalFile.class, id);
+
                          List<Long> ids = getSqlAction().findRepoFiles(repoUuid, path);
                          if (ids == null || ids.size() == 0) {
                              return Collections.emptyList();
                          }
                          Parameters p = new Parameters();
                          p.addIds(ids);
-                         return sf.getQueryService().findAllByQuery(
+                         return q.findAllByQuery(
                                  "select o from OriginalFile o where o.id in (:ids)", p);
                      }
                  });
