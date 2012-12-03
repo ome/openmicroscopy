@@ -905,7 +905,6 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		System.err.println(networkup);
 		if (networkup) return false;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);

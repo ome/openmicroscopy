@@ -408,7 +408,6 @@ public class DataServicesFactory
 	 */
 	public void sessionExpiredExit(int index, Throwable exc)
 	{
-		System.err.println(connectionDialog);
 		if (connectionDialog != null) return;
 		String message;
 		if (exc != null) {
