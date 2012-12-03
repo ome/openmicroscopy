@@ -1609,7 +1609,7 @@ class DataBrowserComponent
 	 */
 	public void setTabularData(List<TableResult> data)
 	{
-		if (data == null) return;
+		if (data == null || data.size() == 0) return;
 		model.setTabularData(data);
 	}
 	
