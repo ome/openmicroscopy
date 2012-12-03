@@ -905,15 +905,21 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		if (!connected) return false;
+		System.err.println(networkup);
+		if (networkup) return false;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
-		connected = false;
 		dsFactory.sessionExpiredExit(index, e);
 		return false;
 	}
 
+	/**
+	 * Resets the network value to <code>true</code> when the user decides to
+	 * cancel the dialog indicating that the network when down.
+	 */
+	void resetNetwork() { networkup = true; }
+	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -2235,7 +2241,7 @@ class OMEROGateway
 	 * @return  <code>true</code> if connected, <code>false</code> otherwise.
 	 */
 	boolean isConnected() { return connected; }
-
+	
 	/**
 	 * Retrieves the details on the current user and maps the result calling
 	 * {@link PojoMapper#asDataObjects(Map)}.

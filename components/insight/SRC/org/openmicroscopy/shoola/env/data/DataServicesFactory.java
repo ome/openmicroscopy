@@ -372,9 +372,10 @@ public class DataServicesFactory
     	JFrame f = new JFrame();
     	f.setIconImage(AbstractIconManager.getOMEImageIcon());
     	
-    	if (shutdown) 
+    	if (shutdown) {
     		connectionDialog = new ShutDownDialog(f, title, message);
-    	else
+    		connectionDialog.setModal(false);
+    	} else
     		connectionDialog = new NotificationDialog(f, title, message, null);
         //connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
@@ -391,6 +392,7 @@ public class DataServicesFactory
 							name))
 				{
 					connectionDialog = null;
+					omeroGateway.resetNetwork();
 				}
 			}
 		});
@@ -406,6 +408,7 @@ public class DataServicesFactory
 	 */
 	public void sessionExpiredExit(int index, Throwable exc)
 	{
+		System.err.println(connectionDialog);
 		if (connectionDialog != null) return;
 		String message;
 		if (exc != null) {
