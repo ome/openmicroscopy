@@ -396,10 +396,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
     
             try {
-                data.directory = repositoryDao.createUserDirectory(getRepoUuid(),
-                    normalize(relUpToLast.toString()), endPart, currentUser(__current));
+                makeDir(normalize(relUpToLast.toString()) + "/" + endPart,
+                        __current);
                 break;
-            } catch (ome.conditions.SecurityViolation sv) {
+            } catch (omero.ServerError se) {
+                log.debug("Trying next directory", se);
                 // This directory apparently belongs to some other group
                 // or is not readable in the current context.
                 if (version == null) {
@@ -416,10 +417,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     public OriginalFile createOriginalFile(String path, Ice.Current __current)
             throws omero.ApiUsageException {
-        CheckedPath check = checkPath(path, __current).mustExist();
+        CheckedPath checked = checkPath(path, __current).mustExist();
         OriginalFile of = repositoryDao.createUserFile(getRepoUuid(),
-                check.getRelativePath(), check.file.getName(),
-                check.file.length(), currentUser(__current));
+                checked, checked.file.length(), currentUser(__current));
         return of;
     }
 

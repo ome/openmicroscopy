@@ -67,13 +67,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
         throw copy;
     }
 
-    public RawFileStore getRawFileStore(final long fileId, final File file,
+    public RawFileStore getRawFileStore(final long fileId, final CheckedPath checked,
             String mode, Principal currentUser) throws SecurityViolation {
 
         final RawFileStore proxy = executor.getContext()
                 .getBean("managed-ome.api.RawFileStore", RawFileStore.class);
         final RawFileBean bean = unwrapRawFileBean(proxy);
-        final FileBuffer buffer = new FileBuffer(file.getAbsolutePath(),  mode);
+        final FileBuffer buffer = new FileBuffer(checked.file.getAbsolutePath(),  mode);
         try {
             executor.execute(currentUser, new Executor.SimpleWork(this, "setFileIdWithBuffer") {
                     @Transactional(readOnly = true)
@@ -88,15 +88,18 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return proxy;
     }
 
-    public OriginalFile findRepoFile(final String uuid, final String dirname,
-            final String basename, final String mimetype, Principal currentUser)
+    public OriginalFile findRepoFile(final String uuid, final CheckedPath checked,
+            final String mimetype, Principal currentUser)
             throws omero.ServerError {
 
+        try {
             ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) executor
-                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile", uuid, dirname, basename, mimetype) {
+                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
                     @Transactional(readOnly = true)
                     public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
-                        Long id = getSqlAction().findRepoFile(uuid, dirname, basename, mimetype);
+                        Long id = getSqlAction().findRepoFile(uuid,
+                                checked.getRelativePath(), checked.getName(),
+                                mimetype);
                         if (id == null) {
                             return null;
                         } else {
@@ -106,6 +109,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     }
                 });
             return (OriginalFile) new IceMapper().reverse(ofile);
+        } catch (ome.conditions.SecurityViolation sv) {
+            throw wrapSecurityViolation(sv);
+        }
 
     }
 
@@ -143,30 +149,32 @@ public class RepositoryDaoImpl implements RepositoryDao {
      }
 
     @SuppressWarnings("unchecked")
-    public List<OriginalFile> getOriginalFiles(final String repoUuid, final String path,
+    public List<OriginalFile> getOriginalFiles(final String repoUuid, final CheckedPath checked,
             final Principal currentUser) throws SecurityViolation {
 
          try {
              List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
                  .execute(currentUser, new Executor.SimpleWork(this,
-                         "getOriginalFiles", repoUuid, path) {
+                         "getOriginalFiles", repoUuid, checked) {
                      @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
 
-                         File f = new File(path);
-                         String dir = f.getPath();
-                         String name = f.getName();
-                         Long id = getSqlAction().findRepoFile(repoUuid, dir, name, null);
+                         Long id = getSqlAction().findRepoFile(repoUuid,
+                                 checked.getRelativePath(), checked.getName(),
+                                 null);
+
                          if (id == null) {
                              throw new ome.conditions.SecurityViolation(
-                                     "No such parent dir: " + path);
+                                     "No such parent dir: " + checked);
                          }
                          final IQuery q = sf.getQueryService();
                          // Load parent directory to possibly cause
                          // a read sec-vio.
                          q.get(ome.model.core.OriginalFile.class, id);
 
-                         List<Long> ids = getSqlAction().findRepoFiles(repoUuid, path);
+                         List<Long> ids = getSqlAction().findRepoFiles(repoUuid,
+                                 checked.getRelativePath());
+
                          if (ids == null || ids.size() == 0) {
                              return Collections.emptyList();
                          }
@@ -257,21 +265,22 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @throws omero.ApiUsageException
      */
     public OriginalFile createUserDirectory(final String repoUuid,
-            final String path, final String name, Principal currentUser)
+            final CheckedPath checked, Principal currentUser)
                     throws omero.ApiUsageException {
 
         ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
                 executor.execute(currentUser, new Executor.SimpleWork(this,
-                        "createUserDirectory", repoUuid, path, name) {
+                        "createUserDirectory", repoUuid, checked) {
 
                     @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 Long fileId = getSqlAction().findRepoFile(
-                        repoUuid, path, name, null /*mimetype*/);
+                        repoUuid, checked.getRelativePath(),
+                        checked.getName(), null /*mimetype*/);
                 if (fileId == null) {
                     return createOriginalFile(
                             sf, getSqlAction(),
-                            repoUuid, path, name, "Directory",
+                            repoUuid, checked, "Directory",
                             0L, "None");
                 } else {
                     return sf.getQueryService().get(
@@ -295,22 +304,22 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @throws omero.ApiUsageException
      */
     public OriginalFile createUserFile(final String repoUuid,
-            final String path, final String name, final long size, Principal currentUser)
+            final CheckedPath checked, final long size, Principal currentUser)
                     throws omero.ApiUsageException {
 
         ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
                 executor.execute(currentUser, new Executor.SimpleWork(this,
-                        "createUserFile", repoUuid, path, name) {
+                        "createUserFile", repoUuid, checked) {
 
                     @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 Long fileId = getSqlAction().findRepoFile(
-                        repoUuid, path, name, null /*mimetype*/);
+                        repoUuid, checked.getRelativePath(),
+                        checked.getName(), null /*mimetype*/);
                 if (fileId == null) {
                     return createOriginalFile(
                             sf, getSqlAction(),
-                            repoUuid, path, name, "FSLiteMarkerFile",
-                            size, "None");
+                            repoUuid, checked, "FSLiteMarkerFile", size, "None");
                 } else {
                     return sf.getQueryService().get(
                             ome.model.core.OriginalFile.class, fileId);
@@ -342,14 +351,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     protected ome.model.core.OriginalFile createOriginalFile(
         ServiceFactory sf, SqlAction sql,
-        String repoUuid, String path, String name, String mimetype,
+        String repoUuid, CheckedPath checked, String mimetype,
         long size, String sha1) {
 
         ome.model.core.OriginalFile ofile =
                 new ome.model.core.OriginalFile();
 
-        ofile.setPath(path);
-        ofile.setName(name);
+        ofile.setPath(checked.getRelativePath());
+        ofile.setName(checked.getName());
         ofile.setMimetype(mimetype);
         ofile.setSha1(sha1);
         ofile.setSize(size);

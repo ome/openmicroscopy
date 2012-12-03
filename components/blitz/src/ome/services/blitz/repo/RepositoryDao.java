@@ -25,12 +25,12 @@ public interface RepositoryDao {
      * pointing to a non-romio file path, e.g. /OMERO/Files/x.
      *
      * @param fileId ID of an {@link OriginalFile}
-     * @param file {@link java.io.File} pointing to the given path.
+     * @param checked Not null. Normalized path from the repository.
      * @param mode FileChannel mode, "r", "rw", etc.
      * @return An instance with
      *      {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} called.
      */
-    RawFileStore getRawFileStore(final long fileId, final File file, String mode,
+    RawFileStore getRawFileStore(long fileId, CheckedPath checked, String mode,
             final Principal currentUser) throws SecurityViolation;
 
     /**
@@ -43,7 +43,7 @@ public interface RepositoryDao {
      * @param mimetype
      * @return
      */
-    OriginalFile findRepoFile(String uuid, String dirname, String basename,
+    OriginalFile findRepoFile(String uuid, CheckedPath checked,
             String mimetype, Principal currentUser) throws ServerError;
 
     /**
@@ -67,12 +67,12 @@ public interface RepositoryDao {
      * current user, then a {@link SecurityViolation} will be thrown.
      *
      * @param uuid for the repository in question.
-     * @param path normalized path which can be found as the value of
+     * @param checked normalized path which can be found as the value of
      *      {@link OriginalFile#getPath()} in the database.
      * @param currentUser
      */
-    List<OriginalFile> getOriginalFiles(String repoUuid, String path, Principal currentUser)
-        throws SecurityViolation;
+    List<OriginalFile> getOriginalFiles(String repoUuid, CheckedPath checked,
+            Principal currentUser) throws SecurityViolation;
 
     /**
      * Register an OriginalFile object
@@ -108,31 +108,27 @@ public interface RepositoryDao {
      * not exist. Otherwise, return the id.
      *
      * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
+     * @param checked Not null. Normalized path from the repo.
      * @param currentUser Not null.
      * @return ID of the object.
      * @throws omero.ApiUsageException
      */
-    OriginalFile createUserDirectory(final String repoUuid, final String path,
-            final String name, Principal currentUser)
-            throws omero.ApiUsageException;
+    OriginalFile createUserDirectory(final String repoUuid, CheckedPath checked,
+            Principal currentUser) throws omero.ApiUsageException;
 
     /**
      * Create an {@link OriginalFile} in the given repository if it does
      * not exist. Otherwise, return the id.
      *
      * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
+     * @param checked Not null. Normalized path from the repository.
      * @param size {@link OriginalFile#getSize()}
      * @param currentUser Not null.
      * @return ID of the object.
      * @throws omero.ApiUsageException
      */
-    OriginalFile createUserFile(final String repoUuid, final String path,
-            final String name, final long size, Principal currentUser)
-            throws omero.ApiUsageException;
+    OriginalFile createUserFile(final String repoUuid, final CheckedPath checked,
+            final long size, Principal currentUser) throws omero.ApiUsageException;
 
     /**
      * Look up information for the current session as specified in the ctx

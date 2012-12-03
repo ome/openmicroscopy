@@ -153,8 +153,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
-        checkPath(path, __current).mustExist();
-        return repositoryDao.getOriginalFiles(repoUuid, path, currentUser(__current));
+        CheckedPath checked = checkPath(path, __current).mustExist();
+        return repositoryDao.getOriginalFiles(repoUuid, checked, currentUser(__current));
     }
 
     /**
@@ -326,8 +326,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             Principal currentUser) throws ServerError {
 
         final OriginalFile ofile =
-                repositoryDao.findRepoFile(repoUuid, checked.getRelativePath(),
-                        checked.getName(), null, currentUser);
+                repositoryDao.findRepoFile(repoUuid, checked, null, currentUser);
 
         if (ofile == null) {
             return null; // EARLY EXIT!
@@ -397,7 +396,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         try {
             Principal currentUser = currentUser(adjustedCurr);
             final RawFileStore service = repositoryDao.getRawFileStore(
-                    checked.getId(), checked.file, mode, currentUser);
+                    checked.getId(), checked, mode, currentUser);
             rfs = new RepoRawFileStoreI(be, service, adjustedCurr);
             rfs.setApplicationContext(this.context);
         } catch (Throwable t) {
@@ -474,17 +473,15 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 }
 
                 OriginalFile ofile = repositoryDao.findRepoFile(repoUuid,
-                        checked.getRelativePath(),
-                        checked.getName(), null, currentUser(__current));
+                        checked, null, currentUser(__current));
                 if (ofile == null) {
                     throw new omero.ResourceError(null, null,
                             "Directory exists but is no registered");
                 }
             } else {
                 // This will fail if the file already exists in
-                repositoryDao.createUserDirectory(repoUuid,
-                        checked.getRelativePath(),
-                        checked.getName(), currentUser(__current));
+                repositoryDao.createUserDirectory(repoUuid, checked,
+                        currentUser(__current));
                 __mkdir(checked.file);
             }
 
@@ -496,9 +493,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             throw new omero.ResourceError(null, null,
                 "Path exists on disk:" + path);
         }
-        repositoryDao.createUserDirectory(repoUuid,
-                checked.getRelativePath(),
-                checked.getName(), currentUser(__current));
+        repositoryDao.createUserDirectory(repoUuid, checked,
+                currentUser(__current));
         __mkdir(checked.file);
 
     }

@@ -274,4 +274,14 @@ public class CheckedPath {
         return path;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("(");
+        sb.append(getRelativePath());
+        sb.append("/");
+        sb.append(getName());
+        sb.append(")");
+        return sb.toString();
+    }
 }
