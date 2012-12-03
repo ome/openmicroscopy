@@ -20,6 +20,7 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -87,15 +88,25 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return proxy;
     }
 
-    public Long findRepoFile(final String uuid, final String dirname,
-            final String basename, final String mimetype, Principal currentUser) {
-        return (Long) executor
-                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile") {
+    public OriginalFile findRepoFile(final String uuid, final String dirname,
+            final String basename, final String mimetype, Principal currentUser)
+            throws omero.ServerError {
+
+            ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) executor
+                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile", uuid, dirname, basename, mimetype) {
                     @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return getSqlAction().findRepoFile(uuid, dirname, basename, mimetype);
+                    public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
+                        Long id = getSqlAction().findRepoFile(uuid, dirname, basename, mimetype);
+                        if (id == null) {
+                            return null;
+                        } else {
+                            return sf.getQueryService().get(
+                                    ome.model.core.OriginalFile.class, id);
+                        }
                     }
                 });
+            return (OriginalFile) new IceMapper().reverse(ofile);
+
     }
 
     public boolean canUpdate(final omero.model.IObject obj, Principal currentUser) {
@@ -258,17 +269,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 Long fileId = getSqlAction().findRepoFile(
                         repoUuid, path, name, null /*mimetype*/);
                 if (fileId == null) {
-                    ome.model.core.OriginalFile ofile =
-                            new ome.model.core.OriginalFile();
-                    ofile.setPath(path);
-                    ofile.setName(name);
-                    ofile.setMimetype("Directory");
-                    ofile.setSha1("None");
-                    ofile.setSize(0L);
-
-                    ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-                    getSqlAction().setFileRepo(ofile.getId(), repoUuid);
-                    return ofile;
+                    return createOriginalFile(
+                            sf, getSqlAction(),
+                            repoUuid, path, name, "Directory",
+                            0L, "None");
                 } else {
                     return sf.getQueryService().get(
                             ome.model.core.OriginalFile.class, fileId);
@@ -303,17 +307,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 Long fileId = getSqlAction().findRepoFile(
                         repoUuid, path, name, null /*mimetype*/);
                 if (fileId == null) {
-                    ome.model.core.OriginalFile ofile =
-                            new ome.model.core.OriginalFile();
-                    ofile.setPath(path);
-                    ofile.setName(name);
-                    ofile.setMimetype("FSLiteMarkerFile");
-                    ofile.setSha1("None");
-                    ofile.setSize(size);
-
-                    ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-                    getSqlAction().setFileRepo(ofile.getId(), repoUuid);
-                    return ofile;
+                    return createOriginalFile(
+                            sf, getSqlAction(),
+                            repoUuid, path, name, "FSLiteMarkerFile",
+                            size, "None");
                 } else {
                     return sf.getQueryService().get(
                             ome.model.core.OriginalFile.class, fileId);
@@ -339,7 +336,26 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
-//    protected String getCurrentUserName(Ice.Current curr) {
-//        return getEventContext(curr).userName;
-//    }
+    //
+    // HELPERS
+    //
+
+    protected ome.model.core.OriginalFile createOriginalFile(
+        ServiceFactory sf, SqlAction sql,
+        String repoUuid, String path, String name, String mimetype,
+        long size, String sha1) {
+
+        ome.model.core.OriginalFile ofile =
+                new ome.model.core.OriginalFile();
+
+        ofile.setPath(path);
+        ofile.setName(name);
+        ofile.setMimetype(mimetype);
+        ofile.setSha1(sha1);
+        ofile.setSize(size);
+
+        ofile = sf.getUpdateService().saveAndReturnObject(ofile);
+        sql.setFileRepo(ofile.getId(), repoUuid);
+        return ofile;
+    }
 }

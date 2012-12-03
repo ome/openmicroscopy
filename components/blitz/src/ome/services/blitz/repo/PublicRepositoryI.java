@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import ome.api.RawFileStore;
@@ -324,10 +325,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     protected OriginalFile findInDb(CheckedPath checked, String mode,
             Principal currentUser) throws ServerError {
 
-        Long id = repositoryDao.findRepoFile(repoUuid, checked.getRelativePath(),
-                checked.file.getName(), null, currentUser);
+        final OriginalFile ofile =
+                repositoryDao.findRepoFile(repoUuid, checked.getRelativePath(),
+                        checked.getName(), null, currentUser);
 
-        if (id == null) {
+        if (ofile == null) {
             return null; // EARLY EXIT!
         }
 
@@ -336,9 +338,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             requiresWrite = false;
         }
 
-
-        checked.setId(id);
-        OriginalFile ofile = repositoryDao.getOriginalFile(id, currentUser);
+        checked.setId(ofile.getId().getValue());
         boolean canUpdate = repositoryDao.canUpdate(ofile, currentUser);
         if (requiresWrite && !canUpdate) {
             throw new omero.SecurityViolation(null, null,
@@ -445,14 +445,76 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *            ice context.
      */
     public void makeDir(String path, Current __current) throws ServerError {
-        File file = checkPath(path, __current).file;
+        CheckedPath checked = checkPath(path, __current);
+
+        final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
+        while (!checked.isRoot) {
+            paths.addFirst(checked);
+            checked = checked.parent();
+        }
+
+        if (paths.size() == 0) {
+            throw new omero.ResourceError(null, null, "Cannot re-create root!");
+        }
+
+        // Since we now have some number of elements, we start at the most
+        // parent element and work our way down through all the parents.
+        // If the file exists, then we check its permissions. If it doesn't
+        // exist, it gets created.
+        while (paths.size() > 1) {
+            checked = paths.removeFirst();
+
+            if (checked.file.exists()) {
+                if (!checked.file.isDirectory()) {
+                    throw new omero.ResourceError(null, null,
+                            "Path is not a directory.");
+                } else if (!checked.file.canRead()) {
+                    throw new omero.ResourceError(null, null,
+                            "Directory is not readable");
+                }
+
+                OriginalFile ofile = repositoryDao.findRepoFile(repoUuid,
+                        checked.getRelativePath(),
+                        checked.getName(), null, currentUser(__current));
+                if (ofile == null) {
+                    throw new omero.ResourceError(null, null,
+                            "Directory exists but is no registered");
+                }
+            } else {
+                // This will fail if the file already exists in
+                repositoryDao.createUserDirectory(repoUuid,
+                        checked.getRelativePath(),
+                        checked.getName(), currentUser(__current));
+                __mkdir(checked.file);
+            }
+
+        }
+
+        // Now we are ready to work on the actual intended path.
+        checked = paths.removeFirst(); // Size is now empty
+        if (checked.file.exists()) {
+            throw new omero.ResourceError(null, null,
+                "Path exists on disk:" + path);
+        }
+        repositoryDao.createUserDirectory(repoUuid,
+                checked.getRelativePath(),
+                checked.getName(), currentUser(__current));
+        __mkdir(checked.file);
+
+    }
+
+    /**
+     * This method should only be used by the makeDir public method in order to
+     * guarantee that the DB is kept in sync with the file system.
+     * @param file
+     */
+    private void __mkdir(File file) throws omero.ResourceError {
         try {
             FileUtils.forceMkdir(file);
         } catch (Exception e) {
-            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+            throw new omero.ResourceError(stackTraceAsString(e), null, e.getMessage());
         }
     }
-
     //
     //
     // Utility methods

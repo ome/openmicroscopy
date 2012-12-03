@@ -258,6 +258,10 @@ public class CheckedPath {
         return ofile;
     }
 
+    protected String getName() {
+        return file.getName();
+    }
+
     protected String getRelativePath() {
         return getRelativePath(file);
     }

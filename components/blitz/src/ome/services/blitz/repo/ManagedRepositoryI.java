@@ -122,7 +122,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     public RawFileStorePrx uploadUsedFile(Import importData, String usedFile, Ice.Current __current)
             throws omero.ServerError {
         File f = new File(root.file, usedFile);
-        f.getParentFile().mkdirs(); // FIXME: this should likely be done by CheckedPath
+        makeDir(f.getParent(), __current);
         return file(f.getAbsolutePath(), "rw", __current);
     }
 

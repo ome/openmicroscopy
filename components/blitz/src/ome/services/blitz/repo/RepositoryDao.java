@@ -35,13 +35,16 @@ public interface RepositoryDao {
 
     /**
      * Delegate to {@link ome.util.SqlAction#findRepoFile(String, String, String, String)}
+     * for looking up the id of the file, and then load it normally via
+     * IQuery. This will enforce any read security checks.
      * @param uuid
      * @param dirname
      * @param basename
      * @param mimetype
      * @return
      */
-    Long findRepoFile(String uuid, String dirname, String basename, String mimetype, Principal currentUser);
+    OriginalFile findRepoFile(String uuid, String dirname, String basename,
+            String mimetype, Principal currentUser) throws ServerError;
 
     /**
      * Delegates to IAdmin#canUpdate
