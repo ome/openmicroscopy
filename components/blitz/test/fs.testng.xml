@@ -9,5 +9,8 @@
     <packages>
       <package name="ome.services.blitz.test.utests"/>
     </packages>
+    <classes>
+      <class name="ome.services.blitz.repo.path.FilePathTransformerTest"/>
+    </classes>
   </test>
 </suite>
