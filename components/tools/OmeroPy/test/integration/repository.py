@@ -156,7 +156,7 @@ class TestRepository(AbstractRepoTest):
         self.assertEquals("hi", unicode(rfs.read(0, 2), "utf-8"))
         rfs.close()
 
-class TestManagedRepository(AbstractRepoTest):
+class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
     def setup2RepoUsers(self, perms="rw----"):
         group = self.new_group(perms=perms)
@@ -176,6 +176,45 @@ class TestManagedRepository(AbstractRepoTest):
         finally:
             rfs.close()
 
+    def assertWrite(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                self.assertEquals("bye", rfs.read(0, 3))
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assertNoWrite(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                self.assertRaises(omero.SecurityViolation,
+                    rfs.write, "bye", 0, 3)
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        self.assertRaises(omero.SecurityViolation,
+            mrepo2.file, filename, "rw")
+
+
     def assertNoRead(self, mrepo2, filename, ofile):
         self.assertRaises(omero.SecurityViolation,
             mrepo2.fileById, ofile.id.val)
@@ -183,17 +222,17 @@ class TestManagedRepository(AbstractRepoTest):
             mrepo2.file, filename, "r")
 
     def assertRead(self, mrepo2, filename, ofile):
+        def _read(rfs):
+            try:
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
         rfs = mrepo2.fileById(ofile.id.val)
-        try:
-            self.assertEquals("hi", rfs.read(0, 2))
-        finally:
-            rfs.close()
+        _read(rfs)
 
         rfs = mrepo2.file(filename, "r")
-        try:
-            self.assertEquals("hi", rfs.read(0, 2))
-        finally:
-            rfs.close()
+        _read(rfs)
 
     def assertListings(self, mrepo1, uuid):
         self.assertEquals(["/"+uuid], mrepo1.list("."))
@@ -201,7 +240,7 @@ class TestManagedRepository(AbstractRepoTest):
         self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
         self.assertEquals(["/"+uuid+"/b/c/file.txt"], mrepo1.list(uuid+"/b/c/"))
 
-    def testBasicMultiUserWriteSecurityPrivateGroup(self):
+    def testTopPrivateGroup(self):
 
         filename = self.uuid() + ".txt"
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
@@ -210,12 +249,13 @@ class TestManagedRepository(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertWrite(mrepo1, filename, ofile)
 
         self.assertNoRead(mrepo2, filename, ofile)
 
         self.assertEquals(0, len(mrepo2.listFiles(".")))
 
-    def testDirMultiUserWriteSecurityPrivateGroup(self):
+    def testDirPrivateGroup(self):
 
         uuid = self.uuid()
         dirname = uuid + "/b/c"
@@ -228,12 +268,13 @@ class TestManagedRepository(AbstractRepoTest):
 
         self.assertRead(mrepo1, filename, ofile)
         self.assertListings(mrepo1, uuid)
+        self.assertWrite(mrepo1, filename, ofile)
 
         self.assertNoRead(mrepo2, filename, ofile)
         self.assertRaises(omero.SecurityViolation,
             mrepo2.listFiles, dirname)
 
-    def testDirMultiUserWriteSecurityReadOnlyGroup(self):
+    def testDirReadOnlyGroup(self):
 
         uuid = self.uuid()
         dirname = uuid + "/b/c"
@@ -246,9 +287,31 @@ class TestManagedRepository(AbstractRepoTest):
 
         self.assertRead(mrepo1, filename, ofile)
         self.assertListings(mrepo1, uuid)
+        self.assertWrite(mrepo1, filename, ofile)
 
         self.assertRead(mrepo2, filename, ofile)
         self.assertListings(mrepo2, uuid)
+        self.assertNoWrite(mrepo2, filename, ofile)
+
+    def testDirReadWriteGroup(self):
+
+        uuid = self.uuid()
+        dirname = uuid + "/b/c"
+        filename = dirname + "/file.txt"
+
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwrw--")
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertRead(mrepo1, filename, ofile)
+        self.assertListings(mrepo1, uuid)
+        self.assertWrite(mrepo1, filename, ofile)
+
+        self.assertRead(mrepo2, filename, ofile)
+        self.assertWrite(mrepo2, filename, ofile)
+        self.assertListings(mrepo2, uuid)
+
 
 
 if __name__ == '__main__':
