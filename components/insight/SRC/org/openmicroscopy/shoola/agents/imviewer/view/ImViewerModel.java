@@ -2129,7 +2129,14 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isOriginalSettings() { return isSameSettings(originalDef, false); }
+	boolean isOriginalSettings()
+	{
+		if (originalDef == null) return true;
+		if (metadataViewer == null) return true;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return true;
+		return isSameSettings(originalDef, false);
+	}
 
 	/**
 	 * Returns <code>true</code> if it is the original plane, 
