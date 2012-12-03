@@ -3147,11 +3147,32 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized byte[] getThumbnail(SecurityContext ctx, long pixelsID,
+	byte[] getThumbnail(SecurityContext ctx, long pixelsID,
 			int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return retrieveThumbnail(ctx, pixelsID, sizeX, sizeY, userID);
+	}
+
+	/**
+	 * Retrieves the thumbnail for the passed set of pixels.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of the pixels set the thumbnail is for.
+	 * @param sizeX The size of the thumbnail along the X-axis.
+	 * @param sizeY The size of the thumbnail along the Y-axis.
+	 * @param userID The id of the user the thumbnail is for.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred while trying to 
+	 *              retrieve data from the service. 
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	private synchronized byte[] retrieveThumbnail(SecurityContext ctx,
+			long pixelsID, int sizeX, int sizeY, long userID)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
@@ -3174,6 +3195,27 @@ class OMEROGateway
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}
 	}
+	
+	/**
+	 * Retrieves the thumbnail for the passed set of pixels.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of the pixels set the thumbnail is for.
+	 * @param maxLength The maximum length of the thumbnail width or height
+	 * 					depending on the pixel size.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred while trying to 
+	 *              retrieve data from the service. 
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	byte[] getThumbnailByLongestSide(SecurityContext ctx, long pixelsID,
+			int maxLength)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return retrieveThumbnailByLongestSide(ctx, pixelsID, maxLength);
+	}
 
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
@@ -3187,11 +3229,10 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized byte[] getThumbnailByLongestSide(SecurityContext ctx,
-			long pixelsID, int maxLength)
+	private synchronized byte[] retrieveThumbnailByLongestSide(
+			SecurityContext ctx, long pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		isSessionAlive(ctx);
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
@@ -3208,7 +3249,7 @@ class OMEROGateway
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}
 	}
-
+	
 	/**
 	 * Retrieves the thumbnail for the passed collection of pixels set.
 	 * 
@@ -3223,11 +3264,33 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized Map getThumbnailSet(SecurityContext ctx, List<Long> pixelsID,
+	Map getThumbnailSet(SecurityContext ctx, List<Long> pixelsID,
 			int maxLength, boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return retrieveThumbnailSet(ctx, pixelsID, maxLength, reset);
+	}
+	
+	/**
+	 * Retrieves the thumbnail for the passed collection of pixels set.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The collection of pixels set.
+	 * @param maxLength The maximum length of the thumbnail width or height
+	 * 					depending on the pixel size.
+	 * @param reset Pass <code>true</code> to reset the thumbnail store,
+	 *              <code>false</code> otherwise.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred while trying to 
+	 *              retrieve data from the service. 
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	private synchronized Map retrieveThumbnailSet(SecurityContext ctx,
+			List<Long> pixelsID, int maxLength, boolean reset)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
 		ThumbnailStorePrx service = null;
 		try {
 			int n = MAX_RETRIEVAL;
@@ -3258,11 +3321,31 @@ class OMEROGateway
 	 * @throws FSAccessException If an error occurred when trying to build a 
 	 * pyramid or access file not available.
 	 */
-	synchronized RenderingEnginePrx createRenderingEngine(SecurityContext ctx,
+	RenderingEnginePrx createRenderingEngine(SecurityContext ctx,
 			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return generateRenderingEngine(ctx, pixelsID);
+	}
+
+	/**
+	 * Creates a new rendering service for the specified pixels set.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID  The pixels set ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 * @throws FSAccessException If an error occurred when trying to build a 
+	 * pyramid or access file not available.
+	 */
+	private synchronized RenderingEnginePrx generateRenderingEngine(
+			SecurityContext ctx, long pixelsID)
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
+	{
 		RenderingEnginePrx service = getRenderingService(ctx, pixelsID);
 		try {
 			service.lookupPixels(pixelsID);
@@ -3281,7 +3364,6 @@ class OMEROGateway
 		}
 		return null;
 	}
-
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
@@ -3762,11 +3844,30 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	synchronized Map<Boolean, Object> getArchivedFiles(
+	Map<Boolean, Object> getArchivedFiles(
 			SecurityContext ctx, String folderPath, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return retrieveArchivedFiles(ctx, folderPath, pixelsID);
+	}
+	
+	/**
+	 * Retrieves the archived files if any for the specified set of pixels.
+	 * 
+	 * @param ctx The security context.
+	 * @param folderPath The location where to save the files.
+	 * @param pixelsID The ID of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.  
+	 */
+	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
+			SecurityContext ctx, String folderPath, long pixelsID) 
+		throws DSAccessException, DSOutOfServiceException
+	{
 		IQueryPrx service = getQueryService(ctx);
 		List files = null;
 		try {
@@ -3848,12 +3949,31 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	synchronized File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
+		return download(ctx, file, fileID, size);
+	}
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param ctx The security context.
+	 * @param file The file to copy the data into.	
+	 * @param fileID The id of the file to download.
+	 * @param size The size of the file.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.  
+	 */
+	private synchronized File download(SecurityContext ctx, File file,
+			long fileID, long size)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		//
 		if (of == null) return null;
@@ -3999,7 +4119,29 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	synchronized OriginalFile uploadFile(SecurityContext ctx, File file,
+	OriginalFile uploadFile(SecurityContext ctx, File file, String mimeType,
+			long originalFileID)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return upload(ctx, file, mimeType, originalFileID);
+	}
+	
+	/**
+	 * Uploads the passed file to the server and returns the 
+	 * original file i.e. the server object.
+	 * 
+	 * @param ctx The security context.
+	 * @param file The file to upload.
+	 * @param mimeType The mimeType of the file.
+	 * @param originalFileID The id of the file or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.  
+	 */
+	private synchronized OriginalFile upload(SecurityContext ctx, File file,
 			String mimeType, long originalFileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -4007,7 +4149,6 @@ class OMEROGateway
 			throw new IllegalArgumentException("No file to upload");
 		if (mimeType == null || mimeType.length() == 0)
 			mimeType =  DEFAULT_MIMETYPE;
-		isSessionAlive(ctx);
 		RawFileStorePrx store = getRawFileService(ctx);;
 		OriginalFile save = null;
 		boolean fileCreated = false;
@@ -4097,6 +4238,7 @@ class OMEROGateway
 		}
 		return save;
 	}
+	
 	
 	/**
 	 * Modifies the password of the currently logged in user.
@@ -4309,11 +4451,32 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized byte[] getPlane(SecurityContext ctx, long pixelsID, int z,
-			int t, int c)
+	byte[] getPlane(SecurityContext ctx, long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive(ctx);
+		return retrievePlane(ctx, pixelsID, z, t, c);
+	}
+
+	/**
+	 * Returns the XY-plane identified by the passed z-section, time-point 
+	 * and wavelength.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of pixels containing the requested plane.
+	 * @param z The selected z-section.
+	 * @param t The selected time-point.
+	 * @param c The selected wavelength.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private synchronized byte[] retrievePlane(SecurityContext ctx,
+			long pixelsID, int z, int t, int c)
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
+	{
 		RawPixelsStorePrx service = getPixelsStore(ctx);
 		try {
 			if (service == null) service = getPixelsStore(ctx);
@@ -4329,7 +4492,6 @@ class OMEROGateway
 		}
 		return null;
 	}
-
 	/**
 	 * Returns the free or available space (in Kilobytes) on the file system
 	 * including nested sub-directories.
@@ -7832,11 +7994,30 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized byte[] getUserPhoto(SecurityContext ctx, long fileID,
-			long size)
+	byte[] getUserPhoto(SecurityContext ctx, long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
+		if (!networkup) return null;
+		return retrieveUserPhoto(ctx, fileID, size);
+	}
+	
+	/**
+	 * Reads the file hosting the user photo.
+	 * 
+	 * @param ctx The security context.
+	 * @param fileID The id of the file.
+	 * @param size   The size of the file.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private synchronized byte[] retrieveUserPhoto(SecurityContext ctx,
+			long fileID, long size)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
