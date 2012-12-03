@@ -98,13 +98,13 @@ public class NetworkChecker {
 							ia = (InetAddress) e.nextElement();
 							if (!ia.isAnyLocalAddress() &&
 									!ia.isLoopbackAddress()) {
-								if (!ia.isSiteLocalAddress()) {
-										if (!ia.getHostName().equals(
-												ia.getHostAddress())) {
-											networkup = true;
-											break;
-										}
+								//if (!ia.isSiteLocalAddress()) {
+								if (!ia.getHostName().equals(
+										ia.getHostAddress())) {
+									networkup = true;
+									break;
 								}
+								//}
 							}
 						}
 						if (networkup) break;
