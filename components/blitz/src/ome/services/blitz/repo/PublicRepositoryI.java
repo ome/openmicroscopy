@@ -426,7 +426,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         final RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
             this.context.publishMessage(msg);
-            rfs.setHolder(msg.getHolder());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
