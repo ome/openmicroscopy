@@ -46,9 +46,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
@@ -75,7 +72,6 @@ import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -387,8 +383,11 @@ class ImporterControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
-		} // location dialo prop
-		//model.setUSerGroup (( )model.getNEwVAlue
+		} else if (ImportDialog.GROUP_CHANGED_PROPERTY.equals(name))
+		{
+			GroupData newGroup = (GroupData) evt.getNewValue();
+			model.setUserGroup(newGroup);
+		}
 	}
 
 	/**

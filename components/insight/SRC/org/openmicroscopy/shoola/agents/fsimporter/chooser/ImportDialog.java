@@ -119,7 +119,7 @@ import pojos.TagAnnotationData;
  */
 public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
-
+	
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
 
@@ -558,7 +558,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
 		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, (Collection<GroupData>) ImporterAgent.getAvailableUserGroups(), ImporterAgent.getUserDetails().getGroupId());
-
+		locationDialog.addPropertyChangeListener(this);
+		
 		listener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
