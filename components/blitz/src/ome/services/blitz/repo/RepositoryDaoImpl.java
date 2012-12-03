@@ -3,10 +3,17 @@ package ome.services.blitz.repo;
 import static omero.rtypes.rlong;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.springframework.aop.framework.Advised;
+import org.springframework.transaction.annotation.Transactional;
 
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
+import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -18,13 +25,6 @@ import omero.ServerError;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
-
-import org.hibernate.Session;
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
 
 /**
  * DAO class for encapsulating operations related to resource access inside the
@@ -114,20 +114,46 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public OriginalFile getOriginalFile(final long repoId,
-               final Principal currentUser) throws SecurityViolation {
+            final Principal currentUser) throws SecurityViolation {
 
-        try {
-            ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-                .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
-                    }
-                });
-            return (OriginalFileI) new IceMapper().map(oFile);
-        } catch (ome.conditions.SecurityViolation sv) {
-            throw wrapSecurityViolation(sv);
-        }
+         try {
+             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", repoId) {
+                     @Transactional(readOnly = true)
+                     public Object doWork(Session session, ServiceFactory sf) {
+                         return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+                     }
+                 });
+             return (OriginalFileI) new IceMapper().map(oFile);
+         } catch (ome.conditions.SecurityViolation sv) {
+             throw wrapSecurityViolation(sv);
+         }
+     }
+
+    @SuppressWarnings("unchecked")
+    public List<OriginalFile> getOriginalFiles(final String repoUuid, final String path,
+            final Principal currentUser) throws SecurityViolation {
+
+         try {
+             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
+                 .execute(currentUser, new Executor.SimpleWork(this,
+                         "getOriginalFiles", repoUuid, path) {
+                     @Transactional(readOnly = true)
+                     public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
+                         List<Long> ids = getSqlAction().findRepoFiles(repoUuid, path);
+                         if (ids == null || ids.size() == 0) {
+                             return Collections.emptyList();
+                         }
+                         Parameters p = new Parameters();
+                         p.addIds(ids);
+                         return sf.getQueryService().findAllByQuery(
+                                 "select o from OriginalFile o where o.id in (:ids)", p);
+                     }
+                 });
+             return (List<OriginalFile>) new IceMapper().map(oFiles);
+         } catch (ome.conditions.SecurityViolation sv) {
+             throw wrapSecurityViolation(sv);
+         }
     }
 
     /**

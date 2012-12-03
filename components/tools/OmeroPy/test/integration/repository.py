@@ -192,6 +192,8 @@ class TestManagedRepository(AbstractRepoTest):
 
         self.assertNoRead(mrepo2, filename, ofile)
 
+        self.assertEquals(0, len(mrepo2.listFiles(".")))
+
     def testDirMultiUserWriteSecurityPrivateGroup(self):
 
         dirname = self.uuid() + "/b/c"
@@ -203,6 +205,7 @@ class TestManagedRepository(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertNoRead(mrepo2, filename, ofile)
+        self.assertEquals(0, len(mrepo2.listFiles(dirname)))
 
     def testDirMultiUserListSecurityPrivateGroup(self):
 
@@ -214,6 +217,7 @@ class TestManagedRepository(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertNoRead(mrepo2, filename, ofile)
+        self.assertEquals(0, len(mrepo2.listFiles(dirname)))
 
 if __name__ == '__main__':
     unittest.main()

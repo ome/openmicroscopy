@@ -1,6 +1,7 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.util.List;
 
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
@@ -54,6 +55,21 @@ public interface RepositoryDao {
 
     OriginalFile getOriginalFile(long fileId, Principal currentUser)
             throws SecurityViolation;
+
+
+    /**
+     * Return a non-null, possibly empty list of {@link OriginalFile} elements
+     * which are accessible to the given user at the given path. If the
+     * directory which they are associated with is not also readable by the
+     * current user, then a {@link SecurityViolation} will be thrown.
+     *
+     * @param uuid for the repository in question.
+     * @param path normalized path which can be found as the value of
+     *      {@link OriginalFile#getPath()} in the database.
+     * @param currentUser
+     */
+    List<OriginalFile> getOriginalFiles(String repoUuid, String path, Principal currentUser)
+        throws SecurityViolation;
 
     /**
      * Register an OriginalFile object

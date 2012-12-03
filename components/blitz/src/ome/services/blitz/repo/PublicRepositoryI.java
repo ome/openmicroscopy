@@ -143,27 +143,17 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     //
 
     public List<String> list(String path, Current __current) throws ServerError {
-        File file = checkPath(path, __current).mustExist().file;
+        List<OriginalFile> ofiles = listFiles(path, __current);
         List<String> contents = new ArrayList<String>();
-        for (Object child : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
-            contents.add(child.toString());
+        for (OriginalFile ofile : ofiles) {
+            contents.add(ofile.getPath().getValue() + ofile.getName().getValue());
         }
         return contents;
     }
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
-        File file = checkPath(path, __current).mustExist().file;
-        List<OriginalFile> contents = new ArrayList<OriginalFile>();
-        for (Object child_ : FileUtils.listFiles(file, DEFAULT_SKIP, null)) {
-            File child = (File) child_;
-            OriginalFile originalFile = new OriginalFileI();
-            originalFile.setName(rstring(child.getName()));
-            originalFile.setPath(rstring(path));
-            originalFile.setSize(rlong(child.length()));
-            originalFile.setMtime(rtime(child.lastModified()));
-            contents.add(originalFile);
-        }
-        return contents;
+        checkPath(path, __current).mustExist();
+        return repositoryDao.getOriginalFiles(repoUuid, path, currentUser(__current));
     }
 
     /**
