@@ -31,6 +31,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import ome.util.Utils;
 import ome.services.util.Executor;
+import ome.system.Principal;
 
 import omero.ValidationException;
 import omero.model.OriginalFile;
@@ -57,6 +58,7 @@ public class CheckedPath {
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
+    protected Long id;
     protected String sha1;
     protected String mime;
 
@@ -139,6 +141,14 @@ public class CheckedPath {
     // Public methods (mutable state)
     //
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String sha1() {
         if (sha1 == null) {
             sha1 = Utils.bytesToHex(Utils.pathToSha1(normPath));
@@ -210,10 +220,6 @@ public class CheckedPath {
         return this.file.isDirectory();
     }
 
-    public CheckedPath mustDB() {
-        return this;
-    }
-
     /**
      * Create an OriginalFile object corresponding to a File object
      * using the user supplied mimetype string
@@ -229,16 +235,24 @@ public class CheckedPath {
     public OriginalFile createOriginalFile(omero.RString mimetype) {
         OriginalFile ofile = new OriginalFileI();
         ofile.setName(rstring(file.getName()));
+
         // This first case deals with registering the repos themselves.
         if (isRoot) {
             ofile.setPath(rstring(file.getParent()));
         } else { // Path should be relative to root?
             ofile.setPath(rstring(getRelativePath(file)));
         }
-        ofile.setSha1(rstring(sha1()));
+
         ofile.setMimetype(mimetype);
-        ofile.setMtime(rtime(this.file.lastModified()));
-        ofile.setSize(rlong(this.file.length()));
+        if (file.exists()) {
+            ofile.setSha1(rstring(sha1()));
+            ofile.setMtime(rtime(this.file.lastModified()));
+            ofile.setSize(rlong(this.file.length()));
+        } else {
+            ofile.setSha1(rstring(""));
+            ofile.setMtime(rtime(System.currentTimeMillis()));
+            ofile.setSize(rlong(0));
+        }
         // atime/ctime??
 
         return ofile;
@@ -255,4 +269,5 @@ public class CheckedPath {
         path = path + "/";
         return path;
     }
+
 }

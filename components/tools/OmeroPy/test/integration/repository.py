@@ -153,5 +153,27 @@ class TestRepository(lib.ITest):
         self.assert_(found)
         return prx
 
+    def testBasicMultiUserSecurityPrivateGroup(self):
+
+
+        group = self.new_group(perms="rw----")
+        client1, user1 = self.new_client_and_user(group=group)
+        client2, user2 = self.new_client_and_user(group=group)
+
+        mrepo1 = self.getManagedRepo(client1)
+        mrepo2 = self.getManagedRepo(client2)
+
+        # No intermediate directories
+        rfs = mrepo1.file("file.txt", "rw")
+        try:
+            rfs.write("hi", 0, 2)
+            ofile = rfs.save()
+        finally:
+            rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        rfs = mrepo2.file("file.txt", "r")
+
+
 if __name__ == '__main__':
     unittest.main()

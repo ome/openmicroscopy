@@ -4,7 +4,10 @@ import static omero.rtypes.rlong;
 
 import java.io.File;
 
+import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
+import ome.io.nio.FileBuffer;
+import ome.services.RawFileBean;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -15,6 +18,8 @@ import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
 import org.hibernate.Session;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.AopProxy;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -38,9 +43,66 @@ public class RepositoryDaoImpl implements RepositoryDao {
         this.executor = executor;
     }
 
-    public OriginalFile getOriginalFile(final long repoId) {
+    /**
+     * Loads
+     * @return
+     */
+    protected RawFileBean unwrapRawFileBean(RawFileStore proxy) {
+        try {
+            return (RawFileBean) ((Advised) proxy).getTargetSource().getTarget();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public RawFileStore getRawFileStore(final long fileId, final File file,
+            String mode, Principal currentUser) {
+
+        final RawFileStore proxy = executor.getContext()
+                .getBean("managed-ome.api.RawFileStore", RawFileStore.class);
+        final RawFileBean bean = unwrapRawFileBean(proxy);
+        final FileBuffer buffer = new FileBuffer(file.getAbsolutePath(),  mode);
+        executor.execute(currentUser, new Executor.SimpleWork(this, "setFileIdWithBuffer") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        bean.setFileIdWithBuffer(fileId, buffer);
+                        return null;
+                    }
+                });
+        return proxy;
+    }
+
+    public Long findRepoFile(final String uuid, final String dirname,
+            final String basename, final String mimetype, Principal currentUser) {
+        return (Long) executor
+                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return getSqlAction().findRepoFile(uuid, dirname, basename, mimetype);
+                    }
+                });
+    }
+
+    public boolean canUpdate(final omero.model.IObject obj, Principal currentUser) {
+        return (Boolean)  executor
+                .execute(currentUser, new Executor.SimpleWork(this, "canUpdate") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        try {
+                            ome.model.IObject iobj = (ome.model.IObject)
+                                new IceMapper().reverse(obj);
+                            return sf.getAdminService().canUpdate(iobj);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    }
+                });
+    }
+
+    public OriginalFile getOriginalFile(final long repoId, final Principal currentUser) {
         ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-                .execute(principal, new Executor.SimpleWork(this, "root") {
+                .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);

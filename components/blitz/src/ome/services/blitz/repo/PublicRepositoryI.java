@@ -34,8 +34,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.RawFileBean;
+import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
@@ -130,7 +133,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     //
 
     public OriginalFile root(Current __current) {
-       return this.repositoryDao.getOriginalFile(this.id);
+        Principal currentUser = currentUser(__current);
+        return this.repositoryDao.getOriginalFile(this.id, currentUser);
     }
 
     //
@@ -258,7 +262,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
-        checkPath(path, __current).mustDB();
+        CheckedPath checked = checkPath(path, __current);
 
         // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = new Ice.Current();
@@ -266,6 +270,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         adjustedCurr.operation = __current.operation;
         String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+        Principal currentUser = currentUser(adjustedCurr);
+
+        // Check that the file is in the DB and has minimally "r" permissions
+        // Sets the ID value on the checked object.
+        findInDb(checked, "r", currentUser);
 
         BfPixelsStoreI rps;
         try {
@@ -305,31 +314,79 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
         CheckedPath check = checkPath(path, __current);
-        return createRepoRFS(check.file, mode, null, __current);
+        findOrCreateInDb(check, mode, __current);
+        return createRepoRFS(check, mode, __current);
     }
 
     public RawFileStorePrx fileById(long fileId, Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
-        File file = getFile(fileId, currentUser);
-        if (file == null) {
-            return null;
+        CheckedPath checked = checkId(fileId, __current);
+        return createRepoRFS(checked, "r", __current);
+    }
+
+    /**
+     * Find the given path in the DB or create.
+     *
+     * "requiresWrite" is set to true unless the mode is "r". If requiresWrite
+     * is true, then the caller needs the file to be modifiable (both on disk
+     * and the DB). If this doesn't hold, then a SecurityViolation will be thrown.
+     */
+    protected OriginalFile findInDb(CheckedPath checked, String mode,
+            Principal currentUser) throws ServerError {
+
+        Long id = repositoryDao.findRepoFile(repoUuid, checked.getRelativePath(),
+                checked.file.getName(), null, currentUser);
+
+        if (id == null) {
+            return null; // EARLY EXIT!
         }
-        return createRepoRFS(file, null, fileId, __current);
+
+        boolean requiresWrite = true;
+        if ("r".equals(mode)) {
+            requiresWrite = false;
+        }
+
+
+        checked.setId(id);
+        OriginalFile ofile = repositoryDao.getOriginalFile(id, currentUser);
+        boolean canUpdate = repositoryDao.canUpdate(ofile, currentUser);
+        if (requiresWrite && !canUpdate) {
+            throw new omero.SecurityViolation(null, null,
+                    "requiresWrite is true but cannot modify");
+        }
+
+        return ofile;
+    }
+
+    protected OriginalFile findOrCreateInDb(CheckedPath checked, String mode,
+            Ice.Current curr) throws ServerError {
+
+        Principal currentUser = currentUser(curr);
+        OriginalFile ofile = findInDb(checked, mode, currentUser);
+        if (ofile != null) {
+            return ofile;
+        }
+
+        // TODO: Other default?
+        ofile = checked.createOriginalFile(
+                rstring("application/octet-stream"));
+        ofile = repositoryDao.register(ofile, currentUser);
+        checked.setId(ofile.getId().getValue());
+        return ofile;
     }
 
     /**
      * Create, initialize, and register an {@link RepoRawFileStoreI}
      * with the proper setting (read or write).
      *
-     * @param file The file that will be read. Can't be null.
+     * @param checked The file that will be read. Can't be null,
+     *          and must have ID set.
      * @param mode The mode for writing. If null, read-only.
-     * @param fileId The id to read. Can't be null if mode is null.
      * @param __current The current user's session information.
      * @return A proxy ready to be returned to the user.
      * @throws ServerError
      * @throws InternalException
      */
-    protected RawFileStorePrx createRepoRFS(File file, String mode, Long fileId,
+    protected RawFileStorePrx createRepoRFS(CheckedPath checked, String mode,
             Current __current) throws ServerError, InternalException {
 
         // WORKAROUND: See the comment in RawFileStoreI.
@@ -342,13 +399,15 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         adjustedCurr.operation = __current.operation;
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
 
+        final BlitzExecutor be =
+                context.getBean("throttlingStrategy", BlitzExecutor.class);
+
         RepoRawFileStoreI rfs;
         try {
-            if (mode != null) {
-                rfs = new RepoRawFileStoreI(file.getAbsolutePath(), mode);
-            } else {
-                rfs = new RepoRawFileStoreI(fileId, file);
-            }
+            Principal currentUser = currentUser(adjustedCurr);
+            final RawFileStore service = repositoryDao.getRawFileStore(
+                    checked.getId(), checked.file, mode, currentUser);
+            rfs = new RepoRawFileStoreI(be, service, adjustedCurr);
             rfs.setApplicationContext(this.context);
         } catch (Throwable t) {
             if (t instanceof ServerError) {
@@ -439,8 +498,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * @return OriginalFile object.
      *
      */
-    private File getFile(final long id, final Principal currentUser) {
-        return this.repositoryDao.getFile(id, currentUser, this.repoUuid, this.root);
+    private CheckedPath checkId(final long id, final Ice.Current curr)
+        throws ValidationException {
+        Principal currentUser = currentUser(curr);
+        File file = this.repositoryDao.getFile(id, currentUser, this.repoUuid, this.root);
+        CheckedPath checked = new CheckedPath(root, file.getPath());
+        checked.setId(id);
+        return checked;
     }
 
     // Utility function for passing stack traces back in exceptions.
