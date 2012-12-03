@@ -108,7 +108,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         }
                     }
                 });
-            return (OriginalFile) new IceMapper().reverse(ofile);
+            return (OriginalFile) new IceMapper().map(ofile);
         } catch (ome.conditions.SecurityViolation sv) {
             throw wrapSecurityViolation(sv);
         }

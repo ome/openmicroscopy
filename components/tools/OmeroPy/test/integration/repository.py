@@ -182,6 +182,19 @@ class TestManagedRepository(AbstractRepoTest):
         self.assertRaises(omero.SecurityViolation,
             mrepo2.file, filename, "r")
 
+    def assertRead(self, mrepo2, filename, ofile):
+        rfs = mrepo2.fileById(ofile.id.val)
+        try:
+            self.assertEquals("hi", rfs.read(0, 2))
+        finally:
+            rfs.close()
+
+        rfs = mrepo2.file(filename, "r")
+        try:
+            self.assertEquals("hi", rfs.read(0, 2))
+        finally:
+            rfs.close()
+
     def assertListings(self, mrepo1, uuid):
         self.assertEquals(["/"+uuid], mrepo1.list("."))
         self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
@@ -196,24 +209,47 @@ class TestManagedRepository(AbstractRepoTest):
         # No intermediate directories
         ofile = self.createFile(mrepo1, filename)
 
+        self.assertRead(mrepo1, filename, ofile)
+
         self.assertNoRead(mrepo2, filename, ofile)
 
         self.assertEquals(0, len(mrepo2.listFiles(".")))
 
     def testDirMultiUserWriteSecurityPrivateGroup(self):
 
-        dirname = self.uuid() + "/b/c"
+        uuid = self.uuid()
+        dirname = uuid + "/b/c"
         filename = dirname + "/file.txt"
 
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
 
         mrepo1.makeDir(dirname)
         ofile = self.createFile(mrepo1, filename)
+
+        self.assertRead(mrepo1, filename, ofile)
         self.assertListings(mrepo1, uuid)
 
         self.assertNoRead(mrepo2, filename, ofile)
         self.assertRaises(omero.SecurityViolation,
             mrepo2.listFiles, dirname)
+
+    def testDirMultiUserWriteSecurityReadOnlyGroup(self):
+
+        uuid = self.uuid()
+        dirname = uuid + "/b/c"
+        filename = dirname + "/file.txt"
+
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwr---")
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertRead(mrepo1, filename, ofile)
+        self.assertListings(mrepo1, uuid)
+
+        self.assertRead(mrepo2, filename, ofile)
+        self.assertListings(mrepo2, uuid)
+
 
 if __name__ == '__main__':
     unittest.main()
