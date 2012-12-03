@@ -12,7 +12,25 @@ import integration.library as lib
 import omero
 from omero.rtypes import *
 
-class TestRepository(lib.ITest):
+class AbstractRepoTest(lib.ITest):
+
+    def getManagedRepo(self, client=None):
+        if client is None:
+            client = self.client
+        repoMap = client.sf.sharedResources().repositories()
+        prx = None
+        found = False
+        for prx in repoMap.proxies:
+            if not prx: continue
+            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
+            if prx:
+                found = True
+                break
+        self.assert_(found)
+        return prx
+
+
+class TestRepository(AbstractRepoTest):
 
     def testBasicUsage(self):
 
@@ -138,42 +156,64 @@ class TestRepository(lib.ITest):
         self.assertEquals("hi", unicode(rfs.read(0, 2), "utf-8"))
         rfs.close()
 
-    def getManagedRepo(self, client=None):
-        if client is None:
-            client = self.client
-        repoMap = client.sf.sharedResources().repositories()
-        prx = None
-        found = False
-        for prx in repoMap.proxies:
-            if not prx: continue
-            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
-            if prx:
-                found = True
-                break
-        self.assert_(found)
-        return prx
+class TestManagedRepository(AbstractRepoTest):
 
-    def testBasicMultiUserSecurityPrivateGroup(self):
-
-
-        group = self.new_group(perms="rw----")
+    def setup2RepoUsers(self, perms="rw----"):
+        group = self.new_group(perms=perms)
         client1, user1 = self.new_client_and_user(group=group)
         client2, user2 = self.new_client_and_user(group=group)
 
         mrepo1 = self.getManagedRepo(client1)
         mrepo2 = self.getManagedRepo(client2)
+        return client1, mrepo1, client2, mrepo2
 
-        # No intermediate directories
-        rfs = mrepo1.file("file.txt", "rw")
+    def createFile(self, mrepo1, filename):
+        rfs = mrepo1.file(filename, "rw")
         try:
             rfs.write("hi", 0, 2)
             ofile = rfs.save()
+            return ofile
         finally:
             rfs.close()
 
-        rfs = mrepo2.fileById(ofile.id.val)
-        rfs = mrepo2.file("file.txt", "r")
+    def assertNoRead(self, mrepo2, filename, ofile):
+        self.assertRaises(omero.SecurityViolation,
+            mrepo2.fileById, ofile.id.val)
+        self.assertRaises(omero.SecurityViolation,
+            mrepo2.file, filename, "r")
 
+    def testBasicMultiUserWriteSecurityPrivateGroup(self):
+
+        filename = self.uuid() + ".txt"
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
+
+        # No intermediate directories
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertNoRead(mrepo2, filename, ofile)
+
+    def testDirMultiUserWriteSecurityPrivateGroup(self):
+
+        dirname = self.uuid() + "/b/c"
+        filename = dirname + "/file.txt"
+
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertNoRead(mrepo2, filename, ofile)
+
+    def testDirMultiUserListSecurityPrivateGroup(self):
+
+        dirname = self.uuid() + "/b/c"
+        filename = dirname + "/file.txt"
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertNoRead(mrepo2, filename, ofile)
 
 if __name__ == '__main__':
     unittest.main()

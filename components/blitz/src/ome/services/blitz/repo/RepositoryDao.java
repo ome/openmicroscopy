@@ -7,6 +7,7 @@ import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
 import ome.system.Principal;
 
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.model.IObject;
 import omero.model.OriginalFile;
@@ -28,7 +29,8 @@ public interface RepositoryDao {
      * @return An instance with
      *      {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} called.
      */
-    RawFileStore getRawFileStore(final long fileId, final File file, String mode, final Principal currentUser);
+    RawFileStore getRawFileStore(final long fileId, final File file, String mode,
+            final Principal currentUser) throws SecurityViolation;
 
     /**
      * Delegate to {@link ome.util.SqlAction#findRepoFile(String, String, String, String)}
@@ -42,27 +44,33 @@ public interface RepositoryDao {
 
     /**
      * Delegates to IAdmin#canUpdate
-     * @param obj
+     * @param fileId
      * @param currentUser
+     * @throws an {@link omero.SecurityViolation} if the currentUser is not
+     *      allowed to access the given file.
      * @return
      */
     boolean canUpdate(IObject obj, Principal currentUser);
 
-    OriginalFile getOriginalFile(long repoId, Principal currentUser);
+    OriginalFile getOriginalFile(long fileId, Principal currentUser)
+            throws SecurityViolation;
 
     /**
      * Register an OriginalFile object
      *
      * @param omeroFile
      *            OriginalFile object.
+     * @param repoUuid
+     *            uuid of the repository that the given file argument should be
+     *            registered with. Cannot be null.
      * @param currentUser
      *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    OriginalFile register(OriginalFile omeroFile, final Principal currentUser)
-            throws ServerError;
+    OriginalFile register(OriginalFile omeroFile, String repoUuid,
+            final Principal currentUser) throws ServerError;
 
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if

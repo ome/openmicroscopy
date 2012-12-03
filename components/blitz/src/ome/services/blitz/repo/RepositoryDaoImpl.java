@@ -12,6 +12,8 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -56,20 +58,31 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
+    protected SecurityViolation wrapSecurityViolation(
+            ome.conditions.SecurityViolation sv) throws SecurityViolation {
+        SecurityViolation copy = new SecurityViolation();
+        IceMapper.fillServerError(copy, sv);
+        throw copy;
+    }
+
     public RawFileStore getRawFileStore(final long fileId, final File file,
-            String mode, Principal currentUser) {
+            String mode, Principal currentUser) throws SecurityViolation {
 
         final RawFileStore proxy = executor.getContext()
                 .getBean("managed-ome.api.RawFileStore", RawFileStore.class);
         final RawFileBean bean = unwrapRawFileBean(proxy);
         final FileBuffer buffer = new FileBuffer(file.getAbsolutePath(),  mode);
-        executor.execute(currentUser, new Executor.SimpleWork(this, "setFileIdWithBuffer") {
+        try {
+            executor.execute(currentUser, new Executor.SimpleWork(this, "setFileIdWithBuffer") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         bean.setFileIdWithBuffer(fileId, buffer);
                         return null;
                     }
                 });
+        } catch (ome.conditions.SecurityViolation sv) {
+            throw wrapSecurityViolation(sv);
+        }
         return proxy;
     }
 
@@ -100,8 +113,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 });
     }
 
-    public OriginalFile getOriginalFile(final long repoId, final Principal currentUser) {
-        ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+    public OriginalFile getOriginalFile(final long repoId,
+               final Principal currentUser) throws SecurityViolation {
+
+        try {
+            ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -109,6 +125,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     }
                 });
             return (OriginalFileI) new IceMapper().map(oFile);
+        } catch (ome.conditions.SecurityViolation sv) {
+            throw wrapSecurityViolation(sv);
+        }
     }
 
     /**
@@ -116,13 +135,16 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      * @param omeroFile
      *            OriginalFile object.
+     * @param repoUuid
+     *            uuid of the repository that the given file argument should be
+     *            registered with. Cannot be null.
      * @param currentUser
      *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    public OriginalFile register(OriginalFile omeroFile, final Principal currentUser)
+    public OriginalFile register(OriginalFile omeroFile, final String repoUuid, final Principal currentUser)
             throws ServerError {
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
@@ -131,7 +153,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 this, "register", omeroFile.getPath().getValue()) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+                Long id =
+                        sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+                getSqlAction().setFileRepo(id, repoUuid);
+                return id;
             }
         });
 

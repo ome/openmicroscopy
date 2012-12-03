@@ -44,6 +44,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.InternalException;
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -132,7 +133,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     // OriginalFile-based Interface methods
     //
 
-    public OriginalFile root(Current __current) {
+    public OriginalFile root(Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
         return this.repositoryDao.getOriginalFile(this.id, currentUser);
     }
@@ -182,7 +183,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         Principal currentUser = currentUser(__current);
         CheckedPath checkedPath = checkPath(path, __current);
         OriginalFile omeroFile = checkedPath.createOriginalFile(mimetype);
-        return this.repositoryDao.register(omeroFile, currentUser);
+        return this.repositoryDao.register(omeroFile, repoUuid, currentUser);
     }
 
     public boolean delete(String path, Current __current) throws ServerError {
@@ -369,7 +370,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         // TODO: Other default?
         ofile = checked.createOriginalFile(
                 rstring("application/octet-stream"));
-        ofile = repositoryDao.register(ofile, currentUser);
+        ofile = repositoryDao.register(ofile, repoUuid, currentUser);
         checked.setId(ofile.getId().getValue());
         return ofile;
     }
@@ -498,9 +499,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
-        throws ValidationException {
+        throws SecurityViolation, ValidationException {
         Principal currentUser = currentUser(curr);
         File file = this.repositoryDao.getFile(id, currentUser, this.repoUuid, this.root);
+        if (file == null) {
+            throw new SecurityViolation(null, null, "FileNotFound: " + id);
+        }
         CheckedPath checked = new CheckedPath(root, file.getPath());
         checked.setId(id);
         return checked;
