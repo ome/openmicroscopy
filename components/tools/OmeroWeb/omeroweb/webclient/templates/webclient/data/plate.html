@@ -89,7 +89,7 @@
                 elm.bind('click', function(event){
                     handleClickSelection(event);
                     $selected = $('td.ui-selected', wpv.self);
-                    well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}'); // ome.webclient.actions.js
+                    well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
                 }).bind('dblclick', function(){
                     openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
@@ -100,7 +100,7 @@
                 distance: 2,
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
-                    well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}');
+                    well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 },
                 start: function(){
                 }
@@ -132,7 +132,7 @@
                     if (selected_wells.length > 0) {
                         handleClickSelection(undefined, selected_wells.children("img"));
                         $selected = $('td.ui-selected', wpv.self);
-                        well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}');
+                        well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
                 }
             })
