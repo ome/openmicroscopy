@@ -159,21 +159,35 @@ public class RepositoryDaoImpl implements RepositoryDao {
                      @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
 
-                         Long id = getSqlAction().findRepoFile(repoUuid,
+                         final IQuery q = sf.getQueryService();
+
+                         Long id = null;
+                         if (checked.isRoot) {
+                             id = q.findByString(ome.model.core.OriginalFile.class,
+                                     "sha1", repoUuid).getId();
+                         } else {
+                             id = getSqlAction().findRepoFile(repoUuid,
                                  checked.getRelativePath(), checked.getName(),
                                  null);
 
-                         if (id == null) {
-                             throw new ome.conditions.SecurityViolation(
-                                     "No such parent dir: " + checked);
+                             if (id == null) {
+                                 throw new ome.conditions.SecurityViolation(
+                                         "No such parent dir: " + checked);
+                             }
                          }
-                         final IQuery q = sf.getQueryService();
+
                          // Load parent directory to possibly cause
                          // a read sec-vio.
                          q.get(ome.model.core.OriginalFile.class, id);
 
+                         String dirname = null;
+                         if (checked.isRoot) {
+                             dirname = "/";
+                         } else {
+                             dirname = checked.getDirname();
+                         }
                          List<Long> ids = getSqlAction().findRepoFiles(repoUuid,
-                                 checked.getRelativePath());
+                                 dirname);
 
                          if (ids == null || ids.size() == 0) {
                              return Collections.emptyList();

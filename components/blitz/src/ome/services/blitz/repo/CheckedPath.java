@@ -258,6 +258,18 @@ public class CheckedPath {
         return ofile;
     }
 
+    /**
+     * Assuming this is a directory, return relative path plus name with a final
+     * slash.
+     */
+    protected String getDirname() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getRelativePath());
+        sb.append(getName());
+        sb.append("/");
+        return sb.toString();
+    }
+
     protected String getName() {
         return file.getName();
     }
@@ -267,8 +279,15 @@ public class CheckedPath {
     }
 
     protected String getRelativePath(File f) {
-        String path = f.getParent()
+
+        String path = null;
+        if (isRoot) {
+            path = file.getParentFile().getAbsolutePath() + "/";
+        } else {
+            path = f.getParent()
                 .substring(root.file.getAbsolutePath().length(), f.getParent().length());
+        }
+
         // The parent doesn't contain a trailing slash.
         path = path + "/";
         return path;
@@ -278,8 +297,7 @@ public class CheckedPath {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
         sb.append("(");
-        sb.append(getRelativePath());
-        sb.append("/");
+        sb.append(getRelativePath()); // Has slash.
         sb.append(getName());
         sb.append(")");
         return sb.toString();

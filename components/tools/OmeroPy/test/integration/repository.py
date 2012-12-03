@@ -182,6 +182,12 @@ class TestManagedRepository(AbstractRepoTest):
         self.assertRaises(omero.SecurityViolation,
             mrepo2.file, filename, "r")
 
+    def assertListings(self, mrepo1, uuid):
+        self.assertEquals(["/"+uuid], mrepo1.list("."))
+        self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
+        self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
+        self.assertEquals(["/"+uuid+"/b/c/file.txt"], mrepo1.list(uuid+"/b/c/"))
+
     def testBasicMultiUserWriteSecurityPrivateGroup(self):
 
         filename = self.uuid() + ".txt"
@@ -203,21 +209,11 @@ class TestManagedRepository(AbstractRepoTest):
 
         mrepo1.makeDir(dirname)
         ofile = self.createFile(mrepo1, filename)
+        self.assertListings(mrepo1, uuid)
 
         self.assertNoRead(mrepo2, filename, ofile)
-        self.assertEquals(0, len(mrepo2.listFiles(dirname)))
-
-    def testDirMultiUserListSecurityPrivateGroup(self):
-
-        dirname = self.uuid() + "/b/c"
-        filename = dirname + "/file.txt"
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
-
-        mrepo1.makeDir(dirname)
-        ofile = self.createFile(mrepo1, filename)
-
-        self.assertNoRead(mrepo2, filename, ofile)
-        self.assertEquals(0, len(mrepo2.listFiles(dirname)))
+        self.assertRaises(omero.SecurityViolation,
+            mrepo2.listFiles, dirname)
 
 if __name__ == '__main__':
     unittest.main()
