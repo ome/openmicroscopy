@@ -11,6 +11,8 @@ from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTe
 from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
+from omero.gateway import OriginalFileWrapper
+from omero.rtypes import unwrap
 
 from decorators import login_required
 
@@ -482,6 +484,10 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
 
 
 class RepositoryApiTest(RepositoryApiBaseTest):
+    """
+    Admin can upload and read file in regular repository, and can create
+    subdirectory, all using webgateway API
+    """
 
     def testRepositories(self):
         self.loginmethod()
@@ -543,6 +549,15 @@ class RepositoryApiTest(RepositoryApiBaseTest):
         v = views.repository_listfiles(r, **viewargs)
         self.assertTrue('"name": "test"' in v)
         self.assertTrue('"size": 6' in v)
+        self.assertTrue('"mtime": ' in v)
+        
+        mtime = None
+        for metadata in simplejson.loads(v)['result']:
+            if metadata['name'] == 'test':
+                mtime = metadata['mtime']
+                break
+        self.assertTrue(mtime)
+        self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
 
     def testRepositoryMkdir(self):
         self.toDelete.append((1, 'testRepositoryMkdir'))
@@ -555,6 +570,10 @@ class RepositoryApiTest(RepositoryApiBaseTest):
 
 
 class ManagedRepositoryApiTest(RepositoryApiTest):
+    """
+    Admin can upload and read file in ManagedRepository, and can create
+    subdirectory, all using webgateway API
+    """
 
     def setUp(self):
         super(ManagedRepositoryApiTest, self).setUp()
@@ -562,6 +581,10 @@ class ManagedRepositoryApiTest(RepositoryApiTest):
 
 
 class RepositoryApiAsAuthorTest(RepositoryApiTest):
+    """
+    Author can upload and read file in regular repository, and can create
+    subdirectory, all using webgateway API
+    """
 
     def setUp(self):
         super(RepositoryApiAsAuthorTest, self).setUp()
@@ -569,6 +592,10 @@ class RepositoryApiAsAuthorTest(RepositoryApiTest):
 
 
 class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
+    """
+    Author can upload and read file in ManagedRepository, and can create
+    subdirectory, all using webgateway API
+    """
 
     def setUp(self):
         super(ManagedRepositoryApiAsAuthorTest, self).setUp()
@@ -577,13 +604,15 @@ class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
 
 
 class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
-
-    # Upload file as admin, try downloading as user
+    """
+    If admin creates a file in regular repository, user can read it
+    """
 
     def _getrepo(self):
         sr = self.gateway.getSharedResources()
         repositories = sr.repositories()
-        return repositories.proxies[self.repoindex]
+        return (repositories.proxies[self.repoindex],
+                repositories.descriptions[self.repoindex])
 
     def setUp(self, repoindex=None):
         super(RepositoryApiPermissionsTest, self).setUp()
@@ -591,20 +620,20 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
             self.repoindex = repoindex
         self.FILENAME = 'RepositoryApiPermissionsTest'
         self.loginAsAdmin()
-        repository = self._getrepo()
+        repository, repodesc = self._getrepo()
         targetfile = repository.file(self.FILENAME, 'rw')
         targetfile.truncate(0)
         targetfile.write('ABC123', 0, 6)
 
     def tearDown(self):
         self.loginAsAdmin()
-        repository = self._getrepo()
+        repository, repodesc = self._getrepo()
         repository.delete(self.FILENAME)
         super(RepositoryApiPermissionsTest, self).tearDown()
 
     def testFileAccess(self):
         self.loginAsUser()
-        repository = self._getrepo()
+        repository, repodesc = self._getrepo()
         targetfile = repository.file(self.FILENAME, 'r')
         filesize = targetfile.size()
         self.assertEqual(6, filesize)
@@ -636,21 +665,65 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
 
 
 class ManagedRepositoryApiPermissionsTest(RepositoryApiPermissionsTest):
+    """
+    If admin creates a file in ManagedRepository, admin should be able to
+    read the file, but user should get an exception
+    """
 
     def setUp(self):
         super(ManagedRepositoryApiPermissionsTest, self).setUp(repoindex=2)
 
     def testFileAccess(self):
         self.loginAsUser()
-        repository = self._getrepo()
-        #self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+        repository, repodesc = self._getrepo()
+        self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+
+    def testAdminFileAccess(self):
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
         targetfile = repository.file(self.FILENAME, 'r')
         filesize = targetfile.size()
         self.assertEqual(6, filesize)
 
-    def testAdminFileAccess(self):
+
+class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
+    """
+    If admin and user create a file each in ManagedRepository, admin should
+    see both but user should only see own file. Also, repository.list()
+    returns list of file names relative to repository root
+    """
+    
+    def setUp(self):
+        super(ManagedRepositoryApiListTest, self).setUp(repoindex=2)
+        self.FILENAME_USER = 'RepositoryApiPermissionsTest_User'
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        targetfile = repository.file(self.FILENAME_USER, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('DEF456', 0, 6)
+
+    def tearDown(self):
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        repository.delete(self.FILENAME_USER)
+        super(ManagedRepositoryApiListTest, self).tearDown()
+
+    def testFileListAsAdmin(self):
         self.loginAsAdmin()
-        repository = self._getrepo()
-        targetfile = repository.file(self.FILENAME, 'r')
-        filesize = targetfile.size()
-        self.assertEqual(6, filesize)
+        repository, repodesc = self._getrepo()
+        name = OriginalFileWrapper(conn=self.gateway, obj=repodesc).getName()
+        root = os.path.join(unwrap(repository.root().path), name)
+        self.assertTrue(repository.fileExists(root))
+        files = repository.list(root)
+        self.assertIn(self.FILENAME, files)
+        self.assertIn(self.FILENAME_USER, files)
+
+    def testFileListAsUser(self):
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        name = OriginalFileWrapper(conn=self.gateway, obj=repodesc).getName()
+        root = os.path.join(unwrap(repository.root().path), name)
+        self.assertTrue(repository.fileExists(root))
+        files = repository.list(root)
+        self.assertNotIn(self.FILENAME, files)
+        self.assertIn(self.FILENAME_USER, files)
