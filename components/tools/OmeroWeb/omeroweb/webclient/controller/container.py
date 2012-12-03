@@ -140,7 +140,7 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return "dataset"
         if self.image is not None: return "image"
         if self.screen is not None: return "screen"
-        if self.acquisition is not None: return "acquisition"   # NB: plate is also not None
+        if self.acquisition is not None: return "acquisition"
         if self.plate is not None: return "plate"
         if self.well is not None: return "well"
         if self.tag is not None: return "tag"
@@ -158,6 +158,9 @@ class BaseContainer(BaseController):
         obj = self._get_object()
         return obj is not None and obj.canEdit() or None
 
+    def getPermsCss(self):
+        """ Shortcut to get permissions flags, E.g. for css """
+        return self._get_object().getPermsCss()
 
     def getNumberOfFields(self):
         """ Applies to Plates (all fields) or PlateAcquisitions"""
