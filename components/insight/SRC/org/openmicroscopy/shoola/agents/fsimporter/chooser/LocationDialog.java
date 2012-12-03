@@ -85,9 +85,12 @@ import pojos.ScreenData;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-class LocationDialog extends JDialog implements ActionListener,
+public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener {
 
+	/** Bound property indicating to change the import group. */
+	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
+	
 	/** Reference to the <code>Group Private</code> icon. */
 	private static final Icon GROUP_PRIVATE_ICON;
 
@@ -205,6 +208,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	private Collection<GroupData> groups;
 
 	private long currentGroupId;
+
+	private GroupData currentGroup;
 
 	/**
 	 * Creates a new instance.
@@ -430,11 +435,18 @@ class LocationDialog extends JDialog implements ActionListener,
 		int index = 0;
 
 		for (GroupData group : availableGroups) {
+			
 			if (group.getId() == selectedGroupId)
+			{
+				currentGroup = group;
 				selectedIndex = index;
+			}
+			
 			comboBoxObjects[index] = new JComboBoxImageObject(group,
 					getGroupIcon(group));
+			
 			groupsBox.addItem(comboBoxObjects[index]);
+			
 			index++;
 		}
 
@@ -442,18 +454,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
 		groupsBox.setRenderer(rnd);
 		rnd.setPreferredSize(new Dimension(200, 130));
-
-		ActionListener groupListener = new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				// firePropertychangeEvent(GROUP_CHANGED, oldGroupId,
-				// newGroupId)
-
-			}
-
-		};
-
-		groupsBox.addActionListener(groupListener);
+		
+		groupsBox.addActionListener(this);
 	}
 
 	/**
@@ -528,25 +530,39 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent ae) {
-		int commandId = Integer.parseInt(ae.getActionCommand());
-
-		DataObject emptyObject = null;
-		switch (commandId) {
-		case CMD_CREATE_PROJECT:
-			emptyObject = new ProjectData();
-			break;
-		case CMD_CREATE_DATASET:
-			emptyObject = new DatasetData();
-			break;
-		case CMD_CREATE_SCREEN:
-			emptyObject = new ScreenData();
-			break;
+		
+		
+		Object sourceObject = ae.getSource();
+		
+		if(sourceObject == groupsBox)
+		{
+			GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox
+					.getSelectedItem()).getData();
+			
+			firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedGroup );
 		}
+		else
+		{
+			int commandId = Integer.parseInt(ae.getActionCommand());
+			
+			DataObject emptyObject = null;
+			switch (commandId) {
+			case CMD_CREATE_PROJECT:
+				emptyObject = new ProjectData();
+				break;
+			case CMD_CREATE_DATASET:
+				emptyObject = new DatasetData();
+				break;
+			case CMD_CREATE_SCREEN:
+				emptyObject = new ScreenData();
+				break;
+			}
 
-		EditorDialog d = new EditorDialog(owner, emptyObject, false);
-		d.addPropertyChangeListener(this);
-		d.setModal(true);
-		UIUtilities.centerAndShow(d);
+			EditorDialog d = new EditorDialog(owner, emptyObject, false);
+			d.addPropertyChangeListener(this);
+			d.setModal(true);
+			UIUtilities.centerAndShow(d);
+		}
 	}
 
 	public ImportLocationSettings getImportSettings() {
