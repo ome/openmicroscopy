@@ -8132,8 +8132,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		RawPixelsStorePrx store = getPixelsStore(ctx);
 		try {
+			RawPixelsStorePrx store = getPixelsStore(ctx);
 			store.setPixelsId(pixelsId, true);
 			boolean b = store.requiresPixelsPyramid();
 			store.close();
