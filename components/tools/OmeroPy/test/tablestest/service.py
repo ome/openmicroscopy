@@ -286,6 +286,48 @@ class TestTables(lib.ITest):
 
         self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
 
+    def testArrayColumn(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        larr = omero.columns.LongArrayColumnI('longarr', 'desc', 2)
+        larr.values = [[-2, -1], [1, 2]]
+
+        table.initialize([larr])
+        table.addData([larr])
+        data = table.readCoordinates([0,1])
+
+        testl = data.columns[0].values
+        self.assertEquals([-2, -1], testl[0])
+        self.assertEquals([1, 2], testl[1])
+
+    def testMultipleArrayColumns(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        larr = omero.columns.LongArrayColumnI('longarr', 'desc', 3)
+        larr.values = [[-1, -2, -3], [4, 5, 6]]
+        darr = omero.columns.DoubleArrayColumnI('doublearr', 'desc', 2)
+        darr.values = [[0.5, 0.25], [-0.125, -0.0625]]
+
+        table.initialize([larr, darr])
+        table.addData([larr, darr])
+        data = table.readCoordinates([0,1])
+
+        testl = data.columns[0].values
+        self.assertEquals([-1, -2, -3], testl[0])
+        self.assertEquals([4, 5, 6], testl[1])
+
+        testd = data.columns[1].values
+        self.assertEquals([0.5, 0.25], testd[0])
+        self.assertEquals([-0.125, -0.0625], testd[1])
+
+    # TODO: Add tests for error conditions
+
 
 def test_suite():
     return 1
