@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1019,9 +1020,8 @@ class TreeViewerControl
 	 */
 	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers)
 	{
-		List<GroupData> groups = new ArrayList<GroupData>();
-		groups.add(group);
-		model.setUserGroup(groups);
+		if (model.getGroups().size() > 1)
+			model.setUserGroup(Arrays.asList(group));
 		model.setHierarchyRoot(group.getId(), seletectedUsers);
 	}
 	
