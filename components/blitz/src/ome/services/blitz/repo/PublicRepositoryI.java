@@ -478,7 +478,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                         checked, null, currentUser(__current));
                 if (ofile == null) {
                     throw new omero.ResourceError(null, null,
-                            "Directory exists but is no registered");
+                            "Directory exists but is not registered");
                 }
             } else {
                 // This will fail if the file already exists in
