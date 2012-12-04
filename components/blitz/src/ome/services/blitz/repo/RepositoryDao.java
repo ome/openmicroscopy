@@ -77,18 +77,21 @@ public interface RepositoryDao {
     /**
      * Register an OriginalFile object
      *
-     * @param omeroFile
-     *            OriginalFile object.
      * @param repoUuid
      *            uuid of the repository that the given file argument should be
      *            registered with. Cannot be null.
+     * @param checked
+     *            Normalized path provided by the repository. Not null.
+     * @param mimetype
+     *            Mimetype for use with the OriginalFile. May be null in which
+     *            case a default will be chosen.
      * @param currentUser
      *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    OriginalFile register(OriginalFile omeroFile, String repoUuid,
+    OriginalFile register(String repoUuid, CheckedPath checked, String mimetype,
             final Principal currentUser) throws ServerError;
 
     /**
@@ -102,33 +105,6 @@ public interface RepositoryDao {
      */
     File getFile(final long id, final Principal currentUser,
             final String repoUuid, final CheckedPath root);
-
-    /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
-     *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param checked Not null. Normalized path from the repo.
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
-     */
-    OriginalFile createUserDirectory(final String repoUuid, CheckedPath checked,
-            Principal currentUser) throws omero.ApiUsageException;
-
-    /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
-     *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param checked Not null. Normalized path from the repository.
-     * @param size {@link OriginalFile#getSize()}
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
-     */
-    OriginalFile createUserFile(final String repoUuid, final CheckedPath checked,
-            final long size, Principal currentUser) throws omero.ApiUsageException;
 
     /**
      * Look up information for the current session as specified in the ctx

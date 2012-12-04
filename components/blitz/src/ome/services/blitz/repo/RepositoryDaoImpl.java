@@ -1,8 +1,11 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
@@ -204,40 +207,35 @@ public class RepositoryDaoImpl implements RepositoryDao {
          }
     }
 
-    /**
-     * Register an OriginalFile object
-     *
-     * @param omeroFile
-     *            OriginalFile object.
-     * @param repoUuid
-     *            uuid of the repository that the given file argument should be
-     *            registered with. Cannot be null.
-     * @param currentUser
-     *            Not null.
-     * @return The OriginalFile with id set (unloaded)
-     * @throws ServerError
-     *
-     */
-    public OriginalFile register(OriginalFile omeroFile, final String repoUuid, final Principal currentUser)
-            throws ServerError {
-        IceMapper mapper = new IceMapper();
-        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
-                .reverse(omeroFile);
-        Long id = (Long) executor.execute(currentUser, new Executor.SimpleWork(
-                this, "register", omeroFile.getPath().getValue()) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                Long id =
-                        sf.getUpdateService().saveAndReturnObject(omeFile).getId();
-                getSqlAction().setFileRepo(id, repoUuid);
-                return id;
-            }
-        });
+    public OriginalFile register(final String repoUuid, final CheckedPath checked,
+            final String mimetype, final Principal currentUser) throws ServerError {
 
-        omeroFile.setId(rlong(id));
-        omeroFile.unload();
-        return omeroFile;
+        final IceMapper mapper = new IceMapper();
+        try {
+            final ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
+                    executor.execute(currentUser, new Executor.SimpleWork(
+                    this, "register", repoUuid, checked) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
 
+                    Long fileId = getSqlAction().findRepoFile(
+                            repoUuid, checked.getRelativePath(),
+                            checked.getName(), null /*mimetype doesn't matter*/);
+
+                    if (fileId == null) {
+                        return createOriginalFile(sf, getSqlAction(),
+                                repoUuid, checked, mimetype);
+                    } else {
+                        return sf.getQueryService().get(
+                                ome.model.core.OriginalFile.class, fileId);
+                    }
+                }
+            });
+
+            return (OriginalFile) new IceMapper().map(of);
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
     }
 
     /**
@@ -266,83 +264,6 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
-
-    /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
-     *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
-     */
-    public OriginalFile createUserDirectory(final String repoUuid,
-            final CheckedPath checked, Principal currentUser)
-                    throws omero.ApiUsageException {
-
-        ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
-                executor.execute(currentUser, new Executor.SimpleWork(this,
-                        "createUserDirectory", repoUuid, checked) {
-
-                    @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                Long fileId = getSqlAction().findRepoFile(
-                        repoUuid, checked.getRelativePath(),
-                        checked.getName(), null /*mimetype*/);
-                if (fileId == null) {
-                    return createOriginalFile(
-                            sf, getSqlAction(),
-                            repoUuid, checked, "Directory",
-                            0L, "None");
-                } else {
-                    return sf.getQueryService().get(
-                            ome.model.core.OriginalFile.class, fileId);
-                }
-            }
-        });
-        return (OriginalFile) new IceMapper().map(of);
-    }
-
-    // TODO: The follow method should clearly be refactored with the above method.
-    /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
-     *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
-     */
-    public OriginalFile createUserFile(final String repoUuid,
-            final CheckedPath checked, final long size, Principal currentUser)
-                    throws omero.ApiUsageException {
-
-        ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
-                executor.execute(currentUser, new Executor.SimpleWork(this,
-                        "createUserFile", repoUuid, checked) {
-
-                    @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                Long fileId = getSqlAction().findRepoFile(
-                        repoUuid, checked.getRelativePath(),
-                        checked.getName(), null /*mimetype*/);
-                if (fileId == null) {
-                    return createOriginalFile(
-                            sf, getSqlAction(),
-                            repoUuid, checked, "FSLiteMarkerFile", size, "None");
-                } else {
-                    return sf.getQueryService().get(
-                            ome.model.core.OriginalFile.class, fileId);
-                }
-            }
-        });
-        return (OriginalFile) new IceMapper().map(of);
-    }
-
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
         EventContext ec = this.currentContext(new Principal(curr.ctx.get(
                 omero.constants.SESSIONUUID.value)));
@@ -363,22 +284,52 @@ public class RepositoryDaoImpl implements RepositoryDao {
     // HELPERS
     //
 
+    /**
+     * Primary location for creating original files from a {@link CheckedPath}
+     * instance. This will use access to the actual {@link java.io.File}
+     * object in order to calculate size, timestamps, etc.
+     *
+     * @param sf
+     * @param sql
+     * @param repoUuid
+     * @param checked
+     * @param mimetype
+     * @return
+     */
     protected ome.model.core.OriginalFile createOriginalFile(
-        ServiceFactory sf, SqlAction sql,
-        String repoUuid, CheckedPath checked, String mimetype,
-        long size, String sha1) {
+            ServiceFactory sf, SqlAction sql,
+            String repoUuid, CheckedPath checked, String mimetype) {
+
+        final File file = checked.file;
 
         ome.model.core.OriginalFile ofile =
                 new ome.model.core.OriginalFile();
 
-        ofile.setPath(checked.getRelativePath());
+        // Only non conditional properties.
         ofile.setName(checked.getName());
-        ofile.setMimetype(mimetype);
-        ofile.setSha1(sha1);
-        ofile.setSize(size);
+        ofile.setMimetype(mimetype); // null takes DB default
+
+        // This first case deals with registering the repos themselves.
+        if (checked.isRoot) {
+            ofile.setPath(file.getParent());
+        } else { // Path should be relative to root?
+            ofile.setPath(checked.getRelativePath());
+        }
+
+        if (file.exists() && !file.isDirectory()) {
+            ofile.setMtime(new Timestamp(file.lastModified()));
+            ofile.setSha1(checked.sha1());
+            ofile.setSize(file.length());
+        } else {
+            ofile.setMtime(new Timestamp(System.currentTimeMillis()));
+            ofile.setSha1("");
+            ofile.setSize(0L);
+        }
+        // atime/ctime??
 
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         sql.setFileRepo(ofile.getId(), repoUuid);
         return ofile;
     }
+
 }

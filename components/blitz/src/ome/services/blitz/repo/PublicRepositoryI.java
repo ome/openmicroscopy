@@ -87,6 +87,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     FileFilterUtils.orFileFilter(new NameFileFilter(".omero"),
                             new NameFileFilter(".git")));
 
+    /**
+     * Mimetype used to connote a directory {@link OriginalFile} object.
+     */
+    public static String DIRECTORY_MIMETYPE = "Directory";
+
     private /*final*/ long id;
 
     protected /*final*/ CheckedPath root;
@@ -172,9 +177,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     public OriginalFile register(String path, omero.RString mimetype,
             Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
-        CheckedPath checkedPath = checkPath(path, __current);
-        OriginalFile omeroFile = checkedPath.createOriginalFile(mimetype);
-        return this.repositoryDao.register(omeroFile, repoUuid, currentUser);
+        CheckedPath checked = checkPath(path, __current);
+        return this.repositoryDao.register(repoUuid, checked,
+                mimetype == null ? null : mimetype.getValue(), currentUser);
     }
 
     public boolean delete(String path, Current __current) throws ServerError {
@@ -356,10 +361,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             return ofile;
         }
 
-        // TODO: Other default?
-        ofile = checked.createOriginalFile(
-                rstring("application/octet-stream"));
-        ofile = repositoryDao.register(ofile, repoUuid, currentUser);
+        ofile = repositoryDao.register(repoUuid, checked, null, currentUser);
         checked.setId(ofile.getId().getValue());
         return ofile;
     }
@@ -480,8 +482,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 }
             } else {
                 // This will fail if the file already exists in
-                repositoryDao.createUserDirectory(repoUuid, checked,
-                        currentUser(__current));
+                repositoryDao.register(repoUuid, checked,
+                        DIRECTORY_MIMETYPE, currentUser(__current));
                 __mkdir(checked.file);
             }
 
@@ -493,8 +495,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             throw new omero.ResourceError(null, null,
                 "Path exists on disk:" + path);
         }
-        repositoryDao.createUserDirectory(repoUuid, checked,
-                currentUser(__current));
+        repositoryDao.register(repoUuid, checked,
+                DIRECTORY_MIMETYPE, currentUser(__current));
         __mkdir(checked.file);
 
     }

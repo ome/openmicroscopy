@@ -221,44 +221,6 @@ public class CheckedPath {
     }
 
     /**
-     * Create an OriginalFile object corresponding to a File object
-     * using the user supplied mimetype string
-     *
-     * @param f
-     *            A File object.
-     * @param mimetype
-     *            Mimetype as an RString
-     * @return An OriginalFile object
-     *
-     * TODO populate more attribute fields than the few set here?
-     */
-    public OriginalFile createOriginalFile(omero.RString mimetype) {
-        OriginalFile ofile = new OriginalFileI();
-        ofile.setName(rstring(file.getName()));
-
-        // This first case deals with registering the repos themselves.
-        if (isRoot) {
-            ofile.setPath(rstring(file.getParent()));
-        } else { // Path should be relative to root?
-            ofile.setPath(rstring(getRelativePath(file)));
-        }
-
-        ofile.setMimetype(mimetype);
-        if (file.exists()) {
-            ofile.setSha1(rstring(sha1()));
-            ofile.setMtime(rtime(this.file.lastModified()));
-            ofile.setSize(rlong(this.file.length()));
-        } else {
-            ofile.setSha1(rstring(""));
-            ofile.setMtime(rtime(System.currentTimeMillis()));
-            ofile.setSize(rlong(0));
-        }
-        // atime/ctime??
-
-        return ofile;
-    }
-
-    /**
      * Assuming this is a directory, return relative path plus name with a final
      * slash.
      */
