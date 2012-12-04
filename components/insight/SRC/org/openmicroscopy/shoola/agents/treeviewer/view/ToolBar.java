@@ -23,10 +23,13 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -38,6 +41,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -45,6 +50,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -52,10 +58,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
@@ -70,6 +79,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem;
+import org.openmicroscopy.shoola.agents.treeviewer.util.UserMenuItem;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
@@ -77,6 +89,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -167,6 +180,233 @@ class ToolBar
 	/** The button to display the users.*/
 	private JButton usersButton;
 
+	/** Used to sort the list of users.*/
+	private ViewerSorter sorter = new ViewerSorter();
+	
+	/** Host the groups to display.*/
+	private List<GroupItem> groupItems;
+	
+	/** Button indicating to add the user to the display.*/
+	private JButton addToDisplay;
+	
+	/** The menu displaying the users option.*/
+	private JPopupMenu usersMenu;
+	
+	/** The menu displaying the users option.*/
+	private JPopupMenu groupsMenu;
+	
+	/** The selected group.*/
+	private GroupItem selectedItem;
+	
+	/** Handles the group and users selection.*/
+	private void handleUsersSelection()
+	{
+		if (selectedItem == null) return;
+		//handle users and group selection.
+	}
+	
+	/**
+	 * Formats the header.
+	 * 
+	 * @param text The text to display
+	 * @return See above.
+	 */
+	private JPanel formatHeader(String text)
+	{
+		JPanel title = new JPanel();
+		title.setLayout(new FlowLayout(FlowLayout.LEFT));
+		title.add(UIUtilities.setTextFont(text));
+		title.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		return title;
+	}
+	/**
+	 * Creates the menu hosting the users belonging to the specified group.
+	 * 
+	 * @param groupItem The item hosting the group
+	 * @return See above.
+	 */
+	private JComponent createGroupMenu(GroupItem groupItem)
+	{
+		GroupData group = groupItem.getGroup();
+		int level = group.getPermissions().getPermissionsLevel();
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
+			boolean owner = false;
+			if (model.isAdministrator()) owner = true;
+			else {
+				ExperimenterData currentUser = model.getExperimenter();
+				Set leaders = group.getLeaders();
+				Iterator k = leaders.iterator();
+				ExperimenterData exp;
+				
+				while (k.hasNext()) {
+					exp = (ExperimenterData) k.next();
+					if (exp.getId() == currentUser.getId()) {
+						owner = true;
+						break;
+					}
+				}
+			}
+			if (!owner) return null;
+		}
+		long id = model.getUserDetails().getId();
+		//Determine the user already added to the display
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		TreeImageDisplay refNode = null;
+		List<TreeImageDisplay> nodes;
+		ExperimenterVisitor visitor;
+		//Find the user already added to the selected group.
+		visitor = new ExperimenterVisitor(browser, group.getId());
+		browser.accept(visitor);
+		nodes = visitor.getNodes();
+		if (nodes.size() == 1) {
+			refNode = nodes.get(0);
+		}	
+		visitor = new ExperimenterVisitor(browser, -1, -1);
+		if (refNode != null) refNode.accept(visitor);
+		else browser.accept(visitor);
+		nodes = visitor.getNodes();
+		List<Long> users = new ArrayList<Long>();
+		Iterator<TreeImageDisplay> j = nodes.iterator();
+		TreeImageDisplay n;
+		while (j.hasNext()) {
+			n = j.next();
+			if (n.getUserObject() instanceof ExperimenterData) {
+				users.add(((ExperimenterData) n.getUserObject()).getId());
+			}
+		}
+		if (!users.contains(id)) users.add(id);
+		List<UserMenuItem> items = new ArrayList<UserMenuItem>();
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		List l = sorter.sort(group.getLeaders());
+		Iterator i;
+		ExperimenterData exp;
+		
+		UserMenuItem item;
+		JPanel list;
+		if (l != null && l.size() > 0) {
+			p.add(formatHeader("Group's owners"));
+			i = l.iterator();
+			list = new JPanel();
+			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				item = new UserMenuItem(exp, exp.getId() != id);
+				item.setSelected(users.contains(exp.getId()));
+				items.add(item);
+				list.add(item);
+			}
+			p.add(UIUtilities.buildComponentPanel(list));
+		}
+		l = sorter.sort(group.getExperimenters());
+		if (l != null && l.size() > 0) {
+			p.add(formatHeader("members"));
+			i = l.iterator();
+			list = new JPanel();
+			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				item = new UserMenuItem(exp, exp.getId() != id);
+				item.setSelected(users.contains(exp.getId()));
+				items.add(item);;
+				list.add(item);
+			}
+			p.add(UIUtilities.buildComponentPanel(list));
+		}
+		JScrollPane pane = new JScrollPane(p);
+		groupItem.setUsersMenu(pane);
+		groupItem.setUsersItem(items);
+		return pane;
+	}
+	
+	/**
+	 * Creates the menu displaying the groups and users.
+	 * 
+	 * @param source The invoker.
+	 * @param p The location of the mouse clicked.
+	 */
+	private void createGroupMenu(Component source, Point p)
+	{
+		Collection groups = model.getGroups();
+		if (groups == null || groups.size() == 0) return;
+		List sortedGroups = sorter.sort(groups);
+		if (groupsMenu == null) {
+			groupsMenu = new JPopupMenu();
+			groupsMenu.addPopupMenuListener(new PopupMenuListener() {
+				
+				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+					if (usersMenu != null) {
+						usersMenu.setVisible(false);
+					}
+				}
+
+				public void popupMenuCanceled(PopupMenuEvent evt) {
+					if (usersMenu != null) usersMenu.setVisible(false);
+				}
+			});
+		}
+		groupsMenu.removeAll();
+		groupItems = new ArrayList<GroupItem>();
+		Iterator i = sortedGroups.iterator();
+		GroupData group;
+		if (addToDisplay == null) {
+			addToDisplay = new JButton("Update");
+			addToDisplay.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent arg0) {
+					handleUsersSelection();
+					usersMenu.setVisible(false);
+					groupsMenu.setVisible(false);
+				}
+			});
+			
+		}
+		if (usersMenu == null) {
+			usersMenu = new JPopupMenu();
+		}
+		MouseAdapter l = new MouseAdapter() {
+			
+			/**
+			 * Displays the users belonging to the selected group.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
+			public void mouseEntered(MouseEvent e) {
+				GroupItem c = (GroupItem) e.getSource();
+				selectedItem = c;
+				
+				
+				usersMenu.setVisible(false);
+				usersMenu.removeAll();
+				Rectangle r = c.getBounds();
+				usersMenu.add(c.getUsersMenu());
+				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
+				//Check size.
+				//usersMenu.setPopupSize(200, 150);
+				usersMenu.show(e.getComponent(), r.width, e.getY()-r.height);
+			}
+		};
+		JComponent comp;
+		GroupItem item;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			item = new GroupItem(group);
+			item.setText(group.getName());
+			item.setIcon(getGroupIcon(group));
+			comp = createGroupMenu(item);
+			if (comp != null) {
+				item.addMouseListener(l);
+				groupItems.add(item);
+			} else item.setEnabled(false);
+			groupsMenu.add(item);
+		}
+		groupsMenu.show(source, p.x, p.y);
+	}
+	
     /**
      * Sets the defaults of the specified menu item.
      * 
@@ -294,7 +534,8 @@ class ToolBar
     		 */
     		public void mousePressed(MouseEvent me)
     		{
-    			createSelectionOption(me);
+    			//createSelectionOption(me);
+    			createGroupMenu((Component) me.getSource(), me.getPoint());
     		}
 		});
     	groupContext.addMouseListener(new MouseAdapter() {
@@ -304,7 +545,8 @@ class ToolBar
     		 */
     		public void mousePressed(MouseEvent me)
     		{
-    			createSelectionOption(me);
+    			//createSelectionOption(me);
+    			createGroupMenu((Component) me.getSource(), me.getPoint());
     		}
 		});
     	bar.add(usersButton);
@@ -657,6 +899,25 @@ class ToolBar
 		repaint();
 	}
 	
+	private Icon getGroupIcon(GroupData group)
+	{
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_PRIVATE:
+				return PERMISSIONS_PRIVATE;
+			case GroupData.PERMISSIONS_GROUP_READ:
+				return PERMISSIONS_GROUP_READ;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				return PERMISSIONS_GROUP_READ_LINK;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				return PERMISSIONS_GROUP_READ_WRITE;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				return PERMISSIONS_PUBLIC_READ;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				return PERMISSIONS_PUBLIC_READ;
+		}
+		return null;
+	}
+	
 	/** Sets the permissions level.*/
     void setPermissions()
     {
@@ -671,31 +932,25 @@ class ToolBar
     		return;
     	}
     	String desc = "";
-		Icon icon = null;
+		Icon icon = getGroupIcon(group);
 		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
-				icon = PERMISSIONS_PRIVATE;
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ:
 				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
-				icon = PERMISSIONS_GROUP_READ;
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
-				icon = PERMISSIONS_GROUP_READ_LINK;
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
-				icon = PERMISSIONS_GROUP_READ_WRITE;
 				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ:
 				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
-				icon = PERMISSIONS_PUBLIC_READ;
 				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
-				icon = PERMISSIONS_PUBLIC_READ;
 		}
 		if (icon != null) groupContext.setIcon(icon);
 		groupContext.setText(group.getName());
