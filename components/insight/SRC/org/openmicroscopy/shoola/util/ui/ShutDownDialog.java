@@ -91,7 +91,7 @@ public class ShutDownDialog
 		checker = new NetworkChecker();
 		remainingTime = time;
 		okButton.setText("Shut Down");
-		cancelButton.setVisible(true);
+		okButton.setToolTipText("Shut down the application.");
 		formatText(time);
 		int speed = 1000;
 		int pause = 1000;

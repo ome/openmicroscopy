@@ -374,7 +374,6 @@ public class DataServicesFactory
     	
     	if (shutdown) {
     		connectionDialog = new ShutDownDialog(f, title, message);
-    		connectionDialog.setModal(false);
     	} else
     		connectionDialog = new NotificationDialog(f, title, message, null);
         //connectionDialog.setModal(false);
