@@ -203,6 +203,11 @@ class ToolBar
 	{
 		if (selectedItem == null) return;
 		//handle users and group selection.
+		controller.setSelection(selectedItem.getGroup(),
+				selectedItem.getSeletectedUsers());
+
+		usersMenu.setVisible(false);
+		groupsMenu.setVisible(false);
 	}
 	
 	/**
@@ -334,10 +339,7 @@ class ToolBar
 			groupsMenu = new JPopupMenu();
 			groupsMenu.addPopupMenuListener(new PopupMenuListener() {
 				
-				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
 				
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
 					if (usersMenu != null) {
@@ -360,8 +362,6 @@ class ToolBar
 				
 				public void actionPerformed(ActionEvent arg0) {
 					handleUsersSelection();
-					usersMenu.setVisible(false);
-					groupsMenu.setVisible(false);
 				}
 			});
 			
