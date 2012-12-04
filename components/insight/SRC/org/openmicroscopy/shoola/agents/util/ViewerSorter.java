@@ -503,8 +503,7 @@ public class ViewerSorter
      */
     public List sort(Object[] array)
     {
-    	if (array == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (array == null) return null;
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < array.length; i++) {
 			l.add(array[i]);
@@ -521,8 +520,7 @@ public class ViewerSorter
      */
     public List sort(Collection collection)
     {
-        if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+        if (collection == null) return null;
         this.collection = collection;
         return sort();
     }
@@ -534,8 +532,7 @@ public class ViewerSorter
      */
     public List sort()
     {
-        if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+        if (collection == null) return null;
         Iterator i = collection.iterator();
         Object[]  array = new Object[collection.size()];
         Object[]  clone = new Object[collection.size()];
@@ -562,8 +559,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray(Collection collection)
     {
-    	if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (collection == null) return null;
         this.collection = collection;
         return sortAsArray();
     }
@@ -576,8 +572,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray(Object[] array)
     {
-    	if (array == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (array == null) return null;
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < array.length; i++) {
 			l.add(array[i]);
@@ -593,8 +588,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray()
     {
-    	if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (collection == null) return null;
         Iterator i = collection.iterator();
         Object[]  array = new Object[collection.size()];
         Object[]  clone = new Object[collection.size()];
