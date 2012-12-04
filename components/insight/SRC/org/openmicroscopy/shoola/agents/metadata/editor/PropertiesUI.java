@@ -1360,7 +1360,8 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
-		channelsArea.setText("");
+		if (!model.isSameObject(model.getRefObject()))
+			channelsArea.setText("");
 	}
 	
 	/**
