@@ -1789,6 +1789,18 @@ def su (request, user, conn=None, **kwargs):
     conn.seppuku()
     return True
 
+def get_repository(conn, klass):
+    klass = '%sPrx' % klass
+    module = __import__('omero.grid', globals(), locals(), [klass])
+    klass = getattr(module, klass)
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    for index, proxy in enumerate(repositories.proxies):
+        repository = klass.checkedCast(proxy)
+        if repository is not None:
+            description = repositories.descriptions[index]
+            return (repository, description)
+    raise AttributError('Repository of type %s unavailable' % klass)
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
     """
@@ -1959,38 +1971,32 @@ def repositories(request, conn=None, **kwargs):
     sr = conn.getSharedResources()
     repositories = sr.repositories()
     result = []
-    for index, description in enumerate(repositories.descriptions):
-        result.append(dict(index=index,
-                           repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal()))
+    for description in repositories.descriptions:
+        result.append(OriginalFileWrapper(
+            conn=conn, obj=description).simpleMarshal())
     return result
 
 
 @login_required()
 @jsonp
-def repository(request, index, conn=None, **kwargs):
+def repository(request, klass, conn=None, **kwargs):
     """
     Returns a repository and its root property
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     return dict(repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal(),
                 root=unwrap(repository.root().path))
 
 
 @login_required()
 @jsonp
-def repository_list(request, index, filepath=None, conn=None, **kwargs):
+def repository_list(request, klass, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files in a repository.  If filepath is not specified,
     returns files at the top level of the repository, otherwise files within
     the specified filepath
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
     root = os.path.join(unwrap(repository.root().path), name)
     if filepath:
@@ -2004,16 +2010,13 @@ def repository_list(request, index, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
+def repository_listfiles(request, klass, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files and some of their metadata in a repository.
     If filepath is not specified, returns files at the top level of the
     repository, otherwise files within the specified filepath
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
     root = os.path.join(unwrap(repository.root().path), name)
     if filepath:
@@ -2033,14 +2036,11 @@ def repository_listfiles(request, index, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_sha(request, index, filepath, conn=None, **kwargs):
+def repository_sha(request, klass, filepath, conn=None, **kwargs):
     """
     json method: Returns the sha1 checksum of the specified file
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
     fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
 
@@ -2059,14 +2059,11 @@ def repository_sha(request, index, filepath, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_root(request, index, conn=None, **kwargs):
+def repository_root(request, klass, conn=None, **kwargs):
     """
     Returns the root and name property of a repository
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     return dict(root=unwrap(repository.root().path),
                 name=OriginalFileWrapper(conn=conn, obj=description).getName())
 
@@ -2074,14 +2071,11 @@ def repository_root(request, index, conn=None, **kwargs):
 @require_POST
 @login_required()
 @jsonp
-def repository_makedir(request, index, dirpath, conn=None, **kwargs):
+def repository_makedir(request, klass, dirpath, conn=None, **kwargs):
     """
     Creates a directory in a repository
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     root = unwrap(repository.root().path)
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
 
@@ -2108,15 +2102,12 @@ def iterate_content(source, start, end):
 
 
 @login_required(doConnectionCleanup=False)
-def repository_download(request, index, filepath, conn=None, **kwargs):
+def repository_download(request, klass, filepath, conn=None, **kwargs):
     """
     Downloads a file from a repository.  Supports the HTTP_RANGE header to
     perform partial downloads or download continuation
     """
-    sr = conn.getSharedResources()
-    repositories = sr.repositories()
-    repository = repositories.proxies[int(index)]
-    description = repositories.descriptions[int(index)]
+    repository, description = get_repository(conn, klass)
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
     fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
 
@@ -2230,12 +2221,9 @@ def process_request(require_uploadId):
         @login_required_no_redirect()
         @jsonp
         @uncloak_self
-        def decorated(self, request, index, filepath, conn, **kwargs):
+        def decorated(self, request, klass, filepath, conn, **kwargs):
 
-            sr = conn.getSharedResources()
-            repositories = sr.repositories()
-            repository = repositories.proxies[int(index)]
-            description = repositories.descriptions[int(index)]
+            repository, description = get_repository(conn, klass)
             name = OriginalFileWrapper(conn=conn, obj=description).getName()
             fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
 
