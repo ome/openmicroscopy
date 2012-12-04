@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -42,15 +41,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -74,7 +70,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -88,7 +83,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -240,14 +234,16 @@ class ToolBar
 			else {
 				ExperimenterData currentUser = model.getExperimenter();
 				Set leaders = group.getLeaders();
-				Iterator k = leaders.iterator();
-				ExperimenterData exp;
-				
-				while (k.hasNext()) {
-					exp = (ExperimenterData) k.next();
-					if (exp.getId() == currentUser.getId()) {
-						owner = true;
-						break;
+				if (leaders != null) {
+					Iterator k = leaders.iterator();
+					ExperimenterData exp;
+					
+					while (k.hasNext()) {
+						exp = (ExperimenterData) k.next();
+						if (exp.getId() == currentUser.getId()) {
+							owner = true;
+							break;
+						}
 					}
 				}
 			}
@@ -342,12 +338,16 @@ class ToolBar
 				
 				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
 				
+				/**
+				 * Hides the menu
+				 */
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
-					if (usersMenu != null) {
-						usersMenu.setVisible(false);
-					}
+					if (usersMenu != null) usersMenu.setVisible(false);
 				}
 
+				/**
+				 * Hides the menu
+				 */
 				public void popupMenuCanceled(PopupMenuEvent evt) {
 					if (usersMenu != null) usersMenu.setVisible(false);
 				}
@@ -862,7 +862,7 @@ class ToolBar
 			case GroupData.PERMISSIONS_PUBLIC_READ:
 				return PERMISSIONS_PUBLIC_READ;
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return PERMISSIONS_PUBLIC_READ;
+				return PERMISSIONS_PUBLIC_READ_WRITE;
 		}
 		return null;
 	}
