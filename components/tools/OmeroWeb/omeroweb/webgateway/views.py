@@ -17,6 +17,7 @@ import re
 import tempfile
 
 import omero
+import omero.grid
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.utils import simplejson
@@ -1786,8 +1787,7 @@ def su (request, user, conn=None, **kwargs):
 
 def get_repository(conn, klass):
     klass = '%sPrx' % klass
-    module = __import__('omero.grid', globals(), locals(), [klass])
-    klass = getattr(module, klass)
+    klass = getattr(omero.grid, klass)
     sr = conn.getSharedResources()
     repositories = sr.repositories()
     for index, proxy in enumerate(repositories.proxies):
