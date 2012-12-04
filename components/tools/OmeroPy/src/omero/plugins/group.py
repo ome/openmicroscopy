@@ -13,6 +13,9 @@ import sys
 from omero.cli import UserGroupControl, CLI, ExceptionHandler
 
 HELP="""Group administration methods"""
+defaultperms = {'private':'rw----',
+'read-only': 'rwr---',
+'read-annotate': 'rwra--'}
 
 class GroupControl(UserGroupControl):
 
@@ -60,12 +63,16 @@ More information is available at:
 
         for x in (add, perms):
             group = x.add_mutually_exclusive_group()
-            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-            group.add_argument("--type", help="Group permission set symbollically", default="private",
-                choices=("private", "read-only", "read-annotate", "collaborative"))
+            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ", choices = defaultperms.values())
+            group.add_argument("--type", help="Group permission set symbollically", default="private", choices = defaultperms.keys())
 
         list = parser.add(sub, self.list, "List current groups")
-        list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
+        printgroup = list.add_mutually_exclusive_group()
+        printgroup.add_argument("--count", action = "store_true", help = "Print count of all users and owners (default)", default = True)
+        printgroup.add_argument("--long", action = "store_true", help = "Print comma-separated list of all users and owners", default = False)
+        sortgroup = list.add_mutually_exclusive_group()
+        sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort groups by ID (default)")
+        sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort groups by name")
 
         copyusers = parser.add(sub, self.copyusers, "Copy the users of one group to another group")
         copyusers.add_argument("from_group", help = "ID or name of the source group whose users will be copied")
@@ -91,16 +98,7 @@ More information is available at:
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
         if not perms:
-            if args.type == "private":
-                perms = "rw----"
-            elif args.type == "read-only":
-                perms = "rwr---"
-            elif args.type in ("read-annotate", "collaborative"):
-                perms = "rwra--"
-            elif args.type == "read-write":
-                perms = "rwrw--"
-        if not perms:
-            perms = "rw----"
+            perms = defaultperms[args.type]
         return perms
 
     def add(self, args):
@@ -170,6 +168,13 @@ More information is available at:
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
         from omero.util.text import TableBuilder
+
+        # Sort groups
+        if args.sort_by_name:
+            groups.sort(key=lambda x: x.name.val)
+        elif args.sort_by_id:
+            groups.sort(key=lambda x: x.id.val)
+
         if args.long:
             tb = TableBuilder("id", "name", "perms", "owner ids", "member ids")
         else:
