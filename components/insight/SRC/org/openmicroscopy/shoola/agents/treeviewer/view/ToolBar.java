@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -58,6 +59,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -386,9 +388,21 @@ class ToolBar
 				Rectangle r = c.getBounds();
 				usersMenu.add(c.getUsersMenu());
 				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
-				//Check size.
-				//usersMenu.setPopupSize(200, 150);
-				usersMenu.show(e.getComponent(), r.width, e.getY()-r.height);
+				
+				Point p = c.getLocation();
+				Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+				 
+				//Set the size
+				Dimension d = usersMenu.getPreferredSize();
+				Point p1 = c.getLocation();
+				SwingUtilities.convertPointToScreen(p1, c);
+				int h = p1.y+d.height;
+				int diff = h-size.height;
+				if (diff > 0)  {
+					usersMenu.setPopupSize(d.width+10, diff+30);
+				}
+				//Set the location
+				usersMenu.show(e.getComponent(), r.width, p.y);
 			}
 		};
 		JComponent comp;
