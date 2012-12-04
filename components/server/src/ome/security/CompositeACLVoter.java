@@ -72,6 +72,10 @@ public class CompositeACLVoter implements ACLVoter {
         return choose().allowLoad(session, klass, trustedDetails, id);
     }
 
+    public boolean allowAnnotate(IObject object, Details trustedDetails) {
+        return choose().allowAnnotate(object, trustedDetails);
+    }
+
     public boolean allowUpdate(IObject object, Details trustedDetails) {
         return choose().allowUpdate(object, trustedDetails);
     }

@@ -91,6 +91,10 @@ public class SharingACLVoter implements ACLVoter {
         throwDisabled("Creation");
     }
 
+    public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
+        return false;
+    }
+
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         return false;
     }

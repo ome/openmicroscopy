@@ -406,9 +406,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final ome.model.core.OriginalFile parentObject
             = new ome.model.core.OriginalFile(parentId, false);
 
-        if (!sf.getAdminService().canUpdate(parentObject)) {
+        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+        if (!admin.canAnnotate(parentObject)) {
             throw new ome.conditions.SecurityViolation(
-                    "No write access for parent directory: "
+                    "No annotate access for parent directory: "
                             + parentId);
         }
     }

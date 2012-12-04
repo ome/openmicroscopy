@@ -323,5 +323,25 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertListings(mrepo2, uuid)
         self.assertDirWrite(mrepo2, dirname)
 
+    def testDirReadAnnotateGroup(self):
+
+        uuid = self.uuid()
+        dirname = uuid + "/b/c"
+        filename = dirname + "/file.txt"
+
+        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwra--")
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertRead(mrepo1, filename, ofile)
+        self.assertListings(mrepo1, uuid)
+        self.assertWrite(mrepo1, filename, ofile)
+
+        self.assertRead(mrepo2, filename, ofile)
+        self.assertListings(mrepo2, uuid)
+        self.assertNoWrite(mrepo2, filename, ofile)
+        self.assertDirWrite(mrepo2, dirname)
+
 if __name__ == '__main__':
     unittest.main()
