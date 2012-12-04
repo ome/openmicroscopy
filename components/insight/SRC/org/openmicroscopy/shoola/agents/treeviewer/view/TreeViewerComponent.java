@@ -4596,4 +4596,10 @@ class TreeViewerComponent
 		return model.getSecurityContext();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getGroups()
+	 */
+	public Collection getGroups() { return model.getGroups(); }
+
 }

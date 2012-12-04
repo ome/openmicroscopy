@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -1123,4 +1122,10 @@ public interface TreeViewer
 	 */
 	boolean areSettingsCompatible(long groupID);
 	
+	/**
+	 * Returns the groups the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection getGroups();
 }

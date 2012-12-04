@@ -518,9 +518,22 @@ class ToolBar
         groupContext = new JLabel();
         groupContext.setVisible(false);
        
+        MouseAdapter adapter = new MouseAdapter() {
+    		
+    		/**
+    		 * Shows the menu with the various 
+    		 */
+    		public void mousePressed(MouseEvent me)
+    		{
+    			//createSelectionOption(me);
+    			createGroupMenu((Component) me.getSource(), me.getPoint());
+    		}
+		};
+		
         a = controller.getAction(TreeViewerControl.SWITCH_USER);
         usersButton = new JButton(a);
-        usersButton.addMouseListener((SwitchUserAction) a);
+        usersButton.addMouseListener(adapter);
+        //usersButton.addMouseListener((SwitchUserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(usersButton);
         
         IconManager icons = IconManager.getInstance();
@@ -528,28 +541,9 @@ class ToolBar
     	menuButton.setVisible(false);
     	usersButton.setVisible(false);
     	UIUtilities.unifiedButtonLookAndFeel(menuButton);
-    	menuButton.addMouseListener(new MouseAdapter() {
-    		
-    		/**
-    		 * Shows the menu with the various 
-    		 */
-    		public void mousePressed(MouseEvent me)
-    		{
-    			//createSelectionOption(me);
-    			createGroupMenu((Component) me.getSource(), me.getPoint());
-    		}
-		});
-    	groupContext.addMouseListener(new MouseAdapter() {
-    		
-    		/**
-    		 * Shows the menu with the various 
-    		 */
-    		public void mousePressed(MouseEvent me)
-    		{
-    			//createSelectionOption(me);
-    			createGroupMenu((Component) me.getSource(), me.getPoint());
-    		}
-		});
+    	
+    	menuButton.addMouseListener(adapter);
+    	groupContext.addMouseListener(adapter);
     	bar.add(usersButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(groupContext);
