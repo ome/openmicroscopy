@@ -4595,5 +4595,5 @@ class TreeViewerComponent
 	{
 		return model.getSecurityContext();
 	}
-	
+
 }

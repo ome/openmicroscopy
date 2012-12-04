@@ -49,7 +49,7 @@ public class GroupItem
 	extends JMenu
 {
 	
-	/** The goup hosted by this component.*/
+	/** The group hosted by this component.*/
 	private GroupData group;
 
 	/** The List of components hosting the user.*/

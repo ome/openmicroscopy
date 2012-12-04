@@ -1012,6 +1012,20 @@ class TreeViewerControl
 	}
 	
 	/**
+	 * Sets the group and the users to add to the display.
+	 * 
+	 * @param group The selected group
+	 * @param seletectedUsers The selected users.
+	 */
+	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers)
+	{
+		List<GroupData> groups = new ArrayList<GroupData>();
+		groups.add(group);
+		model.setUserGroup(groups);
+		model.setHierarchyRoot(group.getId(), seletectedUsers);
+	}
+	
+	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
