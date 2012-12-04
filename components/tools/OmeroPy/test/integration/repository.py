@@ -214,6 +214,15 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRaises(omero.SecurityViolation,
             mrepo2.file, filename, "rw")
 
+    def assertDirWrite(self, mrepo2, dirname):
+        self.createFile(mrepo2, dirname+"/file2.txt")
+
+    def assertNoDirWrite(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone elses directory.
+        self.assertRaises(omero.SecurityViolation,
+            self.createFile, mrepo2, dirname+"/file2.txt")
+
 
     def assertNoRead(self, mrepo2, filename, ofile):
         self.assertRaises(omero.SecurityViolation,
@@ -292,6 +301,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRead(mrepo2, filename, ofile)
         self.assertListings(mrepo2, uuid)
         self.assertNoWrite(mrepo2, filename, ofile)
+        self.assertNoDirWrite(mrepo2, dirname)
 
     def testDirReadWriteGroup(self):
 
@@ -311,8 +321,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRead(mrepo2, filename, ofile)
         self.assertWrite(mrepo2, filename, ofile)
         self.assertListings(mrepo2, uuid)
-
-
+        self.assertDirWrite(mrepo2, dirname)
 
 if __name__ == '__main__':
     unittest.main()

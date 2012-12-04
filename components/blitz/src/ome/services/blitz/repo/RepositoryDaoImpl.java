@@ -9,6 +9,9 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +44,8 @@ import omero.util.IceMapper;
  * @since 4.5
  */
 public class RepositoryDaoImpl implements RepositoryDao {
+
+    private final static Log log = LogFactory.getLog(RepositoryDaoImpl.class);
 
     protected final Principal principal;
     protected final Executor executor;
@@ -210,11 +215,18 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public OriginalFile register(final String repoUuid, final CheckedPath checked,
             final String mimetype, final Principal currentUser) throws ServerError {
 
+        if (checked.isRoot) {
+            throw new ome.conditions.SecurityViolation(
+                    "Can't re-register the repository");
+        }
+
+        final CheckedPath parent = checked.parent();
         final IceMapper mapper = new IceMapper();
+
         try {
             final ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
                     executor.execute(currentUser, new Executor.SimpleWork(
-                    this, "register", repoUuid, checked) {
+                    this, "register", repoUuid, checked, mimetype) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
 
@@ -223,6 +235,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
                             checked.getName(), null /*mimetype doesn't matter*/);
 
                     if (fileId == null) {
+                        canWriteParentDirectory(sf, getSqlAction(),
+                                repoUuid, parent);
                         return createOriginalFile(sf, getSqlAction(),
                                 repoUuid, checked, mimetype);
                     } else {
@@ -230,6 +244,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                                 ome.model.core.OriginalFile.class, fileId);
                     }
                 }
+
             });
 
             return (OriginalFile) new IceMapper().map(of);
@@ -316,7 +331,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ofile.setPath(checked.getRelativePath());
         }
 
-        if (file.exists() && !file.isDirectory()) {
+        final boolean mimeDir = PublicRepositoryI.DIRECTORY_MIMETYPE.equals(mimetype);
+        final boolean actualDir = file.isDirectory();
+
+        if (file.exists() && !actualDir) {
             ofile.setMtime(new Timestamp(file.lastModified()));
             ofile.setSha1(checked.sha1());
             ofile.setSize(file.length());
@@ -324,12 +342,74 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ofile.setMtime(new Timestamp(System.currentTimeMillis()));
             ofile.setSha1("");
             ofile.setSize(0L);
+            if (actualDir && !mimeDir) {
+                throw new ome.conditions.ValidationException(
+                        "File is a directory but mimetype is: " + mimetype);
+            }
         }
         // atime/ctime??
 
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         sql.setFileRepo(ofile.getId(), repoUuid);
+
+        if (mimeDir) {
+            internalMkdir(checked.file);
+        }
+
         return ofile;
     }
 
+    /**
+     * This method should only be used by the register public method in order to
+     * guarantee that the DB is kept in sync with the file system.
+     * @param file
+     * @throws ome.conditions.ResourceError
+     */
+    protected void internalMkdir(File file) {
+        try {
+            FileUtils.forceMkdir(file);
+        } catch (Exception e) {
+            log.error(e);
+            throw new ome.conditions.ResourceError("Cannot mkdir:" + e.getMessage());
+        }
+    }
+
+
+    /**
+     * Throw a {@link ome.conditions.SecurityViolation} if the current
+     * context cannot write to the parent directory.
+     *
+     * @param sf
+     * @param sql
+     * @param repoUuid
+     * @param parent
+     */
+    protected void canWriteParentDirectory(ServiceFactory sf, SqlAction sql,
+            final String repoUuid, final CheckedPath parent) {
+
+        if (parent.isRoot) {
+            // Allow whatever (for the moment) at the top-level
+            return; // EARLY EXIT!
+        }
+
+        // Now we check whether or not the current user has
+        // write permissions for the *parent* directory.
+        final Long parentId = sql.findRepoFile(repoUuid,
+                parent.getRelativePath(), parent.getName(),
+                null);
+
+        if (parentId == null) {
+            throw new ome.conditions.SecurityViolation(
+                    "Cannot find parent directory: " + parent);
+        }
+
+        final ome.model.core.OriginalFile parentObject
+            = new ome.model.core.OriginalFile(parentId, false);
+
+        if (!sf.getAdminService().canUpdate(parentObject)) {
+            throw new ome.conditions.SecurityViolation(
+                    "No write access for parent directory: "
+                            + parentId);
+        }
+    }
 }

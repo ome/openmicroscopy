@@ -484,7 +484,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 // This will fail if the file already exists in
                 repositoryDao.register(repoUuid, checked,
                         DIRECTORY_MIMETYPE, currentUser(__current));
-                __mkdir(checked.file);
             }
 
         }
@@ -497,22 +496,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         }
         repositoryDao.register(repoUuid, checked,
                 DIRECTORY_MIMETYPE, currentUser(__current));
-        __mkdir(checked.file);
 
     }
 
-    /**
-     * This method should only be used by the makeDir public method in order to
-     * guarantee that the DB is kept in sync with the file system.
-     * @param file
-     */
-    private void __mkdir(File file) throws omero.ResourceError {
-        try {
-            FileUtils.forceMkdir(file);
-        } catch (Exception e) {
-            throw new omero.ResourceError(stackTraceAsString(e), null, e.getMessage());
-        }
-    }
     //
     //
     // Utility methods
