@@ -2075,8 +2075,12 @@ def repository_makedir(request, klass, dirpath, conn=None, **kwargs):
     name = OriginalFileWrapper(conn=conn, obj=description).getName()
 
     try:
+        path = os.path.join(root, name, dirpath)
         rdict = {'bad': 'false'}
-        repository.makeDir(os.path.join(root, name, dirpath))
+        force = request.GET.get('force', 'false')
+        if force == 'true' and repository.fileExists(path):
+            return rdict
+        repository.makeDir(path)
     except Exception, ex:
         logger.error(traceback.format_exc())
         rdict = {'bad': 'true', 'errs': str(ex)}
