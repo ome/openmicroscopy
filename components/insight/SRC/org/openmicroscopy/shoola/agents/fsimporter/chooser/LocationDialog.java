@@ -207,8 +207,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	private Collection<GroupData> groups;
 
-	private long currentGroupId;
-
 	private GroupData currentGroup;
 
 	/**
@@ -232,7 +230,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.objects = objects;
 
 		this.groups = groups;
-		this.currentGroupId = currentGroupId;
+		this.currentGroup = selectCurrentGroup(groups, currentGroupId);
 
 		setModal(true);
 		setTitle(TITLE);
@@ -247,13 +245,25 @@ public class LocationDialog extends JDialog implements ActionListener,
 		setMinimumSize(minimumSize);
 	}
 
+	private GroupData selectCurrentGroup(Collection<GroupData> groups,
+			long currentGroupId) {
+		
+		for (GroupData group : groups) {
+			if(group.getId() == currentGroupId)
+				return group;
+		}
+		
+		return null;
+	}
+
 	/** Initialises the components. */
 	private void initComponents() {
 		sorter = new ViewerSorter();
 
 		// main components
 		groupsBox = new JComboBox();
-
+		groupsBox.addActionListener(this);
+		
 		screensBox = new JComboBox();
 
 		projectsBox = new JComboBox();
@@ -267,9 +277,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		datasetsBox = new JComboBox();
 
-		populateGroupBox(groups, currentGroupId);
+		populateGroupBox(groups, currentGroup);
 		
-		initializeLocationBoxes();
+		populateLocationComboBoxes();
 
 		addProjectButton = new JButton("New...");
 		addProjectButton.setToolTipText("Create a new Project.");
@@ -427,30 +437,29 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return See above.
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
-			long selectedGroupId) {
-		JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups
-				.size()];
+			GroupData selectedGroup) {
+		
+		groupsBox.removeActionListener(this);
+		groupsBox.removeAllItems();
+		
+		JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
 
 		int selectedIndex = 0;
 		int index = 0;
 
 		for (GroupData group : availableGroups) {
 			
-			if (group.getId() == selectedGroupId)
-			{
-				currentGroup = group;
-				selectedIndex = index;
-			}
-			
-			comboBoxObjects[index] = new JComboBoxImageObject(group,
-					getGroupIcon(group));
+			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group, getGroupIcon(group));
+			comboBoxObjects[index] = comboBoxItem;
 			
 			groupsBox.addItem(comboBoxObjects[index]);
 			
-			index++;
+			if (group.getId() == selectedGroup.getId())
+			{
+				groupsBox.setSelectedItem(comboBoxItem);
+			}
 		}
 
-		groupsBox.setSelectedIndex(selectedIndex);
 		JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
 		groupsBox.setRenderer(rnd);
 		rnd.setPreferredSize(new Dimension(200, 130));
@@ -531,15 +540,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	public void actionPerformed(ActionEvent ae) {
 		
-		
 		Object sourceObject = ae.getSource();
 		
-		if(sourceObject == groupsBox)
+		if(sourceObject == groupsBox && ae.getActionCommand().equals("comboBoxChanged"))
 		{
-			GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox
-					.getSelectedItem()).getData();
+			JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
+			GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
 			
-			firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedGroup );
+			if(selectedNewGroup.getId() != currentGroup.getId())
+				firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
 		}
 		else
 		{
@@ -787,8 +796,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 	}
 
-	/** Initialises the selection boxes. */
-	private void initializeLocationBoxes() {
+	/** Populates the selection boxes with the currently selected data. */
+	private void populateLocationComboBoxes() {
 		projectsBox.removeActionListener(projectsBoxListener);
 		
 		projectsBox.removeAllItems();
@@ -990,19 +999,24 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	public void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects, Collection<GroupData> availableGroups, long currentGroupId) {
+			Collection<TreeImageDisplay> objects , long currentGroupId) {
 
 		this.selectedContainer = container;
 		this.importDataType = type;
 		this.objects = objects;
-		this.groups = availableGroups;
-		this.currentGroupId = currentGroupId;
-		
-		initializeLocationBoxes();
+		this.currentGroup = selectCurrentGroup(groups, currentGroupId);
+
+		populateGroupBox(groups, currentGroup);
+		populateLocationComboBoxes();
 	}
 
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
-
+		this.groups = availableGroups;
+		this.currentGroup = selectCurrentGroup(availableGroups, currentGroupId);
+		
+		populateGroupBox(groups, currentGroup);
+		populateLocationComboBoxes();
+		
 	}
 }

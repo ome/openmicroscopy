@@ -1243,7 +1243,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type) {
+			Collection<TreeImageDisplay> objects, int type, Collection<GroupData> groups) {
 		// super(owner);
 		super(0, TITLE, TITLE);
 		selectedContainer = checkContainer(selectedContainer);
@@ -1260,6 +1260,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		this.type = type;
 		this.selectedContainer = selectedContainer;
+		this.availableGroups = groups;
 		initComponents(filters);
 		buildGUI();
 	}
@@ -1373,7 +1374,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            <code>true</code>, <code>false</code> otherwise.
 	 */
 	public void reset(Collection<TreeImageDisplay> objects, int type,
-			boolean changeGroup) {
+			long currentGroupId) {
 		TreeImageDisplay selected = null;
 		if (this.selectedContainer != null) {
 			if (objects != null) {
@@ -1412,7 +1413,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				}
 			}
 		}
-		reset(selected, objects, type, false, changeGroup);
+		reset(selected, objects, type, false, currentGroupId);
 	}
 
 	/**
@@ -1432,7 +1433,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public void reset(TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, int type, boolean remove,
-			boolean changeGroup) {
+			long currentGroupId) {
 		
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
@@ -1484,7 +1485,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
 		
-		locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
+		locationDialog.reset(selectedContainer, type, objects, currentGroupId);
 
 		tagsPane.removeAll();
 		tagsMap.clear();
