@@ -83,6 +83,9 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
+ * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:sylittlewood@dundee.ac.uk"
+ *         >sylittlewood@dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
@@ -163,7 +166,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private JButton cancelButton;
 
 	/** Action button command Id chosen by the user. */
-	private int userSelectedActionButton;
+	private int userSelectedActionCommandId;
 
 	/** component used to select the import group. */
 	private JComboBox groupsBox;
@@ -198,16 +201,29 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Sorts the objects from the display. */
 	private ViewerSorter sorter;
 
+	/**
+	 * A reference to the selected target for import data.
+	 */
 	private TreeImageDisplay selectedContainer;
 
-	private ImportLocationSettings importSettings;
-
+	/**
+	 * The id of the import data type (Screen/Project)
+	 */
 	private int importDataType;
 
+	/**
+	 * A reference to the parent object that created this dialog.
+	 */
 	private JFrame owner;
 
+	/**
+	 * Internal list of available groups.
+	 */
 	private Collection<GroupData> groups;
 
+	/**
+	 * The currently selected group in the groups combo box.
+	 */
 	private GroupData currentGroup;
 
 	/**
@@ -238,6 +254,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 		initComponents();
 	}
 
+	/**
+	 * @param The available groups.
+	 * @param The if of the current group.
+	 * @return Returns the current group from the list based on the id provided, 
+	 * 		<null> if not found.
+	 */
 	private GroupData selectCurrentGroup(Collection<GroupData> groups,
 			long currentGroupId) {
 		
@@ -290,21 +312,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 		addScreenButton.addActionListener(this);
 
 		// lower buttons
-		cancelButton = new JButton("Cancel");
-		cancelButton.setToolTipText("Close and do not add the files to the "
-				+ "queue.");
-
 		ActionListener buttonListener = new ActionListener() {
-
 			public void actionPerformed(ActionEvent ae) {
-				// TODO Auto-generated method stub 21 Nov 2012 15:05:13 scott
 				int commandId = Integer.parseInt(ae.getActionCommand());
-				userSelectedActionButton = commandId;
+				userSelectedActionCommandId = commandId;
 				close();
 			}
-
 		};
-
+		
+		cancelButton = new JButton("Cancel");
+		cancelButton.setToolTipText("Close and do not add the files to the queue.");
 		cancelButton.addActionListener(buttonListener);
 		cancelButton.setActionCommand("" + CMD_CLOSE);
 
@@ -317,9 +334,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Builds and lays out the UI.
-	 * 
-	 * @return See above.
+	 * @return The JPanel holding the lower main action buttons.
 	 */
 	private JPanel buildToolbar() {
 		JPanel bar = new JPanel();
@@ -329,7 +344,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		bar.add(cancelButton);
 		return bar;
 	}
-
+	/**
+	 * @return JPanel holding all the lements of the dialog.
+	 */
 	private JPanel layoutMainPanel() {
 		JPanel locationPane = new JPanel();
 		locationPane.setLayout(new BorderLayout());
@@ -370,7 +387,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		return locationPane;
 	}
-
+	
+	/**
+	 * @return JPanel holding the project selection UI elements
+	 */
 	private JPanel createProjectPanel() {
 		JPanel projectPanel = new JPanel();
 		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
@@ -396,6 +416,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return projectPanel;
 	}
 
+	/**
+	 * @return JPanel holding the screen selection UI elements
+	 */
 	private JPanel createScreenPanel() {
 		JPanel screenPanel = new JPanel();
 		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
@@ -504,7 +527,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	int centerLocation() {
 		UIUtilities.centerAndShow(this);
-		return userSelectedActionButton;
+		return userSelectedActionCommandId;
 	}
 
 	/**
@@ -517,7 +540,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	int showLocation(Point location) {
 		setLocation(location);
 		setVisible(true);
-		return userSelectedActionButton;
+		return userSelectedActionCommandId;
 	}
 
 	/**
@@ -529,7 +552,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		Object sourceObject = ae.getSource();
 		
-		if(sourceObject == groupsBox && ae.getActionCommand().equals("comboBoxChanged"))
+		if(sourceObject == groupsBox &&
+				ae.getActionCommand().equals("comboBoxChanged"))
 		{
 			JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
 			GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
@@ -554,13 +578,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 				break;
 			}
 
-			EditorDialog d = new EditorDialog(owner, emptyObject, false);
-			d.addPropertyChangeListener(this);
-			d.setModal(true);
-			UIUtilities.centerAndShow(d);
+			EditorDialog editor = new EditorDialog(owner, emptyObject, false);
+			editor.addPropertyChangeListener(this);
+			editor.setModal(true);
+			UIUtilities.centerAndShow(editor);
 		}
 	}
 
+	/**
+	 * @return The import settings selected by the user.
+	 */
 	public ImportLocationSettings getImportSettings() {
 		
 		ImportLocationSettings importSettings = new NullImportSettings(currentGroup);
@@ -867,6 +894,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		projectsBox.addActionListener(projectsBoxListener);
 	}
 
+	/**
+	 * Populates the screens box with the screen selection options
+	 * @param hostObject
+	 * @param sortedList
+	 */
 	private void loadScreens(Object hostObject, List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		finalList.add(new DataNode(DataNode.createDefaultScreen()));
@@ -912,6 +944,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return null;
 	}
 
+	/**
+	 * Populates the projects & datasets boxes with the current options
+	 * @param hostObject
+	 * @param datasetsList
+	 * @param sortedList
+	 */
 	private void loadProjects(Object hostObject, List<DataNode> datasetsList,
 			List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
@@ -999,18 +1037,27 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 	}
 
+	/**
+	 * Resets the display to the selection and group specified
+	 * @param container
+	 * @param type
+	 * @param objects
+	 * @param currentGroupId
+	 */
 	public void reset(TreeImageDisplay container, int type,
 			Collection<TreeImageDisplay> objects , long currentGroupId) {
 
 		this.selectedContainer = container;
 		this.importDataType = type;
 		this.objects = objects;
-		this.currentGroup = selectCurrentGroup(groups, currentGroupId);
+		
+		onReconnected(groups, currentGroupId);	}
 
-		populateGroupBox(groups, currentGroup);
-		populateLocationComboBoxes();
-	}
-
+	/**
+	 * Repopulates and resets the groups, screens, projects & dataset selection options.
+	 * @param availableGroups
+	 * @param currentGroupId
+	 */
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
 		this.groups = availableGroups;
