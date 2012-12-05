@@ -21,58 +21,54 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
 import pojos.GroupData;
 
 /** 
- * Provides an abstract class for specialisation fo import user selection settings
+ * Provides cohesion of the import settings when importing screen data.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public abstract class ImportLocationSettings {
+public class ScreenImportLocationSettings extends ImportLocationSettings {
 
-	/** Defines the group data to be imported in to */
-	private GroupData importGroup;
-	
-	/** Defines the type of data being imported */
-	private int importDataType;
-	
+	/** Defines the parent screen where data will be imported */
+	private DataNode importToScreen;
+
 	/**
-	 * Creates a ImportLocationSettings for passing user selection data.
-	 * @param type
-	 * @param group
+	 * Creates a DTO for collating Screen import settings.
+	 * @param group The permission group to import data in to
+	 * @param screen The screen to import data in to
 	 */
-	protected ImportLocationSettings(int type, GroupData group)
+	public ScreenImportLocationSettings(GroupData group, DataNode screen)
 	{
-		this.importDataType = type;
-		this.importGroup = group;
+		super(Importer.SCREEN_TYPE, group);
+		
+		importToScreen = screen;
 	}
 	
 	/**
-	 * @return The group to import data in to.
+	 * @return The screen selected
 	 */
-	public GroupData getImportGroup()
-	{
-		return importGroup;
+	@Override
+	public DataNode getImportLocation() {
+		return importToScreen;
 	}
-	
+
+	/** Note: should NEVER be called on a screen import,
+	 * implemented for initial work, look at refactoring afterwards */
+	@Override
+	public DataNode getParentImportLocation() {
+		return null; 
+	}
+
 	/**
-	 * @return The type of data being imported, Project / Screen.
+	 * @return Always <false> for a screen as there is no parent object
 	 */
-	public int getImportDataType()
-	{
-		return importDataType;
+	@Override
+	public boolean isParentFolderAsDataset() {
+		return false;
 	}
-
-	/** To be implemented by the subclass to say which object an item should be imported in to */
-	public abstract DataNode getImportLocation();
-
-	/** To be implemented by the subclass to say which parent object an item should be imported in to */
-	public abstract DataNode getParentImportLocation();
-
-	/** To be implemented by the subclass to say whether an images directory should be used as a new dataset */
-	public abstract boolean isParentFolderAsDataset();
 
 }
-

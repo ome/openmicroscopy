@@ -366,7 +366,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		chooser.setSelectedFile(new File("."));
 		
-		table.addFiles(fileList, isParentFolderAsDataset(), importSettings.getImportGroup());
+		table.addFiles(fileList, importSettings.isParentFolderAsDataset(), importSettings.getImportGroup());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -1034,6 +1034,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				getRootPane().setWindowDecorationStyle(
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
+		
+		locationDialog.buildGUI();
 	}
 
 	/**
@@ -1305,8 +1307,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
      */
     boolean isParentFolderAsDataset()
     {
-    	if (type == Importer.SCREEN_TYPE) return false;
-    	return ((ImageImportLocationSettings) importSettings).isParentFolderAsDataset();
+    	return importSettings.isParentFolderAsDataset();
     }
     /**
 	 * Returns the name to display for a file.

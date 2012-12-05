@@ -23,31 +23,33 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
+import pojos.DataObject;
 import pojos.GroupData;
 
 /** 
- * 
- *
+ * Provides a Null implementation of import settings, should NEVER be returned.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class FakeImportSettings extends ImportLocationSettings {
+public class NullImportSettings extends ImportLocationSettings {
 
-	protected FakeImportSettings(int type, GroupData group) {
-		super(type, group);
-		// TODO Auto-generated constructor stub 21 Nov 2012 15:05:43 scott
+	protected NullImportSettings(GroupData group) {
+		super(-1, group);
 	}
 
 	@Override
 	public DataNode getImportLocation() {
-		// TODO Auto-generated method stub  21 Nov 2012 15:05:38 scott
-		return null;
+		return new DataNode((DataObject) null);
 	}
 
 	@Override
 	public DataNode getParentImportLocation() {
-		// TODO Auto-generated method stub  21 Nov 2012 15:05:38 scott
-		return null;
+		return new DataNode((DataObject) null);
+	}
+
+	@Override
+	public boolean isParentFolderAsDataset() {
+		return false;
 	}
 
 }

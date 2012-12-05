@@ -29,6 +29,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -235,14 +236,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		setModal(true);
 		setTitle(TITLE);
 		initComponents();
-		buildGUI();
-		pack();
-
-		int minHeight = this.getHeight();
-		int minWidth = this.getWidth();
-		Dimension minimumSize = new Dimension(minWidth, minHeight);
-
-		setMinimumSize(minimumSize);
 	}
 
 	private GroupData selectCurrentGroup(Collection<GroupData> groups,
@@ -311,7 +304,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 				case CMD_ADD:
 					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox
 							.getSelectedItem()).getData();
-					importSettings = new FakeImportSettings(importDataType,
+					importSettings = new NullImportSettings(importDataType,
 							selectedGroup);
 					close();
 					break;
@@ -492,10 +485,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param location
 	 *            The component displaying the option.
 	 */
-	private void buildGUI() {
+	public void buildGUI() {
 		Container c = getContentPane();
 		c.add(layoutMainPanel(), BorderLayout.CENTER);
 		c.add(buildToolbar(), BorderLayout.SOUTH);
+		
+		int minHeight = (int) 2 * owner.getHeight() / 3;
+		int minWidth = (int) 2 * owner.getWidth() / 3;
+		Dimension minimumSize = new Dimension(minWidth, minHeight);
+		
+		//this.setMinimumSize(minimumSize);
+		this.setPreferredSize(minimumSize);
+		
+		pack();
 	}
 
 	/** Closes the dialog. */
@@ -569,8 +571,22 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	public ImportLocationSettings getImportSettings() {
-		// TODO Auto-generated method stub 21 Nov 2012 12:43:08 scott
-		return null;
+		
+		ImportLocationSettings importSettings = new NullImportSettings(currentGroup);
+		
+		if(importDataType == Importer.PROJECT_TYPE) {
+			DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
+			DataNode selectedDataset = (DataNode) datasetsBox.getSelectedItem();
+			
+			importSettings = new ProjectImportLocationSettings(currentGroup, selectedProject, selectedDataset);
+		}
+		else if (importDataType == Importer.SCREEN_TYPE) {
+			DataNode selectedScreen = (DataNode) screensBox.getSelectedItem();
+			
+			importSettings = new ScreenImportLocationSettings(currentGroup, selectedScreen);	
+		}
+		
+		return importSettings;
 	}
 
 	/**
