@@ -55,7 +55,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	}
 
 	/**
-	 * @return The dataset selected.
+	 * @return The dataset selected to import data in to.
 	 */
 	@Override
 	public DataNode getImportLocation() {
@@ -63,13 +63,16 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	}
 
 	/**
-	 * @return The project selected.
+	 * @return The project selected to import data in to.
 	 */
 	@Override
 	public DataNode getParentImportLocation() {
 		return importToProject;
 	}
 
+	/**
+	 * @return Whether the parent folder of an image should be used to create a new Dataset.
+	 */
 	@Override
 	public boolean isParentFolderAsDataset() {
 		if (importToDataset == null)
