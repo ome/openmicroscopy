@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 
@@ -62,13 +64,15 @@ public class GroupItem
 	 * Creates a new instance.
 	 * 
 	 * @param group The group hosted by this component.
+	 * @param icon The icon associated to the group permissions.
 	 */
-	public GroupItem(GroupData group)
+	public GroupItem(GroupData group, Icon icon)
 	{
 		if (group == null) 
 			throw new IllegalArgumentException("No group");
 		this.group = group;
 		setText(group.getName());
+		setIcon(icon);
 	}
 
 	/**
