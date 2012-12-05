@@ -344,7 +344,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private long currentGroupId;
 
 	private Collection<GroupData> availableGroups;
+	
+	private JPanel container;
 
+	private LocationDialog locationDialog;
+
+	private JComboBox groupSelection;
+	
 	/** Adds the files to the selection. */
 	private void addFiles(ImportLocationSettings importSettings) {
 		File[] files = chooser.getSelectedFiles();
@@ -980,12 +986,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		return row;
 	}
 
-	private JPanel container;
-
-	private LocationDialog locationDialog;
-
-	private JComboBox groupSelection;
-
 	/** Builds and lays out the UI. */
 	private void buildGUI() {
 		setLayout(new BorderLayout(0, 0));
@@ -1484,7 +1484,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
 		
-		//locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
+		locationDialog.reset(selectedContainer, type, objects, availableGroups, currentGroupId);
 
 		tagsPane.removeAll();
 		tagsMap.clear();
@@ -1661,7 +1661,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					handleTagsSelection((Collection<TagAnnotationData>) entry
 							.getValue());
 			}
+		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name)) {
+			firePropertyChange(LocationDialog.GROUP_CHANGED_PROPERTY, evt.getOldValue(), evt.getNewValue());
 		}
+		
 	}
 
 	/**

@@ -363,7 +363,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 			public void stateChanged(ChangeEvent evt) {
 				JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
 				int selectedTabIndex = tabbedPane.getSelectedIndex();
-				reset(selectedContainer, selectedTabIndex, objects);
+				//reset(selectedContainer, selectedTabIndex, objects);
 			}
 		};
 		
@@ -989,11 +989,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	public void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects) {
+			Collection<TreeImageDisplay> objects, Collection<GroupData> availableGroups, long currentGroupId) {
 
 		this.selectedContainer = container;
 		this.importDataType = type;
 		this.objects = objects;
+		this.groups = availableGroups;
+		this.currentGroupId = currentGroupId;
 		
 		initializeLocationBoxes();
 	}
