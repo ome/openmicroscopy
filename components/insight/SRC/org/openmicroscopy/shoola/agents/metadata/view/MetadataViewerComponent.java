@@ -379,11 +379,14 @@ class MetadataViewerComponent
 			userID = -1;
 		}
 		//Previewed the image.
+		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
-		setParentRootObject(null, null);
+		//check if save object before setting to null.
+		if (!same)
+			setParentRootObject(null, null);
 	}
 
 	/** 
@@ -1179,6 +1182,16 @@ class MetadataViewerComponent
 		return model.getSecurityContext();
 	
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#isSameObject(Object)
+	 */
+	public boolean isSameObject(Object object)
+	{
+		return model.isSameObject(object);
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
