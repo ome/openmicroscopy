@@ -218,13 +218,13 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					selectedContainer, objects, type);
+					selectedContainer, objects, type, ImporterAgent.getAvailableUserGroups());
 			chooser.addPropertyChangeListener(controller);
 			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
 			boolean remove = selectedContainer == null;
-			chooser.reset(selectedContainer, objects, type, remove, false);
+			chooser.reset(selectedContainer, objects, type, remove, model.getGroupId());
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -572,7 +572,7 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
 				model.getGroupId());
-		chooser.reset(nodes, type, changeGroup);
+		chooser.reset(nodes, type, model.getGroupId());
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
