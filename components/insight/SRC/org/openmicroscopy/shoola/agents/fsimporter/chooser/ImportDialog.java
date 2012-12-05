@@ -114,6 +114,9 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
+  * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:sylittlewood@dundee.ac.uk"
+ *         >sylittlewood@dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
@@ -166,7 +169,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Action id indicating to select the Project/Dataset or Screen. */
 	private static final int CANCEL_ALL_IMPORT = 10;
 
-	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 
@@ -340,16 +342,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** The import settings that are returned from the ImportLocation dialogue */
 	private ImportLocationSettings importSettings;
-
-	private long currentGroupId;
-
-	private Collection<GroupData> availableGroups;
 	
+	/**
+	 * 
+	 */
 	private JPanel container;
 
+	/**
+	 * The dialog to allow for the user to select the import location.
+	 */
 	private LocationDialog locationDialog;
-
-	private JComboBox groupSelection;
 	
 	/** Adds the files to the selection. */
 	private void addFiles(ImportLocationSettings importSettings) {
@@ -997,23 +999,27 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tabbedPane.add("Files to import", p);
 		tabbedPane.add("Options", buildOptionsPane());
 
-		container = new JPanel();
-		double[][] size = { { TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
-				{ TableLayout.PREFERRED, TableLayout.FILL } };
-		container.setLayout(new TableLayout(size));
-		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
+		JPanel tablePanel = new JPanel();
+		double[][] size = {
+				{ TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
+				{ TableLayout.PREFERRED, TableLayout.FILL }
+			};
+		tablePanel.setLayout(new TableLayout(size));
+		tablePanel.add(table.buildControls(), "0, 1, LEFT, CENTER");
+		tablePanel.add(tabbedPane, "2, 1, 3, 1");
 		
-		container.add(tabbedPane, "2, 1, 3, 1");
-		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser,
-				container);
-		JPanel body = new JPanel();
+		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				chooser, tablePanel);
+		
+		JPanel mainPanel = new JPanel();
 		double[][] ss = { { TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL } };
-		body.setLayout(new TableLayout(ss));
-		body.setBackground(UIUtilities.BACKGROUND);
-
-		body.add(pane, "0, 1");
-		add(body, BorderLayout.CENTER);
+		mainPanel.setLayout(new TableLayout(ss));
+		mainPanel.setBackground(UIUtilities.BACKGROUND);
+		mainPanel.add(pane, "0, 1");
+		
+		this.add(mainPanel, BorderLayout.CENTER);
+		
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 
@@ -1248,11 +1254,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			Collection<TreeImageDisplay> objects, int type, Collection<GroupData> groups) {
 		// super(owner);
 		super(0, TITLE, TITLE);
-		selectedContainer = checkContainer(selectedContainer);
+		
 		this.owner = owner;
-		setClosable(false);
-		setCloseVisible(false);
 		this.objects = objects;
+		this.type = type;
+		this.selectedContainer = selectedContainer;
+		
+		selectedContainer = checkContainer(selectedContainer);
+		
 		if (type == Importer.PROJECT_TYPE) {
 			pdNodes = objects;
 			selectedProject = selectedContainer;
@@ -1260,9 +1269,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			screenNodes = objects;
 			selectedScreen = selectedContainer;
 		}
-		this.type = type;
-		this.selectedContainer = selectedContainer;
-		this.availableGroups = groups;
+		
+		setClosable(false);
+		setCloseVisible(false);
 		initComponents(filters);
 		buildGUI();
 	}
