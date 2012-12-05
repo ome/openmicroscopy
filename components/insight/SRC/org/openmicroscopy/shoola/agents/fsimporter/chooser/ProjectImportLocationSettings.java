@@ -21,6 +21,7 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
 import pojos.DatasetData;
@@ -28,12 +29,11 @@ import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
- * 
- *
+ * Provides cohesion of the import settings when importing project/dataset image data.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ImageImportLocationSettings extends ImportLocationSettings
+public class ProjectImportLocationSettings extends ImportLocationSettings
 {
 	/** Defines the parent project where data will be imported */
 	private DataNode importToProject;
@@ -41,30 +41,40 @@ public class ImageImportLocationSettings extends ImportLocationSettings
 	/** Defines the parent dataset where data will be imported */
 	private DataNode importToDataset;
 	
-	
-	public ImageImportLocationSettings(int type, GroupData group, DataNode project, DataNode dataset) {
-		super(type, group);
+	/**
+	 * Creates a DTO for collating Project/Dataset/Image import settings.
+	 * @param group The permission group to import data in to
+	 * @param project The project to import data in to
+	 * @param dataset The dataset to import data in to
+	 */
+	public ProjectImportLocationSettings(GroupData group, DataNode project, DataNode dataset) {
+		super(Importer.PROJECT_TYPE, group);
 		
 		this.importToProject = project;
 		this.importToDataset= dataset;
-		// TODO Auto-generated constructor stub 21 Nov 2012 12:11:51 scott
-	}
-	
-	public boolean isParentFolderAsDataset()
-	{
-		if (importToDataset == null)
-			return false;
-    	
-		return importToDataset.isDefaultDataset();
 	}
 
+	/**
+	 * @return The dataset selected.
+	 */
 	@Override
 	public DataNode getImportLocation() {
 		return importToDataset;
 	}
 
+	/**
+	 * @return The project selected.
+	 */
 	@Override
 	public DataNode getParentImportLocation() {
 		return importToProject;
+	}
+
+	@Override
+	public boolean isParentFolderAsDataset() {
+		if (importToDataset == null)
+			return false;
+		
+		return importToDataset.isDefaultDataset();
 	}
 }
