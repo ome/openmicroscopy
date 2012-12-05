@@ -87,12 +87,24 @@
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
                                                 var new_name = $(this).attr('value');
                                                 $("#"+field_id+"-"+$(this).attr('name')).text(new_name);
-                                                // update tree object TODO: move it out of scope
-                                                if (new_name.length > 30) {
-                                                    new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
-                                                }
                                                 if (data.o_type != "well") {
-                                                    window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), new_name);
+                                                    // Check we have a jsTree (not in Search or History page etc)
+                                                    if ($.jstree && $("#dataTree").jstree) {
+                                                        // Update name in thumbnails...
+                                                        var objId = field_id.replace("name","_icon"); // E.g. imagename-123 -> image_icon-123
+                                                        $("#"+objId+" div.desc").text(new_name);
+                                                        $("#"+objId+" div.image img").attr('title', new_name);  // tooltip
+                                                        // And in jsTree
+                                                        if (new_name.length > 30) {
+                                                            new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
+                                                        }
+                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
+                                                    } else {
+                                                        // OR we may be in the search page: Update image name in table...
+                                                        var objId = field_id.replace("name","");    // E.g. imagename-123
+                                                        $("#"+objId+" td.desc a").text(new_name);
+                                                        $("#"+objId+" td.image img").attr('title', new_name);
+                                                    }
                                                 }
                                             }
                                         }); // this.each
