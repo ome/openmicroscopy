@@ -403,10 +403,16 @@ class AnnotationDataUI
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
 		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		DocComponent doc = new DocComponent(null, model);
+		tagsDocList.add(doc);
+		tagsPane.add(doc);
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		docRef = docPane;
+		doc = new DocComponent(null, model);
+		filesDocList.add(doc);
+		docPane.add(doc);
 		publishedBox = new JCheckBox();
 		publishedBox.setBackground(UIUtilities.BACKGROUND_COLOR);
 		publishedBox.addItemListener(new ItemListener() {
@@ -1482,14 +1488,14 @@ class AnnotationDataUI
 		publishedBox.setSelected(false);
 		tagsPane.removeAll();
 		tagsDocList.clear();
-		//DocComponent doc = new DocComponent(null, model);
-		//tagsDocList.add(doc);
-		//tagsPane.add(doc);
+		DocComponent doc = new DocComponent(null, model);
+		tagsDocList.add(doc);
+		tagsPane.add(doc);
 		docPane.removeAll();
 		filesDocList.clear();
-		//doc = new DocComponent(null, model);
-		//filesDocList.add(doc);
-		//docPane.add(doc);
+		doc = new DocComponent(null, model);
+		filesDocList.add(doc);
+		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
 		//double h = TableLayout.PREFERRED;
