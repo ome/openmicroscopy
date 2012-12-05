@@ -2329,13 +2329,18 @@ class repository_upload(django.views.generic.View):
             return position
 
         targetfile = repository.file(fullpath, 'rw')
-        targetfile.truncate(0)
-        position = 0
-        for part in parts:
-            with file(os.path.join(os.path.dirname(objectname), part)) as source:
-                position = chunk_copy_to_repo(source, targetfile, position)
+        try:
+            targetfile.truncate(0)
+            position = 0
+            for part in parts:
+                path = os.path.join(os.path.dirname(objectname), part)
+                with file(path) as source:
+                    position = chunk_copy_to_repo(
+                            source, targetfile, position)
 
-        _delete_upload(objectname)
+            _delete_upload(objectname)
+        finally:
+            targetfile.close()
 
 
 @require_POST
