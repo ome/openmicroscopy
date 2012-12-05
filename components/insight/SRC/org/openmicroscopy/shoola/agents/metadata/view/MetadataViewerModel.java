@@ -116,6 +116,9 @@ class MetadataViewerModel
 	/** The object of reference for the viewer i.e. the root. */
 	private Object parentRefObject;
 	
+	/** The object of reference for the viewer i.e. the root. */
+	private Object grandParent;
+	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults data;
 	
@@ -306,6 +309,7 @@ class MetadataViewerModel
 	void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
 		this.parentRefObject = parentRefObject;
+		this.grandParent = grandParent;
 		editor.setParentRootObject(parentRefObject, grandParent);
 	}
 	
@@ -407,15 +411,16 @@ class MetadataViewerModel
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;
 				uo = wsd.getImage();
+				/*
 				if (!loaders.containsKey(refNode) && parentData == null
-						&& parentRefObject != null) {
+						&& grandParent != null) {
 					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, refNode, parentRefObject);
+						ctx, refNode, grandParent);
 					loaders.put(refNode, l);
 					l.load();
 					state = MetadataViewer.LOADING_METADATA;
 					return;
-				}
+				}*/
 			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, refNode, uo);
