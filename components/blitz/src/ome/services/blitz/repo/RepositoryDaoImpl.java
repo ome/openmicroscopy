@@ -45,14 +45,33 @@ import omero.util.IceMapper;
  */
 public class RepositoryDaoImpl implements RepositoryDao {
 
+    private static abstract class StatefulWork
+        extends Executor.SimpleWork
+        implements Executor.StatefulWork {
+
+        private final RawFileBean bean;
+        StatefulWork(RawFileBean bean,
+                Object self, String method, Object...args) {
+            super(self, method, args);
+            this.bean = bean;
+        }
+
+        public Object getThis() {
+            return bean;
+        }
+    }
+
     private final static Log log = LogFactory.getLog(RepositoryDaoImpl.class);
 
     protected final Principal principal;
     protected final Executor executor;
+    protected final Executor statefulExecutor;
 
     public RepositoryDaoImpl(Principal principal, Executor executor) {
         this.principal = principal;
         this.executor = executor;
+        this.statefulExecutor = executor.getContext().getBean("statefulExecutor",
+                Executor.class);
     }
 
     /**
@@ -83,7 +102,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final RawFileBean bean = unwrapRawFileBean(proxy);
         final FileBuffer buffer = new FileBuffer(checked.file.getAbsolutePath(),  mode);
         try {
-            executor.execute(currentUser, new Executor.SimpleWork(this, "setFileIdWithBuffer") {
+            statefulExecutor.execute(currentUser, new StatefulWork(bean, this, "setFileIdWithBuffer", fileId) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         bean.setFileIdWithBuffer(fileId, buffer);
