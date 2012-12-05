@@ -423,18 +423,20 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		groupsBox.removeActionListener(this);
 		groupsBox.removeAllItems();
+		JComboBoxImageObject selected = null;
 		
 		for (GroupData group : availableGroups) {
-			
-			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group, getGroupIcon(group));
-			
-			groupsBox.addItem(comboBoxItem);
-			
+			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group,
+					getGroupIcon(group));
+			groupsBox.addItem(comboBoxItem);		
 			if (group.getId() == selectedGroup.getId())
 			{
-				groupsBox.setSelectedItem(comboBoxItem);
+				selected = comboBoxItem;
 			}
 		}
+		
+		if (selected != null)
+			groupsBox.setSelectedItem(selected);
 
 		JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
 		groupsBox.setRenderer(rnd);
@@ -567,12 +569,14 @@ public class LocationDialog extends JDialog implements ActionListener,
 			DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
 			DataNode selectedDataset = (DataNode) datasetsBox.getSelectedItem();
 			
-			importSettings = new ProjectImportLocationSettings(currentGroup, selectedProject, selectedDataset);
+			importSettings = new ProjectImportLocationSettings(currentGroup, 
+					selectedProject, selectedDataset);
 		}
 		else if (importDataType == Importer.SCREEN_TYPE) {
 			DataNode selectedScreen = (DataNode) screensBox.getSelectedItem();
 			
-			importSettings = new ScreenImportLocationSettings(currentGroup, selectedScreen);	
+			importSettings = new ScreenImportLocationSettings(currentGroup,
+					selectedScreen);	
 		}
 		
 		return importSettings;
@@ -599,11 +603,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 			comboBox.addItem(projectNode);
 
 			String projectName = projectNode.getFullName();
+			List<String> wrapped = UIUtilities.wrapStyleWord(projectName, 50);
 
-			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName,
-					50);
-
-			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
+			tooltips.add(UIUtilities.formatToolTipText(wrapped));
 		}
 
 		renderer.setTooltips(tooltips);
