@@ -3645,24 +3645,16 @@ class TreeViewerComponent
 		List<TreeImageDisplay> nodes = v.getNodes();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		//ids of the groups to add
-		List<Long> ids = new ArrayList<Long>();
-		
 		Iterator<GroupData> k = groups.iterator();
-		while (k.hasNext()) {
-			ids.add(k.next().getId());
-		}
 		Object o;
 		GroupData group;
 		//Displayed.
-		List<GroupData> toRemove = new ArrayList<GroupData>();
 		List<Long> already = new ArrayList<Long>();
 		while (i.hasNext()) {
 			o = i.next().getUserObject();
 			if (o instanceof GroupData) {
 				group = (GroupData) o;
-				if (!ids.contains(group.getId()))
-					toRemove.add(group);
-				else already.add(group.getId());
+				already.add(group.getId());
 			}
 		}
 		
@@ -3674,14 +3666,6 @@ class TreeViewerComponent
 		boolean set;
 		while (j.hasNext()) {
 			browser = j.next();
-			k = toRemove.iterator();
-			while (k.hasNext()) {
-				group = k.next();
-				if (group.getId() == model.getSelectedGroupId()) {
-					displayed = true;
-				}
-				browser.removeGroup(group);
-			}
 			//now add.
 			k = groups.iterator();
 			set = false;
