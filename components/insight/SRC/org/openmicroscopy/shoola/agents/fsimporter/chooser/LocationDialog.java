@@ -790,6 +790,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Initialises the selection boxes. */
 	private void initializeLocationBoxes() {
 		projectsBox.removeActionListener(projectsBoxListener);
+		
 		projectsBox.removeAllItems();
 		datasetsBox.removeAllItems();
 		screensBox.removeAllItems();
