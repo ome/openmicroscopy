@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescrip
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -75,6 +76,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.ChannelData;
 
 /** 
@@ -195,7 +197,7 @@ class IntensityResultsView
 	private MeasurementViewerModel		model;
 	
 	/** The map of <ROIShape, ROIStats> .*/
-	private Map							ROIStats;
+	private Map<ROIShape, Map<Integer, ROIShapeStats>> ROIStats;
 	
 	/** list of the channel names. */
 	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
@@ -243,10 +245,48 @@ class IntensityResultsView
 	private Coord3D coord;
 	
 	/** Current ROIShape. */
-	private 	ROIShape shape;
+	private ROIShape shape;
 	
-	/** The collection of rois that have been removed. */
-	private Set<Long> remove = new HashSet<Long>();
+	/**
+	 * Wraps an ROI shape such that its string representation shows its ID,
+	 * or <q>--</q> if it a client-side shape. This is used for the shape IDs
+	 * in the first column of the results model table so that it is easy to
+	 * query any row to discover to which ROI shape it pertains.
+	 */
+	private static class ShapeAsID {
+		private final ROIShape shape;
+		private final String id;
+		
+		/**
+		 * Construct a new ShapeAsID instance.
+		 * @param shape the ROI shape that the instance is to wrap, may not be null
+		 */
+		private ShapeAsID(ROIShape shape) {
+			if (shape == null) 
+				throw new IllegalArgumentException(new NullPointerException());
+			
+			this.shape = shape;
+			
+			/* how the shape ID should display in the results model table */
+			if (shape.getROI().isClientSide())
+				this.id = "--";
+			else
+				this.id = Long.toString(shape.getROIShapeID());
+		}
+
+		/* a string suited for the ID column of the results model table */
+		@Override
+		public String toString() {
+			return this.id;
+		}
+		
+		/**
+		 * @return the wrapped ROI shape
+		 */
+		private ROIShape getShape() {
+			return this.shape;
+		}
+	}
 	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
@@ -347,8 +387,9 @@ class IntensityResultsView
 	 */
 	private void getResults(ROIShape shape)
 	{
-		Vector<Vector> rows = new Vector<Vector>();
+		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
 		
+		final ShapeAsID shapeID = new ShapeAsID(shape);
 		Iterator<String> channelIterator = channelName.values().iterator();
 		channelMin = minStats.get(coord);
 		channelMax = maxStats.get(coord);
@@ -357,15 +398,13 @@ class IntensityResultsView
 		channelSum = sumStats.get(coord);	
 		String cName;
 		int channel;
-		Vector rowData;
+		Vector<Object> rowData;
 		while (channelIterator.hasNext())
 		{
 			cName = channelIterator.next();
 			channel = nameMap.get(cName);
-			rowData = new Vector();
-			if (shape.getROI().isClientSide())
-				rowData.add("--");
-			else rowData.add(shape.getROIShapeID());
+			rowData = new Vector<Object>();
+			rowData.add(shapeID);
 			rowData.add(shape.getCoord3D().getZSection()+1);
 			rowData.add(shape.getCoord3D().getTimePoint()+1);
 			rowData.add(cName);
@@ -377,7 +416,7 @@ class IntensityResultsView
 			rowData.add(channelStdDev.get(channel));
 			rows.add(rowData);
 		}
-		for (Vector data : rows) {
+		for (Vector<Object> data : rows) {
 			resultsModel.addRow(data);
 		}
 		results.repaint();
@@ -441,12 +480,19 @@ class IntensityResultsView
 	/** Removes the selected results from the table. */
 	private void removeResults()
 	{
-		int [] rows = results.getSelectedRows();
-		for (int i = rows.length-1 ; i >= 0 ; i--) {
-			remove.add((Long) resultsModel.getValueAt(rows[i], 0));
-			resultsModel.removeRow(rows[i]);
-		}
+		for (final int rowIndex : results.getSelectedRows())
+			resultsModel.removeRow(rowIndex);
 		setButtonsEnabled(results.getRowCount() > 0);
+	}
+	
+	/**
+	 * @return the ROI shapes currently in the results table rows, never null
+	 */
+	private Set<ROIShape> getShapesInRows() {
+		final Set<ROIShape> shapes = new HashSet<ROIShape>();
+		for (int i = 0; i < resultsModel.getRowCount(); i++)
+			shapes.add(((ShapeAsID) resultsModel.getValueAt(i, 0)).getShape());
+		return shapes;
 	}
 	
 	/**
@@ -476,21 +522,22 @@ class IntensityResultsView
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		final Set<ROIShape> alreadyInTable = getShapesInRows();
 		Iterator<Figure> iterator =  selectedFigures.iterator();
 		ROIFigure fig;
-		Map map = model.getAnalysisResults();
-		Collection shapes = new HashSet();
-		if (map != null) shapes = map.keySet();
+		Map<ROIShape, Map<Integer, ROIShapeStats>> analysisResults = model.getAnalysisResults();
+		if (analysisResults == null) 
+			analysisResults = Collections.emptyMap();
 		ROIShape shape;
 		while (iterator.hasNext()) {
 			fig = (ROIFigure) iterator.next();
 			shape = fig.getROIShape();
-			if (shapes.contains(shape)) {
-				if (remove.contains(shape.getID())) {
-					removeShape(shape.getID());
-					shapeList.add(shape);
-				}
-			} else shapeList.add(shape);
+			if (alreadyInTable.contains(shape))
+				removeShape(shape);
+			final Map<Integer, ROIShapeStats> shapeStatsByChannel = analysisResults.get(shape);
+			if (shapeStatsByChannel == null || shapeStatsByChannel.isEmpty())
+				/* if empty, they were probably wiped out by AnalysisStatsWrapper.convertStats */
+				shapeList.add(shape);
 		}
 		if (shapeList.size() > 0) {
 			view.calculateStats(shapeList);
@@ -504,16 +551,12 @@ class IntensityResultsView
 	 * 
 	 * @param shapeID The identifier of the shape.
 	 */
-	private void removeShape(long shapeID)
+	private void removeShape(ROIShape shape)
 	{
-		remove.remove(shapeID);
 		List<Integer> indexes = new ArrayList<Integer>();
-		long id;
-		for (int i = 0; i < resultsModel.getRowCount(); i++) {
-			id = (Long) resultsModel.getValueAt(i, 0);
-			if (id == shapeID)
+		for (int i = 0; i < resultsModel.getRowCount(); i++)
+			if (((ShapeAsID) resultsModel.getValueAt(i, 0)).getShape().equals(shape))
 				indexes.add(i);
-		}
 		Iterator<Integer> j = indexes.iterator();
 		while (j.hasNext()) {
 			resultsModel.removeRow(j.next());
@@ -530,15 +573,16 @@ class IntensityResultsView
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		final Set<ROIShape> alreadyInTable = getShapesInRows();
 		
-		Iterator<Figure> i =  selectedFigures.iterator();
+		Iterator<Figure> i = selectedFigures.iterator();
 		ROIFigure fig;
 		TreeMap<Coord3D, ROIShape> treeMap;
 		Iterator<Coord3D> j;
 		ROIShape shape;
-		Map map = model.getAnalysisResults();
-		Collection shapes = new HashSet();
-		if (map != null) shapes = map.keySet();
+		Map<ROIShape, Map<Integer, ROIShapeStats>> analysisResults = model.getAnalysisResults();
+		if (analysisResults == null) 
+			analysisResults = Collections.emptyMap();
 		while (i.hasNext()) {
 			fig = (ROIFigure) i.next();
 			if (!(fig instanceof MeasureTextFigure)) {
@@ -546,8 +590,12 @@ class IntensityResultsView
 				j = treeMap.keySet().iterator();
 				while (j.hasNext()) {
 					shape = treeMap.get(j.next());
-					if (!shapes.contains(shape))
-						shapeList.add(shape);		
+					if (!alreadyInTable.contains(shape)) {
+						final Map<Integer, ROIShapeStats> shapeStatsByChannel = analysisResults.get(shape);
+						if (shapeStatsByChannel == null || shapeStatsByChannel.isEmpty())
+							/* if empty, they were probably wiped out by AnalysisStatsWrapper.convertStats */
+							shapeList.add(shape);
+					}
 				}
 			}
 		}
@@ -699,7 +747,6 @@ class IntensityResultsView
 		for (int i = count-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(i);
 		model.setAnalysisResults(null);
-		remove.clear();
 		setButtonsEnabled(false);
 		onFigureSelected();
 	}
@@ -739,11 +786,10 @@ class IntensityResultsView
 	{
 		
 		/**
-		 * Overridden to make sure that the cell cannot be edited.s
+		 * Overridden to make sure that the cell cannot be edited.
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col) { return false; }
 	}
 	
 }
-
