@@ -267,6 +267,15 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
+# added to test repository methods
+repositories = (r'^repositories/$', 'webgateway.views.repositories')
+repository = (r'^repository/$', 'webgateway.views.repository')
+repository_list = (r'^repository_list/(?P<filepath>.+)/$', 'webgateway.views.repository_list')
+repository_listfiles = (r'^repository_listfiles/(?P<filepath>.+)/$', 'webgateway.views.repository_listfiles')
+repository_sha = (r'^repository_sha/(?P<filepath>.+)/$', 'webgateway.views.repository_sha')
+repository_root = (r'^repository_root/$', 'webgateway.views.repository_root')
+repository_download = (r'^repository_download/(?P<filepath>.+)/$', 'webgateway.views.repository_download')
+
 urlpatterns = patterns('',
     webgateway,
     render_image,
@@ -304,7 +313,14 @@ urlpatterns = patterns('',
     copy_image_rdef_json,
     # switch user
     webgateway_su,
-    
+    # added to test repository methods
+    repositories,
+    repository,
+    repository_list,
+    repository_listfiles,
+    repository_sha,
+    repository_root,
+    repository_download,
     # Debug stuff
 
 )
