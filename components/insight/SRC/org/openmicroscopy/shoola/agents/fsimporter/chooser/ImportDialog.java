@@ -1642,6 +1642,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
+		
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
 			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
@@ -1672,8 +1673,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					handleTagsSelection((Collection<TagAnnotationData>) entry
 							.getValue());
 			}
-		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name)) {
-			firePropertyChange(LocationDialog.GROUP_CHANGED_PROPERTY, evt.getOldValue(), evt.getNewValue());
+		} else if (name.equals(LocationDialog.GROUP_CHANGED_PROPERTY) ||
+				name.equals(ImportDialog.REFRESH_LOCATION_PROPERTY)) {
+			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		}
 		
 	}
