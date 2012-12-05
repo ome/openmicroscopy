@@ -55,7 +55,8 @@ public class ShutDownDialog
 	
 	/** The default shutdown message.*/
 	private static final String SHUTDOWN_MESSAGE = 
-			"This application will shut down in ";
+			"If the connection cannot be re-established,\n"+
+			"the application will shut down in ";
 	
 	/** The time used to indicates the remaining time.*/
 	private Timer timer;
