@@ -162,8 +162,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Component indicating to cancel the addition. */
 	private JButton cancelButton;
 
-	/** Option chosen by the user. */
-	private int option;
+	/** Action button command Id chosen by the user. */
+	private int userSelectedActionButton;
 
 	/** component used to select the import group. */
 	private JComboBox groupsBox;
@@ -299,19 +299,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 			public void actionPerformed(ActionEvent ae) {
 				// TODO Auto-generated method stub 21 Nov 2012 15:05:13 scott
 				int commandId = Integer.parseInt(ae.getActionCommand());
-
-				switch (commandId) {
-				case CMD_ADD:
-					GroupData selectedGroup = (GroupData) ((JComboBoxImageObject) groupsBox
-							.getSelectedItem()).getData();
-					importSettings = new NullImportSettings(importDataType,
-							selectedGroup);
-					close();
-					break;
-				case CMD_CLOSE:
-					close();
-				}
-
+				userSelectedActionButton = commandId;
+				close();
 			}
 
 		};
@@ -513,7 +502,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	int centerLocation() {
 		UIUtilities.centerAndShow(this);
-		return option;
+		return userSelectedActionButton;
 	}
 
 	/**
@@ -526,7 +515,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	int showLocation(Point location) {
 		setLocation(location);
 		setVisible(true);
-		return option;
+		return userSelectedActionButton;
 	}
 
 	/**
