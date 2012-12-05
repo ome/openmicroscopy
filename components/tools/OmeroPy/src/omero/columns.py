@@ -102,19 +102,26 @@ class AbstractColumn(object):
         else:
             self.values = [None for x in range(size)]
 
-    def names(self):
-        """
-        Any method which does not use the "values" field
-        will need to override this method.
-        """
-        return [self.name]
+    #def names(self):
+    #    """
+    #    Any method which does not use the "values" field
+    #    will need to override this method.
+    #    """
+    #    return [self.name]
 
     def arrays(self):
         """
         Any method which does not use the "values" field
         will need to override this method.
         """
-        return [numpy.array(self.values, dtype=self.recarrtypes[0][1])]
+        return [self.values]
+
+    def dtypes(self):
+        """
+        Override this method if descriptor() doesn't return the correct data
+        type/size at initialisation- this is mostly a problem for array types
+        """
+        return self.recarrtypes
 
     def fromrows(self, rows):
         """
@@ -213,12 +220,13 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         AbstractColumn.settable(self, tbl)
         self.size = getattr(tbl.cols, self.name).dtype.itemsize
 
-    def arrays(self):
+    def dtypes(self):
         """
         Overriding to correct for size.
+        (Testing suggests this may not be necessary, the size appears to be
+        correctly set at initialisation)
         """
-        sz = self.size
-        return [numpy.array(self.values, dtype="S%s"%sz)]
+        return [(self.name, "S", self.size)]
 
     def descriptor(self, pos):
         # During initialization, size might be zero
@@ -241,16 +249,11 @@ class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
         assert(len(shape) == 2)
         self.size = shape[1]
 
-    def arrays(self):
+    def dtypes(self):
         """
         Overriding to correct for size.
         """
-        sz = self.size
-        # Must be a tuple:
-        # http://docs.scipy.org/doc/numpy/user/basics.rec.html#filling-structured-arrays
-        # This could potentially be done on the Ice side:
-        # http://doc.zeroc.com/display/Ice/Python+Mapping+for+Sequences
-        return [numpy.array(map(tuple, self.values), dtype="(%s,)float64"%sz)]
+        return [(self.name, "float64", self.size)]
 
     def descriptor(self, pos):
         # During initialization, size might be zero
@@ -275,13 +278,11 @@ class LongArrayColumnI(AbstractColumn, omero.grid.LongArrayColumn):
         assert(len(shape) == 2)
         self.size = shape[1]
 
-    def arrays(self):
+    def dtypes(self):
         """
         Overriding to correct for size.
         """
-        sz = self.size
-        # Must be a tuple
-        return [numpy.array(map(tuple, self.values), dtype="(%s,)int64"%sz)]
+        return [(self.name, "int64", self.size)]
 
     def descriptor(self, pos):
         # During initialization, size might be zero
@@ -329,19 +330,19 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             h = tables.Float64Col(pos=6)
         return MaskDescription()
 
-    def names(self):
-        return [x[0] for x in self.recarrtypes]
+    #def names(self):
+    #    return [x[0] for x in self.recarrtypes]
 
     def arrays(self):
         self.__sanitycheck()
         a = [
-            numpy.array(self.imageId, dtype=self.recarrtypes[0][1]),
-            numpy.array(self.theZ, dtype=self.recarrtypes[1][1]),
-            numpy.array(self.theT, dtype=self.recarrtypes[2][1]),
-            numpy.array(self.x, dtype=self.recarrtypes[3][1]),
-            numpy.array(self.y, dtype=self.recarrtypes[4][1]),
-            numpy.array(self.w, dtype=self.recarrtypes[5][1]),
-            numpy.array(self.h, dtype=self.recarrtypes[6][1]),
+            self.imageId,
+            self.theZ,
+            self.theT,
+            self.x,
+            self.y,
+            self.w,
+            self.h,
             ]
         return a
 
