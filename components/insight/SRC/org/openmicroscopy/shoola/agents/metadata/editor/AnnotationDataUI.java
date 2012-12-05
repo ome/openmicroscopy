@@ -813,27 +813,8 @@ class AnnotationDataUI
 		rating.setValue(selectedValue);
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
-		Collection l = model.getAttachments();
+		Collection l;
 		int count = 0;
-		/*
-		List v = null;
-		if (l != null) {
-			v = new ArrayList();
-			Iterator k = l.iterator();
-			FileAnnotationData data;
-			boolean b = false;
-			while (k.hasNext()) {
-				data = (FileAnnotationData) k.next();
-				b = isEditorFile(data.getFileName());
-				if (!b) b = isEditorFile(data.getNameSpace());
-				if (!b) v.add(data);
-			}
-			count += v.size();
-		}
-		*/
-		
-		
-		
 		//Viewed by
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
