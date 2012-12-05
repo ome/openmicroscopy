@@ -1125,7 +1125,7 @@ class PropertiesUI
         	descriptionPane.addDocumentListener(this);
         }
         editDescription.setEnabled(b);
-        //setParentLabel();
+        setParentLabel();
         buildGUI();
 	}
 	
