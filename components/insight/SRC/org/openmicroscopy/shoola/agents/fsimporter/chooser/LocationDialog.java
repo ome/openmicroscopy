@@ -94,7 +94,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/** Bound property indicating to change the import group. */
 	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
-	
+			
 	/** Reference to the <code>Group Private</code> icon. */
 	private static final Icon GROUP_PRIVATE_ICON;
 
@@ -372,7 +372,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 			public void stateChanged(ChangeEvent evt) {
 				JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
 				int selectedTabIndex = tabbedPane.getSelectedIndex();
-				//reset(selectedContainer, selectedTabIndex, objects);
+				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, selectedTabIndex);
 			}
 		};
 		
@@ -503,14 +503,14 @@ public class LocationDialog extends JDialog implements ActionListener,
 		Container c = getContentPane();
 		c.add(layoutMainPanel(), BorderLayout.CENTER);
 		c.add(buildToolbar(), BorderLayout.SOUTH);
-		
+		/*
 		int minHeight = (int) 2 * owner.getHeight() / 3;
 		int minWidth = (int) 2 * owner.getWidth() / 3;
 		Dimension minimumSize = new Dimension(minWidth, minHeight);
 		
 		//this.setMinimumSize(minimumSize);
 		this.setPreferredSize(minimumSize);
-		
+		*/
 		pack();
 	}
 

@@ -384,8 +384,7 @@ class ImporterControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
-		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name))
-		{
+		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name)) {
 			GroupData newGroup = (GroupData) evt.getNewValue();
 			model.setUserGroup(newGroup);
 		}
