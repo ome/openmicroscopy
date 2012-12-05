@@ -442,17 +442,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		groupsBox.removeActionListener(this);
 		groupsBox.removeAllItems();
 		
-		JComboBoxImageObject[] comboBoxObjects = new JComboBoxImageObject[availableGroups.size()];
-
-		int selectedIndex = 0;
-		int index = 0;
-
 		for (GroupData group : availableGroups) {
 			
 			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group, getGroupIcon(group));
-			comboBoxObjects[index] = comboBoxItem;
 			
-			groupsBox.addItem(comboBoxObjects[index]);
+			groupsBox.addItem(comboBoxItem);
 			
 			if (group.getId() == selectedGroup.getId())
 			{
@@ -699,7 +693,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		DataNode dn = null;
-
+		
 		for (int i = 0; i < screensBox.getItemCount(); i++) {
 			n = (DataNode) screensBox.getItemAt(i);
 			if (!n.isDefaultScreen())
