@@ -229,28 +229,6 @@ class ToolBar
 	private JComponent createGroupMenu(GroupItem groupItem)
 	{
 		GroupData group = groupItem.getGroup();
-		int level = group.getPermissions().getPermissionsLevel();
-		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			boolean owner = false;
-			if (model.isAdministrator()) owner = true;
-			else {
-				ExperimenterData currentUser = model.getExperimenter();
-				Set leaders = group.getLeaders();
-				if (leaders != null) {
-					Iterator k = leaders.iterator();
-					ExperimenterData exp;
-					
-					while (k.hasNext()) {
-						exp = (ExperimenterData) k.next();
-						if (exp.getId() == currentUser.getId()) {
-							owner = true;
-							break;
-						}
-					}
-				}
-			}
-			if (!owner) return null;
-		}
 		long id = model.getUserDetails().getId();
 		//Determine the user already added to the display
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -317,6 +295,34 @@ class ToolBar
 			}
 			p.add(UIUtilities.buildComponentPanel(list));
 		}
+		
+		int level = group.getPermissions().getPermissionsLevel();
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
+			boolean owner = false;
+			if (model.isAdministrator()) owner = true;
+			else {
+				ExperimenterData currentUser = model.getExperimenter();
+				Set leaders = group.getLeaders();
+				if (leaders != null) {
+					Iterator k = leaders.iterator();
+					while (k.hasNext()) {
+						exp = (ExperimenterData) k.next();
+						if (exp.getId() == currentUser.getId()) {
+							owner = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!owner) {
+				Iterator<UserMenuItem> k = items.iterator();
+				while (k.hasNext()) {
+					k.next().setEnabled(false);
+				}
+			}
+		}
+		
+		
 		JScrollPane pane = new JScrollPane(p);
 		groupItem.setUsersMenu(pane);
 		groupItem.setUsersItem(items);
@@ -405,18 +411,12 @@ class ToolBar
 				usersMenu.show(e.getComponent(), r.width, p.y);
 			}
 		};
-		JComponent comp;
 		GroupItem item;
 		while (i.hasNext()) {
 			group = (GroupData) i.next();
-			item = new GroupItem(group);
-			item.setText(group.getName());
-			item.setIcon(getGroupIcon(group));
-			comp = createGroupMenu(item);
-			if (comp != null) {
-				item.addMouseListener(l);
-				groupItems.add(item);
-			} else item.setEnabled(false);
+			item = new GroupItem(group, getGroupIcon(group));
+			createGroupMenu(item);
+			item.addMouseListener(l);
 			groupsMenu.add(item);
 		}
 		groupsMenu.show(source, p.x, p.y);
