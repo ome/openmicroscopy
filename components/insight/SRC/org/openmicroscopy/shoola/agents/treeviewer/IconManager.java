@@ -554,11 +554,14 @@ public class IconManager
     /** The <code>KNIME Viewer</code> icon. */
     public static final int          VIEWER_KNIME = 166;
     
+    /** The <code>Delete</code> icon. */
+    public static final int           REMOVE = 167;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 166;
+    private static final int          MAX_ID = 167;
 
     
     /** Paths of the icon files. */
@@ -743,6 +746,7 @@ public class IconManager
         relPaths[MOVE_FAILED_22] = "nuvola_cancel22.png";
         relPaths[MOVE_48] = "nuvola_folder_image48.png";
         relPaths[VIEWER_KNIME] = "knimeIcon16.png";
+        relPaths[REMOVE] = "nuvola_edit_remove_grey16.png";;
     }
     
     /** The sole instance. */
