@@ -1763,7 +1763,7 @@ class TreeViewerComponent
 				objects.get(0).getClass(), TreeViewerAgent.getUserDetails());
 		IconManager icons = IconManager.getInstance();
 		String title = "User Selection";
-		String text = "Select the Users to add to the selected group.";
+		String text = "Select the Users who should be in the selected group.";
 		Icon icon = icons.getIcon(IconManager.OWNER_48);
 		d.setTitle(title, text, icon);
 		d.addPropertyChangeListener(controller);
