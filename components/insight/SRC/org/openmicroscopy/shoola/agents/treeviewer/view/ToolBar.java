@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
@@ -178,9 +177,6 @@ class ToolBar
 
 	/** Used to sort the list of users.*/
 	private ViewerSorter sorter = new ViewerSorter();
-	
-	/** Host the groups to display.*/
-	private List<GroupItem> groupItems;
 	
 	/** Button indicating to add the user to the display.*/
 	private JButton addToDisplay;
@@ -362,7 +358,6 @@ class ToolBar
 			});
 		}
 		groupsMenu.removeAll();
-		groupItems = new ArrayList<GroupItem>();
 		Iterator i = sortedGroups.iterator();
 		GroupData group;
 		if (addToDisplay == null) {
@@ -387,15 +382,15 @@ class ToolBar
 			public void mouseEntered(MouseEvent e) {
 				GroupItem c = (GroupItem) e.getSource();
 				selectedItem = c;
-				
-				
 				usersMenu.setVisible(false);
 				usersMenu.removeAll();
+				usersMenu = new JPopupMenu();
+				//usersMenu.setPopupSize(0, 0);
+				
 				Rectangle r = c.getBounds();
 				usersMenu.add(c.getUsersMenu());
 				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
-				
-				Point p = c.getLocation();
+
 				Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 				 
 				//Set the size
@@ -405,10 +400,10 @@ class ToolBar
 				int h = p1.y+d.height;
 				int diff = h-size.height;
 				if (diff > 0)  {
-					usersMenu.setPopupSize(d.width+10, diff+30);
+					usersMenu.setPopupSize(d.width+20, diff+30);
 				}
 				//Set the location
-				usersMenu.show(e.getComponent(), r.width, p.y);
+				usersMenu.show(e.getComponent(), r.width, e.getPoint().y);
 			}
 		};
 		GroupItem item;
