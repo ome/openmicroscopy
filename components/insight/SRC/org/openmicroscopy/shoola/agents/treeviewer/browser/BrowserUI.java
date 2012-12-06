@@ -1774,16 +1774,21 @@ class BrowserUI
         dtm.reload();
         Iterator i;
         if (nodes.size() > 0) {
+        	boolean createFolder = true;
             i = nodes.iterator();
             TreeImageDisplay node;
             TreeFileSet n = null;
             Set toKeep = new HashSet();
+            int type;
             while (i.hasNext()) {
             	node = (TreeImageDisplay) i.next();
             	if (node instanceof TreeFileSet) {
-            		if (((TreeFileSet) node).getType() == TreeFileSet.TAG) {
+            		type = ((TreeFileSet) node).getType();
+            		if (type == TreeFileSet.TAG || 
+            			type == TreeFileSet.ORPHANED_IMAGES) {
             			List l = node.getChildrenDisplay();
                 		if (l.size() > 0) {
+                			createFolder = false;
                 			n = (TreeFileSet) node.copy();
                 			n.setExpanded(Boolean.valueOf(true));
                 			n.setChildrenLoaded(Boolean.valueOf(true));
@@ -1802,14 +1807,16 @@ class BrowserUI
             if (n != null) sorted.add(n);
             buildTreeNode(expNode, sorted,
             		(DefaultTreeModel) treeDisplay.getModel());
-            switch (model.getBrowserType()) {
-				case Browser.TAGS_EXPLORER:
-					if (n == null)
-						createTagsElements(expNode);
-					break;
-				case Browser.PROJECTS_EXPLORER:
-					buildOrphanImagesNode(expNode);
-			}
+            if (createFolder) {
+            	switch (model.getBrowserType()) {
+					case Browser.TAGS_EXPLORER:
+						if (n == null)
+							createTagsElements(expNode);
+						break;
+					case Browser.PROJECTS_EXPLORER:
+						buildOrphanImagesNode(expNode);
+            	}
+            }
         } else {
         	expNode.setExpanded(false);
         	switch (model.getBrowserType()) {
