@@ -565,7 +565,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
-		locationDialog = new LocationDialog(owner, selectedContainer, type, objects, (Collection<GroupData>) ImporterAgent.getAvailableUserGroups(), ImporterAgent.getUserDetails().getGroupId());
+		locationDialog = new LocationDialog(owner, selectedContainer, type, 
+				objects, ImporterAgent.getAvailableUserGroups(),
+				ImporterAgent.getUserDetails().getGroupId());
 		locationDialog.addPropertyChangeListener(this);
 		
 		listener = new ActionListener() {
