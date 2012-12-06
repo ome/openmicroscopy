@@ -54,16 +54,13 @@ class AbstractColumn(object):
                 del cols["_v_pos"]
             except KeyError:
                 pass
-            #self.recarrtypes = [None for x in range(len(cols))]
             self._types = [None] * len(cols)
             self._subnames = [None] * len(cols)
             for k, v in cols.items():
-                #self.recarrtypes[v._v_pos] = ("%s/%s" % (self.name, k), v.recarrtype)
                 self._types[v._v_pos] = v.recarrtype
                 self._subnames[v._v_pos] = "/" + k
 
         else:
-            #self.recarrtypes = [(self.name, d.recarrtype)]
             self._types = [d.recarrtype]
             self._subnames = [""]
 
@@ -110,15 +107,6 @@ class AbstractColumn(object):
             self.values = None
         else:
             self.values = [None for x in range(size)]
-
-    #def names(self):
-    #    """
-    #    Any method which does not use the "values" field
-    #    will need to override this method.
-    #    Note that self.name may be empty at initialisation, so don't rely on
-    #    recarrtypes[0]
-    #    """
-    #    return [self.name]
 
     def arrays(self):
         """
@@ -348,9 +336,6 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             h = tables.Float64Col(pos=6)
         return MaskDescription()
 
-    #def names(self):
-    #    return [x[0] for x in self.recarrtypes]
-
     def arrays(self):
         self.__sanitycheck()
         a = [
@@ -381,13 +366,6 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.w = None
             self.h = None
         else:
-            #self.imageId = numpy.zeroes(size, dtype = self.recarrtypes[0][1])
-            #self.theZ    = numpy.zeroes(size, dtype = self.recarrtypes[1][1])
-            #self.theT    = numpy.zeroes(size, dtype = self.recarrtypes[2][1])
-            #self.x       = numpy.zeroes(size, dtype = self.recarrtypes[3][1])
-            #self.y       = numpy.zeroes(size, dtype = self.recarrtypes[4][1])
-            #self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
-            #self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
             dts = self.dtypes()
             self.imageId = numpy.zeroes(size, dtype = dts[0])
             self.theZ    = numpy.zeroes(size, dtype = dts[1])
