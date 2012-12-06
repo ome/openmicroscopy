@@ -45,6 +45,8 @@ class AbstractColumn(object):
     """
 
     def __init__(self):
+        # Note: don't rely on any properties such as self.name being set if
+        # this has been called through Ice
         d = self.descriptor(0)
         if isinstance(d, tables.IsDescription):
             cols = d.columns
@@ -52,11 +54,18 @@ class AbstractColumn(object):
                 del cols["_v_pos"]
             except KeyError:
                 pass
-            self.recarrtypes = [None for x in range(len(cols))]
+            #self.recarrtypes = [None for x in range(len(cols))]
+            self._types = [None] * len(cols)
+            self._subnames = [None] * len(cols)
             for k, v in cols.items():
-                self.recarrtypes[v._v_pos] = ("%s/%s" % (self.name, k), v.recarrtype)
+                #self.recarrtypes[v._v_pos] = ("%s/%s" % (self.name, k), v.recarrtype)
+                self._types[v._v_pos] = v.recarrtype
+                self._subnames[v._v_pos] = "/" + k
+
         else:
-            self.recarrtypes = [(self.name, d.recarrtype)]
+            #self.recarrtypes = [(self.name, d.recarrtype)]
+            self._types = [d.recarrtype]
+            self._subnames = [""]
 
     def settable(self, tbl):
         """
@@ -106,6 +115,8 @@ class AbstractColumn(object):
     #    """
     #    Any method which does not use the "values" field
     #    will need to override this method.
+    #    Note that self.name may be empty at initialisation, so don't rely on
+    #    recarrtypes[0]
     #    """
     #    return [self.name]
 
@@ -121,7 +132,8 @@ class AbstractColumn(object):
         Override this method if descriptor() doesn't return the correct data
         type/size at initialisation- this is mostly a problem for array types
         """
-        return self.recarrtypes
+        names = [self.name + sn for sn in self._subnames]
+        return zip(names, self._types)
 
     def fromrows(self, rows):
         """
@@ -363,13 +375,21 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.w = None
             self.h = None
         else:
-            self.imageId = numpy.zeroes(size, dtype = self.recarrtypes[0][1])
-            self.theZ    = numpy.zeroes(size, dtype = self.recarrtypes[1][1])
-            self.theT    = numpy.zeroes(size, dtype = self.recarrtypes[2][1])
-            self.x       = numpy.zeroes(size, dtype = self.recarrtypes[3][1])
-            self.y       = numpy.zeroes(size, dtype = self.recarrtypes[4][1])
-            self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
-            self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
+            #self.imageId = numpy.zeroes(size, dtype = self.recarrtypes[0][1])
+            #self.theZ    = numpy.zeroes(size, dtype = self.recarrtypes[1][1])
+            #self.theT    = numpy.zeroes(size, dtype = self.recarrtypes[2][1])
+            #self.x       = numpy.zeroes(size, dtype = self.recarrtypes[3][1])
+            #self.y       = numpy.zeroes(size, dtype = self.recarrtypes[4][1])
+            #self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
+            #self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
+            dts = self.dtypes()
+            self.imageId = numpy.zeroes(size, dtype = dts[0])
+            self.theZ    = numpy.zeroes(size, dtype = dts[1])
+            self.theT    = numpy.zeroes(size, dtype = dts[2])
+            self.x       = numpy.zeroes(size, dtype = dts[3])
+            self.y       = numpy.zeroes(size, dtype = dts[4])
+            self.w       = numpy.zeroes(size, dtype = dts[5])
+            self.h       = numpy.zeroes(size, dtype = dts[6])
 
     def readCoordinates(self, tbl, rowNumbers):
         self.__sanitycheck()
