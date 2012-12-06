@@ -403,7 +403,7 @@ class ToolBar
 					usersMenu.setPopupSize(d.width+20, diff+30);
 				}
 				//Set the location
-				usersMenu.show(e.getComponent(), r.width, e.getPoint().y);
+				usersMenu.show(e.getComponent(), r.width, 0);
 			}
 		};
 		GroupItem item;
