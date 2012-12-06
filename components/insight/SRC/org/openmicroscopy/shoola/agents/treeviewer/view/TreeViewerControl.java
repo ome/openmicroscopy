@@ -1298,6 +1298,7 @@ class TreeViewerControl
 								if (!(p instanceof ProjectData)) p = null;
 							}
 							*/
+							klass = ho.getClass();
 							p = ho;
 						} else if (ho instanceof ImageData) {
 							klass = ho.getClass();
