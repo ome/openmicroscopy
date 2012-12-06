@@ -18,6 +18,46 @@ from integration import library as lib
 
 class TestTables(lib.ITest):
 
+    def createMaskCol(self):
+        mask = omero.columns.MaskColumnI('mask', 'desc', None)
+        mask.imageId = [1, 2]
+        mask.theZ = [3, 4]
+        mask.theT = [5, 6]
+        mask.x = [7.0, 8.0]
+        mask.y = [9.0, 10.0]
+        mask.w = [11.0, 12.0]
+        mask.h = [13.0, 14.0]
+        mask.bytes = [[15],[16,17,18,19,20]]
+        return mask
+
+    def checkMaskCol(self, test):
+        def arr(x):
+            import numpy
+            import tables
+            return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
+
+        self.assertEquals(1, test.imageId[0])
+        self.assertEquals(3, test.theZ[0])
+        self.assertEquals(5, test.theT[0])
+        self.assertEquals(7, test.x[0])
+        self.assertEquals(9, test.y[0])
+        self.assertEquals(11, test.w[0])
+        self.assertEquals(13, test.h[0])
+        self.assertEquals([15], arr(test.bytes[0]))
+
+        self.assertEquals(2, test.imageId[1])
+        self.assertEquals(4, test.theZ[1])
+        self.assertEquals(6, test.theT[1])
+        self.assertEquals(8, test.x[1])
+        self.assertEquals(10, test.y[1])
+        self.assertEquals(12, test.w[1])
+        self.assertEquals(14, test.h[1])
+
+        x = [16,17,18,19,20]
+        y = arr(test.bytes[1])
+        for i in range(len(x)):
+            self.assertEquals(x[i], y[i])
+
     def testBlankTable(self):
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
@@ -57,47 +97,13 @@ class TestTables(lib.ITest):
         repoPrx = repoMap.proxies[0]
         table = grid.newTable(repoObj.id.val, "/test")
         self.assert_( table )
-        mask = omero.columns.MaskColumnI('mask', 'desc', None)
-        mask.imageId = [1, 2]
-        mask.theZ = [2, 2]
-        mask.theT = [3, 3]
-        mask.x = [4.0, 4.0]
-        mask.y = [5.0, 5.0]
-        mask.w = [6.0, 6.0]
-        mask.h = [7.0, 7.0]
-        mask.bytes = [[0],[0,1,2,3,4]]
+        mask = self.createMaskCol()
 
         table.initialize([mask])
         table.addData([mask])
         data = table.readCoordinates([0,1])
 
-        def arr(x):
-            import numpy
-            import tables
-            return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
-
-        test = data.columns[0]
-        self.assertEquals(1, test.imageId[0])
-        self.assertEquals(2, test.theZ[0])
-        self.assertEquals(3, test.theT[0])
-        self.assertEquals(4, test.x[0])
-        self.assertEquals(5, test.y[0])
-        self.assertEquals(6, test.w[0])
-        self.assertEquals(7, test.h[0])
-        self.assertEquals([0], arr(test.bytes[0]))
-
-        self.assertEquals(2, test.imageId[1])
-        self.assertEquals(2, test.theZ[1])
-        self.assertEquals(3, test.theT[1])
-        self.assertEquals(4, test.x[1])
-        self.assertEquals(5, test.y[1])
-        self.assertEquals(6, test.w[1])
-        self.assertEquals(7, test.h[1])
-        x = [0,1,2,3,4]
-        y = arr(test.bytes[1])
-        for i in range(len(x)):
-            self.assertEquals(x[i], y[i])
-
+        self.checkMaskCol(data.columns[0])
 
     def test2098(self):
         """
