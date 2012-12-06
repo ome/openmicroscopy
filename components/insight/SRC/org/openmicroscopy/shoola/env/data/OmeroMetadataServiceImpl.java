@@ -947,8 +947,13 @@ class OmeroMetadataServiceImpl
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
 			i = l.iterator();
-			while (i.hasNext()) 
-				gateway.deleteObject(ctx, (IObject) i.next());
+			IObject o;
+			while (i.hasNext()) {
+				o = (IObject) i.next();
+				if (gateway.canDelete(o))
+					gateway.deleteObject(ctx, o);
+			}
+				
 
 			//Need to check if the object is not linked to other object.
 			
@@ -959,8 +964,11 @@ class OmeroMetadataServiceImpl
 				ids = new ArrayList<Long>(); 
 				ids.add(obj.getId().getValue());
 				l = gateway.findAnnotationLinks(ctx, klass, -1, ids);
-				if (l == null || l.size() == 0)
-					gateway.deleteObject(ctx, obj);
+				if (l == null || l.size() == 0) {
+					if (gateway.canDelete(obj))
+						gateway.deleteObject(ctx, obj);
+				}
+					
 			}
 		}
 	}
