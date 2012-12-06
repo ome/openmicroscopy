@@ -309,6 +309,23 @@ class TestTables(lib.ITest):
         self.assertEquals([-2, -1], testl[0])
         self.assertEquals([1, 2], testl[1])
 
+    def testArrayColumnSize1(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        darr = omero.columns.DoubleArrayColumnI('longarr', 'desc', 1)
+        darr.values = [[0.5], [0.25]]
+
+        table.initialize([darr])
+        table.addData([darr])
+        data = table.readCoordinates([0,1])
+
+        testl = data.columns[0].values
+        self.assertEquals([0.5], testl[0])
+        self.assertEquals([0.25], testl[1])
+
     def testMultipleArrayColumns(self):
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
@@ -331,6 +348,90 @@ class TestTables(lib.ITest):
         testd = data.columns[1].values
         self.assertEquals([0.5, 0.25], testd[0])
         self.assertEquals([-0.125, -0.0625], testd[1])
+
+    def testAllColumnsSameTable(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+
+        fcol = omero.columns.FileColumnI('filecol', 'file col')
+        fcol.values = [10, 20]
+        icol = omero.columns.ImageColumnI('imagecol', 'image col')
+        icol.values = [30, 40]
+        rcol = omero.columns.RoiColumnI('roicol', 'roi col')
+        rcol.values = [50, 60]
+        wcol = omero.columns.WellColumnI('wellcol', 'well col')
+        wcol.values = [70, 80]
+        pcol = omero.columns.PlateColumnI('platecol', 'plate col')
+        pcol.values = [90, 100]
+
+        bcol = omero.columns.BoolColumnI('boolcol', 'bool col')
+        bcol.values = [True, False]
+        dcol = omero.columns.DoubleColumnI('doublecol', 'double col')
+        dcol.values = [0.25, 0.5]
+        lcol = omero.columns.LongColumnI('longcol', 'long col')
+        lcol.values = [-1, -2]
+
+        scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
+        scol.values = ["abc", "de"]
+
+        larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
+        larr.values = [[-2, -1], [1, 2]]
+        darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
+        darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
+
+        mask = self.createMaskCol()
+
+        cols = [fcol, icol, rcol, wcol, pcol,
+                bcol, dcol, lcol, scol,
+                larr, darr, mask]
+
+        table.initialize(cols)
+        table.addData(cols)
+        data = table.readCoordinates([0,1])
+
+        testf = data.columns[0].values
+        self.assertEquals(10, testf[0])
+        self.assertEquals(20, testf[1])
+        testi = data.columns[1].values
+        self.assertEquals(30, testi[0])
+        self.assertEquals(40, testi[1])
+        testr = data.columns[2].values
+        self.assertEquals(50, testr[0])
+        self.assertEquals(60, testr[1])
+        testw = data.columns[3].values
+        self.assertEquals(70, testw[0])
+        self.assertEquals(80, testw[1])
+        testp = data.columns[4].values
+        self.assertEquals(90, testp[0])
+        self.assertEquals(100, testp[1])
+
+        testb = data.columns[5].values
+        self.assertEquals(True, testb[0])
+        self.assertEquals(False, testb[1])
+        testd = data.columns[6].values
+        self.assertEquals(0.25, testd[0])
+        self.assertEquals(0.5, testd[1])
+        testl = data.columns[7].values
+        self.assertEquals(-1, testl[0])
+        self.assertEquals(-2, testl[1])
+
+        tests = data.columns[8].values
+        self.assertEquals("abc", tests[0])
+        self.assertEquals("de", tests[1])
+
+        testla = data.columns[9].values
+        self.assertEquals([-2, -1], testla[0])
+        self.assertEquals([1, 2], testla[1])
+        testda = data.columns[10].values
+        self.assertEquals([-0.25, -0.5], testda[0])
+        self.assertEquals([0.125, 0.0625], testda[1])
+
+        testm = data.columns[11]
+        self.checkMaskCol(testm)
+
 
     # TODO: Add tests for error conditions
 
