@@ -443,7 +443,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
 			GroupData selectedGroup) {
-		
 		groupsBox.removeActionListener(this);
 		groupsBox.removeAllItems();
 		JComboBoxImageObject selected = null;
