@@ -18,6 +18,23 @@ webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
 Returns a main prefix
 """
 
+annotations = url(r'^annotations/(?P<objtype>(\w+/)+)(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+"""
+Retrieve annotations for object specified by object type and identifier,
+optionally traversing object model graph.
+"""
+
+table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+"""
+Query a table specified by fileid
+"""
+
+object_table_query = url(r'^table/(?P<objtype>(\w+/)+)(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+"""
+Query bulk annotations table attached to an object specified by
+object type and identifier, optionally traversing object model graph.
+"""
+
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
@@ -265,24 +282,6 @@ webgateway_su = url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webga
 """
 Admin method to switch to the specified user, identified by username: <user> 
 Returns 'true' if switch went OK.
-"""
-
-
-annotations = url(r'^annotations/(?P<objtype>(\w+/)+)(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
-"""
-Retrieve annotations for object specified by object type and identifier,
-optionally traversing object model graph.
-"""
-
-table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
-"""
-Query a table specified by fileid
-"""
-
-object_table_query = url(r'^table/(?P<objtype>(\w+/)+)(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
-"""
-Query bulk annotations table attached to an object specified by
-object type and identifier, optionally traversing object model graph.
 """
 
 urlpatterns = patterns('',
