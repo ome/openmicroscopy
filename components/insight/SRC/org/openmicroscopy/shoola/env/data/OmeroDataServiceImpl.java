@@ -274,9 +274,7 @@ class OmeroDataServiceImpl
 			orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(userID));
-		return gateway.getUserImages(ctx, po);
+		return gateway.getUserImages(ctx, userID, orphan);
 	}
 
 	/**

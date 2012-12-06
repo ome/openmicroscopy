@@ -2842,20 +2842,41 @@ class OMEROGateway
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param ctx The security context.
-	 * @param options   Options to retrieve the data.
+	 * @param userID The id of the user.
+	 * @param orphan Indicates to load the images not in any container
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#getUserImages(Map)
 	 */
-	Set getUserImages(SecurityContext ctx, Parameters options)
+	Set getUserImages(SecurityContext ctx, long userID, boolean orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		IContainerPrx service = getPojosService(ctx);
+		IQueryPrx svc = getQueryService(ctx);
 		try {
-			return PojoMapper.asDataObjects(service.getUserImages(options));
+			if (!orphan) {
+				ParametersI po = new ParametersI();
+				po.exp(omero.rtypes.rlong(userID));
+				return PojoMapper.asDataObjects(service.getUserImages(po));
+			} else {
+				StringBuilder sb = new StringBuilder();
+				sb.append("select img from Image as img ");
+				sb.append("left outer join fetch img.details.owner ");
+				sb.append("left outer join fetch img.pixels as pix ");
+	            sb.append("left outer join fetch pix.pixelsType as pt ");
+	            sb.append("where not exists (select obl from " +
+	            		"DatasetImageLink as obl where obl.child = img.id)");
+	            sb.append(" and not exists (select ws from WellSample as " +
+	            		"ws where ws.image = img.id)");
+	            sb.append(" and img.details.owner.id = :userID");
+	            ParametersI param = new ParametersI();
+            	param.addLong("userID", userID);
+            	return PojoMapper.asDataObjects(
+            			svc.findAllByQuery(sb.toString(), param));
+			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot find user images.");
 		}
