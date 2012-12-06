@@ -247,13 +247,13 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
             self.size = 1
         return tables.StringCol(pos=pos, itemsize=self.size)
 
-class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
+class AbstractArrayColumn(AbstractColumn):
+    """
+    Additional base logic for array columns
+    """
 
-    def __init__(self, name = "Unknown", *args):
-        self.initialised = False
-        omero.grid.DoubleArrayColumn.__init__(self, name, *args)
+    def __init__(self):
         AbstractColumn.__init__(self)
-        self.initialised = True
 
     def settable(self, tbl):
         AbstractColumn.settable(self, tbl)
@@ -275,7 +275,15 @@ class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
         """
         Overriding to correct for size.
         """
-        return [(self.name, "float64", self.size)]
+        return [(self.name, self._types[0], self.size)]
+
+class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        self.initialised = False
+        omero.grid.DoubleArrayColumn.__init__(self, name, *args)
+        AbstractArrayColumn.__init__(self)
+        self.initialised = True
 
     def descriptor(self, pos):
         # During initialization, size might be zero
@@ -286,35 +294,13 @@ class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
                 None, None, "Array length must be > 0 (Column: %s)" % self.name)
         return tables.Float64Col(pos=pos, shape=self.size)
 
-class LongArrayColumnI(AbstractColumn, omero.grid.LongArrayColumn):
+class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
 
     def __init__(self, name = "Unknown", *args):
         self.initialised = False
         omero.grid.LongArrayColumn.__init__(self, name, *args)
-        AbstractColumn.__init__(self)
+        AbstractArrayColumn.__init__(self)
         self.initialised = True
-
-    def settable(self, tbl):
-        AbstractColumn.settable(self, tbl)
-        shape = getattr(tbl.cols, self.name).shape
-        assert(len(shape) == 2)
-        self.size = shape[1]
-
-    def arrays(self):
-        """
-        Arrays of size 1 have to be converted to scalars, otherwise the
-        column-to-row conversion in HdfStorage.append() will fail.
-        This is messy, but I can't think of a better way.
-        """
-        if self.size == 1:
-            return [[v[0] for v in self.values]]
-        return [self.values]
-
-    def dtypes(self):
-        """
-        Overriding to correct for size.
-        """
-        return [(self.name, "int64", self.size)]
 
     def descriptor(self, pos):
         # During initialization, size might be zero
