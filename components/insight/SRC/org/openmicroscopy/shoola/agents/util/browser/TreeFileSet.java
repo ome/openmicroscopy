@@ -22,9 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.util.browser;
 
-import java.util.Iterator;
+
 
 //Java imports
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -82,7 +83,7 @@ public class TreeFileSet
 			case EXPERIMENT: return "Experiments";
 			case MOVIE: return "Movies";
 			case ORPHANED_IMAGES: return "Orphaned Images";
-			case TAG: 
+			case TAG:
 				return "Tags used not owned";
 			case OTHER:
 			default:

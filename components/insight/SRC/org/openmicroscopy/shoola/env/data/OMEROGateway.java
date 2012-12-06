@@ -8252,5 +8252,5 @@ class OMEROGateway
 		if (ho == null) return false;
 		return ho.getDetails().getPermissions().canDelete();
 	}
-	
+
 }
