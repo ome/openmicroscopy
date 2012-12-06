@@ -1673,8 +1673,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					handleTagsSelection((Collection<TagAnnotationData>) entry
 							.getValue());
 			}
-		} else if (name.equals(LocationDialog.GROUP_CHANGED_PROPERTY) ||
-				name.equals(ImportDialog.REFRESH_LOCATION_PROPERTY)) {
+		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name)
+				|| ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
+				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		}
 		

@@ -29,7 +29,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -90,7 +89,7 @@ import pojos.ScreenData;
  * @since 3.0-Beta4
  */
 public class LocationDialog extends JDialog implements ActionListener,
-		PropertyChangeListener {
+		PropertyChangeListener, ChangeListener {
 
 	/** Bound property indicating to change the import group. */
 	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
@@ -192,7 +191,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The listener linked to the parents box. */
 	private ActionListener projectsBoxListener;
 
-	/** The map holding the new nodes to create if in th P/D view. */
+	/** The map holding the new nodes to create if in the P/D view. */
 	private Map<DataNode, List<DataNode>> newNodesPD;
 
 	/** The new nodes to create in the screen view. */
@@ -201,40 +200,41 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Sorts the objects from the display. */
 	private ViewerSorter sorter;
 
-	/**
-	 * A reference to the selected target for import data.
-	 */
+	/** A reference to the selected target for import data. */
 	private TreeImageDisplay selectedContainer;
 
-	/**
-	 * The id of the import data type (Screen/Project)
-	 */
+	/** The id of the import data type (Screen/Project) */
 	private int importDataType;
 
-	/**
-	 * A reference to the parent object that created this dialog.
-	 */
+	/** A reference to the parent object that created this dialog. */
 	private JFrame owner;
 
-	/**
-	 * Internal list of available groups.
-	 */
+	/** Internal list of available groups. */
 	private Collection<GroupData> groups;
 
-	/**
-	 * The currently selected group in the groups combo box.
-	 */
+	/** The currently selected group in the groups combo box. */
 	private GroupData currentGroup;
 
+	private boolean projectsLoaded;
+	private boolean screensLoaded;
+
+	private Collection<TreeImageDisplay> currentProjects;
+	private Collection<TreeImageDisplay> currentDatasets;
+	private Collection<TreeImageDisplay> currentScreens;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent
 	 *            The parent of the dialog.
+	 * @param selectedContainer
+	 * 			  The container selected by the user Project/Dataset/Screen
 	 * @param objects
-	 * @param groupsBox
-	 * @param location
-	 *            The component displaying the option.
+	 *            The screens / projects to be shown
+	 * @param groups
+     *            The available groups to the user
+	 * @param currentGroupId
+	 *            The id of the current user group
 	 */
 	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
@@ -245,22 +245,31 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.selectedContainer = selectedContainer;
 		this.importDataType = importDataType;
 		this.objects = objects;
-
 		this.groups = groups;
-		this.currentGroup = selectCurrentGroup(groups, currentGroupId);
-
+		this.currentGroup = fingGroupWithId(groups, currentGroupId);
+		
+		switch(importDataType)
+		{
+			case Importer.PROJECT_TYPE:
+				currentProjects = objects;
+				break;
+			case Importer.SCREEN_TYPE:
+				currentScreens = objects;
+		}
+		
 		setModal(true);
 		setTitle(TITLE);
+		
 		initComponents();
 	}
 
 	/**
 	 * @param The available groups.
 	 * @param The if of the current group.
-	 * @return Returns the current group from the list based on the id provided, 
+	 * @return Finds the group in the list with the id provided, 
 	 * 		<null> if not found.
 	 */
-	private GroupData selectCurrentGroup(Collection<GroupData> groups,
+	private GroupData fingGroupWithId(Collection<GroupData> groups,
 			long currentGroupId) {
 		
 		for (GroupData group : groups) {
@@ -366,17 +375,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		tabPane.addTab("Screens", screenIcon, screenPanel,
 				"Import settings for Screens");
-
-		ChangeListener changeListener = new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent evt) {
-				JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
-				int selectedTabIndex = tabbedPane.getSelectedIndex();
-				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, selectedTabIndex);
-			}
-		};
 		
-		tabPane.addChangeListener(changeListener);
+		tabPane.addChangeListener(this);
 		
 		JPanel groupPane = new JPanel();
 		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
@@ -461,9 +461,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		if (selected != null)
 			groupsBox.setSelectedItem(selected);
 
-		JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
-		groupsBox.setRenderer(rnd);
-		rnd.setPreferredSize(new Dimension(200, 130));
+		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
+		groupsBox.setRenderer(renderer);
+		renderer.setPreferredSize(new Dimension(200, 130));
 		
 		groupsBox.addActionListener(this);
 	}
@@ -500,17 +500,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 *            The component displaying the option.
 	 */
 	public void buildGUI() {
-		Container c = getContentPane();
-		c.add(layoutMainPanel(), BorderLayout.CENTER);
-		c.add(buildToolbar(), BorderLayout.SOUTH);
-		/*
-		int minHeight = (int) 2 * owner.getHeight() / 3;
-		int minWidth = (int) 2 * owner.getWidth() / 3;
-		Dimension minimumSize = new Dimension(minWidth, minHeight);
+		Container contentPane = getContentPane();
+		contentPane.add(layoutMainPanel(), BorderLayout.CENTER);
+		contentPane.add(buildToolbar(), BorderLayout.SOUTH);
 		
-		//this.setMinimumSize(minimumSize);
-		this.setPreferredSize(minimumSize);
-		*/
 		pack();
 	}
 
@@ -558,6 +551,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 			JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
 			GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
 			
+			objects = null;
+			currentProjects = null;
+			currentScreens = null;
+			
 			if(selectedNewGroup.getId() != currentGroup.getId())
 				firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
 		}
@@ -575,7 +572,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 				break;
 			case CMD_CREATE_SCREEN:
 				emptyObject = new ScreenData();
-				break;
 			}
 
 			EditorDialog editor = new EditorDialog(owner, emptyObject, false);
@@ -592,18 +588,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		ImportLocationSettings importSettings = new NullImportSettings(currentGroup);
 		
-		if(importDataType == Importer.PROJECT_TYPE) {
-			DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
-			DataNode selectedDataset = (DataNode) datasetsBox.getSelectedItem();
-			
-			importSettings = new ProjectImportLocationSettings(currentGroup, 
-					selectedProject, selectedDataset);
-		}
-		else if (importDataType == Importer.SCREEN_TYPE) {
-			DataNode selectedScreen = (DataNode) screensBox.getSelectedItem();
-			
-			importSettings = new ScreenImportLocationSettings(currentGroup,
-					selectedScreen);	
+		switch(importDataType)
+		{
+			case Importer.PROJECT_TYPE:
+				DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
+				DataNode selectedDataset = (DataNode) datasetsBox.getSelectedItem();
+				importSettings = new ProjectImportLocationSettings(currentGroup, 
+						selectedProject, selectedDataset);
+				break;
+			case Importer.SCREEN_TYPE:
+				DataNode selectedScreen = (DataNode) screensBox.getSelectedItem();
+				importSettings = new ScreenImportLocationSettings(currentGroup,
+						selectedScreen);
+				break;
 		}
 		
 		return importSettings;
@@ -649,34 +646,34 @@ public class LocationDialog extends JDialog implements ActionListener,
 			return;
 
 		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode dn = null;
+		DataNode node;
+		DataNode defaultNode = null;
 
 		for (int i = 0; i < projectsBox.getItemCount(); i++) {
-			n = (DataNode) projectsBox.getItemAt(i);
-			if (!n.isDefaultProject())
-				nodes.add(n);
+			node = (DataNode) projectsBox.getItemAt(i);
+			if (!node.isDefaultProject())
+				nodes.add(node);
 			else
-				dn = n;
+				defaultNode = node;
 		}
 
-		DataNode nn = new DataNode(data);
-		nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
-		nodes.add(nn);
+		DataNode newNode = new DataNode(data);
+		newNode.addNode(new DataNode(DataNode.createDefaultDataset(), newNode));
+		nodes.add(newNode);
 
-		List<DataNode> l = sorter.sort(nodes);
-		if (dn != null)
-			l.add(dn);
+		List<DataNode> sortedList = sorter.sort(nodes);
+		if (defaultNode != null)
+			sortedList.add(defaultNode);
 
 		projectsBox.removeActionListener(projectsBoxListener);
 		projectsBox.removeAllItems();
 
-		for (DataNode dataNode : l) {
+		for (DataNode dataNode : sortedList) {
 			projectsBox.addItem(dataNode);
 		}
 
 		projectsBox.addActionListener(projectsBoxListener);
-		projectsBox.setSelectedItem(nn);
+		projectsBox.setSelectedItem(newNode);
 
 		repaint();
 	}
@@ -826,17 +823,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/** Populates the selection boxes with the currently selected data. */
 	private void populateLocationComboBoxes() {
-		projectsBox.removeActionListener(projectsBoxListener);
-		
-		projectsBox.removeAllItems();
-		datasetsBox.removeAllItems();
-		screensBox.removeAllItems();
-
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataNode n;
 		Object hostObject = null;
 		TreeImageDisplay node;
+		
 		if (objects != null && objects.size() > 0) {
 			Iterator<TreeImageDisplay> i = objects.iterator();
 			while (i.hasNext()) {
@@ -858,40 +850,44 @@ public class LocationDialog extends JDialog implements ActionListener,
 		// check if new top nodes
 		DataObject data;
 		Iterator<DataNode> j;
-		if (importDataType == Importer.PROJECT_TYPE) {
-			if (newNodesPD != null) {
-				j = newNodesPD.keySet().iterator();
-				while (j.hasNext()) {
-					n = j.next();
-					data = n.getDataObject();
-					if (data.getId() <= 0) {
-						topList.add(n);
+
+		switch (importDataType) {
+			case Importer.PROJECT_TYPE:
+				projectsBox.removeActionListener(projectsBoxListener);
+				
+				projectsBox.removeAllItems();
+				datasetsBox.removeAllItems();
+				
+				if (newNodesPD != null) {
+					j = newNodesPD.keySet().iterator();
+					while (j.hasNext()) {
+						n = j.next();
+						data = n.getDataObject();
+						if (data.getId() <= 0) {
+							topList.add(n);
+						}
 					}
 				}
-			}
-		} else if (importDataType == Importer.SCREEN_TYPE) {
-			if (newNodesS != null) {
-				j = newNodesS.iterator();
-				while (j.hasNext()) {
-					n = j.next();
-					data = n.getDataObject();
-					if (data.getId() <= 0)
-						topList.add(n);
+				
+				loadProjects(datasetsList, sorter.sort(topList));
+				
+				projectsBox.addActionListener(projectsBoxListener);
+				break;
+			case Importer.SCREEN_TYPE:
+				screensBox.removeAllItems();
+				
+				if (newNodesS != null) {
+					j = newNodesS.iterator();
+					while (j.hasNext()) {
+						n = j.next();
+						data = n.getDataObject();
+						if (data.getId() <= 0)
+							topList.add(n);
+					}
 				}
-			}
+				
+				loadScreens(sorter.sort(topList));
 		}
-		List<DataNode> sortedList = new ArrayList<DataNode>();
-		if (topList.size() > 0) {
-			sortedList = sorter.sort(topList);
-		}
-
-		if(importDataType == Importer.PROJECT_TYPE)
-			loadProjects(hostObject, datasetsList, sortedList);
-		
-		if(importDataType == Importer.SCREEN_TYPE)
-			loadScreens(hostObject, sortedList);
-		
-		projectsBox.addActionListener(projectsBoxListener);
 	}
 
 	/**
@@ -899,31 +895,31 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param hostObject
 	 * @param sortedList
 	 */
-	private void loadScreens(Object hostObject, List<DataNode> sortedList) {
+	private void loadScreens(List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		finalList.add(new DataNode(DataNode.createDefaultScreen()));
 		finalList.addAll(sortedList);
-		
-		if (hostObject instanceof ScreenData) {
-			populateAndAddTooltipsToComboBox(finalList, screensBox);
-	
-			int size = screensBox.getItemCount();
-			int index = 0;
-			if (selectedContainer != null) {
-			
-				long id = ((ScreenData) hostObject).getId();
-				for (int i = 0; i < size; i++) {
-					DataNode n = (DataNode) screensBox.getItemAt(i);
-					if (n.getDataObject().getId() == id) {
-						index = i;
-						break;
-					}
-				}
 
+		populateAndAddTooltipsToComboBox(finalList, screensBox);
+
+		DataNode selectedNode = null;
+
+		if (selectedContainer != null) {
+			Object hostObject = selectedContainer.getUserObject();
+			if(hostObject instanceof ScreenData)
+			{
+				ScreenData screenData = (ScreenData) hostObject;
+				for (DataNode dataNode : finalList) {
+					if(dataNode.getDataObject().getId() == screenData.getId())
+						selectedNode = dataNode;
+				}
 			}
-			screensBox.setSelectedIndex(index);
 		}
 		
+		if(selectedNode != null)
+			screensBox.setSelectedItem(selectedNode);
+		
+		screensLoaded = true;
 	}
 
 	/**
@@ -950,8 +946,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param datasetsList
 	 * @param sortedList
 	 */
-	private void loadProjects(Object hostObject, List<DataNode> datasetsList,
-			List<DataNode> sortedList) {
+	private void loadProjects(List<DataNode> datasetsList, List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		DataNode n;
 		List<DataNode> l = getOrphanedNewDatasetNode();
@@ -977,9 +972,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		TreeImageDisplay node;
 
 		// Determine the node to select.
-		int size = projectsBox.getItemCount();
 		if (selectedContainer != null) {
-			hostObject = selectedContainer.getUserObject();
+			Object hostObject = selectedContainer.getUserObject();
 			ProjectData p = null;
 			if (hostObject instanceof ProjectData) {
 				p = (ProjectData) hostObject;
@@ -991,7 +985,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 			}
 			if (p != null) {
 				long id = p.getId();
-				for (int i = 0; i < size; i++) {
+				for (int i = 0; i < projectsBox.getItemCount(); i++) {
 					n = (DataNode) projectsBox.getItemAt(i);
 					if (n.getDataObject().getId() == id) {
 						index = i;
@@ -1003,6 +997,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		projectsBox.setSelectedIndex(index);
 
 		populateDatasetsBox();
+		
+		projectsLoaded = true;
 	}
 
 	/**
@@ -1051,7 +1047,18 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.importDataType = type;
 		this.objects = objects;
 		
-		onReconnected(groups, currentGroupId);	}
+		switch(importDataType)
+		{
+			case Importer.PROJECT_TYPE:
+				currentProjects = objects;
+				break;
+			case Importer.SCREEN_TYPE:
+				currentScreens = objects;
+				break;
+		}
+		
+		onReconnected(groups, currentGroupId);
+	}
 
 	/**
 	 * Repopulates and resets the groups, screens, projects & dataset selection options.
@@ -1061,10 +1068,30 @@ public class LocationDialog extends JDialog implements ActionListener,
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
 		this.groups = availableGroups;
-		this.currentGroup = selectCurrentGroup(availableGroups, currentGroupId);
+		this.currentGroup = fingGroupWithId(availableGroups, currentGroupId);
 		
 		populateGroupBox(groups, currentGroup);
 		populateLocationComboBoxes();
+	}
+	
+	public void stateChanged(ChangeEvent evt) {
+		JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
+		int newDataType = tabbedPane.getSelectedIndex();
 		
+		switch(newDataType)
+		{
+			case Importer.PROJECT_TYPE:
+				objects = currentProjects;
+				break;
+			case Importer.SCREEN_TYPE:
+				objects = currentScreens;
+				break;
+		}
+		
+		if (objects == null) {
+			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, newDataType);
+		} else {
+			reset(this.selectedContainer, newDataType, objects, this.currentGroup.getId());
+		}
 	}
 }
