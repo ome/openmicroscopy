@@ -1039,7 +1039,7 @@ class PropertiesUI
     }
 
     /**
-	 * Overridden to lay out the tags.
+	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()
 	 */
 	protected void buildUI()
@@ -1048,6 +1048,14 @@ class PropertiesUI
 		if (!init) {
 			buildGUI();
 			init = true;
+		}
+		if (!model.isSameObject(model.getRefObject())) {
+			channelsArea.setText("");
+			idLabel.setText("");
+			ownerLabel.setText("");
+			parentLabel.setText("");
+			wellLabel.setText("");
+			gpLabel.setText("");
 		}
 		removeAll();
 		if (model.isMultiSelection()) return;
@@ -1353,6 +1361,7 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
+		/*
 		if (!model.isSameObject(model.getRefObject())) {
 			channelsArea.setText("");
 			idLabel.setText("");
@@ -1361,6 +1370,7 @@ class PropertiesUI
 			wellLabel.setText("");
 			gpLabel.setText("");
 		}
+		*/
 	}
 	
 	/**
