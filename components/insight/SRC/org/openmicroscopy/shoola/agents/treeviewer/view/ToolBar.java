@@ -333,6 +333,7 @@ class ToolBar
 	 */
 	private void createGroupMenu(Component source, Point p)
 	{
+		if (!source.isEnabled()) return;
 		Collection groups = model.getGroups();
 		if (groups == null || groups.size() == 0) return;
 		List sortedGroups = sorter.sort(groups);
