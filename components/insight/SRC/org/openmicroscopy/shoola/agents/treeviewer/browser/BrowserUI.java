@@ -1155,6 +1155,21 @@ class BrowserUI
         tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), node,
                             node.getChildCount());
     }
+    
+    /**
+     * Creates the smart folders added to the passed node.
+     * 
+     * @param parent The parent of the smart folder.
+     */
+    private void buildOrphanImagesNode(TreeImageDisplay parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
+    	buildEmptyNode(node);
+		node.setNumberItems(-1);
+		parent.addChildDisplay(node);
+		tm.insertNodeInto(node, parent, parent.getChildCount());
+    }
 
     /**
      * Sorts the children of the passed node.
@@ -1787,15 +1802,28 @@ class BrowserUI
             if (n != null) sorted.add(n);
             buildTreeNode(expNode, sorted,
             		(DefaultTreeModel) treeDisplay.getModel());
-            if (model.getBrowserType() == Browser.TAGS_EXPLORER && n == null) {
-            	createTagsElements(expNode);
-            }	
+            switch (model.getBrowserType()) {
+				case Browser.TAGS_EXPLORER:
+					if (n == null)
+						createTagsElements(expNode);
+					break;
+				case Browser.PROJECTS_EXPLORER:
+					buildOrphanImagesNode(expNode);
+			}
         } else {
         	expNode.setExpanded(false);
-        	if (model.getBrowserType() == Browser.TAGS_EXPLORER)
-        		createTagsElements(expNode);
-        	else buildEmptyNode(expNode);
-        }
+        	switch (model.getBrowserType()) {
+				case Browser.TAGS_EXPLORER:
+					createTagsElements(expNode);
+					break;
+				case Browser.PROJECTS_EXPLORER:
+					buildOrphanImagesNode(expNode);
+					break;
+				default:
+					buildEmptyNode(expNode);
+        	}
+		}
+        //
         i = nodesToReset.iterator();
         while (i.hasNext()) 
 			setExpandedParent((TreeImageDisplay) i.next(), true);

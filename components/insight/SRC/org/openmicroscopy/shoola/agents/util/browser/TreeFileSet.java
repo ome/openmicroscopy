@@ -65,6 +65,9 @@ public class TreeFileSet
 	 */
 	public static final int TAG = 4;
 
+	/** Indicates that the node should host the orphaned images */
+	public static final int ORPHANED_IMAGES = 5;
+	
 	/**
 	 * Returns the value corresponding to the passed index.
 	 * 
@@ -78,6 +81,7 @@ public class TreeFileSet
 				return "Protocols";
 			case EXPERIMENT: return "Experiments";
 			case MOVIE: return "Movies";
+			case ORPHANED_IMAGES: return "Orphaned Images";
 			case TAG: 
 				return "Tags used not owned";
 			case OTHER:
@@ -102,6 +106,7 @@ public class TreeFileSet
 			case EXPERIMENT: 
 			case MOVIE:
 			case TAG:
+			case ORPHANED_IMAGES:
 				this.type = type;
 				break;
 			case OTHER:
