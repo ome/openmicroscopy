@@ -261,6 +261,16 @@ class DoubleArrayColumnI(AbstractColumn, omero.grid.DoubleArrayColumn):
         assert(len(shape) == 2)
         self.size = shape[1]
 
+    def arrays(self):
+        """
+        Arrays of size 1 have to be converted to scalars, otherwise the
+        column-to-row conversion in HdfStorage.append() will fail.
+        This is messy, but I can't think of a better way.
+        """
+        if self.size == 1:
+            return [[v[0] for v in self.values]]
+        return [self.values]
+
     def dtypes(self):
         """
         Overriding to correct for size.
@@ -289,6 +299,16 @@ class LongArrayColumnI(AbstractColumn, omero.grid.LongArrayColumn):
         shape = getattr(tbl.cols, self.name).shape
         assert(len(shape) == 2)
         self.size = shape[1]
+
+    def arrays(self):
+        """
+        Arrays of size 1 have to be converted to scalars, otherwise the
+        column-to-row conversion in HdfStorage.append() will fail.
+        This is messy, but I can't think of a better way.
+        """
+        if self.size == 1:
+            return [[v[0] for v in self.values]]
+        return [self.values]
 
     def dtypes(self):
         """
