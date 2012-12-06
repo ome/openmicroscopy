@@ -641,7 +641,7 @@ public interface MetadataViewer
 	 * Returns <code>true</code> if the passed object is the reference object,
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param uo The object to compare.
+	 * @param object The object to compare.
 	 * @return See above.
 	 */
 	boolean isSameObject(Object object);
