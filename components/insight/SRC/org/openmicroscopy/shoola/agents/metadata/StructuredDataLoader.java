@@ -24,15 +24,18 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.DataObject;
 
 /** 
@@ -54,8 +57,8 @@ public class StructuredDataLoader
 	extends MetadataLoader
 {
 
-	/** The object the data are related to. */
-	private DataObject dataObject;
+	/** The objects the data are related to. */
+	private List<DataObject> dataObjects;
 
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -66,16 +69,16 @@ public class StructuredDataLoader
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param dataObject The object the data are related to.
+	 * @param dataObjects The objects the data are related to.
 	 *                   Mustn't be <code>null</code>.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
-			DataObject dataObject)
+			List<DataObject> dataObjects)
 	{
 		super(viewer, ctx, null);
-		if (dataObject == null)
+		if (dataObjects == null || dataObjects.size() == 0)
 			throw new IllegalArgumentException("No object specified.");
-		this.dataObject = dataObject;
+		this.dataObjects = dataObjects;
 	}
 	
 	/** 
@@ -84,7 +87,7 @@ public class StructuredDataLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(ctx, dataObject, -1, this);
+		handle = mhView.loadStructuredData(ctx, dataObjects, -1, false, this);
 	}
 	
 	/** 
@@ -100,7 +103,7 @@ public class StructuredDataLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(dataObject, result);
+    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result);
     }
     
 }

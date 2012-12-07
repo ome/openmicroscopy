@@ -246,38 +246,42 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(Object, boolean)
+	 * @see MetadataViewer#setMetadata(Map<DataObject, StructuredDataResults>)
 	 */
-	public void setMetadata(DataObject node, Object result)
+	public void setMetadata(Map<DataObject, StructuredDataResults> results)
 	{
-		if (node == null)
-			throw new IllegalArgumentException("No node specified.");
-		if (!model.isSameObject(node)) {
-			model.setStructuredDataResults(null, node);
-			fireStateChange();
-			return;
-		}
+		if (results == null || results.size() == 0) return;
+		//Need to check the size of the results map.
 		Browser browser = model.getBrowser();
-		if (result instanceof StructuredDataResults) {
-			StructuredDataResults data = (StructuredDataResults) result;
-			Object object = data.getRelatedObject();
-			if (object == model.getParentRefObject() ||
-				(object instanceof PlateData && node 
-						instanceof WellSampleData)) {
-				model.setParentDataResults((StructuredDataResults) result,
-						node);
-				model.fireStructuredDataLoading(node);
-			} else {
-				model.setStructuredDataResults((StructuredDataResults) result,
-						node);
-				browser.setParents(null, 
-						model.getStructuredData().getParents());
-				
-				model.getEditor().setStructuredDataResults();
-				view.setOnScreen();
+		DataObject node;
+		StructuredDataResults data;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = results.entrySet().iterator();
+		if (results.size() == 1) { //handle the single selection
+			while (i.hasNext()) {
+				e = i.next();
+				node = e.getKey();
+				if (!model.isSameObject(node)) {
+					model.setStructuredDataResults(null, node);
+					fireStateChange();
+					return;
+				}
+				data = e.getValue();
+				Object object = data.getRelatedObject();
+				if (object == model.getParentRefObject() ||
+					(object instanceof PlateData && node 
+							instanceof WellSampleData)) {
+					model.setParentDataResults(data, node);
+					model.fireStructuredDataLoading(node);
+				} else {
+					model.setStructuredDataResults(data, node);
+					browser.setParents(null, data.getParents());
+					model.getEditor().setStructuredDataResults();
+					view.setOnScreen();
+				}
+				fireStateChange();
 			}
-			fireStateChange();
-			return;
 		}
 	}
 

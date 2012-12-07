@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +53,6 @@ import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
@@ -402,7 +402,7 @@ class MetadataViewerModel
 				if (!loaders.containsKey(node) && parentData == null
 						&& parentRefObject != null) {
 					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, (DataObject) parentRefObject);
+						ctx, Arrays.asList((DataObject) parentRefObject));
 					loaders.put(node, l);
 					l.load();
 					state = MetadataViewer.LOADING_METADATA;
@@ -410,7 +410,7 @@ class MetadataViewerModel
 				}*/
 			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, (DataObject) node);
+					ctx, Arrays.asList((DataObject) node));
 			loaders.put(node, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
