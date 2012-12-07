@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -49,10 +51,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -125,9 +129,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The possible nodes. */
 	private Collection<TreeImageDisplay> objects;
 
-	/** The message to display in the header. */
-	private static final String MESSAGE_LOCATION = "Select where to import the data";
-
 	/** Action id indicating to create a new project. */
 	private static final int CMD_CREATE_PROJECT = 1;
 
@@ -137,6 +138,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Action id indicating to create a new screen. */
 	private static final int CMD_CREATE_SCREEN = 3;
 
+	/** User has chosen to force a refresh of the containers */
+	private static final int CMD_REFRESH_DISPLAY = 4;
+
+	/** User has selected to add the files. */
+	public final static int CMD_ADD = 5;
+
+	/** User has selected to cancel. */
+	public final static int CMD_CLOSE = 6;
+	
 	/** The default text for a project. */
 	private static final String LABEL_PROJECT = "Project";
 
@@ -149,14 +159,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The message to display in the header. */
 	private static final String LABEL_GROUP = "Group";
 
-	/** User has selected to add the files. */
-	public final static int CMD_ADD = 1;
 
-	/** User has selected to cancel. */
-	public final static int CMD_CLOSE = 0;
+	/** Constant value definging the value of an unknown/unselected group*/
+	private static final long UNKNOWN_GROUP_ID = -1;
+
 
 	/** The title of the dialog. */
-	private static String TITLE = "Location selection";
+	private static String TITLE = "Import Location - Select where to import your data.";
 
 	/** Component indicating to add to the queue. */
 	private JButton addButton;
@@ -215,12 +224,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The currently selected group in the groups combo box. */
 	private GroupData currentGroup;
 
-	private boolean projectsLoaded;
-	private boolean screensLoaded;
-
 	private Collection<TreeImageDisplay> currentProjects;
-	private Collection<TreeImageDisplay> currentDatasets;
 	private Collection<TreeImageDisplay> currentScreens;
+
+	private JToggleButton refreshButton;
 	
 	/**
 	 * Creates a new instance.
@@ -261,6 +268,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		setTitle(TITLE);
 		
 		initComponents();
+		buildGUI();
 	}
 
 	/**
@@ -288,6 +296,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		groupsBox.addActionListener(this);
 		
+		
+		IconManager icons = IconManager.getInstance();
+		refreshButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));
+		refreshButton.setBackground(UIUtilities.BACKGROUND);
+		refreshButton.setToolTipText("Refresh the displays.");
+		refreshButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
+		refreshButton.addActionListener(this);
+		
+		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		
 		screensBox = new JComboBox();
 
 		projectsBox = new JComboBox();
@@ -305,6 +323,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		populateLocationComboBoxes();
 
+		// main panel buttons
+		
 		addProjectButton = new JButton("New...");
 		addProjectButton.setToolTipText("Create a new Project.");
 		addProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
@@ -319,25 +339,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 		addScreenButton.setToolTipText("Create a new Screen.");
 		addScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
 		addScreenButton.addActionListener(this);
-
-		// lower buttons
-		ActionListener buttonListener = new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				int commandId = Integer.parseInt(ae.getActionCommand());
-				userSelectedActionCommandId = commandId;
-				close();
-			}
-		};
+		
+		// main action buttons
+		
+		addButton = new JButton("Add to the Queue");
+		addButton.setToolTipText("Add the files to the queue.");
+		addButton.addActionListener(this);
+		addButton.setActionCommand("" + CMD_ADD);
 		
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close and do not add the files to the queue.");
-		cancelButton.addActionListener(buttonListener);
+		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand("" + CMD_CLOSE);
 
-		addButton = new JButton("Add to the Queue");
-		addButton.setToolTipText("Add the files to the queue.");
-		addButton.addActionListener(buttonListener);
-		addButton.setActionCommand("" + CMD_ADD);
 
 		getRootPane().setDefaultButton(addButton);
 	}
@@ -345,30 +359,24 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * @return The JPanel holding the lower main action buttons.
 	 */
-	private JPanel buildToolbar() {
-		JPanel bar = new JPanel();
-		bar.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-		bar.add(addButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(cancelButton);
-		return bar;
+	private JPanel buildButtonPanel() {
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BorderLayout());
+		buttonPanel.add(addButton, BorderLayout.EAST);
+		buttonPanel.add(cancelButton, BorderLayout.WEST);
+		return buttonPanel;
 	}
-	/**
-	 * @return JPanel holding all the lements of the dialog.
-	 */
-	private JPanel layoutMainPanel() {
-		JPanel locationPane = new JPanel();
-		locationPane.setLayout(new BorderLayout());
 
+	private JTabbedPane buildDataTypeTabbedPane() {
 		JTabbedPane tabPane = new JTabbedPane();
 
 		IconManager icons = IconManager.getInstance();
 
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
-		JPanel projectPanel = createProjectPanel();
+		JPanel projectPanel = buildProjectSelectionPanel();
 
 		Icon screenIcon = icons.getIcon(IconManager.SCREEN);
-		JPanel screenPanel = createScreenPanel();
+		JPanel screenPanel = buildScreenSelectionPanel();
 
 		tabPane.addTab("Projects", projectIcon, projectPanel,
 				"Import settings for Projects");
@@ -377,60 +385,73 @@ public class LocationDialog extends JDialog implements ActionListener,
 				"Import settings for Screens");
 		
 		tabPane.addChangeListener(this);
+		return tabPane;
+	}
+	
+	/**
+	 * @return JPanel holding the group selection UI elements
+	 */
+	private JPanel buildGroupSelectionPanel() {
+		double size[][] =
+            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
+            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
+
+		TableLayout tableLayout = new TableLayout(size);
+		tableLayout.setHGap(5);
+		tableLayout.setVGap(5);
 		
-		JPanel groupPane = new JPanel();
-		groupPane.add(UIUtilities.setTextFont(LABEL_GROUP), BorderLayout.WEST);
-		groupPane.add(groupsBox, BorderLayout.CENTER);
-
-		locationPane.add(groupPane, BorderLayout.NORTH);
-		locationPane.add(tabPane, BorderLayout.CENTER);
-
-		return locationPane;
+		JPanel groupPanel = new JPanel(tableLayout);
+        
+        groupPanel.add(UIUtilities.setTextFont(LABEL_GROUP), "0, 0, r, c");
+        groupPanel.add(groupsBox,"1, 0");
+        groupPanel.add(refreshButton, "2, 0, c, c");
+       
+		return groupPanel;
 	}
 	
 	/**
 	 * @return JPanel holding the project selection UI elements
 	 */
-	private JPanel createProjectPanel() {
-		JPanel projectPanel = new JPanel();
-		projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
+	private JPanel buildProjectSelectionPanel() {
+		double size[][] =
+            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
+            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
 
-		JPanel projectRow = new JPanel();
-		projectRow.add(UIUtilities.setTextFont(LABEL_PROJECT),
-				BorderLayout.WEST);
-		projectRow.add(projectsBox, BorderLayout.CENTER);
-		projectRow.add(addProjectButton, BorderLayout.EAST);
-
-		JPanel datasetRow = new JPanel();
-		datasetRow.add(UIUtilities.setTextFont(LABEL_DATASET),
-				BorderLayout.WEST);
-		datasetRow.add(datasetsBox, BorderLayout.CENTER);
-		datasetRow.add(addDatasetButton, BorderLayout.EAST);
-
-		projectPanel.add(projectRow);
-		projectPanel.add(Box.createVerticalStrut(8));
-		projectPanel.add(datasetRow);
-
-		projectPanel.add(new JSeparator());
-
+		TableLayout tableLayout = new TableLayout(size);
+		tableLayout.setHGap(5);
+		tableLayout.setVGap(5);
+		
+		JPanel projectPanel = new JPanel(tableLayout);
+        
+        projectPanel.add(UIUtilities.setTextFont(LABEL_PROJECT), "0, 0, r, c");
+        projectPanel.add(projectsBox,"1, 0");
+        projectPanel.add(addProjectButton, "2, 0, c, c");
+        
+        projectPanel.add(UIUtilities.setTextFont(LABEL_DATASET), "0, 1, r, c");
+        projectPanel.add(datasetsBox,"1, 1");
+        projectPanel.add(addDatasetButton, "2, 1, c, c");
+       
 		return projectPanel;
 	}
 
 	/**
 	 * @return JPanel holding the screen selection UI elements
 	 */
-	private JPanel createScreenPanel() {
-		JPanel screenPanel = new JPanel();
-		screenPanel.setLayout(new BoxLayout(screenPanel, BoxLayout.Y_AXIS));
+	private JPanel buildScreenSelectionPanel() {
+		double size[][] =
+            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
+            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
 
-		JPanel screenRow = new JPanel();
-		screenRow.add(UIUtilities.setTextFont(LABEL_SCREEN), BorderLayout.WEST);
-		screenRow.add(screensBox, BorderLayout.CENTER);
-		screenRow.add(addScreenButton, BorderLayout.EAST);
-
-		screenPanel.add(screenRow);
-		screenPanel.add(new JSeparator());
-
+		TableLayout tableLayout = new TableLayout(size);
+		tableLayout.setHGap(5);
+		tableLayout.setVGap(5);
+		
+		JPanel screenPanel = new JPanel(tableLayout);
+        
+        screenPanel.add(UIUtilities.setTextFont(LABEL_SCREEN), "0, 0, r, c");
+        screenPanel.add(screensBox,"1, 0");
+        screenPanel.add(addScreenButton, "2, 0, c, c");
+       
 		return screenPanel;
 	}
 
@@ -498,10 +519,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param location
 	 *            The component displaying the option.
 	 */
-	public void buildGUI() {
+	private void buildGUI() {
 		Container contentPane = getContentPane();
-		contentPane.add(layoutMainPanel(), BorderLayout.CENTER);
-		contentPane.add(buildToolbar(), BorderLayout.SOUTH);
+		contentPane.add(buildGroupSelectionPanel(), BorderLayout.NORTH);
+		contentPane.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
+		contentPane.add(buildButtonPanel(), BorderLayout.SOUTH);
 		
 		pack();
 	}
@@ -542,42 +564,63 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	public void actionPerformed(ActionEvent ae) {
 		
-		Object sourceObject = ae.getSource();
+		Object eventSource = ae.getSource();
+		String actionCommand = ae.getActionCommand();
 		
-		if(sourceObject == groupsBox &&
-				ae.getActionCommand().equals("comboBoxChanged"))
+		if(	actionCommand.equals("comboBoxChanged") && eventSource == groupsBox)
 		{
-			JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
-			GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
-			
-			objects = null;
-			currentProjects = null;
-			currentScreens = null;
-			
-			if(selectedNewGroup.getId() != currentGroup.getId())
-				firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
+			switchToSelectedGroup();
 		}
 		else
 		{
-			int commandId = Integer.parseInt(ae.getActionCommand());
+			int commandId = Integer.parseInt(actionCommand);
 			
-			DataObject emptyObject = null;
+			DataObject newDataObject = null;
+			
 			switch (commandId) {
-			case CMD_CREATE_PROJECT:
-				emptyObject = new ProjectData();
-				break;
-			case CMD_CREATE_DATASET:
-				emptyObject = new DatasetData();
-				break;
-			case CMD_CREATE_SCREEN:
-				emptyObject = new ScreenData();
+				case CMD_CREATE_PROJECT:
+					newDataObject = new ProjectData();
+					break;
+				case CMD_CREATE_DATASET:
+					newDataObject = new DatasetData();
+					break;
+				case CMD_CREATE_SCREEN:
+					newDataObject = new ScreenData();
+					break;
+				case CMD_ADD:
+				case CMD_CLOSE:
+					userSelectedActionCommandId = commandId;
+					close();
+					break;
+				case CMD_REFRESH_DISPLAY:
+					objects = null;
+					currentProjects = null;
+					currentScreens = null;
+					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, -1, importDataType);
 			}
 
-			EditorDialog editor = new EditorDialog(owner, emptyObject, false);
-			editor.addPropertyChangeListener(this);
-			editor.setModal(true);
-			UIUtilities.centerAndShow(editor);
+			if(newDataObject != null) {
+				EditorDialog editor = new EditorDialog(owner, newDataObject, false);
+				editor.addPropertyChangeListener(this);
+				editor.setModal(true);
+				UIUtilities.centerAndShow(editor);
+			}
 		}
+	}
+
+	/**
+	 * Switch to display the projects/datasets/screens from the selected group
+	 */
+	private void switchToSelectedGroup() {
+		JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
+		GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
+		
+		objects = null;
+		currentProjects = null;
+		currentScreens = null;
+		
+		if(selectedNewGroup.getId() != currentGroup.getId())
+			firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
 	}
 
 	/**
@@ -917,8 +960,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		if(selectedNode != null)
 			screensBox.setSelectedItem(selectedNode);
-		
-		screensLoaded = true;
 	}
 
 	/**
@@ -996,8 +1037,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		projectsBox.setSelectedIndex(index);
 
 		populateDatasetsBox();
-		
-		projectsLoaded = true;
 	}
 
 	/**
@@ -1060,12 +1099,20 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Repopulates and resets the groups, screens, projects & dataset selection options.
+	 * Re-populates and resets the groups, screens, projects & dataset selection options.
 	 * @param availableGroups
 	 * @param currentGroupId
 	 */
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
+		
+		// TODO: Work around for currentGroup being passed as -1
+		if(currentGroupId == UNKNOWN_GROUP_ID) {
+			GroupData defaultUserGroup = ImporterAgent.getUserDetails().getDefaultGroup();
+			firePropertyChange(GROUP_CHANGED_PROPERTY, null, defaultUserGroup);
+			return;
+		}
+		
 		this.groups = availableGroups;
 		this.currentGroup = fingGroupWithId(availableGroups, currentGroupId);
 		
