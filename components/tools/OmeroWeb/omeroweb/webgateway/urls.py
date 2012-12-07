@@ -68,6 +68,11 @@ repository_sha = (r'^repositories/(?P<klass>\w+)/sha/(?P<filepath>.+)$', 'webgat
 json method: Returns the sha1 checksum of the specified file
 """
 
+repository_delete = (r'^repositories/(?P<klass>\w+)/delete/(?P<filepath>.+)$', 'webgateway.views.repository_delete')
+"""
+json method: Delete specified file or directory
+"""
+
 repository_root = (r'^repositories/(?P<klass>\w+)/root/$', 'webgateway.views.repository_root')
 """
 json method: Returns the root and name property of a repository
@@ -368,6 +373,7 @@ urlpatterns = patterns('',
     repository_list,
     repository_listfiles,
     repository_sha,
+    repository_delete,
     repository_root,
     repository_makedir,
     repository_download,

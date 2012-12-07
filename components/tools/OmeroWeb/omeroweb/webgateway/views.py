@@ -2051,6 +2051,25 @@ def repository_sha(request, klass, filepath, conn=None, **kwargs):
     return dict(sha=digest.hexdigest())
 
 
+@require_POST
+@login_required()
+@jsonp
+def repository_delete(request, klass, filepath, conn=None, **kwargs):
+    """
+    json method: Deletes the specified file or directory
+    """
+    repository, description = get_repository(conn, klass)
+    #name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    #fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+
+    try:
+        rdict = {'bad': 'false'}
+        rdict['result'] = repository.delete(filepath)
+    except Exception, ex:
+        rdict = {'bad': 'true', 'errs': str(ex)}
+
+    return rdict
+
 
 @login_required()
 @jsonp
