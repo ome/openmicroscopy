@@ -255,6 +255,12 @@ class AbstractArrayColumn(AbstractColumn):
         column-to-row conversion in HdfStorage.append() will fail.
         This is messy, but I can't think of a better way.
         """
+        for v in self.values:
+            if len(v) != self.size:
+                raise omero.ValidationException(
+                    None, None, "Column %s requires arrays of length %d" %
+                    (self.name, self.size))
+
         if self.size == 1:
             return [[v[0] for v in self.values]]
         return [self.values]
