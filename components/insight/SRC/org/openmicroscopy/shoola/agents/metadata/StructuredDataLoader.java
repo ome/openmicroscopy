@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.DataObject;
+
 /** 
  * Loads the structured annotations related to a given object.
  * This class calls the <code>loadThumbnails</code> method in the
@@ -53,7 +55,7 @@ public class StructuredDataLoader
 {
 
 	/** The object the data are related to. */
-	private Object		dataObject;
+	private DataObject dataObject;
 
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -64,14 +66,13 @@ public class StructuredDataLoader
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param node The node of reference. 
 	 * @param dataObject The object the data are related to.
 	 *                   Mustn't be <code>null</code>.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
-			TreeBrowserDisplay node, Object dataObject)
+			DataObject dataObject)
 	{
-		super(viewer, ctx, node);
+		super(viewer, ctx, null);
 		if (dataObject == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.dataObject = dataObject;
@@ -99,7 +100,7 @@ public class StructuredDataLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(refNode, result);
+    	viewer.setMetadata(dataObject, result);
     }
     
 }

@@ -242,21 +242,14 @@ public interface MetadataViewer
 	 * @param refNode The node of reference
 	 */
 	public void cancel(TreeBrowserDisplay refNode);
-
-	/**
-	 * Loads the metadata related to the passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	public void loadMetadata(TreeBrowserDisplay node);
 	
 	/**
 	 * Feeds the metadata back to the viewer.
 	 * 
-	 * @param node		The node to add the data to.
-	 * @param result	The result to feed back.
+	 * @param node The node to handle.
+	 * @param result The result to feed back.
 	 */
-	public void setMetadata(TreeBrowserDisplay node, Object result);
+	public void setMetadata(DataObject node, Object result);
 	
 	/**
 	 * Returns the UI used to select the metadata.

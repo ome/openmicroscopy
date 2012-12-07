@@ -140,7 +140,6 @@ class BrowserModel
 		selectedNodes.clear();
 		root = new TreeBrowserSet(refObject);
 		selectedNodes.add(root);
-		parent.loadMetadata(root);
 	}
 
 	/**
