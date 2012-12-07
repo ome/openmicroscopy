@@ -301,6 +301,8 @@ class MetadataViewerComponent
 			}
 			if (count == nodes.size() && count == keys.size()) {
 				model.setStructuredDataResults(results);
+				model.getEditor().setStructuredDataResults();
+				view.setOnScreen();
 			}
 		}
 	}
@@ -369,8 +371,10 @@ class MetadataViewerComponent
 		}
 		//Previewed the image.
 		model.setRootObject(root, ctx);
-		model.fireStructuredDataLoading(root);
-		fireStateChange();
+		if (model.isSingleMode()) {
+			model.fireStructuredDataLoading(root);
+			fireStateChange();
+		}
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
@@ -1170,6 +1174,24 @@ class MetadataViewerComponent
 	{ 
 		return model.getSecurityContext();
 	
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getStructuredData()
+	 */
+	public Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return model.getAllStructuredData();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getStructuredData()
+	 */
+	public StructuredDataResults getStructuredData(Object refObject)
+	{
+		return model.getStructuredData(refObject);
 	}
 	/** 
 	 * Overridden to return the name of the instance to save. 
