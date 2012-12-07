@@ -117,7 +117,7 @@ class MetadataViewerModel
 	private Object parentRefObject;
 	
 	/** The object hosting the various annotations linked to an object. */
-	private StructuredDataResults data;
+	private Map<DataObject, StructuredDataResults> data;
 	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults parentData;
@@ -131,6 +131,9 @@ class MetadataViewerModel
 	/** The active data loaders. */
 	private Map<Object, MetadataLoader> loaders;
 	
+	/** Use to load annotations when multiple objects are selected.*/
+	private StructuredDataLoader multiDataLoader;
+	
 	/** Only used when it is a batch call. */
 	private Class dataType;
 	
@@ -141,7 +144,7 @@ class MetadataViewerModel
 	private boolean singleMode;
 	
 	/** Collection of nodes related to the node of reference. */
-	private List relatedNodes;
+	private List<DataObject> relatedNodes;
 	
 	/** 
 	 * One of the Rendering constants defined by the 
@@ -264,6 +267,7 @@ class MetadataViewerModel
 			if (loader != null) loader.cancel();
 		}
 		loaders.clear();
+		if (multiDataLoader != null) multiDataLoader.cancel();
 	}
 	
 	/**
@@ -417,33 +421,51 @@ class MetadataViewerModel
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param uo The object to compare.
+	 * @param ref The object of reference.
 	 * @return See above.
 	 */
-	boolean isSameObject(DataObject uo)
+	boolean isSameObject(DataObject uo, Object ref)
 	{
-		if (uo == null || !(refObject instanceof DataObject)) return false;
-		Class klass = refObject.getClass();
-		if (refObject instanceof WellSampleData) {
-			klass = ((WellSampleData) refObject).getImage().getClass();
+		if (uo == null || !(ref instanceof DataObject)) return false;
+		Class klass = ref.getClass();
+		if (ref instanceof WellSampleData) {
+			klass = ((WellSampleData) ref).getImage().getClass();
 		}
 		if (!uo.getClass().equals(klass))
 			return false;
 		DataObject object;
-		if (refObject instanceof WellSampleData)
-			object = ((WellSampleData) refObject).getImage();
-		else object = (DataObject) refObject;
-		if (uo.getId() != object.getId()) return false;
-		if (data == null) {
+		if (ref instanceof WellSampleData)
+			object = ((WellSampleData) ref).getImage();
+		else object = (DataObject) ref;
+		return uo.getId() == object.getId();
+		
+		/*
+		 * if (data == null) {
 			if (uo.getId() == object.getId()) return true;
 			return false;
 		}
-		Object o = data.getRelatedObject();
+		StructuredDataResults r = data.get(uo);
+		if (r == null) return false;
+		Object o = r.getRelatedObject();
 		if (!(o instanceof DataObject)) return false;
 		object = (DataObject) o;
 		if (!uo.getClass().equals(object.getClass()))
 			return false;
 		if (uo.getId() != object.getId()) return false;
 		return true;
+		*/
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed object is the reference object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param uo The object to compare.
+	 * @return See above.
+	 */
+	boolean isSameObject(DataObject uo)
+	{
+		return isSameObject(uo, refObject);
 	}
 	
 	/** 
@@ -675,15 +697,11 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
-	 * @param node The node of reference.
 	 */
-	void setStructuredDataResults(StructuredDataResults data,
-			DataObject node)
+	void setStructuredDataResults(Map<DataObject, StructuredDataResults> data)
 	{
 		this.data = data;
 		state = MetadataViewer.READY;
-		MetadataLoader loader = loaders.get(node);
-		if (loader != null) loaders.remove(node);
 	}
 	
 	/**
@@ -705,7 +723,13 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	StructuredDataResults getStructuredData() { return data; }
+	StructuredDataResults getStructuredData()
+	{
+		if (data == null) return null;
+		if (refObject instanceof DataObject)
+			return data.get((DataObject) refObject);
+		return null; 
+	}
 	
 	/**
 	 * Returns the structured data.
@@ -770,9 +794,15 @@ class MetadataViewerModel
 	 * 
 	 * @param relatedNodes The value to set.
 	 */
-	void setRelatedNodes(List relatedNodes)
+	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
 		this.relatedNodes = relatedNodes;
+		//fire load
+		if (multiDataLoader != null) multiDataLoader.cancel();
+		multiDataLoader = new StructuredDataLoader(component,
+				ctx, relatedNodes);
+		multiDataLoader.load();
+		state = MetadataViewer.LOADING_METADATA;
 	}
 	
 	/**
@@ -780,7 +810,7 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	List getRelatedNodes() { return relatedNodes; }
+	List<DataObject> getRelatedNodes() { return relatedNodes; }
 
 	/**
 	 * Sets the state.
@@ -835,12 +865,12 @@ class MetadataViewerModel
 	{
 		if (!(refObject instanceof ImageData)) return null;
 		if (data == null) return null;
-		Collection l = data.getAttachments();
+		Collection<FileAnnotationData> l = getStructuredData().getAttachments();
 		if (l == null || l.size() == 0) return null;
-		Iterator i = l.iterator();
+		Iterator<FileAnnotationData> i = l.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
-			fa = (FileAnnotationData) i.next();
+			fa = i.next();
 			if (fa.getFileName().contains("irf"))
 				return fa;
 		}
