@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.util.Utils;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
-import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -39,10 +39,8 @@ import omero.api.StatefulServiceInterface;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
-import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.PermissionsI;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
 import omero.util.Resources.Entry;
@@ -75,6 +73,9 @@ import Ice.Current;
  */
 public class client {
 
+	/** The name of the shutdown hook.*/
+	public static final String NAME = "omero.client.shutdownhook";
+	
     /**
      * A {@link java.util.Collection} of all the {@link omero.client} instances
      * created so that we can guarantee that we at least <i>attempt</i> to shut
@@ -83,7 +84,7 @@ public class client {
     private final static Set<client> CLIENTS = Collections
             .synchronizedSet(new HashSet<client>());
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+    	Thread hook = new Thread() {
             @Override
             public void run() {
                 Set<client> clients = new HashSet<client>(CLIENTS);
@@ -96,7 +97,9 @@ public class client {
 
                 }
             }
-        });
+        };
+        hook.setName(NAME);
+        Runtime.getRuntime().addShutdownHook(hook);
     }
 
     /**
@@ -152,6 +155,17 @@ public class client {
      * adjusted during a single session.
      */
     private volatile Resources __resources;
+
+    /**
+     * Whether or not remote calls are allowed during shutdown.
+     * If false (the default), then the instance will try to
+     * connect to the server and free any resources. Otherwise,
+     * a fastShutdown will take place. The most common reason
+     * to perform a fast shutdown is the loss of network
+     * connection. Calling "waitForShutdown" on the Ice stack
+     * without the proper connection will hang. (See #9673)
+     */
+    private AtomicBoolean fastShutdown = new AtomicBoolean(false);
 
     /**
      * @see #isSecure()
@@ -368,6 +382,15 @@ public class client {
         // Store this instance for cleanup on shutdown.
         CLIENTS.add(this);
 
+    }
+
+    /**
+     * Sets the {@link #fastShutdown} flag. By setting this
+     * to true, you will prevent proper clean up. This should
+     * only be used in the case of network loss (or similar).
+     */
+    public boolean setFastShutdown(boolean fastShutdown) {
+        return this.fastShutdown.getAndSet(fastShutdown);
     }
 
     /**
@@ -831,8 +854,9 @@ public class client {
             }
         }
 
+        final boolean fast = this.fastShutdown.get();
         try {
-            if (oldSf != null) {
+            if (oldSf != null && !fast) {
                 oldSf = ServiceFactoryPrxHelper.uncheckedCast(oldSf.ice_oneway());
             }
         } catch (Ice.ConnectionLostException cle) {
@@ -847,7 +871,9 @@ public class client {
             // ok. client is having network issues
         } finally {
             try {
-                oldIc.destroy();
+                if (oldIc != null && !fast) {
+                    oldIc.destroy();
+                }
             } finally {
                 CLIENTS.remove(this);
             }
