@@ -301,6 +301,8 @@ class MetadataViewerComponent
 			}
 			if (count == nodes.size() && count == keys.size()) {
 				model.setStructuredDataResults(results);
+				model.getEditor().setStructuredDataResults();
+				view.setOnScreen();
 			}
 		}
 	}
@@ -370,8 +372,10 @@ class MetadataViewerComponent
 		//Previewed the image.
 		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
-		model.fireStructuredDataLoading(root);
-		fireStateChange();
+		if (model.isSingleMode()) {
+			model.fireStructuredDataLoading(root);
+			fireStateChange();
+		}
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
@@ -1180,7 +1184,26 @@ class MetadataViewerComponent
 	 */
 	public boolean isSameObject(Object object)
 	{
-		return model.isSameObject(object);
+		return model.isSameObject((DataObject) object);
+	}
+	
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getAllStructuredData()
+	 */
+	public Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return model.getAllStructuredData();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getStructuredData()
+	 */
+	public StructuredDataResults getStructuredData(Object refObject)
+	{
+		return model.getStructuredData(refObject);
 	}
 	
 	/** 

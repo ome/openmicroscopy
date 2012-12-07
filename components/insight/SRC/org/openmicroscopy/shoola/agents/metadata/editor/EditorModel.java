@@ -236,7 +236,7 @@ class EditorModel
 	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
     /** The photo of the current user.*/
-    private Map<Long, BufferedImage>				usersPhoto;
+    private Map<Long, BufferedImage>	usersPhoto;
     
     /** Flag indicating if the image is a big image or not.*/
     private boolean largeImage;
@@ -489,6 +489,32 @@ class EditorModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @param result the object of reference.
+	 * @return See above.
+	 */
+	private boolean canDeleteLink(Object data, StructuredDataResults result)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		if (result == null) return false;
+		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		if (links == null) return false;
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData link;
+		
+		while (i.hasNext()) {
+			link = i.next();
+			if (d.getId() == link.getChild().getId())
+				return link.canDelete();
+		}
+		return false;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param refObject	The object this editor is for.
@@ -596,8 +622,18 @@ class EditorModel
 	 */
 	String getRefObjectName() 
 	{
+		return getObjectName(getPrimarySelect());
+	}
+	
+	/**
+	 * Returns the name of the specified object.
+	 * 
+	 * @param ref The object to handle.
+	 * @return See above.
+	 */
+	String getObjectName(Object ref)
+	{
 		String name = "";
-		Object ref = getPrimarySelect();
 		if (ref instanceof ImageData)
 			name = ((ImageData) ref).getName();
 		else if (ref instanceof DatasetData)
@@ -624,6 +660,43 @@ class EditorModel
 			name = ((MultiImageData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
+	}
+	
+	/**
+	 * Returns the name associated to the specified object.
+	 * 
+	 * @param ref The object to handle.
+	 * @return See above.
+	 */
+	String getObjectTypeAsString(Object ref)
+	{
+		if (ref instanceof ImageData) return "Image";
+        else if (ref instanceof DatasetData) return "Dataset";
+        else if (ref instanceof ProjectData) return "Project";
+        else if (ref instanceof ScreenData) return "Screen";
+        else if (ref instanceof PlateData) return "Plate";
+        else if (refObject instanceof PlateAcquisitionData)
+        	return"Plate Run";
+        else if (refObject instanceof FileAnnotationData) {
+        	FileAnnotationData fa = (FileAnnotationData) refObject;
+        	String ns = fa.getNameSpace();
+        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
+        		return "Experiment";
+        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
+        		return "Protocol";
+        	return "File";
+        } else if (refObject instanceof WellSampleData) return "Field";
+        else if (refObject instanceof TagAnnotationData) {
+        	TagAnnotationData tag = (TagAnnotationData) refObject;
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+        		return "Tag Set";
+        	else return "Tag";
+        } else if (refObject instanceof FileData) {
+        	FileData f = (FileData) refObject;
+        	if (f.isDirectory()) return "Folder";
+        	return "File";
+        }
+		return "";
 	}
 	
 	/**
@@ -825,21 +898,7 @@ class EditorModel
 	 */
 	boolean canDeleteLink(Object data)
 	{ 
-		if (!(data instanceof DataObject)) return false;
-		DataObject d = (DataObject) data;
-		StructuredDataResults result = parent.getStructuredData();
-		if (result == null) return false;
-		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
-		if (links == null) return false;
-		Iterator<AnnotationLinkData> i = links.iterator();
-		AnnotationLinkData link;
-		
-		while (i.hasNext()) {
-			link = i.next();
-			if (d.getId() == link.getChild().getId())
-				return link.canDelete();
-		}
-		return false;
+		return canDeleteLink(data, parent.getStructuredData());
 	}
 	
 	/**
@@ -1280,6 +1339,80 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the collection of the tags linked to the <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	Collection<TagAnnotationData> getAllTags()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<TagAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		List<TagAnnotationData> results = new ArrayList<TagAnnotationData>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					if (!ids.contains(tag.getId())) {
+						results.add(tag);
+						ids.add(tag.getId());
+					}
+				}
+			}
+		}
+		return (Collection<TagAnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the objects tagged by the specified object.
+	 * 
+	 * @param refTag The tag of reference.
+	 * @return See above.
+	 */
+	Map<DataObject, Boolean> getTaggedObjects(AnnotationData refTag)
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		Map<DataObject, Boolean> m = new HashMap<DataObject, Boolean>();
+		if (r == null) return m;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		DataObject o;
+		StructuredDataResults result;
+		while (i.hasNext()) {
+			e = i.next();
+			result = e.getValue();
+			tags = result.getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					if (tag.getId() == refTag.getId()) {
+						o = (DataObject) result.getRelatedObject();
+						m.put(o, canDeleteLink(tag, result));
+						break;
+					}
+				}
+			}
+		}
+		return m;
+	}
+	
+	/**
 	 * Returns the collection of the files linked to the 
 	 * <code>DataObject</code> at import.
 	 * 
@@ -1373,6 +1506,16 @@ class EditorModel
 		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}
 
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	Collection<FileAnnotationData> getAllAttachments()
+	{
+		return null;
+	}
 	/**
 	 * Returns the collection of XML annotations.
 	 * 

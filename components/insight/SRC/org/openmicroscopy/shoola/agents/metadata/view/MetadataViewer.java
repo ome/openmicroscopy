@@ -638,4 +638,20 @@ public interface MetadataViewer
 	 */
 	boolean isSameObject(Object object);
 
+	/**
+	 *  Returns all the metadata objects corresponding to the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData();
+	
+	/**
+	 * Returns the metadata linked to the currently edited object
+	 * or <code>null</code> if not loaded.
+	 * 
+	 * @param refObject The object to handle.
+	 * @return See above.
+	 */
+	StructuredDataResults getStructuredData(Object refObject);
+
 }

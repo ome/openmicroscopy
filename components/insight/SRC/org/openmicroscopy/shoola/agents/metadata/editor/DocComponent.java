@@ -36,8 +36,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -78,6 +82,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
@@ -363,6 +368,55 @@ class DocComponent
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
+		if (model.isMultiSelection()) {
+			Map<DataObject, Boolean> m = null;
+			Entry<DataObject, Boolean> e;
+			Iterator<Entry<DataObject, Boolean>> j;
+			String text = "";
+			if (annotation instanceof TagAnnotationData) {
+				m = model.getTaggedObjects(annotation);
+				text += "Can remove Tag from ";
+			}
+			if (m == null) return "";
+			
+			j = m.entrySet().iterator();
+			Collection<Boolean> l = m.values();
+			int n = 0;
+			Iterator<Boolean> k = l.iterator();
+			while (k.hasNext()) {
+				if (k.next().booleanValue())
+					n++;
+			}
+			buf.append(text);
+			buf.append(n);
+			int index = 0;
+			while (j.hasNext()) {
+				e = j.next();
+				if (index == 0) {
+					buf.append(" ");
+					buf.append("<b>");
+					buf.append(model.getObjectTypeAsString(e.getKey()));
+					if (n > 1) buf.append("s");
+					buf.append(":</b>");
+					buf.append("<br>");
+					index++;
+				}
+				buf.append("<b>");
+				buf.append("ID ");
+				buf.append(e.getKey().getId());
+				buf.append(":</b> ");
+				buf.append(UIUtilities.formatPartialName(
+						model.getObjectName(e.getKey())));
+				if (e.getValue().booleanValue()) {
+					n++;
+					buf.append(" &minus;");
+				}
+				buf.append("<br>");
+			}
+			buf.append("</body></html>");
+			return buf.toString();
+		}
+		
 		ExperimenterData exp = null;
 		if (name != null) {
 			buf.append("<b>");

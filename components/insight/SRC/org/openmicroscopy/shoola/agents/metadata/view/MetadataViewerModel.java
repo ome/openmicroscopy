@@ -455,9 +455,11 @@ class MetadataViewerModel
 	 * @param uo The object to compare.
 	 * @return See above.
 	 */
-	boolean isSameObject(DataObject uo)
+	boolean isSameObject(Object uo)
 	{
-		return isSameObject(uo, refObject);
+		if (uo instanceof DataObject)
+			return isSameObject((DataObject) uo, refObject);
+		return false;
 	}
 	
 	/** 
@@ -717,9 +719,20 @@ class MetadataViewerModel
 	 */
 	StructuredDataResults getStructuredData()
 	{
+		return getStructuredData(refObject); 
+	}
+	
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @param object The object to 
+	 * @return See above.
+	 */
+	StructuredDataResults getStructuredData(Object object)
+	{
 		if (data == null) return null;
-		if (refObject instanceof DataObject)
-			return data.get((DataObject) refObject);
+		if (object instanceof DataObject)
+			return data.get((DataObject) object);
 		return null; 
 	}
 	
@@ -1029,6 +1042,16 @@ class MetadataViewerModel
 		if (MetadataViewerAgent.isAdministrator())
 			return MetadataViewerAgent.getAdminContext();
 		return null;
+	}
+
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return data;
 	}
 
 }

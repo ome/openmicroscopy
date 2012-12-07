@@ -1071,35 +1071,10 @@ class PropertiesUI
 		text = "";
 		
 		boolean b = model.canEdit();
-        if (refObject instanceof ImageData) text = "Image";
-        else if (refObject instanceof DatasetData) text = "Dataset";
-        else if (refObject instanceof ProjectData) text = "Project";
-        else if (refObject instanceof ScreenData) text = "Screen";
-        else if (refObject instanceof PlateData) text = "Plate";
-        else if (refObject instanceof PlateAcquisitionData)
-        	text = "Plate Run";
-        else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		text = "Experiment";
-        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		text = "Protocol";
-        	else text = "File";
-        } else if (refObject instanceof WellSampleData) text = "Field";
-        else if (refObject instanceof TagAnnotationData) {
-        	TagAnnotationData tag = (TagAnnotationData) refObject;
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		text = "Tag Set";
-        	else text = "Tag";
-        } else if (refObject instanceof FileData) {
+		text = model.getObjectTypeAsString(refObject);
+        if (refObject instanceof FileData || 
+        	refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
-        	FileData f = (FileData) refObject;
-        	if (f.isDirectory()) text = "Folder";
-        	else text = "File";
-        } else if (refObject instanceof MultiImageData) {
-        	editName.setEnabled(false);
-        	text = "File";
         }
         String t = text;
         if (model.getRefObjectID() > 0)

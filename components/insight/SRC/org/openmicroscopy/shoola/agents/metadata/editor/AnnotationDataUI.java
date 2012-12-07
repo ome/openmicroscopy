@@ -824,8 +824,8 @@ class AnnotationDataUI
 			if (l != null) count += l.size();
 			layoutAttachments(l);
 		} else {
-			layoutTags(null);
-			layoutAttachments(null);
+			layoutTags(model.getAllTags());
+			layoutAttachments(model.getAllAttachments());
 		}
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
