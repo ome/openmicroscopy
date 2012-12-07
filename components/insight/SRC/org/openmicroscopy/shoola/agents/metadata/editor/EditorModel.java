@@ -1413,6 +1413,45 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the objects linked by the specified object.
+	 * 
+	 * @param refFile The file of reference.
+	 * @return See above.
+	 */
+	Map<DataObject, Boolean> getObjectsWithAttachments(AnnotationData refFile)
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		Map<DataObject, Boolean> m = new HashMap<DataObject, Boolean>();
+		if (r == null) return m;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<FileAnnotationData> files;
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData file;
+		DataObject o;
+		StructuredDataResults result;
+		while (i.hasNext()) {
+			e = i.next();
+			result = e.getValue();
+			files = result.getAttachments();
+			if (files != null) {
+				j = files.iterator();
+				while (j.hasNext()) {
+					file = j.next();
+					if (file.getId() == refFile.getId()) {
+						o = (DataObject) result.getRelatedObject();
+						m.put(o, canDeleteLink(file, result));
+						break;
+					}
+				}
+			}
+		}
+		return m;
+	}
+	
+	/**
 	 * Returns the collection of the files linked to the 
 	 * <code>DataObject</code> at import.
 	 * 
@@ -1503,7 +1542,7 @@ class EditorModel
 				}
 			}
 		}
-		return (Collection<FileAnnotationData>) sorter.sort(l); 
+		return (Collection<FileAnnotationData>) sorter.sort(l);
 	}
 
 	/**
@@ -1514,7 +1553,39 @@ class EditorModel
 	 */
 	Collection<FileAnnotationData> getAllAttachments()
 	{
-		return null;
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<FileAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		
+		
+		Collection<FileAnnotationData> files;
+		List<FileAnnotationData> results = new ArrayList<FileAnnotationData>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData file;
+		String ns;
+		while (i.hasNext()) {
+			e = i.next();
+			files = e.getValue().getAttachments();
+			if (files != null) {
+				j = files.iterator();
+				while (j.hasNext()) {
+					file = j.next();
+					ns = file.getNameSpace();
+					if (!FileAnnotationData.FLIM_NS.equals(ns) &&
+						!FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+						if (!ids.contains(file.getId())) {
+							results.add(file);
+							ids.add(file.getId());
+						}
+					}
+				}
+			}
+		}
+		return (Collection<FileAnnotationData>) sorter.sort(results);
 	}
 	/**
 	 * Returns the collection of XML annotations.
