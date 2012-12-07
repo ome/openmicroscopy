@@ -47,7 +47,7 @@ class AbstractColumn(object):
     def __init__(self):
         # Note: don't rely on any properties such as self.name being set if
         # this has been called through Ice
-        d = self.descriptor(0)
+        d = self.descriptor(None)
         if isinstance(d, tables.IsDescription):
             cols = d.columns
             try:
@@ -268,14 +268,12 @@ class AbstractArrayColumn(AbstractColumn):
 class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
 
     def __init__(self, name = "Unknown", *args):
-        self.initialised = False
         omero.grid.DoubleArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
-        self.initialised = True
 
     def descriptor(self, pos):
         # During initialization, size might be zero
-        if not self.initialised:
+        if pos is None:
             return tables.Float64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
@@ -285,14 +283,12 @@ class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
 class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
 
     def __init__(self, name = "Unknown", *args):
-        self.initialised = False
         omero.grid.LongArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
-        self.initialised = True
 
     def descriptor(self, pos):
         # During initialization, size might be zero
-        if not self.initialised:
+        if pos is None:
             return tables.Int64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
