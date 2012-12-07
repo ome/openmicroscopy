@@ -376,9 +376,11 @@ class DocComponent
 			if (annotation instanceof TagAnnotationData) {
 				m = model.getTaggedObjects(annotation);
 				text += "Can remove Tag from ";
+			} else if (annotation instanceof FileAnnotationData) {
+				m = model.getObjectsWithAttachments(annotation);
+				text += "Can remove Attachment from ";
 			}
 			if (m == null) return "";
-			
 			j = m.entrySet().iterator();
 			Collection<Boolean> l = m.values();
 			int n = 0;
