@@ -22,11 +22,16 @@ import java.net.URI;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.apache.commons.io.FilenameUtils.concat;
 import static org.apache.commons.io.FilenameUtils.normalize;
+
+import org.apache.commons.lang.text.StrLookup;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,6 +53,7 @@ import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.sys.EventContext;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -71,14 +77,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private final Registry reg;
 
     /**
-     * Fields used in date-time calculations. Static version should
-     * decrease the number of calls to <code>Calendar.getInstance()</code>
+     * Fields used in date-time calculations.
      */
     private static final DateFormatSymbols DATE_FORMAT;
-    private static final Calendar NOW;
 
     static {
-        NOW = Calendar.getInstance();
         DATE_FORMAT = new DateFormatSymbols();
     }
 
@@ -107,7 +110,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. ${user}/${year}/etc.
-        final String relPath = expandTemplate(__current);
+        final String relPath = expandTemplate(template, __current);
 
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -289,53 +292,50 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Turn the current template into a relative path. By default this is
-     * prefixed with the user's name.
+     * prefixed with the user's name. The path will be created by calling
+     * {@link #makeDir(String, Ice.Current)}. Any exception will be handled
+     * by incrementing some part of the template to create a viable directory.
+     *
+     * @FIXME For the moment only the top-level directory is being incremented.
+     *
      * @param curr
      * @return
      */
-    protected String expandTemplate(Ice.Current curr) {
-        String relPath = "";
-        String dir = null;
-        String[] elements = template.split("/");
-        for (String part : elements) {
-            String[] subelements = part.split("-");
-            dir = getStringFromToken(subelements[0], NOW, curr);
-            for (int i = 1; i < subelements.length; i++) {
-                dir = dir + "-" + getStringFromToken(subelements[i], NOW, curr);
-            }
-            relPath = concat(relPath, dir);
+    protected String expandTemplate(final String template, Ice.Current curr) {
+
+        if (template == null) {
+            return ""; // EARLY EXIT.
         }
-        return relPath;
+
+        final Map<String, String> map = replacementMap(curr);
+        final StrSubstitutor strSubstitutor = new StrSubstitutor(
+                new StrLookup() {
+                    @Override
+                    public String lookup(final String key) {
+                        return map.get(key);
+                    }
+                }, "%", "%", '%');
+        return strSubstitutor.replace(template);
     }
 
-    /**
-     * Helper method to provide a little more flexibility
-     * when building a path from a template
-     */
-    protected String getStringFromToken(String token, Calendar now,
-            Ice.Current curr) {
-
-        String rv;
-        if ("%year%".equals(token))
-            rv = Integer.toString(now.get(Calendar.YEAR));
-        else if ("%month%".equals(token))
-            rv = Integer.toString(now.get(Calendar.MONTH)+1);
-        else if ("%monthname%".equals(token))
-            rv = DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)];
-        else if ("%day%".equals(token))
-            rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
-        else if ("%user%".equals(token))
-            rv = this.repositoryDao.getEventContext(curr).userName;
-        else if ("%group%".equals(token))
-            rv = this.repositoryDao.getEventContext(curr).groupName;
-        else if (!token.endsWith("%") && !token.startsWith("%"))
-            rv = token;
-        else {
-            log.warn("Ignored unrecognised token in template: " + token);
-            rv = "";
-        }
-        return rv;
-    }
+    protected Map<String, String> replacementMap(Ice.Current curr) {
+        final EventContext ec = this.repositoryDao.getEventContext(curr);
+        final Map<String, String> map = new HashMap<String, String>();
+        final Calendar now = Calendar.getInstance();
+        map.put("user", ec.userName);
+        map.put("userId", Long.toString(ec.userId));
+        map.put("group", ec.groupName);
+        map.put("groupId", Long.toString(ec.groupId));
+        map.put("year", Integer.toString(now.get(Calendar.YEAR)));
+        map.put("month", Integer.toString(now.get(Calendar.MONTH)+1));
+        map.put("monthname", DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)]);
+        map.put("day", Integer.toString(now.get(Calendar.DAY_OF_MONTH)));
+        map.put("session", ec.sessionUuid);
+        map.put("sessionId", Long.toString(ec.sessionId));
+        map.put("eventId", Long.toString(ec.eventId));
+        map.put("perms", ec.groupPermissions.toString());
+        return map;        
+    } 
 
     /**
      * Take a relative path that the user would like to see in his or her

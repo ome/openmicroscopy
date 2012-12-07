@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import junit.framework.Assert;
 
@@ -22,6 +23,7 @@ import ome.services.blitz.repo.RepositoryDao;
 import omero.grid.Import;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.PermissionsI;
 import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
@@ -45,6 +47,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     TestManagedRepositoryI tmri;
     Registry reg;
     Ice.Current curr;
+    Calendar cal;
 
     /**
      * Overrides protected methods from parent class for testing
@@ -61,7 +64,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         @Override
         public Import suggestOnConflict(String trueRoot, String relPath,
                 String basePath, List<String> paths, Ice.Current curr) throws omero.ApiUsageException {
-            return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
+            throw new RuntimeException("NYI");
+            //return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
         }
 
         @Override
@@ -75,15 +79,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String getStringFromToken(String token, Calendar now,
-                Ice.Current curr) {
-            return super.getStringFromToken(token, now, curr);
+        public String expandTemplate(String template, Ice.Current curr) {
+            return super.expandTemplate(template, curr);
         }
-
     }
 
     @BeforeMethod(alwaysRun=true)
     public void setup() throws Exception {
+        this.cal = Calendar.getInstance();
         this.tmpDir = TempFileManager.create_path("repo", "test", true);
         this.templateDir = new File(this.tmpDir, "template");
         Mock mockReg = mock(Registry.class);
@@ -95,6 +98,21 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         this.curr.ctx = new HashMap<String, String>();
         this.curr.ctx.put(omero.constants.SESSIONUUID.value, "TEST");
 
+    }
+
+    private EventContext newEventContext() {
+        EventContext ec = new EventContext();
+        ec.userName = "";
+        ec.userId = -1L;
+        ec.groupName = "";
+        ec.groupId = -1L;
+        ec.sessionUuid = "";
+        ec.sessionId = -1L;
+        ec.eventId = -1L;
+        ec.groupPermissions = new PermissionsI();
+        this.daoMock.expects(once()).method("getEventContext")
+            .with(ANYTHING).will(returnValue(ec));
+        return ec;
     }
 
     private String getSuggestion(String base, String...paths) throws Exception {
@@ -225,71 +243,121 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testGetStringFromTokenReturnsEmptyStringOnNullToken() {
-        String actual = this.tmri.getStringFromToken("", null, null);
+    public void testExpandTemplateEmptyStringOnNullToken() {
+        newEventContext();
+        String actual = this.tmri.expandTemplate(null, curr);
         Assert.assertEquals(0, actual.length());
     }
 
     @Test
-    public void testGetStringFromTokenReturnsTokenOnMalformedToken() {
+    public void testExpandTemplateTokenOnMalformedToken() {
+        newEventContext();
         String expected = "foo";
-        String actual = this.tmri.getStringFromToken(expected, null, null);
+        String actual = this.tmri.expandTemplate(expected, curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsYear() {
-        String expected = "2012";
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, 2012);
-        String actual = this.tmri.getStringFromToken("%year%", cal, null);
+    public void testExpandTemplateYear() {
+        newEventContext();
+        String expected = Integer.toString(cal.get(Calendar.YEAR));
+        String actual = this.tmri.expandTemplate("%year%", curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsMonth() {
-        String expected = "10";
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MONTH, Integer.parseInt(expected) - 1);
-        String actual = this.tmri.getStringFromToken("%month%", cal, null);
+    public void testExpandTemplateMonth() {
+        newEventContext();
+        String expected = Integer.toString(cal.get(Calendar.MONTH)+1);
+        String actual = this.tmri.expandTemplate("%month%", curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsMonthName() {
-        String expected = "October";
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MONTH, 9);
-        String actual = this.tmri.getStringFromToken("%monthname%", cal, null);
+    public void testExpandTemplateMonthName() {
+        newEventContext();
+        DateFormatSymbols dateFormat = new DateFormatSymbols();
+        String expected = dateFormat.getMonths()
+                [cal.get(Calendar.MONTH)];
+        String actual = this.tmri.expandTemplate("%monthname%", curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsDay() {
-        String expected = "7";
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_MONTH, 7);
-        String actual = this.tmri.getStringFromToken("%day%", cal, null);
+    public void testExpandTemplateDay() {
+        newEventContext();
+        String expected = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+        String actual = this.tmri.expandTemplate("%day%", curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsUserName() {
+    public void testExpandTemplateUserName() {
         String expected = "user-1";
-        EventContext ecStub = new EventContext();
+        EventContext ecStub = newEventContext();
         ecStub.userName = expected;
-        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
-        String actual = this.tmri.getStringFromToken("%user%", null, null);
+        String actual = this.tmri.expandTemplate("%user%", curr);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetStringFromTokenReturnsGroupName() {
+    public void testExpandTemplateGroupName() {
         String expected = "group-1";
-        EventContext ecStub = new EventContext();
+        EventContext ecStub = newEventContext();
         ecStub.groupName = expected;
-        this.daoMock.expects(once()).method("getEventContext").with(ANYTHING).will(returnValue(ecStub));
-        String actual = this.tmri.getStringFromToken("%group%", null, null);
+        String actual = this.tmri.expandTemplate("%group%", curr);
+        Assert.assertEquals(expected, actual);
+    }
+    @Test
+    public void testExpandTemplateGroupNamePerms() {
+        String expected = "group-1-rwrwrw";
+        EventContext ecStub = newEventContext();
+        ecStub.groupName = "group-1";
+        ecStub.groupPermissions = new PermissionsI("rwrwrw");
+        String actual = this.tmri.expandTemplate("%group%-%perms%", curr);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testExpandTemplateSession() {
+        String expected = UUID.randomUUID().toString();
+        EventContext ecStub = newEventContext();
+        ecStub.sessionUuid = expected;
+        String actual = this.tmri.expandTemplate("%session%", curr);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testExpandTemplateEscape() {
+        String expected = "%%";
+        newEventContext();
+        String actual = this.tmri.expandTemplate("%%", curr);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testExpandTemplateEscape2() {
+        String expected = "%%-grp";
+        EventContext ecStub = newEventContext();
+        ecStub.groupName = "grp";
+        String actual = this.tmri.expandTemplate("%%-%group%", curr);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testExpandTemplateEscape3() {
+        String expected = "%%george";
+        newEventContext();
+        String actual = this.tmri.expandTemplate("%%george", curr);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testExpandTemplateUnknown() {
+        String expected = "%bjšrk%";
+        newEventContext();
+        String actual = this.tmri.expandTemplate("%bjšrk%", curr);
         Assert.assertEquals(expected, actual);
     }
 }
