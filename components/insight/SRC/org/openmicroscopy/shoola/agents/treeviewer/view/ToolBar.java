@@ -176,7 +176,7 @@ class ToolBar
 	private JButton usersButton;
 
 	/** Used to sort the list of users.*/
-	private ViewerSorter sorter = new ViewerSorter();
+	private ViewerSorter sorter;
 	
 	/** Button indicating to add the user to the display.*/
 	private JButton addToDisplay;
@@ -621,6 +621,8 @@ class ToolBar
         this.model = model;
         this.controller = controller;
         this.view = view;
+        sorter = new ViewerSorter();
+        sorter.setCaseSensitive(true);
         buildGUI();
     }
     
