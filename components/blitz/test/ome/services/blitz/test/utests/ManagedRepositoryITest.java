@@ -105,7 +105,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     private void assertReturnFile(Long id) {
         OriginalFile of = new OriginalFileI(id, false);
-        daoMock.expects(once()).method("createUserDirectory").will(returnValue(of));
+        daoMock.expects(once()).method("register").will(returnValue(of));
     }
 
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
