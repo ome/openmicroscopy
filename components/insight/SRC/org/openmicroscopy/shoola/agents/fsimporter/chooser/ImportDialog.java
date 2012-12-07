@@ -1042,8 +1042,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				getRootPane().setWindowDecorationStyle(
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
-		
-		locationDialog.buildGUI();
 	}
 
 	/**
