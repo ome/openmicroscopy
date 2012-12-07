@@ -248,7 +248,7 @@ public class ImporterAgent
     	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
     	objects = map;
     	if (!ImporterFactory.doesImporterExist()) return;
-    	Importer importer = ImporterFactory.getImporter(-1);
+    	Importer importer = ImporterFactory.getImporter(groupId);
     	if (importer == null || map == null || map.size() == 0) return;
     	GroupData group = importer.getSelectedGroup();
     	if (group == null) return;
