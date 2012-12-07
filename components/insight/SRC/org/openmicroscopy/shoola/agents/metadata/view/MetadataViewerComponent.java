@@ -246,41 +246,13 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadMetadata(TreeBrowserDisplay)
+	 * @see MetadataViewer#setMetadata(Object, boolean)
 	 */
-	public void loadMetadata(TreeBrowserDisplay node)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (node == null)
-			throw new IllegalArgumentException("No node specified.");
-		Object userObject = node.getUserObject();
-		if (userObject instanceof DataObject) {
-			if (model.isSingleMode()) {
-				model.fireStructuredDataLoading(node);
-				fireStateChange();
-			}
-		} else if (userObject instanceof File) {
-			File f = (File) userObject;
-			if (f.isDirectory() && model.isSingleMode()) {
-				model.fireStructuredDataLoading(node);
-				fireStateChange();
-			}
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object, boolean)
-	 */
-	public void setMetadata(TreeBrowserDisplay node, Object result)
+	public void setMetadata(DataObject node, Object result)
 	{
 		if (node == null)
 			throw new IllegalArgumentException("No node specified.");
-		Object userObject = node.getUserObject();
-		Object refObject = model.getRefObject();
-		if (refObject != userObject) {
+		if (!model.isSameObject(node)) {
 			model.setStructuredDataResults(null, node);
 			fireStateChange();
 			return;
@@ -290,15 +262,15 @@ class MetadataViewerComponent
 			StructuredDataResults data = (StructuredDataResults) result;
 			Object object = data.getRelatedObject();
 			if (object == model.getParentRefObject() ||
-				(object instanceof PlateData && userObject 
+				(object instanceof PlateData && node 
 						instanceof WellSampleData)) {
 				model.setParentDataResults((StructuredDataResults) result,
 						node);
-				loadMetadata(node);
+				model.fireStructuredDataLoading(node);
 			} else {
 				model.setStructuredDataResults((StructuredDataResults) result,
 						node);
-				browser.setParents(node, 
+				browser.setParents(null, 
 						model.getStructuredData().getParents());
 				
 				model.getEditor().setStructuredDataResults();
@@ -307,13 +279,6 @@ class MetadataViewerComponent
 			fireStateChange();
 			return;
 		}
-		if (!(userObject instanceof String)) return;
-		String name = (String) userObject;
-		
-		if (browser == null) return;
-		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
-			browser.setParents((TreeBrowserSet) node, (Collection) result);
-		model.notifyLoadingEnd(node);
 	}
 
 	/** 
@@ -381,6 +346,8 @@ class MetadataViewerComponent
 		//Previewed the image.
 		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
+		model.fireStructuredDataLoading(root);
+		fireStateChange();
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);

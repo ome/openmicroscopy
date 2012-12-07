@@ -132,7 +132,7 @@ class MetadataViewerModel
 	private Editor editor;
 	
 	/** The active data loaders. */
-	private Map<TreeBrowserDisplay, MetadataLoader> loaders;
+	private Map<Object, MetadataLoader> loaders;
 	
 	/** Only used when it is a batch call. */
 	private Class dataType;
@@ -209,7 +209,7 @@ class MetadataViewerModel
 				this.index = MetadataViewer.RND_GENERAL;
 		}
 		this.refObject = refObject;
-		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
+		loaders = new HashMap<Object, MetadataLoader>();
 		data = null;
 		dataType = null;
 		singleMode = true;
@@ -258,10 +258,12 @@ class MetadataViewerModel
 	void discard()
 	{
 		state = MetadataViewer.DISCARDED;
-		Iterator<TreeBrowserDisplay> i = loaders.keySet().iterator();
+		loaders.entrySet().iterator();
+		Iterator<Entry<Object, MetadataLoader>>
+		i = loaders.entrySet().iterator();
 		MetadataLoader loader;
 		while (i.hasNext()) {
-			loader = loaders.get(i.next());
+			loader = i.next().getValue();
 			if (loader != null) loader.cancel();
 		}
 		loaders.clear();
@@ -348,28 +350,17 @@ class MetadataViewerModel
 	/** 
 	 * Cancels any ongoing data loading. 
 	 * 
-	 * @param refNode The node of reference.
+	 * @param node The node of reference.
 	 */
-	void cancel(TreeBrowserDisplay refNode)
+	void cancel(Object node)
 	{
-		MetadataLoader loader = loaders.get(refNode);
+		MetadataLoader loader = loaders.get(node);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(refNode);
+			loaders.remove(node);
 		}
 	}
 
-	/**
-	 * Invokes when the data are loaded, the loader is then 
-	 * removed from the map.
-	 * 
-	 * @param refNode
-	 */
-	void notifyLoadingEnd(TreeBrowserDisplay refNode)
-	{
-		MetadataLoader loader = loaders.get(refNode);
-		if (loader != null) loaders.remove(refNode);
-	}
 	
 	/**
 	 * Starts the asynchronous retrieval of the attachments related 
@@ -381,7 +372,6 @@ class MetadataViewerModel
 	void fireParentLoading(TreeBrowserSet refNode)
 	{
 		cancel(refNode);
-		//Object ho = getParentObject(refNode);
 		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
 			ContainersLoader loader = new ContainersLoader(
@@ -397,34 +387,31 @@ class MetadataViewerModel
 	 * Starts the asynchronous retrieval of the structured data related
 	 * to the passed node.
 	 * 
-	 * @param refNode The node to handle.
+	 * @param node The node to handle.
 	 */
-	void fireStructuredDataLoading(TreeBrowserDisplay refNode)
+	void fireStructuredDataLoading(Object node)
 	{
-		Object uo = refNode.getUserObject();
-		//if (!(uo instanceof DataObject)) return;
-		if (uo instanceof ExperimenterData) return;
-		if ((uo instanceof DataObject)) {
-			//DataObject data = (DataObject) uo;
-			//if (data.getId() < 0) return;
-			cancel(refNode);
-			if (uo instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) uo;
-				uo = wsd.getImage();
+		if (!(node instanceof DataObject)) return;
+		if (node instanceof ExperimenterData) return;
+		if (node instanceof DataObject) {
+			cancel(node);
+			if (node instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) node;
+				node = wsd.getImage();
 				/*
-				if (!loaders.containsKey(refNode) && parentData == null
-						&& grandParent != null) {
+				if (!loaders.containsKey(node) && parentData == null
+						&& parentRefObject != null) {
 					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, refNode, grandParent);
-					loaders.put(refNode, l);
+						ctx, (DataObject) parentRefObject);
+					loaders.put(node, l);
 					l.load();
 					state = MetadataViewer.LOADING_METADATA;
 					return;
 				}*/
 			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, refNode, uo);
-			loaders.put(refNode, loader);
+					ctx, (DataObject) node);
+			loaders.put(node, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
 		}
@@ -699,13 +686,15 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
-	 * @param refNode The node of reference.
+	 * @param node The node of reference.
 	 */
 	void setStructuredDataResults(StructuredDataResults data,
-			TreeBrowserDisplay refNode)
+			DataObject node)
 	{
 		this.data = data;
 		state = MetadataViewer.READY;
+		MetadataLoader loader = loaders.get(node);
+		if (loader != null) loaders.remove(node);
 	}
 	
 	/**
@@ -715,9 +704,9 @@ class MetadataViewerModel
 	 * @param refNode The node of reference.
 	 */
 	void setParentDataResults(StructuredDataResults parentData,
-			TreeBrowserDisplay refNode)
+			DataObject node)
 	{
-		loaders.remove(refNode);
+		loaders.remove(node);
 		this.parentData = parentData;
 		state = MetadataViewer.READY;
 	}
