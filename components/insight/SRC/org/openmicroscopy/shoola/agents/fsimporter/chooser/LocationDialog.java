@@ -520,12 +520,23 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 *            The component displaying the option.
 	 */
 	private void buildGUI() {
-		Container contentPane = getContentPane();
-		contentPane.add(buildGroupSelectionPanel(), BorderLayout.NORTH);
-		contentPane.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
-		contentPane.add(buildButtonPanel(), BorderLayout.SOUTH);
+		Container contentPane = this.getContentPane();
 		
-		pack();
+		double[][] tableSize = new double[][]
+				{{20.0, TableLayout.FILL, 20.0},{20.0, TableLayout.FILL, 20.0}};
+		contentPane.setLayout(new TableLayout(tableSize));
+		
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH );
+		mainPanel.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
+		mainPanel.add(buildButtonPanel(), BorderLayout.SOUTH);
+		
+		contentPane.add(mainPanel, "1, 1");
+		
+		Dimension minSize = new Dimension(640, 240);
+		this.setMinimumSize(minSize);
+		this.setPreferredSize(minSize);
+		this.setSize(minSize);
 	}
 
 	/** Closes the dialog. */
