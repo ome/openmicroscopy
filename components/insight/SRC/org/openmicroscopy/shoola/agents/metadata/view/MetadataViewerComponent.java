@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -263,7 +264,7 @@ class MetadataViewerComponent
 				e = i.next();
 				node = e.getKey();
 				if (!model.isSameObject(node)) {
-					model.setStructuredDataResults(null, node);
+					model.setStructuredDataResults(null);
 					fireStateChange();
 					return;
 				}
@@ -275,12 +276,31 @@ class MetadataViewerComponent
 					model.setParentDataResults(data, node);
 					model.fireStructuredDataLoading(node);
 				} else {
-					model.setStructuredDataResults(data, node);
+					model.setStructuredDataResults(results);
 					browser.setParents(null, data.getParents());
 					model.getEditor().setStructuredDataResults();
 					view.setOnScreen();
 				}
 				fireStateChange();
+			}
+		} else {
+			List<DataObject> nodes = model.getRelatedNodes();
+			Set<DataObject> keys = results.keySet();
+			//Check that the selection is still the same.
+			int count = 0;
+			DataObject o;
+			Iterator<DataObject> j = keys.iterator(), k;
+			while (j.hasNext()) {
+				o = j.next();
+				k = nodes.iterator();
+				while (k.hasNext()) {
+					if (model.isSameObject(o, k.next())) {
+						count++;
+					}
+				}
+			}
+			if (count == nodes.size() && count == keys.size()) {
+				model.setStructuredDataResults(results);
 			}
 		}
 	}
@@ -569,7 +589,7 @@ class MetadataViewerComponent
 		if (nodes == null || nodes.size() == 0) return;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = nodes.iterator();
-		List results = new ArrayList();
+		List<DataObject> results = new ArrayList<DataObject>();
 		DataObject data;
 		while (i.hasNext()) {
 			Object object = i.next();
