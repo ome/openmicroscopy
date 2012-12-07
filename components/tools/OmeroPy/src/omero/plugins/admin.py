@@ -394,12 +394,12 @@ Examples:
                 if user:
                     user = self.ctx.input("User account:", False)
                 if not user:
-                    user = self.ctx.initData().properties.getProperty("omero.windows.user")
+                    user = config.as_map()["omero.windows.user"]
                 if len(user) > 0:
                     command.append("obj=")
                     command.append(user)
                     self.ctx.out(self.ctx.popen(["ntrights","+r","SeServiceLogonRight","-u",user]).communicate()[0]) # popen
-                    pasw = self.ctx.initData().properties.getProperty("omero.windows.pass")
+                    pasw = config.as_map()["omero.windows.pass"]
                     pasw = self._ask_for_password(" for service user: %s" % user, pasw)
                     command.append("password=")
                     command.append(pasw)
