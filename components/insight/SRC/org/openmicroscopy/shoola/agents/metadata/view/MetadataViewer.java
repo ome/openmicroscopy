@@ -246,10 +246,9 @@ public interface MetadataViewer
 	/**
 	 * Feeds the metadata back to the viewer.
 	 * 
-	 * @param node The node to handle.
-	 * @param result The result to feed back.
+	 * @param results The result to feed back.
 	 */
-	public void setMetadata(DataObject node, Object result);
+	public void setMetadata(Map<DataObject, StructuredDataResults> results);
 	
 	/**
 	 * Returns the UI used to select the metadata.
