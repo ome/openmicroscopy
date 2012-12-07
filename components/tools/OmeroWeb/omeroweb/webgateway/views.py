@@ -2059,15 +2059,35 @@ def repository_delete(request, klass, filepath, conn=None, **kwargs):
     json method: Deletes the specified file or directory
     """
     repository, description = get_repository(conn, klass)
-    #name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    #fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    todelete = []
 
+    path, name = os.path.split(filepath)
+    path += '/' if path != '' else ''
+    obj = conn.getObject('OriginalFile', attributes=dict(name=name, path='/'+path))
+    if obj:
+        todelete.append(obj.id)
+        # recursively collect all file IDs below the given path
+        def _delete(path):
+            if repository.fileExists(path):
+                for f in repository.listFiles(path):
+                    todelete.append(f.id.val)
+                    _delete(f.path.val[1:] + f.name.val)
+        _delete(path + name)
+
+    # Delete objects in database
+    if todelete:
+        handle = conn.deleteObjects('/OriginalFile', todelete)
+        try:
+            conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+    # Delete files on disk
     try:
-        rdict = {'bad': 'false'}
-        rdict['result'] = repository.delete(filepath)
-    except Exception, ex:
-        rdict = {'bad': 'true', 'errs': str(ex)}
+        repository.delete(filepath)
+    except:
+        pass
 
+    rdict = {'matched_ids': todelete}
     return rdict
 
 
