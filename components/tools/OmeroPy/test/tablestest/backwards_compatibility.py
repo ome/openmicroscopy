@@ -20,45 +20,26 @@
 
 """
 Check backwards compatibility of the tables service
-
-In a shell run
-> omero upload -C -u <username> -w <password> --pytable components/tools/OmeroPy/test/tablestest/service-reference-dev_4_4_5.h5
-Look for file ID which should be printed out
-Edit the parameters below, and run this script
-
-TODO: Upload in python as part of setUp(), this also means the connection
-details will be handled by the integration test framework.
 """
 
 
 import unittest
+import os.path
 import omero
 import omero.clients
-import omero.model
 import omero.grid
-from omero.gateway import BlitzGateway
+from integration import library as lib
 
 
-# Parameters
-host = 'localhost'
-user = ''
-passwd = ''
-fileid = 0
+class BackwardsCompatibilityTest(lib.ITest):
 
-
-
-class BackwardsCompatibilityTest(unittest.TestCase):
-
-    #def setUp(self, host, user, passwd, fileid):
     def setUp(self):
-        client = omero.client(host)
-        sess = client.createSession(user, passwd)
-        #client.enableKeepAlive(60)
-        conn = BlitzGateway(client_obj = client)
+        super(BackwardsCompatibilityTest, self).setUp()
 
-        self.res = sess.sharedResources()
-        self.assert_(self.res.areTablesEnabled())
-        self.ofile = omero.model.OriginalFileI(fileid)
+        dir = os.path.dirname(os.path.realpath(__file__))
+        file = os.path.join(dir, "service-reference-dev_4_4_5.h5")
+        self.ofile = self.client.upload(file)
+        print self.ofile.getId().val
 
 
     def checkMaskCol(self, test):
@@ -91,7 +72,8 @@ class BackwardsCompatibilityTest(unittest.TestCase):
 
 
     def testAllColumns_4_4_5(self):
-        table = self.res.openTable(self.ofile)
+        grid = self.client.sf.sharedResources()
+        table = grid.openTable(self.ofile)
         self.assert_(table)
 
         expectedTypes = [
