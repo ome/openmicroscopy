@@ -544,6 +544,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
+				popMenu.setVisible(false);
 				displayInformation(label, e.getPoint());
 			}
 		});
