@@ -1058,6 +1058,8 @@ class PropertiesUI
 			gpLabel.setText("");
 		}
 		removeAll();
+		Object refObject = model.getRefObject();
+		text = model.getObjectTypeAsString(refObject);
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
 		//descriptionPane.getDocument().removeDocumentListener(this);
@@ -1067,11 +1069,9 @@ class PropertiesUI
 		originalDisplayedName = UIUtilities.formatPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
-		Object refObject = model.getRefObject();
-		text = "";
 		
 		boolean b = model.canEdit();
-		text = model.getObjectTypeAsString(refObject);
+		
         if (refObject instanceof FileData || 
         	refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
