@@ -1053,5 +1053,33 @@ class MetadataViewerModel
 	{
 		return data;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the collection of specified objects
+	 * corresponding to the list of related nodes, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param keys The nodes to handle.
+	 * @return
+	 */
+	boolean isSameSelection(Collection<DataObject> keys)
+	{
+		List<DataObject> nodes = getRelatedNodes();
+		//Check that the selection is still the same.
+		int count = 0;
+		DataObject o;
+		Iterator<DataObject> j = keys.iterator(), k;
+		while (j.hasNext()) {
+			o = j.next();
+			k = nodes.iterator();
+			while (k.hasNext()) {
+				if (isSameObject(o, k.next())) {
+					count++;
+				}
+			}
+		}
+		return count == nodes.size() && count == keys.size();
+	}
+	
 
 }

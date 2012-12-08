@@ -32,15 +32,12 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -279,30 +276,13 @@ class MetadataViewerComponent
 					model.setStructuredDataResults(results);
 					browser.setParents(null, data.getParents());
 					model.getEditor().setStructuredDataResults();
-					view.setOnScreen();
 				}
 				fireStateChange();
 			}
 		} else {
-			List<DataObject> nodes = model.getRelatedNodes();
-			Set<DataObject> keys = results.keySet();
-			//Check that the selection is still the same.
-			int count = 0;
-			DataObject o;
-			Iterator<DataObject> j = keys.iterator(), k;
-			while (j.hasNext()) {
-				o = j.next();
-				k = nodes.iterator();
-				while (k.hasNext()) {
-					if (model.isSameObject(o, k.next())) {
-						count++;
-					}
-				}
-			}
-			if (count == nodes.size() && count == keys.size()) {
+			if (model.isSameSelection(results.keySet())) {
 				model.setStructuredDataResults(results);
 				model.getEditor().setStructuredDataResults();
-				view.setOnScreen();
 			}
 		}
 	}
@@ -469,7 +449,6 @@ class MetadataViewerComponent
 		}
 		Collection nodes = model.getRelatedNodes();
 		Iterator n;
-		toSave.add(data);
 		if (!model.isSingleMode()) {
 			if (nodes != null) {
 				n = nodes.iterator();
@@ -484,7 +463,7 @@ class MetadataViewerComponent
 					} else toSave.add(o);
 				}
 			}
-		}
+		} else toSave.add(data);
 		boolean b = true;
 		if (refObject instanceof ProjectData || 
 			refObject instanceof ScreenData ||
@@ -560,10 +539,14 @@ class MetadataViewerComponent
 		if (dataObject != null && model.isSameObject(dataObject)) {
 			setRootObject(model.getRefObject(), model.getUserID(),
 					model.getSecurityContext());
+			model.setState(READY);
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
-		} else
+		} else {
+			if (model.isSameSelection(data))
+				model.setRelatedNodes(data);
+			else model.setState(READY);
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
-		model.setState(READY);
+		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		fireStateChange();
 	}
