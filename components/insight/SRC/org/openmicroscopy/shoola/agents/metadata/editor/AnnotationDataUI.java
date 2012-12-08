@@ -480,8 +480,8 @@ class AnnotationDataUI
 		p.add(createBar(unrateButton, null));
 		p.add(Box.createHorizontalStrut(2));
 		p.add(rating);
-		//p.add(Box.createHorizontalStrut(2));
-		//p.add(otherRating);
+		p.add(Box.createHorizontalStrut(2));
+		p.add(otherRating);
 		content.add(p);
 		
 		//tags and attachments.
@@ -811,52 +811,10 @@ class AnnotationDataUI
 	{
 		selectedValue = 0;
 		StringBuffer buffer = new StringBuffer();
-		if (model.isMultiSelection()) {
-			selectedValue = model.getAllUserRating();
-			int n = model.getRatingCount(EditorModel.ALL);
-			if (n > 0) {
-				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
-						" | "+n+" vote");
-				if (n > 1) buffer.append("s");
-				buffer.append(")");
-			}
-		} else {
-			selectedValue = model.getUserRating();
-			int n = model.getRatingCount(EditorModel.ALL);
-			if (n > 0) {
-				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
-						" | "+n+" vote");
-				if (n > 1) buffer.append("s");
-				buffer.append(")");
-			}
-		}
-		otherRating.setText(buffer.toString()); 
-		
-		initialValue = selectedValue;
-		rating.setValue(selectedValue);
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
-		Collection l = model.getAttachments();
+		Collection l;
 		int count = 0;
-		/*
-		List v = null;
-		if (l != null) {
-			v = new ArrayList();
-			Iterator k = l.iterator();
-			FileAnnotationData data;
-			boolean b = false;
-			while (k.hasNext()) {
-				data = (FileAnnotationData) k.next();
-				b = isEditorFile(data.getFileName());
-				if (!b) b = isEditorFile(data.getNameSpace());
-				if (!b) v.add(data);
-			}
-			count += v.size();
-		}
-		*/
-		
-		
-		
 		//Viewed by
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
@@ -865,10 +823,35 @@ class AnnotationDataUI
 			l = model.getAttachments();
 			if (l != null) count += l.size();
 			layoutAttachments(l);
+			selectedValue = model.getUserRating();
+			int n = model.getRatingCount(EditorModel.ALL);
+			if (n > 1) {
+				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
+						" | "+n+" vote");
+				if (n > 1) buffer.append("s");
+				buffer.append(")");
+			}
+			otherRating.setVisible(n > 1);
 		} else {
 			layoutTags(model.getAllTags());
 			layoutAttachments(model.getAllAttachments());
+			selectedValue = model.getRatingAverage(EditorModel.ME);
+			int n = model.getRatingCount(EditorModel.ME);
+			if (n > 0) {
+				buffer.append("out of "+n);
+				 buffer.append(" rating");
+				if (n > 1) buffer.append("s");
+			}
+			otherRating.setVisible(true);
 		}
+
+		otherRating.setText(buffer.toString()); 
+		
+		initialValue = selectedValue;
+		rating.setValue(selectedValue);
+		
+		
+		
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
 		boolean enabled = model.canAnnotate();
