@@ -454,10 +454,22 @@ class AnnotationDataUI
 		int size = f.getSize()-1;
 		content.removeAll();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		
+		JPanel p;
+		if (model.isMultiSelection()) {
+			Object refObject = model.getRefObject();
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Annotate the selected ");
+			buffer.append(model.getObjectTypeAsString(refObject));
+			buffer.append("s");
+			l.setText(buffer.toString());
+			p = UIUtilities.buildComponentPanel(l, 0, 0);
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(Box.createHorizontalStrut(2));
+			content.add(p);
+		}
 		//layout button.
 		//filters
-		JPanel p = UIUtilities.buildComponentPanel(
+		p = UIUtilities.buildComponentPanel(
 				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(p);

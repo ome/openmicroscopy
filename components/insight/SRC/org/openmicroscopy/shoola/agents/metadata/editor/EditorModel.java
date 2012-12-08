@@ -538,6 +538,7 @@ class EditorModel
 	 */
 	boolean isMultiSelection() { return !parent.isSingleMode(); }
 
+	
 	/**
 	 * Returns the observable.
 	 * 
