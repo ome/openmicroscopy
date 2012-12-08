@@ -1713,24 +1713,51 @@ class EditorModel
 		*/
 		return null;
 	}
-	
+
 	/**
 	 * Returns the number of ratings for that object.
 	 * 
+	 * @param filter One of the filtering components defined by this class.
 	 * @return See above.
 	 */
-	int getRatingCount()
+	int getRatingCount(int filter)
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		Collection ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return 0;
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
+		if (data == null) return 0;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
 		int n = 0;
-		Iterator i = ratings.iterator();
-		RatingAnnotationData rate;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long userID = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
-			if (rate.getOwner().getId() != id) n++;
+			e = i.next();
+			results = e.getValue();
+			ratings = results.getRatings();
+			if (ratings != null) {
+				
+				switch (filter) {
+				case ALL:
+					n += ratings.size();
+					break;
+				case ME:
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						if (j.next().getOwner().getId() == userID)
+							n++;
+					}
+				case OTHER:
+				default:
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						if (j.next().getOwner().getId() != userID)
+							n++;
+					}
+				}
+			}
 		}
 		return n;
 	}
@@ -1745,17 +1772,58 @@ class EditorModel
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
-		Collection ratings = data.getRatings();
+		Collection<RatingAnnotationData> ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return null;
-		Iterator i = ratings.iterator();
+		Iterator<RatingAnnotationData> i = ratings.iterator();
 		RatingAnnotationData rate;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
+			rate = i.next();
 			if (rate.getOwner().getId() == id)
 				return rate;
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the rating annotation related to the logged in user,
+	 * or <code>null</code> if no annotation.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, RatingAnnotationData> getAllUserRatingAnnotation()
+	{
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
+		if (data == null) return null;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
+		RatingAnnotationData rating;
+		Map<DataObject, RatingAnnotationData> 
+		map = new HashMap<DataObject, RatingAnnotationData>();
+		long id = getUserID();
+		while (i.hasNext()) {
+			e = i.next();
+			results = e.getValue();
+			if (results != null) {
+				ratings = results.getRatings();
+				if (ratings != null) {
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						rating = j.next();
+						if (rating.getOwner().getId() == id) {
+							map.put(e.getKey(), rating);
+						}
+					}
+				}
+			}
+		}
+		
+		return map;
 	}
 	
 	/**
@@ -1782,27 +1850,81 @@ class EditorModel
 		return data.getRating();
 	}
 	
+	/**
+	 * Returns the rating done by the current user.
+	 * 
+	 * @return See above
+	 */
+	int getAllUserRating()
+	{
+		Map<DataObject, RatingAnnotationData>
+		map = getAllUserRatingAnnotation();
+		if (map == null) return 0;
+		Collection<RatingAnnotationData> ratings = map.values();
+		Iterator<RatingAnnotationData> i = ratings.iterator();
+		int n = 0;
+		while (i.hasNext()) {
+			n += i.next().getRating();
+		}
+		return n;
+	}
+	
 	/** 
 	 * Returns the average rating value.
 	 * 
+	 * @param filter One of the filtering components defined by this class.
 	 * @return See above.
 	 */
-	int getRatingAverage() 
+	int getRatingAverage(int filter) 
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
 		if (data == null) return 0;
-		Collection ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return 0;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
+		RatingAnnotationData rating;
 		int n = 0;
-		Iterator i = ratings.iterator();
-		RatingAnnotationData rate;
 		int value = 0;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long userID = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
-			if (rate.getOwner().getId() != id) {
-				value += rate.getRating();
-				n++;
+			e = i.next();
+			results = e.getValue();
+			ratings = results.getRatings();
+			if (ratings != null) {
+				
+				j = ratings.iterator();
+				switch (filter) {
+					case ALL:
+						while (j.hasNext()) {
+							rating = j.next();
+							value += rating.getRating();
+							n++;
+						}
+						break;
+					case ME:
+						
+						while (j.hasNext()) {
+							rating = j.next();
+							if (rating.getOwner().getId() == userID) {
+								value += rating.getRating();
+								n++;
+							}
+						}
+					case OTHER:
+					default:
+						j = ratings.iterator();
+						while (j.hasNext()) {
+							rating = j.next();
+							if (rating.getOwner().getId() != userID) {
+								value += rating.getRating();
+								n++;
+							}
+						}
+				}
 			}
 		}
 		if (n == 0) return 0;

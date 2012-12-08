@@ -809,17 +809,28 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		String text = "";
-		if (!model.isMultiSelection()) {
-			selectedValue = model.getUserRating();
-			int n = model.getRatingCount();
+		selectedValue = 0;
+		StringBuffer buffer = new StringBuffer();
+		if (model.isMultiSelection()) {
+			selectedValue = model.getAllUserRating();
+			int n = model.getRatingCount(EditorModel.ALL);
 			if (n > 0) {
-				text += "(avg:"+model.getRatingAverage()+" | "+n+" vote";
-				if (n > 1) text += "s";
-				text += ")";
+				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
+						" | "+n+" vote");
+				if (n > 1) buffer.append("s");
+				buffer.append(")");
+			}
+		} else {
+			selectedValue = model.getUserRating();
+			int n = model.getRatingCount(EditorModel.ALL);
+			if (n > 0) {
+				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
+						" | "+n+" vote");
+				if (n > 1) buffer.append("s");
+				buffer.append(")");
 			}
 		}
-		otherRating.setText(text); 
+		otherRating.setText(buffer.toString()); 
 		
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
