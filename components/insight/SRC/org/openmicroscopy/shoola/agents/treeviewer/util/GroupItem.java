@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 
@@ -59,6 +60,9 @@ public class GroupItem
 	
 	/** The menu displaying the users.*/
 	private JComponent usersMenu;
+
+	/** The box indicating if the group is selected or not.*/
+	private JCheckBox groupBox;
 	
 	/**
 	 * Creates a new instance.
@@ -75,6 +79,35 @@ public class GroupItem
 		setIcon(icon);
 	}
 
+	/**
+	 * Sets the component indicating if the group is displayed or not.
+	 * 
+	 * @param groupBox The value to set.
+	 */
+	public void setGroupBox(JCheckBox groupBox)
+	{
+		this.groupBox = groupBox;
+	}
+	
+	/**
+	 * Selects or not the group.
+	 * 
+	 * @param selected Pass <code>true</code> to select the group,
+	 * <code>false</code> otherwise.
+	 */
+	public void setGroupSelection(boolean selected)
+	{
+		groupBox.setSelected(selected);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the group is selected or not.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isGroupSelected() { return groupBox.isSelected(); }
+	
+	
 	/**
 	 * Sets the list of components hosting the users.
 	 * 

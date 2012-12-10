@@ -4433,21 +4433,35 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#removeGroup()
+	 * @see TreeViewer#removeGroup(long)
 	 */
-	public void removeGroup()
+	public void removeGroup(long groupId)
 	{
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
+		/*
 		TreeImageDisplay node = browser.getLastSelectedDisplay();
 		if (node == null || !(node.getUserObject() instanceof GroupData))
 			return;
+			*/
+		TreeImageDisplay node = null;
 		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 		//do not remove the last group.
 		List<TreeImageDisplay> groups = v.getNodes();
 		if (groups.size() == 1) return;
+		//Find the node
+		Iterator<TreeImageDisplay> j = groups.iterator();
+		TreeImageDisplay n;
+		while (j.hasNext()) {
+			n = j.next();
+			if (n.getUserObjectId() == groupId) {
+				node = n;
+				break;
+			}
+		}
+		if (node == null) return;
 		GroupData group = (GroupData) node.getUserObject();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i = browsers.entrySet().iterator();
@@ -4457,7 +4471,7 @@ class TreeViewerComponent
 			browser = (Browser) entry.getValue();
 			browser.removeGroup(group);
 		}
-		Iterator<TreeImageDisplay> j = groups.iterator();
+		j = groups.iterator();
 		GroupData g;
 		long gid;
 		while (j.hasNext()) {

@@ -1017,12 +1017,18 @@ class TreeViewerControl
 	 * 
 	 * @param group The selected group
 	 * @param seletectedUsers The selected users.
+	 * @param removeGroup Flag indicating to remove the group from the display.
 	 */
-	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers)
+	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers,
+			boolean removeGroup)
 	{
-		if (model.getGroups().size() > 1)
-			model.setUserGroup(Arrays.asList(group));
-		model.setHierarchyRoot(group.getId(), seletectedUsers);
+		if (removeGroup) {
+			model.removeGroup(group.getId());
+		} else {
+			if (model.getGroups().size() > 1)
+				model.setUserGroup(Arrays.asList(group));
+			model.setHierarchyRoot(group.getId(), seletectedUsers);
+		}
 	}
 	
 	/**
