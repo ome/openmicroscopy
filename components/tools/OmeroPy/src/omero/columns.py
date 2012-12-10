@@ -233,9 +233,12 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
 
     def descriptor(self, pos):
         # During initialization, size might be zero
-        # to prevent exceptions we set it to 1
-        if not self.size or self.size < 0:
-            self.size = 1
+        # to prevent exceptions we temporarily assume size 1
+        if pos is None:
+            return tables.StringCol(pos=pos, itemsize=1)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "String size must be > 0 (Column: %s)" % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
 
 class AbstractArrayColumn(AbstractColumn):
