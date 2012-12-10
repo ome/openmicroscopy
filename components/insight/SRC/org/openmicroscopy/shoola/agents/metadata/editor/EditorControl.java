@@ -569,9 +569,7 @@ class EditorControl
 			} else if (object instanceof TextualAnnotationComponent) {
 				TextualAnnotationComponent doc = 
 					(TextualAnnotationComponent) object;
-				TextualAnnotationData data = doc.getData();
-				//view.deleteAnnotation((TextualAnnotationData) data);
-				view.removeObject(data);
+				view.removeObject(doc.getData());
 			}
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
@@ -778,14 +776,6 @@ class EditorControl
 			case RELOAD_SCRIPT:
 				view.reloadScript();
 				break;
-				/*
-			case REMOVE_TAGS:
-				view.removeTags();
-				break;
-			case REMOVE_DOCS:
-				view.removeAttachedFiles();
-				break;
-				*/
 			case SAVE_AS:
 				saveAsJPEG();
 				break;
