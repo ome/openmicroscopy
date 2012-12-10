@@ -600,6 +600,13 @@ public class SelectionWizardUI
 	}
 	
 	/**
+	 * Returns the collection of immutable objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection getImmutableElements() { return immutable; }
+	
+	/**
 	 * Returns <code>true</code> if the node has been added,
 	 * <code>false</code> otherwise.
 	 * 
