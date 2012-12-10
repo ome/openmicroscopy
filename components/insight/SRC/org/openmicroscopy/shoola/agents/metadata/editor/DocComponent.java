@@ -411,7 +411,7 @@ class DocComponent
 						model.getObjectName(e.getKey())));
 				if (e.getValue().booleanValue()) {
 					n++;
-					buf.append(" &minus;");
+					buf.append(" [unlink]");
 				}
 				buf.append("<br>");
 			}
