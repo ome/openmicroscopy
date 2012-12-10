@@ -235,7 +235,6 @@ class EditorComponent
 		
 		Collection<TagAnnotationData> setTags = 
 				model.getCommonTags();
-				//view.getCurrentTagsSelection();
 		Iterator<TagAnnotationData> k = setTags.iterator();
 		List<Long> ids = new ArrayList<Long>();
 		TagAnnotationData tag;
@@ -359,7 +358,8 @@ class EditorComponent
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
-		Collection setAttachments = view.getCurrentAttachmentsSelection();
+		Collection setAttachments = 
+				model.getCommonAttachments();
 		Iterator<FileAnnotationData> k = setAttachments.iterator();
 		List<Long> ids = new ArrayList<Long>();
 		while (k.hasNext()) {
