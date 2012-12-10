@@ -1277,7 +1277,7 @@ class AnnotationDataUI
 		Iterator<DocComponent> i;
 		Collection original;
 		Iterator j;
-		if (tagFlag && !model.isMultiSelection()) {
+		if (tagFlag && model.isMultiSelection()) {
 			idsToKeep = new ArrayList<Long>();
 			
 			TagAnnotationData tag;
