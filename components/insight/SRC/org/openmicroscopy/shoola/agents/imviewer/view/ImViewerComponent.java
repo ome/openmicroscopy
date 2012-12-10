@@ -896,9 +896,6 @@ class ImViewerComponent
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
 		if (image == null) { //no need to notify.
-			//UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			//un.notifyInfo("Image retrieval", "An error occurred while " +
-			//		"creating the image.");
 			if (ImViewerAgent.hasOpenGLSupport())
 				model.setImageAsTexture(null);
 			else model.setImage(null);
