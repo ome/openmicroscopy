@@ -157,6 +157,22 @@ class BackwardsCompatibilityTest(lib.ITest):
         testm = data.columns[11 - 2]
         self.checkMaskCol(testm)
 
+        # Now try an update
+        updatel = omero.grid.LongColumn('longcol', '', [12345])
+        updateData = omero.grid.Data(rowNumbers = [1], columns = [updatel])
+        table.update(updateData)
+
+        self.assertEquals(table.getNumberOfRows(), 2)
+        data2 = table.readCoordinates([0,1])
+
+        for n in [0, 1, 2, 3, 4, 5, 6, 8]:
+            self.assertEquals(data.columns[n].values, data2.columns[n].values)
+        self.checkMaskCol(data2.columns[11 - 2])
+
+        testl2 = data2.columns[7].values
+        self.assertEquals(-1, testl2[0])
+        self.assertEquals(12345, testl2[1])
+
 
 if __name__ == '__main__':
     unittest.main()
