@@ -35,6 +35,9 @@ def columns2definition(cols):
     for i in range(len(cols)):
         column = cols[i]
         instance = column.descriptor(pos=i)
+        if column.name in definition:
+            raise omero.ApiUsageException(
+                None, None, "Duplicate column name: %s" % column.name)
         definition[column.name] = instance
         # Descriptions are handled separately
     return definition
