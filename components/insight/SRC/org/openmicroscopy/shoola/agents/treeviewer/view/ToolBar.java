@@ -48,6 +48,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -59,6 +60,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
@@ -196,7 +198,8 @@ class ToolBar
 		if (selectedItem == null) return;
 		//handle users and group selection.
 		controller.setSelection(selectedItem.getGroup(),
-				selectedItem.getSeletectedUsers());
+				selectedItem.getSeletectedUsers(),
+				!selectedItem.isGroupSelected());
 
 		usersMenu.setVisible(false);
 		groupsMenu.setVisible(false);
@@ -219,10 +222,11 @@ class ToolBar
 	/**
 	 * Creates the menu hosting the users belonging to the specified group.
 	 * 
-	 * @param groupItem The item hosting the group
+	 * @param groupItem The item hosting the group.
+	 * @param groupNumber The number of groups.
 	 * @return See above.
 	 */
-	private JComponent createGroupMenu(GroupItem groupItem)
+	private JComponent createGroupMenu(GroupItem groupItem, int groupNumber)
 	{
 		GroupData group = groupItem.getGroup();
 		long id = model.getUserDetails().getId();
@@ -262,6 +266,27 @@ class ToolBar
 		
 		UserMenuItem item;
 		JPanel list;
+		JCheckBox groupBox = new JCheckBox();
+		Font font = groupBox.getFont();
+		Font newFont = font.deriveFont(Font.BOLD);
+		groupBox.setFont(newFont);
+		groupBox.setText("Show Group");
+		groupBox.setHorizontalTextPosition(SwingConstants.LEFT);
+		if (groupNumber > 1)
+			p.add(UIUtilities.buildComponentPanel(groupBox));
+		groupItem.setGroupBox(groupBox);
+		ActionListener al = new ActionListener() {
+			
+			/**
+			 * Selects the group is not already selected.
+			 * @see ActionListner#actionPerformed(ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (selectedItem == null) return;
+				selectedItem.setGroupSelection(true);
+				
+			}
+		};
 		if (l != null && l.size() > 0) {
 			p.add(formatHeader("Group owners"));
 			i = l.iterator();
@@ -271,6 +296,7 @@ class ToolBar
 				exp = (ExperimenterData) i.next();
 				item = new UserMenuItem(exp, exp.getId() != id);
 				item.setSelected(users.contains(exp.getId()));
+				item.addActionListener(al);
 				items.add(item);
 				list.add(item);
 			}
@@ -286,7 +312,8 @@ class ToolBar
 				exp = (ExperimenterData) i.next();
 				item = new UserMenuItem(exp, exp.getId() != id);
 				item.setSelected(users.contains(exp.getId()));
-				items.add(item);;
+				item.addActionListener(al);
+				items.add(item);
 				list.add(item);
 			}
 			p.add(UIUtilities.buildComponentPanel(list));
@@ -359,7 +386,7 @@ class ToolBar
 			});
 		}
 		groupsMenu.removeAll();
-		Iterator i = sortedGroups.iterator();
+		
 		GroupData group;
 		if (addToDisplay == null) {
 			addToDisplay = new JButton("Update");
@@ -407,11 +434,32 @@ class ToolBar
 				usersMenu.show(e.getComponent(), r.width, 0);
 			}
 		};
+		//Determine the group already displayed.
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		List<TreeImageDisplay> nodes;
+		ExperimenterVisitor visitor;
+		//Find the user already added to the selected group.
+		visitor = new ExperimenterVisitor(browser, -1);
+		browser.accept(visitor);
+		nodes = visitor.getNodes();
+		Iterator<TreeImageDisplay> k = nodes.iterator();
+		List<Long> groupIds = new ArrayList<Long>();
+		long id;
+		while (k.hasNext()) {
+			id = k.next().getUserObjectId();
+			if (id >= 0) groupIds.add(id);
+		}
+		
+		//Create the group menu.
+		Iterator i = sortedGroups.iterator();
 		GroupItem item;
+		int size = sortedGroups.size();
 		while (i.hasNext()) {
 			group = (GroupData) i.next();
 			item = new GroupItem(group, getGroupIcon(group));
-			createGroupMenu(item);
+			createGroupMenu(item, size);
+			if (groupIds.contains(group.getId()) || size == 1)
+				item.setGroupSelection(true);
 			item.addMouseListener(l);
 			groupsMenu.add(item);
 		}

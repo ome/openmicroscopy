@@ -1090,11 +1090,15 @@ public interface TreeViewer
 	 */
 	GroupData getSelectedGroup();
 
-	/** Remove group.*/
-	void removeGroup();
+	/** 
+	 * Removes group.
+	 * 
+	 * @param groupID The id of the group.
+	 */
+	void removeGroup(long groupID);
 
 	/** 
-	 * Move the selected data to the specified group.
+	 * Moves the selected data to the specified group.
 	 * 
 	 * @param group The data to move.
 	 */
