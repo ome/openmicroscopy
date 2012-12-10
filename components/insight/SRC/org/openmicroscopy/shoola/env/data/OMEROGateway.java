@@ -4761,8 +4761,8 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive(ctx);
+		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
-			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID, 
 					convertPojos(rootNodeType).getName(),
 					nodes);
