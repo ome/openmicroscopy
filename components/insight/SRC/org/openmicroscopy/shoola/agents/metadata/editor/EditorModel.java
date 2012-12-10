@@ -1015,23 +1015,32 @@ class EditorModel
 	 */
 	boolean isLinkOwner(Object annotation)
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		if (!(annotation instanceof DataObject)) return false;
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return false;
-		Map m = data.getLinks();
-		if (m == null) return false;
-		long id = getUserID();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
+		Collection<AnnotationLinkData> links;
+		AnnotationLinkData link;
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (id == exp.getId()) return true;
+		
+		long id = getUserID();
+		
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			if (links != null) {
+				i = links.iterator();
+				while (i.hasNext()) {
+					link = i.next();
+					if (link.getChild().getId() == ann.getId() &&
+						link.getOwner().getId() == id) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -1067,24 +1076,33 @@ class EditorModel
 	List<ExperimenterData> getAnnotators(Object annotation)
 	{
 		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return list;
-		Map m = data.getLinks();
-		if (m == null) return list;
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
+		Collection<AnnotationLinkData> links;
+		AnnotationLinkData link;
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
+		
 		List<Long> ids = new ArrayList<Long>();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (!ids.contains(exp.getId())) {
-					list.add(exp);
-					ids.add(exp.getId());
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			if (links != null) {
+				i = links.iterator();
+				while (i.hasNext()) {
+					link = i.next();
+					if (link.getChild().getId() == ann.getId()) {
+						
+						if (!ids.contains(link.getOwner().getId())) {
+							list.add(link.getOwner());
+							ids.add(link.getOwner().getId());
+						}
+					}
 				}
 			}
 		}
@@ -1100,40 +1118,52 @@ class EditorModel
 	 */
 	List<Object> getLinks(int level, AnnotationData ho)
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return null;
-		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
-		if (links == null) return new ArrayList<Object>();
-		Iterator<AnnotationLinkData> i = links.iterator();
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
 		AnnotationLinkData d;
 		List<Object> results = new ArrayList<Object>();
 		long userID = getCurrentUser().getId();
-		switch (level) {
-			case ALL:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId()) {
-						results.add(d.getLink());
-					}
+		Collection<AnnotationLinkData> links;
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			if (links != null) {
+				i = links.iterator();
+				switch (level) {
+					case ALL:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId()) {
+								results.add(d.getLink());
+							}
+						}
+						break;
+					case ME:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId() &&
+									userID == d.getOwner().getId()) {
+								results.add(d.getLink());
+							}
+						}
+						break;
+					case OTHER:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId() &&
+									userID != d.getOwner().getId()) {
+								results.add(d.getLink());
+							}
+						}
 				}
-				break;
-			case ME:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId() &&
-							userID == d.getOwner().getId()) {
-						results.add(d.getLink());
-					}
-				}
-				break;
-			case OTHER:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId() &&
-							userID != d.getOwner().getId()) {
-						results.add(d.getLink());
-					}
-				}
+			}
+			
 		}
 		return results;
 	}
@@ -1146,23 +1176,29 @@ class EditorModel
 	 */
 	boolean isAnnotationUsedByUser(Object annotation)
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return false;
-		Map m = data.getLinks();
-		if (m == null) return false;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> i;
+		AnnotationLinkData link;
+		
 		long id = getUserID();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (exp.getId() == id) return true;
+		
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			i = links.iterator();
+			while (i.hasNext()) {
+				link = i.next();
+				if (link.getChild().getId() == ann.getId() &&
+					link.getOwner().getId() == id)
+					return true;
 			}
+			
 		}
 		return false;
 	}
