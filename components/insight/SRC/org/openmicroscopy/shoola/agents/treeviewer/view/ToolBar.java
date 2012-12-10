@@ -263,7 +263,7 @@ class ToolBar
 		UserMenuItem item;
 		JPanel list;
 		if (l != null && l.size() > 0) {
-			p.add(formatHeader("Group's owners"));
+			p.add(formatHeader("Group owners"));
 			i = l.iterator();
 			list = new JPanel();
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -278,7 +278,7 @@ class ToolBar
 		}
 		l = sorter.sort(group.getMembersOnly());
 		if (l != null && l.size() > 0) {
-			p.add(formatHeader("members"));
+			p.add(formatHeader("Members"));
 			i = l.iterator();
 			list = new JPanel();
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
