@@ -71,7 +71,7 @@ public class PixelsDataLoader
     private SecurityContext ctx;
     
     /**
-     * Creates a {@link BatchCall} to laod the pixels set.
+     * Creates a {@link BatchCall} to load the pixels set.
      * 
      * @return See above.
      */
