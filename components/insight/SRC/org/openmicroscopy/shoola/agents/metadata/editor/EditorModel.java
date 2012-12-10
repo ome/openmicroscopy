@@ -1652,6 +1652,76 @@ class EditorModel
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(results);
 	}
+	
+	/**
+	 * Returns the collection of the tags that are linked to all the selected
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection<TagAnnotationData> getCommonAttachments()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<TagAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<FileAnnotationData> tags;
+		Map<Long, Integer> 
+			ids = new HashMap<Long, Integer>();
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData tag;
+		
+		Integer value;
+		String ns;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getAttachments();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					ns = tag.getNameSpace();
+					if (!FileAnnotationData.FLIM_NS.equals(ns) &&
+						!FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+						value = ids.get(tag.getId());
+						if (value != null) {
+							value++;
+						} else value = 1;
+						ids.put(tag.getId(), value);
+					}
+					
+				}
+			}
+		}
+		
+		//Extract the common tags.
+		//The number of selected objects.
+		List<FileAnnotationData> results = new ArrayList<FileAnnotationData>();
+		List<Long> count = new ArrayList<Long>();
+		
+		int max = r.size();
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getAttachments();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value == max && !count.contains(tag.getId())) {
+						results.add(tag);
+						count.add(tag.getId());
+					}
+				}
+			}
+		}
+		
+		return (Collection<TagAnnotationData>) sorter.sort(results);
+	}
+	
 	/**
 	 * Returns the collection of XML annotations.
 	 * 
