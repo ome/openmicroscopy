@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -55,10 +57,12 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -116,6 +120,70 @@ class EditorComponent
 	private ScriptingDialog dialog;
 	
 	/**
+	 * Returns the collection of annotation that cannot be removed 
+	 * by the user currently logged.
+	 * 
+	 * @param type The type of annotations to handle.
+	 * @param common The collection of common annotations. The list will
+	 * @return See above.
+	 */
+	private Collection<DataObject> getImmutableAnnotation(Class type,
+			Collection<DataObject> common)
+	{
+		List<DataObject> list = new ArrayList<DataObject>();
+		Map<DataObject, StructuredDataResults>
+			data = model.getAllStructuredData();
+		if (data == null || data.size() == 0) return list;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = data.entrySet().iterator();
+		StructuredDataResults result;
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> j;
+		AnnotationLinkData link;
+		
+		if (model.isMultiSelection()) {
+			List<Long> selected = new ArrayList<Long>();
+			List<Long> ids = new ArrayList<Long>(common.size());
+			Iterator<DataObject> k = common.iterator();
+			while (k.hasNext()) {
+				ids.add(k.next().getId());
+			}
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				links = result.getAnnotationLinks();
+				if (links != null) {
+					j = links.iterator();
+					while (j.hasNext()) {
+						link = j.next();
+						if (link.getChild().getClass().equals(type)) {
+							if (!ids.contains(link.getChild().getId())) {
+								if (!selected.contains(link.getChild().getId()))
+									list.add(link.getChild());
+							}
+						}
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				links = result.getAnnotationLinks();
+				if (links != null) {
+					j = links.iterator();
+					while (j.hasNext()) {
+						link = j.next();
+						if (!link.canDelete() && link.getChild().equals(type))
+							list.add(link.getChild());
+					}
+				}
+			}
+		}
+		return list;
+	}
+	/**
 	 * Shows the selection wizard.
 	 * 
 	 * @param type			The type of objects to handle.
@@ -133,19 +201,23 @@ class EditorComponent
 		String title = "";
 		String text = "";
 		Icon icon = null;
+		boolean single = model.isSingleMode();
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			text = "Select the Tags to add or remove, \nor Create new Tags";
+			if (single)
+				text = "Select the Tags to add or remove, \nor Create new Tags";
+			else text = "Select the Tags to add, \nor Create new Tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			text = "Select the Attachments to add or remove.";
+			if (single) text = "Select the Attachments to add or remove.";
+			else text = "Select the Attachments to add.";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
-				addCreation, MetadataViewerAgent.getUserDetails());
-		wizard.setImmutableElements(model.getImmutableAnnotation());
+				addCreation, model.getCurrentUser());
+		wizard.setImmutableElements(getImmutableAnnotation(type, selected));
 		if (model.isMultiSelection())
 			wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);

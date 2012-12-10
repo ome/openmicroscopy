@@ -1174,52 +1174,6 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of annotation that cannot be removed 
-	 * by the user currently logged.
-	 * 
-	 * @return See above.
-	 */
-	Collection getImmutableAnnotation()
-	{
-		List<DataObject> list = new ArrayList<DataObject>();
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return list;
-		Map m = data.getLinks();
-		if (m == null) return list;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			exp = (ExperimenterData) entry.getValue();
-			if (id != exp.getId())
-				list.add(o);
-		}
-		return list;
-	}
-	
-	/**
-	 * Returns the identifiers of the annotations that cannot be unlinked.
-	 * 
-	 * @return See above.
-	 */
-	List<Long> getImmutableAnnotationIds()
-	{
-		List<Long> ids = new ArrayList<Long>();
-		Collection l = getImmutableAnnotation();
-		Iterator i = l.iterator();
-		DataObject data;
-		while (i.hasNext()) {
-			data = (DataObject) i.next();
-			ids.add(data.getId());
-		}
-		return ids;
-	}
-	
-	/**
 	 * Returns <code>true</code> if the user currently logged in, is a leader
 	 * of the selected group, <code>false</code> otherwise.
 	 * 
@@ -3758,6 +3712,16 @@ class EditorModel
 			}
 		} catch (Exception e) {}
 		return false;
+	}
+
+	/**
+	 * Returns the annotations associated to the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return parent.getAllStructuredData();
 	}
 	
 }
