@@ -1096,7 +1096,8 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Returns the tags currently selected.
+	 * Returns the tags currently selected. A tag will be added to the list
+	 * only if it is linked to all the selected objects
 	 * 
 	 * @return See above.
 	 */

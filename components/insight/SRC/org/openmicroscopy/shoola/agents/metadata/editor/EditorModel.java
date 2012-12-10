@@ -1340,7 +1340,8 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of the tags linked to the <code>DataObject</code>.
+	 * Returns the collection of the tags linked to the
+	 * <code>DataObject</code>s.
 	 * 
 	 * @return See above.
 	 */
@@ -1371,6 +1372,69 @@ class EditorModel
 				}
 			}
 		}
+		return (Collection<TagAnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the collection of the tags that are linked to all the selected
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection<TagAnnotationData> getCommonTags()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<TagAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		Map<Long, Integer> 
+			ids = new HashMap<Long, Integer>();
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		
+		Integer value;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null) {
+						value++;
+					} else value = 1;
+					ids.put(tag.getId(), value);
+				}
+			}
+		}
+		
+		//Extract the common tags.
+		//The number of selected objects.
+		List<TagAnnotationData> results = new ArrayList<TagAnnotationData>();
+		List<Long> count = new ArrayList<Long>();
+		
+		int max = r.size();
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value == max && !count.contains(tag.getId())) {
+						results.add(tag);
+						count.add(tag.getId());
+					}
+				}
+			}
+		}
+		
 		return (Collection<TagAnnotationData>) sorter.sort(results);
 	}
 	

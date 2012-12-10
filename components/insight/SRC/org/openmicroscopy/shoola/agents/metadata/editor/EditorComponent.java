@@ -233,7 +233,9 @@ class EditorComponent
 	{
 		model.setExistingTags(tags);
 		
-		Collection setTags = view.getCurrentTagsSelection();
+		Collection<TagAnnotationData> setTags = 
+				model.getCommonTags();
+				//view.getCurrentTagsSelection();
 		Iterator<TagAnnotationData> k = setTags.iterator();
 		List<Long> ids = new ArrayList<Long>();
 		TagAnnotationData tag;
@@ -242,7 +244,7 @@ class EditorComponent
 			if (model.isAnnotationUsedByUser(tag))
 				ids.add(tag.getId());
 		}
-		List available = new ArrayList();
+		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
 		if (tags != null) {
 			Iterator i = tags.iterator();
 			TagAnnotationData data;
@@ -269,7 +271,7 @@ class EditorComponent
 			}
 		}
 		if (controller.getFigureDialog() != null) {
-			List all = new ArrayList();
+			List<TagAnnotationData> all = new ArrayList<TagAnnotationData>();
 			all.addAll(available);
 			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
 			controller.getFigureDialog().setTags(all);
