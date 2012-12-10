@@ -837,13 +837,7 @@ class EditorModel
 	 */
 	boolean canLink(Object data)
 	{ 
-		/*
-		if (!(data instanceof DataObject)) return false;
-		DataObject d = (DataObject) data;
-		return d.canLink();
-		*/
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		return EditorUtil.isUserOwner(data, id);
+		return EditorUtil.isUserOwner(data, getUserID());
 	}
 
 	/**
@@ -1000,7 +994,7 @@ class EditorModel
 	 */
 	boolean isUserOwner(Object object)
 	{
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == id);
@@ -1026,7 +1020,7 @@ class EditorModel
 		if (data == null) return false;
 		Map m = data.getLinks();
 		if (m == null) return false;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		Entry entry;
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
@@ -1058,7 +1052,7 @@ class EditorModel
 		if (annotators == null || annotators.size() == 0) return false;
 		if (annotators.size() == 1) {
 			ExperimenterData exp = annotators.get(0);
-			long id = MetadataViewerAgent.getUserDetails().getId();
+			long id = getUserID();
 			return exp.getId() != id;
 		}
 		return true;
@@ -1156,7 +1150,7 @@ class EditorModel
 		if (data == null) return false;
 		Map m = data.getLinks();
 		if (m == null) return false;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		Entry entry;
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
