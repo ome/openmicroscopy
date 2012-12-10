@@ -117,7 +117,8 @@
                     qKeys[q[i].match(/^[^=]+/)] = q[i].replace(/^[^=]+=?/, "");
                 }
                 if (qKeys["show"]) {
-                    shows = qKeys["show"].split("|");   // handle multiple wells. ?show=well-123|well-456
+                    // handle multiple wells. ?show=well-123|well-456
+                    shows = qKeys["show"].split(/%7C|\|/);      // split | OR %7C (| can be encoded as %7C)
                     for (var s=0;s<shows.length;s++){
                         if (shows[s].substr(0,5) === "well-") {
                             well_id = parseInt(shows[s].replace("well-",""));
