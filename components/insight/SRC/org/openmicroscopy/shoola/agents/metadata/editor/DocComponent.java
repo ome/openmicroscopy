@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -367,8 +368,11 @@ class DocComponent
 	private String formatTootTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
+		
+		//icons.getImageIcon(IconManager.MINUS_12).getIm;
 		buf.append("<html><body>");
 		if (model.isMultiSelection()) {
+			IconManager icons = IconManager.getInstance();
 			Map<DataObject, Boolean> m = null;
 			Entry<DataObject, Boolean> e;
 			Iterator<Entry<DataObject, Boolean>> j;
@@ -392,6 +396,7 @@ class DocComponent
 			buf.append(text);
 			buf.append(n);
 			int index = 0;
+			URL icon = icons.getIconURL(IconManager.MINUS_12);
 			while (j.hasNext()) {
 				e = j.next();
 				if (index == 0) {
@@ -411,7 +416,7 @@ class DocComponent
 						model.getObjectName(e.getKey())));
 				if (e.getValue().booleanValue()) {
 					n++;
-					buf.append(" [unlink]");
+					buf.append("&nbsp;<img src=\""+icon+ "\">");
 				}
 				buf.append("<br>");
 			}
