@@ -1047,7 +1047,7 @@ class TreeViewerComponent
 				Object child;
 				for (int i = 0; i < selection.length; i++) {
 					child = selection[i].getUserObject();
-					if (!child.equals(object)) 
+					//if (!child.equals(object)) 
 						l.add(child);
 				}
 				if (l.size() > 0)
