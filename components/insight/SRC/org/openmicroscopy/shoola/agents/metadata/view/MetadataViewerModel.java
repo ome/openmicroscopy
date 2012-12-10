@@ -116,6 +116,9 @@ class MetadataViewerModel
 	/** The object of reference for the viewer i.e. the root. */
 	private Object parentRefObject;
 	
+	/** The object of reference for the viewer i.e. the root. */
+	private Object grandParent;
+	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults data;
 	
@@ -306,6 +309,7 @@ class MetadataViewerModel
 	void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
 		this.parentRefObject = parentRefObject;
+		this.grandParent = grandParent;
 		editor.setParentRootObject(parentRefObject, grandParent);
 	}
 	
@@ -407,15 +411,16 @@ class MetadataViewerModel
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;
 				uo = wsd.getImage();
+				/*
 				if (!loaders.containsKey(refNode) && parentData == null
-						&& parentRefObject != null) {
+						&& grandParent != null) {
 					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, refNode, parentRefObject);
+						ctx, refNode, grandParent);
 					loaders.put(refNode, l);
 					l.load();
 					state = MetadataViewer.LOADING_METADATA;
 					return;
-				}
+				}*/
 			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, refNode, uo);
@@ -432,27 +437,36 @@ class MetadataViewerModel
 	 * @param uo The object to compare.
 	 * @return See above.
 	 */
-	boolean isSameObject(DataObject uo)
+	boolean isSameObject(Object uo)
 	{
 		if (uo == null || !(refObject instanceof DataObject)) return false;
+		if (!(uo instanceof DataObject)) return false;
+		DataObject ho = (DataObject) uo;
 		Class klass = refObject.getClass();
+		Class hoKlass = ho.getClass();
 		if (refObject instanceof WellSampleData) {
 			klass = ((WellSampleData) refObject).getImage().getClass();
 		}
-		if (!uo.getClass().equals(klass))
+		if (ho instanceof WellSampleData) {
+			hoKlass = ((WellSampleData) ho).getImage().getClass();
+		}
+		if (!hoKlass.equals(klass))
 			return false;
 		DataObject object;
 		if (refObject instanceof WellSampleData)
 			object = ((WellSampleData) refObject).getImage();
 		else object = (DataObject) refObject;
-		if (uo.getId() != object.getId()) return false;
+		if (ho instanceof WellSampleData) {
+			ho = ((WellSampleData) ho).getImage();
+		}
+		if (ho.getId() != object.getId()) return false;
 		if (data == null) return false;
 		Object o = data.getRelatedObject();
 		if (!(o instanceof DataObject)) return false;
 		object = (DataObject) o;
-		if (!uo.getClass().equals(object.getClass()))
+		if (!hoKlass.equals(object.getClass()))
 			return false;
-		if (uo.getId() != object.getId()) return false;
+		if (ho.getId() != object.getId()) return false;
 		return true;
 	}
 	
