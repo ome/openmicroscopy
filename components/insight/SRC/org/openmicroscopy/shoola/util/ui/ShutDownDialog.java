@@ -91,6 +91,7 @@ public class ShutDownDialog
 	{
 		checker = new NetworkChecker();
 		removeWindowListener(windowAdapter);
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		remainingTime = time;
 		okButton.setText("Shut Down");
 		okButton.setToolTipText("Shut down the application.");
