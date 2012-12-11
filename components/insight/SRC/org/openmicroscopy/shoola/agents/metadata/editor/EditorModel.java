@@ -892,8 +892,19 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canDeleteLink(Object data)
-	{ 
-		return canDeleteLink(data, parent.getStructuredData());
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return false;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			if (canDeleteLink(data, e.getValue()))
+				return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -946,7 +957,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the annotation can be added, should
+	 * Returns <code>true</code> if the annotation can be deleted, should
 	 * only be invoked for tagging or adding attachments, <code>false</code>
 	 * otherwise.
 	 * 
@@ -954,17 +965,24 @@ class EditorModel
 	 */
 	boolean canDeleteAnnotationLink()
 	{
-		if (!isMultiSelection()) return true;
-		
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return false;
-		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
-		if (list == null) return false;
-		AnnotationLinkData link;
-		Iterator<AnnotationLinkData> i = list.iterator();
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return false;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		StructuredDataResults data;
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> j;
 		while (i.hasNext()) {
-			link = i.next();
-			if (link.canDelete()) return true;
+			e = i.next();
+			data = e.getValue();
+			links = data.getAnnotationLinks();
+			if (links != null) {
+				j = links.iterator();
+				while (j.hasNext())
+					if ( j.next().canDelete()) return true;
+			}
 		}
 		return false;
 	}
