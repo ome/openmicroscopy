@@ -275,37 +275,41 @@
                     var url = $(this).attr('href');
                     $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
                     var dialog_opts = ['Cancel', 'Create'];
-                    $.getJSON("{% url ome_tiff_info manager.obj_id %}", function(data) {
-                        
-                        var msg = "This will create an OME-TIFF file from this Image.";
-                        if (data.id && data.ago) {
-                            msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
-                            var download_ometiff = data.download;
-                            dialog_opts[1] = "Create New";
-                            dialog_opts.push("Download");
-                        } else {
-                            msg += "<br>This will be attached to the Image and available to download.";
-                        }
+                    $.ajax({
+                        url: "{% url ome_tiff_info manager.obj_id %}",
+                        cache: false,
+                        dataType: 'json',
+                        success: function(data) {
+                            var msg = "This will create an OME-TIFF file from this Image.";
+                            if (data.id && data.ago) {
+                                msg += "<br>Or you can Download one that was created "+ data.ago +" ago.";
+                                var download_ometiff = data.download;
+                                dialog_opts[1] = "Create New";
+                                dialog_opts.push("Download");
+                            } else {
+                                msg += "<br>This will be attached to the Image and available to download.";
+                            }
 
-                        var confirm_ometiff = confirm_dialog(msg,
-                            function() {
-                                var btn = confirm_ometiff.data("clicked_button");
-                                switch (btn) {
-                                    case "Create":   // two options for the same button
-                                    case "Create New":
-                                        $.post( url, function() {
-                                            showActivities();
-                                        });
-                                        break;
-                                    case "Download":
-                                        window.location.href = download_ometiff;
-                                        break;
-                                }
-                            },
-                            "Create OME-TIFF?",
-                            dialog_opts,
-                            null, 200
-                        );
+                            var confirm_ometiff = confirm_dialog(msg,
+                                function() {
+                                    var btn = confirm_ometiff.data("clicked_button");
+                                    switch (btn) {
+                                        case "Create":   // two options for the same button
+                                        case "Create New":
+                                            $.post( url, function() {
+                                                showActivities();
+                                            });
+                                            break;
+                                        case "Download":
+                                            window.location.href = download_ometiff;
+                                            break;
+                                    }
+                                },
+                                "Create OME-TIFF?",
+                                dialog_opts,
+                                null, 200
+                            );
+                        }
                     });
                     
                     e.preventDefault();
@@ -634,7 +638,17 @@
 			
 			<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
                    
-            <h2 class="data_heading_id">Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong></h2>
+            <h2 class="data_heading_id">
+                Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong>
+                <!-- open well-link -->
+                <button id="show_link_btn" class="btn silver btn_link" title="Link to this Well">
+                    <span></span>
+                </button>
+                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                    <input type="text" size="30">
+                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                </div>
+            </h2>
             
 			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
 				<span>
@@ -724,7 +738,17 @@
 				
 				<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
                 
-                <h2 class="data_heading_id">Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong></h2>
+                <h2 class="data_heading_id">
+                    Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong>
+                    <!-- open link -->
+                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
+                        <span></span>
+                    </button>
+                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                        <input type="text" size="30">
+                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                    </div>
+                </h2>
                 
 				<hr/>
 				

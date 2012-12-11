@@ -129,8 +129,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return self.dataset
         if self.image is not None: return self.image
         if self.screen is not None: return self.screen
-        if self.plate is not None: return self.plate
         if self.acquisition is not None: return self.acquisition
+        if self.plate is not None: return self.plate
         if self.well is not None: return self.well
         if self.tag is not None: return self.tag
         if self.file is not None: return self.file
@@ -140,8 +140,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return "dataset"
         if self.image is not None: return "image"
         if self.screen is not None: return "screen"
-        if self.plate is not None: return "plate"
         if self.acquisition is not None: return "acquisition"
+        if self.plate is not None: return "plate"
         if self.well is not None: return "well"
         if self.tag is not None: return "tag"
         if self.file is not None: return "file"
@@ -158,7 +158,25 @@ class BaseContainer(BaseController):
         obj = self._get_object()
         return obj is not None and obj.canEdit() or None
 
+    def getPermsCss(self):
+        """ Shortcut to get permissions flags, E.g. for css """
+        return self._get_object().getPermsCss()
 
+    def getNumberOfFields(self):
+        """ Applies to Plates (all fields) or PlateAcquisitions"""
+        if self.plate is not None:
+            return self.plate.getNumberOfFields()
+        elif self.acquisition:
+            p = self.conn.getObject("Plate", self.acquisition._obj.plate.id.val)
+            return p.getNumberOfFields(self.acquisition.getId())
+    
+    def getPlateId(self):
+        """ Used by templates that display Plates or PlateAcquisitions """
+        if self.plate is not None:
+            return self.plate.getId()
+        elif self.acquisition:
+            return self.acquisition._obj.plate.id.val
+        
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
@@ -248,15 +266,18 @@ class BaseContainer(BaseController):
         im_list = list(self.conn.getObjectsByAnnotations('Image',[self.tag.id]))
         sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
         pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
+        pa_list = list(self.conn.getObjectsByAnnotations('PlateAcquisition',[self.tag.id]))
         
         pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
         ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
         im_list.sort(key=lambda x: x.getName() and x.getName().lower())
         sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
         pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
         
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 
+            'screens':sc_list, 'plates':pl_list, 'aquisitions': pa_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)+len(pa_list)
         
     def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
