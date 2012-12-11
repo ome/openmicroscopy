@@ -189,13 +189,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private JComboBox screensBox;
 
 	/** Button to create a new project. */
-	private JButton addProjectButton;
+	private JButton newProjectButton;
 
 	/** Button to create a new dataset. */
-	private JButton addDatasetButton;
+	private JButton newDatasetButton;
 
 	/** Button to create a new screen. */
-	private JButton addScreenButton;
+	private JButton newScreenButton;
 
 	/** The listener linked to the parents box. */
 	private ActionListener projectsBoxListener;
@@ -325,20 +325,20 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		// main panel buttons
 		
-		addProjectButton = new JButton("New...");
-		addProjectButton.setToolTipText("Create a new Project.");
-		addProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
-		addProjectButton.addActionListener(this);
+		newProjectButton = new JButton("New...");
+		newProjectButton.setToolTipText("Create a new Project.");
+		newProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
+		newProjectButton.addActionListener(this);
 
-		addDatasetButton = new JButton("New...");
-		addDatasetButton.setToolTipText("Create a new Dataset.");
-		addDatasetButton.setActionCommand("" + CMD_CREATE_DATASET);
-		addDatasetButton.addActionListener(this);
+		newDatasetButton = new JButton("New...");
+		newDatasetButton.setToolTipText("Create a new Dataset.");
+		newDatasetButton.setActionCommand("" + CMD_CREATE_DATASET);
+		newDatasetButton.addActionListener(this);
 
-		addScreenButton = new JButton("New...");
-		addScreenButton.setToolTipText("Create a new Screen.");
-		addScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
-		addScreenButton.addActionListener(this);
+		newScreenButton = new JButton("New...");
+		newScreenButton.setToolTipText("Create a new Screen.");
+		newScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
+		newScreenButton.addActionListener(this);
 		
 		// main action buttons
 		
@@ -425,11 +425,11 @@ public class LocationDialog extends JDialog implements ActionListener,
         
         projectPanel.add(UIUtilities.setTextFont(LABEL_PROJECT), "0, 0, r, c");
         projectPanel.add(projectsBox,"1, 0");
-        projectPanel.add(addProjectButton, "2, 0, c, c");
+        projectPanel.add(newProjectButton, "2, 0, c, c");
         
         projectPanel.add(UIUtilities.setTextFont(LABEL_DATASET), "0, 1, r, c");
         projectPanel.add(datasetsBox,"1, 1");
-        projectPanel.add(addDatasetButton, "2, 1, c, c");
+        projectPanel.add(newDatasetButton, "2, 1, c, c");
        
 		return projectPanel;
 	}
@@ -450,7 +450,7 @@ public class LocationDialog extends JDialog implements ActionListener,
         
         screenPanel.add(UIUtilities.setTextFont(LABEL_SCREEN), "0, 0, r, c");
         screenPanel.add(screensBox,"1, 0");
-        screenPanel.add(addScreenButton, "2, 0, c, c");
+        screenPanel.add(newScreenButton, "2, 0, c, c");
        
 		return screenPanel;
 	}
