@@ -460,19 +460,18 @@ class MetadataViewerModel
 	{
 		if (uo == null || !(ref instanceof DataObject)) return false;
 		Class klass = ref.getClass();
-		if (ref instanceof WellSampleData)
-			klass = ((WellSampleData) ref).getImage().getClass();
-		DataObject ho = (DataObject) uo;
-		Class hoKlass = ho.getClass();
-		if (ho instanceof WellSampleData) {
-			hoKlass = ((WellSampleData) ho).getImage().getClass();
-		}
-		if (!hoKlass.equals(klass))
-			return false;
 		DataObject object;
-		if (ref instanceof WellSampleData)
+		if (ref instanceof WellSampleData) {
+			klass = ((WellSampleData) ref).getImage().getClass();
 			object = ((WellSampleData) ref).getImage();
-		else object = (DataObject) ref;
+		} else object = (DataObject) ref;
+			
+		Class hoKlass = uo.getClass();
+		if (uo instanceof WellSampleData) {
+			hoKlass = ((WellSampleData) uo).getImage().getClass();
+			uo = ((WellSampleData) uo).getImage();
+		}
+		if (!hoKlass.equals(klass)) return false;
 		return uo.getId() == object.getId();
 	}
 	
