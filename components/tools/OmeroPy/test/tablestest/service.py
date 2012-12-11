@@ -293,6 +293,9 @@ class TestTables(lib.ITest):
         self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
 
     def testArrayColumn(self):
+        """
+        A table containing only an array column
+        """
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
@@ -310,6 +313,9 @@ class TestTables(lib.ITest):
         self.assertEquals([1, 2], testl[1])
 
     def testArrayColumnSize1(self):
+        """
+        Size one arrays require special handling
+        """
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
@@ -327,6 +333,9 @@ class TestTables(lib.ITest):
         self.assertEquals([0.25], testl[1])
 
     def testMultipleArrayColumns(self):
+        """
+        Check all column types can coexist in the same table
+        """
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
@@ -431,6 +440,27 @@ class TestTables(lib.ITest):
         testda = data.columns[11].values
         self.assertEquals([-0.25, -0.5], testda[0])
         self.assertEquals([0.125, 0.0625], testda[1])
+
+        # Now try an update
+        updatel = omero.grid.LongColumn('longcol', '', [12345])
+        updatela = omero.grid.LongArrayColumn('longarr', '', 2, [[654, 321]])
+        updateData = omero.grid.Data(
+            rowNumbers = [1], columns = [updatel, updatela])
+        table.update(updateData)
+
+        self.assertEquals(table.getNumberOfRows(), 2)
+        data2 = table.readCoordinates([0,1])
+
+        for n in [0, 1, 2, 3, 4, 5, 6, 8, 11]:
+            self.assertEquals(data.columns[n].values, data2.columns[n].values)
+        self.checkMaskCol(data2.columns[9])
+
+        testl2 = data2.columns[7].values
+        self.assertEquals(-1, testl2[0])
+        self.assertEquals(12345, testl2[1])
+        testla2 = data2.columns[10].values
+        self.assertEquals([-2, -1], testla2[0])
+        self.assertEquals([654, 321], testla2[1])
 
 
     # TODO: Add tests for error conditions
