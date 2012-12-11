@@ -332,33 +332,10 @@ class TestTables(lib.ITest):
         self.assertEquals([0.5], testl[0])
         self.assertEquals([0.25], testl[1])
 
-    def testMultipleArrayColumns(self):
+    def testAllColumnsSameTable(self):
         """
         Check all column types can coexist in the same table
         """
-        grid = self.client.sf.sharedResources()
-        repoMap = grid.repositories()
-        repoObj = repoMap.descriptions[0]
-        table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
-        larr = omero.columns.LongArrayColumnI('longarr', 'desc', 3)
-        larr.values = [[-1, -2, -3], [4, 5, 6]]
-        darr = omero.columns.DoubleArrayColumnI('doublearr', 'desc', 2)
-        darr.values = [[0.5, 0.25], [-0.125, -0.0625]]
-
-        table.initialize([larr, darr])
-        table.addData([larr, darr])
-        data = table.readCoordinates([0,1])
-
-        testl = data.columns[0].values
-        self.assertEquals([-1, -2, -3], testl[0])
-        self.assertEquals([4, 5, 6], testl[1])
-
-        testd = data.columns[1].values
-        self.assertEquals([0.5, 0.25], testd[0])
-        self.assertEquals([-0.125, -0.0625], testd[1])
-
-    def testAllColumnsSameTable(self):
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
@@ -440,6 +417,9 @@ class TestTables(lib.ITest):
         testda = data.columns[11].values
         self.assertEquals([-0.25, -0.5], testda[0])
         self.assertEquals([0.125, 0.0625], testda[1])
+
+        ofile = table.getOriginalFile()
+        print "testAllColumnsSameTable", "OriginalFile:", ofile.getId().val
 
         # Now try an update
         updatel = omero.grid.LongColumn('longcol', '', [12345])
