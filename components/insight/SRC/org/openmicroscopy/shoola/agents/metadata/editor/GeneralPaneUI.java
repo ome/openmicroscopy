@@ -381,14 +381,18 @@ class GeneralPaneUI
 		propertiesUI.setParentRootObject();
 	}
 	
-	/** Updates display when the new root node is set. */
-	void setRootObject()
+	/** 
+	 * Updates display when the new root node is set.
+	 * 
+	 *  @param oldObject The object previously selected.
+	 */
+	void setRootObject(Object oldObject)
 	{
 		if (!init) {
 			buildGUI();
 			init = true;
 		}	
-		clearData();
+		clearData(oldObject);
 		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
@@ -465,14 +469,18 @@ class GeneralPaneUI
 		return false;
 	}
 	
-	/** Clears data to save. */
-	void clearData()
+	/** 
+	 * Clears data to save.
+	 * 
+	 * @param oldObject The previously selected object.
+	 */
+	void clearData(Object oldObject)
 	{
 		Iterator<AnnotationUI> i = components.iterator();
 		AnnotationUI ui;
 		while (i.hasNext()) {
 			ui = i.next();
-			ui.clearData();
+			ui.clearData(oldObject);
 			ui.clearDisplay();
 		}
 		setCursor(Cursor.getDefaultCursor());

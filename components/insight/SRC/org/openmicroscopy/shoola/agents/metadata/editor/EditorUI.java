@@ -294,8 +294,12 @@ class EditorUI
     	userUI.setParentRootObject();
     }
     
-    /** Updates display when the new root node is set. */
-	void setRootObject()
+    /**
+     * Updates display when the new root node is set.
+     * 
+     * @param oldObject The previously selected object.
+     */
+	void setRootObject(Object oldObject)
 	{
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
@@ -316,7 +320,7 @@ class EditorUI
 			revalidate();
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) {
-			userUI.clearData();
+			userUI.clearData(oldObject);
 			toolBar.setStatus(false);
 			layoutUI();
 		} else {
@@ -381,7 +385,7 @@ class EditorUI
 				}
 				load = true;
 			}
-			generalPane.setRootObject();
+			generalPane.setRootObject(oldObject);
 			acquisitionPane.setRootObject(load);
 		}
 	}
@@ -482,9 +486,9 @@ class EditorUI
 	void clearData()
 	{
 		saved = false;
-		userUI.clearData();
-		groupUI.clearData();
-		generalPane.clearData();
+		userUI.clearData(null);
+		groupUI.clearData(null);
+		generalPane.clearData(null);
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();
 		setCursor(Cursor.getDefaultCursor());

@@ -1048,14 +1048,6 @@ class PropertiesUI
 			buildGUI();
 			init = true;
 		}
-		if (!model.isSameObject(model.getRefObject())) {
-			channelsArea.setText("");
-			idLabel.setText("");
-			ownerLabel.setText("");
-			parentLabel.setText("");
-			wellLabel.setText("");
-			gpLabel.setText("");
-		}
 		removeAll();
 		Object refObject = model.getRefObject();
 		text = model.getObjectTypeAsString(refObject);
@@ -1320,9 +1312,9 @@ class PropertiesUI
 	
 	/**
 	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		originalName = model.getRefObjectName();
 		originalDisplayedName = originalName;
@@ -1335,8 +1327,8 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
-		/*
-		if (!model.isSameObject(model.getRefObject())) {
+		if (oldObject == null) return;
+		if (!model.isSameObject(oldObject)) {
 			channelsArea.setText("");
 			idLabel.setText("");
 			ownerLabel.setText("");
@@ -1344,14 +1336,13 @@ class PropertiesUI
 			wellLabel.setText("");
 			gpLabel.setText("");
 		}
-		*/
 	}
 	
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { clearData(); }
+	protected void clearDisplay() {}
 
 	/**
 	 * Sets the title of the component.

@@ -1472,9 +1472,9 @@ class AnnotationDataUI
 
 	/**
 	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		if (!init) {
 			buildGUI();
@@ -1518,7 +1518,7 @@ class AnnotationDataUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { clearData(); }
+	protected void clearDisplay() {}
 	
 	/**
 	 * Sets the title of the component.
