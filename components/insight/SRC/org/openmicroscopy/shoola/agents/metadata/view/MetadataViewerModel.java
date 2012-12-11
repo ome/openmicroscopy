@@ -767,8 +767,12 @@ class MetadataViewerModel
 	StructuredDataResults getStructuredData(Object object)
 	{
 		if (data == null) return null;
-		if (object instanceof DataObject)
+		if (object instanceof DataObject) {
+			if (object instanceof WellSampleData)
+				object = ((WellSampleData) object).getImage();
 			return data.get((DataObject) object);
+		}
+			
 		return null; 
 	}
 	
