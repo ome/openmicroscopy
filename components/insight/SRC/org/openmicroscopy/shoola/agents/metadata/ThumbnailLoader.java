@@ -81,11 +81,12 @@ public class ThumbnailLoader
      * @param ctx The security context.
      * @param image		The image.
      * @param userIDs	The node of reference. Mustn't be <code>null</code>.
+     * @param loaderID The identifier of the loader.
      */
     public ThumbnailLoader(MetadataViewer viewer, SecurityContext ctx,
-    	ImageData image, Set<Long> userIDs)
+    	ImageData image, Set<Long> userIDs, int loaderID)
     {
-    	 super(viewer, ctx);
+    	 super(viewer, ctx, loaderID);
          this.image = image;
          this.userIDs = userIDs;
          thumbnails = new HashMap<Long, BufferedImage>();

@@ -238,9 +238,13 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#cancel(TreeBrowserDisplay)
+	 * @see MetadataViewer#cancel(int)
 	 */
-	public void cancel(TreeBrowserDisplay refNode) { model.cancel(refNode); }
+	public void cancel(int loaderID)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.cancel(loaderID);
+	}
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.

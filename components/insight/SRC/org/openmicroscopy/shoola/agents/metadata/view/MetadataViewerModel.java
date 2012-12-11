@@ -131,9 +131,6 @@ class MetadataViewerModel
 	/** Reference to the editor. */
 	private Editor editor;
 	
-	/** The active data loaders. */
-	private Map<Object, MetadataLoader> loaders;
-	
 	/** Use to load annotations when multiple objects are selected.*/
 	private StructuredDataLoader multiDataLoader;
 	
@@ -166,6 +163,31 @@ class MetadataViewerModel
 	
 	/** The security context.*/
 	private SecurityContext ctx;
+	
+	/** The number of loader used.*/
+	private int loaderID;
+	
+	/** The active loaders.*/
+	private Map<Integer, MetadataLoader> loaders;
+
+	/**
+	 * Returns the loader's ID if any corresponding to the class.
+	 * 
+	 * @param refClass The class of reference.
+	 * @return See above.
+	 */
+	private Integer getLoaderID(Class refClass)
+	{
+		Entry<Integer, MetadataLoader> e;
+		Iterator<Entry<Integer, MetadataLoader>>
+			i = loaders.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			if (e.getValue().getClass().equals(refClass))
+				return e.getKey();
+		}
+		return null;
+	}
 	
 	/**
 	 * Returns the collection of the attachments linked to the 
@@ -212,7 +234,8 @@ class MetadataViewerModel
 				this.index = MetadataViewer.RND_GENERAL;
 		}
 		this.refObject = refObject;
-		loaders = new HashMap<Object, MetadataLoader>();
+		loaderID = 0;
+		loaders = new HashMap<Integer, MetadataLoader>();
 		data = null;
 		dataType = null;
 		singleMode = true;
@@ -262,7 +285,7 @@ class MetadataViewerModel
 	{
 		state = MetadataViewer.DISCARDED;
 		loaders.entrySet().iterator();
-		Iterator<Entry<Object, MetadataLoader>>
+		Iterator<Entry<Integer, MetadataLoader>>
 		i = loaders.entrySet().iterator();
 		MetadataLoader loader;
 		while (i.hasNext()) {
@@ -354,14 +377,14 @@ class MetadataViewerModel
 	/** 
 	 * Cancels any ongoing data loading. 
 	 * 
-	 * @param node The node of reference.
+	 * @param loaderID The identifier of the loader.
 	 */
-	void cancel(Object node)
+	void cancel(int loaderID)
 	{
-		MetadataLoader loader = loaders.get(node);
+		MetadataLoader loader = loaders.get(loaderID);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(node);
+			loaders.remove(loaderID);
 		}
 	}
 
@@ -375,13 +398,15 @@ class MetadataViewerModel
 	 */
 	void fireParentLoading(TreeBrowserSet refNode)
 	{
-		cancel(refNode);
+		Integer id = getLoaderID(ContainersLoader.class);
+		if (id != null) cancel(id);
 		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
+			loaderID++;
 			ContainersLoader loader = new ContainersLoader(
 					component, ctx, refNode, ho.getClass(),
-					((DataObject) ho).getId());
-			loaders.put(refNode, loader);
+					((DataObject) ho).getId(), loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 		}
 	}
@@ -398,24 +423,28 @@ class MetadataViewerModel
 		if (!(node instanceof DataObject)) return;
 		if (node instanceof ExperimenterData) return;
 		if (node instanceof DataObject) {
-			cancel(node);
+			Integer id = getLoaderID(StructuredDataLoader.class);
+			if (id != null) cancel(id);
 			if (node instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) node;
 				node = wsd.getImage();
 				/*
 				if (!loaders.containsKey(node) && parentData == null
 						&& parentRefObject != null) {
+					loaderID++;
 					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, Arrays.asList((DataObject) parentRefObject));
-					loaders.put(node, l);
+						ctx, Arrays.asList((DataObject) parentRefObject),
+						loaderID);
+					loaders.put(loaderID, l);
 					l.load();
 					state = MetadataViewer.LOADING_METADATA;
 					return;
 				}*/
 			}
+			loaderID++;
 			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, Arrays.asList((DataObject) node));
-			loaders.put(node, loader);
+					ctx, Arrays.asList((DataObject) node), loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
 		}
@@ -557,8 +586,10 @@ class MetadataViewerModel
 			toRemove = object.getToRemove();
 		}
 		if (asynch) {
+			loaderID++;
 			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
-					toRemove, metadata);
+					toRemove, metadata, loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -600,8 +631,10 @@ class MetadataViewerModel
 	void fireExperimenterSaving(ExperimenterData data, boolean async)
 	{
 		if (async) {
+			loaderID++;
 			ExperimenterEditor loader = new ExperimenterEditor(component, ctx,
-					data);
+					data, loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -635,13 +668,16 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
+					loaderID++;
 					loader = new GroupEditor(component, c, group, 
-							data.getPermissions());
+							data.getPermissions(), loaderID);
+					loaders.put(loaderID, loader);
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					
+					loaderID++;
 					loader = new AdminEditor(component, c, data.getGroup(),
-							data.getExperimenters());
+							data.getExperimenters(), loaderID);
+					loaders.put(loaderID, loader);
 			}	
 			if (loader != null) {
 				loader.load();
@@ -769,8 +805,9 @@ class MetadataViewerModel
 						toRemove, Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, ctx,
-				toSave, toAdd, toRemove);
+				toSave, toAdd, toRemove, loaderID);
 		loader.load();
+		loaderID++;
 		state = MetadataViewer.BATCH_SAVING;
 	}
 	
@@ -803,10 +840,11 @@ class MetadataViewerModel
 	{ 
 		this.relatedNodes = relatedNodes;
 		//fire load
-		if (multiDataLoader != null) multiDataLoader.cancel();
-		multiDataLoader = new StructuredDataLoader(component,
-				ctx, relatedNodes);
-		multiDataLoader.load();
+		loaderID++;
+		StructuredDataLoader loader = new StructuredDataLoader(component,
+				ctx, relatedNodes, loaderID);
+		loaders.put(loaderID, loader);
+		loader.load();
 		state = MetadataViewer.LOADING_METADATA;
 	}
 	
@@ -833,8 +871,13 @@ class MetadataViewerModel
 	 */
 	void loadParents(Class type, long id)
 	{
-		ContainersLoader loader = new ContainersLoader(component, ctx, type, id);
+		loaderID++;
+		ContainersLoader loader 
+		= new ContainersLoader(component, ctx, type, id, loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
+		
+		
 	}
 
 	/**
@@ -846,12 +889,6 @@ class MetadataViewerModel
 	{
 		if (parameters == null) return;
 		if (!(refObject instanceof ImageData)) return;
-		/*
-		ImageData img = (ImageData) refObject;
-		MovieCreator loader = new MovieCreator(component, parameters, 
-				null, img);
-		loader.load();
-		*/
 	}
 	
 	/**
@@ -955,8 +992,10 @@ class MetadataViewerModel
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
 		getEditor().getRenderer().loadRndSettings(false, null);
+		loaderID++;
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
-				ctx, img.getDefaultPixels().getId());
+				ctx, img.getDefaultPixels().getId(), loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
 	}
 	
@@ -974,7 +1013,10 @@ class MetadataViewerModel
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
 		if (ids.size() == 0) return;
-		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image, ids);
+		loaderID++;
+		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image,
+				ids, loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
 	}
 	
