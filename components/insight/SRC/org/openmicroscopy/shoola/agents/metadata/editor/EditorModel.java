@@ -2170,15 +2170,7 @@ class EditorModel
 	 */
 	boolean isSameObject(Object object)
 	{
-		if (object == null) return false;
-		if (!object.getClass().equals(refObject.getClass())) return false;
-		if ((object instanceof DataObject) &&
-				(refObject instanceof DataObject)) {
-			DataObject d1 = (DataObject) object;
-			DataObject d2 = (DataObject) refObject;
-			return d1.getId() == d2.getId();
-		}
-		return false;
+		return parent.isSameObject(object);
 	}
 	
 	/** 
@@ -2189,8 +2181,7 @@ class EditorModel
 	void setRootObject(Object refObject)
 	{ 
 		boolean b = isSameObject(refObject);
-		this.refObject = refObject; 
-		parentRefObject = null;
+		this.refObject = refObject;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
 		if (textualAnnotationsByUsers != null) 
@@ -2206,6 +2197,8 @@ class EditorModel
 	    if (resultsLoader != null) resultsLoader.clear();
 	    resultsLoader = null;
 	    if (!b) {
+			parentRefObject = null;
+			gpRefObject = null;
 	    	if (emissionsWavelengths != null) 
 	    		emissionsWavelengths.clear();
 	    	emissionsWavelengths = null;

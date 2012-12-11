@@ -643,5 +643,12 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	StructuredDataResults getStructuredData(Object refObject);
+	 /** Returns <code>true</code> if the passed object is the reference object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to compare.
+	 * @return See above.
+	 */
+	boolean isSameObject(Object object);
 
 }

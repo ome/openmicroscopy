@@ -116,6 +116,9 @@ class MetadataViewerModel
 	/** The object of reference for the viewer i.e. the root. */
 	private Object parentRefObject;
 	
+	/** The object of reference for the viewer i.e. the root. */
+	private Object grandParent;
+	
 	/** The object hosting the various annotations linked to an object. */
 	private Map<DataObject, StructuredDataResults> data;
 	
@@ -335,6 +338,7 @@ class MetadataViewerModel
 	void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
 		this.parentRefObject = parentRefObject;
+		this.grandParent = grandParent;
 		editor.setParentRootObject(parentRefObject, grandParent);
 	}
 	
@@ -426,14 +430,13 @@ class MetadataViewerModel
 				node = wsd.getImage();
 				if (!loaders.containsKey(node) && parentData == null
 						&& parentRefObject != null) {
+					/*
 					loaderID++;
 					StructuredDataLoader l = new StructuredDataLoader(component,
 						ctx, Arrays.asList((DataObject) parentRefObject),
 						loaderID);
 					loaders.put(loaderID, l);
-					l.load();
-					state = MetadataViewer.LOADING_METADATA;
-					return;
+					*/
 				}
 			}
 			loaderID++;
@@ -457,10 +460,14 @@ class MetadataViewerModel
 	{
 		if (uo == null || !(ref instanceof DataObject)) return false;
 		Class klass = ref.getClass();
-		if (ref instanceof WellSampleData) {
+		if (ref instanceof WellSampleData)
 			klass = ((WellSampleData) ref).getImage().getClass();
+		DataObject ho = (DataObject) uo;
+		Class hoKlass = ho.getClass();
+		if (ho instanceof WellSampleData) {
+			hoKlass = ((WellSampleData) ho).getImage().getClass();
 		}
-		if (!uo.getClass().equals(klass))
+		if (!hoKlass.equals(klass))
 			return false;
 		DataObject object;
 		if (ref instanceof WellSampleData)
@@ -476,9 +483,10 @@ class MetadataViewerModel
 	 * @param uo The object to compare.
 	 * @return See above.
 	 */
-	boolean isSameObject(DataObject uo)
+	boolean isSameObject(Object uo)
 	{
-		return isSameObject(uo, refObject);
+		if (!(uo instanceof DataObject)) return false;
+		return isSameObject((DataObject) uo, refObject);
 	}
 	
 	/** 

@@ -811,6 +811,7 @@ class AnnotationDataUI
 	{
 		selectedValue = 0;
 		StringBuffer buffer = new StringBuffer();
+
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
 		Collection l;
@@ -1482,8 +1483,8 @@ class AnnotationDataUI
 		tagNames.clear();
 		existingTags.clear();
 		selectedValue = 0;
-		if (!model.isMultiSelection())
-		    selectedValue = model.getUserRating();
+		//if (!model.isMultiSelection())
+		//    selectedValue = model.getUserRating();
 		initialValue = 0;
 		otherRating.setText("");
 		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 

@@ -354,6 +354,7 @@ class MetadataViewerComponent
 			userID = -1;
 		}
 		//Previewed the image.
+		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
 		if (model.isSingleMode()) {
 			model.fireStructuredDataLoading(root);
@@ -362,8 +363,9 @@ class MetadataViewerComponent
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
-		setParentRootObject(null, null);
-		
+		//check if save object before setting to null.
+		if (!same)
+			setParentRootObject(null, null);
 	}
 
 	/** 
@@ -1165,6 +1167,7 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+<<<<<<< HEAD
 	 * @see MetadataViewer#getStructuredData()
 	 */
 	public Map<DataObject, StructuredDataResults> getAllStructuredData()
@@ -1180,6 +1183,16 @@ class MetadataViewerComponent
 	{
 		return model.getStructuredData(refObject);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#isSameObject(Object)
+	 */
+	public boolean isSameObject(Object object)
+	{
+		return model.isSameObject(object);
+	}
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

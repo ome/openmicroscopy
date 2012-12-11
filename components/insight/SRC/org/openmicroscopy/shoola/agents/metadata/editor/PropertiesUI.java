@@ -995,9 +995,6 @@ class PropertiesUI
 	/** Sets the text of the parent label. */
 	private void setParentLabel()
 	{
-		parentLabel.setText("");
-		wellLabel.setText("");
-		gpLabel.setText("");
 		Object parent = model.getParentRootObject();
 		if (parent instanceof WellData) {
 			WellData well = (WellData) parent;
@@ -1041,7 +1038,7 @@ class PropertiesUI
     }
 
     /**
-	 * Overridden to lay out the tags.
+	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()
 	 */
 	protected void buildUI()
@@ -1050,6 +1047,14 @@ class PropertiesUI
 		if (!init) {
 			buildGUI();
 			init = true;
+		}
+		if (!model.isSameObject(model.getRefObject())) {
+			channelsArea.setText("");
+			idLabel.setText("");
+			ownerLabel.setText("");
+			parentLabel.setText("");
+			wellLabel.setText("");
+			gpLabel.setText("");
 		}
 		removeAll();
 		Object refObject = model.getRefObject();
@@ -1122,10 +1127,8 @@ class PropertiesUI
         boolean b = model.canEdit();
         editDescription.setEnabled(b);
         if (b) {
-        	//descriptionPane.getDocument().addDocumentListener(this);
         	descriptionPane.addDocumentListener(this);
         }
-        //buildGUI();
 	}
 
 	/** Updates the data object. */
@@ -1326,15 +1329,22 @@ class PropertiesUI
 		originalDescription = model.getRefObjectDescription();
 		namePane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
-		idLabel.setText("");
-		ownerLabel.setText("");
 		namePane.setText(originalName);
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
-		channelsArea.setText("");
+		/*
+		if (!model.isSameObject(model.getRefObject())) {
+			channelsArea.setText("");
+			idLabel.setText("");
+			ownerLabel.setText("");
+			parentLabel.setText("");
+			wellLabel.setText("");
+			gpLabel.setText("");
+		}
+		*/
 	}
 	
 	/**
