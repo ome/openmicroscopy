@@ -377,16 +377,16 @@ class TestTables(lib.ITest):
         scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
         scol.values = ["abc", "de"]
 
+        mask = self.createMaskCol()
+
         larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
         larr.values = [[-2, -1], [1, 2]]
         darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
         darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
 
-        mask = self.createMaskCol()
-
         cols = [fcol, icol, rcol, wcol, pcol,
-                bcol, dcol, lcol, scol,
-                larr, darr, mask]
+                bcol, dcol, lcol, scol, mask,
+                larr, darr]
 
         table.initialize(cols)
         table.addData(cols)
@@ -422,15 +422,15 @@ class TestTables(lib.ITest):
         self.assertEquals("abc", tests[0])
         self.assertEquals("de", tests[1])
 
-        testla = data.columns[9].values
+        testm = data.columns[9]
+        self.checkMaskCol(testm)
+
+        testla = data.columns[10].values
         self.assertEquals([-2, -1], testla[0])
         self.assertEquals([1, 2], testla[1])
-        testda = data.columns[10].values
+        testda = data.columns[11].values
         self.assertEquals([-0.25, -0.5], testda[0])
         self.assertEquals([0.125, 0.0625], testda[1])
-
-        testm = data.columns[11]
-        self.checkMaskCol(testm)
 
 
     # TODO: Add tests for error conditions
