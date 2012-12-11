@@ -71,11 +71,12 @@ public class StructuredDataLoader
      * @param ctx The security context.
 	 * @param dataObjects The objects the data are related to.
 	 *                   Mustn't be <code>null</code>.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
-			List<DataObject> dataObjects)
+			List<DataObject> dataObjects, int loaderID)
 	{
-		super(viewer, ctx, null);
+		super(viewer, ctx, null, loaderID);
 		if (dataObjects == null || dataObjects.size() == 0)
 			throw new IllegalArgumentException("No object specified.");
 		this.dataObjects = dataObjects;

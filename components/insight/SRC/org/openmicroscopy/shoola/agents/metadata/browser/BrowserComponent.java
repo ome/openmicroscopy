@@ -149,17 +149,6 @@ class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#cancel(TreeBrowserDisplay)
-	 */
-	public void cancel(TreeBrowserDisplay node)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		model.cancel(node);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#loadMetadata(TreeBrowserDisplay)
 	 */
 	public void loadMetadata(TreeBrowserDisplay node)

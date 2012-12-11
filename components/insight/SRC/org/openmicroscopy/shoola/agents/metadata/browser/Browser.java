@@ -101,13 +101,6 @@ public interface Browser
 	public void setRootObject(Object refObject);
 
 	/**
-	 * Cancels any ongoing data loading for the passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	public void cancel(TreeBrowserDisplay node);
-
-	/**
 	 * Loads the data for the passed node. The passed node is a 
 	 * <code>Menu node</code>
 	 * 

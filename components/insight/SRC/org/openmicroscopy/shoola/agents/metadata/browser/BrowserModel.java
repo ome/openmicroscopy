@@ -66,7 +66,7 @@ class BrowserModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param refObject	The object this browser origined from.
+	 * @param refObject	The object this browser originated from.
 	 * @param parent	The parent of this browser.
 	 */
 	BrowserModel(Object refObject, MetadataViewer parent) 
@@ -80,7 +80,7 @@ class BrowserModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param refObject	The object this browser origined from.
+	 * @param refObject	The object this browser originated from.
 	 * @param parent	The parent of this browser.
 	 * @param ui		Reference to the UI.
 	 */
@@ -141,13 +141,6 @@ class BrowserModel
 		root = new TreeBrowserSet(refObject);
 		selectedNodes.add(root);
 	}
-
-	/**
-	 * Cancels any on-going data loading for the specified node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void cancel(TreeBrowserDisplay node) { parent.cancel(node); }
 
 	/**
 	 * Loads the data for the specified node.

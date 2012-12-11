@@ -262,7 +262,7 @@ class BrowserUI
         TreeBrowserDisplay node = (TreeBrowserDisplay) 
         							tee.getPath().getLastPathComponent();
         node.setExpanded(expanded);
-        controller.onNodeNavigation(node, expanded);
+        controller.onNodeNavigation(node);
     }
     
     /** Builds and lays out the UI. */

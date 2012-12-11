@@ -70,11 +70,13 @@ public class AdminEditor
      * @param ctx The security context.
      * @param group   The group to handle.
      * @param details The experimenters to update. Mustn't be <code>null</code>.
+     * @param loaderID The identifier of the loader.
      */
     public AdminEditor(MetadataViewer viewer, SecurityContext ctx,
-    		GroupData group, Map<ExperimenterData, UserCredentials> details)
+    		GroupData group, Map<ExperimenterData, UserCredentials> details,
+    		int loaderID)
     {
-    	super(viewer, ctx, null);
+    	super(viewer, ctx, null, loaderID);
     	if (details == null)
     		throw new IllegalArgumentException("No eperimenters to update.");
     	this.details = details;

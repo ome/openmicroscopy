@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -238,10 +237,10 @@ public interface MetadataViewer
 
 	/** 
 	 * Cancels any ongoing data loading. 
-	 * 
-	 * @param refNode The node of reference
+	 *
+	 * @param loaderID The identifier to the loader to cancel.
 	 */
-	public void cancel(TreeBrowserDisplay refNode);
+	public void cancel(int loaderID);
 	
 	/**
 	 * Feeds the metadata back to the viewer.

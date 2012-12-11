@@ -142,36 +142,12 @@ class BrowserControl
     	TreeBrowserDisplay node = (TreeBrowserDisplay) pathComponent;
     	List<TreeBrowserDisplay> l = new ArrayList<TreeBrowserDisplay>();
     	l.add(node);
-    	
-    	/*
-    	Object uo;
-    	Class nodeClass = node.getUserObject().getClass();
-    	for (int i = 1; i < n; i++) {
-    		o = paths[i].getLastPathComponent();
-    		if (o instanceof MetadataDisplay) {
-    			no = (MetadataDisplay) o;
-    			uo = no.getUserObject();
-    			if (uo instanceof ExperimenterData) {
-    				pathsToRemove.add(paths[i]);
-    			} else {
-    				if (uo.getClass().equals(nodeClass)) {
-    					l.add(no);
-    				} else {
-    					pathsToRemove.add(paths[i]);
-    				}
-    			}
-    		}
-    	}
-		*/
 
     	if (l.size() != n) {
     		UserNotifier un = 
     			MetadataViewerAgent.getRegistry().getUserNotifier();
     		un.notifyInfo("Node selection", "You can only select " +
     				"node of the same type e.g. images.");
-    		//view.removeTreePaths(pathsToRemove);
-    		//model.setSelectedDisplay(null);
-    		//return;
     	}
     	if (l.size() == 0) return;
     	model.setSelectedNodes(l);
@@ -180,16 +156,10 @@ class BrowserControl
     /**
      * Reacts to tree expansion events.
      * 
-     * @param node   	The selected node.
-     * @param expanded  Pass <code>true</code> if the node is expanded,
-     * 					<code>false</code> otherwise.
+     * @param node The selected node.
      */
-	void onNodeNavigation(TreeBrowserDisplay node, boolean expanded)
+	void onNodeNavigation(TreeBrowserDisplay node)
 	{
-		if (!expanded) {
-    		model.cancel(node);
-    		return;
-    	}
 		model.setSelectedNode(node);
 		if (node.isChildrenLoaded()) return;
 		view.addDefaultNode(node, BrowserUI.LOADING_MSG);
@@ -223,13 +193,6 @@ class BrowserControl
 		else if (object instanceof ProjectData)
 			index = Browse.PROJECTS;
 		if (index == -1) return;
-		/*
-		Browse evt = new Browse(ids, index, 
-								MetadataViewerAgent.getUserDetails(), 
-    						null);
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(evt);
-		*/
 	}
 
 	/**

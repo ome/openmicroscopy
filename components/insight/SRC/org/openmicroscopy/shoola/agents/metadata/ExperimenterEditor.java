@@ -64,11 +64,12 @@ public class ExperimenterEditor
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param exp	 The experimenter to update. Mustn't be <code>null</code>.
+     * @param loaderID The identifier of the loader.
      */
     public ExperimenterEditor(MetadataViewer viewer, SecurityContext ctx,
-    		ExperimenterData exp)
+    		ExperimenterData exp, int loaderID)
     {
-    	super(viewer, ctx, null);
+    	super(viewer, ctx, null, loaderID);
     	if (exp == null)
     		throw new IllegalArgumentException("No experimenter to edit.");
     	this.exp = exp;
