@@ -273,10 +273,11 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");	
-		//if (model.isSameObject(refObject)) return;
+		Object oldObject = model.getRefObject();
+		
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		view.setRootObject();
+		view.setRootObject(oldObject);
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
