@@ -179,6 +179,7 @@ public class ShutDownDialog
 	{
 		if (timer != null) timer.stop();
 		super.cancel();
+		setVisible(false);
 	}
 	
 	/**
