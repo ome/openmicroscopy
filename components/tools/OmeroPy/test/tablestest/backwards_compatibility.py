@@ -27,19 +27,40 @@ import unittest
 import os.path
 import omero
 import omero.clients
+import omero.columns
 import omero.grid
 from integration import library as lib
 
 
 class BackwardsCompatibilityTest(lib.ITest):
 
-    def setUp(self):
-        super(BackwardsCompatibilityTest, self).setUp()
+    #def setUp(self):
+    #    super(BackwardsCompatibilityTest, self).setUp()
 
+
+    def uploadHdf5(self, file):
+        """
+        Upload the test HDF5 file to the server.
+        file should be relative to the directory containing this file.
+        """
         dir = os.path.dirname(os.path.realpath(__file__))
-        file = os.path.join(dir, "service-reference-dev_4_4_5.h5")
-        self.ofile = self.client.upload(file)
-        print self.ofile.getId().val
+        file = os.path.join(dir, file)
+        ofile = self.client.upload(file)
+        print "Uploaded OriginalFile:", ofile.getId().val
+        return ofile
+
+
+    def createMaskCol(self):
+        mask = omero.columns.MaskColumnI('mask', 'desc', None)
+        mask.imageId = [1, 2]
+        mask.theZ = [3, 4]
+        mask.theT = [5, 6]
+        mask.x = [7.0, 8.0]
+        mask.y = [9.0, 10.0]
+        mask.w = [11.0, 12.0]
+        mask.h = [13.0, 14.0]
+        mask.bytes = [[15],[16,17,18,19,20]]
+        return mask
 
 
     def checkMaskCol(self, test):
@@ -71,9 +92,110 @@ class BackwardsCompatibilityTest(lib.ITest):
             self.assertEquals(x[i], y[i])
 
 
-    def testAllColumns_4_4_5(self):
+    def createAllColumns_4_4_5(self):
+        """
+        Call this method to create the reference HDF5 table under a 4.4.5
+        or older server. The OriginalFile ID of the table will be printed,
+        and can be used to find the file under ${omero.data.dir}/Files/.
+
+        E.g. from the command goto ``components/tools/OmeroPy/test``, and run:
+        ``python -m unittest tablestest.backwards_compatibility.BackwardsCompatibilityTest.createAllColumns_4_4_5``
+        """
         grid = self.client.sf.sharedResources()
-        table = grid.openTable(self.ofile)
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+
+        fcol = omero.columns.FileColumnI('filecol', 'file col')
+        fcol.values = [10, 20]
+        icol = omero.columns.ImageColumnI('imagecol', 'image col')
+        icol.values = [30, 40]
+        rcol = omero.columns.RoiColumnI('roicol', 'roi col')
+        rcol.values = [50, 60]
+        wcol = omero.columns.WellColumnI('wellcol', 'well col')
+        wcol.values = [70, 80]
+        pcol = omero.columns.PlateColumnI('platecol', 'plate col')
+        pcol.values = [90, 100]
+
+        bcol = omero.columns.BoolColumnI('boolcol', 'bool col')
+        bcol.values = [True, False]
+        dcol = omero.columns.DoubleColumnI('doublecol', 'double col')
+        dcol.values = [0.25, 0.5]
+        lcol = omero.columns.LongColumnI('longcol', 'long col')
+        lcol.values = [-1, -2]
+
+        scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
+        scol.values = ["abc", "de"]
+
+        #larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
+        #larr.values = [[-2, -1], [1, 2]]
+        #darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
+        #darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
+
+        mask = self.createMaskCol()
+
+        cols = [fcol, icol, rcol, wcol, pcol,
+                bcol, dcol, lcol, scol, mask]
+                #larr, darr]
+
+        table.initialize(cols)
+        table.addData(cols)
+        data = table.readCoordinates([0,1])
+
+        testf = data.columns[0].values
+        self.assertEquals(10, testf[0])
+        self.assertEquals(20, testf[1])
+        testi = data.columns[1].values
+        self.assertEquals(30, testi[0])
+        self.assertEquals(40, testi[1])
+        testr = data.columns[2].values
+        self.assertEquals(50, testr[0])
+        self.assertEquals(60, testr[1])
+        testw = data.columns[3].values
+        self.assertEquals(70, testw[0])
+        self.assertEquals(80, testw[1])
+        testp = data.columns[4].values
+        self.assertEquals(90, testp[0])
+        self.assertEquals(100, testp[1])
+
+        testb = data.columns[5].values
+        self.assertEquals(True, testb[0])
+        self.assertEquals(False, testb[1])
+        testd = data.columns[6].values
+        self.assertEquals(0.25, testd[0])
+        self.assertEquals(0.5, testd[1])
+        testl = data.columns[7].values
+        self.assertEquals(-1, testl[0])
+        self.assertEquals(-2, testl[1])
+
+        tests = data.columns[8].values
+        self.assertEquals("abc", tests[0])
+        self.assertEquals("de", tests[1])
+
+        testm = data.columns[9]
+        self.checkMaskCol(testm)
+
+        #testla = data.columns[10].values
+        #self.assertEquals([-2, -1], testla[0])
+        #self.assertEquals([1, 2], testla[1])
+        #testda = data.columns[11].values
+        #self.assertEquals([-0.25, -0.5], testda[0])
+        #self.assertEquals([0.125, 0.0625], testda[1])
+
+        ofile = table.getOriginalFile()
+        print "Created OriginalFile:", ofile.getId().val
+
+
+    def testAllColumns_4_4_5(self):
+        """
+        Check whether a table created under 4.4.5 or older is still usable
+        with a newer server
+        """
+        ofile = self.uploadHdf5("service-reference-dev_4_4_5.h5")
+
+        grid = self.client.sf.sharedResources()
+        table = grid.openTable(ofile)
         self.assert_(table)
 
         expectedTypes = [
@@ -144,18 +266,16 @@ class BackwardsCompatibilityTest(lib.ITest):
         self.assertEquals("abc", tests[0])
         self.assertEquals("de", tests[1])
 
-        # In hindsight it would've be better to put mask before the new columns
-        # after mask
+        testm = data.columns[9]
+        self.checkMaskCol(testm)
 
-        #testla = data.columns[9].values
+        #testla = data.columns[10].values
         #self.assertEquals([-2, -1], testla[0])
         #self.assertEquals([1, 2], testla[1])
-        #testda = data.columns[10].values
+        #testda = data.columns[11].values
         #self.assertEquals([-0.25, -0.5], testda[0])
         #self.assertEquals([0.125, 0.0625], testda[1])
 
-        testm = data.columns[11 - 2]
-        self.checkMaskCol(testm)
 
         # Now try an update
         updatel = omero.grid.LongColumn('longcol', '', [12345])
@@ -167,7 +287,7 @@ class BackwardsCompatibilityTest(lib.ITest):
 
         for n in [0, 1, 2, 3, 4, 5, 6, 8]:
             self.assertEquals(data.columns[n].values, data2.columns[n].values)
-        self.checkMaskCol(data2.columns[11 - 2])
+        self.checkMaskCol(data2.columns[9])
 
         testl2 = data2.columns[7].values
         self.assertEquals(-1, testl2[0])
