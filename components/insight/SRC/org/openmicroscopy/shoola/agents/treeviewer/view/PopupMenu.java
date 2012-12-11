@@ -514,7 +514,7 @@ class PopupMenu
 				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(removeGroupElement);
-				add(addExperimenterElement);
+				//add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
 				break;
