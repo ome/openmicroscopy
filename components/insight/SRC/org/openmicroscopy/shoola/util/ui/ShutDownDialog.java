@@ -90,6 +90,7 @@ public class ShutDownDialog
 	private void initialize(int time)
 	{
 		checker = new NetworkChecker();
+		removeWindowListener(windowAdapter);
 		remainingTime = time;
 		okButton.setText("Shut Down");
 		okButton.setToolTipText("Shut down the application.");

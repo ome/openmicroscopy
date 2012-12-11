@@ -126,6 +126,12 @@ public class NotificationDialog
 	/** The original message displayed.*/
 	protected String message;
 	
+	/** 
+	 * Listener invoking the <code>close</code> method when the dialog
+	 * shuts down.
+	 */
+	protected WindowAdapter windowAdapter;
+	
 	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
 	{
@@ -149,9 +155,10 @@ public class NotificationDialog
 	 */
 	private void attachListeners()
 	{
-		addWindowListener(new WindowAdapter() {
+		windowAdapter = new WindowAdapter() {
 			public void windowClosing(WindowEvent we) { close(); }
-		});
+		};
+		addWindowListener(windowAdapter);
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { close(); }
 		});
