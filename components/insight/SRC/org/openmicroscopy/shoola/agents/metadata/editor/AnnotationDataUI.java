@@ -1366,7 +1366,7 @@ class AnnotationDataUI
 		Collection original;
 		long id;
 		if (tagFlag) {
-			original = model.getTags();
+			original = model.getAllTags();
 			j = original.iterator();
 			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
@@ -1375,20 +1375,6 @@ class AnnotationDataUI
 			}
 			
 			i = tagsDocList.iterator();
-			/*
-			while (i.hasNext()) {
-				doc = i.next();
-				object = doc.getData();
-				if (object instanceof TagAnnotationData) {
-					annotation = (AnnotationData) object;
-					id = annotation.getId();
-					if (!ids.contains(id) && !added.contains(id)) {
-						added.add(id);
-						l.add(annotation);
-					}
-				}
-			}
-			*/
 			Map<Long, Integer> map = new HashMap<Long, Integer>();
 			Map<Long, AnnotationData> 
 				annotations = new HashMap<Long, AnnotationData>();
@@ -1435,7 +1421,7 @@ class AnnotationDataUI
 			}
 		}
 		if (docFlag) {
-			original = model.getAttachments();
+			original = model.getAllAttachments();
 			j = original.iterator();
 			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
