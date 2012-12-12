@@ -306,16 +306,20 @@ class EditorComponent
 	{
 		model.setExistingTags(tags);
 		
+		List<Long> ids = new ArrayList<Long>();
+		
+		TagAnnotationData tag;
 		Collection<TagAnnotationData> setTags = 
 				model.getCommonTags();
-		Iterator<TagAnnotationData> k = setTags.iterator();
-		List<Long> ids = new ArrayList<Long>();
-		TagAnnotationData tag;
-		while (k.hasNext()) {
-			tag = k.next();
-			if (model.isAnnotationUsedByUser(tag))
-				ids.add(tag.getId());
+		if (setTags != null) {
+			Iterator<TagAnnotationData> k = setTags.iterator();
+			while (k.hasNext()) {
+				tag = k.next();
+				if (model.isAnnotationUsedByUser(tag))
+					ids.add(tag.getId());
+			}
 		}
+		
 		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
 		if (tags != null) {
 			Iterator i = tags.iterator();
@@ -431,13 +435,19 @@ class EditorComponent
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
-		Collection setAttachments = 
-				model.getCommonAttachments();
-		Iterator<FileAnnotationData> k = setAttachments.iterator();
+		Collection setAttachments = model.getCommonAttachments();
+		
 		List<Long> ids = new ArrayList<Long>();
-		while (k.hasNext()) {
-			ids.add(k.next().getId());
+		if (setAttachments != null) {
+			Iterator<FileAnnotationData> k = setAttachments.iterator();
+			FileAnnotationData file;
+			while (k.hasNext()) {
+				file = k.next();
+				if (model.isAnnotationUsedByUser(file))
+					ids.add(file.getId());
+			}
 		}
+		
 		List available = new ArrayList();
 		if (attachments != null) {
 			Iterator i = attachments.iterator();
@@ -450,7 +460,6 @@ class EditorComponent
 		}
 		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
 							true);
-		//view.setExistingAttachements();
 		setStatus(false);
 	}
 	

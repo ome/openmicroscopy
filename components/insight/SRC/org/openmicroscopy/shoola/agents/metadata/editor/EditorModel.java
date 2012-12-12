@@ -1429,7 +1429,8 @@ class EditorModel
 				while (j.hasNext()) {
 					tag = j.next();
 					value = ids.get(tag.getId());
-					if (value == max && !count.contains(tag.getId())) {
+					if (value != null &&
+						value == max && !count.contains(tag.getId())) {
 						results.add(tag);
 						count.add(tag.getId());
 					}
@@ -1656,16 +1657,16 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of the tags that are linked to all the selected
+	 * Returns the collection of the files that are linked to all the selected
 	 * objects.
 	 * 
 	 * @return See above.
 	 */
-	Collection<TagAnnotationData> getCommonAttachments()
+	Collection<FileAnnotationData> getCommonAttachments()
 	{
 		Map<DataObject, StructuredDataResults> 
 		r = parent.getAllStructuredData();
-		if (r == null) return new ArrayList<TagAnnotationData>();
+		if (r == null) return new ArrayList<FileAnnotationData>();
 		Entry<DataObject, StructuredDataResults> e;
 		Iterator<Entry<DataObject, StructuredDataResults>>
 		i = r.entrySet().iterator();
@@ -1713,7 +1714,8 @@ class EditorModel
 				while (j.hasNext()) {
 					tag = j.next();
 					value = ids.get(tag.getId());
-					if (value == max && !count.contains(tag.getId())) {
+					if (value != null && 
+							value == max && !count.contains(tag.getId())) {
 						results.add(tag);
 						count.add(tag.getId());
 					}
@@ -1721,7 +1723,7 @@ class EditorModel
 			}
 		}
 		
-		return (Collection<TagAnnotationData>) sorter.sort(results);
+		return (Collection<FileAnnotationData>) sorter.sort(results);
 	}
 	
 	/**
