@@ -517,7 +517,11 @@ class AnnotationDataUI
 		panel.add(tagsPane, c);
 		c.gridy = 3;
 		panel.add(docRef, c);
-		content.add(panel);
+		
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(panel);
+		content.add(p);
 		
 		
 		//analysis results
