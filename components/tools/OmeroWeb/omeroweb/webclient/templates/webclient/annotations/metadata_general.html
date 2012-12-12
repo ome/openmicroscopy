@@ -316,6 +316,41 @@
                     return false;
                 });
 
+                // Channel name editing
+                $("#channel_names button").click(function(){
+                    $("#channel_names_display").hide();
+                    $("#channel_names_edit").show();
+                });
+                $("#channel_names_edit button").click(function(event){
+                    var name = $(this).attr('name');
+                    if (name === "save") {
+                        $("#channel_names_edit input[name=applyToDataset]").attr("checked", false);
+                        $("#channel_names_edit").submit();
+                    } else if (name === "apply") {
+                        $("#channel_names_edit input[name=applyToDataset]").attr("checked", true);
+                        $("#channel_names_edit").submit();
+                    } else {
+                        // cancel - hide and don't submit
+                        $("#channel_names_display").show();
+                        $("#channel_names_edit").hide();
+                    }
+                    event.preventDefault();
+                    return false;
+                });
+                $("#channel_names_edit").ajaxForm({
+                    dataType:  'json',
+                    success: function(data) {
+                        var cnames = data.channelNames;
+                        // update the channel names
+                        $("#channel_names_display span").each(function(i){
+                            if (cnames.hasOwnProperty("channel"+i)) {
+                                $(this).text(cnames["channel"+i]);
+                            }
+                        })
+                        $("#channel_names_display").show();
+                        $("#channel_names_edit").hide();
+                    }
+                });
             });
             
     </script>

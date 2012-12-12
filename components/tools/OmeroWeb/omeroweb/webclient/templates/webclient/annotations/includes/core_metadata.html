@@ -19,7 +19,7 @@
 {% endcomment %}
 
 
-<table>
+<table class="core_metadata">
     <tr>
         <th>Owner:</th>
         <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
@@ -58,7 +58,31 @@
     <tr>
         <th>Channels:</th>
         <td id='channel_names'>
-        {% if image.getChannels %}{% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+            <div>
+                {% if image.getChannels %}
+                    <div id="channel_names_display">
+                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
+                    </div>
+                    <!-- hidden form for editing channel names -->
+                    <form action="{% url edit_channel_names image.id %}" method="POST" id="channel_names_edit" style="display:none">
+                        {% for c in image.getChannels %}
+                            <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=10/><br/>
+                        {% endfor %}
+                        <input type="text" name="datasetId" value="{{ image.getParent.getId }}" size=5 style="display:none"/>
+                        <input type="checkbox" name="applyToDataset" style="display:none"/><br/>
+                        <button name="apply" title="Save and apply to all Images in Dataset">Apply to All</button>
+                        <button name="save" title="Save Channel Names">Save</button>
+                        <button type="reset" name="cancel" title="Cancel">Cancel</button>
+                    </form>
+                    {% if image.canEdit %}
+                        <button class="btn silver btn_edit" alt="e" title="Edit Channel Names">
+                            <span></span>
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <span class="error">No channel specified</span>
+                {% endif %}
+            </div>
         </td>
     </tr>
     <tr>
