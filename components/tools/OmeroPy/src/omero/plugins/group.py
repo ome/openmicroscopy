@@ -63,7 +63,7 @@ More information is available at:
 
         for x in (add, perms):
             group = x.add_mutually_exclusive_group()
-            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ", choices = defaultperms.values())
+            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
             group.add_argument("--type", help="Group permission set symbollically", default="private", choices = defaultperms.keys())
 
         list = parser.add(sub, self.list, "List current groups")
