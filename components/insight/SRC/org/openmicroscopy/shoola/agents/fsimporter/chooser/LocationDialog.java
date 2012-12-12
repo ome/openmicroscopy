@@ -97,6 +97,8 @@ import pojos.ScreenData;
 public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
 
+	private static final int MIN_WIDTH = 640;
+
 	/** Bound property indicating to change the import group. */
 	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
 			
@@ -523,8 +525,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 		mainPanel.add(buildButtonPanel(), BorderLayout.SOUTH);
 		
 		contentPane.add(mainPanel, "1, 1");
+		this.pack();
+		int minHeight = this.getHeight();
 		
-		Dimension minSize = new Dimension(640, 240);
+		Dimension minSize = new Dimension(MIN_WIDTH, minHeight);
 		this.setMinimumSize(minSize);
 		this.setPreferredSize(minSize);
 		this.setSize(minSize);
@@ -565,16 +569,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent ae) {
-		
-		Object eventSource = ae.getSource();
 		String actionCommand = ae.getActionCommand();
 		
-		if(	actionCommand.equals("comboBoxChanged") && eventSource == groupsBox)
-		{
-			
-		}
-		else
-		{
+		try {
 			int commandId = Integer.parseInt(actionCommand);
 			
 			DataObject newDataObject = null;
@@ -607,6 +604,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 				editor.setModal(true);
 				UIUtilities.centerAndShow(editor);
 			}
+		} catch (NumberFormatException nfe) {
 		}
 	}
 
