@@ -1043,7 +1043,6 @@ class PropertiesUI
 	 */
 	protected void buildUI()
 	{
-		//removeAll();
 		if (!init) {
 			buildGUI();
 			init = true;
@@ -1053,7 +1052,6 @@ class PropertiesUI
 		text = model.getObjectTypeAsString(refObject);
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
-		//descriptionPane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
@@ -1091,7 +1089,6 @@ class PropertiesUI
         if (refObject instanceof WellSampleData) b = false;
         
         namePane.setEnabled(b);
-        //descriptionPane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         
         if (b) {
