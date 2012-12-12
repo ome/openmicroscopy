@@ -888,7 +888,7 @@ OMERO Diagnostics %s
 
         var = self.ctx.dir / 'var'
         if not os.path.exists(var):
-            print "Creating directory %s" % var
+            self.ctx.out("Creating directory %s" % var)
             os.makedirs(var, 0700)
         else:
             self.can_access(var, mask)
