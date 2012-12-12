@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +47,6 @@ import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
@@ -1034,7 +1032,7 @@ class ImViewerModel
 	double setImage(BufferedImage image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImage(image);
+		if (image != null) browser.setRenderedImage(image);
 		loaders.remove(IMAGE);
 		firstTime = false;
 		//update image icon
@@ -1045,6 +1043,7 @@ class ImViewerModel
 			imageIcon = Factory.magnifyImage(factor, image);
 		}
 		*/
+		if (image == null) return 1;
 		return initZoomFactor();
 	}
 
@@ -1175,16 +1174,7 @@ class ImViewerModel
 	boolean isBigImage()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) {
-			try {
-				Boolean 
-				b = ImViewerAgent.getRegistry().getImageService().isLargeImage(
-						ctx, getImage().getDefaultPixels().getId());
-				if (b != null) return b.booleanValue();
-			} catch (Exception e) {} //ingore
-			
-			return false;
-		}
+		if (rnd == null) return false;
 		return rnd.isBigImage();
 	}
 	
@@ -2139,7 +2129,14 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isOriginalSettings() { return isSameSettings(originalDef, false); }
+	boolean isOriginalSettings()
+	{
+		if (originalDef == null) return true;
+		if (metadataViewer == null) return true;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return true;
+		return isSameSettings(originalDef, false);
+	}
 
 	/**
 	 * Returns <code>true</code> if it is the original plane, 
@@ -2385,7 +2382,7 @@ class ImViewerModel
 	double setImageAsTexture(TextureData image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImage(image);
+		if (image != null) browser.setRenderedImage(image);
 		loaders.remove(IMAGE);
 		firstTime = false;
 		//update image icon
@@ -2396,6 +2393,7 @@ class ImViewerModel
 			imageIcon = Factory.magnifyImage(factor, image);
 		}
 		*/
+		if (image == null) return 1;
 		return initZoomFactor();
 	}
 

@@ -990,6 +990,12 @@ class EditorUI
 		generalPane.onRelatedNodesSet();
 	}
 
+	/** Invokes when the size is loaded.*/
+	void onSizeLoaded()
+	{
+		toolBar.onSizeLoaded();
+	}
+	
 	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
