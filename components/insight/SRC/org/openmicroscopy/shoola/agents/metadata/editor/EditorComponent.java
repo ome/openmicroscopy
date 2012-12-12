@@ -149,6 +149,8 @@ class EditorComponent
 			while (k.hasNext()) {
 				ids.add(k.next().getId());
 			}
+			
+			AnnotationData child;
 			while (i.hasNext()) {
 				e = i.next();
 				result = e.getValue();
@@ -157,7 +159,10 @@ class EditorComponent
 					j = links.iterator();
 					while (j.hasNext()) {
 						link = j.next();
-						if (link.getChild().getClass().equals(type)) {
+						child = (AnnotationData) link.getChild();
+						//Exclude some file is tag
+						if (child.getClass().equals(type) &&
+							!model.isNameSpaceExcluded(child.getNameSpace())) {
 							if (!ids.contains(link.getChild().getId())) {
 								if (!selected.contains(link.getChild().getId()))
 									list.add(link.getChild());
