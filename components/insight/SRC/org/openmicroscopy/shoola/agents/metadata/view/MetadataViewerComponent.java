@@ -372,7 +372,16 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#refresh()
 	 */
-	public void refresh() { model.refresh(); }
+	public void refresh()
+	{
+		if (model.isSingleMode()) {
+			model.fireStructuredDataLoading(model.getRefObject());
+		} else {
+			model.setRelatedNodes(model.getRelatedNodes());
+		}
+		fireStateChange();
+		view.setRootObject();
+	}
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.

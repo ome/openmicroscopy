@@ -320,15 +320,7 @@ class MetadataViewerModel
 		parentRefObject = null;
 		viewedBy = null;
 	}
-	
-	/** Refreshes the general view.*/
-	void refresh()
-	{
-		data = null;
-		parentData = null;
-		browser.setRootObject(refObject);
-	}
-	
+
 	/**
 	 * Sets the parent of the object of reference.
 	 * 
@@ -425,20 +417,6 @@ class MetadataViewerModel
 		if (node instanceof DataObject) {
 			Integer id = getLoaderID(StructuredDataLoader.class);
 			if (id != null) cancel(id);
-			if (node instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) node;
-				node = wsd.getImage();
-				if (!loaders.containsKey(node) && parentData == null
-						&& parentRefObject != null) {
-					/*
-					loaderID++;
-					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, Arrays.asList((DataObject) parentRefObject),
-						loaderID);
-					loaders.put(loaderID, l);
-					*/
-				}
-			}
 			loaderID++;
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, Arrays.asList((DataObject) node), loaderID);
