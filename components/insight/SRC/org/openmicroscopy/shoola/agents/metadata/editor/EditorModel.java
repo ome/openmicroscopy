@@ -3527,32 +3527,6 @@ class EditorModel
     }
     
     /**
-     * Loads the group corresponding to the specified identifier.
-     * 
-     * @param groupID The identifier of the group to load.
-     * @return See above.
-     */
-    GroupData loadGroup(long groupID)
-    {
-    	/*
-    	try {
-			AdminService svc = 
-				MetadataViewerAgent.getRegistry().getAdminService();
-			List<GroupData> groups = svc.loadGroups(groupID);
-			Iterator<GroupData> i = groups.iterator();
-			GroupData g;
-			while (i.hasNext()) {
-				g = i.next();
-				if (g.getId() == groupID) return g;
-			}
-		} catch (Exception e) {
-			//ignore
-		}
-		*/
-		return null;
-    }
-    
-    /**
      * Loads the attachments.
      * 
      * @param analysis The object hosting the results.

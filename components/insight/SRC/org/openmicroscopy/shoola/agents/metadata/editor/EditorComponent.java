@@ -142,6 +142,7 @@ class EditorComponent
 		Iterator<AnnotationLinkData> j;
 		AnnotationLinkData link;
 		
+		AnnotationData child;
 		if (model.isMultiSelection()) {
 			List<Long> selected = new ArrayList<Long>();
 			List<Long> ids = new ArrayList<Long>(common.size());
@@ -150,7 +151,7 @@ class EditorComponent
 				ids.add(k.next().getId());
 			}
 			
-			AnnotationData child;
+			
 			while (i.hasNext()) {
 				e = i.next();
 				result = e.getValue();
@@ -180,7 +181,9 @@ class EditorComponent
 					j = links.iterator();
 					while (j.hasNext()) {
 						link = j.next();
-						if (!link.canDelete() && link.getChild().equals(type))
+						child = (AnnotationData) link.getChild();
+						if (!model.isNameSpaceExcluded(child.getNameSpace()) &&
+							!link.canDelete() && link.getChild().equals(type))
 							list.add(link.getChild());
 					}
 				}

@@ -1046,7 +1046,7 @@ class AnnotationDataUI
 			Iterator i = objects.iterator();
 			TagAnnotationData tag;
 			tagFlag = false;
-			Collection tags = model.getTags();
+			Collection tags = model.getAllTags();
 			if (tags == null || tags.size() != objects.size()) {
 				tagFlag = true;
 			} else {
@@ -1071,7 +1071,7 @@ class AnnotationDataUI
 			Iterator i = objects.iterator();
 			FileAnnotationData data;
 			docFlag = false;
-			Collection attachments = model.getAttachments();
+			Collection attachments = model.getAllAttachments();
 			if (attachments == null || attachments.size() != objects.size()) {
 				docFlag = true;
 			} else {
@@ -1547,8 +1547,6 @@ class AnnotationDataUI
 			int newValue = (Integer) evt.getNewValue();
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
-				//firePropertyChange(EditorControl.SAVE_PROPERTY,
-				//	Boolean.valueOf(false), Boolean.valueOf(true));
 				view.saveData(true);
 			}
 		} else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
