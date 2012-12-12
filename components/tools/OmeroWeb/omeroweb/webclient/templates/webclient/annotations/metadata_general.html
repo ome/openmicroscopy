@@ -438,51 +438,12 @@
 			
 			
 			
-            <table class="metadata_details">
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
-                </tr>
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
-                </tr>
-                {% if manager.image.getPixelSizeX or manager.image.getPixelSizeY or manager.image.getPixelSizeZ %}
-                <tr>
-                    <th>Pixels Size (XY{% if manager.image.getPixelSizeZ %}Z{% endif %}) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-                        </div>
-                        <span class="tooltip_html" style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
-                        </span>
-                    </td>
-                </tr>
-                {% endif %}
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-            </table>
+            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
+            {% with image=manager.image %}
+                {% include "webclient/annotations/includes/core_metadata.html" %}
+            {% endwith %}
+
+
             {% else %}
                 {% if manager.dataset %}
                 {% if manager.dataset.canEdit %}
@@ -673,56 +634,12 @@
                 <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaksbr }}</span>
                 {% endif %}
             </div>
-            
-            <table>
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
-                </tr>
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.well.getWellSample.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.well.getWellSample.image.getSizeX }} x {{ manager.well.getWellSample.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.well.getWellSample.image.getPixelsType }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Size (XYZ) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.well.getWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.getWellSample.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-                        </div>
-                        <span class="tooltip_html" style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
-                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ }} {% endif %}
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.well.getWellSample.image.getSizeZ }} x {{ manager.well.getWellSample.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.well.getWellSample.image.getChannels %}{% for c in manager.well.getWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Status:</th>
-                    <td id='well_status'>
-                        {{ manager.well.status|default:"None" }}
-                    </td>
-                </tr>
-            </table>
+
+            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
+            {% with image=manager.well.getWellSample.image %}
+                {% include "webclient/annotations/includes/core_metadata.html" %}
+            {% endwith %}
+
             {% else %}
                 {% if manager.acquisition %}
                 {% if manager.acquisition.canEdit %}
