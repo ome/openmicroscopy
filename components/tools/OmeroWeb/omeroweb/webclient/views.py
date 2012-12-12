@@ -1301,6 +1301,33 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def edit_channel_names(request, imageId, conn=None, **kwargs):
+    """
+    Edit and save channel names
+    """
+    image = conn.getObject("Image", imageId)
+    applyToDataset = request.REQUEST.get('applyToDataset', None)
+    datasetId = request.REQUEST.get('datasetId', None)
+    channelNames = {}
+    nameDict = {}
+    for i in range(image.getSizeC()):
+        cname = request.REQUEST.get("channel%d" % i, None)
+        if cname is not None:
+            channelNames["channel%d" % i] = str(cname)
+            nameDict[i+1] = str(cname)
+    if applyToDataset is not None:
+        counts = conn.setChannelNames("Dataset", [datasetId], nameDict)
+    else:
+        counts = conn.setChannelNames("Image", [image.getId()], nameDict)
+    rv = {"channelNames": channelNames}
+    rv['imageCount'] = counts['imageCount']
+    rv['updateCount'] = counts['updateCount']
+    return rv
+
+
 @login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):

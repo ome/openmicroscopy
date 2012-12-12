@@ -717,7 +717,21 @@
     .metadata_details {
         text-shadow: 0 1px 0 rgba(255,255,255,.8);
     }
-    
+
+    /* Table of 'core metadata' */
+    .core_metadata td>div {
+        position: relative;
+        padding-right:22px;
+    }
+    .core_metadata .btn {
+        position: absolute;
+        right: 0px;
+        top: -3px;
+    }
+    .core_metadata .btn span {
+        height: 13px;
+        width: 16px;
+    }
             
     
     
