@@ -33,6 +33,8 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -93,7 +95,7 @@ import pojos.ScreenData;
  * @since 3.0-Beta4
  */
 public class LocationDialog extends JDialog implements ActionListener,
-		PropertyChangeListener, ChangeListener {
+		PropertyChangeListener, ChangeListener, ItemListener {
 
 	/** Bound property indicating to change the import group. */
 	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
@@ -159,10 +161,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The message to display in the header. */
 	private static final String LABEL_GROUP = "Group";
 
-
-	/** Constant value definging the value of an unknown/unselected group*/
+	/** Constant value defining the value of an unknown/unselected group*/
 	private static final long UNKNOWN_GROUP_ID = -1;
-
 
 	/** The title of the dialog. */
 	private static String TITLE = "Import Location - Select where to import your data.";
@@ -196,9 +196,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/** Button to create a new screen. */
 	private JButton newScreenButton;
-
-	/** The listener linked to the parents box. */
-	private ActionListener projectsBoxListener;
 
 	/** The map holding the new nodes to create if in the P/D view. */
 	private Map<DataNode, List<DataNode>> newNodesPD;
@@ -294,7 +291,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		// main components
 		groupsBox = new JComboBox();
-		groupsBox.addActionListener(this);
+		groupsBox.addItemListener(this);
 		
 		
 		IconManager icons = IconManager.getInstance();
@@ -309,13 +306,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		screensBox = new JComboBox();
 
 		projectsBox = new JComboBox();
-		projectsBoxListener = new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				populateDatasetsBox();
-			}
-		};
-		projectsBox.addActionListener(projectsBoxListener);
+		projectsBox.addItemListener(this);
 
 		datasetsBox = new JComboBox();
 
@@ -580,7 +571,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		if(	actionCommand.equals("comboBoxChanged") && eventSource == groupsBox)
 		{
-			switchToSelectedGroup();
+			
 		}
 		else
 		{
@@ -718,14 +709,14 @@ public class LocationDialog extends JDialog implements ActionListener,
 		if (defaultNode != null)
 			sortedList.add(defaultNode);
 
-		projectsBox.removeActionListener(projectsBoxListener);
+		projectsBox.removeItemListener(this);
 		projectsBox.removeAllItems();
 
 		for (DataNode dataNode : sortedList) {
 			projectsBox.addItem(dataNode);
 		}
 
-		projectsBox.addActionListener(projectsBoxListener);
+		projectsBox.addItemListener(this);
 		projectsBox.setSelectedItem(newNode);
 
 		repaint();
@@ -906,7 +897,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		switch (importDataType) {
 			case Importer.PROJECT_TYPE:
-				projectsBox.removeActionListener(projectsBoxListener);
+				projectsBox.removeItemListener(this);
 				
 				projectsBox.removeAllItems();
 				datasetsBox.removeAllItems();
@@ -924,7 +915,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 				
 				loadProjects(datasetsList, sorter.sort(topList));
 				
-				projectsBox.addActionListener(projectsBoxListener);
+				projectsBox.addItemListener(this);
 				break;
 			case Importer.SCREEN_TYPE:
 				screensBox.removeAllItems();
@@ -1117,7 +1108,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
 		
-		// TODO: Work around for currentGroup being passed as -1
+		/* TODO: Scott - Remove this once fix is in place.
+		 * Work around for currentGroup being passed as -1
+		 */
 		if(currentGroupId == UNKNOWN_GROUP_ID) {
 			GroupData defaultUserGroup = ImporterAgent.getUserDetails().getDefaultGroup();
 			firePropertyChange(GROUP_CHANGED_PROPERTY, null, defaultUserGroup);
@@ -1132,23 +1125,41 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	public void stateChanged(ChangeEvent evt) {
-		JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
-		int newDataType = tabbedPane.getSelectedIndex();
-		
-		switch(newDataType)
-		{
-			case Importer.PROJECT_TYPE:
-				objects = currentProjects;
-				break;
-			case Importer.SCREEN_TYPE:
-				objects = currentScreens;
-				break;
+		Object source = evt.getSource();
+		if(source instanceof JTabbedPane) {
+			JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
+			
+			int newDataType = tabbedPane.getSelectedIndex();
+			Object comp = tabbedPane.getSelectedComponent();
+			
+			switch(newDataType)
+			{
+				case Importer.PROJECT_TYPE:
+					objects = currentProjects;
+					break;
+				case Importer.SCREEN_TYPE:
+					objects = currentScreens;
+					break;
+			}
+			
+			if (objects == null) {
+				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, newDataType);
+			} else {
+				reset(this.selectedContainer, newDataType, objects, this.currentGroup.getId());
+			}
 		}
+	}
+
+	public void itemStateChanged(ItemEvent ie) {
+		Object source = ie.getSource();
 		
-		if (objects == null) {
-			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, newDataType);
-		} else {
-			reset(this.selectedContainer, newDataType, objects, this.currentGroup.getId());
+		if(ie.getStateChange() == ItemEvent.SELECTED)
+		{
+			if(source == groupsBox) {
+				switchToSelectedGroup();
+			} else if (source == projectsBox) {
+				populateDatasetsBox();
+			}
 		}
 	}
 }
