@@ -1753,36 +1753,53 @@ class EditorModel
 	 */
 	List<AnalysisResultsItem> getAnalysisResults()
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return null;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return null;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		j = r.entrySet().iterator();
+		StructuredDataResults data;
+		Collection<FileAnnotationData> attachments;
+		Iterator<FileAnnotationData> i;
 		FileAnnotationData f;
 		String ns;
 		AnalysisResultsItem item;
 		
 		Map<Long, FileAnnotationData> 
 		ids = new HashMap<Long, FileAnnotationData>();
-		while (i.hasNext()) {
-			f = i.next();
-			ns = f.getNameSpace();
-			if (FileAnnotationData.FLIM_NS.equals(ns)) {
-				ids.put(f.getId(), f);
+		
+		while (j.hasNext()) {
+			e = j.next();
+			data = e.getValue();
+			if (data != null) {
+				attachments = data.getAttachments();
+				if (attachments != null) {
+					i = attachments.iterator();
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.FLIM_NS.equals(ns)) {
+							ids.put(f.getId(), f);
+						}
+					}
+				}
 			}
 		}
+
+		if (ids.size() == 0) return null;
 		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
-		if (orderedIds.size() == 0) return null;
+		
 		int index = 0; //this should be modified.
-		Iterator<Long> j = orderedIds.iterator();
+		Iterator<Long> k = orderedIds.iterator();
 		Long id;
 		List<AnalysisResultsItem> 
 		results = new ArrayList<AnalysisResultsItem>();
 		item = null;
 		int n = 6;
 		int number = 1;
-		while (j.hasNext()) {
-			id = j.next();
+		while (k.hasNext()) {
+			id = k.next();
 			if (index == 0) {
 				item = new AnalysisResultsItem((DataObject) getRefObject(), 
 						FileAnnotationData.FLIM_NS, number);
