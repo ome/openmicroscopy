@@ -320,15 +320,7 @@ class MetadataViewerModel
 		parentRefObject = null;
 		viewedBy = null;
 	}
-	
-	/** Refreshes the general view.*/
-	void refresh()
-	{
-		data = null;
-		parentData = null;
-		browser.setRootObject(refObject);
-	}
-	
+
 	/**
 	 * Sets the parent of the object of reference.
 	 * 
