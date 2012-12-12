@@ -39,6 +39,8 @@ from omero_version import ice_compatibility
 try:
     import win32service
     import win32evtlogutil
+    import win32api
+    import win32security
     has_win32 = True
 except ImportError:
     has_win32 = False
@@ -398,9 +400,15 @@ Examples:
                 if len(user) > 0:
                     command.append("obj=")
                     command.append(user)
-                    self.ctx.out(self.ctx.popen(["ntrights","+r","SeServiceLogonRight","-u",user]).communicate()[0]) # popen
+                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                    self.ctx.out("Granting SeServiceLogonRight to service user: %s" % user)
+                    policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
+                    sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
+                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight'), 1)
+                    win32security.LsaClose(policy_handle)
                     pasw = config.as_map()["omero.windows.pass"]
-                    pasw = self._ask_for_password(" for service user: %s" % user, pasw)
+                    if not pasw:
+                        pasw = self._ask_for_password(" for service user: %s" % user, pasw)
                     command.append("password=")
                     command.append(pasw)
                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
