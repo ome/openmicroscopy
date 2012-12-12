@@ -155,6 +155,15 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** The file namespaces to exclude.*/
+	private final static List<String> EXCLUDED_FILE_NS;
+	
+	static {
+		EXCLUDED_FILE_NS = new ArrayList<String>();
+		EXCLUDED_FILE_NS.add(FileAnnotationData.COMPANION_FILE_NS);
+		EXCLUDED_FILE_NS.add(FileAnnotationData.FLIM_NS);
+	}
+	
 	/** The parent of this editor. */
 	private  MetadataViewer			parent;
 	
@@ -1567,7 +1576,7 @@ class EditorModel
 				String name = f.getFileName();
 				if (name.contains(FileAnnotationData.ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
-			} else if (!FileAnnotationData.FLIM_NS.equals(ns)) {
+			} else if (!isNameSpaceExcluded(ns)) {
 				l.add(f);
 			}
 			
@@ -1667,8 +1676,7 @@ class EditorModel
 				while (j.hasNext()) {
 					tag = j.next();
 					ns = tag.getNameSpace();
-					if (!FileAnnotationData.FLIM_NS.equals(ns) &&
-						!FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+					if (!isNameSpaceExcluded(ns)) {
 						value = ids.get(tag.getId());
 						if (value != null) {
 							value++;
@@ -3761,4 +3769,17 @@ class EditorModel
 		return parent.getAllStructuredData();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the specified namespace is excluded.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ns The namespace to handle.
+	 * @return See above.
+	 */
+	boolean isNameSpaceExcluded(String ns)
+	{
+		if (ns == null) return false;
+		return EXCLUDED_FILE_NS.contains(ns);
+	}
+
 }
