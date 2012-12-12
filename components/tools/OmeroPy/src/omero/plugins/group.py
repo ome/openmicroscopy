@@ -96,10 +96,14 @@ More information is available at:
             x.add_login_arguments()
 
     def parse_perms(self, args):
+        from omero_model_PermissionsI import PermissionsI as Perms
         perms = getattr(args, "perms", None)
         if not perms:
             perms = defaultperms[args.type]
-        return perms
+        try:
+            return Perms(perms)
+        except ValueError, ve:
+            self.ctx.die(505, str(ve))
 
     def add(self, args):
 
@@ -113,7 +117,7 @@ More information is available at:
         p = c.ic.getProperties()
         g = Grp()
         g.name = rstring(args.name)
-        g.details.permissions = Perms(perms)
+        g.details.permissions = perms
         admin = c.getSession().getAdminService()
         try:
             grp = admin.lookupGroup(args.name)
@@ -153,11 +157,11 @@ More information is available at:
         gid, g = self.find_group(a, args.id_or_name)
 
         old_perms = str(g.details.permissions)
-        if old_perms == perms:
+        if old_perms == str(perms):
             self.ctx.out("Permissions for group %s (id=%s) already %s" % (g.name.val, gid, perms))
         else:
             try:
-                a.changePermissions(Grp(gid, False), Perms(perms))
+                a.changePermissions(Grp(gid, False), perms)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s" % (g.name.val, gid, perms))
             except omero.GroupSecurityViolation:
                 import traceback
