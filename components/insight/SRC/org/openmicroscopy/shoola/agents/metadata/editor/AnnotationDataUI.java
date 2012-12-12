@@ -1309,7 +1309,7 @@ class AnnotationDataUI
 				}
 			}
 			
-			original = model.getTags();
+			original = model.getAllTags();
 			j = original.iterator();
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
@@ -1332,7 +1332,7 @@ class AnnotationDataUI
 						idsToKeep.add(id);
 				}
 			}
-			original = model.getAttachments();
+			original = model.getAllAttachments();
 			j = original.iterator();
 			while (j.hasNext()) {
 				fa = (FileAnnotationData) j.next();

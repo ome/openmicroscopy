@@ -599,7 +599,7 @@ class EditorUI
 						String n = evt.getPropertyName();
 						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
 							removeLinks((Integer) evt.getNewValue(), 
-								model.getTags());
+								model.getAllTags());
 						}
 					}
 				});
@@ -666,7 +666,7 @@ class EditorUI
 						String n = evt.getPropertyName();
 						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
 							removeLinks((Integer) evt.getNewValue(), 
-									model.getAttachments());
+									model.getAllAttachments());
 						}
 					}
 				});
