@@ -1044,11 +1044,8 @@ class TreeViewerComponent
 			metadata.setSelectionMode(single);
 			if (!single) {
 				List<Object> l = new ArrayList<Object>(selection.length);
-				Object child;
 				for (int i = 0; i < selection.length; i++) {
-					child = selection[i].getUserObject();
-					//if (!child.equals(object)) 
-						l.add(child);
+					l.add(selection[i].getUserObject());
 				}
 				if (l.size() > 0)
 					metadata.setRelatedNodes(l);
