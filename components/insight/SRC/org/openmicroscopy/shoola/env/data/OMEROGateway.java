@@ -6268,6 +6268,9 @@ class OMEROGateway
 		Map<String, RType>  map = new HashMap<String, RType>();
 		RString dataType;
 		dataType = omero.rtypes.rstring("Image");
+		if (DatasetData.class.equals(type)) {
+			dataType = omero.rtypes.rstring("Dataset");
+		}
 		map.put("Data_Type", dataType);
 		switch (scriptIndex) {
 			case FigureParam.THUMBNAILS:
@@ -6275,10 +6278,8 @@ class OMEROGateway
 				long parentID = -1;
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
-				if (DatasetData.class.equals(type)) {
-					dataType = omero.rtypes.rstring("Dataset");
-				} 
-				map.put("Data_Type", dataType);
+				 
+				//map.put("Data_Type", dataType);
 				map.put("IDs", omero.rtypes.rlist(ids));
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
