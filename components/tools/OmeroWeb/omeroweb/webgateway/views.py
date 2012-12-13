@@ -1808,8 +1808,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     for i, t in enumerate(objtype[1:]):
         query += "join fetch obj%d.%s obj%d\n" % (i, t, i+1)
     query += """
-        join fetch obj0.annotationLinks links
-        join fetch links.child
+        left outer join fetch obj0.annotationLinks links
+        left outer join fetch links.child
         where obj%d.id=:id""" % (len(objtype) - 1)
 
     try:
