@@ -165,5 +165,15 @@ class TestPrefs(unittest.TestCase):
         finally:
             config.close()
 
+    def testNewEnvironment(self):
+        config = self.config()
+        config.default("default")
+        config.close()
+        os.environ["OMERO_CONFIG"] = "testNewEnvironment"
+        self.invoke("set A B")
+        self.assertStdout([])
+        self.invoke("get")
+        self.assertStdout(["A=B"])
+
 if __name__ == '__main__':
     unittest.main()
