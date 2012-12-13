@@ -895,14 +895,18 @@ class ImViewerComponent
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
-		if (image == null) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occurred while " +
-					"creating the image.");
+		if (image == null) { //no need to notify.
+			if (ImViewerAgent.hasOpenGLSupport())
+				model.setImageAsTexture(null);
+			else model.setImage(null);
 			return;
 		}
-		if (!(image instanceof BufferedImage || image instanceof TextureData))
+		if (!(image instanceof BufferedImage || 
+				image instanceof TextureData)) {
+			model.setImage(null);
+			model.setImageAsTexture(null);
 			return;
+		}
 		view.removeComponentListener(controller);
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
@@ -2896,6 +2900,7 @@ class ImViewerComponent
 		//if (model.isNumerousChannel()) model.setForLifetime();
 		if (model.getState() == DISCARDED) return;
 		model.onRndLoaded();
+		//view.onR
 		if (!reload) {
 			if (model.isBigImage()) {
 				model.fireBirdEyeViewRetrieval();

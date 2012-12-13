@@ -2490,4 +2490,26 @@ public class UIUtilities
 		return new UnitsObject(units, v);
 	}
 	
+	/**
+     * Formats the passed value in seconds.
+     * 
+     * @param v The value to transform.
+     * @return See above.
+     */
+    public static String formatTimeInSeconds(int v)
+    {
+    	if (v <= 0) return "";
+    	int hours = v/3600;
+    	int remainder = v%3600;
+    	int minutes = remainder/60;
+    	int seconds = remainder%60;
+    	String text = "";
+    	if (hours > 0) text += hours+"h";
+    	if (minutes > 0) {
+    		text += minutes+"min";
+    		if (seconds > 0) text += seconds+"s";
+    	} else text +=  seconds+"s";
+	
+		return text;
+    }
 }

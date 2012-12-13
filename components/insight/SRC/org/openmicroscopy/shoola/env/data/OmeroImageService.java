@@ -499,7 +499,7 @@ public interface OmeroImageService
 	 */
 	public Object importFile(ImportableObject object,
 		ImportableFile importable, long userID, boolean close)
-		throws ImportException;
+		throws ImportException, DSAccessException, DSOutOfServiceException;
 	
 	/**
 	 * Returns the collection of supported file formats.
