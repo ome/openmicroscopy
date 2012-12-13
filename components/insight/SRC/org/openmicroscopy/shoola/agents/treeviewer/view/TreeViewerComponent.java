@@ -360,7 +360,10 @@ class TreeViewerComponent
 		if (display != null) parent = display.getParentDisplay();
 		List list;
 		List<ApplicationData> app = null;
-		if (display instanceof TreeImageTimeSet) {
+		if (display instanceof TreeImageTimeSet || 
+			(display instanceof TreeFileSet &&
+				((TreeFileSet) display).getType() ==
+					TreeFileSet.ORPHANED_IMAGES)) {
 			db = DataBrowserFactory.getDataBrowser(display);
 			if (db != null) {
 				db.setComponentTitle("");
