@@ -196,21 +196,22 @@ class PrefsControl(BaseControl):
 
         try:
             for f in args.file:
-                try:
-                    if args.file == "-":
-                        if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
-                            return
-                        else:
-                            import fileinput
-                            f = fileinput.input(f)
+                if f == "-":
+                    if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+                        continue
+                    else:
+                        # Read from standard input
+                        import fileinput
+                        f = fileinput.input(f)
 
+                try:
                     previous = None
                     for line in f:
                         if previous:
                             line = previous + line
                         previous = self.handle_line(line, config, keys)
                 finally:
-                    if args.file != "-":
+                    if f != "-":
                         f.close()
         except NonZeroReturnCode, nzrc:
             raise
