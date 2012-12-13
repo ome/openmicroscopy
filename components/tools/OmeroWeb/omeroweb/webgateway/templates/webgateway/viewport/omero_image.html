@@ -267,7 +267,7 @@
 	    }
 	};
 	$.getJSON('{% url webgateway_object_table_query 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
-	    '?query=' + encodeURIComponent('(Well==' + tmp.wellId + ')') +
+	    '?query=Well-' + tmp.wellId +
 	    '&callback=?',
 	     onAnnotations);
     }
