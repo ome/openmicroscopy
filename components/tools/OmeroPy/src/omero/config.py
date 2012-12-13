@@ -318,6 +318,7 @@ class ConfigXml(object):
 
         if props == None:
             props = SubElement(self.XML, "properties", {"id":default})
+            SubElement(props, "property", name=self.KEY, value=self.VERSION)
 
         for x in props.findall("./property"):
             if x.attrib["name"] == key:
