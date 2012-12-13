@@ -81,6 +81,11 @@ public class ViewerSorter
     /** The list containing the ordered values. */
     private List        results;
     
+    /** Flag indicating to be case sensitive or not. The default value is
+     * <code>false</code>.
+     */
+    private boolean caseSensitive;
+    
     /**
      * Compares two {@link Date}s.
      * 
@@ -111,7 +116,10 @@ public class ViewerSorter
         else if (s1 == null) return -1; 
         else if (s2 == null) return 1; 
         int v = 0;
-        int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
+        int result;
+        if (!caseSensitive) {
+        	result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
+        } else result = s1.compareTo(s2);
         if (result < 0) v = -1;
         else if (result > 0) v = 1;
         return v;
@@ -325,7 +333,11 @@ public class ViewerSorter
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
-        	return exp.getLastName()+" "+exp.getFirstName();
+        	String s = exp.getLastName();
+        	if (s != null && s.trim().length() != 0) return s;
+        	 s = exp.getFirstName();
+         	if (s != null && s.trim().length() != 0) return s;
+        	return exp.getUserName();
         }  else if (obj instanceof GroupData) 
             return ((GroupData) obj).getName();
         else if (obj instanceof AnnotationData) 
@@ -440,6 +452,7 @@ public class ViewerSorter
     {
         ascending = true;
         byDate = false;
+        caseSensitive = false;
     }
     
     /** Creates a new instance. */
@@ -480,6 +493,25 @@ public class ViewerSorter
     }
  
     /**
+     * Sets the case sensitive flag
+     * 
+     * @param b Pass <code>true</code> to be case sensitive
+     * 		<code>false</code> otherwise.
+     */
+    public void setCaseSensitive(boolean b)
+    {
+    	caseSensitive = b;
+    }
+    
+    /**
+     * Returns <code>true</code> if case sensitive, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isCaseSensitive() { return caseSensitive; }
+    
+    /**
      * Returns <code>true</code> if the collection is ordered by date,
      * <code>false</code> otherwise.
      * 
@@ -503,8 +535,7 @@ public class ViewerSorter
      */
     public List sort(Object[] array)
     {
-    	if (array == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (array == null) return null;
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < array.length; i++) {
 			l.add(array[i]);
@@ -521,8 +552,7 @@ public class ViewerSorter
      */
     public List sort(Collection collection)
     {
-        if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+        if (collection == null) return null;
         this.collection = collection;
         return sort();
     }
@@ -534,8 +564,7 @@ public class ViewerSorter
      */
     public List sort()
     {
-        if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+        if (collection == null) return null;
         Iterator i = collection.iterator();
         Object[]  array = new Object[collection.size()];
         Object[]  clone = new Object[collection.size()];
@@ -562,8 +591,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray(Collection collection)
     {
-    	if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (collection == null) return null;
         this.collection = collection;
         return sortAsArray();
     }
@@ -576,8 +604,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray(Object[] array)
     {
-    	if (array == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (array == null) return null;
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < array.length; i++) {
 			l.add(array[i]);
@@ -593,8 +620,7 @@ public class ViewerSorter
      */
     public Object[] sortAsArray()
     {
-    	if (collection == null) 
-            throw new NullPointerException("No collection to sort.");
+    	if (collection == null) return null;
         Iterator i = collection.iterator();
         Object[]  array = new Object[collection.size()];
         Object[]  clone = new Object[collection.size()];

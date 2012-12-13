@@ -167,7 +167,7 @@ public class SwitchUserAction
     		SwingUtilities.convertPointToScreen(point, 
     				((Component) e.getSource()));
     	}
-    	model.retrieveUserGroups(point, null);
+    	//model.retrieveUserGroups(point, null);
     }
     
     /** 

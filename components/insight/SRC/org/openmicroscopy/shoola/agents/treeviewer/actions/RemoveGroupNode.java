@@ -31,7 +31,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -95,13 +94,21 @@ public class RemoveGroupNode
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.DELETE));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.REMOVE));
 	}
 	
 	/**
      * Removes the selected node a group.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.removeGroup(); }
+    public void actionPerformed(ActionEvent e)
+    {
+    	Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+		if (node != null && (node.getUserObject() instanceof GroupData)) {
+			model.removeGroup(node.getUserObjectId());
+		}
+    }
 
 }

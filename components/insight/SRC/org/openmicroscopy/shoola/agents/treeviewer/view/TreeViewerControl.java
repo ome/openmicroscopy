@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1012,6 +1013,25 @@ class TreeViewerControl
 	}
 	
 	/**
+	 * Sets the group and the users to add to the display.
+	 * 
+	 * @param group The selected group
+	 * @param seletectedUsers The selected users.
+	 * @param removeGroup Flag indicating to remove the group from the display.
+	 */
+	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers,
+			boolean removeGroup)
+	{
+		if (removeGroup) {
+			model.removeGroup(group.getId());
+		} else {
+			if (model.getGroups().size() > 1)
+				model.setUserGroup(Arrays.asList(group));
+			model.setHierarchyRoot(group.getId(), seletectedUsers);
+		}
+	}
+	
+	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -1298,6 +1318,7 @@ class TreeViewerControl
 								if (!(p instanceof ProjectData)) p = null;
 							}
 							*/
+							klass = ho.getClass();
 							p = ho;
 						} else if (ho instanceof ImageData) {
 							klass = ho.getClass();

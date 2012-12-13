@@ -797,7 +797,6 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		selectedValue = 0;
 		String text = "";
 		if (!model.isMultiSelection()) {
 			selectedValue = model.getUserRating();
@@ -814,27 +813,8 @@ class AnnotationDataUI
 		rating.setValue(selectedValue);
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
-		Collection l = model.getAttachments();
+		Collection l;
 		int count = 0;
-		/*
-		List v = null;
-		if (l != null) {
-			v = new ArrayList();
-			Iterator k = l.iterator();
-			FileAnnotationData data;
-			boolean b = false;
-			while (k.hasNext()) {
-				data = (FileAnnotationData) k.next();
-				b = isEditorFile(data.getFileName());
-				if (!b) b = isEditorFile(data.getNameSpace());
-				if (!b) v.add(data);
-			}
-			count += v.size();
-		}
-		*/
-		
-		
-		
 		//Viewed by
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
@@ -1476,8 +1456,8 @@ class AnnotationDataUI
 		tagNames.clear();
 		existingTags.clear();
 		selectedValue = 0;
-		if (!model.isMultiSelection())
-		    selectedValue = model.getUserRating();
+		//if (!model.isMultiSelection())
+		//    selectedValue = model.getUserRating();
 		initialValue = 0;
 		otherRating.setText("");
 		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 

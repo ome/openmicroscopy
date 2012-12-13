@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesChecker;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RepositoriesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
@@ -305,6 +306,19 @@ class DataManagerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataObjectTransfer(object);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#isLargeImage(SecurityContext, long,
+	 * AgentEventListener)
+	 */
+	public CallHandle isLargeImage(SecurityContext ctx, long pixelsID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new PixelsDataLoader(ctx, pixelsID,
+				PixelsDataLoader.SIZE);
 		return cmd.exec(observer);
 	}
 

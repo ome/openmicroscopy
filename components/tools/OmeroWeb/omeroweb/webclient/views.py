@@ -42,7 +42,6 @@ import traceback
 
 import shutil
 import zipfile
-import glob
 
 from time import time
 from thread import start_new_thread
@@ -330,7 +329,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'well'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -345,7 +344,17 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                 first_sel = conn.getObject("TagAnnotation", long(first_id))
             else:
                 first_sel = conn.getObject(first_obj, long(first_id))
-        except ValueError:
+                # Wells aren't in the tree, so we need parent...
+                if first_obj == "well":
+                    parentNode = first_sel.getWellSample().getPlateAcquisition()
+                    ptype = "acquisition"
+                    if parentNode is None:      # No Acquisition for this well...
+                        parentNode = first_sel.getParent()  #...use Plate instead
+                        ptype = "plate"
+                    first_sel = parentNode
+                    init['initially_open'] = ["%s-%s" % (ptype, parentNode.getId())]
+                    init['initially_select'] = init['initially_open'][:]
+        except:
             pass    # invalid id
         if first_obj not in ("project", "screen"):
             # need to see if first item has parents
@@ -483,8 +492,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 template = "webclient/data/containers_icon.html"
             else:
                 template = "webclient/data/container_subtree.html"
-        elif kw.has_key('plate'):
-            fields = manager.plate.getNumberOfFields(kw.get('acquisition', None))
+        elif kw.has_key('plate') or kw.has_key('acquisition'):
+            fields = manager.getNumberOfFields()
             if fields is not None:
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
@@ -1670,73 +1679,6 @@ def image_as_map(request, imageId, conn=None, **kwargs):
         return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
     return rsp
 
-
-@login_required(doConnectionCleanup=False)
-def archived_files(request, iid, conn=None, **kwargs):
-    """
-    Downloads the archived file(s) as a single file or as a zip (if more than one file)
-    """
-    image = conn.getObject("Image", iid)
-    if image is None:
-        logger.debug("Cannot download archived file becuase Image does not exist.")
-        return handlerInternalError(request, "Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
-    
-    files = list(image.getArchivedFiles())
-
-    if len(files) == 0:
-        logger.debug("Tried downloading archived files from image with no files archived.")
-        return handlerInternalError(request, "This image has no Archived Files.")
-
-    if len(files) == 1:
-        orig_file = files[0]
-        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
-        rsp.conn = conn
-        rsp['Content-Length'] = orig_file.getSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
-    else:
-        import tempfile
-        temp = tempfile.NamedTemporaryFile(suffix='.archive')
-        try:
-            temp_zip_dir = tempfile.mkdtemp()
-            logger.debug("download dir: %s" % temp_zip_dir)
-            try:
-                for a in files:
-                    temp_f = os.path.join(temp_zip_dir, a.name)
-                    f = open(str(temp_f),"wb")
-                    try:
-                        for chunk in a.getFileInChunks():
-                            f.write(chunk)
-                    finally:
-                        f.close()
-
-                # create zip
-                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
-                try:
-                    a_files = os.path.join(temp_zip_dir, "*")
-                    for name in glob.glob(a_files):
-                        zip_file.write(name, os.path.basename(name))
-                finally:
-                    zip_file.close()
-                    # delete temp dir
-            finally:
-                shutil.rmtree(temp_zip_dir, ignore_errors=True)
-            
-            file_name = "%s.zip" % image.getName().replace(" ","_")
-
-            # return the zip or single file
-            archivedFile_data = FileWrapper(temp)
-            rsp = ConnCleaningHttpResponse(archivedFile_data)
-            rsp.conn = conn
-            rsp['Content-Length'] = temp.tell()
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
-            temp.seek(0)
-        except Exception, x:
-            temp.close()
-            logger.error(traceback.format_exc())
-            return handlerInternalError(request, "Cannot download file (id:%s)." % (iid))
-
-    rsp['Content-Type'] = 'application/force-download'
-    return rsp
 
 @login_required(doConnectionCleanup=False)
 def download_annotation(request, annId, conn=None, **kwargs):

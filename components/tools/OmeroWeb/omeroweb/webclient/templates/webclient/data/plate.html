@@ -43,14 +43,14 @@
         }
         
         var primaryIndex = -1;
-        var handleClickSelection = function(event) {
+        var handleClickSelection = function(event, target) {
             
-            var $clickedImage = $(event.target);
+            var $clickedImage = target || $(event.target);
             
             var thumbs = $("#spw table tbody td.well img");
-            var selIndex = thumbs.index(event.target);
+            var selIndex = thumbs.index($clickedImage);
 
-            if ( event.shiftKey ) {
+            if (event && event.shiftKey ) {
                 if ( primaryIndex == -1 ) {
                     primaryIndex = selIndex;
                     $clickedImage.parent().addClass("ui-selected");
@@ -64,7 +64,7 @@
                 thumbs.slice(start, end+1).parent().addClass("ui-selected");
                 
             }
-            else if (event.metaKey) {
+            else if (event && event.metaKey) {
                 if ( primaryIndex == -1 ) {
                     primaryIndex = selIndex;
                 }
@@ -84,26 +84,60 @@
         
         $(document).ready(function() {
             wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            var $selected;
             wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
                 elm.bind('click', function(event){
                     handleClickSelection(event);
-                    var $selected = $('td.ui-selected', wpv.self);
-                    well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}'); // ome.webclient.actions.js
+                    $selected = $('td.ui-selected', wpv.self);
+                    well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
                 }).bind('dblclick', function(){
                     openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
-            wpv.load({{ manager.plate.id }}, {{ index }});
+            wpv.load({{ manager.getPlateId }}, {{ index }});
             wpv.self.selectable({
                 filter: 'td.well',
                 distance: 2,
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
-                    well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}');
+                    well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 },
                 start: function(){
                 }
             });
+            
+            wpv.self.bind('_resetLoaded', function(){
+
+                // See if the url contains ?show=well-123
+                var q = (location.search.length > 1 ? location.search.substring(1).split("&") : []);
+                var qKeys = {},
+                    shows, well_id, $well,
+                    selected_wells = $("");
+                for(var i = 0; i < q.length; i++){
+                    qKeys[q[i].match(/^[^=]+/)] = q[i].replace(/^[^=]+=?/, "");
+                }
+                if (qKeys["show"]) {
+                    // handle multiple wells. ?show=well-123|well-456
+                    shows = qKeys["show"].split(/%7C|\|/);      // split | OR %7C (| can be encoded as %7C)
+                    for (var s=0;s<shows.length;s++){
+                        if (shows[s].substr(0,5) === "well-") {
+                            well_id = parseInt(shows[s].replace("well-",""));
+                            if (typeof well_id === "number") {
+                                $well = $("#well-"+well_id);
+                                if ($well.length > 0) {
+                                    selected_wells = selected_wells.add($well);
+                                }
+                            }
+                        }
+                    }
+                    if (selected_wells.length > 0) {
+                        handleClickSelection(undefined, selected_wells.children("img"));
+                        $selected = $('td.ui-selected', wpv.self);
+                        well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    }
+                }
+            })
+
         });
 
     </script>

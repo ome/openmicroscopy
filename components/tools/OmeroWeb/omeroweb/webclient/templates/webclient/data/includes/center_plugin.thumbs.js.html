@@ -101,9 +101,8 @@ $(document).ready(function() {
                 update['empty'] = true;
             }
         } else if (orel == "acquisition"){
-            var plate = datatree._get_parent(selected).attr('id').replace("-", "/");
             update['rel'] = oid;
-            update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
+            update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
         } else if (orel == "dataset") {
             update['rel'] = oid;
             update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
