@@ -25,6 +25,8 @@ Check backwards compatibility of the tables service
 
 import unittest
 import os.path
+import bz2
+import tempfile
 import omero
 import omero.clients
 import omero.columns
@@ -40,12 +42,19 @@ class BackwardsCompatibilityTest(lib.ITest):
 
     def uploadHdf5(self, file):
         """
-        Upload the test HDF5 file to the server.
+        Decompress the BZ2-compressed HDF5 test file and upload to server.
         file should be relative to the directory containing this file.
         """
         dir = os.path.dirname(os.path.realpath(__file__))
         file = os.path.join(dir, file)
-        ofile = self.client.upload(file)
+
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        with bz2.BZ2File(file) as bzf:
+            tmpf.write(bzf.read())
+        tmpf.close()
+
+        ofile = self.client.upload(
+            tmpf.name, name=file, type='application/x-hdf')
         print "Uploaded OriginalFile:", ofile.getId().val
         return ofile
 
@@ -192,7 +201,7 @@ class BackwardsCompatibilityTest(lib.ITest):
         Check whether a table created under 4.4.5 or older is still usable
         with a newer server
         """
-        ofile = self.uploadHdf5("service-reference-dev_4_4_5.h5")
+        ofile = self.uploadHdf5("service-reference-dev_4_4_5.h5.bz2")
 
         grid = self.client.sf.sharedResources()
         table = grid.openTable(ofile)
