@@ -63,15 +63,23 @@
                     <div id="channel_names_display">
                     {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
                     </div>
-                    <!-- hidden form for editing channel names -->
+                    <!-- form for editing channel names (initially hidden)-->
                     <form action="{% url edit_channel_names image.id %}" method="POST" id="channel_names_edit" style="display:none">
                         {% for c in image.getChannels %}
                             <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=10/><br/>
                         {% endfor %}
+                        <!-- hidden inputs for 'apply to dataset' options -->
                         <input type="text" name="datasetId" value="{{ image.getParent.getId }}" size=5 style="display:none"/>
-                        <input type="checkbox" name="applyToDataset" style="display:none"/><br/>
-                        <button name="apply" title="Save and apply to all Images in Dataset">Apply to All</button>
-                        <button name="save" title="Save Channel Names">Save</button>
+                        <input type="checkbox" name="applyToDataset" style="display:none"/>
+                        <!-- buttons -->
+                        <span class="originalButtons">
+                            <button name="apply" title="Save and apply to all Images in Dataset">Apply to All</button>
+                            <button name="save" title="Save Channel Names">Save</button>
+                        </span>
+                        <span class="confirmButtons" style="display:none">
+                            <div>Are you sure you want to update channel names for all Images in Dataset?</div>
+                            <button name="confirm_apply" title="Save and apply to all Images in Dataset">OK</button>
+                        </span>
                         <button type="reset" name="cancel" title="Cancel">Cancel</button>
                     </form>
                     {% if image.canEdit %}
@@ -85,10 +93,12 @@
             </div>
         </td>
     </tr>
+    {% if manager.well %}
     <tr>
         <th>Status:</th>
         <td id='well_status'>
             {{ manager.well.status|default:"None" }}
         </td>
     </tr>
+    {% endif %}
 </table>
