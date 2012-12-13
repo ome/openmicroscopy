@@ -146,7 +146,8 @@ class BrowserComponent
 	    	gid = model.getUserDetails().getDefaultGroup().getId();
 	    	for (int i = 0; i < n; i++) {
 	    		expNode = (TreeImageSet) root.getChildAt(i);
-		    	if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+		    	//if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+	    		if (ids.contains(expNode.getUserObjectId())) {
 		    		expNode.accept(v, 
 							TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			    	foundNodes = v.getFoundNodes();
@@ -171,8 +172,7 @@ class BrowserComponent
 			    	j = children.iterator();
 			    	while (j.hasNext()) {
 						expNode = (TreeImageSet) j.next();
-						if (expNode.isChildrenLoaded() && 
-								ids.contains(expNode.getUserObjectId())) {
+						if (ids.contains(expNode.getUserObjectId())) {
 							expNode.accept(v, 
 									TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 					    	foundNodes = v.getFoundNodes();

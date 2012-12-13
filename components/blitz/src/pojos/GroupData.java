@@ -9,7 +9,9 @@ package pojos;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -113,6 +115,9 @@ public class GroupData extends DataObject {
 
     /** The leaders of the group. */
     private Set leaders;
+    
+    /** The users that belong to the group who are not owners.*/
+    private Set members;
     
     /** Creates a new instance. */
     public GroupData() {
@@ -234,6 +239,32 @@ public class GroupData extends DataObject {
     }
 
     /**
+     * Returns the list of experimenters that are not owners of the group.
+     * 
+     * @return See above.
+     */
+    public Set getMembersOnly() {
+    	Set leaders = getLeaders();
+    	Set experimenters = getExperimenters();
+    	if (leaders == null || leaders.size() == 0) return experimenters;
+    	if (experimenters == null || experimenters.size() == 0)
+    		return leaders;
+    	List<Long> ids = new ArrayList<Long>(leaders.size());
+    	Iterator i = leaders.iterator();
+    	while (i.hasNext()) {
+			ids.add(((ExperimenterData) i.next()).getId());
+		}
+    	Set members = new HashSet();
+    	i = experimenters.iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+    		exp = (ExperimenterData) i.next();
+			if (!ids.contains(exp.getId()))
+				members.add(exp);
+		}
+    	return members;
+    }
+     /**
      * Overridden to return the id of the object.
      * @see DataObject#getGroupId()
      */
