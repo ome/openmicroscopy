@@ -15,7 +15,7 @@ import re
 
 import omero
 import omero.clients
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
@@ -1816,11 +1816,10 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
                             conn.createServiceOptsDict())
     except omero.QueryException, ex:
-        return dict(error='%s cannot be queried' % objtype,
-                    query=query)
+        return HttpResponseNotFound('%s cannot be queried' % objtype)
 
     if not obj:
-        return dict(error='%s with id %s not found' % (objtype, objid))
+        return HttpResponseNotFound('%s with id %s not found' % (objtype, objid))
 
     return dict(data=[
         dict(id=annotation.id.val,
@@ -1915,7 +1914,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
                         (an array of rows, each an array of values)
     """
     a = _annotations(request, objtype, objid, conn, **kwargs)
-    if (a.has_key('error')):
+    if isinstance(a, HttpResponse) or a.has_key('error'):
         return a
 
     if len(a['data']) != 1:
