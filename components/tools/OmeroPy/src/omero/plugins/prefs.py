@@ -110,7 +110,7 @@ class PrefsControl(BaseControl):
         load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
         load.add_argument("-q", action="store_true", help="No error on conflict")
-        load.add_argument("file", nargs="+", type=ExistingFile('r'), default=sys.stdin, help="Read from files or standard in")
+        load.add_argument("file", nargs="*", type=ExistingFile('r'), default="-", help="Files to read from. Default to standard in if not specified")
 
         edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
         version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
@@ -197,13 +197,17 @@ class PrefsControl(BaseControl):
         try:
             for f in args.file:
                 try:
+                    if args.file == "-":
+                        import fileinput
+                        f = fileinput.input(f)
                     previous = None
                     for line in f:
                         if previous:
                             line = previous + line
                         previous = self.handle_line(line, config, keys)
                 finally:
-                    f.close()
+                    if args.file != "-":
+                        f.close()
         except NonZeroReturnCode, nzrc:
             raise
         except Exception, e:
