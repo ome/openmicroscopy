@@ -321,34 +321,49 @@
                     $("#channel_names_display").hide();
                     $("#channel_names_edit").show();
                 });
-                $("#channel_names_edit button").click(function(event){
+                var $chNameForm = $("#channel_names_edit");
+                var resetChForm = function() {
+                    $chNameForm.find(".originalButtons").show();
+                    $chNameForm.find(".confirmButtons").hide();
+                    $("#channel_names_display").show();
+                    $("#channel_names_edit").hide();
+                }
+                // Handling of all form buttons
+                $chNameForm.find("button").click(function(event){
                     var name = $(this).attr('name');
                     if (name === "save") {
-                        $("#channel_names_edit input[name=applyToDataset]").attr("checked", false);
-                        $("#channel_names_edit").submit();
+                        // before submission...
+                        $chNameForm.find("input[name=applyToDataset]").attr("checked", false);
                     } else if (name === "apply") {
-                        $("#channel_names_edit input[name=applyToDataset]").attr("checked", true);
-                        $("#channel_names_edit").submit();
+                        // Ask users to confirm:
+                        $chNameForm.find(".originalButtons").hide();
+                        $chNameForm.find(".confirmButtons").show();
+                        event.preventDefault(); // prevent form submission etc
+                        return false;
+                    } else if (name === "confirm_apply") {
+                        // before submission...
+                        $chNameForm.find("input[name=applyToDataset]").attr("checked", true);
                     } else {
                         // cancel - hide and don't submit
-                        $("#channel_names_display").show();
-                        $("#channel_names_edit").hide();
+                        resetChForm();
                     }
-                    event.preventDefault();
-                    return false;
                 });
                 $("#channel_names_edit").ajaxForm({
                     dataType:  'json',
                     success: function(data) {
                         var cnames = data.channelNames;
-                        // update the channel names
+                        // update the channel names, and ititial values in form
                         $("#channel_names_display span").each(function(i){
                             if (cnames.hasOwnProperty("channel"+i)) {
                                 $(this).text(cnames["channel"+i]);
                             }
-                        })
-                        $("#channel_names_display").show();
-                        $("#channel_names_edit").hide();
+                        });
+                        $chNameForm.find("input").each(function(i){
+                            if (cnames.hasOwnProperty( $(this).attr('name') )) {
+                                $(this).attr('value', cnames["channel"+i]);
+                            }
+                        });
+                        resetChForm();
                     }
                 });
             });

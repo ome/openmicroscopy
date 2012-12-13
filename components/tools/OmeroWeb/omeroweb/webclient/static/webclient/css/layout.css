@@ -732,7 +732,19 @@
         height: 13px;
         width: 16px;
     }
-            
+    .core_metadata input[type="text"] {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px 3px 3px 3px;
+        font-size: 0.9em;
+        margin: 1px;
+        padding-left: 2px;
+    }
+    .core_metadata form button {
+        border: 1px solid #CCCCCC;
+        border-radius: 2px;
+        font-size: 0.95em;
+        margin: 2px 1px;
+    }
     
     
     
