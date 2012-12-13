@@ -1782,7 +1782,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
 
     Example:  /annotations/Plate/1/
               retrieves annotations for plate with identifier 1
-    Example:  /annotations/Plate/wells/1/
+    Example:  /annotations/Plate.wells/1/
               retrieves annotations for plate that contains well with
               identifier 1
 
@@ -1802,7 +1802,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     # traverse object model graph
     # Example: /annotations/Plate/wells/1/
     #          retrieves annotations from Plate that contains Well 1
-    objtype = objtype.strip('/').split('/')
+    objtype = objtype.split('.')
 
     query = "select obj0 from %s obj0\n" % objtype[0]
     for i, t in enumerate(objtype[1:]):
@@ -1892,7 +1892,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
     Example:  /table/Plate/1/query/?query=*
               queries bulk annotations table for plate with identifier 1
-    Example:  /table/Plate/wells/1/query/?query=*
+    Example:  /table/Plate.wells/1/query/?query=*
               queries bulk annotations table for plate that contains well with
               identifier 1
 
