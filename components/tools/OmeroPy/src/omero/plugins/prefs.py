@@ -146,10 +146,7 @@ class PrefsControl(BaseControl):
 
     @with_config
     def default(self, args, config):
-        if args.NAME:
-            config.default(args.NAME)
-        else:
-            self.ctx.out(config.default(args.NAME))
+        self.ctx.out(config.default(args.NAME))
 
     @with_config
     def drop(self, args, config):
