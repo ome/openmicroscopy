@@ -68,17 +68,16 @@
                         {% for c in image.getChannels %}
                             <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=10/><br/>
                         {% endfor %}
-                        <!-- hidden inputs for 'apply to dataset' options -->
+                        <!-- hidden input for 'apply to dataset' options -->
                         <input type="text" name="datasetId" value="{{ image.getParent.getId }}" size=5 style="display:none"/>
-                        <input type="checkbox" name="applyToDataset" style="display:none"/>
                         <!-- buttons -->
                         <span class="originalButtons">
+                            <button name="save" type="submit" value="save" title="Save Channel Names">Save</button>
                             <button name="apply" title="Save and apply to all Images in Dataset">Apply to All</button>
-                            <button name="save" title="Save Channel Names">Save</button>
                         </span>
                         <span class="confirmButtons" style="display:none">
                             <div>Are you sure you want to update channel names for all Images in Dataset?</div>
-                            <button name="confirm_apply" title="Save and apply to all Images in Dataset">OK</button>
+                            <button name="confirm_apply" type="submit" value="apply" title="Save and apply to all Images in Dataset">OK</button>
                         </span>
                         <button type="reset" name="cancel" title="Cancel">Cancel</button>
                     </form>

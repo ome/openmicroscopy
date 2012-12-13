@@ -1309,7 +1309,6 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     Edit and save channel names
     """
     image = conn.getObject("Image", imageId)
-    applyToDataset = request.REQUEST.get('applyToDataset', None)
     datasetId = request.REQUEST.get('datasetId', None)
     channelNames = {}
     nameDict = {}
@@ -1318,7 +1317,8 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
         if cname is not None:
             channelNames["channel%d" % i] = str(cname)
             nameDict[i+1] = str(cname)
-    if applyToDataset is not None:
+    # If the 'Apply to Dataset' button was used to submit...
+    if request.REQUEST.get('confirm_apply', None) is not None:
         counts = conn.setChannelNames("Dataset", [datasetId], nameDict)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
