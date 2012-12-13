@@ -328,22 +328,16 @@
                     $("#channel_names_display").show();
                     $("#channel_names_edit").hide();
                 }
-                // Handling of all form buttons
+                // Handling of all form buttons. NB: save & apply_confirm buttons submit
                 $chNameForm.find("button").click(function(event){
                     var name = $(this).attr('name');
-                    if (name === "save") {
-                        // before submission...
-                        $chNameForm.find("input[name=applyToDataset]").attr("checked", false);
-                    } else if (name === "apply") {
+                    if (name === "apply") {
                         // Ask users to confirm:
                         $chNameForm.find(".originalButtons").hide();
                         $chNameForm.find(".confirmButtons").show();
                         event.preventDefault(); // prevent form submission etc
                         return false;
-                    } else if (name === "confirm_apply") {
-                        // before submission...
-                        $chNameForm.find("input[name=applyToDataset]").attr("checked", true);
-                    } else {
+                    } else if (name === "cancel") {
                         // cancel - hide and don't submit
                         resetChForm();
                     }
