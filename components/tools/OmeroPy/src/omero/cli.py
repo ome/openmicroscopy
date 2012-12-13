@@ -213,7 +213,7 @@ class ExistingFile(FileType):
     an existing file.
     """
     def __call__(self, string):
-        if not os.path.exists(string):
+        if not string == "-" and not os.path.exists(string):
             raise ValueError("File does not exist: %s" % string)
         return FileType.__call__(self, string)
 
