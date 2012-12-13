@@ -2420,7 +2420,8 @@ class TreeViewerComponent
 	 */
 	public void setLeaves(TreeImageSet parent, Collection leaves)
 	{
-		if (parent instanceof TreeFileSet) {
+		if (parent instanceof TreeFileSet &&
+			((TreeFileSet) parent).getType() != TreeFileSet.ORPHANED_IMAGES) {
 			view.removeAllFromWorkingPane();
 			return;
 		}
