@@ -401,7 +401,12 @@ class TreeViewerComponent
 			return;
 		}
 		if (object instanceof ImageData) {
-			if (display.getParentDisplay() instanceof TreeImageTimeSet) {
+			TreeImageDisplay displayParent = display.getParentDisplay();
+			
+			if (displayParent instanceof TreeImageTimeSet ||
+				(displayParent instanceof TreeFileSet &&
+				((TreeFileSet) displayParent).getType() ==
+					TreeFileSet.ORPHANED_IMAGES)) {
 				db = DataBrowserFactory.getDataBrowser(
 						display.getParentDisplay());
 				if (db != null) {
