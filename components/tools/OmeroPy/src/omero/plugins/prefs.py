@@ -84,10 +84,10 @@ class PrefsControl(BaseControl):
 
         sub = parser.sub()
 
-        all = sub.add_parser("all", help="""List all properties in the current config.xml file.""")
+        all = sub.add_parser("all", help="""List all profiles in the current config.xml file.""")
         all.set_defaults(func=self.all)
 
-        default = sub.add_parser("def", help="""List (or set) the current properties. See 'all' for a list of available properties.""")
+        default = sub.add_parser("def", help="""List (or set) the current active profile.""")
         default.set_defaults(func=self.default)
         default.add_argument("NAME", nargs="?", help="""Name of the profile which should be made the new active profile.""")
 
