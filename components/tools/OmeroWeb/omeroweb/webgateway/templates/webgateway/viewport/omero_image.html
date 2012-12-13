@@ -247,29 +247,29 @@
     $("#bulk-annotations").hide();
     $("#bulk-annotations").next().hide();
     if (tmp.wellId) {
-	// Load bulk annotations for plate
-	var onAnnotations = function(result) {
-	    if (result.data && result.data.rows) {
-		var table = $("#bulk-annotations").show().next().show().children("table");
-		table.find("tr").remove();
-		for (var col in result.data.columns) {
-		    var label = result.data.columns[col];
-		    var value = '';
-		    for (var row in result.data.rows) {
-			value += result.data.rows[row][col] + '<br />';
-		    }
-		    var row = $('<tr><td class="title"></td><td></td></tr>');
-		    row.addClass(col % 2 == 1 ? 'odd' : 'even');
-		    $('td:first-child', row).html(label + ":&nbsp;");
-		    $('td:last-child', row).html(value);
-		    table.append(row);
-		}
-	    }
-	};
-	$.getJSON('{% url webgateway_object_table_query 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
-	    '?query=Well-' + tmp.wellId +
-	    '&callback=?',
-	     onAnnotations);
+    // Load bulk annotations for plate
+    var onAnnotations = function(result) {
+        if (result.data && result.data.rows) {
+        var table = $("#bulk-annotations").show().next().show().children("table");
+        table.find("tr").remove();
+        for (var col in result.data.columns) {
+            var label = result.data.columns[col];
+            var value = '';
+            for (var row in result.data.rows) {
+            value += result.data.rows[row][col] + '<br />';
+            }
+            var row = $('<tr><td class="title"></td><td></td></tr>');
+            row.addClass(col % 2 == 1 ? 'odd' : 'even');
+            $('td:first-child', row).html(label + ":&nbsp;");
+            $('td:last-child', row).html(value);
+            table.append(row);
+        }
+        }
+    };
+    $.getJSON('{% url webgateway_object_table_query 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
+        '?query=Well-' + tmp.wellId +
+        '&callback=?',
+         onAnnotations);
     }
 
     {% block xtra_metadata %}{% endblock %}
