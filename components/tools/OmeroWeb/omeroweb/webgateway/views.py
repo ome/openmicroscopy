@@ -1839,7 +1839,10 @@ def _table_query(request, fileid, conn=None, **kwargs):
     otherwise
 
     @param request:     http request; querystring must contain key 'query'
-                        with query to be executed, or '*' to retrieve all rows
+                        with query to be executed, or '*' to retrieve all rows.
+                        If query is in the format word-number, e.g. "Well-7",
+                        if will be run as (word==number), e.g. "(Well==7)".
+                        This is supported to allow more readable query strings.
     @param fileid:      Numeric identifier of file containing the table
     @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    unused
@@ -1864,6 +1867,9 @@ def _table_query(request, fileid, conn=None, **kwargs):
     if query == '*':
         hits = range(rows)
     else:
+        match = re.match(r'^(\w+)-(\d+)', query)
+        if match:
+            query = '(%s==%s)' % (match.group(1), match.group(2))
         try:
             hits = t.getWhereList(query, None, 0, rows, 1)
         except Exception, e:
