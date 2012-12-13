@@ -230,8 +230,8 @@ public class DataBrowserFactory
 		String key = parent.toString();
 		if (parent instanceof DataObject)
 			key += ((DataObject) parent).getId();
-		else if (parent instanceof TreeImageTimeSet)
-			key = TreeImageTimeSet.createPath((TreeImageTimeSet) parent, key);
+		else if (parent instanceof TreeImageDisplay)
+			key = TreeImageTimeSet.createPath((TreeImageDisplay) parent, key);
 		return singleton.browsers.get(key);
 	}
     
