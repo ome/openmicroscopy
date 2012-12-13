@@ -269,11 +269,12 @@ public class DataBrowserFactory
 		if (ids != null && ids.size() > 0) {
 			if (singleton.searchBrowser != null)
 				singleton.searchBrowser.reloadThumbnails(ids);
-			Iterator i = singleton.browsers.entrySet().iterator();
-			Entry entry;
+			Iterator<Entry<Object, DataBrowser>> 
+			v = singleton.browsers.entrySet().iterator();
 			DataBrowserComponent comp;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
+			Entry<Object, DataBrowser> entry;
+			while (v.hasNext()) {
+				entry = v.next();
 				comp = (DataBrowserComponent) entry.getValue();
 				comp.reloadThumbnails(ids);
 			}
@@ -289,11 +290,12 @@ public class DataBrowserFactory
 	public static final void setRndSettingsToCopy(ImageData rndSettingsToCopy)
 	{
 		singleton.rndSettingsToCopy = rndSettingsToCopy; 
-		Iterator v = singleton.browsers.entrySet().iterator();
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
-		Entry entry;
+		Entry<Object, DataBrowser> entry;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
+			entry = v.next();
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.notifyRndSettingsToCopy();
 		}
@@ -311,11 +313,12 @@ public class DataBrowserFactory
 	public static final void setDataToCopy(Class dataToCopy)
 	{
 		singleton.dataToCopy = dataToCopy;
-		Iterator v = singleton.browsers.entrySet().iterator();
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
-		Entry entry;
+		Entry<Object, DataBrowser> entry;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
+			entry = v.next();
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.notifyDataToCopy();
 		}
@@ -335,11 +338,12 @@ public class DataBrowserFactory
 	{
 		if (!success)  return;
 		singleton.dataToCopy = null;
-		Iterator v = singleton.browsers.entrySet().iterator();
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
-		Entry entry;
+		Entry<Object, DataBrowser> entry;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
+			entry = v.next();
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.discard();
 		}
@@ -357,11 +361,12 @@ public class DataBrowserFactory
 	 */
 	public static void onAnnotated(List<DataObject> containers, int count)
 	{
-		Iterator v = singleton.browsers.entrySet().iterator();
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
-		Entry entry;
+		Entry<Object, DataBrowser> entry;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
+			entry = v.next();
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.onAnnotated(containers, count);
 		}
@@ -447,11 +452,11 @@ public class DataBrowserFactory
 			ancestors.remove(PlateData.class);
 		}
 		if (ancestors.size() > 0) {
-			Iterator i = ancestors.entrySet().iterator();
-			Entry entry;
+			Iterator<Entry<Class, Object>> i = ancestors.entrySet().iterator();
+			Entry<Class, Object> entry;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				go = entry.getValue();//entry.getKey();
+				entry = i.next();
+				go = entry.getValue();
 				break;
 			}
 		}
