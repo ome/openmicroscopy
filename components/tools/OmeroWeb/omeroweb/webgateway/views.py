@@ -1826,7 +1826,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         dict(id=annotation.id.val,
              file=annotation.file.id.val)
         for annotation in obj.linkedAnnotationList()
-        if annotation.getNs().val == NSBULKANNOTATIONS
+        if unwrap(annotation.getNs()) == NSBULKANNOTATIONS
         ])
 
 annotations = login_required()(jsonp(_annotations))
