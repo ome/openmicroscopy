@@ -120,17 +120,23 @@ class TestPrefs(unittest.TestCase):
         self.invoke("get")
         self.assertStdout(["A=B"])
 
+        # Same property/value pairs should pass
+        self.invoke("load %s" % to_load)
+
+        to_load.write_text("A=C")
         try:
+            # Different property/value pair should fail
             self.invoke("load %s" % to_load)
             self.fail("No NZRC")
         except NonZeroReturnCode:
+            self.assertStderr(["Duplicate property: A ('B' => 'C')"])
             pass
 
-        to_load.write_text("A=C")
+        # Quiet load
         self.invoke("load -q %s" % to_load)
         self.invoke("get")
         self.assertStdout(["A=C"])
-        self.assertStderr(["Duplicate property: A (B => B)"])
+        self.assertStderr([])
 
     def testLoadDoesNotExist(self):
         # ticket:7273
