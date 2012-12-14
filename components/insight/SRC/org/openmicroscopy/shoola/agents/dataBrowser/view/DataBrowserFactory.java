@@ -82,11 +82,12 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
-		Iterator v = singleton.browsers.entrySet().iterator();
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
-		Entry entry;
+		Entry<Object, DataBrowser> entry;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
+			entry = v.next();
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.discard();
 			singleton.discardedBrowsers.add((String) entry.getKey());
@@ -227,14 +228,9 @@ public class DataBrowserFactory
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
 		if (parent == null) return null;
-		String key = parent.toString();
-		if (parent instanceof DataObject)
-			key += ((DataObject) parent).getId();
-		else if (parent instanceof TreeImageDisplay)
-			key = TreeImageTimeSet.createPath((TreeImageDisplay) parent, key);
-		return singleton.browsers.get(key);
+		return singleton.browsers.get(createKey(parent));
 	}
-    
+	
 	/**
 	 * Returns <code>true</code> if a {@link DataBrowser} has been discarded,
 	 * <code>false</code> otherwise.
@@ -245,11 +241,7 @@ public class DataBrowserFactory
 	public static final boolean hasBeenDiscarded(Object parent)
 	{
 		if (parent == null) return false;
-		String key = parent.toString();
-		if (parent instanceof DataObject) 
-			key += ((DataObject) parent).getId();
-		else if (parent instanceof TreeImageTimeSet)
-			key = TreeImageTimeSet.createPath((TreeImageTimeSet) parent, key);
+		String key = createKey(parent);
 		Iterator<String> i = singleton.discardedBrowsers.iterator();
 		String value;
 		while (i.hasNext()) {
@@ -403,6 +395,22 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	static Class hasDataToCopy() { return singleton.dataToCopy; }
+	
+	/**
+	 * Creates the key identifying the browser from the specified object.
+	 * 
+	 * @param parent The value to handle.
+	 * @return See above.
+	 */
+	private static final String createKey(Object parent)
+	{
+		String key = parent.toString();
+		if (parent instanceof DataObject) 
+			key += ((DataObject) parent).getId();
+		else if (parent instanceof TreeImageDisplay)
+			key = TreeImageTimeSet.createPath((TreeImageDisplay) parent, key);
+		return key;
+	}
 	
 	/** The collection of discarded browsers. */
 	private Set<String>					discardedBrowsers;
