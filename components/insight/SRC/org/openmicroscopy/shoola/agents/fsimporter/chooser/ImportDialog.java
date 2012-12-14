@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -80,20 +79,17 @@ import loci.formats.gui.ComboFileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
-import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.util.filter.file.HCSFilter;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -951,8 +947,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		bar.add(buildToolBarRight());
 		controls.add(new JSeparator());
 		controls.add(bar);
-
-		// c.add(controls, BorderLayout.SOUTH);
+		
 		add(controls, BorderLayout.SOUTH);
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
 			boolean supportsWindowDecorations = UIManager.getLookAndFeel()
@@ -1073,12 +1068,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		if (count > 0)
 			object.setPixelsSize(size);
-		// Check if we need to display the refresh text
-		boolean refresh = false;
 		Iterator<ImportableFile> j = files.iterator();
 		while (j.hasNext()) {
 			if (j.next().isFolderAsContainer()) {
-				refresh = true;
 				break;
 			}
 		}
@@ -1160,7 +1152,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, int type, Collection<GroupData> groups) {
-		// super(owner);
+		
 		super(0, TITLE, TITLE);
 		
 		this.owner = owner;
@@ -1416,7 +1408,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			else
 				available.add(tag);
 		}
-		// show the selection wizard
+		
 		showSelectionWizard(TagAnnotationData.class, available, selected, true);
 	}
 
@@ -1444,17 +1436,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The component to add.
 	 */
 	public void onReconnected(Collection<GroupData> availableGroups, long currentGroupId) {
-		/*int n = toolBar.getComponentCount();
-		int diff = n - tbItems;
-		if (diff > 0) {
-			for (int i = 0; i < diff; i++) {
-				toolBar.remove(tbItems + i);
-			}
-			toolBar.add(bar);
-			toolBar.validate();
-			toolBar.repaint();
-		}
-		*/
 		table.removeAllFiles();
 		locationDialog.onReconnected(availableGroups, currentGroupId);
 		tagsPane.removeAll();
