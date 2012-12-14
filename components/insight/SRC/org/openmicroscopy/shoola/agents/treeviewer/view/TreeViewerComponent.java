@@ -3645,24 +3645,16 @@ class TreeViewerComponent
 		List<TreeImageDisplay> nodes = v.getNodes();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		//ids of the groups to add
-		List<Long> ids = new ArrayList<Long>();
-		
 		Iterator<GroupData> k = groups.iterator();
-		while (k.hasNext()) {
-			ids.add(k.next().getId());
-		}
 		Object o;
 		GroupData group;
 		//Displayed.
-		List<GroupData> toRemove = new ArrayList<GroupData>();
 		List<Long> already = new ArrayList<Long>();
 		while (i.hasNext()) {
 			o = i.next().getUserObject();
 			if (o instanceof GroupData) {
 				group = (GroupData) o;
-				if (!ids.contains(group.getId()))
-					toRemove.add(group);
-				else already.add(group.getId());
+				already.add(group.getId());
 			}
 		}
 		
@@ -3674,14 +3666,6 @@ class TreeViewerComponent
 		boolean set;
 		while (j.hasNext()) {
 			browser = j.next();
-			k = toRemove.iterator();
-			while (k.hasNext()) {
-				group = k.next();
-				if (group.getId() == model.getSelectedGroupId()) {
-					displayed = true;
-				}
-				browser.removeGroup(group);
-			}
 			//now add.
 			k = groups.iterator();
 			set = false;
@@ -4449,21 +4433,35 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#removeGroup()
+	 * @see TreeViewer#removeGroup(long)
 	 */
-	public void removeGroup()
+	public void removeGroup(long groupId)
 	{
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
+		/*
 		TreeImageDisplay node = browser.getLastSelectedDisplay();
 		if (node == null || !(node.getUserObject() instanceof GroupData))
 			return;
+			*/
+		TreeImageDisplay node = null;
 		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 		//do not remove the last group.
 		List<TreeImageDisplay> groups = v.getNodes();
 		if (groups.size() == 1) return;
+		//Find the node
+		Iterator<TreeImageDisplay> j = groups.iterator();
+		TreeImageDisplay n;
+		while (j.hasNext()) {
+			n = j.next();
+			if (n.getUserObjectId() == groupId) {
+				node = n;
+				break;
+			}
+		}
+		if (node == null) return;
 		GroupData group = (GroupData) node.getUserObject();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i = browsers.entrySet().iterator();
@@ -4473,7 +4471,7 @@ class TreeViewerComponent
 			browser = (Browser) entry.getValue();
 			browser.removeGroup(group);
 		}
-		Iterator<TreeImageDisplay> j = groups.iterator();
+		j = groups.iterator();
 		GroupData g;
 		long gid;
 		while (j.hasNext()) {
@@ -4595,5 +4593,11 @@ class TreeViewerComponent
 	{
 		return model.getSecurityContext();
 	}
-	
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getGroups()
+	 */
+	public Collection getGroups() { return model.getGroups(); }
+
 }

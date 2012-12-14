@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1009,6 +1010,25 @@ class TreeViewerControl
 	void showMenu(int menuID, Component invoker, Point loc)
 	{
 		model.showMenu(menuID, invoker, loc);
+	}
+	
+	/**
+	 * Sets the group and the users to add to the display.
+	 * 
+	 * @param group The selected group
+	 * @param seletectedUsers The selected users.
+	 * @param removeGroup Flag indicating to remove the group from the display.
+	 */
+	void setSelection(GroupData group, List<ExperimenterData> seletectedUsers,
+			boolean removeGroup)
+	{
+		if (removeGroup) {
+			model.removeGroup(group.getId());
+		} else {
+			if (model.getGroups().size() > 1)
+				model.setUserGroup(Arrays.asList(group));
+			model.setHierarchyRoot(group.getId(), seletectedUsers);
+		}
 	}
 	
 	/**
