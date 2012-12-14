@@ -1214,8 +1214,15 @@ class TreeViewerComponent
 		}
 		mv.setParentRootObject(parent, grandParent);
 		
-		if (size > 0) 
-			mv.setRelatedNodes(siblings);
+		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		if (selection != null) {
+			siblings = new ArrayList<Object>(selection.length);
+			for (int i = 0; i < selection.length; i++) {
+				siblings.add(selection[i].getUserObject());
+			}
+			if (siblings.size() > 1)
+				mv.setRelatedNodes(siblings);
+		}
 
 		if (model.getDataViewer() != null)
 			model.getDataViewer().setApplications(
