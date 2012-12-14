@@ -147,7 +147,6 @@ public class ScriptRunner
     public void handleResult(Object result)
     { 
     	//if (result == null) return;
-    	System.err.println(result);
     	if (result instanceof Boolean) {
     		Boolean b = (Boolean) result;
     		if (!b.booleanValue())
