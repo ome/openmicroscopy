@@ -1402,12 +1402,13 @@ class AnnotationDataUI
 			}
 			
 			//check the count
-			Entry entry;
-			Iterator k = map.entrySet().iterator();
+			Entry<Long, Integer> entry;
+			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
+			int n = tagsDocList.size();
 			while (k.hasNext()) {
-				entry = (Entry) k.next();
-				count = (Integer) entry.getValue();
-				if (count > 1)
+				entry = k.next();
+				count = entry.getValue();
+				if (count != null && count > n)
 					l.add(annotations.get(entry.getKey()));
 			}
 		}
@@ -1428,14 +1429,41 @@ class AnnotationDataUI
 				ids.add(((AnnotationData) j.next()).getId());
 			}
 			i = filesDocList.iterator();
+			Map<Long, Integer> map = new HashMap<Long, Integer>();
+			Map<Long, AnnotationData> 
+				annotations = new HashMap<Long, AnnotationData>();
+			Integer count;
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof FileAnnotationData) {
 					annotation = (AnnotationData) object;
 					id = annotation.getId();
-					if (!ids.contains(id)) l.add(annotation);
+					if (!ids.contains(id)) {
+						l.add(annotation);
+					} else {
+						count = map.get(id);
+						if (count != null) {
+							count++;
+							map.put(id, count);
+						} else {
+							count = 1;
+							annotations.put(id, annotation);
+							map.put(id, count);
+						}
+					}
 				}
+			}
+			
+			//check the count
+			Entry<Long, Integer> entry;
+			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
+			int n = filesDocList.size();
+			while (k.hasNext()) {
+				entry = k.next();
+				count = entry.getValue();
+				if (count != null && count > n)
+					l.add(annotations.get(entry.getKey()));
 			}
 		}
 		if (selectedValue != initialValue)
