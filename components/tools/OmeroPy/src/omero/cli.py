@@ -215,7 +215,10 @@ class ExistingFile(FileType):
     def __call__(self, string):
         if not string == "-" and not os.path.exists(string):
             raise ValueError("File does not exist: %s" % string)
-        return FileType.__call__(self, string)
+        if not string == "-":
+            return FileType.__call__(self, string)
+        else:
+            return string
 
 
 class DirectoryType(FileType):
