@@ -29,7 +29,6 @@ import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,15 +42,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
@@ -96,6 +92,10 @@ import pojos.ScreenData;
  */
 public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
+
+	private static final String TAB_NAME_SCREENS = "Screens";
+
+	private static final String TAB_NAME_PROJECTS = "Projects";
 
 	private static final int MIN_WIDTH = 640;
 
@@ -227,6 +227,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private Collection<TreeImageDisplay> currentScreens;
 
 	private JToggleButton refreshButton;
+
+	private JTabbedPane tabbedPane;
 	
 	/**
 	 * Creates a new instance.
@@ -254,6 +256,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.groups = groups;
 		this.currentGroup = fingGroupWithId(groups, currentGroupId);
 		
+		switchToDataType(importDataType);
+		
+		setModal(true);
+		setTitle(TITLE);
+		
+		initComponents();
+		buildGUI();
+	}
+
+	private void switchToDataType(int importDataType) {
 		switch(importDataType)
 		{
 			case Importer.PROJECT_TYPE:
@@ -262,12 +274,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 			case Importer.SCREEN_TYPE:
 				currentScreens = objects;
 		}
-		
-		setModal(true);
-		setTitle(TITLE);
-		
-		initComponents();
-		buildGUI();
 	}
 
 	/**
@@ -340,12 +346,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		addButton.addActionListener(this);
 		addButton.setActionCommand("" + CMD_ADD);
 		
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Close");
 		cancelButton.setToolTipText("Close and do not add the files to the queue.");
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand("" + CMD_CLOSE);
-
-
+		
 		getRootPane().setDefaultButton(addButton);
 	}
 
@@ -361,24 +366,24 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	private JTabbedPane buildDataTypeTabbedPane() {
-		JTabbedPane tabPane = new JTabbedPane();
-
 		IconManager icons = IconManager.getInstance();
-
+		
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
 		JPanel projectPanel = buildProjectSelectionPanel();
 
 		Icon screenIcon = icons.getIcon(IconManager.SCREEN);
 		JPanel screenPanel = buildScreenSelectionPanel();
 
-		tabPane.addTab("Projects", projectIcon, projectPanel,
+		tabbedPane = new JTabbedPane();
+		tabbedPane.addTab(TAB_NAME_PROJECTS, projectIcon, projectPanel,
 				"Import settings for Projects");
 
-		tabPane.addTab("Screens", screenIcon, screenPanel,
+		tabbedPane.addTab(TAB_NAME_SCREENS, screenIcon, screenPanel,
 				"Import settings for Screens");
 		
-		tabPane.addChangeListener(this);
-		return tabPane;
+		tabbedPane.addChangeListener(this);
+		
+		return tabbedPane;
 	}
 	
 	/**
@@ -457,9 +462,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
 			GroupData selectedGroup) {
-		groupsBox.removeActionListener(this);
+		groupsBox.removeItemListener(this);
 		groupsBox.removeAllItems();
-		JComboBoxImageObject selected = null;
+		
+		JComboBoxImageObject selectedGroupItem = null;
 		
 		for (GroupData group : availableGroups) {
 			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group,
@@ -467,18 +473,18 @@ public class LocationDialog extends JDialog implements ActionListener,
 			groupsBox.addItem(comboBoxItem);		
 			if (group.getId() == selectedGroup.getId())
 			{
-				selected = comboBoxItem;
+				selectedGroupItem = comboBoxItem;
 			}
 		}
 		
-		if (selected != null)
-			groupsBox.setSelectedItem(selected);
+		if (selectedGroup != null)
+			groupsBox.setSelectedItem(selectedGroupItem);
 
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
-		groupsBox.setRenderer(renderer);
 		renderer.setPreferredSize(new Dimension(200, 130));
+		groupsBox.setRenderer(renderer);
 		
-		groupsBox.addActionListener(this);
+		groupsBox.addItemListener(this);
 	}
 
 	/**
@@ -615,12 +621,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 		JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
 		GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
 		
-		objects = null;
-		currentProjects = null;
-		currentScreens = null;
-		
-		if(selectedNewGroup.getId() != currentGroup.getId())
+		if(selectedNewGroup.getId() != currentGroup.getId()) {
+			objects = null;
+			currentProjects = null;
+			currentScreens = null;
 			firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
+		}
 	}
 
 	/**
@@ -1085,15 +1091,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.importDataType = type;
 		this.objects = objects;
 		
-		switch(importDataType)
-		{
-			case Importer.PROJECT_TYPE:
-				currentProjects = objects;
-				break;
-			case Importer.SCREEN_TYPE:
-				currentScreens = objects;
-				break;
-		}
+		switchToDataType(type);
 		
 		onReconnected(groups, currentGroupId);
 	}
@@ -1124,7 +1122,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	public void stateChanged(ChangeEvent evt) {
 		Object source = evt.getSource();
-		if(source instanceof JTabbedPane) {
+		if(source == tabbedPane) {
 			JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
 			
 			int newDataType = tabbedPane.getSelectedIndex();

@@ -651,6 +651,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		chooser.setApproveButtonText("Import");
 		chooser.setApproveButtonToolTipText("Import the selected files "
 				+ "or directories");
+		
 		hcsFilters = new ArrayList<FileFilter>();
 		generalFilters = new ArrayList<FileFilter>();
 		if (filters != null) {
