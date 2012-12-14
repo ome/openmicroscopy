@@ -36,14 +36,15 @@ public class MakePathComponentSafe implements StringTransformer {
 	
 	static final char safeCharacter = '_';
 	
-	private static final StringTransformer instance = new MakePathComponentSafe();
-	
 	private static int getCodePoint(char character) {
 		final char[] singletonCharacterArray = new char[] {character};
 		return Character.codePointAt(singletonCharacterArray, 0);
 	}
 	
 	static {
+		/* Some information on Windows naming strategies is to be found at
+		 * http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx */
+		
 		transformationMatrix = new HashMap<Integer, Integer>();
 		final int underscore = getCodePoint(safeCharacter);
 		for (int codePoint = 0; codePoint < 0x100; codePoint++)
@@ -65,6 +66,7 @@ public class MakePathComponentSafe implements StringTransformer {
 		
 		unsafeSuffixes = new HashSet<String>();
 		unsafeSuffixes.add(".");
+		unsafeSuffixes.add(" ");
 		
 		unsafeNames = new HashSet<String>();
 		unsafeNames.add("AUX");
@@ -81,13 +83,7 @@ public class MakePathComponentSafe implements StringTransformer {
 			unsafePrefixes.add(unsafeName + ".");
 	}
 	
-	private MakePathComponentSafe() { }
-	
-	public static StringTransformer getInstance() {
-		return instance;
-	}
-	
-	@Override
+	// @Override only since Java SE 6
 	public String apply(String string) {
 		final String ucString = string.toUpperCase();
 		for (final String unsafeName : unsafeNames)

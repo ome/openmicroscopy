@@ -19,8 +19,13 @@
 
 package ome.services.blitz.repo.path;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,13 +52,14 @@ public class FilePathTransformerTest {
 	/* TODO: use Spring to create a proper mock test application context, and increase code coverage */
 	@BeforeClass
 	public void mockSpring() throws IOException {
-		final File tempDir = File.createTempFile("test", null).getAbsoluteFile().getParentFile();
-		final File repoDir = new File(tempDir, "repo");
-		if (!repoDir.isDirectory())
-			repoDir.mkdir();
+		final File tempFile = File.createTempFile("test", null);
+		final File tempDir = tempFile.getParentFile();
+		tempFile.delete();
+		tempFile.mkdir();
 		this.fpt = new FilePathTransformer();
-		this.fpt.setOmeroDataDir(repoDir.getParent());
-		this.fpt.setFsSubDir(repoDir.getName());
+		this.fpt.setPathSanitizer(new MakePathComponentSafe());
+		this.fpt.setOmeroDataDir(tempDir.getAbsolutePath());
+		this.fpt.setFsSubDir(tempFile.getName());
 		this.fpt.calculateBaseDir();
 	}
 	
@@ -183,9 +189,30 @@ public class FilePathTransformerTest {
 				"unexpected result for minimum path depth for files");
 	}
 	
+	/**
+	 * Test that the given components, when sanitized, become the given repository path,
+	 * and that a path of that name can be used for data storage on the local filesystem.
+	 * @param fsPath the expected repository path for the path components
+	 * @param components path components to be sanitized into a repository path
+	 * @throws IOException unexpected
+	 */
 	private void testClientPath(String fsPath, String... components) throws IOException {
 		final FsFile fsFile = fpt.getFsFileFromClientFile(componentsToFile(components), Integer.MAX_VALUE);
 		Assert.assertEquals(fsPath, fsFile.toString());
+		final File serverFile = fpt.getServerFileFromFsFile(fsFile);
+		final FleetingDirectory serverDir = new FleetingDirectory(serverFile.getParentFile());
+		final long testContentsOut = System.nanoTime();
+		final long testContentsIn;
+		final DataOutputStream out = new DataOutputStream(new FileOutputStream(serverFile));
+		out.writeLong(testContentsOut);
+		out.close();
+		final DataInputStream in = new DataInputStream(new FileInputStream(serverFile));
+		testContentsIn = in.readLong();
+		in.close();
+		serverFile.delete();
+		serverDir.deleteCreated();
+		Assert.assertEquals(testContentsIn, testContentsOut,
+				"should be able to read and write data with safe file-paths");
 	}
 	
 	@Test
@@ -229,6 +256,7 @@ public class FilePathTransformerTest {
 	
 	@AfterClass
 	public void tearDown() {
+		fpt.baseDirFile.delete();
 		this.fpt = null;
 	}
 }
