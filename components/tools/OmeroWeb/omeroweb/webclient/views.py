@@ -1321,7 +1321,7 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
         parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
-            pid = parentId.split("-")[1]
+            pid = long(parentId.split("-")[1])
             counts = conn.setChannelNames(ptype, [pid], nameDict)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
