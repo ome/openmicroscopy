@@ -197,12 +197,9 @@ class PrefsControl(BaseControl):
         try:
             for f in args.file:
                 if f == "-":
-                    if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
-                        continue
-                    else:
-                        # Read from standard input
-                        import fileinput
-                        f = fileinput.input(f)
+                    # Read from standard input
+                    import fileinput
+                    f = fileinput.input(f)
 
                 try:
                     previous = None
