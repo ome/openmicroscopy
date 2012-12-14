@@ -245,9 +245,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Text field indicating how many folders to include. */
 	private NumericalTextField numberOfFolders;
 
-	/** The collection of supported filters. */
-	private FileFilter[] filters;
-
 	/** Button to bring up the tags wizard. */
 	private JButton tagButton;
 
@@ -272,17 +269,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The possible nodes. */
 	private Collection<TreeImageDisplay> objects;
 
-	/** The possible P/D nodes. */
-	private Collection<TreeImageDisplay> pdNodes;
-
-	/** The possible Screen nodes. */
-	private Collection<TreeImageDisplay> screenNodes;
-
 	/** The component displaying the table, options etc. */
 	private JTabbedPane tabbedPane;
-
-	/** The collection of datasets to use by default. */
-	private List<DataNode> datasets;
 
 	/** The type associated to the import. */
 	private int type;
@@ -311,34 +299,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Flag indicating that the containers view needs to be refreshed. */
 	private boolean refreshLocation;
 
-	/** The selected container if screen view. */
-	private TreeImageDisplay selectedScreen;
-
-	/** The selected container if project view. */
-	private TreeImageDisplay selectedProject;
-
 	/** Indicates to reload the hierarchies when the import is completed. */
 	private boolean reload;
-
-	/** The component displaying the component. */
-	private JComponent toolBar;
-
-	/** The number of items before adding new elements to the tool bar. */
-	private int tbItems;
-
-	/** The selected group. */
-	private GroupData group;
 
 	/** The pane hosting the location information. */
 	private JXTaskPane pane;
 
 	/** The import settings that are returned from the ImportLocation dialogue */
 	private ImportLocationSettings importSettings;
-	
-	/**
-	 * 
-	 */
-	private JPanel container;
 
 	/**
 	 * The dialog to allow for the user to select the import location.
@@ -545,8 +513,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
 		
-		datasets = new ArrayList<DataNode>();
-		
 		IconManager icons = IconManager.getInstance();
 		reloadContainerButton = new JToggleButton(
 				icons.getIcon(IconManager.REFRESH));
@@ -558,7 +524,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
 		locationDialog = new LocationDialog(owner, selectedContainer, type, 
-				objects, ImporterAgent.getAvailableUserGroups(),
+				objects, (Collection<GroupData>) ImporterAgent.getAvailableUserGroups(),
 				ImporterAgent.getUserDetails().getGroupId());
 		locationDialog.addPropertyChangeListener(this);
 		
@@ -929,31 +895,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Creates a row.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createRow() {
-		return createRow(UIUtilities.BACKGROUND);
-	}
-
-	/**
-	 * Creates a row.
-	 * 
-	 * @param background
-	 *            The background of color.
-	 * @return See above.
-	 */
-	private JPanel createRow(Color background) {
-		JPanel row = new JPanel();
-		row.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		if (background != null)
-			row.setBackground(background);
-		row.setBorder(null);
-		return row;
-	}
-
-	/**
 	 * Lays out the quota.
 	 * 
 	 * @return See above.
@@ -1141,18 +1082,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				break;
 			}
 		}
-		/*
-		if (newNodesPD != null && newNodesPD.size() > 0 || newNodesS != null
-				&& newNodesS.size() > 0) {
-			refresh = true;
-		}
-		if (refresh)
-			refreshLocation = true;
-		if (newNodesPD != null)
-			newNodesPD.clear();
-		if (newNodesS != null)
-			newNodesS.clear();
-			*/
+		
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();
 		tagsMap.clear();
@@ -1240,14 +1170,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		selectedContainer = checkContainer(selectedContainer);
 		
-		if (type == Importer.PROJECT_TYPE) {
-			pdNodes = objects;
-			selectedProject = selectedContainer;
-		} else {
-			screenNodes = objects;
-			selectedScreen = selectedContainer;
-		}
-		
 		setClosable(false);
 		setCloseVisible(false);
 		initComponents(filters);
@@ -1270,7 +1192,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	boolean isSingleGroup() {
-		Collection l = ImporterAgent.getAvailableUserGroups();
+		Collection<GroupData> l = ImporterAgent.getAvailableUserGroups();
 		return (l.size() <= 1);
 	}
 
@@ -1426,17 +1348,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
-		
-		int oldType = this.type;
-		
 		this.type = type;
-		if (type == Importer.PROJECT_TYPE) {
-			pdNodes = objects;
-			selectedProject = selectedContainer;
-		} else {
-			screenNodes = objects;
-			selectedScreen = selectedContainer;
-		}
 		
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
@@ -1585,7 +1497,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The group to set.
 	 */
 	public void setSelectedGroup(GroupData group) {
-		this.group = group;
+		locationDialog.setSelectedGroup(group);
 	}
 
 	/**

@@ -1158,4 +1158,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 			}
 		}
 	}
+
+	public void setSelectedGroup(GroupData group) {
+		this.currentGroup = group;
+	}
 }
