@@ -286,7 +286,6 @@ public class FilesLoader
     public FilesLoader(SecurityContext ctx, int type, long userID)
     {
     	this.ctx = ctx;
-    	System.err.println(type);
     	loadCall = makeLoadFilesBatchCall(type, userID);
     }
     
