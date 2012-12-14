@@ -1309,7 +1309,6 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     Edit and save channel names
     """
     image = conn.getObject("Image", imageId)
-    datasetId = request.REQUEST.get('datasetId', None)
     channelNames = {}
     nameDict = {}
     for i in range(image.getSizeC()):
@@ -1319,13 +1318,20 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
             nameDict[i+1] = str(cname)
     # If the 'Apply to Dataset' button was used to submit...
     if request.REQUEST.get('confirm_apply', None) is not None:
-        counts = conn.setChannelNames("Dataset", [datasetId], nameDict)
+        parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
+        if parentId is not None:
+            ptype = parentId.split("-")[0].title()
+            pid = parentId.split("-")[1]
+            counts = conn.setChannelNames(ptype, [pid], nameDict)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
     rv = {"channelNames": channelNames}
-    rv['imageCount'] = counts['imageCount']
-    rv['updateCount'] = counts['updateCount']
-    return rv
+    if counts:
+        rv['imageCount'] = counts['imageCount']
+        rv['updateCount'] = counts['updateCount']
+        return rv
+    else:
+        return {"error": "No parent found to apply Channel Names"}
 
 
 @login_required(setGroupContext=True)
