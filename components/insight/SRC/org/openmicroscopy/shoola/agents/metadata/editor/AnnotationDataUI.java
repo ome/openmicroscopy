@@ -1384,7 +1384,6 @@ class AnnotationDataUI
 				object = doc.getData();
 				if (object instanceof TagAnnotationData) {
 					annotation = (AnnotationData) object;
-					System.err.println(annotation.getContentAsString());
 					id = annotation.getId();
 					if (!ids.contains(id)) {
 						l.add(annotation);
