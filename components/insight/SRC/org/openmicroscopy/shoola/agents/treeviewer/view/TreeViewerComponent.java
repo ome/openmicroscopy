@@ -343,6 +343,45 @@ class TreeViewerComponent
     	return null;
     }
 	
+    /**
+     * Checks if a browser associated to the passed node has been 
+     * discarded.
+     *  
+     * @param display The node to handle.
+     */
+    private DataBrowser handleDiscardedBrowser(TreeImageDisplay display)
+    {
+    	if (!DataBrowserFactory.hasBeenDiscarded(display)) return null;
+    	DataBrowser db = null;
+    	Browser browser = model.getSelectedBrowser();
+		List list;
+		List<ApplicationData> app = null;
+		
+    	if (display.isChildrenLoaded() 
+				&& display.containsImages()) {
+			List l = display.getChildrenDisplay();
+			if (l != null) {
+				Set s = new HashSet();
+				Iterator i = l.iterator();
+				TreeImageDisplay child;
+				//copy the node.
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					s.add(child.getUserObject());
+				}
+				setLeaves((TreeImageSet) display, s);
+				db = DataBrowserFactory.getDataBrowser(display);
+				list = browser.getSelectedDataObjects();
+				if (list != null && list.size() == 1) {
+					app = TreeViewerFactory.getApplications(
+					model.getObjectMimeType(list.get(0)));
+				}
+				db.setSelectedNodes(list, app);
+			}
+		}
+    	return db;
+    }
+    
 	/**
 	 * Displays the data browser corresponding to the passed node.
 	 * 
@@ -372,30 +411,7 @@ class TreeViewerComponent
 					view.displayBrowser(db);
 				}
 			} else {
-				if (DataBrowserFactory.hasBeenDiscarded(display)) {
-					if (display.isChildrenLoaded() 
-							&& display.containsImages()) {
-						List l = display.getChildrenDisplay();
-        				if (l != null) {
-        					Set s = new HashSet();
-        					Iterator i = l.iterator();
-        					TreeImageDisplay child;
-    						//copy the node.
-        					while (i.hasNext()) {
-        						child = (TreeImageDisplay) i.next();
-        						s.add(child.getUserObject());
-        					}
-    						setLeaves((TreeImageSet) display, s);
-    						db = DataBrowserFactory.getDataBrowser(display);
-    						list = browser.getSelectedDataObjects();
-    						if (list != null && list.size() == 1) {
-    							app = TreeViewerFactory.getApplications(
-    							model.getObjectMimeType(list.get(0)));
-    						}
-    						db.setSelectedNodes(list, app);
-        				}
-					}
-				}
+				db = handleDiscardedBrowser(display);
 			}
 			if (db != null) db.setSelectedNodes(null, null);
 			return;
@@ -407,8 +423,7 @@ class TreeViewerComponent
 				(displayParent instanceof TreeFileSet &&
 				((TreeFileSet) displayParent).getType() ==
 					TreeFileSet.ORPHANED_IMAGES)) {
-				db = DataBrowserFactory.getDataBrowser(
-						display.getParentDisplay());
+				db = DataBrowserFactory.getDataBrowser(displayParent);
 				if (db != null) {
 					db.setComponentTitle("");
 					if (visible) {
@@ -421,6 +436,8 @@ class TreeViewerComponent
             		db.setSelectedNodes(nodes, 
             				TreeViewerFactory.getApplications(
 							model.getObjectMimeType(object)));
+				} else {
+					db = handleDiscardedBrowser(displayParent);
 				}
 				return;
 			}
@@ -1080,7 +1097,8 @@ class TreeViewerComponent
 			} else showDataBrowser(object, display, true);
 		} else {
 			DataBrowser db = model.getDataViewer();
-			if (db != null) db.setSelectedNodes(new ArrayList(), null);
+			if (db != null)
+				db.setSelectedNodes(new ArrayList<DataObject>(), null);
 			metadata.setRootObject(null, -1, null);
 		}
 		if (display != null && 
