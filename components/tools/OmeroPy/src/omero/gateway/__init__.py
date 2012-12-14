@@ -2854,8 +2854,15 @@ class _BlitzGateway (object):
         elif data_type == "Dataset":
             images = self.getContainerService().getImages("Dataset", ids, None, self.SERVICE_OPTS)
             imageIds = [i.getId().getValue() for i in images]
+        elif data_type == "Plate":
+            imageIds = []
+            plates = self.getObjects("Plate", ids)
+            for p in plates:
+                for well in p._listChildren():
+                    for ws in well.copyWellSamples():
+                        imageIds.append(ws.image.id.val)
         else:
-            raise AttributeError("setChannelNames() supports data_types 'Image', 'Dataset' only, not '%s'" % data_type)
+            raise AttributeError("setChannelNames() supports data_types 'Image', 'Dataset', 'Plate' only, not '%s'" % data_type)
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
