@@ -11,6 +11,7 @@
     </packages>
     <classes>
       <class name="ome.services.blitz.repo.path.FilePathTransformerTest"/>
+      <class name="ome.services.blitz.repo.path.MakePathComponentSafeTest"/>
     </classes>
   </test>
 </suite>

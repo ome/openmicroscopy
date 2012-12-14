@@ -44,6 +44,8 @@ public class FilePathTransformer {
 	File baseDirFile;
 	/* the parent path components that should be omitted from repository paths */
 	private FsFile baseDirFsFile;
+	/* a function to make file-path components safe across platforms */
+	private StringTransformer pathSanitizer;
 	
 	/* -- SERVER-SIDE METHODS -- */
 	
@@ -85,8 +87,7 @@ public class FilePathTransformer {
 	public FsFile getFsFileFromClientFile(File clientFile, int depth) throws IOException {
 		if (depth < 1) 
 			throw new IllegalArgumentException("path depth must be strictly positive");
-		final StringTransformer st = MakePathComponentSafe.getInstance();
-		return new FsFile(new FsFile(clientFile), depth).transform(st);
+		return new FsFile(new FsFile(clientFile), depth).transform(this.pathSanitizer);
 	}
 	
 	/**
@@ -124,6 +125,15 @@ public class FilePathTransformer {
 	}
 	
 	/* -- SPRING-BASED SETUP -- */
+	
+	/**
+	 * Set the string transformer that is used to make file-path components safe across platforms.
+	 * This is not required to be an injective function; two different components may transform to the same.
+	 * @param pathSanitizer the file-path component string transformer
+	 */
+	public void setPathSanitizer(StringTransformer pathSanitizer) {
+		this.pathSanitizer = pathSanitizer;
+	}
 	
 	/**
 	 * Set the OMERO data directory. Expected to be set as part of Spring bean initialization.
