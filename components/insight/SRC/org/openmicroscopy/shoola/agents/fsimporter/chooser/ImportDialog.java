@@ -123,6 +123,10 @@ import pojos.TagAnnotationData;
 public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
 	
+	private static final String TEXT_IMPORT_TOOLTIP = "Import the selected files or directories";
+
+	private static final String TEXT_IMPORT = "Import";
+
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
 
@@ -183,12 +187,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** String used to retrieve if the value of the folder as dataset flag. */
 	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
-
-	/** Indicates the context of the import */
-	private static final String LOCATION_PROJECT = "Project/Dataset";
-
-	/** Indicates the context of the import */
-	private static final String LOCATION_SCREEN = "Screen";
 
 	static {
 		WARNING = new ArrayList<String>();
@@ -291,18 +289,12 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox showThumbnails;
-
-	/** The collection of <code>HCS</code> filters. */
-	private List<FileFilter> hcsFilters;
-
+	
 	/** The collection of general filters. */
-	private List<FileFilter> generalFilters;
+	private List<FileFilter> bioFormatsFileFilters;
 
 	/** The combined filter. */
-	private FileFilter combinedFilter;
-
-	/** The combined filter for HCS. */
-	private FileFilter combinedHCSFilter;
+	private FileFilter bioFormatsFileFiltersCombined;
 
 	/** The component displaying the available and used disk space. */
 	private JPanel diskSpacePane;
@@ -648,54 +640,39 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		chooser.setControlButtonsAreShown(false);
-		chooser.setApproveButtonText("Import");
-		chooser.setApproveButtonToolTipText("Import the selected files "
-				+ "or directories");
+		chooser.setApproveButtonText(TEXT_IMPORT);
+		chooser.setApproveButtonToolTipText(TEXT_IMPORT_TOOLTIP);
 		
-		hcsFilters = new ArrayList<FileFilter>();
-		generalFilters = new ArrayList<FileFilter>();
+		bioFormatsFileFilters = new ArrayList<FileFilter>();
+		
 		if (filters != null) {
 			chooser.setAcceptAllFileFilterUsed(false);
-			FileFilter filter;
-			for (int i = 0; i < filters.length; i++) {
-				filter = filters[i];
-				if (filter instanceof ComboFileFilter) {
-					combinedFilter = filter;
-					ComboFileFilter cff = (ComboFileFilter) filter;
-					FileFilter[] extensionFilters = cff.getFilters();
-					for (int j = 0; j < extensionFilters.length; j++) {
-						FileFilter ff = extensionFilters[j];
-						if (ImportableObject.isHCSFormat(ff.toString())) {
-							hcsFilters.add(ff);
-						} else {
-							generalFilters.add(ff);
-						}
+			
+			for (FileFilter fileFilter : filters) {
+				if (fileFilter instanceof ComboFileFilter) {
+					bioFormatsFileFiltersCombined = fileFilter;
+					
+					ComboFileFilter comboFilter = (ComboFileFilter) fileFilter;
+					FileFilter[] extensionFilters = comboFilter.getFilters();
+					
+					for (FileFilter combinedFilter : extensionFilters) {
+						bioFormatsFileFilters.add(combinedFilter);
 					}
 					break;
 				}
 			}
-			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
-			combinedHCSFilter = new HCSFilter(
-					set.toArray(new String[set.size()]));
-			Iterator<FileFilter> j;
-			if (type == Importer.SCREEN_TYPE) {
-				chooser.addChoosableFileFilter(combinedHCSFilter);
-				j = hcsFilters.iterator();
-				while (j.hasNext())
-					chooser.addChoosableFileFilter(j.next());
-				chooser.setFileFilter(combinedHCSFilter);
-			} else {
-				chooser.addChoosableFileFilter(combinedFilter);
-				j = generalFilters.iterator();
-				while (j.hasNext())
-					chooser.addChoosableFileFilter(j.next());
-				chooser.setFileFilter(combinedFilter);
+			
+			chooser.addChoosableFileFilter(bioFormatsFileFiltersCombined);
+			
+			for (FileFilter fileFilter : bioFormatsFileFilters) {
+				chooser.addChoosableFileFilter(fileFilter);
 			}
-			while (j.hasNext())
-				chooser.addChoosableFileFilter(j.next());
-		} else
+				
+			chooser.setFileFilter(bioFormatsFileFiltersCombined);
+		} else {
 			chooser.setAcceptAllFileFilterUsed(true);
-
+		}
+		
 		table = new FileSelectionTable(this);
 		table.addPropertyChangeListener(this);
 		closeButton = new JButton("Close");
@@ -708,7 +685,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		cancelImportButton.setActionCommand("" + CANCEL_ALL_IMPORT);
 		cancelImportButton.addActionListener(this);
 
-		importButton = new JButton("Import");
+		importButton = new JButton(TEXT_IMPORT);
 		importButton.setToolTipText("Import the selected files or"
 				+ " directories.");
 		importButton.setActionCommand("" + IMPORT);
@@ -1459,31 +1436,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		} else {
 			screenNodes = objects;
 			selectedScreen = selectedContainer;
-		}
-		
-		if (oldType != this.type) {
-			// change filters.
-			// reset name
-			FileFilter[] filters = chooser.getChoosableFileFilters();
-			for (int i = 0; i < filters.length; i++) {
-				chooser.removeChoosableFileFilter(filters[i]);
-			}
-			Iterator<FileFilter> j;
-			if (type == Importer.SCREEN_TYPE) {
-				j = hcsFilters.iterator();
-				chooser.addChoosableFileFilter(combinedHCSFilter);
-				while (j.hasNext()) {
-					chooser.addChoosableFileFilter(j.next());
-				}
-				chooser.setFileFilter(combinedHCSFilter);
-			} else {
-				chooser.addChoosableFileFilter(combinedFilter);
-				j = generalFilters.iterator();
-				while (j.hasNext()) {
-					chooser.addChoosableFileFilter(j.next());
-				}
-				chooser.setFileFilter(combinedFilter);
-			}
 		}
 		
 		File[] files = chooser.getSelectedFiles();
