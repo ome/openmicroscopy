@@ -691,5 +691,12 @@ class ToolBar
 		location = null;
 	}
 	
+	/** Invokes when the size is loaded.*/
+	void onSizeLoaded()
+	{
+		if (exportAsOmeTiffItem != null) {
+			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
+		}
+	}
 }
-	
+

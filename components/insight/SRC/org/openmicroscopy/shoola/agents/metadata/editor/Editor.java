@@ -490,4 +490,12 @@ public interface Editor
      * @return See above.
      */
     SecurityContext getSecurityContext();
+
+    /**
+     * Indicates if the image is a large image or not.
+     * 
+     * @param result The value to set.
+     */
+	void setLargeImage(Boolean result);
+	
 }

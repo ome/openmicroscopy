@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -67,13 +66,14 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -157,7 +157,7 @@ public class DataServicesFactory
 	
     /** The fs properties. */
     private Properties 					fsConfig;
-    
+
     /**
 	 * Reads in the specified file as a property object.
 	 * 
@@ -356,20 +356,43 @@ public class DataServicesFactory
      */
     private void showNotificationDialog(String title, String message)
     {
-        connectionDialog = new NotificationDialog(new JFrame(), 
-        		title, message, null);
-        connectionDialog.setModal(false);
-        connectionDialog.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			
+    	showNotificationDialog(title, message, false);
+    }
+    /**
+     * Brings up a notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     * @param shutdown Pass <code>true</code> to shut down the application 
+     * <code>false otherwise</code>
+     */
+    private void showNotificationDialog(String title, String message, boolean
+    		shutdown)
+    {
+    	JFrame f = new JFrame();
+    	f.setIconImage(AbstractIconManager.getOMEImageIcon());
+    	
+    	if (shutdown) {
+    		connectionDialog = new ShutDownDialog(f, title, message);
+    	} else
+    		connectionDialog = new NotificationDialog(f, title, message, null);
+        //connectionDialog.setModal(false);
+        connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
+        {
+
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
 				{
 					connectionDialog = null;
 					exitApplication(true, true);
+				} else if (
+					NotificationDialog.CANCEL_NOTIFICATION_PROPERTY.equals(
+							name))
+				{
+					connectionDialog = null;
+					omeroGateway.resetNetwork();
 				}
-					
 			}
 		});
         UIUtilities.centerAndShow(connectionDialog);
@@ -386,77 +409,73 @@ public class DataServicesFactory
 	{
 		if (connectionDialog != null) return;
 		String message;
-		UserNotifier un = registry.getUserNotifier();
 		if (exc != null) {
 			LogMessage msg = new LogMessage();
-			msg.print("Session Expired");
+			msg.print("Connection Error");
 			msg.print(exc);
 			registry.getLogger().debug(this, msg);
 		}
 		switch (index) {
 			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
+				message = "The connection has been destroyed." +
+						"\nThe application will now exit.";
+				showNotificationDialog("Connection Refused", message);
+				break;
+			case ConnectionExceptionHandler.NETWORK:
+				message = "The network is down.\n";
+				showNotificationDialog("Network", message, true);
+				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
-				message = "The connection has been lost. \nDo you want " +
-						"to reconnect? If no, the application will now exit.";
-				connectionDialog = new MessageBox(
-						registry.getTaskBar().getFrame(), "Lost Connection", 
-						message);
-				connectionDialog.setModal(true);
-				int v = ((MessageBox) connectionDialog).centerMsgBox();
-				if (v == MessageBox.NO_OPTION) {
-					connectionDialog = null;
-					exitApplication(true, true);
-				} else if (v == MessageBox.YES_OPTION) {
-					UserCredentials uc = (UserCredentials) 
-					registry.lookup(LookupNames.USER_CREDENTIALS);
-					Map<SecurityContext, Set<Long>> l =
+				UserCredentials uc = (UserCredentials) 
+				registry.lookup(LookupNames.USER_CREDENTIALS);
+				Map<SecurityContext, Set<Long>> l =
 						omeroGateway.getRenderingEngines();
-					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
-            				uc.getPassword());
-					connectionDialog = null;
-					if (b) {
-						//reactivate the rendering engine. Need to review that
-						Iterator<Entry<SecurityContext, Set<Long>>> i =
+				boolean b =  omeroGateway.reconnect(uc.getUserName(), 
+						uc.getPassword());
+				connectionDialog = null;
+				if (b) {
+					//reactivate the rendering engine. Need to review that
+					Iterator<Entry<SecurityContext, Set<Long>>> i =
 							l.entrySet().iterator();
-						OmeroImageService svc = registry.getImageService();
-						Long id;
-						Entry<SecurityContext, Set<Long>> entry;
-						Map<SecurityContext, List<Long>> 
-						failure = new HashMap<SecurityContext, List<Long>>();
-						Iterator<Long> j;
-						SecurityContext ctx;
-						List<Long> f;
-						while (i.hasNext()) {
-							entry = i.next();
-							j = entry.getValue().iterator();
-							ctx = entry.getKey();
-							while (j.hasNext()) {
-								id = j.next();
-								try {
-									svc.reloadRenderingService(ctx, id);
-								} catch (Exception e) {
-									f = failure.get(ctx);
-									if (f == null) {
-										f = new ArrayList<Long>();
-										failure.put(ctx, f);
-									}
-									f.add(id);
+					OmeroImageService svc = registry.getImageService();
+					Long id;
+					Entry<SecurityContext, Set<Long>> entry;
+					Map<SecurityContext, List<Long>> 
+					failure = new HashMap<SecurityContext, List<Long>>();
+					Iterator<Long> j;
+					SecurityContext ctx;
+					List<Long> f;
+					while (i.hasNext()) {
+						entry = i.next();
+						j = entry.getValue().iterator();
+						ctx = entry.getKey();
+						while (j.hasNext()) {
+							id = j.next();
+							try {
+								svc.reloadRenderingService(ctx, id);
+							} catch (Exception e) {
+								f = failure.get(ctx);
+								if (f == null) {
+									f = new ArrayList<Long>();
+									failure.put(ctx, f);
 								}
+								f.add(id);
 							}
 						}
-						message = "You are reconnected to the server.";
-						un.notifyInfo("Reconnection Success", message);
-						if (failure.size() > 0) {
-							//notify user.
-							registry.getEventBus().post(
-									new ReloadRenderingEngine(failure));
-						}
-					} else {
-						message = "A failure occurred while attempting to " +
-								"reconnect.\nThe application will now exit.";
-						showNotificationDialog("Reconnection Failure", message);
 					}
+					message = "You are reconnected to the server.";
+					//un.notifyInfo("Reconnection Success", message);
+					if (failure.size() > 0) {
+						//notify user.
+						registry.getEventBus().post(
+								new ReloadRenderingEngine(failure));
+					}
+				} else {
+					message = "A failure occurred while attempting to " +
+							"reconnect.\nThe application will now exit.";
+					showNotificationDialog("Reconnection Failure", message);
 				}
+				//}
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +

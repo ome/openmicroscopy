@@ -66,6 +66,7 @@ import omero.grid.SharedResourcesPrx;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+
 /** 
  * Manages the various services and entry points.
  *
@@ -615,11 +616,26 @@ class Connector
 		importStore = null;
 	}
 	
-	/** Closes the session.*/
-	void close()
+	/** Closes the session.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void close(boolean networkup)
 		throws Throwable
 	{
-		shutDownServices(true);
+		secureClient.setFastShutdown(!networkup);
+		unsecureClient.setFastShutdown(!networkup);
+		if (networkup) {
+			shutDownServices(true);
+		} else {
+			thumbnailService = null;
+			pixelsStore = null;
+			fileStore = null;
+			searchService = null;
+			importStore = null;
+			reServices.clear();
+		}
 		secureClient.closeSession();
 	}
 	
@@ -678,23 +694,22 @@ class Connector
 		}
 	}
 	
+	/** Keeps services alive.*/
+	void ping()
+		throws Exception
+	{
+		entryEncrypted.keepAlive(null);
+	}
+	
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
-		Collection<ServiceInterfacePrx> 
-		all = new HashSet<ServiceInterfacePrx>();
-
-		if (services.size() > 0) all.addAll(services);
-		if (reServices.size() > 0) all.addAll(reServices.values());
-		if (all.size() == 0) return;
-		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
-			all.toArray(new ServiceInterfacePrx[all.size()]);
 		try {
-			entryEncrypted.keepAllAlive(entries);
+			entryEncrypted.keepAllAlive(null);
 		} catch (Exception e) {}
 		try {
 			if (entryUnencrypted != null)
-				entryUnencrypted.keepAllAlive(entries);
+				entryUnencrypted.keepAllAlive(null);
 		} catch (Exception e) {}
 	}
 
