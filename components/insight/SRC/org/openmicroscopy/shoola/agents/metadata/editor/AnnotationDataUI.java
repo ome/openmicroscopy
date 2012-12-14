@@ -1384,6 +1384,7 @@ class AnnotationDataUI
 				object = doc.getData();
 				if (object instanceof TagAnnotationData) {
 					annotation = (AnnotationData) object;
+					System.err.println(annotation.getContentAsString());
 					id = annotation.getId();
 					if (!ids.contains(id)) {
 						l.add(annotation);
@@ -1405,11 +1406,18 @@ class AnnotationDataUI
 			Entry<Long, Integer> entry;
 			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
 			int n = tagsDocList.size();
+			Map<DataObject, Boolean> m;
 			while (k.hasNext()) {
 				entry = k.next();
 				count = entry.getValue();
-				if (count != null && count > n)
-					l.add(annotations.get(entry.getKey()));
+				if (count != null && count == n) {
+					//Check if the annotation needs to be added
+					annotation = annotations.get(entry.getKey());
+					m = model.getTaggedObjects(annotation);
+					if (m.size() < count) {
+						l.add(annotation);
+					}
+				}
 			}
 		}
 		i = tagsDocList.iterator();
@@ -1459,11 +1467,18 @@ class AnnotationDataUI
 			Entry<Long, Integer> entry;
 			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
 			int n = filesDocList.size();
+			Map<DataObject, Boolean> m;
 			while (k.hasNext()) {
 				entry = k.next();
 				count = entry.getValue();
-				if (count != null && count > n)
-					l.add(annotations.get(entry.getKey()));
+				if (count != null && count == n) {
+					//Check if the annotation needs to be added
+					annotation = annotations.get(entry.getKey());
+					m = model.getTaggedObjects(annotation);
+					if (m.size() < count) {
+						l.add(annotation);
+					}
+				}
 			}
 		}
 		if (selectedValue != initialValue)
