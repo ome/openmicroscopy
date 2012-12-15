@@ -111,6 +111,8 @@ abstract class Entry
         contentHandlers.put("color", ColorEntry.class);
         contentHandlers.put("icons", IconFactoryEntry.class);
         contentHandlers.put("agents", AgentsEntry.class);
+        contentHandlers.put("agents", AgentsEntry.class);
+        contentHandlers.put("plugins", PluginEntry.class);
     }
     
     /**
@@ -133,7 +135,7 @@ abstract class Entry
 	 * @param tag	DOM node representing either an <i>entry</i> or 
 	 * 				<i>structuredEntry</i> tag.
 	 * @return See above.
-	 * @throws ConfigException If the configuration entry couldn't be handled.                  
+	 * @throws ConfigException If the configuration entry couldn't be handled.
 	 */  
     static Entry createEntryFor(Node tag)
 		throws ConfigException

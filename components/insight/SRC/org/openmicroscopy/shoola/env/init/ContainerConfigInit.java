@@ -24,7 +24,11 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import ij.IJ;
 import java.io.File;
+import java.security.CodeSource;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -32,6 +36,7 @@ import java.io.File;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.ConfigException;
+import org.openmicroscopy.shoola.env.config.PluginInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 
@@ -55,6 +60,55 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
 public final class ContainerConfigInit
 	extends InitializationTask 
 {
+
+	/**
+	 * Handles the plugin dependencies. Returns <code>true</code> if the
+	 * dependencies are found, <code>false</code> otherwise.
+	 * 
+	 * @param info The information about the plugin.
+	 * @return See above.
+	 */
+	private boolean handlePluginDependencies(PluginInfo info)
+	{
+		String[] values = info.getDependenciesAsArray();
+		CodeSource src = 
+				ContainerConfigInit.class.getProtectionDomain().getCodeSource();
+		File jarFile;
+		String home = container.getHomeDir();
+		if (home.length() == 0) {
+			try {
+				jarFile = new File(src.getLocation().toURI().getPath());
+				home = jarFile.getParentFile().getPath();
+			} catch (Exception e) {}
+		}
+		//Check if plugin is there
+		int count = 0;
+		try {
+			jarFile = new File(src.getLocation().toURI().getPath());
+			//Plugin folder
+			File dir = new File(System.getProperty("user.dir"),
+					info.getDirectory());
+			File[] l = dir.listFiles();
+			String value;
+			for (int j = 0; j < values.length; j++) {
+				value = values[j];
+				for (int i = 0; i < l.length; i++) {
+					if (l[i].getName().equals(value)) {
+						count++;
+						break;
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			if (info.getId() == LookupNames.IMAGE_J && IJ.debugMode) {
+				String msg = "An error occurred while checking if " +
+						"the dependencies are installed."+e.toString();
+				IJ.log(msg);
+			}
+		}
+		return (values.length == count);
+	}
 	
 	/** Constructor required by superclass. */
 	public ContainerConfigInit() {}
@@ -96,6 +150,32 @@ public final class ContainerConfigInit
             	 files.mkdir();
                  files.deleteOnExit();
             }
+            
+            List<PluginInfo> infos = 
+            	(List<PluginInfo>) reg.lookup(LookupNames.PLUGINS);
+            Integer v = (Integer) reg.lookup(LookupNames.PLUGIN);
+    		if (infos == null || infos.size() == 0
+    			|| v == null || v.intValue() < 0)
+    			return;
+    		boolean b = false;
+    		Iterator<PluginInfo> i = infos.iterator();
+    		PluginInfo info;
+    		switch (v.intValue()) {
+    			case LookupNames.IMAGE_J:
+    				while (i.hasNext()) {
+						info = i.next();
+						b = handlePluginDependencies(info);
+						if (!b) {
+	    					StartupException ex = new StartupException(
+	    							"OMERO.insight as ImageJ plugin");
+	    					ex.setPluginInfo(info);
+	    					throw ex;
+	    				}
+					}
+    				break;
+    			default:
+    				break;
+    		}
 		} catch (ConfigException ce) {
 			throw new StartupException("Unable to load Container configuration",
 										ce);

@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -179,10 +178,11 @@ public final class AgentsInit
 			}
 		}
 		
-		List agents = (List) reg.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		List<AgentInfo> agents =
+				(List<AgentInfo>) reg.lookup(LookupNames.AGENTS);
+		Iterator<AgentInfo> i = agents.iterator();
 		while (i.hasNext()) 
-			createAgent((AgentInfo) i.next(), value);
+			createAgent(i.next(), value);
 		String name = (String) container.getRegistry().lookup(
 				LookupNames.MASTER);
 		if (name == null)
