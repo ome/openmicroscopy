@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.init;
 //Java imports
 import ij.IJ;
 import java.io.File;
-import java.security.CodeSource;
 import java.util.Iterator;
 import java.util.List;
 
@@ -71,20 +70,9 @@ public final class ContainerConfigInit
 	private boolean handlePluginDependencies(PluginInfo info)
 	{
 		String[] values = info.getDependenciesAsArray();
-		CodeSource src = 
-				ContainerConfigInit.class.getProtectionDomain().getCodeSource();
-		File jarFile;
-		String home = container.getHomeDir();
-		if (home.length() == 0) {
-			try {
-				jarFile = new File(src.getLocation().toURI().getPath());
-				home = jarFile.getParentFile().getPath();
-			} catch (Exception e) {}
-		}
 		//Check if plugin is there
 		int count = 0;
 		try {
-			jarFile = new File(src.getLocation().toURI().getPath());
 			//Plugin folder
 			File dir = new File(System.getProperty("user.dir"),
 					info.getDirectory());
