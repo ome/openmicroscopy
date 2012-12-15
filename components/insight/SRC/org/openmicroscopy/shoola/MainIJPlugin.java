@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.security.CodeSource;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -152,6 +153,7 @@ public class MainIJPlugin
 		buffer.append("</body><html>");
 		return buffer.toString();
 	}
+	
 	/** Notifies that <code>ImageJ</code> is closing.*/
 	private void onImageJClosing()
 	{
@@ -224,16 +226,24 @@ public class MainIJPlugin
 					"; you will need to upgrade.");
 			return;
 		}
-		String homeDir = "";
+		String home = "";
 		String configFile = null;
 		if (args != null) {
 			String[] values = args.split(" ");
 			if (values.length > 0) configFile = values[0];
-			if (values.length > 1) homeDir = values[1];
+			if (values.length > 1) home = values[1];
 		}
-		IJ.debugMode = true;
+		CodeSource src = 
+				MainIJPlugin.class.getProtectionDomain().getCodeSource();
+		File jarFile;
+		if (home.length() == 0) {
+			try {
+				jarFile = new File(src.getLocation().toURI().getPath());
+				home = jarFile.getParentFile().getPath();
+			} catch (Exception e) {}
+		}
 		try {
-			container = Container.startupInPluginMode(homeDir, configFile,
+			container = Container.startupInPluginMode(home, configFile,
 					LookupNames.IMAGE_J);
 			attachListeners();
 		} catch (StartupException e) {
