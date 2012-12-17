@@ -228,7 +228,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			"Reloads the container where to import the data.";
 
 	private static final String TOOLTIP_REMAINING_FORMAT = 
-			"%s %% of Remaining Space";
+			"%s%% of Remaining Space";
 
 	/** String used to retrieve if the value of the load thumbnail flag. */
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";

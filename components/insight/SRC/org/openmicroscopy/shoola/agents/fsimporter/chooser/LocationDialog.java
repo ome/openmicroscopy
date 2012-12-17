@@ -46,12 +46,18 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jdesktop.swingx.JXCollapsiblePane;
+import org.jdesktop.swingx.JXHeader;
+import org.jdesktop.swingx.JXHyperlink;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -88,6 +94,10 @@ import pojos.ScreenData;
 public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
 	
+	private static final String TEXT_HIDE_ADVANCED = "Hide Advanced Options";
+
+	private static final String TEXT_SHOW_ADVANCED = "Show Advanced Options";
+
 	/** Bound property indicating to change the import group. */
 	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
 	
@@ -436,7 +446,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private JPanel buildGroupSelectionPanel() {
 		double size[][] =
             {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
-            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
+            {TableLayout.PREFERRED}};
 
 		TableLayout tableLayout = new TableLayout(size);
 		tableLayout.setHGap(5);
@@ -573,8 +583,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		contentPane.setLayout(new TableLayout(tableSize));
 		
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH );
-		mainPanel.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
+		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
+		mainPanel.add(buildImportLocationPanel(), BorderLayout.CENTER);
 		mainPanel.add(buildButtonPanel(), BorderLayout.SOUTH);
 		
 		contentPane.add(mainPanel, "1, 1");
@@ -585,6 +595,53 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.setMinimumSize(minSize);
 		this.setPreferredSize(minSize);
 		this.setSize(minSize);
+	}
+
+	private JPanel buildImportLocationPanel() {
+		JTabbedPane dataTypePane = buildDataTypeTabbedPane();
+		
+		Border advancedTitleBorder = new TitledBorder("Advanced Import Options");
+
+		JComboBox namingOptions = new JComboBox();
+		
+		double[][] oneLineOption = new double[][]{
+				{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED},
+				{TableLayout.PREFERRED}};
+		
+		TableLayout t2 = new TableLayout(oneLineOption);
+		
+		final JXCollapsiblePane advancedPane = new JXCollapsiblePane();
+		advancedPane.setLayout(t2);
+		advancedPane.setBorder(advancedTitleBorder);
+		advancedPane.add(new JLabel("File Naming"), "0, 0, r, c");
+		advancedPane.add(namingOptions, "1, 0");
+		advancedPane.setCollapsed(true);
+		
+		//final JXHyperlink link = new JXHyperlink();
+		//link.setName(TEXT_SHOW_ADVANCED);
+		
+		final JToggleButton showHideAdvancedButton = new JToggleButton(TEXT_SHOW_ADVANCED);
+		showHideAdvancedButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ae)
+			{
+				advancedPane.setCollapsed(!advancedPane.isCollapsed());
+				
+				showHideAdvancedButton.setText(advancedPane.isCollapsed() ? TEXT_SHOW_ADVANCED : TEXT_HIDE_ADVANCED);
+			}
+		});
+
+		
+
+		double[][] size = new double[][]{{TableLayout.FILL},
+			{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		
+		TableLayout layout = new TableLayout(size);
+		JPanel locationPanel = new JPanel(layout);
+		locationPanel.add(dataTypePane, "0, 0");
+		locationPanel.add(link, "0, 1, r, c");
+		locationPanel.add(advancedPane, "0, 2");
+		
+		return locationPanel;
 	}
 
 	/**
