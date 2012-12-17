@@ -27,8 +27,9 @@ import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import pojos.GroupData;
 
 /** 
- * Provides cohesion of the import settings when importing project/dataset image data.
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * Provides cohesion of the import settings when importing project/dataset data.
+ * @author Scott Littlewood, 
+ * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public class ProjectImportLocationSettings extends ImportLocationSettings
@@ -45,7 +46,8 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	 * @param project The project to import data in to
 	 * @param dataset The dataset to import data in to
 	 */
-	public ProjectImportLocationSettings(GroupData group, DataNode project, DataNode dataset) {
+	public ProjectImportLocationSettings(GroupData group, DataNode project,
+			DataNode dataset) {
 		super(Importer.PROJECT_TYPE, group);
 		
 		this.importToProject = project;
@@ -55,7 +57,6 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	/**
 	 * @return The dataset selected to import data in to.
 	 */
-	@Override
 	public DataNode getImportLocation() {
 		return importToDataset;
 	}
@@ -63,15 +64,14 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	/**
 	 * @return The project selected to import data in to.
 	 */
-	@Override
 	public DataNode getParentImportLocation() {
 		return importToProject;
 	}
 
 	/**
-	 * @return Whether the parent folder of an image should be used to create a new Dataset.
+	 * @return Whether the parent folder of an image should be used to
+	 * create a new Dataset.
 	 */
-	@Override
 	public boolean isParentFolderAsDataset() {
 		if (importToDataset == null)
 			return false;

@@ -26,8 +26,9 @@ import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import pojos.GroupData;
 
 /** 
- * Provides an abstract class for specialisation fo import user selection settings
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * Provides an abstract class for specialisation of use import settings.
+ * @author Scott Littlewood,
+ * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public abstract class ImportLocationSettings {
@@ -65,13 +66,19 @@ public abstract class ImportLocationSettings {
 		return importDataType;
 	}
 
-	/** To be implemented by the subclass to say which object an item should be imported in to */
+	/** To be implemented by the subclass to say which object
+	 * an item should be imported in to
+	 */
 	public abstract DataNode getImportLocation();
 
-	/** To be implemented by the subclass to say which parent object an item should be imported in to */
+	/** To be implemented by the subclass to say which parent object
+	 * an item should be imported in to
+	 */
 	public abstract DataNode getParentImportLocation();
 
-	/** To be implemented by the subclass to say whether an images directory should be used as a new dataset */
+	/** To be implemented by the subclass to say whether an images directory
+	 * should be used as a new dataset
+	 */
 	public abstract boolean isParentFolderAsDataset();
 
 }
