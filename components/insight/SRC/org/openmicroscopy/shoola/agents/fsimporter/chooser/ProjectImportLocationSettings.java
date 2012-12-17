@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
-import pojos.DatasetData;
 import pojos.GroupData;
-import pojos.ProjectData;
 
 /** 
  * Provides cohesion of the import settings when importing project/dataset image data.
