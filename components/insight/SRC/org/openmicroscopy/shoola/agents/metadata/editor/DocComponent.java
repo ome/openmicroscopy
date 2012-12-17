@@ -359,6 +359,40 @@ class DocComponent
 	}
 	
 	/**
+	 * Returns the list of users who annotated that image only if the
+	 * annotation cannot be unlinked.
+	 * 
+	 * @param object The object the annotation is linked to.
+	 * @param annotation The annotation to handle.
+	 */
+	private String formatAnnotators(DataObject object,
+			AnnotationData annotation)
+	{
+		StringBuffer buffer = new StringBuffer();
+		List<ExperimenterData> annotators = model.getAnnotators(object, 
+				annotation);
+		if (annotators.size() == 0) return null;
+		long userID = model.getCurrentUser().getId();
+		Iterator<ExperimenterData> i = annotators.iterator();
+		ExperimenterData annotator;
+		int n = annotators.size()-1;
+		int index = 0;
+		buffer.append(" (");
+		while (i.hasNext()) {
+			annotator =  i.next();
+			if (annotator.getId() != userID) {
+				buffer.append(EditorUtil.formatExperimenter(annotator));
+				if (index != n)
+					buffer.append(", ");
+				index++;
+			}
+		}
+		if (index == 0) return null;
+		buffer.append(")");
+		return buffer.toString();
+	}
+	
+	/**
 	 * Formats the passed annotation.
 	 * 
 	 * @param annotation The value to format.
@@ -368,11 +402,8 @@ class DocComponent
 	private String formatTootTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
-		
-		//icons.getImageIcon(IconManager.MINUS_12).getIm;
 		buf.append("<html><body>");
 		if (model.isMultiSelection()) {
-			IconManager icons = IconManager.getInstance();
 			Map<DataObject, Boolean> m = null;
 			Entry<DataObject, Boolean> e;
 			Iterator<Entry<DataObject, Boolean>> j;
@@ -396,7 +427,7 @@ class DocComponent
 			buf.append(text);
 			buf.append(n);
 			int index = 0;
-			URL icon = icons.getIconURL(IconManager.MINUS_12);
+			String s;
 			while (j.hasNext()) {
 				e = j.next();
 				if (index == 0) {
@@ -414,10 +445,10 @@ class DocComponent
 				buf.append(":</b> ");
 				buf.append(UIUtilities.formatPartialName(
 						model.getObjectName(e.getKey())));
-				if (e.getValue().booleanValue()) {
-					n++;
-					buf.append("&nbsp;<img src=\""+icon+ "\">");
-				}
+				//Indicates who annotates the object if not the user
+				//currently logged in.
+				s = formatAnnotators(e.getKey(), annotation);
+				if (s != null) buf.append(s);
 				buf.append("<br>");
 			}
 			buf.append("</body></html>");
