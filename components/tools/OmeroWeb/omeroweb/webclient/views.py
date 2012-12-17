@@ -108,6 +108,15 @@ logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
 
+# helper method
+def getIntOrDefault(request, name, default):
+    try:
+        index = int(request.REQUEST.get(name, default))
+    except:
+        index = 0
+    print "getIntOrDefault", name, default, index
+    return index
+
 ################################################################################
 # views controll
 
@@ -445,16 +454,13 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     """
     
     # get page 
-    page = int(request.REQUEST.get('page', 1))
+    page = getIntOrDefault(request, 'page', 1)
     
     # get view 
     view = str(request.REQUEST.get('view', None))
 
     # get index of the plate
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
     kw = dict()
@@ -615,10 +621,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     view = request.REQUEST.get("view")
     
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     
     # prepare forms
@@ -762,10 +765,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     # we only expect a single object, but forms can take multiple objects
     images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
@@ -830,10 +830,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     
@@ -854,10 +851,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
     
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     
@@ -875,10 +869,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     try:
         if c_type in ("share", "discussion"):
@@ -1056,10 +1047,7 @@ def getObjects(request, conn=None):
     shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
-        try:
-            index = int(request.REQUEST.get('index', 0))
-        except:
-            index = 0
+        index = getIntOrDefault(request, 'index', 0)
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
@@ -1088,10 +1076,7 @@ def batch_annotate(request, conn=None, **kwargs):
     initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
             'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
     form_comment = CommentAnnotationForm(initial=initial)
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
@@ -1119,10 +1104,7 @@ def annotate_file(request, conn=None, **kwargs):
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
     Otherwise it generates the form for choosing file-annotations & local files.
     """
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
@@ -1212,10 +1194,7 @@ def annotate_comment(request, conn=None, **kwargs):
     if request.method != 'POST':
         raise Http404("Unbound instance of form not available.")
     
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
@@ -1246,10 +1225,7 @@ def annotate_comment(request, conn=None, **kwargs):
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     obj_count = sum( [len(selected[types]) for types in selected] )
@@ -1344,10 +1320,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     template = None
     
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
     
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
