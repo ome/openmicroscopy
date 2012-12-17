@@ -814,7 +814,11 @@ public class EditorUtil
 			return exp.getUserName();
 		if (s1.length() == 0) return s2;
 		if (s2.length() == 0) return s1;
-		return s1+" "+s2;
+		StringBuffer buf = new StringBuffer();
+		buf.append(s1);
+		buf.append(" ");
+		buf.append(s2);
+		return buf.toString();
 	}
     
 	/**

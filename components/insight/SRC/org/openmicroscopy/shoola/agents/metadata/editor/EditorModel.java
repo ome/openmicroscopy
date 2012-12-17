@@ -1102,6 +1102,18 @@ class EditorModel
 	 */
 	List<ExperimenterData> getAnnotators(Object annotation)
 	{
+		return getAnnotators(null, annotation);
+	}
+	
+	/**
+	 * Returns the collection of experimenters who use the annotation.
+	 * 
+	 * @param ref The object of reference.
+	 * @param annotation The annotation to handle.
+	 * @return See above.
+	 */
+	List<ExperimenterData> getAnnotators(DataObject ref, Object annotation)
+	{
 		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
 		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return list;
@@ -1118,20 +1130,41 @@ class EditorModel
 		List<Long> ids = new ArrayList<Long>();
 		while (j.hasNext()) {
 			e = j.next();
-			links = e.getValue().getAnnotationLinks();
-			if (links != null) {
-				i = links.iterator();
-				while (i.hasNext()) {
-					link = i.next();
-					if (link.getChild().getId() == ann.getId()) {
-						
-						if (!ids.contains(link.getOwner().getId())) {
-							list.add(link.getOwner());
-							ids.add(link.getOwner().getId());
+			if (ref == null) {
+				links = e.getValue().getAnnotationLinks();
+				if (links != null) {
+					i = links.iterator();
+					while (i.hasNext()) {
+						link = i.next();
+						if (link.getChild().getId() == ann.getId()) {
+							
+							if (!ids.contains(link.getOwner().getId())) {
+								list.add(link.getOwner());
+								ids.add(link.getOwner().getId());
+							}
 						}
 					}
 				}
+			} else {
+				if (ref.getId() == e.getKey().getId()) {
+					links = e.getValue().getAnnotationLinks();
+					if (links != null) {
+						i = links.iterator();
+						while (i.hasNext()) {
+							link = i.next();
+							if (link.getChild().getId() == ann.getId()) {
+								
+								if (!ids.contains(link.getOwner().getId())) {
+									list.add(link.getOwner());
+									ids.add(link.getOwner().getId());
+								}
+							}
+						}
+					}
+					break;
+				}
 			}
+			
 		}
 		return list;
 	}
