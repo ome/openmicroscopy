@@ -109,8 +109,8 @@ import pojos.GroupData;
 class ImporterUI extends TopWindow
 {
 
-	private static final String TEXT_TITLE_DESCRIPTION = "Select data to import " +
-			"and monitor imports.";
+	private static final String TEXT_TITLE_DESCRIPTION =
+			"Select data to import and monitor imports.";
 
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.8;
