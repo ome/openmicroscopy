@@ -106,19 +106,21 @@ import pojos.GroupData;
  * </small>
  * @since 3.0-Beta4
  */
-class ImporterUI 
-	extends TopWindow
+class ImporterUI extends TopWindow
 {
+
+	private static final String TEXT_TITLE_DESCRIPTION = "Select data to import " +
+			"and monitor imports.";
 
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.8;
 	
 	/** The window's title. */
-	private static final String TITLE = "Import Data";
+	private static final String TEXT_TITLE = "Import Data";
 	
 	/** The text displayed to notify the user to refresh. */
-	private static final String	REFRESH_TXT = "New containers added. " +
-			"Please Refresh";
+	private static final String	TEXT_REFRESH =
+			"New containers added. Please Refresh";
 	
 	/** Identifies the style of the document.*/
 	private static final String STYLE = "StyleName";
@@ -126,7 +128,6 @@ class ImporterUI
 	/** The maximum number of characters in the debug text.*/
 	private static final int 	MAX_CHAR = 2000;
 
-	
 	/** Reference to the model. */
 	private ImporterModel	model;
 	
@@ -273,8 +274,7 @@ class ImporterUI
 		container.setLayout(new BorderLayout(0, 0));
 		
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
-				"and monitor imports.", 
+		TitlePanel tp = new TitlePanel(TEXT_TITLE, "", TEXT_TITLE_DESCRIPTION, 
 				icons.getIcon(IconManager.IMPORT_48));
 		JXPanel p = new JXPanel();
 		JXPanel lp = new JXPanel();
@@ -303,7 +303,7 @@ class ImporterUI
 	private void initComponents()
 	{
 		messageLabel = new JXLabel();
-		messageLabel.setText(REFRESH_TXT);
+		messageLabel.setText(TEXT_REFRESH);
 		messageLabel.setVisible(false);
 		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
 		controlsBar = buildControls();
@@ -390,7 +390,7 @@ class ImporterUI
 	/** Creates a new instance. */
 	ImporterUI()
 	{
-		super(TITLE);
+		super(TEXT_TITLE);
 	}
 
 	/**
@@ -426,9 +426,9 @@ class ImporterUI
 		if (chooser == null) return;
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
-		Boolean b = (Boolean) 
+		Boolean debugEnabled = (Boolean) 
 			ImporterAgent.getRegistry().lookup("/options/Debug");
-		if (b != null && b.booleanValue()) {
+		if (debugEnabled != null && debugEnabled.booleanValue()) {
 			IconManager icons = IconManager.getInstance();
 			ClosableTabbedPaneComponent c = new ClosableTabbedPaneComponent(1, 
 					"Debug Text", icons.getIcon(IconManager.DEBUG));
@@ -479,7 +479,6 @@ class ImporterUI
 		String title = "Import #"+total;
 		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
-		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
@@ -634,15 +633,6 @@ class ImporterUI
 	 */
 	boolean hasFailuresToSend()
 	{
-		/*
-		Iterator<ImporterUIElement> i = uiElements.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToSend())
-				return true;
-		}
-		return false;
-		*/
-		
 		return hasSelectedFailuresToSend();
 	}
 	
