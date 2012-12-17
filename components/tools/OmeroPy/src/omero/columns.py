@@ -248,9 +248,24 @@ class AbstractArrayColumn(AbstractColumn):
 
     def settable(self, tbl):
         AbstractColumn.settable(self, tbl)
-        shape = getattr(tbl.cols, self.name).shape
-        assert(len(shape) == 2)
-        self.size = shape[1]
+
+        # Pytables 2.1 has the array size in Column.dtype.shape
+        #shape = getattr(tbl.cols, self.name).dtype.shape
+        #self.size = shape[0]
+
+        # Pytables 2.2 and later replaced this with Column.shape
+        #shape = getattr(tbl.cols, self.name).shape
+        #assert(len(shape) == 2)
+        #self.size = shape[1]
+
+        # http://www.pytables.org/trac-bck/ticket/231
+        # http://www.pytables.org/trac-bck/ticket/232
+        # TODO: Clean this up
+
+        # Taken from http://www.pytables.org/trac-bck/changeset/4176
+        column = getattr(tbl.cols, self.name)
+        self.size = column.descr._v_dtypes[column.name].shape[0]
+
 
     def arrays(self):
         """
