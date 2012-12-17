@@ -52,7 +52,13 @@ import java.io.StringWriter;
 public class RenderingServiceException
     extends Exception
 {
-    
+	
+	/** Indicates that the error occurred due to a connection failure.*/
+	public static final int CONNECTION = 1;
+	
+	/** The index of the exception.*/
+	private int index = 0;
+	
     /** Creates a new exception. */
     public RenderingServiceException() { super(); }
 
@@ -93,5 +99,20 @@ public class RenderingServiceException
         printStackTrace(pw);
         return sw.toString();
 	}
+	
+	/**
+	 * Sets the index indicating if the error occurred due to a network 
+	 * failure.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index) { this.index = index; }
+	
+	/**
+	 * Returns the index.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
 	
 }

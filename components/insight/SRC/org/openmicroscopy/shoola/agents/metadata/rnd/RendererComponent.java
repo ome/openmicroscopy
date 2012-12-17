@@ -143,6 +143,11 @@ class RendererComponent
 		Logger logger = MetadataViewerAgent.getRegistry().getLogger();
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (e instanceof RenderingServiceException) {
+			RenderingServiceException ex = (RenderingServiceException) e;
+			if (ex.getIndex() == RenderingServiceException.CONNECTION)
+				return;
+		}
+		if (e instanceof RenderingServiceException) {
 			RenderingServiceException rse = (RenderingServiceException) e;
 			LogMessage logMsg = new LogMessage();
 			logMsg.print("Rendering Exception:");

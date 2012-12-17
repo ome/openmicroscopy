@@ -1073,4 +1073,14 @@ class EditorComponent
     	return model.getSecurityContext();
     }
 
+    /** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setLargeImage(Boolean)
+	 */
+	public void setLargeImage(Boolean value)
+	{
+		model.setLargeImage(value);
+		
+	}
+
 }

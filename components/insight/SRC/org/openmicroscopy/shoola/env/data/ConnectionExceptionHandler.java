@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.net.UnknownHostException;
+
 import ome.conditions.SessionTimeoutException;
 import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
@@ -36,6 +38,7 @@ import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
 import Ice.DNSException;
 import Ice.ObjectNotExistException;
+import Ice.SocketException;
 import Ice.TimeoutException;
 import Ice.UnknownException;
 
@@ -57,6 +60,9 @@ public class ConnectionExceptionHandler
 	
 	/** Indicates that the server is out of service. */
 	public static final int DESTROYED_CONNECTION = 2;
+	
+	/** Indicates that the network is down. */
+	public static final int NETWORK = 3;
 	
 	/** String identifying the connection refused exception.*/
 	private static final String REFUSED = "Ice::ConnectionRefusedException";
@@ -101,6 +107,10 @@ public class ConnectionExceptionHandler
 				cause instanceof DNSException ||
 				e instanceof DNSException)
 			index = DESTROYED_CONNECTION;
+		else if (cause instanceof SocketException ||
+				e instanceof SocketException ||
+				e instanceof UnknownHostException)
+			index = NETWORK;
 		else if (cause instanceof ConnectionRefusedException || 
 				e instanceof ConnectionRefusedException ||
 				cause instanceof ConnectionTimeoutException || 
