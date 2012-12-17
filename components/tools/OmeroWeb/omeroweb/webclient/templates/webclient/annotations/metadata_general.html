@@ -344,7 +344,7 @@
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
                     $chNameForm.find(".ptype").text( pid.split("-")[0].capitalize() );
-                    $chNameForm.find("input[name=parentId]").val(pid);
+                    $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
                 }
                 var resetChForm = function() {
                     $chNameForm.find(".originalButtons").show();
