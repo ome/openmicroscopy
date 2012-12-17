@@ -1920,4 +1920,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     if len(a['data']) != 1:
         return dict(error='Could not retrieve single bulk annotations table')
 
-    return _table_query(request, a['data'][0]['file'], conn, **kwargs)
+    # multiple bulk annotations files could be attached, use the most recent
+    # one (= the one with the highest identifier)
+    fileId = max(annotation['file'] for annotation in a['data'])
+    return _table_query(request, fileId, conn, **kwargs)
