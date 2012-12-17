@@ -23,7 +23,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-//Java imports
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
@@ -72,12 +71,8 @@ import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /**
- * Displays the possible location of the imports.
+ * Provides the user with the options to select the location to import data.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -92,16 +87,34 @@ import pojos.ScreenData;
  */
 public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
-
-	private static final String TAB_NAME_SCREENS = "Screens";
-
-	private static final String TAB_NAME_PROJECTS = "Projects";
-
+	
+	/** Bound property indicating to change the import group. */
+	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
+	
+	/** Minimum width of the dialog in pixels */
 	private static final int MIN_WIDTH = 640;
 
-	/** Bound property indicating to change the import group. */
-	public static final String GROUP_CHANGED_PROPERTY = "groupChanged";
-			
+	/** The title of the dialog. */
+	private static String TEXT_TITLE = "Import Location - Select where to import your data.";
+	
+	/** Default text for projects */
+	private static final String TEXT_PROJECTS = "Projects";
+
+	/** Default text for screens */
+	private static final String TEXT_SCREENS = "Screens";
+
+	/** The default text for a project. */
+	private static final String TEXT_PROJECT = "Project";
+
+	/** The default text for a dataset. */
+	private static final String TEXT_DATASET = "Dataset";
+
+	/** The default text for a screen. */
+	private static final String TEXT_SCREEN = "Screen";
+
+	/** The message to display in the header. */
+	private static final String TEXT_GROUP = "Group";
+	
 	/** Reference to the <code>Group Private</code> icon. */
 	private static final Icon GROUP_PRIVATE_ICON;
 
@@ -130,9 +143,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
 	}
 
-	/** The possible nodes. */
-	private Collection<TreeImageDisplay> objects;
-
 	/** Action id indicating to create a new project. */
 	private static final int CMD_CREATE_PROJECT = 1;
 
@@ -150,24 +160,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/** User has selected to cancel. */
 	public final static int CMD_CLOSE = 6;
-	
-	/** The default text for a project. */
-	private static final String LABEL_PROJECT = "Project";
-
-	/** The default text for a dataset. */
-	private static final String LABEL_DATASET = "Dataset";
-
-	/** The default text for a screen. */
-	private static final String LABEL_SCREEN = "Screen";
-
-	/** The message to display in the header. */
-	private static final String LABEL_GROUP = "Group";
 
 	/** Constant value defining the value of an unknown/unselected group*/
 	private static final long UNKNOWN_GROUP_ID = -1;
-
-	/** The title of the dialog. */
-	private static String TITLE = "Import Location - Select where to import your data.";
 
 	/** Component indicating to add to the queue. */
 	private JButton addButton;
@@ -223,11 +218,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The currently selected group in the groups combo box. */
 	private GroupData currentGroup;
 
+	/** The current possible import location nodes. */
+	private Collection<TreeImageDisplay> objects;
+	
+	/** List of the available projects in the current group */
 	private Collection<TreeImageDisplay> currentProjects;
+	
+	/** List of the available screens in the current group */
 	private Collection<TreeImageDisplay> currentScreens;
 
+	/** Refresh button used to refresh the groups/projects/datasets & screens */
 	private JToggleButton refreshButton;
 
+	/** Tab pane used to hose the Project/Screen selection UI component. */
 	private JTabbedPane tabbedPane;
 	
 	/**
@@ -254,17 +257,21 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.importDataType = importDataType;
 		this.objects = objects;
 		this.groups = groups;
-		this.currentGroup = fingGroupWithId(groups, currentGroupId);
+		this.currentGroup = findGroupWithId(groups, currentGroupId);
 		
 		switchToDataType(importDataType);
 		
 		setModal(true);
-		setTitle(TITLE);
+		setTitle(TEXT_TITLE);
 		
 		initComponents();
 		buildGUI();
 	}
 
+	/**
+	 * Swaps the data that is currently active.
+	 * @param importDataType
+	 */
 	private void switchToDataType(int importDataType) {
 		switch(importDataType)
 		{
@@ -282,7 +289,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return Finds the group in the list with the id provided, 
 	 * 		<null> if not found.
 	 */
-	private GroupData fingGroupWithId(Collection<GroupData> groups,
+	private GroupData findGroupWithId(Collection<GroupData> groups,
 			long currentGroupId) {
 		
 		for (GroupData group : groups) {
@@ -293,7 +300,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return null;
 	}
 
-	/** Initialises the components. */
+	/**
+	 * Initialises the UI components of the dialog.
+	 */
 	private void initComponents() {
 		sorter = new ViewerSorter();
 
@@ -365,6 +374,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return buttonPanel;
 	}
 
+	/**
+	 * @return The tab panel for Screen / Project selection
+	 */
 	private JTabbedPane buildDataTypeTabbedPane() {
 		IconManager icons = IconManager.getInstance();
 		
@@ -375,10 +387,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 		JPanel screenPanel = buildScreenSelectionPanel();
 
 		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab(TAB_NAME_PROJECTS, projectIcon, projectPanel,
+		tabbedPane.addTab(TEXT_PROJECTS, projectIcon, projectPanel,
 				"Import settings for Projects");
 
-		tabbedPane.addTab(TAB_NAME_SCREENS, screenIcon, screenPanel,
+		tabbedPane.addTab(TEXT_SCREENS, screenIcon, screenPanel,
 				"Import settings for Screens");
 		
 		tabbedPane.addChangeListener(this);
@@ -400,8 +412,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		JPanel groupPanel = new JPanel(tableLayout);
         
-        groupPanel.add(UIUtilities.setTextFont(LABEL_GROUP), "0, 0, r, c");
-        groupPanel.add(groupsBox,"1, 0");
+		if(groups.size() > 1)
+		{
+	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
+	        groupPanel.add(groupsBox,"1, 0");
+		}
         groupPanel.add(refreshButton, "2, 0, c, c");
        
 		return groupPanel;
@@ -421,11 +436,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		JPanel projectPanel = new JPanel(tableLayout);
         
-        projectPanel.add(UIUtilities.setTextFont(LABEL_PROJECT), "0, 0, r, c");
+        projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), "0, 0, r, c");
         projectPanel.add(projectsBox,"1, 0");
         projectPanel.add(newProjectButton, "2, 0, c, c");
         
-        projectPanel.add(UIUtilities.setTextFont(LABEL_DATASET), "0, 1, r, c");
+        projectPanel.add(UIUtilities.setTextFont(TEXT_DATASET), "0, 1, r, c");
         projectPanel.add(datasetsBox,"1, 1");
         projectPanel.add(newDatasetButton, "2, 1, c, c");
        
@@ -446,7 +461,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		JPanel screenPanel = new JPanel(tableLayout);
         
-        screenPanel.add(UIUtilities.setTextFont(LABEL_SCREEN), "0, 0, r, c");
+        screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), "0, 0, r, c");
         screenPanel.add(screensBox,"1, 0");
         screenPanel.add(newScreenButton, "2, 0, c, c");
        
@@ -540,7 +555,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.setSize(minSize);
 	}
 
-	/** Closes the dialog. */
+	/**
+	 * Closes the dialog.
+	 */
 	private void close() {
 		setVisible(false);
 		dispose();
@@ -625,7 +642,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 			objects = null;
 			currentProjects = null;
 			currentScreens = null;
-			firePropertyChange(GROUP_CHANGED_PROPERTY, currentGroup, selectedNewGroup);
+			firePropertyChange(PROPERTY_GROUP_CHANGED, currentGroup, selectedNewGroup);
 		}
 	}
 
@@ -799,7 +816,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		repaint();
 	}
 
-	/** Populates the datasets box depending on the selected project. */
+	/**
+	 * Populates the datasets box depending on the selected project.
+	 */
 	private void populateDatasetsBox() {
 		DataNode n = (DataNode) projectsBox.getSelectedItem();
 		List<DataNode> list = n.getDatasetNodes();
@@ -869,7 +888,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 	}
 
-	/** Populates the selection boxes with the currently selected data. */
+	/**
+	 * Populates the selection boxes with the currently selected data.
+	 */
 	private void populateLocationComboBoxes() {
 		List<DataNode> topList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
@@ -1109,25 +1130,27 @@ public class LocationDialog extends JDialog implements ActionListener,
 		 */
 		if(currentGroupId == UNKNOWN_GROUP_ID) {
 			GroupData defaultUserGroup = ImporterAgent.getUserDetails().getDefaultGroup();
-			firePropertyChange(GROUP_CHANGED_PROPERTY, null, defaultUserGroup);
+			firePropertyChange(PROPERTY_GROUP_CHANGED, null, defaultUserGroup);
 			return;
 		}
 		
 		this.groups = availableGroups;
-		this.currentGroup = fingGroupWithId(availableGroups, currentGroupId);
+		this.currentGroup = findGroupWithId(availableGroups, currentGroupId);
 		
 		populateGroupBox(groups, currentGroup);
 		populateLocationComboBoxes();
 	}
 	
+	/**
+	 * Listener for the swapping of Screen / Project tabs
+	 */
 	public void stateChanged(ChangeEvent evt) {
 		Object source = evt.getSource();
 		if(source == tabbedPane) {
 			JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
 			
 			int newDataType = tabbedPane.getSelectedIndex();
-			Object comp = tabbedPane.getSelectedComponent();
-			
+
 			switch(newDataType)
 			{
 				case Importer.PROJECT_TYPE:
@@ -1146,6 +1169,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 	}
 
+	/**
+	 * Listener for Group / Project combobox selection events
+	 */
 	public void itemStateChanged(ItemEvent ie) {
 		Object source = ie.getSource();
 		
@@ -1159,7 +1185,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 	}
 
+	/**
+	 * Sets the currently selected group
+	 * @param group The group to set as selected
+	 */
 	public void setSelectedGroup(GroupData group) {
 		this.currentGroup = group;
+		groupsBox.setSelectedItem(group);
 	}
 }
