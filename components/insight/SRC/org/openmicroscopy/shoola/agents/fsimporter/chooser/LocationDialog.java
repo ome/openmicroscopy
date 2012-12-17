@@ -94,27 +94,56 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Minimum width of the dialog in pixels */
 	private static final int MIN_WIDTH = 640;
 
+	// String constants
 	/** The title of the dialog. */
-	private static String TEXT_TITLE = "Import Location - Select where to import your data.";
+	private static String TEXT_TITLE =
+			"Import Location - Select where to import your data.";
 	
-	/** Default text for projects */
+	/** Text for projects */
 	private static final String TEXT_PROJECTS = "Projects";
 
-	/** Default text for screens */
+	/** Text for screens */
 	private static final String TEXT_SCREENS = "Screens";
 
-	/** The default text for a project. */
+	/** Text for a project. */
 	private static final String TEXT_PROJECT = "Project";
 
-	/** The default text for a dataset. */
+	/** Text for a dataset. */
 	private static final String TEXT_DATASET = "Dataset";
 
-	/** The default text for a screen. */
+	/** Text for a screen. */
 	private static final String TEXT_SCREEN = "Screen";
 
-	/** The message to display in the header. */
+	/** Text for a group. */
 	private static final String TEXT_GROUP = "Group";
+
+	/** Tooltip text for New Screen button */
+	private static final String TOOLTIP_NEW_SCREEN = "Create a new Screen.";
 	
+	/** Tooltip text for New Dataset button */
+	private static final String TOOLTIP_NEW_DATASET = "Create a new Dataset.";
+	
+	/** Tooltip text for New Project button */
+	private static final String TOOLTIP_CREATE_PROJECT = "Create a new Project.";
+
+	/** Text for New buttons */
+	private static final String TEXT_NEW = "New...";
+
+	/** Text for Close button */
+	private static final String TEXT_CLOSE = "Close";
+	
+	/** Tooltip text for Close button */
+	private static final String TOOLTIP_CLOSE_DIALOGUE = 
+			"Close and do not add the files to the queue.";
+
+	/** Text for Add button */
+	private static final String TEXT_QUEUE_ITEMS = "Add to the Queue";
+	
+	/** Tooltip text for Add button */
+	private static final String TOOLTIP_QUEUE_ITEMS = 
+			"Add the files to the queue.";
+	
+	// Icon constants
 	/** Reference to the <code>Group Private</code> icon. */
 	private static final Icon GROUP_PRIVATE_ICON;
 
@@ -143,6 +172,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
 	}
 
+	// Command constants
 	/** Action id indicating to create a new project. */
 	private static final int CMD_CREATE_PROJECT = 1;
 
@@ -161,17 +191,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** User has selected to cancel. */
 	public final static int CMD_CLOSE = 6;
 
-	/** Constant value defining the value of an unknown/unselected group*/
-	private static final long UNKNOWN_GROUP_ID = -1;
+	/** Action button command Id chosen by the user. */
+	private int userSelectedActionCommandId;
 
+	// UI Components
 	/** Component indicating to add to the queue. */
 	private JButton addButton;
 
 	/** Component indicating to cancel the addition. */
 	private JButton cancelButton;
-
-	/** Action button command Id chosen by the user. */
-	private int userSelectedActionCommandId;
 
 	/** component used to select the import group. */
 	private JComboBox groupsBox;
@@ -194,6 +222,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Button to create a new screen. */
 	private JButton newScreenButton;
 
+	/** Refresh button used to refresh the groups/projects/datasets & screens */
+	private JToggleButton refreshButton;
+
+	/** Tab pane used to hose the Project/Screen selection UI component. */
+	private JTabbedPane tabbedPane;
+
+	/** A reference to the parent object that created this dialog. */
+	private JFrame owner;
+	
+	// Operational variables & constants
+	/** Constant value defining the value of an unknown/unselected group*/
+	private static final long UNKNOWN_GROUP_ID = -1;
+	
 	/** The map holding the new nodes to create if in the P/D view. */
 	private Map<DataNode, List<DataNode>> newNodesPD;
 
@@ -209,9 +250,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** The id of the import data type (Screen/Project) */
 	private int importDataType;
 
-	/** A reference to the parent object that created this dialog. */
-	private JFrame owner;
-
 	/** Internal list of available groups. */
 	private Collection<GroupData> groups;
 
@@ -226,12 +264,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	/** List of the available screens in the current group */
 	private Collection<TreeImageDisplay> currentScreens;
-
-	/** Refresh button used to refresh the groups/projects/datasets & screens */
-	private JToggleButton refreshButton;
-
-	/** Tab pane used to hose the Project/Screen selection UI component. */
-	private JTabbedPane tabbedPane;
 	
 	/**
 	 * Creates a new instance.
@@ -333,30 +365,30 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		// main panel buttons
 		
-		newProjectButton = new JButton("New...");
-		newProjectButton.setToolTipText("Create a new Project.");
+		newProjectButton = new JButton(TEXT_NEW);
+		newProjectButton.setToolTipText(TOOLTIP_CREATE_PROJECT);
 		newProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
 		newProjectButton.addActionListener(this);
 
-		newDatasetButton = new JButton("New...");
-		newDatasetButton.setToolTipText("Create a new Dataset.");
+		newDatasetButton = new JButton(TEXT_NEW);
+		newDatasetButton.setToolTipText(TOOLTIP_NEW_DATASET);
 		newDatasetButton.setActionCommand("" + CMD_CREATE_DATASET);
 		newDatasetButton.addActionListener(this);
 
-		newScreenButton = new JButton("New...");
-		newScreenButton.setToolTipText("Create a new Screen.");
+		newScreenButton = new JButton(TEXT_NEW);
+		newScreenButton.setToolTipText(TOOLTIP_NEW_SCREEN);
 		newScreenButton.setActionCommand("" + CMD_CREATE_SCREEN);
 		newScreenButton.addActionListener(this);
 		
 		// main action buttons
 		
-		addButton = new JButton("Add to the Queue");
-		addButton.setToolTipText("Add the files to the queue.");
+		addButton = new JButton(TEXT_QUEUE_ITEMS);
+		addButton.setToolTipText(TOOLTIP_QUEUE_ITEMS);
 		addButton.addActionListener(this);
 		addButton.setActionCommand("" + CMD_ADD);
 		
-		cancelButton = new JButton("Close");
-		cancelButton.setToolTipText("Close and do not add the files to the queue.");
+		cancelButton = new JButton(TEXT_CLOSE);
+		cancelButton.setToolTipText(TOOLTIP_CLOSE_DIALOGUE);
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand("" + CMD_CLOSE);
 		
@@ -618,11 +650,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 					objects = null;
 					currentProjects = null;
 					currentScreens = null;
-					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, -1, importDataType);
+					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
+							UNKNOWN_GROUP_ID, importDataType);
 			}
 
 			if(newDataObject != null) {
-				EditorDialog editor = new EditorDialog(owner, newDataObject, false);
+				EditorDialog editor = new EditorDialog(owner,
+						newDataObject, false);
 				editor.addPropertyChangeListener(this);
 				editor.setModal(true);
 				UIUtilities.centerAndShow(editor);
@@ -635,14 +669,14 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Switch to display the projects/datasets/screens from the selected group
 	 */
 	private void switchToSelectedGroup() {
-		JComboBoxImageObject comboBoxItem = (JComboBoxImageObject) groupsBox.getSelectedItem();
-		GroupData selectedNewGroup = (GroupData) comboBoxItem.getData();
+		GroupData selectedNewGroup = getSelectedGroup();
 		
 		if(selectedNewGroup.getId() != currentGroup.getId()) {
 			objects = null;
 			currentProjects = null;
 			currentScreens = null;
-			firePropertyChange(PROPERTY_GROUP_CHANGED, currentGroup, selectedNewGroup);
+			firePropertyChange(PROPERTY_GROUP_CHANGED,
+					currentGroup, selectedNewGroup);
 		}
 	}
 
@@ -651,20 +685,21 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 */
 	public ImportLocationSettings getImportSettings() {
 		
-		ImportLocationSettings importSettings = new NullImportSettings(currentGroup);
+		ImportLocationSettings importSettings = 
+				new NullImportSettings(currentGroup);
 		
 		switch(importDataType)
 		{
 			case Importer.PROJECT_TYPE:
-				DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
-				DataNode selectedDataset = (DataNode) datasetsBox.getSelectedItem();
+				DataNode project = (DataNode) projectsBox.getSelectedItem();
+				DataNode dataset = (DataNode) datasetsBox.getSelectedItem();
 				importSettings = new ProjectImportLocationSettings(currentGroup, 
-						selectedProject, selectedDataset);
+						project, dataset);
 				break;
 			case Importer.SCREEN_TYPE:
-				DataNode selectedScreen = (DataNode) screensBox.getSelectedItem();
+				DataNode screen = (DataNode) screensBox.getSelectedItem();
 				importSettings = new ScreenImportLocationSettings(currentGroup,
-						selectedScreen);
+						screen);
 				break;
 		}
 		
@@ -877,15 +912,23 @@ public class LocationDialog extends JDialog implements ActionListener,
 					parent = n.getDataObject();
 				}
 			}
-			JComboBoxImageObject selectedGroup = (JComboBoxImageObject) groupsBox
-					.getSelectedItem();
-			GroupData g = (GroupData) selectedGroup.getData();
+			
+			GroupData selectedGroup = getSelectedGroup();
 
 			if (child != null) {
 				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null,
-						new ObjectToCreate(g, child, parent));
+						new ObjectToCreate(selectedGroup, child, parent));
 			}
 		}
+	}
+
+	/**
+	 * @return The currently selected group in the Group ComboBox
+	 */
+	private GroupData getSelectedGroup() {
+		JComboBoxImageObject selectedEntry =
+				(JComboBoxImageObject) groupsBox.getSelectedItem();
+		return (GroupData) selectedEntry.getData();
 	}
 
 	/**
@@ -1009,20 +1052,19 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Populates the projects & datasets boxes with the current options
-	 * @param hostObject
-	 * @param datasetsList
-	 * @param sortedList
+	 * @param datasets
+	 * @param projects
 	 */
-	private void loadProjects(List<DataNode> datasetsList, List<DataNode> sortedList) {
+	private void loadProjects(List<DataNode> datasets, List<DataNode> projects) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		DataNode n;
 		List<DataNode> l = getOrphanedNewDatasetNode();
 
-		if (datasetsList.size() > 0) { // orphaned datasets.
-			datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
+		if (datasets.size() > 0) { // orphaned datasets.
+			datasets.add(new DataNode(DataNode.createDefaultDataset()));
 			if (l != null)
-				datasetsList.addAll(l);
-			n = new DataNode(datasetsList);
+				datasets.addAll(l);
+			n = new DataNode(datasets);
 		} else {
 			List<DataNode> list = new ArrayList<DataNode>();
 			list.add(new DataNode(DataNode.createDefaultDataset()));
@@ -1031,7 +1073,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 			n = new DataNode(list);
 		}
 		finalList.add(n);
-		finalList.addAll(sortedList);
+		finalList.addAll(projects);
 
 		populateAndAddTooltipsToComboBox(finalList, projectsBox);
 
@@ -1118,7 +1160,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Re-populates and resets the groups, screens, projects & dataset selection options.
+	 * Re-populates and resets the groups, screens, projects & dataset options.
 	 * @param availableGroups
 	 * @param currentGroupId
 	 */
@@ -1129,8 +1171,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		 * Work around for currentGroup being passed as -1
 		 */
 		if(currentGroupId == UNKNOWN_GROUP_ID) {
-			GroupData defaultUserGroup = ImporterAgent.getUserDetails().getDefaultGroup();
-			firePropertyChange(PROPERTY_GROUP_CHANGED, null, defaultUserGroup);
+			firePropertyChange(PROPERTY_GROUP_CHANGED,
+					null, ImporterAgent.getUserDetails().getDefaultGroup());
 			return;
 		}
 		
@@ -1149,9 +1191,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 		if(source == tabbedPane) {
 			JTabbedPane tabbedPane = (JTabbedPane) evt.getSource();
 			
-			int newDataType = tabbedPane.getSelectedIndex();
+			int dataType = tabbedPane.getSelectedIndex();
 
-			switch(newDataType)
+			switch(dataType)
 			{
 				case Importer.PROJECT_TYPE:
 					objects = currentProjects;
@@ -1162,9 +1204,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 			}
 			
 			if (objects == null) {
-				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, importDataType, newDataType);
+				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
+						importDataType, dataType);
 			} else {
-				reset(this.selectedContainer, newDataType, objects, this.currentGroup.getId());
+				reset(selectedContainer, dataType, objects, currentGroup.getId());
 			}
 		}
 	}

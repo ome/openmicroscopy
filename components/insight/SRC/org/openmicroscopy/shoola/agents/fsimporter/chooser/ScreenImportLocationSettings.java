@@ -28,7 +28,8 @@ import pojos.GroupData;
 
 /** 
  * Provides cohesion of the import settings when importing screen data.
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @author Scott Littlewood, 
+ * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public class ScreenImportLocationSettings extends ImportLocationSettings {
@@ -51,14 +52,12 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	/**
 	 * @return The screen selected
 	 */
-	@Override
 	public DataNode getImportLocation() {
 		return importToScreen;
 	}
 
 	/** Note: should NEVER be called on a screen import,
 	 * implemented for initial work, look at refactoring afterwards */
-	@Override
 	public DataNode getParentImportLocation() {
 		return null; 
 	}
@@ -66,7 +65,6 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	/**
 	 * @return Always <false> for a screen as there is no parent object
 	 */
-	@Override
 	public boolean isParentFolderAsDataset() {
 		return false;
 	}

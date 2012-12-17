@@ -119,7 +119,8 @@ import pojos.TagAnnotationData;
 public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
 	
-	private static final String TEXT_IMPORT_TOOLTIP = "Import the selected files or directories";
+	private static final String TEXT_IMPORT_TOOLTIP =
+			"Import the selected files or directories";
 
 	private static final String TEXT_IMPORT = "Import";
 
@@ -301,7 +302,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The pane hosting the location information. */
 	private JXTaskPane pane;
 
-	/** The import settings that are returned from the ImportLocation dialogue */
+	/** The import settings that are returned from the location dialogue */
 	private ImportLocationSettings importSettings;
 
 	/**
@@ -324,7 +325,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		chooser.setSelectedFile(new File("."));
 		
-		table.addFiles(fileList, importSettings.isParentFolderAsDataset(), importSettings.getImportGroup());
+		table.addFiles(fileList, importSettings.isParentFolderAsDataset(),
+				importSettings.getImportGroup());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -360,7 +362,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private void handleTagsSelection(Collection<TagAnnotationData> tags)
 	{
 		Collection<TagAnnotationData> set = tagsMap.values();
-		Map<String, TagAnnotationData> newTags = new HashMap<String, TagAnnotationData>();
+		Map<String, TagAnnotationData> newTags =
+				new HashMap<String, TagAnnotationData>();
 		TagAnnotationData tag;
 		Iterator<TagAnnotationData> i = set.iterator();
 		while (i.hasNext()) {
@@ -519,9 +522,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 
+		Collection<GroupData> groups = ImporterAgent.getAvailableUserGroups();
 		locationDialog = new LocationDialog(owner, selectedContainer, type, 
-				objects, (Collection<GroupData>) ImporterAgent.getAvailableUserGroups(),
-				ImporterAgent.getUserDetails().getGroupId());
+				objects, groups, ImporterAgent.getUserDetails().getGroupId());
 		locationDialog.addPropertyChangeListener(this);
 		
 		listener = new ActionListener() {
@@ -1151,7 +1154,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type, Collection<GroupData> groups) {
+			Collection<TreeImageDisplay> objects, int type,
+			Collection<GroupData> groups) {
 		
 		super(0, TITLE, TITLE);
 		
@@ -1435,7 +1439,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param bar
 	 *            The component to add.
 	 */
-	public void onReconnected(Collection<GroupData> availableGroups, long currentGroupId) {
+	public void onReconnected(Collection<GroupData> availableGroups,
+			long currentGroupId) {
 		table.removeAllFiles();
 		locationDialog.onReconnected(availableGroups, currentGroupId);
 		tagsPane.removeAll();
