@@ -155,8 +155,9 @@ public class PluginEntry
 	private void extractPluginTag(Node tag, Map<String, String> values) 
 		throws ConfigException
 	{
-		String tagName = tag.getNodeName(),
-				tagValue = tag.getFirstChild().getNodeValue();
+		String tagName = tag.getNodeName();
+		if (!tag.hasChildNodes()) return;
+		String tagValue = tag.getFirstChild().getNodeValue();
 		if (DEPENDENCIES_TAG.equals(tagName) || 
 			ID_TAG.equals(tagName) || INFO_TAG.equals(tagName) || 
 			NAME_TAG.equals(tagName) || DIRECTORY_TAG.equals(tagName)) {
