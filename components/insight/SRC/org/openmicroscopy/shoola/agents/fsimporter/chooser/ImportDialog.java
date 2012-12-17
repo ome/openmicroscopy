@@ -118,12 +118,8 @@ import pojos.TagAnnotationData;
  */
 public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
-	
-	private static final String TEXT_IMPORT_TOOLTIP =
-			"Import the selected files or directories";
 
-	private static final String TEXT_IMPORT = "Import";
-
+	// public constants
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
 
@@ -142,7 +138,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Bound property indicating to refresh the location. */
 	public static final String REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
-
+	// Command Ids
 	/** Action id indicating to import the selected files. */
 	private static final int IMPORT = 0;
 
@@ -170,8 +166,17 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Action id indicating to select the Project/Dataset or Screen. */
 	private static final int CANCEL_ALL_IMPORT = 10;
 
+	// String constants
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
+
+	/** Text for the Import button */
+	private static final String TEXT_IMPORT = "Import";
+	
+	/** Tooltip text for the Import button */
+	private static final String TOOLTIP_IMPORT =
+			"Import the selected files or directories";
 
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
@@ -606,7 +611,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		chooser.setControlButtonsAreShown(false);
 		chooser.setApproveButtonText(TEXT_IMPORT);
-		chooser.setApproveButtonToolTipText(TEXT_IMPORT_TOOLTIP);
+		chooser.setApproveButtonToolTipText(TOOLTIP_IMPORT);
 		
 		bioFormatsFileFilters = new ArrayList<FileFilter>();
 		
