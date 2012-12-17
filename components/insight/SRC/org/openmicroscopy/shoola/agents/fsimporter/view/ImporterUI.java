@@ -206,8 +206,6 @@ class ImporterUI
     private void initMenuItem(JMenuItem item)
     {
         item.setBorder(null);
-        //item.setFont((Font) ImporterAgent.getRegistry().lookup(
-        //              "/resources/fonts/Labels"));
     }
     
     /**
@@ -220,30 +218,30 @@ class ImporterUI
      */
     private void showPersonalMenu(Component c, Point p)
     {
-    	if (p == null) return;
-        if (c == null) throw new IllegalArgumentException("No component.");
-        //if (p == null) throw new IllegalArgumentException("No point.");
-        //if (personalMenu == null) {
-        	personalMenu = new JPopupMenu();
-        	personalMenu.setBorder(
-        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<GroupSelectionAction> l = controller.getUserGroupAction();
-        	Iterator<GroupSelectionAction> i = l.iterator();
-        	GroupSelectionAction a;
-        	JCheckBoxMenuItem item;
-        	ButtonGroup buttonGroup = new ButtonGroup();
-        	//ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
-        	while (i.hasNext()) {
-				a = i.next();
-				item = new JCheckBoxMenuItem(a);
-				item.setEnabled(true);
-				item.setSelected(a.isSameGroup(id));
-				initMenuItem(item);
-				buttonGroup.add(item);
-				personalMenu.add(item);
-			}
-        //}
+    	if (p == null)
+    		return;
+    	
+        if (c == null)
+        	throw new IllegalArgumentException("No component.");
+        
+    	personalMenu = new JPopupMenu();
+    	personalMenu.setBorder(
+    			BorderFactory.createBevelBorder(BevelBorder.RAISED));
+    	List<GroupSelectionAction> l = controller.getUserGroupAction();
+    	Iterator<GroupSelectionAction> i = l.iterator();
+    	GroupSelectionAction a;
+    	JCheckBoxMenuItem item;
+    	ButtonGroup buttonGroup = new ButtonGroup();
+    	long id = model.getGroupId();
+    	while (i.hasNext()) {
+			a = i.next();
+			item = new JCheckBoxMenuItem(a);
+			item.setEnabled(true);
+			item.setSelected(a.isSameGroup(id));
+			initMenuItem(item);
+			buttonGroup.add(item);
+			personalMenu.add(item);
+		}
         personalMenu.show(c, p.x, p.y);
     }
     
@@ -305,8 +303,6 @@ class ImporterUI
 	private void initComponents()
 	{
 		messageLabel = new JXLabel();
-		//IconManager icons = IconManager.getInstance();
-		//messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
 		messageLabel.setText(REFRESH_TXT);
 		messageLabel.setVisible(false);
 		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
@@ -372,11 +368,10 @@ class ImporterUI
     /** Packs the window and resizes it if the screen is too small. */
 	private void packWindow()
 	{
-		//pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension size = getSize();
-		int width = (int) (screenSize.width);//*SCREEN_RATIO);
-		int height = (int) (screenSize.height);//*SCREEN_RATIO);
+		int width = (int) (screenSize.width);
+		int height = (int) (screenSize.height);
 		int w = size.width-10;
 		int h = size.height-10;
 		boolean reset = false;
@@ -429,10 +424,6 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
-		
-		//buildToolBar(ImporterAgent.getAvailableUserGroups(), model.getGroupId());
-		
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
@@ -467,19 +458,12 @@ class ImporterUI
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		List<FileImportComponent> l;
 		ImporterUIElement element = getSelectedPane();
+		if(element == null)
+			return null;
+		
 		l = element.getMarkedFiles();
 		if (l != null && l.size() > 0)
 			list.addAll(l);
-		/*
-		for (int i = 0; i < comps.length; i++) {
-			if (comps[i] instanceof ImporterUIElement) {
-				element = (ImporterUIElement) comps[i];
-				l = element.getMarkedFiles();
-				if (l != null && l.size() > 0)
-					list.addAll(l);
-			}
-		}
-		*/
 		return list;
 	}
 	
@@ -564,7 +548,6 @@ class ImporterUI
 			}
 		}
 		if (startImport) {
-			//tabs.setIconAt(index, busyIcon);
 			Icon icon = element.startImport(tabs);
 			if (index >=0) tabs.setIconAt(index, icon);
 		}
@@ -577,7 +560,7 @@ class ImporterUI
 	 */
 	ImporterUIElement getSelectedPane()
 	{
-		if (tabs.getSelectedIndex() > 0)
+		if (tabs.getSelectedIndex() > 0 && tabs.getSelectedComponent() instanceof ImporterUIElement)
 			return (ImporterUIElement) tabs.getSelectedComponent();
 		return null;
 	}
