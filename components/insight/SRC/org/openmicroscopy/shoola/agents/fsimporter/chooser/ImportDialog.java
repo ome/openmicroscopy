@@ -1519,7 +1519,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					handleTagsSelection((Collection<TagAnnotationData>) entry
 							.getValue());
 			}
-		} else if (LocationDialog.GROUP_CHANGED_PROPERTY.equals(name)
+		} else if (LocationDialog.PROPERTY_GROUP_CHANGED.equals(name)
 				|| ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
