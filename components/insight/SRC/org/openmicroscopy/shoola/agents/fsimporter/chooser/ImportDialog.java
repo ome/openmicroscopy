@@ -1089,10 +1089,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 
 		object.setScanningDepth(ImporterAgent.getScanningDepth());
-		Boolean b = (Boolean) ImporterAgent.getRegistry()
+		Boolean loadThumbnails = (Boolean) ImporterAgent.getRegistry()
 				.lookup(LOAD_THUMBNAIL);
-		if (b != null)
-			object.setLoadThumbnail(b.booleanValue());
+		if (loadThumbnails != null)
+			object.setLoadThumbnail(loadThumbnails.booleanValue());
+		
 		// if slow connection
 		if (!isFastConnection())
 			object.setLoadThumbnail(false);
@@ -1132,12 +1133,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		if (count > 0)
 			object.setPixelsSize(size);
-		Iterator<ImportableFile> j = files.iterator();
-		while (j.hasNext()) {
-			if (j.next().isFolderAsContainer()) {
-				break;
-			}
-		}
 		
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();
