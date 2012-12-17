@@ -45,7 +45,7 @@
                 <div>
                     <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
                     {{ l.getParent.name|truncatebefor:"28" }}
-                    {% if l.canDelete %}<b> X </b>{% endif %}
+                    {% ifnotequal ome.user.id l.details.owner.id.val %}<b> ({{ l.getDetails.getOwner.getNameWithInitial }})</b>{% endifnotequal %}
                 </div>
             {% else %}
                 {% if forloop.counter == 20 and links|length > 20 %}
