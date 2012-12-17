@@ -65,14 +65,20 @@ def imageMarshal (image, key=None):
     image.loadRenderOptions()
     pr = image.getProject()
     ds = None
+    wellsample = None
+    well = None
     try:
         # Replicating the functionality of the deprecated
         # ImageWrapper.getDataset() with shares in mind.
         # -- Tue Sep  6 10:48:47 BST 2011 (See #6660)
         parents = image.listParents()
-        if parents is not None and len(parents) == 1 \
-           and parents[0].OMERO_CLASS == 'Dataset':
-            ds = parents[0]
+        if parents is not None and len(parents) == 1:
+            if parents[0].OMERO_CLASS == 'Dataset':
+                ds = parents[0]
+            elif parents[0].OMERO_CLASS == 'WellSample':
+                wellsample = parents[0]
+                if wellsample.well is not None:
+                    well = wellsample.well
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
@@ -90,6 +96,8 @@ def imageMarshal (image, key=None):
                      'datasetName': ds and ds.name or 'Multiple',
                      'datasetId': ds and ds.id or '',
                      'datasetDescription': ds and ds.description or '',
+                     'wellSampleId': wellsample and wellsample.id or '',
+                     'wellId': well and well.id.val or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
                      'imageId': image.id,},
             }
