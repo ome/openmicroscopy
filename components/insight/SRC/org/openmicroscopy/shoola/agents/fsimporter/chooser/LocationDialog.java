@@ -244,6 +244,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 	// Operational variables & constants
 	/** Constant value defining the value of an unknown/unselected group*/
 	private static final long UNKNOWN_GROUP_ID = -1;
+
+	/** Constant value for no data type */
+	private static final int NO_DATA_TYPE = -1;
 	
 	/** The map holding the new nodes to create if in the P/D view. */
 	private Map<DataNode, List<DataNode>> newNodesPD;
@@ -638,7 +641,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		TableLayout layout = new TableLayout(size);
 		JPanel locationPanel = new JPanel(layout);
 		locationPanel.add(dataTypePane, "0, 0");
-		locationPanel.add(link, "0, 1, r, c");
+		locationPanel.add(showHideAdvancedButton, "0, 1, r, c");
 		locationPanel.add(advancedPane, "0, 2");
 		
 		return locationPanel;
@@ -708,7 +711,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 					currentProjects = null;
 					currentScreens = null;
 					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-							UNKNOWN_GROUP_ID, importDataType);
+							NO_DATA_TYPE, importDataType);
 			}
 
 			if(newDataObject != null) {
