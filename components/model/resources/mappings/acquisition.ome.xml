@@ -132,9 +132,10 @@
                     <required name="hideUntilDone" type="boolean"/>
                 </properties>
         </type>
+
         <type id="ome.model.core.FilesetEntry">
                 <properties>
-                    <required name="fileset" type="ome.model.core.Fileset"/>
+                    <manyone name="fileset" type="ome.model.core.Fileset" ordered="true"/>
                     <required name="originalFile" type="ome.model.core.OriginalFile"/>
                     <required name="clientPath" type="text"/>
                 </properties>
@@ -152,7 +153,7 @@
         </type>
         <type id="ome.model.core.Fileset" annotated="true">
                 <properties>
-                    <zeromany name="filesetEntry" type="ome.model.core.FilesetEntry" inverse="fileset" ordered="true"/>
+                    <onemany name="filesetEntry" type="ome.model.core.FilesetEntry" inverse="fileset" ordered="true"/>
                     <zeromany name="filesetActivity" type="ome.model.core.FilesetActivity" inverse="fileset"/>
                     <required name="clientVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
                     <required name="serverVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
