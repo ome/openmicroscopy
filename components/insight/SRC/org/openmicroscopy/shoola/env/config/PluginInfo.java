@@ -40,6 +40,12 @@ package org.openmicroscopy.shoola.env.config;
 public class PluginInfo
 {
 
+	/** Indicate that only one item from the dependencies list has to be found.*/
+	public static final int OR = 0;
+	
+	/** Indicate that all items from the dependencies list have to be found.*/
+	public static final int AND = 1;
+	
 	/** The information about the plugin e.g. where to download it */ 
 	private String info;
 
@@ -54,6 +60,9 @@ public class PluginInfo
 	
 	/** The identifier of the plugin.*/
 	private int id;
+	
+	/** The default conjunction value.*/
+	private int conjunction;
 	
 	/**
 	 * Creates a new instance.
@@ -73,7 +82,31 @@ public class PluginInfo
 		}
 		this.dependencies = dependencies;
 		this.directory = directory;
+		conjunction = OR;
 	}
+	
+	/**
+	 * Sets the conjunction. The default value is <code>OR</code>.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setConjunction(String value)
+	{
+		if (value == null) conjunction = OR;
+		else {
+			String v = value.toLowerCase().trim();
+			if (v.equals("and")) conjunction = AND;
+			else if (v.equals("or")) conjunction = OR;
+		}
+	}
+	
+	/**
+	 * Returns the conjunction. The default value is <code>OR</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getConjunction() { return conjunction; }
+	
 	
 	/**
 	 * Set the information about the plugin e.g. where to download it.
