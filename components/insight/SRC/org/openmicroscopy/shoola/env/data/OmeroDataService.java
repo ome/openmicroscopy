@@ -191,12 +191,15 @@ public interface OmeroDataService
 	 * 
 	 * @param ctx The security context.
 	 * @param userID The id of the user.
+	 * @param orphan Indicates to load the images not in any container or all
+	 * the images.
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set getExperimenterImages(SecurityContext ctx, long userID)
+	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
+			orphan)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

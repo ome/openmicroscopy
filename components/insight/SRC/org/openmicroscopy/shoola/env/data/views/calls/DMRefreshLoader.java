@@ -89,7 +89,8 @@ public class DMRefreshLoader
      * @throws Exception Thrown if an error occurred.
      */
     private void retrieveData(Class rootNodeType,
-    		Map<SecurityContext, List> nodes, Map<SecurityContext, Object> mapResult)
+    		Map<SecurityContext, List> nodes,
+    		Map<SecurityContext, Object> mapResult)
     	throws Exception
     {
     	OmeroDataService os = context.getDataService();
@@ -109,6 +110,9 @@ public class DMRefreshLoader
         Set s;
         Entry entry;
         SecurityContext ctx;
+        TimeRefObject ref;
+        Object object;
+        
         while (users.hasNext()) {
         	entry = (Entry) users.next();
         	ctx = (SecurityContext) entry.getKey();
@@ -124,18 +128,30 @@ public class DMRefreshLoader
         			mapResult.put(ctx, result);
         		}
         	} else {
+        		//First need to extract any TimeRefObject
+        		 topNodes = new HashMap();
+        		i = containers.iterator();
+        		ids = new ArrayList<Long>();
+        		while (i.hasNext()) {
+					object = i.next();
+					if (object instanceof TimeRefObject) {
+						ref = (TimeRefObject) object;
+						if (ref.getFileType() == TimeRefObject.FILE_IMAGE_TYPE)
+						ref.setResults(
+								os.getExperimenterImages(ctx, userID, true));
+						topNodes.put(ref, ref);
+					} else {
+						ids.add(Long.valueOf(((DataObject) object).getId()));
+					}
+				}
+        		//load the rest.
         		set = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                         false, userID, groupID);
-                i = containers.iterator();
-                ids = new ArrayList<Long>(containers.size());
-                while (i.hasNext()) {
-                    ids.add(Long.valueOf(((DataObject) i.next()).getId()));
-                }
                 j = set.iterator();
                 children = null;
                
                 klass = null;
-                topNodes = new HashMap(set.size());
+               
                 
                 while (j.hasNext()) {
                     newChildren = new HashSet();

@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
@@ -66,6 +67,23 @@ public class ExperimenterImageLoader
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
+    
+    private int convertType(int type)
+    {
+    	switch (type) {
+	    	case TreeFileSet.EXPERIMENT:
+	    		return OmeroMetadataService.EDITOR_EXPERIMENT;
+	    	case TreeFileSet.TAG:
+	    		return OmeroMetadataService.TAG_NOT_OWNED;
+	    	case TreeFileSet.PROTOCOL:
+	    		return OmeroMetadataService.EDITOR_PROTOCOL;
+	    	case TreeFileSet.MOVIE:
+	    		return OmeroMetadataService.MOVIE;
+	    	case TreeFileSet.OTHER:
+	    		default:
+	    		return OmeroMetadataService.OTHER;
+		}
+    }
     
     /**
      * Creates a new instance. 
@@ -101,10 +119,14 @@ public class ExperimenterImageLoader
     	if (smartFolderNode instanceof TreeImageTimeSet) {
     		TreeImageTimeSet time = (TreeImageTimeSet) smartFolderNode;
     		handle = dhView.loadImages(ctx, time.getStartTime(),
-					time.getEndTime(), exp.getId(), this);	
+					time.getEndTime(), exp.getId(), this);
     	} else if (smartFolderNode instanceof TreeFileSet) {
-    		handle = dhView.loadFiles(ctx, 
-    			((TreeFileSet) smartFolderNode).getType(), exp.getId(), this);	
+    		TreeFileSet set = (TreeFileSet) smartFolderNode;
+    		if (set.getType() == TreeFileSet.ORPHANED_IMAGES) {
+    			handle = dmView.loadImages(ctx, exp.getId(), true, this);
+    		} else
+    			handle = dhView.loadFiles(ctx, convertType(set.getType()),
+    				exp.getId(), this);
     	}
     }
 

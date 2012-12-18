@@ -87,11 +87,13 @@ public interface DataManagerView
 	 * 
 	 * @param ctx The security context.
 	 * @param userID The ID of the user.
+	 * @param orphan Indicates to load all the images or only the images not
+	 * in any container.
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(SecurityContext ctx, long userID,
-			AgentEventListener observer);
+			boolean orphan, AgentEventListener observer);
 
 	/**
 	 * Retrieves the images container in the specified root nodes.

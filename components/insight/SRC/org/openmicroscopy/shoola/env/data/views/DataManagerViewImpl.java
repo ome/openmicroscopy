@@ -92,13 +92,13 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadImages(SecurityContext, long,
+	 * @see DataManagerView#loadImages(SecurityContext, long, boolean,
 	 * AgentEventListener)
 	 */
 	public CallHandle loadImages(SecurityContext ctx, long userID,
-			AgentEventListener observer)
+			boolean orphan, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesLoader(ctx, userID);
+		BatchCallTree cmd = new ImagesLoader(ctx, userID, orphan);
 		return cmd.exec(observer);
 	}
 
