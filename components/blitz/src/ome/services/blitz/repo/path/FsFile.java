@@ -51,7 +51,7 @@ public class FsFile {
 	 * @return the path components
 	 */
 	private static List<String> splitComponents(String path, char separator) {
-		final String[] splitBySeparator = path.split("\\" + File.separatorChar);
+		final String[] splitBySeparator = path.split("\\" + separator);
 		final List<String> components = new ArrayList<String>(splitBySeparator.length);
 		for (final String component : splitBySeparator) {
 			if (!component.isEmpty()) 

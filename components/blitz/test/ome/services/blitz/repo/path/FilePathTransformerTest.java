@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,10 +105,10 @@ public class FilePathTransformerTest {
 	
 	@Test
 	public void testServerPathConversion() throws IOException {
-		final FsFile repositoryPath = new FsFile("wibble/wobble/|\\]{~`±§/óß€Åæ");
+		final FsFile repositoryPath = new FsFile("wibble/wobble/|]{~`\u00B1\u00A7/\u00F3\u00DF\u20AC\u00C5\u00E6");
 		final File serverPath = fpt.getServerFileFromFsFile(repositoryPath);
 		Assert.assertEquals(fpt.getFsFileFromServerFile(serverPath), repositoryPath,
-				"conversion from repository paths to server-local paths and back must return the original");
+				"conversion from legal repository paths to server-local paths and back must return the original");
 	}
 	
 	private static File getRootDir() {
@@ -197,8 +196,10 @@ public class FilePathTransformerTest {
 	 * @throws IOException unexpected
 	 */
 	private void testClientPath(String fsPath, String... components) throws IOException {
+		final FsFile rootFile = fpt.getFsFileFromClientFile(componentsToFile(), Integer.MAX_VALUE);
 		final FsFile fsFile = fpt.getFsFileFromClientFile(componentsToFile(components), Integer.MAX_VALUE);
-		Assert.assertEquals(fsPath, fsFile.toString());
+		Assert.assertEquals(fsFile.getPathFrom(rootFile).toString(), fsPath,
+				"client-side file path components do not assemble to form the expected repository path");
 		final File serverFile = fpt.getServerFileFromFsFile(fsFile);
 		final FleetingDirectory serverDir = new FleetingDirectory(serverFile.getParentFile());
 		final long testContentsOut = System.nanoTime();
