@@ -18,6 +18,23 @@ webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
 Returns a main prefix
 """
 
+annotations = url(r'^annotations/(?P<objtype>[\w.]+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+"""
+Retrieve annotations for object specified by object type and identifier,
+optionally traversing object model graph.
+"""
+
+table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+"""
+Query a table specified by fileid
+"""
+
+object_table_query = url(r'^table/(?P<objtype>[\w.]+)/(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+"""
+Query bulk annotations table attached to an object specified by
+object type and identifier, optionally traversing object model graph.
+"""
+
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
@@ -196,7 +213,7 @@ json method: returns details of specified Image. See L{views.imageData_json}. Re
     - key:  Optional key of selected attributes to return. E.g. meta, pixel_range, rdefs, split_channel, size etc
 """
 
-wellData_json = (r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json')
+wellData_json = url(r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json', name='webgateway_wellData_json')
 """
 json method: returns details of specified Well. See L{views.wellData_json}.
     - webgateway/wellData/<wid>/ params are:
@@ -313,7 +330,11 @@ urlpatterns = patterns('',
     archived_files,
     # switch user
     webgateway_su,
-    
+    # bulk annotations
+    annotations,
+    table_query,
+    object_table_query,
+
     # Debug stuff
 
 )
