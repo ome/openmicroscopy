@@ -118,10 +118,6 @@ import pojos.TagAnnotationData;
 public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
 
-	private static final String TEXT_NAMING_PARTIAL_PATH = "Partial Path+File's name with";
-
-	private static final String TEXT_NAMING_FULL_PATH = "Full Path+File's name";
-
 	// public constants
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
@@ -167,68 +163,92 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final int CMD_CANCEL_ALL_IMPORT = 9;
 
 	// String constants
-	
+
+	/** Naming Option display text */
+	private static final String TEXT_NAMING_PARTIAL_PATH =
+			"Partial Path+File's name with";
+
+	/** Naming Option display text */
+	private static final String TEXT_NAMING_FULL_PATH = "Full Path+File's name";
+
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 
 	/** Text for the Import button */
 	private static final String TEXT_IMPORT = "Import";
-	
+
 	/** Tooltip text for the Import button */
 	private static final String TOOLTIP_IMPORT =
 			"Import the selected files or directories";
+	
+	/** Text for metadata pane */
 	private static final String TEXT_METADATA_DEFAULTS = "Metadata Defaults";
 
-	private static final String TEXT_DIRECTORIES_BEFORE_FILE = 
+	/** Text for naming panel */
+	private static final String TEXT_DIRECTORIES_BEFORE_FILE =
 			"Directories before File";
 
+	/** Quota text */
 	private static final String TEXT_FREE_SPACE = "Free Space ";
 
 	/** Save button text */
 	private static final String TEXT_SAVE = "Save";
 
-	private static final String TEXT_TAGS_DETAILS = 
+	/** Tag selection instructions */
+	private static final String TEXT_TAGS_DETAILS =
 			"Select the Tags to add or remove, \nor Create new Tags";
 
+	/** Tag selection heading */
 	private static final String TEXT_TAGS_SELECTION = "Tags Selection";
 
+	/** Text for add tags button */
 	private static final String TOOLTIP_ADD_TAGS = "Add Tags.";
-	
-	/** */
-	private static final String TEXT_TITLE = "Import Location";
 
-	private static final String TEXT_OVERRIDE_FILE_NAMING = 
+	/** File naming checkbox text */
+	private static final String TEXT_OVERRIDE_FILE_NAMING =
 			"Override default File naming. Instead use";
 
+	/** Close button text */
 	private static final String TEXT_CLOSE = "Close";
-	
-	private static final String TOOLTIP_CLOSE = "Close the dialog and do not import.";
 
+	/** Tooltip for Close button */
+	private static final String TOOLTIP_CLOSE =
+			"Close the dialog and do not import.";
+
+	/** Cancel All Button text */
 	private static final String TEXT_CANCEL_ALL = "Cancel All";
-	
+
+	/** Cancel all button tooltip */
 	private static final String TOOLTIP_CANCEL_ALL = "Cancel all ongoing imports.";
 
-	private static final String TOOLTIP_APPLY_PARTIAL_TO_ALL = 
+	/** Apply partial to all button tooltip */
+	private static final String TOOLTIP_APPLY_PARTIAL_TO_ALL =
 			"Apply the partial name to all files in the queue.";
-
+	
+	/** Apply partial to all button text */
 	private static final String TEXT_APPLY_PARTIAL_TO_ALL = "Apply Partial Name";
 
-	private static final String TOOLTIP_RESET = "Reset the name of all files " +
-			"to either the full path or the partial name if selected.";
+	/** Reset button tooltip */
+	private static final String TOOLTIP_RESET =
+			"Reset the name of all files to either the full path or the partial name if selected.";
 
+	/** Reset button text */
 	private static final String TEXT_RESET = "Reset";
 
+	/** Refresh button tooltip */
 	private static final String TOOLTIP_REFRESH = "Reloads the files view.";
 
+	/** Refresh button text */
 	private static final String TEXT_REFRESH = "Refresh";
 
-	private static final String TEXT_SHOW_THUMBNAILS = 
+	/** Show Thumbnails label */
+	private static final String TEXT_SHOW_THUMBNAILS =
 			"Show Thumbnails when imported";
 
-	private static final String TOOLTIP_RELOAD = 
+	private static final String TOOLTIP_RELOAD =
 			"Reloads the container where to import the data.";
 
-	private static final String TOOLTIP_REMAINING_FORMAT = 
+	private static final String TOOLTIP_REMAINING_FORMAT =
 			"%s%% of Remaining Space";
 
 	/** String used to retrieve if the value of the load thumbnail flag. */
@@ -279,7 +299,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private JButton refreshButton;
 
 	/** Button to reload the containers where to import the files. */
-	private JToggleButton reloadContainerButton;
+	//private JToggleButton reloadContainerButton;
 
 	/**
 	 * Resets the name of all files to either the full path or the partial name
@@ -358,9 +378,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Indicates to reload the hierarchies when the import is completed. */
 	private boolean reload;
-
-	/** The pane hosting the location information. */
-	private JXTaskPane pane;
 
 	/** The import settings that are returned from the location dialogue */
 	private ImportLocationSettings importSettings;
@@ -546,9 +563,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The filters to handle.
 	 */
 	private void initComponents(FileFilter[] filters) {
-		pane = new JXTaskPane();
-		pane.setTitle(TEXT_TITLE);
-		pane.setCollapsed(true);
 		canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		diskSpacePane = new JPanel();
@@ -575,15 +589,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
 		
-		IconManager icons = IconManager.getInstance();
-		reloadContainerButton = new JToggleButton(
-				icons.getIcon(IconManager.REFRESH));
-		reloadContainerButton.setBackground(UIUtilities.BACKGROUND);
-		reloadContainerButton.setToolTipText(TOOLTIP_RELOAD);
-		reloadContainerButton.setActionCommand("" + CMD_REFRESH_LOCATION);
-		reloadContainerButton.addActionListener(this);
-		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
-
 		Collection<GroupData> groups = ImporterAgent.getAvailableUserGroups();
 		locationDialog = new LocationDialog(owner, selectedContainer, type, 
 				objects, groups, ImporterAgent.getUserDetails().getGroupId());
@@ -611,6 +616,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		numberOfFolders.addPropertyChangeListener(this);
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
 
+		IconManager icons = IconManager.getInstance();
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
 		tagButton.addActionListener(this);
