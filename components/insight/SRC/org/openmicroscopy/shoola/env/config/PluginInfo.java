@@ -136,6 +136,35 @@ public class PluginInfo
 	 */
 	public String getDependencies() { return dependencies; }
 	
+	/** 
+	 * Formats the list of dependencies depending on the conjunction used.
+	 * 
+	 * @return See above.
+	 */
+	public String formatDependencies()
+	{
+		String[] values = getDependenciesAsArray();
+		if (values == null || values.length == 0) return "";
+		StringBuffer buf = new StringBuffer();
+		String text = "";
+		switch (conjunction) {
+			case AND:
+				text = " and ";
+				break;
+			case OR:
+			default:
+				text = " or ";
+		}
+		int n = values.length-1;
+		int j = 0;
+		for (int i = 0; i < values.length; i++) {
+			buf.append(values[i]);
+			if (j != n) buf.append(text);
+			j++;
+		}
+		return buf.toString();
+	}
+	
 	/**
 	 * Returns the dependencies as an array.
 	 * 

@@ -134,17 +134,18 @@ public class MainIJPlugin
 	 */
 	private String formatMessage(PluginInfo info)
 	{
+		String dependencies = info.formatDependencies();
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><body>");
 		buffer.append("<p>The plugin requires ");
-		buffer.append(info.getDependencies());
+		buffer.append(dependencies);
 		buffer.append("<br>Download the stable release version from<br>");
 		String page = info.getInfo();
 		buffer.append("<a href=\""+page+"\">");
 		buffer.append(page);
 		buffer.append("</a><br>");
 		buffer.append("Add ");
-		buffer.append(info.getDependencies());
+		buffer.append(dependencies);
 		buffer.append(" to the ");
 		buffer.append(info.getDirectory());
 		buffer.append(" folder and restart ");
