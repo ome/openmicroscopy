@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.LayoutManager2;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,16 +48,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jdesktop.swingx.JXCollapsiblePane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -100,19 +95,24 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
 	
+	/** Template for a table layout with a GAP on all 4 sides */
 	private static final double[][] TABLE_GAP = new double[][]
 			{
 				{UI_GAP, TableLayout.FILL, UI_GAP},
 				{UI_GAP, TableLayout.FILL, UI_GAP}
 			};
 	
+	/** Helper setting for TableLayout.PREFERRED*/
 	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
-	
+
+	/** Helper setting for TableLayout.FILL*/
 	private static final double[] TABLE_FILL = {TableLayout.FILL};
 	
+	/** Table template for 3 settings of Preferred width / height */
 	private static final double[] TABLE_PREF_PREF_PREF = 
 		{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED};
-	
+
+	/** Table template for expandable middle column / row */
 	private static final double[] TABLE_PREF_FILL_PREF = 
 		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
 
@@ -157,6 +157,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Tooltip text for New Project button */
 	private static final String TOOLTIP_CREATE_PROJECT = "Create a new Project.";
 
+	/** Tooltip for Reload button */
+	private static final String TOOLTIP_RELOAD =
+			"Reload the container where to import the data.";
+	
 	/** Text for New buttons */
 	private static final String TEXT_NEW = "New...";
 
@@ -253,8 +257,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Button to create a new screen. */
 	private JButton newScreenButton;
 
-	/** Refresh button used to refresh the groups/projects/datasets & screens */
-	private JToggleButton refreshButton;
+	/** Button used to reload the groups/projects/datasets & screens */
+	private JToggleButton reloadButton;
 
 	/** Tab pane used to hose the Project/Screen selection UI component. */
 	private JTabbedPane tabbedPane;
@@ -378,13 +382,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		
 		IconManager icons = IconManager.getInstance();
-		refreshButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));
-		refreshButton.setBackground(UIUtilities.BACKGROUND);
-		refreshButton.setToolTipText("Refresh the displays.");
-		refreshButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
-		refreshButton.addActionListener(this);
+		reloadButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));
+		reloadButton.setBackground(UIUtilities.BACKGROUND);
+		reloadButton.setToolTipText(TOOLTIP_RELOAD);
+		reloadButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
+		reloadButton.addActionListener(this);
 		
-		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		UIUtilities.unifiedButtonLookAndFeel(reloadButton);
 		
 		screensBox = new JComboBox();
 
@@ -437,7 +441,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		buttonPanel.setLayout(new BorderLayout());
 		buttonPanel.add(addButton, BorderLayout.EAST);
 		buttonPanel.add(cancelButton, BorderLayout.WEST);
-		JPanel host = wrapInSpacedPanel(buttonPanel, UI_GAP, 0, 0, 0);
+		JPanel host = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
 		host.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
 		return host;
 	}
@@ -478,7 +482,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
 		}
-        groupPanel.add(refreshButton, "2, 0, c, c");
+        groupPanel.add(reloadButton, "2, 0, c, c");
        
 		return groupPanel;
 	}
@@ -607,6 +611,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.setSize(minSize);
 	}
 
+	/**
+	 * Creates a TableLayout based on the design passed in
+	 * with a HGap and VGap set to UI_GAP
+	 * @param design the column / row template
+	 * @return A table layout with the design & spacing applied
+	 */
 	private TableLayout createTableLayout(double[][] design) {
 		TableLayout tableLayout =  new TableLayout(design);
 		tableLayout.setHGap(UI_GAP);
@@ -614,15 +624,23 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return tableLayout;
 	}
 
+	/**
+	 * Creates a TableLayout based on the design passed in
+	 * with a HGap and VGap set to UI_GAP
+	 * @param columns the column templte to use for the table design
+	 * @param rows the row tempalte to use for the table design
+	 * @return A table layout with the design & spacing applied
+	 */
 	private TableLayout createTableLayout(double[] columns, double[] rows) {
 		double[][] design = new double[][]{columns, rows};
 		return createTableLayout(design);
 	}
 	
 	/**
-	 * Creates a JPanel with a bordered TableLayout
-	 * @param container
-	 * @return
+	 * Wraps the container in a JPanel with a bordered TableLayout
+	 * with a border of UI_GAP
+	 * @param container the container to wrap
+	 * @return The JPanel wrapping the container
 	 */
 	private <T extends Container> JPanel wrapInGapPanel(T container) {
 		TableLayout paddedLayout = createTableLayout(TABLE_GAP);
@@ -631,7 +649,17 @@ public class LocationDialog extends JDialog implements ActionListener,
 		return gapPanel;
 	}
 	
-	private <T extends Container> JPanel wrapInSpacedPanel(T container, int top, int left, int right, int bottom) {
+	/**
+	 * Wraps the container in a JPanel with a bordered TableLayout
+	 * with the border width specified
+	 * @param container
+	 * @param top The amount of padding on the top of the container
+	 * @param left The amount of padding on the left of the container
+	 * @param bottom The amount of padding on the bottom of the container
+	 * @param right The amount of padding on the right of the container
+	 * @return The JPanel wrapping the container
+	 */
+	private <T extends Container> JPanel wrapInPaddedPanel(T container, int top, int left, int bottom, int right) {
 		double [][] spacedLayout = new double[][]
 				{
 					{left, TableLayout.FILL, right},
@@ -642,10 +670,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		JPanel gapPanel = new JPanel(paddedLayout);
 		gapPanel.add(container, "1, 1");
 		return gapPanel;
-	}
-	
-	private <T extends Container> JPanel wrapInSpacedPanel(T container, int spacing) {
-		return wrapInSpacedPanel(container, spacing, spacing, spacing, spacing);
 	}
 
 	/**
