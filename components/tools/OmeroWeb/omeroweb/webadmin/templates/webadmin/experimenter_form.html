@@ -76,7 +76,9 @@
         $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
-                    $("input[name='administrator']").attr('checked', false);
+                    // Don't allow to remove 'system' group from list (use 'Administrator' checkbox. See #10016)
+                    $('#id_other_groups option[value=0]').prop('selected', true);
+                    $("#id_other_groups").trigger("liszt:updated");
                 }
                 $df = $('#id_default_group')
                 if ($df.val() === data.deselected){
@@ -96,6 +98,11 @@
                 $('#id_other_groups option[value=0]').prop('selected', true);
             } else {
                 $('#id_other_groups option[value=0]').prop('selected', false);
+                // also remove 'system' from the hidden 'default group' chooser
+                $df = $('#id_default_group');
+                if ($df.val() === "0"){
+                    $("#id_default_group").selectOptions("", true);
+                }
             }
             $("#id_other_groups").trigger("liszt:updated");
             $("li.search-choice").click(selectDefaultGroup);
