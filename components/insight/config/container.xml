@@ -322,9 +322,18 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating the dependencies when the client is used as a plugin
    * e.g. as an ImageJ plugin.
-   * Plugin has the following field
+   * The id: 
+   * 1 identifies ImageJ plugin. This means that the application is used
+   * as an ImageJ plugin, in that case by default the the image will be opened
+   * in the imageJ viewer.
+   * 2 identifies Knime. This means that the application is used
+   * as an KNIME node
+   
+   * The plugin tag has the following children:
    * id: The identifier of the plugin
    * dependencies: value should be separated by a comma e.g. a.jar,b.jar
+   * conjunction: Indicates if all the items listed in dependencies
+   * must be found or only one. Support value: or/and.
    * directory: The location in ImageJ where to look for the dependencies
    * info:  Where to download the dependencies from.
    * name: Name of the application, Used to display informative message.
@@ -334,7 +343,8 @@
     <!-- The identifier of the plugin.-->
    <plugin>
    <id>1</id>
-   <dependencies>loci_tools.jar</dependencies>
+   <dependencies>loci_tools.jar, bio-formats.jar</dependencies>
+   <conjunction>or</conjunction>
    <directory>plugins</directory>
    <info>http://www.openmicroscopy.org/site/products/bio-formats/downloads</info>
    <name>imageJ</name>

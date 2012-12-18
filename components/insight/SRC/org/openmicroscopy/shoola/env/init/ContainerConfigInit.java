@@ -70,6 +70,7 @@ public final class ContainerConfigInit
 	private boolean handlePluginDependencies(PluginInfo info)
 	{
 		String[] values = info.getDependenciesAsArray();
+		if (values == null || values.length == 0) return true;
 		//Check if plugin is there
 		int count = 0;
 		try {
@@ -84,7 +85,6 @@ public final class ContainerConfigInit
 				for (int i = 0; i < l.length; i++) {
 					if (l[i].getName().equals(value)) {
 						count++;
-						break;
 					}
 				}
 			}
@@ -96,7 +96,13 @@ public final class ContainerConfigInit
 				IJ.log(msg);
 			}
 		}
-		return (values.length == count);
+		switch (info.getConjunction()) {
+			case PluginInfo.AND:
+				return (values.length == count);
+			case PluginInfo.OR:
+			default:
+				return count > 0;
+		}
 	}
 	
 	/** Constructor required by superclass. */

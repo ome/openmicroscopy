@@ -89,58 +89,14 @@ public class PluginEntry
      */
     private static final String     ID_TAG = "id";
     
+    /** 
+     * The name of the tag, within this <i>structuredEntry</i>, that specifies
+     * the conjunction to use when several dependencies are specified.
+     */
+    private static final String     CONJUNCTION_TAG = "conjunction";
+    
     /** Holds the contents of the entry. */
     private List<PluginInfo> values;
-
-    /**
-     * Helper method to parse the structured entry tag.
-     * 
-     * @param tag The structured entry tag.
-     * @return An object that holds the contents of the tag.
-     * @throws ConfigException If the tag is not well formed.
-     * @throws DOMException If the specified tag cannot be parsed.
-     */
-    private static PluginInfo parseTag(Node tag)
-        throws DOMException, ConfigException
-    {
-        String dependencies = null; 
-        String onelineInfo = null;
-        String directory = null;
-        String name = null;
-        String id = null;
-        NodeList children = tag.getChildNodes();
-        int n = children.getLength();
-        Node child, c;
-        String tagName, tagValue;
-        while (0 < n) {
-            child = children.item(--n);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                tagName = child.getNodeName();
-                c = child.getFirstChild();
-                if (c != null) {
-                	tagValue = c.getNodeValue();
-                	if (DEPENDENCIES_TAG.equals(tagName))
-                		dependencies = tagValue;
-                	else if (INFO_TAG.equals(tagName))
-                		onelineInfo = tagValue;
-                	else if (DIRECTORY_TAG.equals(tagName))
-                		directory = tagValue;
-                	else if (NAME_TAG.equals(tagName))
-                		name = tagValue;
-                	else if (ID_TAG.equals(tagName))
-                		id = tagValue;
-                	else
-                		throw new ConfigException(
-                				"Unrecognized tag within the conf entry: "+
-                						tagName+".");
-                }
-            }
-        }
-        PluginInfo info = new PluginInfo(id, dependencies, directory);
-        info.setInfo(onelineInfo);
-        info.setName(name);
-        return info;
-    }
     
     /**
 	 * Adds the given tag name and value to the passed map.
@@ -160,7 +116,8 @@ public class PluginEntry
 		String tagValue = tag.getFirstChild().getNodeValue();
 		if (DEPENDENCIES_TAG.equals(tagName) || 
 			ID_TAG.equals(tagName) || INFO_TAG.equals(tagName) || 
-			NAME_TAG.equals(tagName) || DIRECTORY_TAG.equals(tagName)) {
+			NAME_TAG.equals(tagName) || DIRECTORY_TAG.equals(tagName) ||
+			CONJUNCTION_TAG.equals(tagName)) {
 				values.put(tagName, tagValue);
 				return;
 			}
@@ -237,6 +194,8 @@ public class PluginEntry
 								(String) childTags.get(DIRECTORY_TAG));
 						info.setName((String) childTags.get(NAME_TAG));
 						info.setInfo((String) childTags.get(INFO_TAG));
+						info.setConjunction((String) childTags.get(
+								CONJUNCTION_TAG));
 						values.add(info);
 					}
 				}
