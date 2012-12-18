@@ -47,7 +47,10 @@ class UserControl(UserGroupControl):
 
         sortgroup = list.add_mutually_exclusive_group()
         sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort users by ID (default)")
-        sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort users by login name")
+        sortgroup.add_argument("--sort-by-login", action = "store_true", default = False, help = "Sort users by login")
+        sortgroup.add_argument("--sort-by-first-name", action = "store_true", default = False, help = "Sort users by first name")
+        sortgroup.add_argument("--sort-by-last-name", action = "store_true", default = False, help = "Sort users by last name")
+        sortgroup.add_argument("--sort-by-email", action = "store_true", default = False, help = "Sort users by email")
 
         password = parser.add(sub, self.password, help = "Set user's password")
         password.add_argument("username", nargs="?", help = "Username if not the current user")
@@ -157,15 +160,21 @@ class UserControl(UserGroupControl):
 
         from omero.util.text import TableBuilder
         if args.count:
-            tb = TableBuilder("id", "omeName", "firstName", "lastName", \
+            tb = TableBuilder("id", "login", "first name", "last name", \
             "email", "active", "admin", "# group memberships", "# group ownerships")
         else:
-            tb = TableBuilder("id", "omeName", "firstName", "lastName", \
+            tb = TableBuilder("id", "login", "first name", "last name", \
             "email", "active", "admin", "member of", "owner of")
 
         # Sort users
-        if args.sort_by_name:
+        if args.sort_by_login:
             users.sort(key=lambda x: x.omeName.val)
+        elif args.sort_by_first_name:
+            users.sort(key=lambda x: x.firstName.val)
+        elif args.sort_by_last_name:
+            users.sort(key=lambda x: x.lastName.val)
+        elif args.sort_by_email:
+            users.sort(key=lambda x: (x.email and x.email.val or ""))
         elif args.sort_by_id:
             users.sort(key=lambda x: x.id.val)
 

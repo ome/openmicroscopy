@@ -196,7 +196,7 @@ class ConfigXml(object):
         if id is None:
             id = self.default()
         properties = self.properties(id)
-        if not properties:
+        if properties is None:
             raise KeyError("No such configuration: %s" % id)
         self.XML.remove(properties)
 
@@ -318,6 +318,7 @@ class ConfigXml(object):
 
         if props == None:
             props = SubElement(self.XML, "properties", {"id":default})
+            SubElement(props, "property", name=self.KEY, value=self.VERSION)
 
         for x in props.findall("./property"):
             if x.attrib["name"] == key:

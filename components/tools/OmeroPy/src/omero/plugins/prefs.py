@@ -84,10 +84,10 @@ class PrefsControl(BaseControl):
 
         sub = parser.sub()
 
-        all = sub.add_parser("all", help="""List all properties in the current config.xml file.""")
+        all = sub.add_parser("all", help="""List all profiles in the current config.xml file.""")
         all.set_defaults(func=self.all)
 
-        default = sub.add_parser("def", help="""List (or set) the current properties. See 'all' for a list of available properties.""")
+        default = sub.add_parser("def", help="""List (or set) the current active profile.""")
         default.set_defaults(func=self.default)
         default.add_argument("NAME", nargs="?", help="""Name of the profile which should be made the new active profile.""")
 
@@ -110,7 +110,7 @@ class PrefsControl(BaseControl):
         load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
         load.add_argument("-q", action="store_true", help="No error on conflict")
-        load.add_argument("file", nargs="+", type=ExistingFile('r'), default=sys.stdin, help="Read from files or standard in")
+        load.add_argument("file", nargs="*", type=ExistingFile('r'), default="-", help="Files to read from. Default to standard in if not specified")
 
         edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
         version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
@@ -146,10 +146,7 @@ class PrefsControl(BaseControl):
 
     @with_config
     def default(self, args, config):
-        if args.NAME:
-            config.default(args.NAME)
-        else:
-            self.ctx.out(config.default(args.NAME))
+        self.ctx.out(config.default(args.NAME))
 
     @with_config
     def drop(self, args, config):
@@ -199,6 +196,11 @@ class PrefsControl(BaseControl):
 
         try:
             for f in args.file:
+                if f == "-":
+                    # Read from standard input
+                    import fileinput
+                    f = fileinput.input(f)
+
                 try:
                     previous = None
                     for line in f:
@@ -206,7 +208,8 @@ class PrefsControl(BaseControl):
                             line = previous + line
                         previous = self.handle_line(line, config, keys)
                 finally:
-                    f.close()
+                    if f != "-":
+                        f.close()
         except NonZeroReturnCode, nzrc:
             raise
         except Exception, e:
