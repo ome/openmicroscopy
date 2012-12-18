@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -55,10 +57,12 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -116,6 +120,78 @@ class EditorComponent
 	private ScriptingDialog dialog;
 	
 	/**
+	 * Returns the collection of annotation that cannot be removed 
+	 * by the user currently logged.
+	 * 
+	 * @param type The type of annotations to handle.
+	 * @param common The collection of common annotations. The list will
+	 * @return See above.
+	 */
+	private Collection<DataObject> getImmutableAnnotation(Class type,
+			Collection<DataObject> common)
+	{
+		List<DataObject> list = new ArrayList<DataObject>();
+		Map<DataObject, StructuredDataResults>
+			data = model.getAllStructuredData();
+		if (data == null || data.size() == 0) return list;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = data.entrySet().iterator();
+		StructuredDataResults result;
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> j;
+		AnnotationLinkData link;
+		
+		AnnotationData child;
+		if (model.isMultiSelection()) {
+			List<Long> selected = new ArrayList<Long>();
+			List<Long> ids = new ArrayList<Long>(common.size());
+			Iterator<DataObject> k = common.iterator();
+			while (k.hasNext()) {
+				ids.add(k.next().getId());
+			}
+			
+			
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				links = result.getAnnotationLinks();
+				if (links != null) {
+					j = links.iterator();
+					while (j.hasNext()) {
+						link = j.next();
+						child = (AnnotationData) link.getChild();
+						//Exclude some file is tag
+						if (child.getClass().equals(type) &&
+							!model.isNameSpaceExcluded(child.getNameSpace())) {
+							if (!ids.contains(link.getChild().getId())) {
+								if (!selected.contains(link.getChild().getId()))
+									list.add(link.getChild());
+							}
+						}
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				links = result.getAnnotationLinks();
+				if (links != null) {
+					j = links.iterator();
+					while (j.hasNext()) {
+						link = j.next();
+						child = (AnnotationData) link.getChild();
+						if (!model.isNameSpaceExcluded(child.getNameSpace()) &&
+							!link.canDelete() && link.getChild().equals(type))
+							list.add(link.getChild());
+					}
+				}
+			}
+		}
+		return list;
+	}
+	/**
 	 * Shows the selection wizard.
 	 * 
 	 * @param type			The type of objects to handle.
@@ -133,19 +209,23 @@ class EditorComponent
 		String title = "";
 		String text = "";
 		Icon icon = null;
+		boolean single = model.isSingleMode();
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			text = "Select the Tags to add or remove, \nor Create new Tags";
+			if (single)
+				text = "Select the Tags to add or remove, \nor Create new Tags";
+			else text = "Select the Tags to add, \nor Create new Tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			text = "Select the Attachments to add or remove.";
+			if (single) text = "Select the Attachments to add or remove.";
+			else text = "Select the Attachments to add.";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
-				addCreation, MetadataViewerAgent.getUserDetails());
-		wizard.setImmutableElements(model.getImmutableAnnotation());
+				addCreation, model.getCurrentUser());
+		wizard.setImmutableElements(getImmutableAnnotation(type, selected));
 		if (model.isMultiSelection())
 			wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);
@@ -190,6 +270,7 @@ class EditorComponent
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
+		view.setStatus(false);
 	}
 
 	/** 
@@ -200,10 +281,11 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");	
-		//if (model.isSameObject(refObject)) return;
+		Object oldObject = model.getRefObject();
+		
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		view.setRootObject();
+		view.setRootObject(oldObject);
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
@@ -232,16 +314,21 @@ class EditorComponent
 	{
 		model.setExistingTags(tags);
 		
-		Collection setTags = view.getCurrentTagsSelection();
-		Iterator<TagAnnotationData> k = setTags.iterator();
 		List<Long> ids = new ArrayList<Long>();
+		
 		TagAnnotationData tag;
-		while (k.hasNext()) {
-			tag = k.next();
-			if (model.isAnnotationUsedByUser(tag))
-				ids.add(tag.getId());
+		Collection<TagAnnotationData> setTags = 
+				model.getCommonTags();
+		if (setTags != null) {
+			Iterator<TagAnnotationData> k = setTags.iterator();
+			while (k.hasNext()) {
+				tag = k.next();
+				if (model.isAnnotationUsedByUser(tag))
+					ids.add(tag.getId());
+			}
 		}
-		List available = new ArrayList();
+		
+		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
 		if (tags != null) {
 			Iterator i = tags.iterator();
 			TagAnnotationData data;
@@ -268,7 +355,7 @@ class EditorComponent
 			}
 		}
 		if (controller.getFigureDialog() != null) {
-			List all = new ArrayList();
+			List<TagAnnotationData> all = new ArrayList<TagAnnotationData>();
 			all.addAll(available);
 			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
 			controller.getFigureDialog().setTags(all);
@@ -356,12 +443,19 @@ class EditorComponent
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
-		Collection setAttachments = view.getCurrentAttachmentsSelection();
-		Iterator<FileAnnotationData> k = setAttachments.iterator();
+		Collection setAttachments = model.getCommonAttachments();
+		
 		List<Long> ids = new ArrayList<Long>();
-		while (k.hasNext()) {
-			ids.add(k.next().getId());
+		if (setAttachments != null) {
+			Iterator<FileAnnotationData> k = setAttachments.iterator();
+			FileAnnotationData file;
+			while (k.hasNext()) {
+				file = k.next();
+				if (model.isAnnotationUsedByUser(file))
+					ids.add(file.getId());
+			}
 		}
+		
 		List available = new ArrayList();
 		if (attachments != null) {
 			Iterator i = attachments.iterator();
@@ -374,7 +468,6 @@ class EditorComponent
 		}
 		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
 							true);
-		//view.setExistingAttachements();
 		setStatus(false);
 	}
 	

@@ -1069,11 +1069,8 @@ class TreeViewerComponent
 			metadata.setSelectionMode(single);
 			if (!single) {
 				List<Object> l = new ArrayList<Object>(selection.length);
-				Object child;
 				for (int i = 0; i < selection.length; i++) {
-					child = selection[i].getUserObject();
-					//if (!child.equals(object)) 
-						l.add(child);
+					l.add(selection[i].getUserObject());
 				}
 				if (l.size() > 0)
 					metadata.setRelatedNodes(l);
@@ -1243,8 +1240,15 @@ class TreeViewerComponent
 		}
 		mv.setParentRootObject(parent, grandParent);
 		
-		if (size > 0) 
-			mv.setRelatedNodes(siblings);
+		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		if (selection != null) {
+			siblings = new ArrayList<Object>(selection.length);
+			for (int i = 0; i < selection.length; i++) {
+				siblings.add(selection[i].getUserObject());
+			}
+			if (siblings.size() > 1)
+				mv.setRelatedNodes(siblings);
+		}
 
 		if (model.getDataViewer() != null)
 			model.getDataViewer().setApplications(

@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -492,26 +491,26 @@ class PropertiesUI
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-        Set set = components.entrySet();
-        Entry entry;
+        Entry<JLabel, JComponent> entry;
         
-		Iterator i = set.iterator();
+		Iterator<Entry<JLabel, JComponent>> 
+		i = components.entrySet().iterator();
 		c.gridy = 0;
         while (i.hasNext()) {
             c.gridx = 0;
-            entry = (Entry) i.next();
+            entry = i.next();
             ++c.gridy;
        	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
-            pane.add((JLabel) entry.getKey(), c);
+            pane.add(entry.getKey(), c);
             c.gridx++;
             pane.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;//end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            pane.add((JComponent) entry.getValue(), c);  
+            pane.add(entry.getValue(), c);  
         }
     }
     
@@ -1044,62 +1043,27 @@ class PropertiesUI
 	 */
 	protected void buildUI()
 	{
-		//removeAll();
 		if (!init) {
 			buildGUI();
 			init = true;
 		}
-		if (!model.isSameObject(model.getRefObject())) {
-			channelsArea.setText("");
-			idLabel.setText("");
-			ownerLabel.setText("");
-			parentLabel.setText("");
-			wellLabel.setText("");
-			gpLabel.setText("");
-		}
 		removeAll();
+		Object refObject = model.getRefObject();
+		text = model.getObjectTypeAsString(refObject);
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
-		//descriptionPane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
 		originalDisplayedName = UIUtilities.formatPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
-		Object refObject = model.getRefObject();
-		text = "";
 		
 		boolean b = model.canEdit();
-        if (refObject instanceof ImageData) text = "Image";
-        else if (refObject instanceof DatasetData) text = "Dataset";
-        else if (refObject instanceof ProjectData) text = "Project";
-        else if (refObject instanceof ScreenData) text = "Screen";
-        else if (refObject instanceof PlateData) text = "Plate";
-        else if (refObject instanceof PlateAcquisitionData)
-        	text = "Plate Run";
-        else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		text = "Experiment";
-        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		text = "Protocol";
-        	else text = "File";
-        } else if (refObject instanceof WellSampleData) text = "Field";
-        else if (refObject instanceof TagAnnotationData) {
-        	TagAnnotationData tag = (TagAnnotationData) refObject;
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		text = "Tag Set";
-        	else text = "Tag";
-        } else if (refObject instanceof FileData) {
+		
+        if (refObject instanceof FileData || 
+        	refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
-        	FileData f = (FileData) refObject;
-        	if (f.isDirectory()) text = "Folder";
-        	else text = "File";
-        } else if (refObject instanceof MultiImageData) {
-        	editName.setEnabled(false);
-        	text = "File";
         }
         String t = text;
         if (model.getRefObjectID() > 0)
@@ -1125,7 +1089,6 @@ class PropertiesUI
         if (refObject instanceof WellSampleData) b = false;
         
         namePane.setEnabled(b);
-        //descriptionPane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         
         if (b) {
@@ -1346,9 +1309,9 @@ class PropertiesUI
 	
 	/**
 	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		originalName = model.getRefObjectName();
 		originalDisplayedName = originalName;
@@ -1361,8 +1324,8 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
-		/*
-		if (!model.isSameObject(model.getRefObject())) {
+		if (oldObject == null) return;
+		if (!model.isSameObject(oldObject)) {
 			channelsArea.setText("");
 			idLabel.setText("");
 			ownerLabel.setText("");
@@ -1370,14 +1333,13 @@ class PropertiesUI
 			wellLabel.setText("");
 			gpLabel.setText("");
 		}
-		*/
 	}
 	
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { clearData(); }
+	protected void clearDisplay() {}
 
 	/**
 	 * Sets the title of the component.
@@ -1510,23 +1472,6 @@ class PropertiesUI
 	{
 		String name = evt.getPropertyName();
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		/*
-		if (RegexTextPane.REGEX_DBL_CLICKED_PROPERTY.equals(name)) {
-			WikiDataObject object = (WikiDataObject) evt.getNewValue();
-			long id = object.getId();
-			switch (object.getIndex()) {
-				case WikiDataObject.IMAGE:
-					if (id > 0) {
-						bus.post(new ViewImage(id, null));
-					}
-					break;
-				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(id));
-					break;
-			}
-		} 
-		*/
-		
 		if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
 			long id = object.getId();
