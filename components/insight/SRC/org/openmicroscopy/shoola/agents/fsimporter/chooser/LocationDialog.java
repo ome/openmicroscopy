@@ -26,8 +26,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.LayoutManager2;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -56,8 +59,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXHeader;
-import org.jdesktop.swingx.JXHyperlink;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -94,10 +95,29 @@ import pojos.ScreenData;
 public class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
 	
-	private static final String TEXT_HIDE_ADVANCED = "Hide Advanced Options";
+	// table design presets
 
-	private static final String TEXT_SHOW_ADVANCED = "Show Advanced Options";
+	/** Default GAP value for UI components */
+	private static final int UI_GAP = 5;
+	
+	private static final double[][] TABLE_GAP = new double[][]
+			{
+				{UI_GAP, TableLayout.FILL, UI_GAP},
+				{UI_GAP, TableLayout.FILL, UI_GAP}
+			};
+	
+	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
+	
+	private static final double[] TABLE_FILL = {TableLayout.FILL};
+	
+	private static final double[] TABLE_PREF_PREF_PREF = 
+		{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED};
+	
+	private static final double[] TABLE_PREF_FILL_PREF = 
+		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
 
+
+	// other constants
 	/** Bound property indicating to change the import group. */
 	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
 	
@@ -105,6 +125,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private static final int MIN_WIDTH = 640;
 
 	// String constants
+	
 	/** The title of the dialog. */
 	private static String TEXT_TITLE =
 			"Import Location - Select where to import your data.";
@@ -416,13 +437,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 		buttonPanel.setLayout(new BorderLayout());
 		buttonPanel.add(addButton, BorderLayout.EAST);
 		buttonPanel.add(cancelButton, BorderLayout.WEST);
-		return buttonPanel;
+		JPanel host = wrapInSpacedPanel(buttonPanel, UI_GAP, 0, 0, 0);
+		host.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
+		return host;
 	}
 
 	/**
 	 * @return The tab panel for Screen / Project selection
 	 */
-	private JTabbedPane buildDataTypeTabbedPane() {
+	private JPanel buildDataTypeTabbedPane() {
 		IconManager icons = IconManager.getInstance();
 		
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
@@ -440,22 +463,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		tabbedPane.addChangeListener(this);
 		
-		return tabbedPane;
+		return wrapInGapPanel(tabbedPane);
 	}
 	
 	/**
 	 * @return JPanel holding the group selection UI elements
 	 */
 	private JPanel buildGroupSelectionPanel() {
-		double size[][] =
-            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
-            {TableLayout.PREFERRED}};
-
-		TableLayout tableLayout = new TableLayout(size);
-		tableLayout.setHGap(5);
-		tableLayout.setVGap(5);
-		
-		JPanel groupPanel = new JPanel(tableLayout);
+		TableLayout groupLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
+		JPanel groupPanel = new JPanel(groupLayout);
         
 		if(groups.size() > 1)
 		{
@@ -471,15 +487,9 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return JPanel holding the project selection UI elements
 	 */
 	private JPanel buildProjectSelectionPanel() {
-		double size[][] =
-            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
-            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
-
-		TableLayout tableLayout = new TableLayout(size);
-		tableLayout.setHGap(5);
-		tableLayout.setVGap(5);
+		TableLayout projectLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF_PREF_PREF);
 		
-		JPanel projectPanel = new JPanel(tableLayout);
+		JPanel projectPanel = new JPanel(projectLayout);
         
         projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), "0, 0, r, c");
         projectPanel.add(projectsBox,"1, 0");
@@ -489,28 +499,22 @@ public class LocationDialog extends JDialog implements ActionListener,
         projectPanel.add(datasetsBox,"1, 1");
         projectPanel.add(newDatasetButton, "2, 1, c, c");
        
-		return projectPanel;
+		return wrapInGapPanel(projectPanel);
 	}
 
 	/**
 	 * @return JPanel holding the screen selection UI elements
 	 */
 	private JPanel buildScreenSelectionPanel() {
-		double size[][] =
-            {{TableLayout.PREFERRED, TableLayout.FILL,TableLayout.PREFERRED},
-            {TableLayout.PREFERRED,TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		TableLayout screenLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 
-		TableLayout tableLayout = new TableLayout(size);
-		tableLayout.setHGap(5);
-		tableLayout.setVGap(5);
-		
-		JPanel screenPanel = new JPanel(tableLayout);
+		JPanel screenPanel = new JPanel(screenLayout);
         
         screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), "0, 0, r, c");
         screenPanel.add(screensBox,"1, 0");
         screenPanel.add(newScreenButton, "2, 0, c, c");
        
-		return screenPanel;
+		return wrapInGapPanel(screenPanel);
 	}
 
 	/**
@@ -579,18 +583,21 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 *            The component displaying the option.
 	 */
 	private void buildGUI() {
-		Container contentPane = this.getContentPane();
+		BorderLayout layout = new BorderLayout();
+		layout.setHgap(UI_GAP);
+		layout.setVgap(UI_GAP);
 		
-		double[][] tableSize = new double[][]
-				{{20.0, TableLayout.FILL, 20.0},{20.0, TableLayout.FILL, 20.0}};
-		contentPane.setLayout(new TableLayout(tableSize));
-		
-		JPanel mainPanel = new JPanel(new BorderLayout());
+		JPanel mainPanel = new JPanel(layout);
 		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
-		mainPanel.add(buildImportLocationPanel(), BorderLayout.CENTER);
+		mainPanel.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
 		mainPanel.add(buildButtonPanel(), BorderLayout.SOUTH);
 		
+		TableLayout containerLayout = createTableLayout(TABLE_GAP);
+		Container contentPane = this.getContentPane();
+		contentPane.setLayout(containerLayout);
 		contentPane.add(mainPanel, "1, 1");
+		
+		// resize the window to minimum size
 		this.pack();
 		int minHeight = this.getHeight();
 		
@@ -600,51 +607,45 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.setSize(minSize);
 	}
 
-	private JPanel buildImportLocationPanel() {
-		JTabbedPane dataTypePane = buildDataTypeTabbedPane();
-		
-		Border advancedTitleBorder = new TitledBorder("Advanced Import Options");
+	private TableLayout createTableLayout(double[][] design) {
+		TableLayout tableLayout =  new TableLayout(design);
+		tableLayout.setHGap(UI_GAP);
+		tableLayout.setVGap(UI_GAP);
+		return tableLayout;
+	}
 
-		JComboBox namingOptions = new JComboBox();
+	private TableLayout createTableLayout(double[] columns, double[] rows) {
+		double[][] design = new double[][]{columns, rows};
+		return createTableLayout(design);
+	}
+	
+	/**
+	 * Creates a JPanel with a bordered TableLayout
+	 * @param container
+	 * @return
+	 */
+	private <T extends Container> JPanel wrapInGapPanel(T container) {
+		TableLayout paddedLayout = createTableLayout(TABLE_GAP);
+		JPanel gapPanel = new JPanel(paddedLayout);
+		gapPanel.add(container, "1, 1");
+		return gapPanel;
+	}
+	
+	private <T extends Container> JPanel wrapInSpacedPanel(T container, int top, int left, int right, int bottom) {
+		double [][] spacedLayout = new double[][]
+				{
+					{left, TableLayout.FILL, right},
+					{top, TableLayout.FILL, bottom}
+				};
 		
-		double[][] oneLineOption = new double[][]{
-				{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED},
-				{TableLayout.PREFERRED}};
-		
-		TableLayout t2 = new TableLayout(oneLineOption);
-		
-		final JXCollapsiblePane advancedPane = new JXCollapsiblePane();
-		advancedPane.setLayout(t2);
-		advancedPane.setBorder(advancedTitleBorder);
-		advancedPane.add(new JLabel("File Naming"), "0, 0, r, c");
-		advancedPane.add(namingOptions, "1, 0");
-		advancedPane.setCollapsed(true);
-		
-		//final JXHyperlink link = new JXHyperlink();
-		//link.setName(TEXT_SHOW_ADVANCED);
-		
-		final JToggleButton showHideAdvancedButton = new JToggleButton(TEXT_SHOW_ADVANCED);
-		showHideAdvancedButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent ae)
-			{
-				advancedPane.setCollapsed(!advancedPane.isCollapsed());
-				
-				showHideAdvancedButton.setText(advancedPane.isCollapsed() ? TEXT_SHOW_ADVANCED : TEXT_HIDE_ADVANCED);
-			}
-		});
-
-		
-
-		double[][] size = new double[][]{{TableLayout.FILL},
-			{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}};
-		
-		TableLayout layout = new TableLayout(size);
-		JPanel locationPanel = new JPanel(layout);
-		locationPanel.add(dataTypePane, "0, 0");
-		locationPanel.add(showHideAdvancedButton, "0, 1, r, c");
-		locationPanel.add(advancedPane, "0, 2");
-		
-		return locationPanel;
+		TableLayout paddedLayout = createTableLayout(spacedLayout);
+		JPanel gapPanel = new JPanel(paddedLayout);
+		gapPanel.add(container, "1, 1");
+		return gapPanel;
+	}
+	
+	private <T extends Container> JPanel wrapInSpacedPanel(T container, int spacing) {
+		return wrapInSpacedPanel(container, spacing, spacing, spacing, spacing);
 	}
 
 	/**
