@@ -83,7 +83,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -185,6 +184,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	private static final String TEXT_FREE_SPACE = "Free Space ";
 
+	/** Save button text */
 	private static final String TEXT_SAVE = "Save";
 
 	private static final String TEXT_TAGS_DETAILS = 
@@ -194,6 +194,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	private static final String TOOLTIP_ADD_TAGS = "Add Tags.";
 	
+	/** */
 	private static final String TEXT_TITLE = "Import Location";
 
 	private static final String TEXT_OVERRIDE_FILE_NAMING = 
