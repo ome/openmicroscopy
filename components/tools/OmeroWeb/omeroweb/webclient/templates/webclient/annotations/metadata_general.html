@@ -34,13 +34,18 @@
                 $("#tags_container").hide_if_empty();
                 
                 {% if manager.canEdit %}
+                // we may have well-index, if we are editing an image within a Well
+                var idx = "{{ index }}";
+                if (idx.length > 0) {
+                    idx = "?index=" + idx;
+                }
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}?index={{index}}',
-                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}?index={{index}}',
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}'+idx,
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}'+idx,
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}?index={{index}}',
-                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}?index={{index}}',
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}'+idx,
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}'+idx,
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
