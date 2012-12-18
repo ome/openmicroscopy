@@ -266,14 +266,14 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long)
+	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long, 
+	 * boolean)
 	 */
-	public Set getExperimenterImages(SecurityContext ctx, long userID)
+	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
+			orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(userID));
-		return gateway.getUserImages(ctx, po);
+		return gateway.getUserImages(ctx, userID, orphan);
 	}
 
 	/**

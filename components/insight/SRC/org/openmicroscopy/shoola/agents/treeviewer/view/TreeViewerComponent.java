@@ -343,6 +343,45 @@ class TreeViewerComponent
     	return null;
     }
 	
+    /**
+     * Checks if a browser associated to the passed node has been 
+     * discarded.
+     *  
+     * @param display The node to handle.
+     */
+    private DataBrowser handleDiscardedBrowser(TreeImageDisplay display)
+    {
+    	if (!DataBrowserFactory.hasBeenDiscarded(display)) return null;
+    	DataBrowser db = null;
+    	Browser browser = model.getSelectedBrowser();
+		List list;
+		List<ApplicationData> app = null;
+		
+    	if (display.isChildrenLoaded() 
+				&& display.containsImages()) {
+			List l = display.getChildrenDisplay();
+			if (l != null) {
+				Set s = new HashSet();
+				Iterator i = l.iterator();
+				TreeImageDisplay child;
+				//copy the node.
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					s.add(child.getUserObject());
+				}
+				setLeaves((TreeImageSet) display, s);
+				db = DataBrowserFactory.getDataBrowser(display);
+				list = browser.getSelectedDataObjects();
+				if (list != null && list.size() == 1) {
+					app = TreeViewerFactory.getApplications(
+					model.getObjectMimeType(list.get(0)));
+				}
+				db.setSelectedNodes(list, app);
+			}
+		}
+    	return db;
+    }
+    
 	/**
 	 * Displays the data browser corresponding to the passed node.
 	 * 
@@ -360,7 +399,10 @@ class TreeViewerComponent
 		if (display != null) parent = display.getParentDisplay();
 		List list;
 		List<ApplicationData> app = null;
-		if (display instanceof TreeImageTimeSet) {
+		if (display instanceof TreeImageTimeSet || 
+			(display instanceof TreeFileSet &&
+				((TreeFileSet) display).getType() ==
+					TreeFileSet.ORPHANED_IMAGES)) {
 			db = DataBrowserFactory.getDataBrowser(display);
 			if (db != null) {
 				db.setComponentTitle("");
@@ -369,38 +411,19 @@ class TreeViewerComponent
 					view.displayBrowser(db);
 				}
 			} else {
-				if (DataBrowserFactory.hasBeenDiscarded(display)) {
-					if (display.isChildrenLoaded() 
-							&& display.containsImages()) {
-						List l = display.getChildrenDisplay();
-        				if (l != null) {
-        					Set s = new HashSet();
-        					Iterator i = l.iterator();
-        					TreeImageDisplay child;
-    						//copy the node.
-        					while (i.hasNext()) {
-        						child = (TreeImageDisplay) i.next();
-        						s.add(child.getUserObject());
-        					}
-    						setLeaves((TreeImageSet) display, s);
-    						db = DataBrowserFactory.getDataBrowser(display);
-    						list = browser.getSelectedDataObjects();
-    						if (list != null && list.size() == 1) {
-    							app = TreeViewerFactory.getApplications(
-    							model.getObjectMimeType(list.get(0)));
-    						}
-    						db.setSelectedNodes(list, app);
-        				}
-					}
-				}
+				db = handleDiscardedBrowser(display);
 			}
 			if (db != null) db.setSelectedNodes(null, null);
 			return;
 		}
 		if (object instanceof ImageData) {
-			if (display.getParentDisplay() instanceof TreeImageTimeSet) {
-				db = DataBrowserFactory.getDataBrowser(
-						display.getParentDisplay());
+			TreeImageDisplay displayParent = display.getParentDisplay();
+			
+			if (displayParent instanceof TreeImageTimeSet ||
+				(displayParent instanceof TreeFileSet &&
+				((TreeFileSet) displayParent).getType() ==
+					TreeFileSet.ORPHANED_IMAGES)) {
+				db = DataBrowserFactory.getDataBrowser(displayParent);
 				if (db != null) {
 					db.setComponentTitle("");
 					if (visible) {
@@ -413,6 +436,8 @@ class TreeViewerComponent
             		db.setSelectedNodes(nodes, 
             				TreeViewerFactory.getApplications(
 							model.getObjectMimeType(object)));
+				} else {
+					db = handleDiscardedBrowser(displayParent);
 				}
 				return;
 			}
@@ -1072,7 +1097,8 @@ class TreeViewerComponent
 			} else showDataBrowser(object, display, true);
 		} else {
 			DataBrowser db = model.getDataViewer();
-			if (db != null) db.setSelectedNodes(new ArrayList(), null);
+			if (db != null)
+				db.setSelectedNodes(new ArrayList<DataObject>(), null);
 			metadata.setRootObject(null, -1, null);
 		}
 		if (display != null && 
@@ -2420,7 +2446,8 @@ class TreeViewerComponent
 	 */
 	public void setLeaves(TreeImageSet parent, Collection leaves)
 	{
-		if (parent instanceof TreeFileSet) {
+		if (parent instanceof TreeFileSet &&
+			((TreeFileSet) parent).getType() != TreeFileSet.ORPHANED_IMAGES) {
 			view.removeAllFromWorkingPane();
 			return;
 		}

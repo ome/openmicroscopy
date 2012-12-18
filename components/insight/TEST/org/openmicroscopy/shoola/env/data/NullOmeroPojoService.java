@@ -222,7 +222,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getExperimenterImages(long)
      */
-	public Set getExperimenterImages(SecurityContext ctx, long userID)
+	public Set getExperimenterImages(SecurityContext ctx, long userID,
+			boolean orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
