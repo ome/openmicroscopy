@@ -63,11 +63,12 @@ public class RenderingSettingsLoader
 	 *               Mustn't be <code>null</code>.
      * @param ctx The security context.
 	 * @param pixelsID The identifier of the pixels set.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public RenderingSettingsLoader(MetadataViewer viewer, SecurityContext ctx,
-			long pixelsID)
+			long pixelsID, int loaderID)
 	{
-		super(viewer, ctx);
+		super(viewer, ctx, loaderID);
 		this.pixelsID = pixelsID;
 	}
 	

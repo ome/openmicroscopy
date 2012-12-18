@@ -184,9 +184,9 @@ class UserUI
 
 	/**
 	 * Removes all components.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		quota = null;
 		clearDisplay();

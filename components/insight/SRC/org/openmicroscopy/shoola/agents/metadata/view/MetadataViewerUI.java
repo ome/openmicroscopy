@@ -351,16 +351,9 @@ class MetadataViewerUI
 					(RndProxyDef) evt.getNewValue());
 
 	}
-	
-	/** Overrides the {@link #setOnScreen() setOnScreen} method. */
-    public void setOnScreen()
-    {
-    	/*
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
-        UIUtilities.centerAndShow(this);
-        */
-    }
-
-
+	/**
+	 * Overridden so the pack method is not invoked and the component is
+	 * not displayed on screen.
+	 */
+	public void setOnScreen() {}
 }

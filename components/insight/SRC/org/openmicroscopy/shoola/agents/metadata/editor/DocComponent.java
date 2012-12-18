@@ -35,9 +35,14 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -78,6 +83,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
@@ -353,6 +359,40 @@ class DocComponent
 	}
 	
 	/**
+	 * Returns the list of users who annotated that image only if the
+	 * annotation cannot be unlinked.
+	 * 
+	 * @param object The object the annotation is linked to.
+	 * @param annotation The annotation to handle.
+	 */
+	private String formatAnnotators(DataObject object,
+			AnnotationData annotation)
+	{
+		StringBuffer buffer = new StringBuffer();
+		List<ExperimenterData> annotators = model.getAnnotators(object, 
+				annotation);
+		if (annotators.size() == 0) return null;
+		long userID = model.getCurrentUser().getId();
+		Iterator<ExperimenterData> i = annotators.iterator();
+		ExperimenterData annotator;
+		int n = annotators.size()-1;
+		int index = 0;
+		buffer.append(" (");
+		while (i.hasNext()) {
+			annotator =  i.next();
+			if (annotator.getId() != userID) {
+				buffer.append(EditorUtil.formatExperimenter(annotator));
+				if (index != n)
+					buffer.append(", ");
+				index++;
+			}
+		}
+		if (index == 0) return null;
+		buffer.append(")");
+		return buffer.toString();
+	}
+	
+	/**
 	 * Formats the passed annotation.
 	 * 
 	 * @param annotation The value to format.
@@ -363,6 +403,58 @@ class DocComponent
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
+		if (model.isMultiSelection()) {
+			Map<DataObject, Boolean> m = null;
+			Entry<DataObject, Boolean> e;
+			Iterator<Entry<DataObject, Boolean>> j;
+			String text = "";
+			if (annotation instanceof TagAnnotationData) {
+				m = model.getTaggedObjects(annotation);
+				text += "Can remove Tag from ";
+			} else if (annotation instanceof FileAnnotationData) {
+				m = model.getObjectsWithAttachments(annotation);
+				text += "Can remove Attachment from ";
+			}
+			if (m == null) return "";
+			j = m.entrySet().iterator();
+			Collection<Boolean> l = m.values();
+			int n = 0;
+			Iterator<Boolean> k = l.iterator();
+			while (k.hasNext()) {
+				if (k.next().booleanValue())
+					n++;
+			}
+			buf.append(text);
+			buf.append(n);
+			int index = 0;
+			String s;
+			while (j.hasNext()) {
+				e = j.next();
+				if (index == 0) {
+					buf.append(" ");
+					buf.append("<b>");
+					buf.append(model.getObjectTypeAsString(e.getKey()));
+					if (n > 1) buf.append("s");
+					buf.append(":</b>");
+					buf.append("<br>");
+					index++;
+				}
+				buf.append("<b>");
+				buf.append("ID ");
+				buf.append(e.getKey().getId());
+				buf.append(":</b> ");
+				buf.append(UIUtilities.formatPartialName(
+						model.getObjectName(e.getKey())));
+				//Indicates who annotates the object if not the user
+				//currently logged in.
+				s = formatAnnotators(e.getKey(), annotation);
+				if (s != null) buf.append(s);
+				buf.append("<br>");
+			}
+			buf.append("</body></html>");
+			return buf.toString();
+		}
+		
 		ExperimenterData exp = null;
 		if (name != null) {
 			buf.append("<b>");
@@ -488,6 +580,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
+				popMenu.setVisible(false);
 				displayInformation(label, e.getPoint());
 			}
 		});
