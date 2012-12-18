@@ -245,9 +245,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final String TEXT_SHOW_THUMBNAILS =
 			"Show Thumbnails when imported";
 
-	private static final String TOOLTIP_RELOAD =
-			"Reloads the container where to import the data.";
-
 	private static final String TOOLTIP_REMAINING_FORMAT =
 			"%s%% of Remaining Space";
 
