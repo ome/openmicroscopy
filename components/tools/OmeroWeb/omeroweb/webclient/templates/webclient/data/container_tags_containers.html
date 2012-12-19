@@ -23,7 +23,7 @@
 {% endcomment %}
 
 <ul>
-    {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.plates or manager.containers.images %}
+    {% if manager.c_size > 0 %}
     
     {% for i in manager.containers.images %}
         <li id='image-{{ i.id }}' rel="image{% if not i.canEdit %}-locked{% endif %}" class="{{ i.getPermsCss }}">
@@ -70,8 +70,24 @@
     {% for d in manager.containers.plates %}
         <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
             <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+            {% if d.countPlateAcquisitions %}
+            <ul>
+                {% for e in d.listPlateAcquisitions %}
+                    <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.canEdit %}-locked{% endif %}" class="{{ e.getPermsCss }}">
+                        <a href="#">{{ e.name|truncatebefor:"35" }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </li>
     {% endfor %}
+
+    {% for a in manager.containers.aquisitions %}
+        <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.canEdit %}-locked{% endif %}" class="{{ a.getPermsCss }}">
+            <a href="#">{{ a.name|truncatebefor:"35" }}</a>
+        </li>
+    {% endfor %}
+
     {% else %}
     <li>empty</li>
     {% endif %}
