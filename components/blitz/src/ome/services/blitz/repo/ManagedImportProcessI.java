@@ -131,6 +131,9 @@ public class ManagedImportProcessI extends AbstractAmdServant
         this.settings = settings;
         this.location = location;
         this.proxy = registerProxy(__current);
+        setApplicationContext(repo.context);
+        // TODO: The above could be moved to SessionI.internalServantConfig as
+        // long as we're careful to remove all other, redundant calls to setAC.
     }
 
     /**
