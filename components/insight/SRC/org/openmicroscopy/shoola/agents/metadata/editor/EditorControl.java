@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.TransformsParser;
@@ -105,7 +106,6 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -337,12 +337,17 @@ class EditorControl
 		chooser.centerDialog();
 	}
 	
-	/** Brings up the folder chooser to select where to save the files. */
-	private void saveAsJPEG()
+	/** Brings up the folder chooser to select where to save the files. 
+	 * 
+	 * @param format One of the formats defined by <code>FigureParam</code>.
+	 * @see org.openmicroscopy.shoola.env.data.model.FigureParam
+	 */
+	void saveAs(final int format)
 	{
+		String v = FigureParam.FORMATS.get(format);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Save As", "Select where to save locally the images as JPEG.",
+				"Save As", "Select where to save locally the images as "+v,
 				saveAsFilters);
 		try {
 			File file = UIUtilities.getDefaultFolder();
@@ -358,9 +363,8 @@ class EditorControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					//File[] files = (File[]) evt.getNewValue();
 					String value = (String) evt.getNewValue();
-					File folder = null;//files[0];
+					File folder = null;
 					if (value == null || value.trim().length() == 0)
 						folder = UIUtilities.getDefaultFolder();
 					else folder = new File(value);
@@ -369,7 +373,7 @@ class EditorControl
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
 					}
-					model.saveAs(folder);
+					model.saveAs(folder, format);
 				}
 			}
 		});
@@ -775,9 +779,6 @@ class EditorControl
 				break;
 			case RELOAD_SCRIPT:
 				view.reloadScript();
-				break;
-			case SAVE_AS:
-				saveAsJPEG();
 				break;
 			case VIEW_IMAGE:
 				Object refObject = view.getRefObject();

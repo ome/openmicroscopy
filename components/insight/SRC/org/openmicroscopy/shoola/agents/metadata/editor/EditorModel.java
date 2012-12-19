@@ -3661,11 +3661,13 @@ class EditorModel
 	}
 	
 	/** 
-	 * Saves locally the images as JPEG.
+	 * Saves locally the images as <code>JPEG</code>, <code>PNG</code>
+	 * or <code>TIFF</code>.
 	 * 
 	 * @param folder The folder where to save the images.
+	 * @param format The format to use.
 	 */
-	void saveAs(File folder)
+	void saveAs(File folder, int format)
 	{
 		Collection l = parent.getRelatedNodes();
 		List<DataObject> objects = new ArrayList<DataObject>();
@@ -3687,6 +3689,7 @@ class EditorModel
 		if (objects.size() > 0) {
 			IconManager icons = IconManager.getInstance();
 			SaveAsParam p = new SaveAsParam(folder, objects);
+			p.setIndex(format);
 			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
