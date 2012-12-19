@@ -4724,7 +4724,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
                 name = "Plate %i" % self.id
         return name
     name = property(getName)
-    
+
+    def listParents (self, withlinks=False):
+        """
+        Because PlateAcquisitions are direct children of plates, with no links in between,
+        a special listParents is needed
+        """
+        rv = self._conn.getObject('Plate', self.plate.id.val)
+        if withlinks:
+            return [(rv, None)]
+        return [rv]
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -4945,6 +4954,18 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         @rtype:     L{ImageWrapper}
         """
         return self.getImage()
+
+    def getPlateAcquisition (self):
+        """
+        Gets the PlateAcquisition for this well sample, or None
+
+        @return:    The PlateAcquisition
+        @rtype:     L{PlateAcquisitionWrapper} or None
+        """
+        aquisition = self._obj.plateAcquisition
+        if aquisition is None:
+            return None
+        return PlateAcquisitionWrapper(self._conn, aquisition)
 
 WellSampleWrapper = _WellSampleWrapper
 
@@ -7922,6 +7943,7 @@ def refreshWrappers ():
                   "screen":ScreenWrapper,
                   "plate":PlateWrapper,
                   "plateacquisition": PlateAcquisitionWrapper,
+                  "acquisition": PlateAcquisitionWrapper,
                   "well":WellWrapper,
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,
