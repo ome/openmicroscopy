@@ -52,7 +52,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
@@ -496,7 +495,6 @@ public class FigureDialog
 		b.setActionCommand(""+actionID);
 		b.addActionListener(this);
 		b.setOpaque(false);
-		//b.setForeground(UIUtilities.HYPERLINK_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
@@ -510,16 +508,15 @@ public class FigureDialog
 	{
 		int index = colorBox.getSelectedIndex();
 		Map<Color, String> m = EditorUtil.COLORS_BAR;
-		Iterator i = m.entrySet().iterator();
+		Iterator<Entry<Color, String>> i = m.entrySet().iterator();
 		int j = 0;
-		Entry entry;
-		String c = null;
+		Entry<Color, String> entry;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			if (j == index) c = (String) entry.getValue();
+			entry = i.next();
+			if (j == index) return entry.getValue();
 			j++;
 		}
-		return c;
+		return null;
 	}
 	
 	/**
@@ -531,16 +528,15 @@ public class FigureDialog
 	{
 		int index = colorBox.getSelectedIndex();
 		Map<Color, String> m = EditorUtil.COLORS_BAR;
-		Iterator i = m.entrySet().iterator();
+		Iterator<Entry<Color, String>> i = m.entrySet().iterator();
 		int j = 0;
-		Entry entry;
-		Color c = null;
+		Entry<Color, String> entry;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			if (j == index) c = (Color) entry.getKey();
+			entry =  i.next();
+			if (j == index) return entry.getKey();
 			j++;
 		}
-		return c;
+		return null;
 	}
 	
 	/** Modifies the color of the ROIs. */
@@ -549,10 +545,10 @@ public class FigureDialog
 		if (displayedROIs == null) return;
 		Color c = getColor();
 		if (c == null) return;
-		Entry entry;
+		Entry<Coord3D, ROIShape> entry;
 		Iterator<ROI> ro;
-		TreeMap shapes;
-		Iterator k;
+		TreeMap<Coord3D, ROIShape> shapes;
+		Iterator<Entry<Coord3D, ROIShape>> k;
 		ROIShape shape;
 		ROI roi;
 		ROIFigure fig;
@@ -562,8 +558,8 @@ public class FigureDialog
 			shapes = roi.getShapes();
 			k = shapes.entrySet().iterator();
 			while (k.hasNext()) {
-				entry = (Entry) k.next();
-				shape = (ROIShape) entry.getValue();
+				entry = k.next();
+				shape = entry.getValue();
 				fig = shape.getFigure();
 				AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
 				AttributeKeys.STROKE_COLOR.set(fig, c);
@@ -593,17 +589,18 @@ public class FigureDialog
 	{
 		setFactor();
 		//reset 
-		Iterator k = components.entrySet().iterator();
-		Entry entry;
+		Iterator<Entry<Integer, FigureComponent>>
+		k = components.entrySet().iterator();
+		Entry<Integer, FigureComponent> entry;
 		FigureComponent fc;
 		int j;
 		List<Integer> active = renderer.getActiveChannels();
 		int w, h;
 		BufferedImage img;
         while (k.hasNext()) {
-        	entry = (Entry) k.next();
-        	j = (Integer) entry.getKey();
-			fc = (FigureComponent) entry.getValue();
+        	entry =  k.next();
+        	j = entry.getKey();
+			fc = entry.getValue();
 			lens.setPlaneImage(renderer.createSingleChannelImage(true, j, 
 					pDef));
 			img = lens.getZoomedImage();
@@ -701,28 +698,28 @@ public class FigureDialog
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
-								mergeUnscaled.getWidth(), 
-								mergeUnscaled.getHeight(), 
+								mergeUnscaled.getWidth(),
+								mergeUnscaled.getHeight(),
 								Factory.RED_MASK, Factory.BLANK_MASK,
 								Factory.BLANK_MASK);
 					
 					return Factory.createBandImage(buf,
-							size.width, size.height, 
+							size.width, size.height,
 							Factory.RED_MASK, Factory.BLANK_MASK,
 							Factory.BLANK_MASK);
-				} else if (renderer.isColorComponent(Renderer.GREEN_BAND, 
+				} else if (renderer.isColorComponent(Renderer.GREEN_BAND,
 						index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
-								mergeUnscaled.getWidth(), 
-								mergeUnscaled.getHeight(), 
+								mergeUnscaled.getWidth(),
+								mergeUnscaled.getHeight(),
 								Factory.BLANK_MASK, Factory.GREEN_MASK, 
 								Factory.BLANK_MASK);
 					return Factory.createBandImage(buf,
-							size.width, size.height,  
-							Factory.BLANK_MASK, Factory.GREEN_MASK, 
+							size.width, size.height,
+							Factory.BLANK_MASK, Factory.GREEN_MASK,
 							Factory.BLANK_MASK);
-				} else if (renderer.isColorComponent(Renderer.BLUE_BAND, 
+				} else if (renderer.isColorComponent(Renderer.BLUE_BAND,
 						index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
@@ -738,21 +735,21 @@ public class FigureDialog
 			} else { //not rgb 
 				if (!scale)
 					renderer.createSingleChannelImage(true, index, pDef);
-				return scaleImage(renderer.createSingleChannelImage(true, index, 
+				return scaleImage(renderer.createSingleChannelImage(true, index,
 						pDef));
 			}
 		}
 		//turn off all other channels, create an image and reset channels
 		if (!scale)
 			return renderer.createSingleChannelImage(true, index, pDef);
-		return scaleImage(renderer.createSingleChannelImage(true, index, 
+		return scaleImage(renderer.createSingleChannelImage(true, index,
 				pDef));
 	}
 	
 	/** Initializes the components. */
 	private void initialize()
 	{
-		size = Factory.computeThumbnailSize(thumbnailWidth, thumbnailHeight, 
+		size = Factory.computeThumbnailSize(thumbnailWidth, thumbnailHeight,
         		pixels.getSizeX(), pixels.getSizeY());
 		if (pDef == null)
 			initPlane(renderer.getDefaultZ(), renderer.getDefaultT());
@@ -835,25 +832,24 @@ public class FigureDialog
 		if (scalingFactor != -1)
 			canvasView.setScaleFactor(scalingFactor);
 		try {
-			ROIFigure figure;
 			Drawing drawing = drawingComponent.getDrawing();
 			Coord3D c;
-			TreeMap map = roiComponent.getROIMap();
+			TreeMap<Long, ROI> map = roiComponent.getROIMap();
 			if (map != null && map.size() > 0) {
-				Iterator i = map.values().iterator();
+				Iterator<ROI> i = map.values().iterator();
 				ROI roi;
 				TreeMap<Coord3D, ROIShape> shapesMap;
 				ROIShape shape;
-				Iterator j;
-				Entry entry;
+				Iterator<Entry<Coord3D, ROIShape>> j;
+				Entry<Coord3D, ROIShape> entry;
 				while (i.hasNext()) {
-					roi = (ROI) i.next();
+					roi = i.next();
 					shapesMap = roi.getShapes();
 					j = shapesMap.entrySet().iterator();
 					while (j.hasNext()) {
-						entry = (Entry) j.next();
-						c = (Coord3D) entry.getKey();
-						shape = (ROIShape) entry.getValue();
+						entry = j.next();
+						c = entry.getKey();
+						shape = entry.getValue();
 						if (shape != null) {
 							if (roiBox == null) {
 								roiBox = shape.getBoundingBox();
@@ -987,14 +983,14 @@ public class FigureDialog
 		nameField.getDocument().addDocumentListener(this);
 		Map<Integer, String> map = FigureParam.FORMATS;
 		String[] f = new String[map.size()];
-		Entry entry;
-		Iterator i = map.entrySet().iterator();
+		Entry<Integer, String> entry;
+		Iterator<Entry<Integer, String>> i = map.entrySet().iterator();
 		int index = 0;
 		int v;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			v = (Integer) entry.getKey();
-			f[v] = (String) entry.getValue();
+			entry = i.next();
+			v = entry.getKey();
+			f[v] = entry.getValue();
 			if (v == FigureParam.PNG);
 				index = v;
 		}
@@ -1012,10 +1008,11 @@ public class FigureDialog
 		Map<Color, String> colors = EditorUtil.COLORS_BAR;
 		Object[][] cols = new Object[colors.size()][2];
 		int k = 0;
-		i = colors.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			cols[k] = new Object[]{entry.getKey(), entry.getValue()};
+		Iterator<Entry<Color, String>> j = colors.entrySet().iterator();
+		Entry<Color, String> e;
+		while (j.hasNext()) {
+			e = j.next();
+			cols[k] = new Object[]{e.getKey(), e.getValue()};
 			k++;
 		}
 
@@ -1074,7 +1071,7 @@ public class FigureDialog
 		group.add(projectionBox);
 		group.add(planeSelection);
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
-		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;	
+		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;
 		
 		int maxZ = pixels.getSizeZ();
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
@@ -1084,11 +1081,10 @@ public class FigureDialog
         k = 0;
         i = ProjectionParam.PROJECTIONS.entrySet().iterator();
         projectionTypes = new HashMap<Integer, Integer>();
-        int j;
+        
         while (i.hasNext()) {
-        	entry = (Entry) i.next();
-			j = (Integer) entry.getKey();
-			projectionTypes.put(k, j);
+        	entry = i.next();
+			projectionTypes.put(k, entry.getKey());
 			names[k] = (String) entry.getValue();
 			k++;
 		}
@@ -1096,7 +1092,7 @@ public class FigureDialog
         projectionTypesBox = new JComboBox(names);
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
         
-		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ+1, 
+		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ+1,
 				1));
 		
 		ButtonGroup g = new ButtonGroup();
@@ -1127,9 +1123,8 @@ public class FigureDialog
 		f = new String[map.size()];
 		i = map.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			v = (Integer) entry.getKey();
-			f[v] = (String) entry.getValue();
+			entry = i.next();
+			f[entry.getKey()] = (String) entry.getValue();
 		}
 		timesBox = new JComboBox(f);
 		switch (dialogType) {
@@ -1259,14 +1254,7 @@ public class FigureDialog
 		JPanel content = new JPanel();
 		content.add(planeSelection);
 		content.add(projectionBox);
-		//p.add(UIUtilities.setTextFont("Select Z-section"), c);
-		//c.gridx++;
     	p.add(UIUtilities.buildComponentPanel(content, 0, 0), c);
-    	//c.gridy++;
-		//c.gridx = 0;
-		//p.add(UIUtilities.setTextFont("Project stack"), c);
-		//c.gridx++;
-		//p.add(projectionBox, c);
 		c.gridy++;
 		c.gridx = 0;
 		c.gridwidth = 1;
@@ -1348,14 +1336,6 @@ public class FigureDialog
         	p.add(UIUtilities.buildComponentPanel(controls), "1, "+i);
         }
         switch (dialogType) {
-			case SPLIT:
-				/*
-				i = i+2;
-	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
-	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
-	        	*/
-				break;
-	
 			case MOVIE:
 				if (pixels.getSizeT() > 1) {
 					i++;
@@ -1363,12 +1343,6 @@ public class FigureDialog
 					i++;
 		        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
 				}
-				/*
-				i = i+2;
-	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
-	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
-	        	*/
-				break;
 		}
 		return p;
 	}
@@ -1387,14 +1361,13 @@ public class FigureDialog
 		}
 		double[] rows = {TableLayout.FILL};
  		p.setLayout(new TableLayout(columns, rows));
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
-		FigureComponent comp;
+		Entry<Integer, FigureComponent> entry;
+		Iterator<Entry<Integer, FigureComponent>> 
+		i = components.entrySet().iterator();
 		int index = 0;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = (FigureComponent) entry.getValue();
-			p.add(comp, index+", 0, LEFT, TOP");
+			entry = i.next();
+			p.add(entry.getValue(), index+", 0, LEFT, TOP");
 			index++;
 		}
 		p.add(mergedComponent, index+", 0, LEFT, TOP");
@@ -1437,11 +1410,11 @@ public class FigureDialog
 			pc.add(UIUtilities.buildComponentPanel(generalLabel));
 			
 			JPanel splitControls = new JPanel();
-			splitControls.setLayout(new BoxLayout(splitControls, 
+			splitControls.setLayout(new BoxLayout(splitControls,
 					BoxLayout.X_AXIS));
 			splitControls.add(pc);
 			splitControls.add(buildDimensionComponent());
-			controls.add(UIUtilities.buildComponentPanel(splitControls), 
+			controls.add(UIUtilities.buildComponentPanel(splitControls),
 					"0, 4");
 		} else {
 			controls.add(buildDimensionComponent(), "0, 4");
@@ -1470,26 +1443,26 @@ public class FigureDialog
         c.weightx = 0.0;  
         p.add(UIUtilities.setTextFont(ITEMS_PER_ROW_TEXT), c);
         c.gridx++;
-        p.add(Box.createHorizontalStrut(5), c); 
+        p.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
         p.add(UIUtilities.buildComponentPanel(numberPerRow), c);
         c.gridy++;
         c.gridx = 0;
         p.add(UIUtilities.setTextFont("Time-point frequency"), c);
         c.gridx++;
-        p.add(Box.createHorizontalStrut(5), c); 
+        p.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
         pane.add(movieFrequency);
         pane.add(Box.createHorizontalStrut(5));
         pane.add(generalLabel);
-        p.add(UIUtilities.buildComponentPanel(pane), c); 
+        p.add(UIUtilities.buildComponentPanel(pane), c);
         c.gridy++;
         c.gridx = 0;
         p.add(UIUtilities.setTextFont("Selected Time-points"), c);
         c.gridx++;
-        p.add(Box.createHorizontalStrut(5), c); 
+        p.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
         if (pixels.getSizeT() <= MAX_CELLS)
         	p.add(movieSlider, c);
@@ -1500,7 +1473,7 @@ public class FigureDialog
         			MAX_CELLS*GridSlider.CELL_SIZE.width, ds.height));
         	p.add(sp, c);
         }
-        c.weightx = 0.0;          
+        c.weightx = 0.0;
         c.gridy++;
         c.gridx = 0;
         p.add(UIUtilities.setTextFont("Time units"), c);
@@ -1585,7 +1558,7 @@ public class FigureDialog
 	{
 		if (renderer != null) renderer.resetSettings(rndDef, false);
 		option = CLOSE;
-		firePropertyChange(CLOSE_FIGURE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(CLOSE_FIGURE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 		setVisible(false);
 		dispose();
@@ -1637,23 +1610,24 @@ public class FigureDialog
 	{
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		FigureComponent comp;
-		Entry entry;
+		Entry<Integer, FigureComponent> entry;
 		List<Integer> splitActive = new ArrayList<Integer>();
-		Iterator i = components.entrySet().iterator();
+		Iterator<Entry<Integer, FigureComponent>> 
+		i = components.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = (FigureComponent) entry.getValue();
-			split.put((Integer) entry.getKey(), comp.getLabel());
+			entry = i.next();
+			comp = entry.getValue();
+			split.put(entry.getKey(), comp.getLabel());
 			if (comp.isSelected()) {
 				splitActive.add((Integer) entry.getKey());
 			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
-		i = active.iterator();
+		Iterator<Integer> j = active.iterator();
 		int index;
-		while (i.hasNext()) {
-			index = (Integer) i.next();
+		while (j.hasNext()) {
+			index = j.next();
 			merge.put(index, renderer.getChannelColor(index));
 		}
 		
@@ -1676,22 +1650,23 @@ public class FigureDialog
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		List<Integer> splitActive = new ArrayList<Integer>();
 		FigureComponent comp;
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<Integer, FigureComponent> entry;
+		Iterator<Entry<Integer, FigureComponent>> 
+		i = components.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = (FigureComponent) entry.getValue();
-			split.put((Integer) entry.getKey(), comp.getLabel());
+			entry = i.next();
+			comp = entry.getValue();
+			split.put(entry.getKey(), comp.getLabel());
 			if (comp.isSelected()) {
 				splitActive.add((Integer) entry.getKey());
 			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
-		i = active.iterator();
+		Iterator<Integer> j = active.iterator();
 		int index;
-		while (i.hasNext()) {
-			index = (Integer) i.next();
+		while (j.hasNext()) {
+			index = j.next();
 			merge.put(index, renderer.getChannelColor(index));
 		}
 
@@ -1724,7 +1699,7 @@ public class FigureDialog
 	}
 	
 	/** 
-	 * Collects the parameters to create the movie figure. 
+	 * Collects the parameters to create the movie figure.
 	 * 
 	 * @return See above.
 	 */
@@ -1842,7 +1817,7 @@ public class FigureDialog
 	}
 	
 	/** 
-	 * Handles the changes in the image dimension. 
+	 * Handles the changes in the image dimension.
 	 * 
 	 * @param field The modified numerical field.
 	 */
@@ -1921,12 +1896,7 @@ public class FigureDialog
 	 */
 	public static boolean needPixels(int index)
 	{
-		switch (index) {
-			case THUMBNAILS:
-				return false;
-			default:
-				return true;
-		}
+		return THUMBNAILS != index;
 	}
 	
 	/**
@@ -1959,7 +1929,7 @@ public class FigureDialog
 	 */
 	BufferedImage createSingleGreyScaleImage(int channel)
 	{
-		return scaleImage(renderer.createSingleChannelImage(false, channel, 
+		return scaleImage(renderer.createSingleChannelImage(false, channel,
 				pDef));
 	}
 	
@@ -2049,8 +2019,8 @@ public class FigureDialog
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		p.setLayout(new TableLayout(tl));
 		tagsSelection = new LinkedHashMap<JCheckBox, TagAnnotationData>();
-		List l = sorter.sort(tags);
-		Iterator i = l.iterator();
+		List<TagAnnotationData> l = sorter.sort(tags);
+		Iterator<TagAnnotationData> i = l.iterator();
 		TagAnnotationData tag;
 		JCheckBox box;
 		JPanel tagPane = new JPanel();
@@ -2062,7 +2032,7 @@ public class FigureDialog
 			}
 		};
 		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
+			tag = i.next();
 			box = new JCheckBox(tag.getTagValue());
 			box.setEnabled(false);
 			box.addActionListener(listener);
@@ -2097,7 +2067,7 @@ public class FigureDialog
 		drawingComponent = new DrawingComponent();
 		drawingComponent.getDrawingView().setScaleFactor(1.0);
 		roiComponent = new ROIComponent();
-		Iterator r = rois.iterator();
+		Iterator<ROIResult> r = rois.iterator();
 		ROIResult result;
 		int count = 0;
 		try {
@@ -2143,7 +2113,7 @@ public class FigureDialog
 		while (i.hasNext()) {
 			pi = (PlaneInfo) i.next();
 			details = EditorUtil.transformPlaneInfo(pi);
-			notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.DELTA_T)) {
 				value = EditorUtil.formatTimeInSeconds(
 						(Double) details.get(EditorUtil.DELTA_T));
@@ -2198,12 +2168,12 @@ public class FigureDialog
 				break;
 			case DOWNLOAD:
 				firePropertyChange(
-						ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY, null, 
+						ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY, null,
 						getScriptName());
 				break;
 			case VIEW:
 				firePropertyChange(
-						ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY, null, 
+						ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY, null,
 						getScriptName());
 		}
 	}
@@ -2231,7 +2201,7 @@ public class FigureDialog
 		Document doc = e.getDocument();
 		if (doc == nameField.getDocument())
 			handleText(); 
-		else if (doc == widthField.getDocument()) 
+		else if (doc == widthField.getDocument())
 			handleDimensionChange(widthField);
 		else handleDimensionChange(heightField);
 	}
@@ -2245,18 +2215,17 @@ public class FigureDialog
 		String name = evt.getPropertyName();
 		if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
 			//mergeCanvas.setImage(getMergedImage());
-			Map map = (Map) evt.getNewValue();
+			Map<Integer, Boolean> map =
+					(Map<Integer, Boolean>) evt.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
+			Entry<Integer, Boolean> entry;
+			Iterator<Entry<Integer, Boolean>> i = map.entrySet().iterator();
 			Integer index;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				index = (Integer) entry.getKey();
-				setChannelSelection(index.intValue(), 
-						((Boolean) entry.getValue()), true);
+				entry = i.next();
+				index = entry.getKey();
+				setChannelSelection(index.intValue(), entry.getValue(), true);
 			}
 		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
 			ChannelComponent c = (ChannelComponent) evt.getNewValue();
@@ -2264,7 +2233,7 @@ public class FigureDialog
 		} else if (GridSlider.COLUMN_SELECTION_PROPERTY.equals(name)) {
 			int maxT = pixels.getSizeT();
 			generalLabel.setText(
-					FRAMES_TEXT+movieSlider.getNumberOfSelectedCells()+"/"+maxT);
+				FRAMES_TEXT+movieSlider.getNumberOfSelectedCells()+"/"+maxT);
 			generalLabel.repaint();
 		}
 	}
@@ -2288,7 +2257,7 @@ public class FigureDialog
 					if (components == null) return;
 					Iterator<Integer> i = components.keySet().iterator();
 					FigureComponent comp;
-					List active = renderer.getActiveChannels();
+					List<Integer> active = renderer.getActiveChannels();
 					Integer index;
 					while (i.hasNext()) {
 						index = i.next();
