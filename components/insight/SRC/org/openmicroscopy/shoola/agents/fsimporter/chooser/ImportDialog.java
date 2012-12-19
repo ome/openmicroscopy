@@ -1185,9 +1185,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		this.owner = owner;
 		this.objects = objects;
 		this.type = type;
-		this.selectedContainer = selectedContainer;
-		
-		selectedContainer = checkContainer(selectedContainer);
+		this.selectedContainer = checkContainer(selectedContainer);
 		
 		setClosable(false);
 		setCloseVisible(false);
@@ -1380,7 +1378,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
 		
-		locationDialog.reset(selectedContainer, type, objects, currentGroupId);
+		locationDialog.reset(this.selectedContainer, this.type, this.objects, 
+				currentGroupId);
 
 		tagsPane.removeAll();
 		tagsMap.clear();
