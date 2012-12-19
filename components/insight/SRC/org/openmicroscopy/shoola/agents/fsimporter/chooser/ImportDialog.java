@@ -156,8 +156,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Action id indicating to add tags to the file. */
 	private static final int CMD_TAG = 5;
 
-	/** Action id indicating to refresh the containers. */
-	private static final int CMD_REFRESH_LOCATION = 8;
+	/** Action id indicating to refresh the file chooser. */
+	private static final int CMD_REFRESH_FILES = 8;
 
 	/** Action id indicating to select the Project/Dataset or Screen. */
 	private static final int CMD_CANCEL_ALL_IMPORT = 9;
@@ -221,26 +221,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Cancel all button tooltip */
 	private static final String TOOLTIP_CANCEL_ALL = "Cancel all ongoing imports.";
 
-	/** Apply partial to all button tooltip */
-	private static final String TOOLTIP_APPLY_PARTIAL_TO_ALL =
-			"Apply the partial name to all files in the queue.";
-	
-	/** Apply partial to all button text */
-	private static final String TEXT_APPLY_PARTIAL_TO_ALL = "Apply Partial Name";
-
-	/** Reset button tooltip */
-	private static final String TOOLTIP_RESET =
-			"Reset the name of all files to either the full path or the partial name if selected.";
-
-	/** Reset button text */
-	private static final String TEXT_RESET = "Reset";
-
-	/** Refresh button tooltip */
-	private static final String TOOLTIP_REFRESH = "Reloads the files view.";
-
-	/** Refresh button text */
-	private static final String TEXT_REFRESH = "Refresh";
-
 	/** Show Thumbnails label */
 	private static final String TEXT_SHOW_THUMBNAILS =
 			"Show Thumbnails when imported";
@@ -251,25 +231,24 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** String used to retrieve if the value of the load thumbnail flag. */
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
 
-	/** String used to retrieve if the value of the folder as dataset flag. */
-	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
-
+	/** Tooltip for refresh files button */	
+	private static final String TOOLTIP_REFRESH_FILES =
+			"Refresh the file list.";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
 	static {
 		WARNING = new ArrayList<String>();
-		WARNING.add("NOTE: Some file formats do not include the file name "
-				+ "in their metadata, ");
-		WARNING.add("and disabling this option may result in files being "
-				+ "imported without a ");
-		WARNING.add("reference to their file name e.g. "
-				+ "'myfile.lsm [image001]'");
-		WARNING.add("would show up as 'image001' with this optioned "
-				+ "turned off.");
+		WARNING.add("NOTE: Some file formats do not include the file name " +
+				"in their metadata, ");
+		WARNING.add("and disabling this option may result in files being " +
+				"imported without a ");
+		WARNING.add("reference to their file name e.g. myfile.lsm [image001]'");
+		WARNING.add("would show up as 'image001' with this optioned turned off.");
 	}
 
-	// functional constants & varaibles
+	// functional constants & variables
 
 	/** The length of a column. */
 	private static final int COLUMN_WIDTH = 200;
@@ -292,20 +271,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Button to import the files. */
 	private JButton importButton;
 
-	/** Button to import the files. */
-	private JButton refreshButton;
-
-	/** Button to reload the containers where to import the files. */
-	//private JToggleButton reloadContainerButton;
-
-	/**
-	 * Resets the name of all files to either the full path or the partial name
-	 * if selected.
-	 */
-	private JButton resetButton;
-
-	/** Apply the partial name to all files. */
-	private JButton applyToAllButton;
+	/** Button to refresh the file chooser. */
+	private JToggleButton refreshFilesButton;
 
 	/** Indicates to use a partial name. */
 	private JRadioButton partialName;
@@ -580,9 +547,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				showThumbnails.setSelected(loadThumbnails.booleanValue());
 			}
 		}
-		
-		Boolean folderAsDataset = (Boolean) registry.lookup(FOLDER_AS_DATASET);
-		
+
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
 		
@@ -614,6 +579,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
 
 		IconManager icons = IconManager.getInstance();
+		
+		refreshFilesButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));		  	
+	    refreshFilesButton.setBackground(UIUtilities.BACKGROUND);
+	    refreshFilesButton.setToolTipText(TOOLTIP_REFRESH_FILES);
+	    refreshFilesButton.setActionCommand("" + CMD_REFRESH_FILES);
+	    refreshFilesButton.addActionListener(this);
+	    UIUtilities.unifiedButtonLookAndFeel(refreshFilesButton);
+				
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
 		tagButton.addActionListener(this);
@@ -719,23 +692,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		importButton.setActionCommand("" + CMD_IMPORT);
 		importButton.addActionListener(this);
 		importButton.setEnabled(false);
-		
-		refreshButton = new JButton(TEXT_REFRESH);
-		refreshButton.setToolTipText(TOOLTIP_REFRESH);
-		refreshButton.setActionCommand("" + CMD_REFRESH);
-		refreshButton.setBorderPainted(false);
-		refreshButton.addActionListener(this);
-		
-		resetButton = new JButton(TEXT_RESET);
-		resetButton.setToolTipText(TOOLTIP_RESET);
-		resetButton.setActionCommand("" + CMD_RESET);
-		resetButton.addActionListener(this);
-		
-		applyToAllButton = new JButton(TEXT_APPLY_PARTIAL_TO_ALL);
-		applyToAllButton.setToolTipText(TOOLTIP_APPLY_PARTIAL_TO_ALL);
-		applyToAllButton.setActionCommand("" + CMD_APPLY_TO_ALL);
-		applyToAllButton.addActionListener(this);
-		applyToAllButton.setEnabled(false);
 
 		pixelsSize = new ArrayList<NumericalTextField>();
 		NumericalTextField field;
@@ -751,18 +707,18 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				JComboBox.class);
 		if (boxes != null) {
 			JComboBox box;
-			JComboBox filerBox = null;
+			JComboBox filterBox = null;
 			Iterator<Component> i = boxes.iterator();
 			while (i.hasNext()) {
 				box = (JComboBox) i.next();
 				Object o = box.getItemAt(0);
 				if (o instanceof FileFilter) {
-					filerBox = box;
+					filterBox = box;
 					break;
 				}
 			}
-			if (filerBox != null) {
-				filerBox.addKeyListener(new KeyAdapter() {
+			if (filterBox != null) {
+				filterBox.addKeyListener(new KeyAdapter() {
 
 					public void keyPressed(KeyEvent e) {
 						String value = KeyEvent.getKeyText(e.getKeyCode());
@@ -984,22 +940,29 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tabbedPane.add("Files to import", p);
 		tabbedPane.add("Options", buildOptionsPane());
 
-		JPanel tablePanel = new JPanel();
-		double[][] size = {
+		double[][] tablePanelDesign = {
 				{ TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL }
 			};
-		tablePanel.setLayout(new TableLayout(size));
+		JPanel tablePanel = new JPanel(new TableLayout(tablePanelDesign));
 		tablePanel.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		tablePanel.add(tabbedPane, "2, 1, 3, 1");
 		
+		double[][] chooserDesign = new double[][]{
+					{TableLayout.FILL},
+					{TableLayout.PREFERRED, TableLayout.FILL}
+				};
+		JPanel chooserPanel = new JPanel(new TableLayout(chooserDesign));
+		chooserPanel.add(refreshFilesButton, "0, 0, l, c");
+		chooserPanel.add(chooser, "0, 1");
+		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chooser, tablePanel);
+				chooserPanel, tablePanel);
 		
 		JPanel mainPanel = new JPanel();
-		double[][] ss = { { TableLayout.FILL },
+		double[][] mainPanelDesign = { { TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL } };
-		mainPanel.setLayout(new TableLayout(ss));
+		mainPanel.setLayout(new TableLayout(mainPanelDesign));
 		mainPanel.setBackground(UIUtilities.BACKGROUND);
 		mainPanel.add(pane, "0, 1");
 		
@@ -1624,7 +1587,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				firePropertyChange(LOAD_TAGS_PROPERTY, Boolean.valueOf(false),
 						Boolean.valueOf(true));
 				break;
-			case CMD_REFRESH_LOCATION:
+			case CMD_REFRESH_FILES:
 				refreshLocation = false;
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
