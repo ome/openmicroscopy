@@ -112,9 +112,8 @@ logger.info("INIT '%s'" % os.getpid())
 def getIntOrDefault(request, name, default):
     try:
         index = int(request.REQUEST.get(name, default))
-    except:
+    except ValueError:
         index = 0
-    print "getIntOrDefault", name, default, index
     return index
 
 ################################################################################
