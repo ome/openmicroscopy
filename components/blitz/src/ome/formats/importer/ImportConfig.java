@@ -7,6 +7,8 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rstring;
+
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -30,6 +33,7 @@ import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
 import omero.model.Annotation;
+import omero.model.FilesetVersionInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -189,8 +193,7 @@ public class ImportConfig {
             ini.updateFlexReaderServerMaps();
         }
 
-        log.info(String.format("Bioformats version: %s revision: %s date: %s",
-             FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE));
+        log.info("Bioformats " + getBioFormatsVersion());
 
         agent        = new StrValue("agent", this, "importer");
         hostname     = new StrValue("hostname", this, "omero.host");
@@ -240,6 +243,25 @@ public class ImportConfig {
                 "userPixels", this, null);
 
         readersPath = new StrValue("readersPath", this);
+    }
+
+    public String getBioFormatsVersion() {
+        return String.format("version: %s revision: %s date: %s",
+                FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE);
+    }
+
+    public String getOmeroVersion() {
+        return omeroVersion;
+    }
+
+    public void fillVersionInfo(FilesetVersionInfo versionInfo) {
+        versionInfo.setBioformatsVersion(rstring(getBioFormatsVersion()));
+        versionInfo.setOmeroVersion(rstring(getOmeroVersion()));
+        versionInfo.setOsArchitecture(rstring(System.getProperty("os.arch")));
+        versionInfo.setOsName(rstring(System.getProperty("os.name")));
+        versionInfo.setOsVersion(rstring(System.getProperty("os.version")));
+        versionInfo.setLocale(rstring(Locale.getDefault().toString()));
+        // TODO: add java version info
     }
 
     /**

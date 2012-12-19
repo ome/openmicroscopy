@@ -364,6 +364,19 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return ofile;
     }
 
+    protected Ice.Current makeAdjustedCurrent(Ice.Current __current) {
+        // WORKAROUND: See the comment in RawFileStoreI.
+        // The most likely correction of this
+        // is to have PublicRepositories not be global objects, but be created
+        // on demand for each session via SharedResourcesI
+        final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        final Ice.Current adjustedCurr = new Ice.Current();
+        adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.operation = __current.operation;
+        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+        return adjustedCurr;
+    }
+
     /**
      * Create, initialize, and register an {@link RepoRawFileStoreI}
      * with the proper setting (read or write).
@@ -379,16 +392,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     protected RawFileStorePrx createRepoRFS(CheckedPath checked, String mode,
             Current __current) throws ServerError, InternalException {
 
-        // WORKAROUND: See the comment in RawFileStoreI.
-        // The most likely correction of this
-        // is to have PublicRepositories not be global objects, but be created
-        // on demand for each session via SharedResourcesI
-        final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
-        final Ice.Current adjustedCurr = new Ice.Current();
-        adjustedCurr.ctx = __current.ctx;
-        adjustedCurr.operation = __current.operation;
-        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
 
+        final Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
         final BlitzExecutor be =
                 context.getBean("throttlingStrategy", BlitzExecutor.class);
 

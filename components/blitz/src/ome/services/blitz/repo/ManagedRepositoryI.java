@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.apache.commons.io.FilenameUtils.normalize;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
@@ -49,6 +47,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.fire.Registry;
+import ome.system.Principal;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
@@ -59,9 +58,13 @@ import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
+import omero.model.FilesetVersionInfo;
+import omero.model.FilesetVersionInfoI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.sys.EventContext;
+
+import static omero.rtypes.rstring;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -237,7 +240,25 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected ImportProcessPrx createImportProcess(Fileset fs,
             ImportLocation location, ImportSettings settings, Current __current)
                 throws ServerError {
-        ManagedImportProcessI proc = new ManagedImportProcessI(this, fs,
+
+        // Initialization version info
+        final ImportConfig config = new ImportConfig();
+        final FilesetVersionInfo serverVersionInfo = new FilesetVersionInfoI();
+        serverVersionInfo.setBioformatsReader(rstring("Unknown"));
+        config.fillVersionInfo(serverVersionInfo);
+        fs.setServerVersionInfo(serverVersionInfo);
+
+        // Create CheckedPath objects for use by saveFileset
+        final Principal currentUser = currentUser(__current);
+        final int size = fs.sizeOfFilesetEntry();
+        final List<CheckedPath> checked = new ArrayList<CheckedPath>();
+        for (int i = 0; i < size; i++) {
+            final String path = location.usedFiles.get(i);
+            checked.add(checkPath(path, __current));
+        }
+
+        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, currentUser);
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this, managedFs,
                 location, settings, __current);
         return proc.getProxy();
     }

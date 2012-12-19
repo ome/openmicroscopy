@@ -30,6 +30,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
@@ -135,7 +136,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         ImportContainer ic = makeFake(tmpDir);
         ImportSettings settings = new ImportSettings();
         Fileset fs = new FilesetI();
-        ic.fillData(settings, fs);
+        ic.fillData(new ImportConfig(), settings, fs);
 
         ImportProcessPrx i = repo.prepareImport(fs, settings, curr());
         assertNotNull(i);

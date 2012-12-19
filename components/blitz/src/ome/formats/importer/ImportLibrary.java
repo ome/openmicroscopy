@@ -418,7 +418,7 @@ public class ImportLibrary implements IObservable
 
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
-        container.fillData(settings, fs);
+        container.fillData(new ImportConfig(), settings, fs);
         return repo.prepareImport(fs, settings);
 
     }

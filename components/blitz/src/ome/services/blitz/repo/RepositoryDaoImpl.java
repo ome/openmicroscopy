@@ -6,12 +6,14 @@ import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -34,6 +36,9 @@ import ome.util.SqlAction;
 
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.grid.ImportLocation;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -241,6 +246,40 @@ public class RepositoryDaoImpl implements RepositoryDao {
          }
     }
 
+    public Fileset saveFileset(final String repoUuid, final Fileset _fs,
+            final List<CheckedPath> paths,
+            final Principal currentUser) throws ServerError {
+
+        final IceMapper mapper = new IceMapper();
+        final List<CheckedPath> parents = new ArrayList<CheckedPath>();
+        for (CheckedPath path : paths) {
+            parents.add(path.parent());
+        }
+
+        final ome.model.core.Fileset fs = (ome.model.core.Fileset) mapper.reverse(_fs);
+
+        try {
+            return (Fileset) mapper.map((ome.model.core.Fileset)
+                    executor.execute(currentUser, new Executor.SimpleWork(
+                    this, "saveFileset", paths) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    int size = paths.size();
+                    for (int i = 0; i < size; i++) {
+                        CheckedPath checked = paths.get(i);
+                        ome.model.core.OriginalFile of =
+                                _internalRegister(repoUuid, checked, null,
+                                        parents.get(i), sf, getSqlAction());
+                        fs.getFilesetEntry(i).setOriginalFile(of);
+                    }
+
+                    return sf.getUpdateService().saveAndReturnObject(fs);
+                }}));
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
+    }
+
     public OriginalFile register(final String repoUuid, final CheckedPath checked,
             final String mimetype, final Ice.Current current) throws ServerError {
 
@@ -259,27 +298,43 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     this, "register", repoUuid, checked, mimetype) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
-
-                    Long fileId = getSqlAction().findRepoFile(
-                            repoUuid, checked.getRelativePath(),
-                            checked.getName(), null /*mimetype doesn't matter*/);
-
-                    if (fileId == null) {
-                        canWriteParentDirectory(sf, getSqlAction(),
-                                repoUuid, parent);
-                        return createOriginalFile(sf, getSqlAction(),
-                                repoUuid, checked, mimetype);
-                    } else {
-                        return sf.getQueryService().get(
-                                ome.model.core.OriginalFile.class, fileId);
-                    }
+                    return _internalRegister(repoUuid, checked, mimetype,
+                            parent, sf, getSqlAction());
                 }
-
             });
 
-            return (OriginalFile) new IceMapper().map(of);
+            return (OriginalFile) mapper.map(of);
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
+    }
+
+    /**
+     * Internal file registration which must happen within a single tx.
+     *
+     * @param repoUuid
+     * @param checked
+     * @param mimetype
+     * @param parent
+     * @param sf non-null
+     * @param sql non-null
+     * @return
+     */
+    private ome.model.core.OriginalFile _internalRegister(final String repoUuid,
+            final CheckedPath checked, final String mimetype,
+            final CheckedPath parent, ServiceFactory sf, SqlAction sql) {
+        Long fileId = sql.findRepoFile(
+                repoUuid, checked.getRelativePath(),
+                checked.getName(), null /*mimetype doesn't matter*/);
+
+        if (fileId == null) {
+            canWriteParentDirectory(sf, sql,
+                    repoUuid, parent);
+            return createOriginalFile(sf, sql,
+                    repoUuid, checked, mimetype);
+        } else {
+            return sf.getQueryService().get(
+                    ome.model.core.OriginalFile.class, fileId);
         }
     }
 

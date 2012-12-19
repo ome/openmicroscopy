@@ -28,12 +28,15 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import omero.grid.ImportSettings;
 import omero.model.Annotation;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
+import omero.model.FilesetVersionInfo;
+import omero.model.FilesetVersionInfoI;
 import omero.model.IObject;
 
 public class ImportContainer
@@ -211,7 +214,7 @@ public class ImportContainer
         this.userPixels = userPixels;
     }
 
-    public void fillData(ImportSettings settings, Fileset fs) {
+    public void fillData(ImportConfig config, ImportSettings settings, Fileset fs) {
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than mis-using ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
@@ -231,16 +234,21 @@ public class ImportContainer
             }
             settings.userSpecifiedPixels = target; // May be null.
         }
-        FilesetEntry entry = null;
 
-        entry = new FilesetEntryI();
-        entry.setClientPath(rstring(this.file.getAbsolutePath()));
-        fs.addFilesetEntry(entry);
+        // Fill used paths
+        FilesetEntry entry = null;
         for (String usedFile : getUsedFiles()) {
             entry = new FilesetEntryI();
             entry.setClientPath(rstring(usedFile));
             fs.addFilesetEntry(entry);
         }
+
+        // Fill BF info
+        FilesetVersionInfo clientVersionInfo = new FilesetVersionInfoI();
+        clientVersionInfo.setBioformatsReader(rstring(reader));
+        config.fillVersionInfo(clientVersionInfo);
+        fs.setClientVersionInfo(clientVersionInfo);
+
     }
 
 }

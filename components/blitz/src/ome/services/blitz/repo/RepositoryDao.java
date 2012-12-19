@@ -10,6 +10,8 @@ import ome.system.Principal;
 
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.grid.ImportLocation;
+import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
@@ -73,6 +75,21 @@ public interface RepositoryDao {
      */
     List<OriginalFile> getOriginalFiles(String repoUuid, CheckedPath checked,
             Ice.Current current) throws SecurityViolation;
+
+    /**
+     * Fill the various fields of the {@link Fileset} and then save the
+     * entire instance into the database.
+     *
+     * @param repoUuid for the repository in question.
+     * @param fs a user provided {@link Fileset} that must minimally have the
+     *    {@link FilesetEntry} objects present with their clientPath set. The rest
+     *    of the fields will be filled here.
+     * @param paths a List of the same size as the number of entries in fs
+     *    one per {@link FilesetEntry}.
+     * @param currentUser
+     */
+    Fileset saveFileset(String repoUuid, Fileset fs, List<CheckedPath> paths,
+            Principal currentUser) throws ServerError;
 
     /**
      * Register an OriginalFile object
