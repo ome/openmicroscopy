@@ -463,11 +463,15 @@ public class ImportLibrary implements IObservable
                 rawFileStore = proc.getUploader(i);
                 int rlen = 0;
                 long offset = 0;
+
+                // "touch" the file otherwise zero-length files
+                rawFileStore.write(new byte[0], offset, 0);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), i, fileTotal, offset, length, null));
+
                 while (stream.available() != 0) {
                     rlen = stream.read(buf);
-                    md.update(buf);
+                    md.update(buf, 0, rlen);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(

@@ -163,33 +163,60 @@ public class ManagedImportProcessI extends AbstractAmdServant
             return state.prx; // EARLY EXIT!
         }
 
-        FilesetEntry entry = fs.getFilesetEntry(i);
-        OriginalFile ofile = entry.getOriginalFile();
-        RawFileStorePrx prx = repo.fileById(ofile.getId().getValue(), __current);
+        final String path = location.usedFiles.get(i);
+
+        boolean success = false;
+        RawFileStorePrx prx = repo.file(path, "rw", __current);
         try {
             state = new UploadState(prx); // Overwrite
             if (uploaders.putIfAbsent(i, state) != null) {
                 // The new object wasn't used.
                 // Close it.
                 prx.close();
+                prx = null;
+            } else {
+                success = true;
             }
             return prx;
-        } catch (RuntimeException re) {
-            prx.close(); // Close if anything happens.
-            throw re;
+        } finally {
+            if (!success && prx != null) {
+                try {
+                    prx.close(); // Close if anything happens.
+                } catch (Exception e) {
+                    log.error("Failed to close RawFileStorePrx", e);
+                }
+            }
         }
     }
 
-    public List<HandlePrx> verifyUpload(List<String> hash, Current __current)
+    public List<HandlePrx> verifyUpload(List<String> hashes, Current __current)
             throws ServerError {
 
-        /*
+        final int size = fs.sizeOfFilesetEntry();
+        if (hashes == null) {
+            throw new omero.ApiUsageException(null, null,
+                    "hashes list cannot be null");
+        } else if (hashes.size() != size) {
+            throw new omero.ApiUsageException(null, null,
+                    String.format("hashes size should be %s not %s", size,
+                            hashes.size()));
+        }
 
-        File f = new File(root.file, importLocation.usedFiles.get(0));//repoIC.file);
-        CheckedPath cp = checkPath(f.getAbsolutePath(), __current);
-        repo.importMetadata()
-        */
-        throw new ServerError(null, null, "NYI");
+        for (int i = 0; i < size; i++) {
+            FilesetEntry entry = fs.getFilesetEntry(i);
+            String usedFile = location.usedFiles.get(i);
+            CheckedPath cp = repo.checkPath(usedFile, __current);
+            String client = hashes.get(i);
+            String server = cp.sha1();
+            if (!server.equals(client)) {
+                throw new omero.ValidationException(null, null,
+                        String.format("Hash mis-match for %s: " +
+					"server:%s<>client:%s",
+                                usedFile, server, client));
+            }
+        }
+
+        return null;
     }
 
     public long getUploadOffset(int i, Current __current) throws ServerError {

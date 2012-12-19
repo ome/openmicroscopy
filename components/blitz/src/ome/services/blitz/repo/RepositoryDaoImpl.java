@@ -113,7 +113,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
         try {
             Map<String, String> fileContext = fileContext(fileId, current);
             statefulExecutor.execute(fileContext, currentUser(current),
-                    new StatefulWork(bean, this, "setFileIdWithBuffer", fileId) {
+                new StatefulWork(bean, this,
+                    "setFileIdWithBuffer", fileId, checked, mode) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         bean.setFileIdWithBuffer(fileId, buffer);
