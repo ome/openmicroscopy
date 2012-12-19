@@ -1148,7 +1148,7 @@ class MetadataViewerComponent
 			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 			}
-		}	
+		}
 	}
     
 	/** 
@@ -1171,7 +1171,6 @@ class MetadataViewerComponent
 	public SecurityContext getSecurityContext()
 	{ 
 		return model.getSecurityContext();
-	
 	}
 	
 	/** 
@@ -1180,9 +1179,8 @@ class MetadataViewerComponent
 	 */
 	public boolean isSameObject(Object object)
 	{
-		return model.isSameObject((DataObject) object);
+		return model.isSameObject(object);
 	}
-	
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
