@@ -2743,14 +2743,14 @@ class _BlitzGateway (object):
                 raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
             sizeY, sizeX = firstPlane.shape
             channelList = range(1, sizeC+1)
-            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
             imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None)[0]
+            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
 
         def uploadPlane(plane, z, c, t):
             byteSwappedPlane = plane.byteswap();
             convertedPlane = byteSwappedPlane.tostring();
-            rawPixelsStore.setPlane(convertedPlane, z, c, t)
+            rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
         channelsMinMax = []
@@ -2777,7 +2777,7 @@ class _BlitzGateway (object):
             logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
             exc = e
         try:
-            rawPixelsStore.close()
+            rawPixelsStore.close(self.SERVICE_OPTS)
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
@@ -2791,7 +2791,7 @@ class _BlitzGateway (object):
             pass
 
         for theC, mm in enumerate(channelsMinMax):
-            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]))
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
             #resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
 
         # put the image in dataset, if specified.
@@ -2799,7 +2799,7 @@ class _BlitzGateway (object):
             link = omero.model.DatasetImageLinkI()
             link.parent = omero.model.DatasetI(dataset.getId(), False)
             link.child = omero.model.ImageI(image.id.val, False)
-            updateService.saveObject(link)
+            updateService.saveObject(link, self.SERVICE_OPTS)
 
         return ImageWrapper(self, image)
 
