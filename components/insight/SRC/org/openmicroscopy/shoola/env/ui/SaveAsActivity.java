@@ -28,10 +28,15 @@ import java.io.File;
 
 //Third-party libraries
 
+import omero.model.OriginalFile;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import pojos.FileAnnotationData;
 
 /** 
  * The activity associated to the Save as action i.e. save a collection of
@@ -104,7 +109,14 @@ public class SaveAsActivity
 	protected void notifyActivityEnd()
 	{
 		//Download the file.
-		download("", result, parameters.getFolder());
+		if (result instanceof FileAnnotationData) {
+			FileAnnotationData data = (FileAnnotationData) result;
+			String name = "";
+			if (data.isLoaded()) name = data.getFileName();
+			else name = "Annotation_"+data.getId();
+			download("", result, new File(parameters.getFolder(), name));
+		}
+		
 		type.setText(DESCRIPTION_CREATED+" "+parameters.getFolder().getName());
 	}
 	
