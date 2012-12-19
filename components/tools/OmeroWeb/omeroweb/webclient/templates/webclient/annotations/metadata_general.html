@@ -343,8 +343,13 @@
                 if (typeof pid === "undefined") {
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
-                    $chNameForm.find(".ptype").text( pid.split("-")[0].capitalize() );
+                    var parentType = pid.split("-")[0];
+                    $chNameForm.find(".ptype").text( parentType.capitalize() );
                     $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
+                    if (parentType === "plate") {
+                        // Plate: only allow 'Apply to All' (all images linked to same Channels)
+                        $chNameForm.find("button[name=save]").hide();
+                    }
                 }
                 var resetChForm = function() {
                     $chNameForm.find(".originalButtons").show();
