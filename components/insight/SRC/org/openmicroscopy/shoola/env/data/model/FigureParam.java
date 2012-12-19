@@ -333,21 +333,19 @@ public class FigureParam
 		checkFormat(format);
 		checkLabel(label);
 		this.name = name;
-		//Iterator<Integer> i = channels.keySet().iterator();
 		Color c;
-		Integer index;
 		mergeChannels = new LinkedHashMap<Integer, Integer>(channels.size());
 		int value;
-		Entry entry;
-		Iterator i = channels.entrySet().iterator();
+		Entry<Integer, Color> entry;
+		Iterator<Entry<Integer, Color>> i = channels.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (Color) entry.getValue();
+			entry = i.next();
+			c = entry.getValue();
 			value = ((c.getAlpha() & 0xFF) << 24) |
             	((c.getRed() & 0xFF) << 16) |
-            ((c.getGreen() & 0xFF) << 8)  |
+            ((c.getGreen() & 0xFF) << 8) |
             ((c.getBlue() & 0xFF) << 0);
-			mergeChannels.put((Integer) entry.getKey(), value);
+			mergeChannels.put(entry.getKey(), value);
 		}
 	}
 	
@@ -610,7 +608,7 @@ public class FigureParam
 	public void setColor(String c)
 	{ 
 		if (c == null || c.trim().length() == 0) return;
-		this.color = c;//c.getRGB() & 0x00ffffff;
+		this.color = c;
 	}
 	
 	/**
