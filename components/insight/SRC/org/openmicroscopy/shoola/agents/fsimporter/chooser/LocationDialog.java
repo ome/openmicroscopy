@@ -298,6 +298,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	/** List of the available screens in the current group */
 	private Collection<TreeImageDisplay> currentScreens;
+
+	/** The Project panel */
+	private JPanel projectPanel;
+
+	/** The Screen panel */
+	private JPanel screenPanel;
 	
 	/**
 	 * Creates a new instance.
@@ -325,13 +331,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 		this.groups = groups;
 		this.currentGroup = findGroupWithId(groups, currentGroupId);
 		
-		switchToDataType(importDataType);
-		
 		setModal(true);
 		setTitle(TEXT_TITLE);
 		
 		initComponents();
 		buildGUI();
+		
+		switchToDataType(importDataType);
 	}
 
 	/**
@@ -343,9 +349,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		{
 			case Importer.PROJECT_TYPE:
 				currentProjects = objects;
+				this.tabbedPane.setSelectedComponent(projectPanel);
 				break;
 			case Importer.SCREEN_TYPE:
 				currentScreens = objects;
+				this.tabbedPane.setSelectedComponent(screenPanel);
 		}
 	}
 
@@ -448,10 +456,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 		IconManager icons = IconManager.getInstance();
 		
 		Icon projectIcon = icons.getIcon(IconManager.PROJECT);
-		JPanel projectPanel = buildProjectSelectionPanel();
+		projectPanel = buildProjectSelectionPanel();
 
 		Icon screenIcon = icons.getIcon(IconManager.SCREEN);
-		JPanel screenPanel = buildScreenSelectionPanel();
+		screenPanel = buildScreenSelectionPanel();
 
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab(TEXT_PROJECTS, projectIcon, projectPanel,
