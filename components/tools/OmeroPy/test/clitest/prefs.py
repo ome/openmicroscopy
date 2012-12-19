@@ -120,17 +120,23 @@ class TestPrefs(unittest.TestCase):
         self.invoke("get")
         self.assertStdout(["A=B"])
 
+        # Same property/value pairs should pass
+        self.invoke("load %s" % to_load)
+
+        to_load.write_text("A=C")
         try:
+            # Different property/value pair should fail
             self.invoke("load %s" % to_load)
             self.fail("No NZRC")
         except NonZeroReturnCode:
+            self.assertStderr(["Duplicate property: A ('B' => 'C')"])
             pass
 
-        to_load.write_text("A=C")
+        # Quiet load
         self.invoke("load -q %s" % to_load)
         self.invoke("get")
         self.assertStdout(["A=C"])
-        self.assertStderr(["Duplicate property: A (B => B)"])
+        self.assertStderr([])
 
     def testLoadDoesNotExist(self):
         # ticket:7273
@@ -164,6 +170,16 @@ class TestPrefs(unittest.TestCase):
             control.edit(args, config, fake_edit_path)
         finally:
             config.close()
+
+    def testNewEnvironment(self):
+        config = self.config()
+        config.default("default")
+        config.close()
+        os.environ["OMERO_CONFIG"] = "testNewEnvironment"
+        self.invoke("set A B")
+        self.assertStdout([])
+        self.invoke("get")
+        self.assertStdout(["A=B"])
 
 if __name__ == '__main__':
     unittest.main()
