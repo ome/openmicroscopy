@@ -38,6 +38,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -788,68 +790,89 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Takes the dataNdoes and populates the combo box with the values as well
-	 * as adding a tooltip for each item
-	 * @param dataNodes The nodes used to be displayed in the combo box
-	 * @param comboBox The JComboBox that hosts the options
+	 * Populates the JComboBox with the items provided adding the top item, 
+	 * selecting the specified item and adding hover tooltips.
+	 * @param comboBox The JComboBox to populate
+	 * @param nodes The items to populate the box with
+	 * @param topItem The item to add at the top of the JComboBox
+	 * @param selected The item to select in the JComboBox
+	 * @param listener The action listener for this JComboBox
 	 */
-	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
-			JComboBox comboBox) {
-		List<String> tooltips = new ArrayList<String>(dataNodes.size());
-
+	private <T extends DataNode> void populateWithItemsAndTooltips(
+			JComboBox comboBox, List<T> nodes, T topItem, T selected) {
+		populateWithItemsAndTooltips(comboBox, nodes, topItem, selected, null);
+	}
+	
+	/**
+	 * Populates the JComboBox with the items provided adding the top item, 
+	 * selecting the specified item and adding hover tooltips.
+	 * @param comboBox The JComboBox to populate
+	 * @param nodes The items to populate the box with
+	 * @param topItem The item to add at the top of the JComboBox
+	 * @param selected The item to select in the JComboBox
+	 * @param listener The action listener for this JComboBox
+	 */
+	private <T extends DataNode> void populateWithItemsAndTooltips(
+			JComboBox comboBox, List<T> nodes, T topItem, T selected, 
+			ItemListener listener) {
+		
+		if(listener != null)
+			comboBox.removeItemListener(listener);
+		
+		if(comboBox == null || nodes == null)
+			return;
+		
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
-
 		comboBox.setRenderer(renderer);
+		
+		if (topItem != null)
+			nodes.add(0, topItem);
 
-		for (DataNode projectNode : dataNodes) {
-			comboBox.addItem(projectNode);
-
-			String projectName = projectNode.getFullName();
-			List<String> wrapped = UIUtilities.wrapStyleWord(projectName, 50);
-
+		List<String> tooltips = new ArrayList<String>(nodes.size());
+		
+		comboBox.removeAllItems();
+		
+		for (T node : nodes) {
+			comboBox.addItem(node);
+			
+			String nodeName = node.getFullName();
+			List<String> wrapped = UIUtilities.wrapStyleWord(nodeName, 50);
 			tooltips.add(UIUtilities.formatToolTipText(wrapped));
 		}
 
+		if(listener != null)
+			comboBox.addItemListener(listener);
+		
+		if (selected != null && nodes.contains(selected))
+			comboBox.setSelectedItem(selected);
+
 		renderer.setTooltips(tooltips);
 	}
-
+	
 	/**
 	 * Creates a project.
-	 * @param data The project to create.
+	 * @param newProject The project to create.
 	 */
-	public void createProject(DataObject data) {
-		if (data == null)
+	public void createProject(DataObject newProject) {
+		if (newProject == null)
 			return;
-
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode node;
+		
 		DataNode defaultNode = null;
+		DataNode newProjectNode = new DataNode(newProject);
+		newProjectNode.addNode(new DataNode(DataNode.createDefaultDataset(), newProjectNode));
+		List<DataNode> projects = new ArrayList<DataNode>();
+		projects.add(newProjectNode);
 
 		for (int i = 0; i < projectsBox.getItemCount(); i++) {
-			node = (DataNode) projectsBox.getItemAt(i);
-			if (!node.isDefaultProject())
-				nodes.add(node);
+			DataNode currentNode = (DataNode) projectsBox.getItemAt(i);
+			if (currentNode.isDefaultProject())
+				defaultNode = currentNode;
 			else
-				defaultNode = node;
+				projects.add(currentNode);
 		}
-
-		DataNode newNode = new DataNode(data);
-		newNode.addNode(new DataNode(DataNode.createDefaultDataset(), newNode));
-		nodes.add(newNode);
-
-		List<DataNode> sortedList = sorter.sort(nodes);
-		if (defaultNode != null)
-			sortedList.add(defaultNode);
-
-		projectsBox.removeItemListener(this);
-		projectsBox.removeAllItems();
-
-		for (DataNode dataNode : sortedList) {
-			projectsBox.addItem(dataNode);
-		}
-
-		projectsBox.addItemListener(this);
-		projectsBox.setSelectedItem(newNode);
+		
+		populateWithItemsAndTooltips(projectsBox, sorter.sort(projects), 
+				defaultNode, newProjectNode, this);
 
 		repaint();
 	}
@@ -861,65 +884,50 @@ public class LocationDialog extends JDialog implements ActionListener,
 	public void createDataset(DatasetData dataset) {
 		if (dataset == null)
 			return;
-		DataNode node = (DataNode) projectsBox.getSelectedItem();
-		DataNode nn = new DataNode(dataset, node);
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		nodes.add(nn);
-		DataNode n, dn = null;
+		
+		DataNode defaultNode = null;
+		DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
+		DataNode newDatasetNode = new DataNode(dataset, selectedProject);
+		List<DataNode> datasets = new ArrayList<DataNode>();
+		datasets.add(newDatasetNode);
+		
 		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
-			n = (DataNode) datasetsBox.getItemAt(i);
-			if (!n.isDefaultNode())
-				nodes.add(n);
+			DataNode currentNode = (DataNode) datasetsBox.getItemAt(i);
+			if (currentNode.isDefaultNode())
+				defaultNode = currentNode;
 			else
-				dn = n;
+				datasets.add(currentNode);
 		}
-		List<DataNode> l = sorter.sort(nodes);
-		if (dn != null)
-			l.add(dn);
-		datasetsBox.removeAllItems();
-
-		for (DataNode dataNode : l) {
-			datasetsBox.addItem(dataNode);
-		}
-
-		datasetsBox.setSelectedItem(nn);
+		
+		populateWithItemsAndTooltips(datasetsBox, sorter.sort(datasets), 
+				defaultNode, newDatasetNode);
+		
+		repaint();
 	}
 
 	/**
 	 * Creates a screen.
-	 * @param data The screen to create.
+	 * @param newScreenObject The screen to create.
 	 */
-	public void createScreen(DataObject data) {
-		if (data == null)
+	public void createScreen(DataObject newScreenObject) {
+		if (newScreenObject == null)
 			return;
 
-		List<DataNode> nodes = new ArrayList<DataNode>();
-		DataNode n;
-		DataNode dn = null;
+		DataNode defaultNode = null;
+		DataNode newScreenNode = new DataNode(newScreenObject);
+		List<DataNode> screens = new ArrayList<DataNode>();
+		screens.add(newScreenNode);
 		
 		for (int i = 0; i < screensBox.getItemCount(); i++) {
-			n = (DataNode) screensBox.getItemAt(i);
-			if (!n.isDefaultScreen())
-				nodes.add(n);
+			DataNode currentNode = (DataNode) screensBox.getItemAt(i);
+			if (currentNode.isDefaultScreen())
+				defaultNode = currentNode;
 			else
-				dn = n;
+				screens.add(currentNode);
 		}
-
-		DataNode nn = new DataNode(data);
-		nodes.add(nn);
-
-		List<DataNode> l = sorter.sort(nodes);
-		if (dn != null)
-			l.add(dn);
-
-		screensBox.removeAllItems();
-
-		for (DataNode dataNode : l) {
-			screensBox.addItem(dataNode);
-		}
-
-		screensBox.setSelectedItem(nn);
-
+		
+		populateWithItemsAndTooltips(screensBox, sorter.sort(screens), 
+				defaultNode, newScreenNode);
 		repaint();
 	}
 
@@ -927,30 +935,32 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Populates the datasets box depending on the selected project.
 	 */
 	private void populateDatasetsBox() {
-		DataNode n = (DataNode) projectsBox.getSelectedItem();
-		List<DataNode> list = n.getDatasetNodes();
-		List<DataNode> nl = n.getNewNodes();
-		if (nl != null)
-			list.addAll(nl);
-		List<DataNode> sortedDatasets = sorter.sort(list);
-		datasetsBox.removeAllItems();
-
-		populateAndAddTooltipsToComboBox(sortedDatasets, datasetsBox);
+		DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
+		List<DataNode> datasets = selectedProject.getDatasetNodes();
+		List<DataNode> newDatasets = selectedProject.getNewNodes();
+		
+		DataNode selectedNode = null;
+		
+		if (newDatasets != null)
+			datasets.addAll(newDatasets);
+		
+		List<DataNode> sortedDatasets = sorter.sort(datasets);
 
 		if (selectedContainer != null) {
 			Object o = selectedContainer.getUserObject();
 			if (o instanceof DatasetData) {
-				DatasetData d = (DatasetData) o;
+				DatasetData dataset = (DatasetData) o;
 				Iterator<DataNode> i = sortedDatasets.iterator();
-				while (i.hasNext()) {
-					n = i.next();
-					if (n.getDataObject().getId() == d.getId()) {
-						datasetsBox.setSelectedItem(n);
-						break;
+				while (i.hasNext() && selectedNode == null) {
+					DataNode currentNode = i.next();
+					if (currentNode.getDataObject().getId() == dataset.getId()) {
+						selectedNode = currentNode;
 					}
 				}
 			}
-		} else { // no node selected
+		} 
+		
+		/*else { // no node selected
 			if (sortedDatasets.size() > 1) {
 				Iterator<DataNode> i = sortedDatasets.iterator();
 				while (i.hasNext()) {
@@ -961,7 +971,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 					}
 				}
 			}
-		}
+		}*/
+
+		populateWithItemsAndTooltips(datasetsBox, sortedDatasets, 
+				null, selectedNode);
 	}
 
 	/**
@@ -1007,7 +1020,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Populates the selection boxes with the currently selected data.
 	 */
 	private void populateLocationComboBoxes() {
-		List<DataNode> topList = new ArrayList<DataNode>();
+		List<DataNode> parentList = new ArrayList<DataNode>();
 		List<DataNode> datasetsList = new ArrayList<DataNode>();
 		DataNode n;
 		Object hostObject = null;
@@ -1023,7 +1036,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 					n = new DataNode((DataObject) hostObject);
 					getNewDataset((DataObject) hostObject, n);
 					n.setRefNode(node);
-					topList.add(n);
+					parentList.add(n);
 				} else if (hostObject instanceof DatasetData) {
 					n = new DataNode((DataObject) hostObject);
 					n.setRefNode(node);
@@ -1048,12 +1061,12 @@ public class LocationDialog extends JDialog implements ActionListener,
 						n = j.next();
 						data = n.getDataObject();
 						if (data.getId() <= 0) {
-							topList.add(n);
+							parentList.add(n);
 						}
 					}
 				}
 				
-				loadProjects(datasetsList, sorter.sort(topList));
+				loadProjects(datasetsList, sorter.sort(parentList));
 				
 				projectsBox.addItemListener(this);
 				break;
@@ -1066,11 +1079,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 						n = j.next();
 						data = n.getDataObject();
 						if (data.getId() <= 0)
-							topList.add(n);
+							parentList.add(n);
 					}
 				}
 				
-				loadScreens(sorter.sort(topList));
+				loadScreens(sorter.sort(parentList));
 		}
 	}
 
@@ -1083,8 +1096,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		finalList.add(new DataNode(DataNode.createDefaultScreen()));
 		finalList.addAll(sortedList);
-
-		populateAndAddTooltipsToComboBox(finalList, screensBox);
 
 		DataNode selectedNode = null;
 
@@ -1099,9 +1110,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 				}
 			}
 		}
-		
-		if(selectedNode != null)
-			screensBox.setSelectedItem(selectedNode);
+
+		populateWithItemsAndTooltips(screensBox, finalList, null, selectedNode);
 	}
 
 	/**
@@ -1146,36 +1156,39 @@ public class LocationDialog extends JDialog implements ActionListener,
 		finalList.add(n);
 		finalList.addAll(projects);
 
-		populateAndAddTooltipsToComboBox(finalList, projectsBox);
-
 		int index = 0;
 		TreeImageDisplay node;
-
+		DataNode selectedNode = null;
+				
 		// Determine the node to select.
 		if (selectedContainer != null) {
 			Object hostObject = selectedContainer.getUserObject();
-			ProjectData p = null;
+			ProjectData selectedProject = null;
 			if (hostObject instanceof ProjectData) {
-				p = (ProjectData) hostObject;
+				selectedProject = (ProjectData) hostObject;
 			} else if (hostObject instanceof DatasetData) {
 				node = selectedContainer.getParentDisplay();
-				if (node != null && node.getUserObject() instanceof ProjectData) {
-					p = (ProjectData) node.getUserObject();
+				if (node != null &&
+						node.getUserObject() instanceof ProjectData) {
+					selectedProject = (ProjectData) node.getUserObject();
 				}
 			}
-			if (p != null) {
-				long id = p.getId();
-				for (int i = 0; i < projectsBox.getItemCount(); i++) {
-					n = (DataNode) projectsBox.getItemAt(i);
-					if (n.getDataObject().getId() == id) {
-						index = i;
-						break;
+			
+			if (selectedProject != null) {
+				Iterator<DataNode> i = finalList.iterator();
+				while (i.hasNext() && selectedNode == null) {
+					DataNode currentNode = i.next();
+					long dataNodeId = currentNode.getDataObject().getId();
+					if (dataNodeId == selectedProject.getId()) {
+						selectedNode = currentNode;
 					}
 				}
 			}
 		}
-		projectsBox.setSelectedIndex(index);
 
+
+		populateWithItemsAndTooltips(projectsBox, finalList, null, selectedNode);
+		
 		populateDatasetsBox();
 	}
 
