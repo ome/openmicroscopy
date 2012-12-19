@@ -88,6 +88,7 @@
                 </tr> 
             </thead>
             <tbody>
+            <!-- NB: E.g. "#project-123 td.desc a" etc is used to update names if edited in right-panel 'editinplace.js' -->
             {% for i in controller.day_items %}
             {% for c in i.project %}
                 <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
