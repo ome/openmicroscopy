@@ -209,7 +209,7 @@
                     return false;
                 });
 
-                $(".tooltip_title, .tag_annotation_wrapper, .file_ann_wrapper").tooltip({ 
+                $(".tooltip_title").tooltip({ 
                     bodyHandler: function() { 
                             return $("span.tooltip_html", $(this)).html(); 
                         },
@@ -221,6 +221,7 @@
                     top: 10, 
                     left: -100 
                 });
+                $(".tooltip").tooltip_init();
 
                 // bind 'remove' action to various annotations
                 $("#tags_container").on("click", ".removeTag", function(event){
