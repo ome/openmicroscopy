@@ -104,9 +104,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	/** Helper setting for TableLayout.PREFERRED*/
 	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
-
-	/** Helper setting for TableLayout.FILL*/
-	private static final double[] TABLE_FILL = {TableLayout.FILL};
 	
 	/** Table template for 3 settings of Preferred width / height */
 	private static final double[] TABLE_PREF_PREF_PREF = 
@@ -115,7 +112,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Table template for expandable middle column / row */
 	private static final double[] TABLE_PREF_FILL_PREF = 
 		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
-
 
 	// other constants
 	/** Bound property indicating to change the import group. */
@@ -286,7 +282,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private TreeImageDisplay selectedContainer;
 
 	/** The id of the import data type (Screen/Project) */
-	private int importDataType;
+	private int importDataType = NO_DATA_TYPE;
 
 	/** Internal list of available groups. */
 	private Collection<GroupData> groups;
@@ -380,7 +376,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		groupsBox.addItemListener(this);
 		
-		
 		IconManager icons = IconManager.getInstance();
 		reloadButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));
 		reloadButton.setBackground(UIUtilities.BACKGROUND);
@@ -401,8 +396,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		
 		populateLocationComboBoxes();
 
-		// main panel buttons
-		
+		// main location panel buttons
 		newProjectButton = new JButton(TEXT_NEW);
 		newProjectButton.setToolTipText(TOOLTIP_CREATE_PROJECT);
 		newProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
@@ -419,7 +413,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 		newScreenButton.addActionListener(this);
 		
 		// main action buttons
-		
 		addButton = new JButton(TEXT_QUEUE_ITEMS);
 		addButton.setToolTipText(TOOLTIP_QUEUE_ITEMS);
 		addButton.addActionListener(this);
@@ -434,6 +427,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
+	 * Builds a JPanel holding the main action buttons
 	 * @return The JPanel holding the lower main action buttons.
 	 */
 	private JPanel buildButtonPanel() {
@@ -447,6 +441,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
+	 * Builds a TabbedPane holding the Screen / Project import sections
 	 * @return The tab panel for Screen / Project selection
 	 */
 	private JPanel buildDataTypeTabbedPane() {
@@ -471,6 +466,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
+	 * Builds a JPanel holding the group selection section.
 	 * @return JPanel holding the group selection UI elements
 	 */
 	private JPanel buildGroupSelectionPanel() {
@@ -488,6 +484,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
+	 * Builds a JPanel holding the project selection section.
 	 * @return JPanel holding the project selection UI elements
 	 */
 	private JPanel buildProjectSelectionPanel() {
@@ -507,6 +504,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
+	 * Builds a JPanel holding the screen selection section.
 	 * @return JPanel holding the screen selection UI elements
 	 */
 	private JPanel buildScreenSelectionPanel() {
@@ -523,9 +521,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds the toolbar when the importer is the entry point.
-	 * 
 	 * @param availableGroups
-	 * 
 	 * @return See above.
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
@@ -557,9 +553,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Returns the icon associated to the group.
-	 * 
-	 * @param group
-	 *            The group to handle.
+	 * @param group  The group to handle.
 	 * @return See above.
 	 */
 	private Icon getGroupIcon(GroupData group) {
@@ -582,9 +576,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds and lays out the UI.
-	 * 
-	 * @param location
-	 *            The component displaying the option.
 	 */
 	private void buildGUI() {
 		BorderLayout layout = new BorderLayout();
@@ -627,8 +618,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * Creates a TableLayout based on the design passed in
 	 * with a HGap and VGap set to UI_GAP
-	 * @param columns the column templte to use for the table design
-	 * @param rows the row tempalte to use for the table design
+	 * @param columns the column template to use for the table design
+	 * @param rows the row template to use for the table design
 	 * @return A table layout with the design & spacing applied
 	 */
 	private TableLayout createTableLayout(double[] columns, double[] rows) {
@@ -682,7 +673,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Shows the message box and returns the option selected by the user.
-	 * 
 	 * @return The option selected by the user.
 	 */
 	int centerLocation() {
@@ -692,9 +682,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Shows the message box and returns the option selected by the user.
-	 * 
-	 * @param location
-	 *            The location of the top-left corner of the dialog.
+	 * @param location The location of the top-left corner of the dialog.
 	 * @return The option selected by the user.
 	 */
 	int showLocation(Point location) {
@@ -705,7 +693,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Sets the option.
-	 * 
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent ae) {
@@ -766,6 +753,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
+	 * The import settings chosen bu the user.
 	 * @return The import settings selected by the user.
 	 */
 	public ImportLocationSettings getImportSettings() {
@@ -794,11 +782,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * Takes the dataNdoes and populates the combo box with the values as well
 	 * as adding a tooltip for each item
-	 * 
-	 * @param dataNodes
-	 *            the nodes used to be displayed in the combo box
-	 * @param comboBox
-	 *            the JComboBox that hosts the options
+	 * @param dataNodes The nodes used to be displayed in the combo box
+	 * @param comboBox The JComboBox that hosts the options
 	 */
 	private void populateAndAddTooltipsToComboBox(List<DataNode> dataNodes,
 			JComboBox comboBox) {
@@ -822,9 +807,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Creates a project.
-	 * 
-	 * @param data
-	 *            The project to create.
+	 * @param data The project to create.
 	 */
 	public void createProject(DataObject data) {
 		if (data == null)
@@ -865,9 +848,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Creates the dataset.
-	 * 
-	 * @param dataset
-	 *            The dataset to create.
+	 * @param dataset The dataset to create.
 	 */
 	public void createDataset(DatasetData dataset) {
 		if (dataset == null)
@@ -898,9 +879,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Creates a screen.
-	 * 
-	 * @param data
-	 *            The screen to create.
+	 * @param data The screen to create.
 	 */
 	public void createScreen(DataObject data) {
 		if (data == null)
@@ -978,8 +957,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Reacts to property fired by the table.
-	 * 
+	 * Handles property fired by the Editor Dialog.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -1008,6 +986,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
+	 * Returns the currently selected group in the Group selection box.
 	 * @return The currently selected group in the Group ComboBox
 	 */
 	private GroupData getSelectedGroup() {
@@ -1119,7 +1098,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Returns the collection of new datasets.
-	 * 
 	 * @return See above.
 	 */
 	private List<DataNode> getOrphanedNewDatasetNode() {
@@ -1137,8 +1115,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Populates the projects & datasets boxes with the current options
-	 * @param datasets
-	 * @param projects
+	 * @param datasets Datasets used to populate the Datasets combobox
+	 * @param projects Projects used to populate the Projects combobox
 	 */
 	private void loadProjects(List<DataNode> datasets, List<DataNode> projects) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
@@ -1195,11 +1173,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Retrieves the new nodes to add the project.
-	 * 
-	 * @param data
-	 *            The data object to handle.
-	 * @param node
-	 *            The node hosting the data object.
+	 * @param data The data object to handle.
+	 * @param node The node hosting the data object.
 	 */
 	private void getNewDataset(DataObject data, DataNode node) {
 		if (newNodesPD == null || data instanceof ScreenData)
@@ -1227,10 +1202,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Resets the display to the selection and group specified
-	 * @param container
-	 * @param type
-	 * @param objects
-	 * @param currentGroupId
+	 * @param container The container that is selected
+	 * @param type The datatype identifier (Project / SCreen)
+	 * @param objects The objects to use.
+	 * @param currentGroupId The currently active user group.
 	 */
 	public void reset(TreeImageDisplay container, int type,
 			Collection<TreeImageDisplay> objects , long currentGroupId) {
@@ -1246,8 +1221,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Re-populates and resets the groups, screens, projects & dataset options.
-	 * @param availableGroups
-	 * @param currentGroupId
+	 * @param availableGroups The list of available groups to this user.
+	 * @param currentGroupId The currently active user group's ID.
 	 */
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
