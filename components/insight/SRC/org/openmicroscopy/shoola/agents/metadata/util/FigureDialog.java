@@ -991,7 +991,7 @@ public class FigureDialog
 			entry = i.next();
 			v = entry.getKey();
 			f[v] = entry.getValue();
-			if (v == FigureParam.PNG);
+			if (v == FigureParam.DEFAULT_FORMAT)
 				index = v;
 		}
 		formats = new JComboBox(f);
