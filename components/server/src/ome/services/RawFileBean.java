@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.NonWritableChannelException;
+import java.security.MessageDigest;
 import java.sql.SQLException;
 
 import ome.annotations.RolesAllowed;
@@ -79,6 +80,21 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
+
+    /**
+     * {@link MessageDigest} maintained for sequential write files. On any
+     * write with offset = 0, a new {@link MessageDigest} will be created. As
+     * long as all write calls happen sequentially and without gaps, then
+     * md.digest() will represent the actual state of the file. Any
+     * non-sequential call will cause the instance to be nulled.
+     */
+    private transient MessageDigest md;
+
+    /**
+     * Used to track the last sequential offset to
+     * {@link #write(byte[], long, long)}.
+     */
+    private transient long mdOffset = 0;
     
     /**
      * default constructor
@@ -159,7 +175,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             try {
-                byte[] hash = Utils.pathToSha1(path);
+                byte[] hash = md.digest();
                 file.setSha1(Utils.bytesToHex(hash));
 
                 long size = new File(path).length();
@@ -368,10 +384,25 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         if (diskSpaceChecking) {
             iRepositoryInfo.sanityCheckRepository();
         }
+
+        if (position == 0) {
+            md = Utils.newSha1MessageDigest();
+            mdOffset = 0;
+        } else if (mdOffset != position) {
+            md = null;
+        }
         
         try {
             buffer.write(nioBuffer, position);
+            // Write was successful, update state.
             modified();
+            try {
+                md.update(buf);
+                mdOffset += length;
+            } catch (RuntimeException re) {
+                md = null;
+                throw re;
+            }
         } catch (NonWritableChannelException nwce) {
             throw new SecurityViolation("File not writeable!");
         } catch (IOException e) {
