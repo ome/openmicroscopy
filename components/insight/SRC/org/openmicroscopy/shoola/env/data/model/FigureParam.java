@@ -98,6 +98,12 @@ public class FigureParam
 	/** Identify the <code>PNG</code> format. */
 	public static final int		PNG = 1;
 
+	/** Identify the <code>TIFF</code> format. */
+	public static final int TIFF = 2;
+	
+	/** Identify the default format. */
+	public static final int DEFAULT_FORMAT = JPEG;
+	
 	/** Identify the <code>Seconds</code> format. */
 	public static final int		TIME_SECS = 0; 
 	
@@ -120,9 +126,10 @@ public class FigureParam
 	public static final Map<Integer, String>	TIMES;
 	
 	static {
-		FORMATS = new LinkedHashMap<Integer, String>(2);
+		FORMATS = new LinkedHashMap<Integer, String>(3);
 		FORMATS.put(JPEG, "JPEG");
 		FORMATS.put(PNG, "PNG");
+		FORMATS.put(TIFF, "TIFF");
 		TIMES = new LinkedHashMap<Integer, String>(6);
 		TIMES.put(TIME_SECS, "Seconds (e.g. 2)");
 		TIMES.put(TIME_MINS, "Minutes");
@@ -227,7 +234,7 @@ public class FigureParam
 	{
 		time = TIME_SECS;
 		label = IMAGE_NAME;
-		format = PNG;
+		format = DEFAULT_FORMAT;
 		projectionType = ProjectionParam.MAXIMUM_INTENSITY;
 		stepping = 1;
 		scaleBar = 1;
@@ -251,10 +258,11 @@ public class FigureParam
 		switch (format) {
 			case JPEG:
 			case PNG:
+			case TIFF:
 				this.format = format;
 				break;
 			default:
-				this.format = PNG;
+				this.format = JPEG;
 		}
 	}
 	
@@ -646,14 +654,7 @@ public class FigureParam
 	 * 
 	 * @return See above.
 	 */
-	public String getFormatAsString()
-	{
-		switch (format) {
-			default:
-			case JPEG: return "JPEG";//"image/jpeg";
-			case PNG: return "PNG";//"image/png";
-		}
-	}
+	public String getFormatAsString() { return FORMATS.get(format); }
 	
 	/**
 	 * Returns the projection type as a string.
