@@ -2840,7 +2840,7 @@ class _BlitzGateway (object):
         pix = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
 
         maxIdx = max(nameDict.keys())
-        toSave = []
+        toSave = set()      # NB: we may have duplicate Logical Channels (Many Iamges in Plate linked to same LogicalChannel)
         updateCount = 0
         ctx = self.SERVICE_OPTS.copy()
         for p in pix:
@@ -2854,8 +2854,9 @@ class _BlitzGateway (object):
                     continue
                 lc = c.logicalChannel
                 lc.setName(rstring(nameDict[i+1]))
-                toSave.append(lc)
+                toSave.add(lc)
 
+        toSave = list(toSave)
         self.getUpdateService().saveCollection(toSave, ctx)
         return {'imageCount':len(imageIds), 'updateCount':updateCount}
 
