@@ -483,7 +483,7 @@ class BaseContainer(BaseController):
         return batchAnns
 
 
-    def getTagsByObject(self):
+    def getTagsByObject(self, parent_type=None, parent_ids=None):
         eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
         def sort_tags(tag_gen):
@@ -507,6 +507,11 @@ class BaseContainer(BaseController):
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.acquisition is not None:
             return sort_tags(self.acquisition.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+        elif parent_type and parent_ids:
+            parent_type = parent_type.title()
+            if parent_type == "Acquisition":
+                parent_type = "PlateAcquisition"
+            return sort_tags(self.conn.listOrphanedAnnotations(parent_type, parent_ids, eid=eid, anntype='Tag'))
         else:
             if eid is not None:
                 params = omero.sys.Parameters()
@@ -515,7 +520,7 @@ class BaseContainer(BaseController):
                 return sort_tags(self.conn.getObjects("TagAnnotation", params=params))
             return sort_tags(self.conn.getObjects("TagAnnotation"))
     
-    def getFilesByObject(self):
+    def getFilesByObject(self, parent_type=None, parent_ids=None):
         eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
@@ -540,6 +545,11 @@ class BaseContainer(BaseController):
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.acquisition is not None:
             return sort_file_anns(self.acquisition.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+        elif parent_type and parent_ids:
+            parent_type = parent_type.title()
+            if parent_type == "Acquisition":
+                parent_type = "PlateAcquisition"
+            return sort_file_anns(self.conn.listOrphanedAnnotations(parent_type, parent_ids, eid=eid, ns=ns, anntype='File'))
         else:
             return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################

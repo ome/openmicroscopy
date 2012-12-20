@@ -85,6 +85,7 @@
         }
         
         var load_drivespace = function(freespace) {
+            $("#free_space").text(freespace.filesizeformat());
             $("#status").html('loading...');
             $("#progress").show();
             var usage = true;
@@ -217,7 +218,7 @@
 
             <h2>{% trans "Drive space usage" %}:</h2>
 
-            <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+            <div>{% trans "Free space" %}: <span id="free_space"></span></div>
             <div id="total"></div>
 
             <div id="usage">

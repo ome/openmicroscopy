@@ -1125,10 +1125,17 @@ def annotate_file(request, conn=None, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 return handlerInternalError(request, x)
-    if manager is None:
+
+    if manager is not None:
+        files = manager.getFilesByObject()
+    else:
         manager = BaseContainer(conn)
+        for dtype, objs in oids.items():
+            if len(objs) > 0:
+                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
+                files = manager.getFilesByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+                break
     
-    files = manager.getFilesByObject()
     initial['files'] = files
 
     if request.method == 'POST':
@@ -1239,10 +1246,16 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-    if manager is None:
+    if manager is not None:
+        tags = manager.getTagsByObject()
+    else:
         manager = BaseContainer(conn)
+        for dtype, objs in oids.items():
+            if len(objs) > 0:
+                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
+                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+                break
 
-    tags = manager.getTagsByObject()
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
