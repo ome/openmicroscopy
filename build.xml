@@ -420,7 +420,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
+
         <!-- These should eventually be removed in favor of an ivy-based approach -->
+
+        <!-- Moving zip targets out of main build for `./build.py` performance -->
+        <iterate buildpathref="insight.buildpath" target="zips"/>
+
         <copy todir="target">
             <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
             <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>

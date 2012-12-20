@@ -49,7 +49,24 @@
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
             pattern="${deps.lib.dir}/runtime/[artifact].[ext]"
             conf="client" log="quiet" sync="false" symlink="true"/>
+        <insightBuild target="jar"/>
+    </target>
+
+    <target name="install" depends="package">
+        <signjar
+            jar="${target.dir}/${ivy.module}-UNSIGNED.jar"
+            signedjar="${target.dir}/${ivy.module}.jar"
+            alias="${jarsign.alias}"
+            keystore="${jarsign.keystore}"
+            storepass="${jarsign.storepass}"
+            preservelastmodified="true"/>
+        <publishArtifact haltonmissing="false"/>
+    </target>
+
+
+    <target name="zips">
         <insightBuild target="dist"/>
+        <publishArtifact/>
         <antcall target="copy-zips" inheritAll="true" inheritRefs="true"/>
     </target>
 
