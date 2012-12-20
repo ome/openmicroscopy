@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAct
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.LocationDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -384,7 +383,7 @@ class ImporterControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
-		} else if (LocationDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
+		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
 			GroupData newGroup = (GroupData) evt.getNewValue();
 			model.setUserGroup(newGroup);
 		}

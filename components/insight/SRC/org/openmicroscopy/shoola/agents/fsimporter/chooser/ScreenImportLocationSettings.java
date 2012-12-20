@@ -46,24 +46,30 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	{
 		super(Importer.SCREEN_TYPE, group);
 		
-		importToScreen = screen;
+		this.importToScreen = screen;
 	}
 	
 	/**
+	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The screen selected
 	 */
 	public DataNode getImportLocation() {
 		return importToScreen;
 	}
 
-	/** Note: should NEVER be called on a screen import,
-	 * implemented for initial work, look at refactoring afterwards */
+	/** Note: should NEVER be called on a screen import, 
+	 * implemented for initial work
+	 * TODO: look at refactoring afterwards
+	 * @return Always <null>
+	 */
 	public DataNode getParentImportLocation() {
 		return null; 
 	}
 
 	/**
-	 * @return Always <false> for a screen as there is no parent object
+	 * Returns whether the parent directory should be used for the Dataset. 
+	 * Always <false> for a screen as there is no parent container.
+	 * @return Always <false>
 	 */
 	public boolean isParentFolderAsDataset() {
 		return false;

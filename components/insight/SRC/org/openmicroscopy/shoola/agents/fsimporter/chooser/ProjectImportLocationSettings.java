@@ -51,10 +51,11 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 		super(Importer.PROJECT_TYPE, group);
 		
 		this.importToProject = project;
-		this.importToDataset= dataset;
+		this.importToDataset = dataset;
 	}
 
 	/**
+	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The dataset selected to import data in to.
 	 */
 	public DataNode getImportLocation() {
@@ -62,6 +63,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	}
 
 	/**
+	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The project selected to import data in to.
 	 */
 	public DataNode getParentImportLocation() {
@@ -69,8 +71,8 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	}
 
 	/**
-	 * @return Whether the parent folder of an image should be used to
-	 * create a new Dataset.
+	 * Implemented as specified by @see ImportLocationSettings.
+	 * @return @see ImportLocationSettings
 	 */
 	public boolean isParentFolderAsDataset() {
 		if (importToDataset == null)

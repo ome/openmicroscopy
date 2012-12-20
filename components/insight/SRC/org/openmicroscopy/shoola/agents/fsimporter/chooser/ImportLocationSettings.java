@@ -77,7 +77,7 @@ public abstract class ImportLocationSettings {
 	public abstract DataNode getParentImportLocation();
 
 	/** To be implemented by the subclass to say whether an images directory
-	 * should be used as a new dataset
+	 * should be used as a new dataset name.
 	 */
 	public abstract boolean isParentFolderAsDataset();
 
