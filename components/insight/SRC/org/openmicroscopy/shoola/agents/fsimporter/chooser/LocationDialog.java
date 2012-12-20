@@ -1152,7 +1152,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		finalList.add(n);
 		finalList.addAll(projects);
 
-		int index = 0;
 		TreeImageDisplay node;
 		DataNode selectedNode = null;
 				
