@@ -51,7 +51,7 @@ public class FilePathTransformerTest {
 	/* TODO: use Spring to create a proper mock test application context, and increase code coverage */
 	@BeforeClass
 	public void mockSpring() throws IOException {
-		final File tempFile = File.createTempFile("test", null);
+		final File tempFile = File.createTempFile("test-" + getClass().getSimpleName(), null);
 		final File tempDir = tempFile.getParentFile();
 		tempFile.delete();
 		tempFile.mkdir();
@@ -60,38 +60,6 @@ public class FilePathTransformerTest {
 		this.fpt.setOmeroDataDir(tempDir.getAbsolutePath());
 		this.fpt.setFsSubDir(tempFile.getName());
 		this.fpt.calculateBaseDir();
-	}
-	
-	@Test
-	public void testTransformationMatrixLegality() {
-		final Set<Integer> unsafeCodePoints = MakePathComponentSafe.transformationMatrix.keySet();
-		for (final Integer substitute : MakePathComponentSafe.transformationMatrix.values())
-			Assert.assertFalse(unsafeCodePoints.contains(substitute), 
-					"character substitutions may not be to other unsafe characters");
-	}
-	
-	@Test
-	public void testSafeCharacterLegality() {
-		final Set<Integer> unsafeCodePoints = MakePathComponentSafe.transformationMatrix.keySet();
-		Assert.assertFalse(unsafeCodePoints.contains(MakePathComponentSafe.safeCharacter));
-		final Set<String> unsafeStrings = new HashSet<String>();
-		unsafeStrings.addAll(MakePathComponentSafe.unsafeNames);
-		unsafeStrings.addAll(MakePathComponentSafe.unsafePrefixes);
-		unsafeStrings.addAll(MakePathComponentSafe.unsafeSuffixes);
-		for (final String unsafeString : unsafeStrings)
-			Assert.assertEquals(unsafeString.indexOf(MakePathComponentSafe.safeCharacter), -1,
-					"the safe character may not appear in unsafe strings");
-	}
-	
-	@Test
-	public void testUnsafeStringCase() {
-		final Set<String> unsafeStrings = new HashSet<String>();
-		unsafeStrings.addAll(MakePathComponentSafe.unsafeNames);
-		unsafeStrings.addAll(MakePathComponentSafe.unsafePrefixes);
-		unsafeStrings.addAll(MakePathComponentSafe.unsafeSuffixes);
-		for (final String unsafeString : unsafeStrings)
-			Assert.assertEquals(unsafeString, unsafeString.toUpperCase(),
-					"the unsafe strings should be upper-case");
 	}
 	
 	@Test
@@ -111,6 +79,11 @@ public class FilePathTransformerTest {
 				"conversion from legal repository paths to server-local paths and back must return the original");
 	}
 	
+	/**
+	 * Get the absolute path of the root directory above the current directory.
+	 * Assumes that the current directory is named <q><code>.</code></q>.
+	 * @return the root directory
+	 */
 	private static File getRootDir() {
 		File dir = new File(".").getAbsoluteFile();
 		do {
@@ -121,8 +94,6 @@ public class FilePathTransformerTest {
 		} while (true);
 	}
 	
-	/* note: may want to dispense with this and use Google Guava List 
-	 * convenience constructors when we depend on that library anyway */
 	/**
 	 * Converts the path components to a corresponding absolute File.
 	 * @param components path components
@@ -142,7 +113,8 @@ public class FilePathTransformerTest {
 		expected.add("a");
 		expected.add("b");
 		expected.add("c");
-		Assert.assertEquals(file.getComponents(), expected, "construction from delimited path components should work");
+		Assert.assertEquals(file.getComponents(), expected,
+				"construction from delimited path components should work");
 	};
 	
 	@Test

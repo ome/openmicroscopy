@@ -83,6 +83,9 @@ public class MakePathComponentSafe implements StringTransformer {
 			unsafePrefixes.add(unsafeName + ".");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	// @Override only since Java SE 6
 	public String apply(String string) {
 		final String ucString = string.toUpperCase();
