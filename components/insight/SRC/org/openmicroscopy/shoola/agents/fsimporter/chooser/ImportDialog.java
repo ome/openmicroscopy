@@ -70,7 +70,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
@@ -953,11 +952,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tablePanel.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		tablePanel.add(tabbedPane, "2, 1, 3, 1");
 		
-		double[][] chooserDesign = new double[][]{
-					{TableLayout.FILL},
-					{TableLayout.PREFERRED, TableLayout.FILL}
-				};
-		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				chooser, tablePanel);
 		
@@ -1007,8 +1001,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Handles the selection of files. Returns the files that can be imported.
 	 * 
-	 * @param The
-	 *            selected files.
+	 * @param The selected files.
 	 * @return See above.
 	 */
 	private int handleFilesSelection(File[] files) {
@@ -1016,14 +1009,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (files == null)
 			return count;
 		File f;
-		int directory = 0;
 		for (int i = 0; i < files.length; i++) {
 			f = files[i];
 			if (!f.isHidden()) {
 				count++;
-				if (f.isDirectory()) {
-					directory++;
-				}
 			}
 		}
 		return count;
