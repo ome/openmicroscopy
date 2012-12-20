@@ -119,6 +119,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		implements ActionListener, PropertyChangeListener {
 
 	// public constants
+	/** Bound property indicating to change the import group. */
+	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
+	
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
 
@@ -233,7 +236,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Tooltip for refresh files button */	
 	private static final String TOOLTIP_REFRESH_FILES =
-			"Refresh the file list.";
+			"Refresh the file chooser list.";
+	
+	/** Text for refresh files button */	
+	private static final String TEXT_REFRESH_FILES =
+			"Refresh";
 	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
@@ -272,7 +279,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private JButton importButton;
 
 	/** Button to refresh the file chooser. */
-	private JToggleButton refreshFilesButton;
+	private JButton refreshFilesButton;
 
 	/** Indicates to use a partial name. */
 	private JRadioButton partialName;
@@ -580,12 +587,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		IconManager icons = IconManager.getInstance();
 		
-		refreshFilesButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));		  	
+		refreshFilesButton = new JButton(TEXT_REFRESH_FILES);		  	
 	    refreshFilesButton.setBackground(UIUtilities.BACKGROUND);
 	    refreshFilesButton.setToolTipText(TOOLTIP_REFRESH_FILES);
 	    refreshFilesButton.setActionCommand("" + CMD_REFRESH_FILES);
 	    refreshFilesButton.addActionListener(this);
-	    UIUtilities.unifiedButtonLookAndFeel(refreshFilesButton);
 				
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
@@ -745,7 +751,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out the tool bar.
-	 * 
 	 * @return See above.
 	 */
 	private JPanel buildToolBarRight() {
@@ -952,12 +957,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					{TableLayout.FILL},
 					{TableLayout.PREFERRED, TableLayout.FILL}
 				};
-		JPanel chooserPanel = new JPanel(new TableLayout(chooserDesign));
-		chooserPanel.add(refreshFilesButton, "0, 0, l, c");
-		chooserPanel.add(chooser, "0, 1");
 		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chooserPanel, tablePanel);
+				chooser, tablePanel);
 		
 		JPanel mainPanel = new JPanel();
 		double[][] mainPanelDesign = { { TableLayout.FILL },
@@ -975,6 +977,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
 		bar.add(buildToolBarLeft());
+		bar.add(refreshFilesButton);
 		bar.add(buildToolBarRight());
 		controls.add(new JSeparator());
 		controls.add(bar);
@@ -1547,7 +1550,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 					handleTagsSelection((Collection<TagAnnotationData>) entry
 							.getValue());
 			}
-		} else if (LocationDialog.PROPERTY_GROUP_CHANGED.equals(name)
+		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)
 				|| ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());

@@ -38,8 +38,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +50,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JToggleButton;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -89,7 +86,7 @@ import pojos.ScreenData;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-public class LocationDialog extends JDialog implements ActionListener,
+class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
 	
 	// table design presets
@@ -107,18 +104,20 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Helper setting for TableLayout.PREFERRED*/
 	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
 	
+	/** Table template for 2 settings of Preferred width / height */
+	private static final double[] TABLE_PREF_PREF = 
+		{TableLayout.PREFERRED, TableLayout.PREFERRED};
+
 	/** Table template for 3 settings of Preferred width / height */
 	private static final double[] TABLE_PREF_PREF_PREF = 
 		{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED};
+	
 
 	/** Table template for expandable middle column / row */
 	private static final double[] TABLE_PREF_FILL_PREF = 
 		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
 
-	// other constants
-	/** Bound property indicating to change the import group. */
-	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
-	
+	// other constants	
 	/** Minimum width of the dialog in pixels */
 	private static final int MIN_WIDTH = 640;
 
@@ -153,11 +152,14 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private static final String TOOLTIP_NEW_DATASET = "Create a new Dataset.";
 	
 	/** Tooltip text for New Project button */
-	private static final String TOOLTIP_CREATE_PROJECT = "Create a new Project.";
+	private static final String TOOLTIP_NEW_PROJECT = "Create a new Project.";
 
 	/** Tooltip for Reload button */
-	private static final String TOOLTIP_RELOAD =
-			"Reload the container where to import the data.";
+	private static final String TEXT_REFRESH = "Refresh";
+
+	/** Tooltip for Reload button */
+	private static final String TOOLTIP_REFRESH =
+			"Reload the Groups, Projects, Datasets and/or Screens.";
 	
 	/** Text for New buttons */
 	private static final String TEXT_NEW = "New...";
@@ -167,7 +169,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	/** Tooltip text for Close button */
 	private static final String TOOLTIP_CLOSE_DIALOGUE = 
-			"Close and do not add the files to the queue.";
+			"Close the dialogue and do not add the files to the queue.";
 
 	/** Text for Add button */
 	private static final String TEXT_QUEUE_ITEMS = "Add to the Queue";
@@ -219,10 +221,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private static final int CMD_REFRESH_DISPLAY = 4;
 
 	/** User has selected to add the files. */
-	public final static int CMD_ADD = 5;
+	final static int CMD_ADD = 5;
 
 	/** User has selected to cancel. */
-	public final static int CMD_CLOSE = 6;
+	final static int CMD_CLOSE = 6;
 
 	/** Action button command Id chosen by the user. */
 	private int userSelectedActionCommandId;
@@ -231,8 +233,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Component indicating to add to the queue. */
 	private JButton addButton;
 
-	/** Component indicating to cancel the addition. */
-	private JButton cancelButton;
+	/** Component indicating to close the dialog. */
+	private JButton closeButton;
 
 	/** component used to select the import group. */
 	private JComboBox groupsBox;
@@ -255,8 +257,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/** Button to create a new screen. */
 	private JButton newScreenButton;
 
-	/** Button used to reload the groups/projects/datasets & screens */
-	private JToggleButton reloadButton;
+	/** Button used to refresh the groups/projects/datasets & screens */
+	private JButton refreshButton;
 
 	/** Tab pane used to hose the Project/Screen selection UI component. */
 	private JTabbedPane tabbedPane;
@@ -265,9 +267,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	private JFrame owner;
 	
 	// Operational variables & constants
-	/** Constant value defining the value of an unknown/unselected group*/
-	private static final long UNKNOWN_GROUP_ID = -1;
-
 	/** Constant value for no data type */
 	private static final int NO_DATA_TYPE = -1;
 	
@@ -321,7 +320,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param currentGroupId
 	 *            The id of the current user group
 	 */
-	public LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
+    LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
 			Collection<GroupData> groups, long currentGroupId) {
 		super(parent);
@@ -344,7 +343,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Swaps the data that is currently active.
-	 * @param importDataType
+	 * @param importDataType The id of the data type (Screen/Project)
 	 */
 	private void switchToDataType(int importDataType) {
 		switch(importDataType)
@@ -360,8 +359,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * @param The available groups.
-	 * @param The if of the current group.
+	 * Scans the groups provided and returns the Group with matching id.
+	 * <null> if not found
+	 * @param groups The available groups.
+	 * @param currentGroupIdThe if of the current group.
 	 * @return Finds the group in the list with the id provided, 
 	 * 		<null> if not found.
 	 */
@@ -386,14 +387,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		groupsBox.addItemListener(this);
 		
-		IconManager icons = IconManager.getInstance();
-		reloadButton = new JToggleButton(icons.getIcon(IconManager.REFRESH));
-		reloadButton.setBackground(UIUtilities.BACKGROUND);
-		reloadButton.setToolTipText(TOOLTIP_RELOAD);
-		reloadButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
-		reloadButton.addActionListener(this);
-		
-		UIUtilities.unifiedButtonLookAndFeel(reloadButton);
+		refreshButton = new JButton(TEXT_REFRESH);
+		refreshButton.setBackground(UIUtilities.BACKGROUND);
+		refreshButton.setToolTipText(TOOLTIP_REFRESH);
+		refreshButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
+		refreshButton.addActionListener(this);
 		
 		screensBox = new JComboBox();
 
@@ -408,7 +406,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 		// main location panel buttons
 		newProjectButton = new JButton(TEXT_NEW);
-		newProjectButton.setToolTipText(TOOLTIP_CREATE_PROJECT);
+		newProjectButton.setToolTipText(TOOLTIP_NEW_PROJECT);
 		newProjectButton.setActionCommand("" + CMD_CREATE_PROJECT);
 		newProjectButton.addActionListener(this);
 
@@ -428,10 +426,10 @@ public class LocationDialog extends JDialog implements ActionListener,
 		addButton.addActionListener(this);
 		addButton.setActionCommand("" + CMD_ADD);
 		
-		cancelButton = new JButton(TEXT_CLOSE);
-		cancelButton.setToolTipText(TOOLTIP_CLOSE_DIALOGUE);
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand("" + CMD_CLOSE);
+		closeButton = new JButton(TEXT_CLOSE);
+		closeButton.setToolTipText(TOOLTIP_CLOSE_DIALOGUE);
+		closeButton.addActionListener(this);
+		closeButton.setActionCommand("" + CMD_CLOSE);
 		
 		getRootPane().setDefaultButton(addButton);
 	}
@@ -440,14 +438,18 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Builds a JPanel holding the main action buttons
 	 * @return The JPanel holding the lower main action buttons.
 	 */
-	private JPanel buildButtonPanel() {
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BorderLayout());
-		buttonPanel.add(addButton, BorderLayout.EAST);
-		buttonPanel.add(cancelButton, BorderLayout.WEST);
-		JPanel host = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
-		host.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
-		return host;
+	private JPanel buildLowerButtonPanel() {
+		TableLayout buttonLayout = 
+				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
+		JPanel buttonPanel = new JPanel(buttonLayout);
+		buttonPanel.add(closeButton, "0, 0, l, c");
+		buttonPanel.add(refreshButton, "1, 0, c, c");
+		buttonPanel.add(addButton, "2, 0, r, c");
+		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
+		Border border = 
+				BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK); 
+		buttonWrapper.setBorder(border);
+		return buttonWrapper;
 	}
 
 	/**
@@ -480,7 +482,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return JPanel holding the group selection UI elements
 	 */
 	private JPanel buildGroupSelectionPanel() {
-		TableLayout groupLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
+		TableLayout groupLayout = 
+				createTableLayout(TABLE_PREF_PREF, TABLE_PREF);
 		JPanel groupPanel = new JPanel(groupLayout);
         
 		if(groups.size() > 1)
@@ -488,7 +491,6 @@ public class LocationDialog extends JDialog implements ActionListener,
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
 		}
-        groupPanel.add(reloadButton, "2, 0, c, c");
        
 		return groupPanel;
 	}
@@ -498,7 +500,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return JPanel holding the project selection UI elements
 	 */
 	private JPanel buildProjectSelectionPanel() {
-		TableLayout projectLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF_PREF_PREF);
+		TableLayout projectLayout = 
+				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF_PREF_PREF);
 		
 		JPanel projectPanel = new JPanel(projectLayout);
         
@@ -518,7 +521,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @return JPanel holding the screen selection UI elements
 	 */
 	private JPanel buildScreenSelectionPanel() {
-		TableLayout screenLayout = createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
+		TableLayout screenLayout = 
+				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 
 		JPanel screenPanel = new JPanel(screenLayout);
         
@@ -595,7 +599,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 		JPanel mainPanel = new JPanel(layout);
 		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
 		mainPanel.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
-		mainPanel.add(buildButtonPanel(), BorderLayout.SOUTH);
+		mainPanel.add(buildLowerButtonPanel(), BorderLayout.SOUTH);
 		
 		TableLayout containerLayout = createTableLayout(TABLE_GAP);
 		Container contentPane = this.getContentPane();
@@ -660,7 +664,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param right The amount of padding on the right of the container
 	 * @return The JPanel wrapping the container
 	 */
-	private <T extends Container> JPanel wrapInPaddedPanel(T container, int top, int left, int bottom, int right) {
+	private <T extends Container> JPanel wrapInPaddedPanel(T container, 
+			int top, int left, int bottom, int right) {
 		double [][] spacedLayout = new double[][]
 				{
 					{left, TableLayout.FILL, right},
@@ -757,16 +762,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 			objects = null;
 			currentProjects = null;
 			currentScreens = null;
-			firePropertyChange(PROPERTY_GROUP_CHANGED,
+			firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
 					currentGroup, selectedNewGroup);
 		}
 	}
 
 	/**
-	 * The import settings chosen bu the user.
+	 * The import settings chosen but the user.
 	 * @return The import settings selected by the user.
 	 */
-	public ImportLocationSettings getImportSettings() {
+	protected ImportLocationSettings getImportSettings() {
 		
 		ImportLocationSettings importSettings = 
 				new NullImportSettings(currentGroup);
@@ -853,13 +858,16 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Creates a project.
 	 * @param newProject The project to create.
 	 */
-	public void createProject(DataObject newProject) {
+	protected void createProject(DataObject newProject) {
 		if (newProject == null)
 			return;
 		
 		DataNode defaultNode = null;
 		DataNode newProjectNode = new DataNode(newProject);
-		newProjectNode.addNode(new DataNode(DataNode.createDefaultDataset(), newProjectNode));
+		DataNode newDatasetNode = new 
+				DataNode(DataNode.createDefaultDataset(), newProjectNode);
+		newProjectNode.addNode(newDatasetNode);
+		
 		List<DataNode> projects = new ArrayList<DataNode>();
 		projects.add(newProjectNode);
 
@@ -881,7 +889,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Creates the dataset.
 	 * @param dataset The dataset to create.
 	 */
-	public void createDataset(DatasetData dataset) {
+	protected void createDataset(DatasetData dataset) {
 		if (dataset == null)
 			return;
 		
@@ -909,7 +917,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Creates a screen.
 	 * @param newScreenObject The screen to create.
 	 */
-	public void createScreen(DataObject newScreenObject) {
+	protected void createScreen(DataObject newScreenObject) {
 		if (newScreenObject == null)
 			return;
 
@@ -958,20 +966,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 					}
 				}
 			}
-		} 
-		
-		/*else { // no node selected
-			if (sortedDatasets.size() > 1) {
-				Iterator<DataNode> i = sortedDatasets.iterator();
-				while (i.hasNext()) {
-					n = i.next();
-					if (n.isDefaultDataset()) {
-						datasetsBox.setSelectedItem(n);
-						break;
-					}
-				}
-			}
-		}*/
+		}
 
 		populateWithItemsAndTooltips(datasetsBox, sortedDatasets, 
 				null, selectedNode);
@@ -1089,8 +1084,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Populates the screens box with the screen selection options
-	 * @param hostObject
-	 * @param sortedList
+	 * @param sortedList The list of screens to use.
 	 */
 	private void loadScreens(List<DataNode> sortedList) {
 		List<DataNode> finalList = new ArrayList<DataNode>();
@@ -1132,11 +1126,13 @@ public class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Populates the projects & datasets boxes with the current options
-	 * @param datasets Datasets used to populate the Datasets combobox
-	 * @param projects Projects used to populate the Projects combobox
+	 * Populates the projects and datasets boxes with the current options
+	 * @param datasets Datasets used to populate the Datasets JComboBox
+	 * @param projects Projects used to populate the Projects JComboBox
 	 */
-	private void loadProjects(List<DataNode> datasets, List<DataNode> projects) {
+	private void loadProjects(List<DataNode> datasets, 
+			List<DataNode> projects) {
+		
 		List<DataNode> finalList = new ArrayList<DataNode>();
 		DataNode n;
 		List<DataNode> l = getOrphanedNewDatasetNode();
@@ -1187,7 +1183,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 		}
 
 
-		populateWithItemsAndTooltips(projectsBox, finalList, null, selectedNode);
+		populateWithItemsAndTooltips(projectsBox, finalList, null, 
+				selectedNode);
 		
 		populateDatasetsBox();
 	}
@@ -1224,11 +1221,11 @@ public class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * Resets the display to the selection and group specified
 	 * @param container The container that is selected
-	 * @param type The datatype identifier (Project / SCreen)
+	 * @param type The data type identifier (Project / SCreen)
 	 * @param objects The objects to use.
 	 * @param currentGroupId The currently active user group.
 	 */
-	public void reset(TreeImageDisplay container, int type,
+	void reset(TreeImageDisplay container, int type,
 			Collection<TreeImageDisplay> objects , long currentGroupId) {
 
 		this.selectedContainer = container;
@@ -1245,18 +1242,8 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * @param availableGroups The list of available groups to this user.
 	 * @param currentGroupId The currently active user group's ID.
 	 */
-	public void onReconnected(Collection<GroupData> availableGroups,
+	void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
-		
-		/* TODO: Scott - Remove this once fix is in place.
-		 * Work around for currentGroup being passed as -1
-		 */
-		if(currentGroupId == UNKNOWN_GROUP_ID) {
-			firePropertyChange(PROPERTY_GROUP_CHANGED,
-					null, ImporterAgent.getUserDetails().getDefaultGroup());
-			return;
-		}
-		
 		this.groups = availableGroups;
 		this.currentGroup = findGroupWithId(availableGroups, currentGroupId);
 		
@@ -1266,6 +1253,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	
 	/**
 	 * Listener for the swapping of Screen / Project tabs
+	 * @see ChangeListener
 	 */
 	public void stateChanged(ChangeEvent evt) {
 		Object source = evt.getSource();
@@ -1288,13 +1276,15 @@ public class LocationDialog extends JDialog implements ActionListener,
 				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
 						importDataType, dataType);
 			} else {
-				reset(selectedContainer, dataType, objects, currentGroup.getId());
+				reset(selectedContainer, dataType, objects, 
+						currentGroup.getId());
 			}
 		}
 	}
 
 	/**
-	 * Listener for Group / Project combobox selection events
+	 * Listener for Group and Project JComboBox selection events
+	 * @see ItemChangeListener
 	 */
 	public void itemStateChanged(ItemEvent ie) {
 		Object source = ie.getSource();
@@ -1313,7 +1303,7 @@ public class LocationDialog extends JDialog implements ActionListener,
 	 * Sets the currently selected group
 	 * @param group The group to set as selected
 	 */
-	public void setSelectedGroup(GroupData group) {
+	void setSelectedGroup(GroupData group) {
 		this.currentGroup = group;
 		groupsBox.setSelectedItem(group);
 	}
