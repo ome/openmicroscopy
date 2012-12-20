@@ -773,6 +773,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		bar.add(showThumbnails);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(refreshFilesButton);
 		return bar;
 	}
 
@@ -971,7 +973,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
 		bar.add(buildToolBarLeft());
-		bar.add(refreshFilesButton);
 		bar.add(buildToolBarRight());
 		controls.add(new JSeparator());
 		controls.add(bar);
