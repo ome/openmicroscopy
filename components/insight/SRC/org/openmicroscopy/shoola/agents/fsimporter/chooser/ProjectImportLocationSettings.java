@@ -32,7 +32,7 @@ import pojos.GroupData;
  * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ProjectImportLocationSettings extends ImportLocationSettings
+class ProjectImportLocationSettings extends ImportLocationSettings
 {
 	/** Defines the parent project where data will be imported */
 	private DataNode importToProject;
@@ -46,7 +46,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	 * @param project The project to import data in to
 	 * @param dataset The dataset to import data in to
 	 */
-	public ProjectImportLocationSettings(GroupData group, DataNode project,
+	ProjectImportLocationSettings(GroupData group, DataNode project,
 			DataNode dataset) {
 		super(Importer.PROJECT_TYPE, group);
 		
@@ -58,7 +58,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The dataset selected to import data in to.
 	 */
-	public DataNode getImportLocation() {
+	DataNode getImportLocation() {
 		return importToDataset;
 	}
 
@@ -66,7 +66,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The project selected to import data in to.
 	 */
-	public DataNode getParentImportLocation() {
+	DataNode getParentImportLocation() {
 		return importToProject;
 	}
 
@@ -74,7 +74,7 @@ public class ProjectImportLocationSettings extends ImportLocationSettings
 	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return @see ImportLocationSettings
 	 */
-	public boolean isParentFolderAsDataset() {
+	boolean isParentFolderAsDataset() {
 		if (importToDataset == null)
 			return false;
 		

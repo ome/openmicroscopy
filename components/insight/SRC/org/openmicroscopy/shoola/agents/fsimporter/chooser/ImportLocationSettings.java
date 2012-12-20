@@ -31,7 +31,7 @@ import pojos.GroupData;
  * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public abstract class ImportLocationSettings {
+abstract class ImportLocationSettings {
 
 	/** Defines the group data to be imported in to */
 	private GroupData importGroup;
@@ -41,27 +41,29 @@ public abstract class ImportLocationSettings {
 	
 	/**
 	 * Creates a ImportLocationSettings for passing user selection data.
-	 * @param type
-	 * @param group
+	 * @param type The identifier for this type of data.
+	 * @param group The user group to import data in to.
 	 */
-	protected ImportLocationSettings(int type, GroupData group)
+	ImportLocationSettings(int type, GroupData group)
 	{
 		this.importDataType = type;
 		this.importGroup = group;
 	}
 	
 	/**
-	 * @return The group to import data in to.
+	 * The group to import data in to
+	 * @return See above.
 	 */
-	public GroupData getImportGroup()
+	GroupData getImportGroup()
 	{
 		return importGroup;
 	}
 	
 	/**
-	 * @return The type of data being imported, Project / Screen.
+	 * The type of data being imported, Project / Screen.
+	 * @return See above.
 	 */
-	public int getImportDataType()
+	int getImportDataType()
 	{
 		return importDataType;
 	}
@@ -69,17 +71,17 @@ public abstract class ImportLocationSettings {
 	/** To be implemented by the subclass to say which object
 	 * an item should be imported in to
 	 */
-	public abstract DataNode getImportLocation();
+	abstract DataNode getImportLocation();
 
 	/** To be implemented by the subclass to say which parent object
 	 * an item should be imported in to
 	 */
-	public abstract DataNode getParentImportLocation();
+	abstract DataNode getParentImportLocation();
 
 	/** To be implemented by the subclass to say whether an images directory
 	 * should be used as a new dataset name.
 	 */
-	public abstract boolean isParentFolderAsDataset();
+	abstract boolean isParentFolderAsDataset();
 
 }
 

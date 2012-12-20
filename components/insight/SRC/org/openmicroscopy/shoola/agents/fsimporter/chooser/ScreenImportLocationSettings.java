@@ -32,7 +32,7 @@ import pojos.GroupData;
  * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ScreenImportLocationSettings extends ImportLocationSettings {
+class ScreenImportLocationSettings extends ImportLocationSettings {
 
 	/** Defines the parent screen where data will be imported */
 	private DataNode importToScreen;
@@ -42,7 +42,7 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	 * @param group The permission group to import data in to
 	 * @param screen The screen to import data in to
 	 */
-	public ScreenImportLocationSettings(GroupData group, DataNode screen)
+	ScreenImportLocationSettings(GroupData group, DataNode screen)
 	{
 		super(Importer.SCREEN_TYPE, group);
 		
@@ -53,7 +53,7 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	 * Implemented as specified by @see ImportLocationSettings.
 	 * @return The screen selected
 	 */
-	public DataNode getImportLocation() {
+	DataNode getImportLocation() {
 		return importToScreen;
 	}
 
@@ -62,7 +62,7 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	 * TODO: look at refactoring afterwards
 	 * @return Always <null>
 	 */
-	public DataNode getParentImportLocation() {
+	DataNode getParentImportLocation() {
 		return null; 
 	}
 
@@ -71,7 +71,7 @@ public class ScreenImportLocationSettings extends ImportLocationSettings {
 	 * Always <false> for a screen as there is no parent container.
 	 * @return Always <false>
 	 */
-	public boolean isParentFolderAsDataset() {
+	boolean isParentFolderAsDataset() {
 		return false;
 	}
 

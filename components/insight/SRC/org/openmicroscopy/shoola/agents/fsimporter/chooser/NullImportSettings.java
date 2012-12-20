@@ -31,23 +31,39 @@ import pojos.GroupData;
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class NullImportSettings extends ImportLocationSettings {
+class NullImportSettings extends ImportLocationSettings {
 
-	protected NullImportSettings(GroupData group) {
-		super(-1, group);
+	/** Local constant to specifiy an unknown data type*/
+	private static final int UNKNOWN_DATA_TYPE = -1;
+
+	/**
+	 * Creates a NullImportSettings with the group @see ImportLocationSettings
+	 * @param group The group to import data in to.
+	 */
+	NullImportSettings(GroupData group) {
+		super(UNKNOWN_DATA_TYPE, group);
 	}
 
-	@Override
+	/**
+	 * Returns a new Null Data Node
+	 * @return See above.
+	 */
 	public DataNode getImportLocation() {
 		return new DataNode((DataObject) null);
 	}
 
-	@Override
+	/**
+	 * Returns a new Null Data Node
+	 * @return See above.
+	 */
 	public DataNode getParentImportLocation() {
 		return new DataNode((DataObject) null);
 	}
 
-	@Override
+	/**
+	 * Returns false.
+	 * @return See above.
+	 */
 	public boolean isParentFolderAsDataset() {
 		return false;
 	}
