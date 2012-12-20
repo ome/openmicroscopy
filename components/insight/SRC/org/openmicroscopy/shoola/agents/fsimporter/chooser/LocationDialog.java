@@ -443,7 +443,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 		JPanel buttonPanel = new JPanel(buttonLayout);
 		buttonPanel.add(closeButton, "0, 0, l, c");
-		buttonPanel.add(refreshButton, "1, 0, c, c");
+		buttonPanel.add(refreshButton, "1, 0, l, c");
 		buttonPanel.add(addButton, "2, 0, r, c");
 		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
 		Border border = 
