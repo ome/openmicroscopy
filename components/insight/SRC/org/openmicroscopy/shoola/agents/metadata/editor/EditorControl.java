@@ -216,9 +216,6 @@ class EditorControl
 	/** Collection of supported export formats. */
 	private List<FileFilter>	exportFilters;
 	
-	/** Collection of supported formats. */
-	private List<FileFilter>	saveAsFilters;
-	
 	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
 	
@@ -247,8 +244,6 @@ class EditorControl
 		filters.add(new TEXTFilter());
 		exportFilters = new ArrayList<FileFilter>();
 		exportFilters.add(new OMETIFFFilter());
-		saveAsFilters  = new ArrayList<FileFilter>();
-		saveAsFilters.add(new JPEGFilter());
 	}
 
 	/** 
@@ -346,9 +341,20 @@ class EditorControl
 	{
 		String v = FigureParam.FORMATS.get(format);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		List<FileFilter> filters = new ArrayList<FileFilter>();
+		switch (format) {
+			case FigureParam.JPEG:
+				filters.add(new JPEGFilter());
+				break;
+			case FigureParam.PNG:
+				filters.add(new PNGFilter());
+				break;
+			case FigureParam.TIFF:
+				filters.add(new TIFFFilter());
+		}
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Save As", "Select where to save locally the images as "+v,
-				saveAsFilters);
+				filters);
 		try {
 			File file = UIUtilities.getDefaultFolder();
 			if (file != null) chooser.setCurrentDirectory(file);
