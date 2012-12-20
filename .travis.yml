@@ -2,21 +2,26 @@ language: java
 
 jdk:
   - openjdk7
-  - oraclejdk7
+
+#  - oraclejdk7
 
 virtualenv:
   system_site_packages: true
 
-notifications:
-  irc:
-    channels: "irc.freenode.org#omero"
-    on_success: change
-    on_failure: change
+#notifications:
+#  irc:
+#    channels: "irc.freenode.org#omero"
+#    on_success: change
+#    on_failure: change
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq zeroc-ice34
-  - sudo apt-get install -qq python-imaging python-numpy python-tables
+    - df -hl
+    - du -sh *
+    - du -sh .git
+    - rm -rf .git
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq zeroc-ice34
+    #- sudo apt-get install -qq python-imaging python-numpy python-tables
 
 install: python build.py
 
