@@ -154,7 +154,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
 
     /**
      * Calls block(long) "loops" number of times with the "ms"
-     * argument. This means the total wait time for the delete to occur
+     * argument. This means the total wait time for the action to occur
      * is: loops X ms. Sensible values might be 10 loops for 500 ms, or
      * 5 seconds.
      *

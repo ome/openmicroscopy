@@ -17,8 +17,8 @@
  */
 package ome.services.blitz.repo;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -27,9 +27,13 @@ import org.apache.commons.logging.LogFactory;
 import Ice.Current;
 
 import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.util.ServiceFactoryAware;
 
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.cmd.AMD_Session_submit;
+import omero.cmd.HandleI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -39,8 +43,8 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetActivity;
-import omero.model.FilesetEntry;
-import omero.model.OriginalFile;
+import omero.model.Pixels;
+import omero.util.IceMapper;
 
 /**
  * Represents a single import within a defined-session
@@ -50,7 +54,7 @@ import omero.model.OriginalFile;
  * @since 4.5
  */
 public class ManagedImportProcessI extends AbstractAmdServant
-    implements _ImportProcessOperations {
+    implements _ImportProcessOperations, ServiceFactoryAware {
 
     private final static Log log = LogFactory.getLog(ManagedImportProcessI.class);
 
@@ -70,6 +74,27 @@ public class ManagedImportProcessI extends AbstractAmdServant
             this.offset = offset;
         }
     }
+
+    static class AMD_submit implements AMD_Session_submit {
+
+        HandlePrx ret;
+
+        Exception ex;
+
+        public void ice_response(HandlePrx __ret) {
+            this.ret = __ret;
+        }
+
+        public void ice_exception(Exception ex) {
+            this.ex = ex;
+        }
+
+    }
+
+    /**
+     * Current which created this instance.
+     */
+    private final Ice.Current current;
 
     /**
      * The managed repo instance which created (and ultimately is reponsible
@@ -101,6 +126,22 @@ public class ManagedImportProcessI extends AbstractAmdServant
     private final ImportLocation location;
 
     /**
+     * List of handles which will be processed here.
+     */
+    private final List<HandlePrx> handles = new ArrayList<HandlePrx>();
+
+    /**
+     * {@link CheckedPath} for the first used files entry in {@link #fs} which
+     * will be passed to the importMetadata method.
+     */
+    private final CheckedPath target;
+
+    /**
+     * SessionI/ServiceFactoryI that this process is running in.
+     */
+    private/* final */ServiceFactoryI sf;
+
+    /**
      * A sparse and often empty map of the {@link UploadState} instances which
      * this import process is aware of. In a single-threaded model, this map
      * will likely only have at most one element, but depending on threads,
@@ -130,10 +171,16 @@ public class ManagedImportProcessI extends AbstractAmdServant
         this.fs = fs;
         this.settings = settings;
         this.location = location;
+        this.current = __current;
+        this.target = repo.checkPath(location.usedFiles.get(0), __current);
         this.proxy = registerProxy(__current);
         setApplicationContext(repo.context);
         // TODO: The above could be moved to SessionI.internalServantConfig as
         // long as we're careful to remove all other, redundant calls to setAC.
+    }
+
+    public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
+        this.sf = sf;
     }
 
     /**
@@ -206,7 +253,6 @@ public class ManagedImportProcessI extends AbstractAmdServant
         }
 
         for (int i = 0; i < size; i++) {
-            FilesetEntry entry = fs.getFilesetEntry(i);
             String usedFile = location.usedFiles.get(i);
             CheckedPath cp = repo.checkPath(usedFile, __current);
             String client = hashes.get(i);
@@ -219,8 +265,21 @@ public class ManagedImportProcessI extends AbstractAmdServant
             }
         }
 
-        return null;
+        final AMD_submit submit = new AMD_submit();
+        final ManagedImportRequestI req = new ManagedImportRequestI(this);
+        sf.submit_async(submit, req, __current);
+        if (submit.ex != null) {
+            IceMapper mapper = new IceMapper();
+            throw mapper.handleServerError(submit.ex, repo.context);
+        }
+
+        handles.add(submit.ret);
+        return handles;
     }
+
+    //
+    // GETTERS
+    //
 
     public long getUploadOffset(int i, Current __current) throws ServerError {
         UploadState state = uploaders.get(i);
@@ -242,7 +301,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         return settings;
     }
 
-    public FilesetActivity getCurrentActivity(Current __current)
+    public HandlePrx getCurrentActivity(Current __current)
             throws ServerError {
         return null; // TODO
     }
@@ -252,13 +311,26 @@ public class ManagedImportProcessI extends AbstractAmdServant
         throw new ServerError(null, null, "NYI");
     }
 
+    public void resumeImport(Ice.Current __current)
+            throws ServerError {
+        throw new omero.InternalException(null, null, "NYI"); // FIXME
+    }
+
     public void cancelImport(Ice.Current __current)
-               throws ServerError {
+            throws ServerError {
         throw new omero.InternalException(null, null, "NYI"); // FIXME
     }
 
     //
-    // LOCAL INVOCATIONS
+    // CALLBACK METHODS FROM ManagedImportRequestI
+    //
+
+    List<Pixels> /*package*/ importMetadata() throws ServerError {
+        return repo.importMetadata(target, location, settings, current);
+    }
+
+    //
+    // OTHER LOCAL INVOCATIONS
     //
 
     public void setOffset(int idx, long offset) {

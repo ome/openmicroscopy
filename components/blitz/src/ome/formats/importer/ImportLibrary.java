@@ -51,7 +51,9 @@ import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
+import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportSettings;
 import omero.grid.ManagedRepositoryPrx;
@@ -563,12 +565,27 @@ public class ImportLibrary implements IObservable
         // so we have to inspect various fields to get the adapter.
         final ServiceFactoryPrx sf = store.getServiceFactory();
         final Ice.ObjectAdapter oa = sf.ice_getConnection().getAdapter();
-        final String category = "FIXME"; //FIXME
-        // return getRouter(getCommunicator()).getCategoryForClient();
+        final Ice.Communicator ic = oa.getCommunicator();
+        final String category = omero.client.getRouter(ic).getCategoryForClient();
 
         for (HandlePrx handle : handles) {
             final CmdCallbackI cb = new CmdCallbackI(oa, category, handle);
             cb.loop(60*60, 1000); // Wait 1 hr per step.
+            Response rsp = cb.getResponse();
+            if (rsp instanceof ERR) {
+                final ERR err = (ERR) rsp;
+                final RuntimeException rt = new RuntimeException(String.format(
+                        "Failure response on import!\n" +
+                        "Category: %s\n" +
+                        "Name: %s\n" +
+                        "Parameters: %s\n", err.category, err.name,
+                        err.parameters));
+                notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                        container.getFile().getAbsolutePath(), rt,
+                        container.getUsedFiles(), container.getReader()));
+                throw rt;
+            }
+
         }
 
         List<Pixels> pixList = new ArrayList<Pixels>();

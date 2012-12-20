@@ -233,6 +233,7 @@ module omero {
              **/
              omero::cmd::HandleList verifyUpload(omero::api::StringSet hash) throws ServerError;
 
+            // what happens if close is called on this instance?
             // permit skipVerification()?
             // Get pixels here or on the cmd/status objects
             // What happens if there's not a thread for the session heartbeat?
@@ -246,6 +247,11 @@ module omero {
              * unsuccessful, then a false will be returned.
              **/
             bool pauseImport(bool wait) throws ServerError;
+
+            /**
+             * Further import actions should be resumed.
+             **/
+            void resumeImport() throws ServerError;
 
             /**
              * If the user wishes to cancel the import, then this method should be
@@ -291,7 +297,28 @@ module omero {
              * Might be null if no activity is currently running.
              * See [pauseImport].
              **/
-             omero::model::FilesetActivity getCurrentActivity() throws ServerError;
+             omero::cmd::Handle* getCurrentActivity() throws ServerError;
+
+        };
+
+        /**
+         * Command object which will be used to create
+         * the [omero::cmd::Handle*] instances passed
+         * back by the [ImportProcess].
+         **/
+        class ImportRequest extends omero::cmd::Request {
+
+            /**
+             * Proxy of the process which this request
+             * will be running in.
+             **/
+            ImportProcess* process;
+
+            /**
+             * Activity that this will be filling
+             * out in the database.
+             **/
+            omero::model::FilesetActivity activity;
 
         };
 
