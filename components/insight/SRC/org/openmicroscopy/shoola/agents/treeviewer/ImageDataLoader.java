@@ -85,7 +85,7 @@ public class ImageDataLoader
     		ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     		userID = exp.getId();
     	}
-    	handle = dmView.loadImages(ctx, userID, this);
+    	handle = dmView.loadImages(ctx, userID, false, this);
     }
     
     /**

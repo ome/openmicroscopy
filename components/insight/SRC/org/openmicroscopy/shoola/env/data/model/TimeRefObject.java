@@ -49,16 +49,21 @@ public class TimeRefObject
 {
 	
 	/** 
-	 * Inidicates that the object correspond to a smart folder for time
+	 * Indicates that the object correspond to a smart folder for time
 	 * interval.
 	 */
 	public static final int TIME = 0;
 	
 	/** 
-	 * Inidicates that the object correspond to a smart folder for certain
+	 * Indicates that the object correspond to a smart folder for certain
 	 * file type.
 	 */
 	public static final int FILE = 1;
+	
+	/** 
+	 * Indicates to load the images if the index is <code>FILE</code>.
+	 */
+	public static final int FILE_IMAGE_TYPE = 100;
 	
 	/** User's id. */
 	private long 		userID;
