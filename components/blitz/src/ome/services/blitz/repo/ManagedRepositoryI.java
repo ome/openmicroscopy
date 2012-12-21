@@ -479,7 +479,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             throws omero.ServerError {
         CheckedPath checked = checkPath(path, __current).mustExist();
         OriginalFile of = repositoryDao.register(getRepoUuid(), checked, null,
-                currentUser(__current));
+                __current);
         return of;
     }
 

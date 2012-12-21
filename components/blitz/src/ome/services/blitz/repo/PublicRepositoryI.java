@@ -34,6 +34,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
@@ -140,8 +141,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     //
 
     public OriginalFile root(Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
-        return this.repositoryDao.getOriginalFile(this.id, currentUser);
+        return this.repositoryDao.getOriginalFile(this.id, __current);
     }
 
     //
@@ -159,7 +159,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
         CheckedPath checked = checkPath(path, __current).mustExist();
-        return repositoryDao.getOriginalFiles(repoUuid, checked, currentUser(__current));
+        return repositoryDao.getOriginalFiles(repoUuid, checked, __current);
     }
 
     /**
@@ -176,10 +176,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public OriginalFile register(String path, omero.RString mimetype,
             Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
         CheckedPath checked = checkPath(path, __current);
         return this.repositoryDao.register(repoUuid, checked,
-                mimetype == null ? null : mimetype.getValue(), currentUser);
+                mimetype == null ? null : mimetype.getValue(), __current);
     }
 
     public boolean delete(String path, Current __current) throws ServerError {
@@ -267,11 +266,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         adjustedCurr.operation = __current.operation;
         String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
-        Principal currentUser = currentUser(adjustedCurr);
 
         // Check that the file is in the DB and has minimally "r" permissions
         // Sets the ID value on the checked object.
-        findInDb(checked, "r", currentUser);
+        findInDb(checked, "r", adjustedCurr);
 
         BfPixelsStoreI rps;
         try {
@@ -328,10 +326,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * and the DB). If this doesn't hold, then a SecurityViolation will be thrown.
      */
     protected OriginalFile findInDb(CheckedPath checked, String mode,
-            Principal currentUser) throws ServerError {
+            Ice.Current current) throws ServerError {
 
         final OriginalFile ofile =
-                repositoryDao.findRepoFile(repoUuid, checked, null, currentUser);
+                repositoryDao.findRepoFile(repoUuid, checked, null, current);
 
         if (ofile == null) {
             return null; // EARLY EXIT!
@@ -343,7 +341,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         }
 
         checked.setId(ofile.getId().getValue());
-        boolean canUpdate = repositoryDao.canUpdate(ofile, currentUser);
+        boolean canUpdate = repositoryDao.canUpdate(ofile, current);
         if (requiresWrite && !canUpdate) {
             throw new omero.SecurityViolation(null, null,
                     "requiresWrite is true but cannot modify");
@@ -355,13 +353,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     protected OriginalFile findOrCreateInDb(CheckedPath checked, String mode,
             Ice.Current curr) throws ServerError {
 
-        Principal currentUser = currentUser(curr);
-        OriginalFile ofile = findInDb(checked, mode, currentUser);
+        OriginalFile ofile = findInDb(checked, mode, curr);
         if (ofile != null) {
             return ofile;
         }
 
-        ofile = repositoryDao.register(repoUuid, checked, null, currentUser);
+        ofile = repositoryDao.register(repoUuid, checked, null, curr);
         checked.setId(ofile.getId().getValue());
         return ofile;
     }
@@ -396,9 +393,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
         RepoRawFileStoreI rfs;
         try {
-            Principal currentUser = currentUser(adjustedCurr);
             final RawFileStore service = repositoryDao.getRawFileStore(
-                    checked.getId(), checked, mode, currentUser);
+                    checked.getId(), checked, mode, __current);
             rfs = new RepoRawFileStoreI(be, service, adjustedCurr);
             rfs.setApplicationContext(this.context);
         } catch (Throwable t) {
@@ -475,7 +471,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 }
 
                 OriginalFile ofile = repositoryDao.findRepoFile(repoUuid,
-                        checked, null, currentUser(__current));
+                        checked, null, __current);
                 if (ofile == null) {
                     throw new omero.ResourceError(null, null,
                             "Directory exists but is not registered");
@@ -483,7 +479,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             } else {
                 // This will fail if the file already exists in
                 repositoryDao.register(repoUuid, checked,
-                        DIRECTORY_MIMETYPE, currentUser(__current));
+                        DIRECTORY_MIMETYPE, __current);
             }
 
         }
@@ -495,7 +491,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 "Path exists on disk:" + path);
         }
         repositoryDao.register(repoUuid, checked,
-                DIRECTORY_MIMETYPE, currentUser(__current));
+                DIRECTORY_MIMETYPE, __current);
 
     }
 
@@ -536,8 +532,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
-        Principal currentUser = currentUser(curr);
-        File file = this.repositoryDao.getFile(id, currentUser, this.repoUuid, this.root);
+        File file = this.repositoryDao.getFile(id, curr, this.repoUuid, this.root);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
@@ -551,10 +546,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         StringWriter sw = new StringWriter();
         t.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    protected Principal currentUser(Current __current) {
-        return new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
     }
 
 }

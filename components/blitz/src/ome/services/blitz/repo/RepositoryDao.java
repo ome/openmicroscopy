@@ -31,7 +31,7 @@ public interface RepositoryDao {
      *      {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} called.
      */
     RawFileStore getRawFileStore(long fileId, CheckedPath checked, String mode,
-            final Principal currentUser) throws SecurityViolation;
+            final Ice.Current current) throws SecurityViolation;
 
     /**
      * Delegate to {@link ome.util.SqlAction#findRepoFile(String, String, String, String)}
@@ -44,19 +44,19 @@ public interface RepositoryDao {
      * @return
      */
     OriginalFile findRepoFile(String uuid, CheckedPath checked,
-            String mimetype, Principal currentUser) throws ServerError;
+            String mimetype, Ice.Current current) throws ServerError;
 
     /**
      * Delegates to IAdmin#canUpdate
      * @param fileId
-     * @param currentUser
+     * @param current
      * @throws an {@link omero.SecurityViolation} if the currentUser is not
      *      allowed to access the given file.
      * @return
      */
-    boolean canUpdate(IObject obj, Principal currentUser);
+    boolean canUpdate(IObject obj, Ice.Current current);
 
-    OriginalFile getOriginalFile(long fileId, Principal currentUser)
+    OriginalFile getOriginalFile(long fileId, Ice.Current current)
             throws SecurityViolation;
 
 
@@ -69,10 +69,10 @@ public interface RepositoryDao {
      * @param uuid for the repository in question.
      * @param checked normalized path which can be found as the value of
      *      {@link OriginalFile#getPath()} in the database.
-     * @param currentUser
+     * @param current
      */
     List<OriginalFile> getOriginalFiles(String repoUuid, CheckedPath checked,
-            Principal currentUser) throws SecurityViolation;
+            Ice.Current current) throws SecurityViolation;
 
     /**
      * Register an OriginalFile object
@@ -85,14 +85,14 @@ public interface RepositoryDao {
      * @param mimetype
      *            Mimetype for use with the OriginalFile. May be null in which
      *            case a default will be chosen.
-     * @param currentUser
+     * @param current
      *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
     OriginalFile register(String repoUuid, CheckedPath checked, String mimetype,
-            final Principal currentUser) throws ServerError;
+            final Ice.Current current) throws ServerError;
 
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if
@@ -103,7 +103,7 @@ public interface RepositoryDao {
      * @return OriginalFile object.
      *
      */
-    File getFile(final long id, final Principal currentUser,
+    File getFile(final long id, final Ice.Current current,
             final String repoUuid, final CheckedPath root);
 
     /**

@@ -14,6 +14,11 @@ from omero.rtypes import *
 
 class AbstractRepoTest(lib.ITest):
 
+    def all(self, client):
+        ctx = dict(client.getImplicitContext().getContext())
+        ctx["omero.group"] = "-1"
+        return ctx
+
     def getManagedRepo(self, client=None):
         if client is None:
             client = self.client
@@ -223,24 +228,24 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRaises(omero.SecurityViolation,
             self.createFile, mrepo2, dirname+"/file2.txt")
 
-
     def assertNoRead(self, mrepo2, filename, ofile):
         self.assertRaises(omero.SecurityViolation,
             mrepo2.fileById, ofile.id.val)
         self.assertRaises(omero.SecurityViolation,
             mrepo2.file, filename, "r")
 
-    def assertRead(self, mrepo2, filename, ofile):
+    def assertRead(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
             try:
                 self.assertEquals("hi", rfs.read(0, 2))
             finally:
                 rfs.close()
 
-        rfs = mrepo2.fileById(ofile.id.val)
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
         _read(rfs)
 
-        rfs = mrepo2.file(filename, "r")
+        rfs = mrepo2.file(filename, "r", ctx)
         _read(rfs)
 
     def assertListings(self, mrepo1, uuid):
@@ -258,6 +263,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
         self.assertWrite(mrepo1, filename, ofile)
 
         self.assertNoRead(mrepo2, filename, ofile)
@@ -276,6 +282,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
         self.assertListings(mrepo1, uuid)
         self.assertWrite(mrepo1, filename, ofile)
 
@@ -295,10 +302,12 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
         self.assertListings(mrepo1, uuid)
         self.assertWrite(mrepo1, filename, ofile)
 
         self.assertRead(mrepo2, filename, ofile)
+        self.assertRead(mrepo2, filename, ofile, self.all(client2))
         self.assertListings(mrepo2, uuid)
         self.assertNoWrite(mrepo2, filename, ofile)
         self.assertNoDirWrite(mrepo2, dirname)
@@ -315,10 +324,12 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
         self.assertListings(mrepo1, uuid)
         self.assertWrite(mrepo1, filename, ofile)
 
         self.assertRead(mrepo2, filename, ofile)
+        self.assertRead(mrepo2, filename, ofile, self.all(client2))
         self.assertWrite(mrepo2, filename, ofile)
         self.assertListings(mrepo2, uuid)
         self.assertDirWrite(mrepo2, dirname)
@@ -335,13 +346,46 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
         self.assertListings(mrepo1, uuid)
         self.assertWrite(mrepo1, filename, ofile)
 
         self.assertRead(mrepo2, filename, ofile)
+        self.assertRead(mrepo2, filename, ofile, self.all(client2))
         self.assertListings(mrepo2, uuid)
         self.assertNoWrite(mrepo2, filename, ofile)
         self.assertDirWrite(mrepo2, dirname)
+
+    def testMultiGroup(self):
+
+        uuid = self.uuid()
+        dirname = uuid + "/b/c"
+        filename = dirname + "/file.txt"
+
+        group1 = self.new_group(perms="rw----")
+        client1, user = self.new_client_and_user(group=group1)
+        client1.sf.setSecurityContext(group1)
+
+        group2 = self.new_group(experimenters=[user])
+        client2 = self.new_client(group=group2, user=user)
+        client2.sf.setSecurityContext(group2)
+
+        mrepo1 = self.getManagedRepo(client1)
+        mrepo2 = self.getManagedRepo(client2)
+
+        mrepo1.makeDir(dirname)
+        ofile = self.createFile(mrepo1, filename)
+
+        self.assertRead(mrepo1, filename, ofile)
+        self.assertRead(mrepo1, filename, ofile, self.all(client1))
+
+        try:
+            self.assertRead(mrepo2, filename, ofile)
+            self.fail("secvio")
+        except omero.SecurityViolation:
+            pass
+        self.assertRead(mrepo2, filename, ofile, self.all(client2))
+
 
 if __name__ == '__main__':
     unittest.main()

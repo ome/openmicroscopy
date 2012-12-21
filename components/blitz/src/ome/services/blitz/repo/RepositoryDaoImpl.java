@@ -7,7 +7,9 @@ import static omero.rtypes.rtime;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -15,6 +17,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
 
 import ome.api.IQuery;
 import ome.api.RawFileStore;
@@ -95,14 +99,16 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public RawFileStore getRawFileStore(final long fileId, final CheckedPath checked,
-            String mode, Principal currentUser) throws SecurityViolation {
+            String mode, Ice.Current current) throws SecurityViolation {
 
         final RawFileStore proxy = executor.getContext()
                 .getBean("managed-ome.api.RawFileStore", RawFileStore.class);
         final RawFileBean bean = unwrapRawFileBean(proxy);
         final FileBuffer buffer = new FileBuffer(checked.file.getAbsolutePath(),  mode);
         try {
-            statefulExecutor.execute(currentUser, new StatefulWork(bean, this, "setFileIdWithBuffer", fileId) {
+            Map<String, String> fileContext = fileContext(fileId, current);
+            statefulExecutor.execute(fileContext, currentUser(current),
+                    new StatefulWork(bean, this, "setFileIdWithBuffer", fileId) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         bean.setFileIdWithBuffer(fileId, buffer);
@@ -116,12 +122,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public OriginalFile findRepoFile(final String uuid, final CheckedPath checked,
-            final String mimetype, Principal currentUser)
+            final String mimetype, Ice.Current current)
             throws omero.ServerError {
 
         try {
             ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) executor
-                .execute(currentUser, new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
+                .execute(current.ctx, currentUser(current),
+                        new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
                     @Transactional(readOnly = true)
                     public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
                         Long id = getSqlAction().findRepoFile(uuid,
@@ -142,9 +149,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     }
 
-    public boolean canUpdate(final omero.model.IObject obj, Principal currentUser) {
+    public boolean canUpdate(final omero.model.IObject obj, Ice.Current current) {
         return (Boolean)  executor
-                .execute(currentUser, new Executor.SimpleWork(this, "canUpdate") {
+                .execute(current.ctx, currentUser(current),
+                        new Executor.SimpleWork(this, "canUpdate") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         try {
@@ -159,11 +167,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public OriginalFile getOriginalFile(final long repoId,
-            final Principal currentUser) throws SecurityViolation {
+            final Ice.Current current) throws SecurityViolation {
 
          try {
              ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", repoId) {
+                 .execute(current.ctx, currentUser(current),
+                         new Executor.SimpleWork(this, "getOriginalFile", repoId) {
                      @Transactional(readOnly = true)
                      public Object doWork(Session session, ServiceFactory sf) {
                          return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
@@ -177,11 +186,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     @SuppressWarnings("unchecked")
     public List<OriginalFile> getOriginalFiles(final String repoUuid, final CheckedPath checked,
-            final Principal currentUser) throws SecurityViolation {
+            final Ice.Current current) throws SecurityViolation {
 
          try {
              List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
-                 .execute(currentUser, new Executor.SimpleWork(this,
+                 .execute(current.ctx, currentUser(current),
+                         new Executor.SimpleWork(this,
                          "getOriginalFiles", repoUuid, checked) {
                      @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
@@ -232,7 +242,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public OriginalFile register(final String repoUuid, final CheckedPath checked,
-            final String mimetype, final Principal currentUser) throws ServerError {
+            final String mimetype, final Ice.Current current) throws ServerError {
 
         if (checked.isRoot) {
             throw new ome.conditions.SecurityViolation(
@@ -244,7 +254,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         try {
             final ome.model.core.OriginalFile of = (ome.model.core.OriginalFile)
-                    executor.execute(currentUser, new Executor.SimpleWork(
+                    executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(
                     this, "register", repoUuid, checked, mimetype) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
@@ -281,9 +292,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @return OriginalFile object.
      *
      */
-    public File getFile(final long id, final Principal currentUser,
+    public File getFile(final long id, final Ice.Current current,
             final String repoUuid, final CheckedPath root) {
-        return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
+        return (File) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "getFile", id) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                     String path = getSqlAction().findRepoFilePath(
@@ -431,5 +443,33 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     "No annotate access for parent directory: "
                             + parentId);
         }
+    }
+
+    protected Principal currentUser(Current __current) {
+        final Map<String, String> ctx = __current.ctx;
+        final String session = ctx.get(omero.constants.SESSIONUUID.value);
+        final String group = ctx.get(omero.constants.GROUP.value);
+        return new Principal(session, group, null);
+    }
+
+    /**
+     * Create a String-String map which can be used as the context for a call
+     * to Executor.execute based on the group of the file object.
+     * @throws SecurityViolation if the file can't be read.
+     */
+    protected Map<String, String> fileContext(long fileId, Ice.Current current)
+        throws omero.SecurityViolation {
+
+        // TODO: we should perhaps pass "-1" here regardless of what group is
+        // passed by the client, but that violates the current working of the
+        // API, so using the standard behavior at the moment.
+        final OriginalFile file = getOriginalFile(fileId, current);
+        final Map<String, String> context = new HashMap<String, String>();
+        if (current.ctx != null) {
+            context.putAll(current.ctx);
+        }
+        context.put("omero.group",
+                Long.toString(file.getDetails().getGroup().getId().getValue()));
+        return context;
     }
 }
