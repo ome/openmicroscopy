@@ -793,22 +793,22 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long, boolean)
 	 */
-	public Map loadStructuredData(SecurityContext ctx, List<DataObject> data,
+	public Map<DataObject, StructuredDataResults>
+		loadStructuredData(SecurityContext ctx, List<DataObject> data,
 			long userID, boolean viewed) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (data == null)
 			throw new IllegalArgumentException("Object not valid.");
 		
-		Map<Long, StructuredDataResults> 
-			results = new HashMap<Long, StructuredDataResults>();
+		Map<DataObject, StructuredDataResults> 
+			results = new HashMap<DataObject, StructuredDataResults>();
 		Iterator<DataObject> i = data.iterator();
-		DataObject node;
+		DataObject n;
 		while (i.hasNext()) {
-			node = i.next();
-			if (node != null) {
-				results.put(node.getId(), 
-						loadStructuredData(ctx, node, userID, viewed));
+			n = i.next();
+			if (n != null) {
+				results.put(n, loadStructuredData(ctx, n, userID, viewed));
 			}
 		}
 		return results;
@@ -1131,6 +1131,7 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
+		System.err.println(data);
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;

@@ -69,11 +69,12 @@ public class GroupEditor
      * @param ctx The security context.
      * @param group	 The group to update. Mustn't be <code>null</code>.
      * @param permissions The desired permissions level or <code>-1</code>.
+     * @param loaderID The identifier of the loader.
      */
     public GroupEditor(MetadataViewer viewer, SecurityContext ctx,
-    		GroupData group, int permissions)
+    		GroupData group, int permissions, int loaderID)
     {
-    	super(viewer, ctx);
+    	super(viewer, ctx, loaderID);
     	if (group == null)
     		throw new IllegalArgumentException("No group to edit.");
     	this.group = group;

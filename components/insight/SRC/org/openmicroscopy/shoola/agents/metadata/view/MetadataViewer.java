@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -238,25 +237,17 @@ public interface MetadataViewer
 
 	/** 
 	 * Cancels any ongoing data loading. 
-	 * 
-	 * @param refNode The node of reference
+	 *
+	 * @param loaderID The identifier to the loader to cancel.
 	 */
-	public void cancel(TreeBrowserDisplay refNode);
-
-	/**
-	 * Loads the metadata related to the passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	public void loadMetadata(TreeBrowserDisplay node);
+	public void cancel(int loaderID);
 	
 	/**
 	 * Feeds the metadata back to the viewer.
 	 * 
-	 * @param node		The node to add the data to.
-	 * @param result	The result to feed back.
+	 * @param results The result to feed back.
 	 */
-	public void setMetadata(TreeBrowserDisplay node, Object result);
+	public void setMetadata(Map<DataObject, StructuredDataResults> results);
 	
 	/**
 	 * Returns the UI used to select the metadata.
@@ -645,5 +636,21 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	boolean isSameObject(Object object);
+
+	/**
+	 *  Returns all the metadata objects corresponding to the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData();
+	
+	/**
+	 * Returns the metadata linked to the currently edited object
+	 * or <code>null</code> if not loaded.
+	 * 
+	 * @param refObject The object to handle.
+	 * @return See above.
+	 */
+	StructuredDataResults getStructuredData(Object refObject);
 
 }

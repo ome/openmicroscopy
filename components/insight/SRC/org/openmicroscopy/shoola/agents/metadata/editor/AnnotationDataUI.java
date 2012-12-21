@@ -454,10 +454,22 @@ class AnnotationDataUI
 		int size = f.getSize()-1;
 		content.removeAll();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		
+		JPanel p;
+		if (model.isMultiSelection()) {
+			Object refObject = model.getRefObject();
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Annotate the selected ");
+			buffer.append(model.getObjectTypeAsString(refObject));
+			buffer.append("s");
+			l.setText(buffer.toString());
+			p = UIUtilities.buildComponentPanel(l, 0, 0);
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(Box.createHorizontalStrut(2));
+			content.add(p);
+		}
 		//layout button.
 		//filters
-		JPanel p = UIUtilities.buildComponentPanel(
+		p = UIUtilities.buildComponentPanel(
 				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(p);
@@ -468,8 +480,8 @@ class AnnotationDataUI
 		p.add(createBar(unrateButton, null));
 		p.add(Box.createHorizontalStrut(2));
 		p.add(rating);
-		//p.add(Box.createHorizontalStrut(2));
-		//p.add(otherRating);
+		p.add(Box.createHorizontalStrut(2));
+		p.add(otherRating);
 		content.add(p);
 		
 		//tags and attachments.
@@ -505,7 +517,11 @@ class AnnotationDataUI
 		panel.add(tagsPane, c);
 		c.gridy = 3;
 		panel.add(docRef, c);
-		content.add(panel);
+		
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(panel);
+		content.add(p);
 		
 		
 		//analysis results
@@ -797,20 +813,8 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		String text = "";
-		if (!model.isMultiSelection()) {
-			selectedValue = model.getUserRating();
-			int n = model.getRatingCount();
-			if (n > 0) {
-				text += "(avg:"+model.getRatingAverage()+" | "+n+" vote";
-				if (n > 1) text += "s";
-				text += ")";
-			}
-		}
-		otherRating.setText(text); 
-		
-		initialValue = selectedValue;
-		rating.setValue(selectedValue);
+		selectedValue = 0;
+		StringBuffer buffer = new StringBuffer();
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
 		Collection l;
@@ -823,9 +827,45 @@ class AnnotationDataUI
 			l = model.getAttachments();
 			if (l != null) count += l.size();
 			layoutAttachments(l);
+			selectedValue = model.getUserRating();
+			int n = model.getRatingCount(EditorModel.ALL);
+			if (n > 1) {
+				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
+						" | "+n+" vote");
+				if (n > 1) buffer.append("s");
+				buffer.append(")");
+			}
+			otherRating.setVisible(n > 1);
 		} else {
-			layoutTags(null);
-			layoutAttachments(null);
+			layoutTags(model.getAllTags());
+			layoutAttachments(model.getAllAttachments());
+			selectedValue = model.getRatingAverage(EditorModel.ME);
+			int n = model.getRatingCount(EditorModel.ME);
+			if (n > 0) {
+				buffer.append("out of "+n);
+				 buffer.append(" rating");
+				if (n > 1) buffer.append("s");
+			}
+			otherRating.setVisible(true);
+		}
+
+		otherRating.setText(buffer.toString()); 
+		
+		initialValue = selectedValue;
+		rating.setValue(selectedValue);
+		publishedBox.setSelected(model.hasBeenPublished());
+		//Add attachments
+		//Viewed by
+		if (!model.isMultiSelection()) {
+			l = model.getTags();
+			if (l != null) count += l.size();
+			layoutTags(l);
+			l = model.getAttachments();
+			if (l != null) count += l.size();
+			layoutAttachments(l);
+		} else {
+			layoutTags(model.getAllTags());
+			layoutAttachments(model.getAllAttachments());
 		}
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
@@ -1010,7 +1050,7 @@ class AnnotationDataUI
 			Iterator i = objects.iterator();
 			TagAnnotationData tag;
 			tagFlag = false;
-			Collection tags = model.getTags();
+			Collection tags = model.getAllTags();
 			if (tags == null || tags.size() != objects.size()) {
 				tagFlag = true;
 			} else {
@@ -1035,7 +1075,7 @@ class AnnotationDataUI
 			Iterator i = objects.iterator();
 			FileAnnotationData data;
 			docFlag = false;
-			Collection attachments = model.getAttachments();
+			Collection attachments = model.getAllAttachments();
 			if (attachments == null || attachments.size() != objects.size()) {
 				docFlag = true;
 			} else {
@@ -1060,7 +1100,8 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Returns the tags currently selected.
+	 * Returns the tags currently selected. A tag will be added to the list
+	 * only if it is linked to all the selected objects
 	 * 
 	 * @return See above.
 	 */
@@ -1252,7 +1293,7 @@ class AnnotationDataUI
 		Iterator<DocComponent> i;
 		Collection original;
 		Iterator j;
-		if (tagFlag && !model.isMultiSelection()) {
+		if (tagFlag) {
 			idsToKeep = new ArrayList<Long>();
 			
 			TagAnnotationData tag;
@@ -1268,7 +1309,7 @@ class AnnotationDataUI
 				}
 			}
 			
-			original = model.getTags();
+			original = model.getAllTags();
 			j = original.iterator();
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
@@ -1291,7 +1332,7 @@ class AnnotationDataUI
 						idsToKeep.add(id);
 				}
 			}
-			original = model.getAttachments();
+			original = model.getAllAttachments();
 			j = original.iterator();
 			while (j.hasNext()) {
 				fa = (FileAnnotationData) j.next();
@@ -1325,7 +1366,7 @@ class AnnotationDataUI
 		Collection original;
 		long id;
 		if (tagFlag) {
-			original = model.getTags();
+			original = model.getAllTags();
 			j = original.iterator();
 			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
@@ -1334,20 +1375,6 @@ class AnnotationDataUI
 			}
 			
 			i = tagsDocList.iterator();
-			/*
-			while (i.hasNext()) {
-				doc = i.next();
-				object = doc.getData();
-				if (object instanceof TagAnnotationData) {
-					annotation = (AnnotationData) object;
-					id = annotation.getId();
-					if (!ids.contains(id) && !added.contains(id)) {
-						added.add(id);
-						l.add(annotation);
-					}
-				}
-			}
-			*/
 			Map<Long, Integer> map = new HashMap<Long, Integer>();
 			Map<Long, AnnotationData> 
 				annotations = new HashMap<Long, AnnotationData>();
@@ -1375,13 +1402,21 @@ class AnnotationDataUI
 			}
 			
 			//check the count
-			Entry entry;
-			Iterator k = map.entrySet().iterator();
+			Entry<Long, Integer> entry;
+			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
+			int n = tagsDocList.size();
+			Map<DataObject, Boolean> m;
 			while (k.hasNext()) {
-				entry = (Entry) k.next();
-				count = (Integer) entry.getValue();
-				if (count > 1)
-					l.add(annotations.get(entry.getKey()));
+				entry = k.next();
+				count = entry.getValue();
+				if (count != null && count == n) {
+					//Check if the annotation needs to be added
+					annotation = annotations.get(entry.getKey());
+					m = model.getTaggedObjects(annotation);
+					if (m.size() < count) {
+						l.add(annotation);
+					}
+				}
 			}
 		}
 		i = tagsDocList.iterator();
@@ -1394,20 +1429,54 @@ class AnnotationDataUI
 			}
 		}
 		if (docFlag) {
-			original = model.getAttachments();
+			original = model.getAllAttachments();
 			j = original.iterator();
 			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
 				ids.add(((AnnotationData) j.next()).getId());
 			}
 			i = filesDocList.iterator();
+			Map<Long, Integer> map = new HashMap<Long, Integer>();
+			Map<Long, AnnotationData> 
+				annotations = new HashMap<Long, AnnotationData>();
+			Integer count;
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof FileAnnotationData) {
 					annotation = (AnnotationData) object;
 					id = annotation.getId();
-					if (!ids.contains(id)) l.add(annotation);
+					if (!ids.contains(id)) {
+						l.add(annotation);
+					} else {
+						count = map.get(id);
+						if (count != null) {
+							count++;
+							map.put(id, count);
+						} else {
+							count = 1;
+							annotations.put(id, annotation);
+							map.put(id, count);
+						}
+					}
+				}
+			}
+			
+			//check the count
+			Entry<Long, Integer> entry;
+			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
+			int n = filesDocList.size();
+			Map<DataObject, Boolean> m;
+			while (k.hasNext()) {
+				entry = k.next();
+				count = entry.getValue();
+				if (count != null && count == n) {
+					//Check if the annotation needs to be added
+					annotation = annotations.get(entry.getKey());
+					m = model.getTaggedObjects(annotation);
+					if (m.size() < count) {
+						l.add(annotation);
+					}
 				}
 			}
 		}
@@ -1445,9 +1514,9 @@ class AnnotationDataUI
 
 	/**
 	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		if (!init) {
 			buildGUI();
@@ -1491,7 +1560,7 @@ class AnnotationDataUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { clearData(); }
+	protected void clearDisplay() {}
 	
 	/**
 	 * Sets the title of the component.
@@ -1510,8 +1579,6 @@ class AnnotationDataUI
 			int newValue = (Integer) evt.getNewValue();
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
-				//firePropertyChange(EditorControl.SAVE_PROPERTY,
-				//	Boolean.valueOf(false), Boolean.valueOf(true));
 				view.saveData(true);
 			}
 		} else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {

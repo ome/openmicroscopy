@@ -24,14 +24,19 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 
 /** 
  * Loads the structured annotations related to a given object.
@@ -52,8 +57,8 @@ public class StructuredDataLoader
 	extends MetadataLoader
 {
 
-	/** The object the data are related to. */
-	private Object		dataObject;
+	/** The objects the data are related to. */
+	private List<DataObject> dataObjects;
 
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -64,17 +69,17 @@ public class StructuredDataLoader
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param node The node of reference. 
-	 * @param dataObject The object the data are related to.
+	 * @param dataObjects The objects the data are related to.
 	 *                   Mustn't be <code>null</code>.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
-			TreeBrowserDisplay node, Object dataObject)
+			List<DataObject> dataObjects, int loaderID)
 	{
-		super(viewer, ctx, node);
-		if (dataObject == null)
+		super(viewer, ctx, null, loaderID);
+		if (dataObjects == null || dataObjects.size() == 0)
 			throw new IllegalArgumentException("No object specified.");
-		this.dataObject = dataObject;
+		this.dataObjects = dataObjects;
 	}
 	
 	/** 
@@ -83,7 +88,7 @@ public class StructuredDataLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(ctx, dataObject, -1, this);
+		handle = mhView.loadStructuredData(ctx, dataObjects, -1, false, this);
 	}
 	
 	/** 
@@ -99,7 +104,7 @@ public class StructuredDataLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(refNode, result);
+    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result);
     }
     
 }

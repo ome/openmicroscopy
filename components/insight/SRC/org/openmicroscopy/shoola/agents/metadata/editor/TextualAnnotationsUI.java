@@ -506,23 +506,20 @@ class TextualAnnotationsUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() 
-	{ 
+	protected void clearDisplay() {}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData(Object)
+	 */
+	protected void clearData(Object oldObject)
+	{
 		if (annotationToRemove != null) annotationToRemove.clear();
 		annotationToDisplay = null;
 		if (previousComments != null)
 			previousComments.getViewport().removeAll();
 		originalText = DEFAULT_TEXT_COMMENT;
 		setAreaText(DEFAULT_TEXT_COMMENT, true);
-	}
-	
-	/**
-	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
-	 */
-	protected void clearData()
-	{
-		clearDisplay();
 	}
 	
 	/**

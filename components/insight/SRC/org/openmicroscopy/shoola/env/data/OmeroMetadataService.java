@@ -226,8 +226,9 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map loadStructuredData(SecurityContext ctx, List<DataObject> data,
-			long userID, boolean viewed)
+	public Map<DataObject, StructuredDataResults> loadStructuredData(
+			SecurityContext ctx, List<DataObject> data, long userID,
+			boolean viewed)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
