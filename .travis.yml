@@ -19,10 +19,11 @@ before_install:
     - du -sh *
     - du -sh .git
     - rm -rf .git
+    - rm -rf components/specification/Documentation/
     - sudo apt-get update -qq
     - sudo apt-get install -qq zeroc-ice34
     #- sudo apt-get install -qq python-imaging python-numpy python-tables
 
 install: python build.py
 
-script: dist/bin/omero version
+script: python build.py test-unit
