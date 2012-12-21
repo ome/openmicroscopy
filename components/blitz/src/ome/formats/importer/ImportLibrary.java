@@ -670,8 +670,6 @@ public class ImportLibrary implements IObservable
                 }
             }
             IFormatReader baseReader = reader.getImageReader().getReader();
-            // Forcing these to false for now but remove completely once tested?
-            boolean useMetadataFile = false;
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
@@ -684,19 +682,6 @@ public class ImportLibrary implements IObservable
             String formatString = baseReader.getClass().toString();
             formatString = formatString.replace("class loci.formats.in.", "");
             formatString = formatString.replace("Reader", "");
-
-            // Save metadata and prepare the RawPixelsStore for our arrival.
-            if (isScreeningDomain)
-            {
-                log.info("Reader is of HCS domain, disabling metafile.");
-                store.setArchiveScreeningDomain(data);
-            }
-            else
-            {
-                log.info("Reader is not of HCS domain, use metafile: "
-                        + useMetadataFile);
-                store.setArchive(useMetadataFile, data);
-            }
 
             List<Pixels> pixList = importMetadata(index, userSpecifiedTarget,
                     userSpecifiedName, userSpecifiedDescription, userPixels,
