@@ -425,11 +425,10 @@ class ToolBar
 				Dimension d = usersMenu.getPreferredSize();
 				Point p1 = c.getLocation();
 				SwingUtilities.convertPointToScreen(p1, c);
-				int h = p1.y+d.height;
-				int diff = h-size.height;
-				if (diff > 0)  {
-					usersMenu.setPopupSize(d.width+20, diff+30);
-				}
+				int h = size.height-p1.y-30; //max size.
+				int diff = p1.y+d.height;
+				if (diff > h)
+					usersMenu.setPopupSize(d.width+20, h);
 				//Set the location
 				usersMenu.show(e.getComponent(), r.width, 0);
 			}
