@@ -384,6 +384,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
+    <target name="release-all" description="Produce all release artifacts"
+        depends="release-clients,release-webstart,release-zip,release-src,release-docs">
+        <!-- Clients must come first to produce the zips needed by webstart,
+        followed by webstart in order to add jars to dist/, followed by zip -->
+    </target>
+
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
@@ -392,6 +398,20 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 includes="bin/omero"
                 filemode="755"/>
         </zip>
+    </target>
+
+    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
+        <git command="archive" output="release-src-command" failonerror="true">
+            <args>
+                <arg value="--format=zip"/>
+                <arg value="HEAD"/>
+                <arg value="-o"/>
+                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
+            </args>
+        </git>
+    </target>
+
+    <target name="release-clients">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
                 includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**" excludes="bin/omero"/>
@@ -433,20 +453,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer -${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
-    </target>
 
-    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
-        <git command="archive" output="release-src-command" failonerror="true">
-            <args>
-                <arg value="--format=zip"/>
-                <arg value="HEAD"/>
-                <arg value="-o"/>
-                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
-            </args>
-        </git>
-    </target>
-
-    <target name="release-clients">
         <!-- This replaces the previous OMERO-trunk-clients build -->
         <mkdir dir="target/pkg"/>
         <delete includeemptydirs="true">

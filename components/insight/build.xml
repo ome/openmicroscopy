@@ -64,10 +64,10 @@
     </target>
 
 
-    <target name="zips">
+    <target name="zips" depends="prepare">
         <insightBuild target="dist"/>
-        <publishArtifact/>
         <antcall target="copy-zips" inheritAll="true" inheritRefs="true"/>
+        <publishArtifact/>
     </target>
 
     <target name="clean">
