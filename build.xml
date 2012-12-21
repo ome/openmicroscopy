@@ -913,14 +913,13 @@ omero.version=${omero.version}
     </target>
 
     <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
-        <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
-            <patternset>
-                <include name="**/*.jar"/>
-            </patternset>
-            <flattenmapper/>
-        </unzip>
-        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
+        <mkdir dir="${dist.dir}/lib/insight"/>
+        <copy todir="${dist.dir}/lib/insight">
+            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
+        </copy>
+        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
+        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <macrodef name="gitdescribe">

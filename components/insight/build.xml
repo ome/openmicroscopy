@@ -53,13 +53,6 @@
     </target>
 
     <target name="install" depends="package">
-        <signjar
-            jar="${target.dir}/${ivy.module}-UNSIGNED.jar"
-            signedjar="${target.dir}/${ivy.module}.jar"
-            alias="${jarsign.alias}"
-            keystore="${jarsign.keystore}"
-            storepass="${jarsign.storepass}"
-            preservelastmodified="true"/>
         <publishArtifact haltonmissing="false"/>
     </target>
 

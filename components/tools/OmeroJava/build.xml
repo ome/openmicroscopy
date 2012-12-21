@@ -78,7 +78,7 @@
     <target name="compile" depends="pre-compile,lifecycle.compile"/>
 
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
-	<jar update="true" destfile="${target.dir}/${ivy.module}-UNSIGNED.jar">
+	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
             <manifest>
                 <attribute name="Class-Path" value=""/>
                 <attribute name="Main-Class" value=""/>

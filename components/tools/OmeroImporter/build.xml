@@ -67,7 +67,7 @@
         <chmod perm="a+x">
             <fileset dir="${target.dir}" includes="importer-*,test-engine,metadata-validator"/>
         </chmod>
-        <jar destfile="${target.dir}/${ivy.module}-UNSIGNED.jar" update="true">
+        <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
             <fileset dir="${resrc.dir}" includes="*.icns"/>
             <fileset dir="${src.dir}" includes="**/*.png"/>
             <fileset dir="${src.dir}" includes="**/*.gif"/>
