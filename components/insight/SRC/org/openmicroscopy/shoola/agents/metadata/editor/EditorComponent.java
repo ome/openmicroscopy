@@ -1135,12 +1135,12 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#saveAs(File)
+	 * @see Editor#saveAs(File, int)
 	 */
-	public void saveAs(File folder)
+	public void saveAs(File folder, int format)
 	{
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
-		model.saveAs(folder);
+		model.saveAs(folder, format);
 	}
 	
 	/** 
