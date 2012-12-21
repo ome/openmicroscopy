@@ -17,6 +17,7 @@
 
 package ome.services.blitz.repo;
 
+import java.util.List;
 import java.util.Map;
 
 import Ice.Current;
@@ -29,6 +30,8 @@ import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.grid.ImportRequest;
+import omero.grid.ImportResponse;
+import omero.model.Pixels;
 
 /**
  * Wrapper around {@link FilesetActivity} instances which need to be handled
@@ -79,7 +82,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        helper.setResponseIfNull(new OK());
+        helper.setResponseIfNull(new ImportResponse((List<Pixels>) object));
     }
 
     public Response getResponse() {

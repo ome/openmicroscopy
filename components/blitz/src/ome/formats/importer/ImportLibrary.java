@@ -55,6 +55,7 @@ import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
+import omero.grid.ImportResponse;
 import omero.grid.ImportSettings;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
@@ -584,17 +585,16 @@ public class ImportLibrary implements IObservable
                         container.getFile().getAbsolutePath(), rt,
                         container.getUsedFiles(), container.getReader()));
                 throw rt;
+            } else if (rsp instanceof ImportResponse) {
+                List<Pixels> pixList = ((ImportResponse) rsp).pixels;
+                notifyObservers(new ImportEvent.IMPORT_DONE(
+                        index, container.getFile().getAbsolutePath(),
+                        null, null, 0, null, pixList));
+                return pixList;
             }
 
         }
-
-        List<Pixels> pixList = new ArrayList<Pixels>();
-        // TODO: Need to retrieve this from the handles status or the proc.
-
-        notifyObservers(new ImportEvent.IMPORT_DONE(
-                index, container.getFile().getAbsolutePath(),
-                null, null, 0, null, pixList));
-        return pixList;
+        throw new RuntimeException("FIXME");
     }
 
     /**

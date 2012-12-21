@@ -323,6 +323,17 @@ module omero {
         };
 
         /**
+         * Successful response returned from execution
+         * of [ImportRequest]. This is the simplest way
+         * to return the results, but is likely not the
+         * overall best strategy.
+         **/
+        class ImportResponse extends ::omero::cmd::Response {
+            omero::api::PixelsList pixels;
+        };
+
+
+        /**
          * FS-enabled repository which can convert uploaded files
          * into Images by using Bio-Formats to import them.
          **/
