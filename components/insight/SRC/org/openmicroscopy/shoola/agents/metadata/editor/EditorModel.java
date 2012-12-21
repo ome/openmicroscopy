@@ -156,6 +156,15 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** The file namespaces to exclude.*/
+	private final static List<String> EXCLUDED_FILE_NS;
+	
+	static {
+		EXCLUDED_FILE_NS = new ArrayList<String>();
+		EXCLUDED_FILE_NS.add(FileAnnotationData.COMPANION_FILE_NS);
+		EXCLUDED_FILE_NS.add(FileAnnotationData.FLIM_NS);
+	}
+	
 	/** The parent of this editor. */
 	private  MetadataViewer			parent;
 	
@@ -236,7 +245,7 @@ class EditorModel
 	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
     /** The photo of the current user.*/
-    private Map<Long, BufferedImage>				usersPhoto;
+    private Map<Long, BufferedImage>	usersPhoto;
     
     /** Flag indicating if the image is a big image or not.*/
     private boolean largeImage;
@@ -489,6 +498,32 @@ class EditorModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @param result the object of reference.
+	 * @return See above.
+	 */
+	private boolean canDeleteLink(Object data, StructuredDataResults result)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		if (result == null) return false;
+		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
+		if (links == null) return false;
+		Iterator<AnnotationLinkData> i = links.iterator();
+		AnnotationLinkData link;
+		
+		while (i.hasNext()) {
+			link = i.next();
+			if (d.getId() == link.getChild().getId())
+				return link.canDelete();
+		}
+		return false;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param refObject	The object this editor is for.
@@ -531,6 +566,7 @@ class EditorModel
 	 */
 	boolean isMultiSelection() { return !parent.isSingleMode(); }
 
+	
 	/**
 	 * Returns the observable.
 	 * 
@@ -596,8 +632,18 @@ class EditorModel
 	 */
 	String getRefObjectName() 
 	{
+		return getObjectName(getPrimarySelect());
+	}
+	
+	/**
+	 * Returns the name of the specified object.
+	 * 
+	 * @param ref The object to handle.
+	 * @return See above.
+	 */
+	String getObjectName(Object ref)
+	{
 		String name = "";
-		Object ref = getPrimarySelect();
 		if (ref instanceof ImageData)
 			name = ((ImageData) ref).getName();
 		else if (ref instanceof DatasetData)
@@ -624,6 +670,43 @@ class EditorModel
 			name = ((MultiImageData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
+	}
+	
+	/**
+	 * Returns the name associated to the specified object.
+	 * 
+	 * @param ref The object to handle.
+	 * @return See above.
+	 */
+	String getObjectTypeAsString(Object ref)
+	{
+		if (ref instanceof ImageData) return "Image";
+        else if (ref instanceof DatasetData) return "Dataset";
+        else if (ref instanceof ProjectData) return "Project";
+        else if (ref instanceof ScreenData) return "Screen";
+        else if (ref instanceof PlateData) return "Plate";
+        else if (refObject instanceof PlateAcquisitionData)
+        	return"Plate Run";
+        else if (refObject instanceof FileAnnotationData) {
+        	FileAnnotationData fa = (FileAnnotationData) refObject;
+        	String ns = fa.getNameSpace();
+        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
+        		return "Experiment";
+        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
+        		return "Protocol";
+        	return "File";
+        } else if (refObject instanceof WellSampleData) return "Field";
+        else if (refObject instanceof TagAnnotationData) {
+        	TagAnnotationData tag = (TagAnnotationData) refObject;
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+        		return "Tag Set";
+        	else return "Tag";
+        } else if (refObject instanceof FileData) {
+        	FileData f = (FileData) refObject;
+        	if (f.isDirectory()) return "Folder";
+        	return "File";
+        }
+		return "";
 	}
 	
 	/**
@@ -763,13 +846,7 @@ class EditorModel
 	 */
 	boolean canLink(Object data)
 	{ 
-		/*
-		if (!(data instanceof DataObject)) return false;
-		DataObject d = (DataObject) data;
-		return d.canLink();
-		*/
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		return EditorUtil.isUserOwner(data, id);
+		return EditorUtil.isUserOwner(data, getUserID());
 	}
 
 	/**
@@ -824,20 +901,17 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canDeleteLink(Object data)
-	{ 
-		if (!(data instanceof DataObject)) return false;
-		DataObject d = (DataObject) data;
-		StructuredDataResults result = parent.getStructuredData();
-		if (result == null) return false;
-		Collection<AnnotationLinkData> links = result.getAnnotationLinks();
-		if (links == null) return false;
-		Iterator<AnnotationLinkData> i = links.iterator();
-		AnnotationLinkData link;
-		
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return false;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
 		while (i.hasNext()) {
-			link = i.next();
-			if (d.getId() == link.getChild().getId())
-				return link.canDelete();
+			e = i.next();
+			if (canDeleteLink(data, e.getValue()))
+				return true;
 		}
 		return false;
 	}
@@ -892,7 +966,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the annotation can be added, should
+	 * Returns <code>true</code> if the annotation can be deleted, should
 	 * only be invoked for tagging or adding attachments, <code>false</code>
 	 * otherwise.
 	 * 
@@ -900,17 +974,24 @@ class EditorModel
 	 */
 	boolean canDeleteAnnotationLink()
 	{
-		if (!isMultiSelection()) return true;
-		
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return false;
-		Collection<AnnotationLinkData> list = data.getAnnotationLinks();
-		if (list == null) return false;
-		AnnotationLinkData link;
-		Iterator<AnnotationLinkData> i = list.iterator();
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return false;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		StructuredDataResults data;
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> j;
 		while (i.hasNext()) {
-			link = i.next();
-			if (link.canDelete()) return true;
+			e = i.next();
+			data = e.getValue();
+			links = data.getAnnotationLinks();
+			if (links != null) {
+				j = links.iterator();
+				while (j.hasNext())
+					if ( j.next().canDelete()) return true;
+			}
 		}
 		return false;
 	}
@@ -940,7 +1021,7 @@ class EditorModel
 	 */
 	boolean isUserOwner(Object object)
 	{
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == id);
@@ -961,23 +1042,32 @@ class EditorModel
 	 */
 	boolean isLinkOwner(Object annotation)
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		if (!(annotation instanceof DataObject)) return false;
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return false;
-		Map m = data.getLinks();
-		if (m == null) return false;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
+		Collection<AnnotationLinkData> links;
+		AnnotationLinkData link;
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (id == exp.getId()) return true;
+		
+		long id = getUserID();
+		
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			if (links != null) {
+				i = links.iterator();
+				while (i.hasNext()) {
+					link = i.next();
+					if (link.getChild().getId() == ann.getId() &&
+						link.getOwner().getId() == id) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -998,7 +1088,7 @@ class EditorModel
 		if (annotators == null || annotators.size() == 0) return false;
 		if (annotators.size() == 1) {
 			ExperimenterData exp = annotators.get(0);
-			long id = MetadataViewerAgent.getUserDetails().getId();
+			long id = getUserID();
 			return exp.getId() != id;
 		}
 		return true;
@@ -1012,27 +1102,69 @@ class EditorModel
 	 */
 	List<ExperimenterData> getAnnotators(Object annotation)
 	{
+		return getAnnotators(null, annotation);
+	}
+	
+	/**
+	 * Returns the collection of experimenters who use the annotation.
+	 * 
+	 * @param ref The object of reference.
+	 * @param annotation The annotation to handle.
+	 * @return See above.
+	 */
+	List<ExperimenterData> getAnnotators(DataObject ref, Object annotation)
+	{
 		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return list;
-		Map m = data.getLinks();
-		if (m == null) return list;
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
+		Collection<AnnotationLinkData> links;
+		AnnotationLinkData link;
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
+		
 		List<Long> ids = new ArrayList<Long>();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (!ids.contains(exp.getId())) {
-					list.add(exp);
-					ids.add(exp.getId());
+		while (j.hasNext()) {
+			e = j.next();
+			if (ref == null) {
+				links = e.getValue().getAnnotationLinks();
+				if (links != null) {
+					i = links.iterator();
+					while (i.hasNext()) {
+						link = i.next();
+						if (link.getChild().getId() == ann.getId()) {
+							
+							if (!ids.contains(link.getOwner().getId())) {
+								list.add(link.getOwner());
+								ids.add(link.getOwner().getId());
+							}
+						}
+					}
+				}
+			} else {
+				if (ref.getId() == e.getKey().getId()) {
+					links = e.getValue().getAnnotationLinks();
+					if (links != null) {
+						i = links.iterator();
+						while (i.hasNext()) {
+							link = i.next();
+							if (link.getChild().getId() == ann.getId()) {
+								
+								if (!ids.contains(link.getOwner().getId())) {
+									list.add(link.getOwner());
+									ids.add(link.getOwner().getId());
+								}
+							}
+						}
+					}
+					break;
 				}
 			}
+			
 		}
 		return list;
 	}
@@ -1046,40 +1178,52 @@ class EditorModel
 	 */
 	List<Object> getLinks(int level, AnnotationData ho)
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return null;
-		Collection<AnnotationLinkData> links = data.getAnnotationLinks();
-		if (links == null) return new ArrayList<Object>();
-		Iterator<AnnotationLinkData> i = links.iterator();
+		
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		
+		Iterator<AnnotationLinkData> i;
 		AnnotationLinkData d;
 		List<Object> results = new ArrayList<Object>();
 		long userID = getCurrentUser().getId();
-		switch (level) {
-			case ALL:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId()) {
-						results.add(d.getLink());
-					}
+		Collection<AnnotationLinkData> links;
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			if (links != null) {
+				i = links.iterator();
+				switch (level) {
+					case ALL:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId()) {
+								results.add(d.getLink());
+							}
+						}
+						break;
+					case ME:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId() &&
+									userID == d.getOwner().getId()) {
+								results.add(d.getLink());
+							}
+						}
+						break;
+					case OTHER:
+						while (i.hasNext()) {
+							d = i.next();
+							if (ho.getId() == d.getChild().getId() &&
+									userID != d.getOwner().getId()) {
+								results.add(d.getLink());
+							}
+						}
 				}
-				break;
-			case ME:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId() &&
-							userID == d.getOwner().getId()) {
-						results.add(d.getLink());
-					}
-				}
-				break;
-			case OTHER:
-				while (i.hasNext()) {
-					d = i.next();
-					if (ho.getId() == d.getChild().getId() &&
-							userID != d.getOwner().getId()) {
-						results.add(d.getLink());
-					}
-				}
+			}
+			
 		}
 		return results;
 	}
@@ -1092,71 +1236,31 @@ class EditorModel
 	 */
 	boolean isAnnotationUsedByUser(Object annotation)
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> data = getAllStructuredData();
 		if (data == null) return false;
-		Map m = data.getLinks();
-		if (m == null) return false;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		j = data.entrySet().iterator();
+		Collection<AnnotationLinkData> links;
+		Iterator<AnnotationLinkData> i;
+		AnnotationLinkData link;
+		
+		long id = getUserID();
 		DataObject ann = (DataObject) annotation;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			if (o.getId() == ann.getId()) {
-				exp = (ExperimenterData) entry.getValue();
-				if (exp.getId() == id) return true;
+		
+		while (j.hasNext()) {
+			e = j.next();
+			links = e.getValue().getAnnotationLinks();
+			i = links.iterator();
+			while (i.hasNext()) {
+				link = i.next();
+				if (link.getChild().getId() == ann.getId() &&
+					link.getOwner().getId() == id)
+					return true;
 			}
+			
 		}
 		return false;
-	}
-	
-	/**
-	 * Returns the collection of annotation that cannot be removed 
-	 * by the user currently logged.
-	 * 
-	 * @return See above.
-	 */
-	Collection getImmutableAnnotation()
-	{
-		List<DataObject> list = new ArrayList<DataObject>();
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return list;
-		Map m = data.getLinks();
-		if (m == null) return list;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		DataObject o;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			o = (DataObject) entry.getKey();
-			exp = (ExperimenterData) entry.getValue();
-			if (id != exp.getId())
-				list.add(o);
-		}
-		return list;
-	}
-	
-	/**
-	 * Returns the identifiers of the annotations that cannot be unlinked.
-	 * 
-	 * @return See above.
-	 */
-	List<Long> getImmutableAnnotationIds()
-	{
-		List<Long> ids = new ArrayList<Long>();
-		Collection l = getImmutableAnnotation();
-		Iterator i = l.iterator();
-		DataObject data;
-		while (i.hasNext()) {
-			data = (DataObject) i.next();
-			ids.add(data.getId());
-		}
-		return ids;
 	}
 	
 	/**
@@ -1280,6 +1384,184 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the collection of the tags linked to the
+	 * <code>DataObject</code>s.
+	 * 
+	 * @return See above.
+	 */
+	Collection<TagAnnotationData> getAllTags()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<TagAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		List<TagAnnotationData> results = new ArrayList<TagAnnotationData>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					if (!ids.contains(tag.getId())) {
+						results.add(tag);
+						ids.add(tag.getId());
+					}
+				}
+			}
+		}
+		return (Collection<TagAnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the collection of the tags that are linked to all the selected
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection<TagAnnotationData> getCommonTags()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<TagAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		Map<Long, Integer> 
+			ids = new HashMap<Long, Integer>();
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		
+		Integer value;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null) {
+						value++;
+					} else value = 1;
+					ids.put(tag.getId(), value);
+				}
+			}
+		}
+		
+		//Extract the common tags.
+		//The number of selected objects.
+		List<TagAnnotationData> results = new ArrayList<TagAnnotationData>();
+		List<Long> count = new ArrayList<Long>();
+		
+		int max = r.size();
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null &&
+						value == max && !count.contains(tag.getId())) {
+						results.add(tag);
+						count.add(tag.getId());
+					}
+				}
+			}
+		}
+		
+		return (Collection<TagAnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the objects tagged by the specified object.
+	 * 
+	 * @param refTag The tag of reference.
+	 * @return See above.
+	 */
+	Map<DataObject, Boolean> getTaggedObjects(AnnotationData refTag)
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		Map<DataObject, Boolean> m = new HashMap<DataObject, Boolean>();
+		if (r == null) return m;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<TagAnnotationData> tags;
+		Iterator<TagAnnotationData> j;
+		TagAnnotationData tag;
+		DataObject o;
+		StructuredDataResults result;
+		while (i.hasNext()) {
+			e = i.next();
+			result = e.getValue();
+			tags = result.getTags();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					if (tag.getId() == refTag.getId()) {
+						o = (DataObject) result.getRelatedObject();
+						m.put(o, canDeleteLink(tag, result));
+						break;
+					}
+				}
+			}
+		}
+		return m;
+	}
+	
+	/**
+	 * Returns the objects linked by the specified object.
+	 * 
+	 * @param refFile The file of reference.
+	 * @return See above.
+	 */
+	Map<DataObject, Boolean> getObjectsWithAttachments(AnnotationData refFile)
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		Map<DataObject, Boolean> m = new HashMap<DataObject, Boolean>();
+		if (r == null) return m;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<FileAnnotationData> files;
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData file;
+		DataObject o;
+		StructuredDataResults result;
+		while (i.hasNext()) {
+			e = i.next();
+			result = e.getValue();
+			files = result.getAttachments();
+			if (files != null) {
+				j = files.iterator();
+				while (j.hasNext()) {
+					file = j.next();
+					if (file.getId() == refFile.getId()) {
+						o = (DataObject) result.getRelatedObject();
+						m.put(o, canDeleteLink(file, result));
+						break;
+					}
+				}
+			}
+		}
+		return m;
+	}
+	
+	/**
 	 * Returns the collection of the files linked to the 
 	 * <code>DataObject</code> at import.
 	 * 
@@ -1346,7 +1628,7 @@ class EditorModel
 				String name = f.getFileName();
 				if (name.contains(FileAnnotationData.ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
-			} else if (!FileAnnotationData.FLIM_NS.equals(ns)) {
+			} else if (!isNameSpaceExcluded(ns)) {
 				l.add(f);
 			}
 			
@@ -1370,9 +1652,121 @@ class EditorModel
 				}
 			}
 		}
-		return (Collection<FileAnnotationData>) sorter.sort(l); 
+		return (Collection<FileAnnotationData>) sorter.sort(l);
 	}
 
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	Collection<FileAnnotationData> getAllAttachments()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<FileAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		
+		
+		Collection<FileAnnotationData> files;
+		List<FileAnnotationData> results = new ArrayList<FileAnnotationData>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData file;
+		String ns;
+		while (i.hasNext()) {
+			e = i.next();
+			files = e.getValue().getAttachments();
+			if (files != null) {
+				j = files.iterator();
+				while (j.hasNext()) {
+					file = j.next();
+					ns = file.getNameSpace();
+					if (!FileAnnotationData.FLIM_NS.equals(ns) &&
+						!FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+						if (!ids.contains(file.getId())) {
+							results.add(file);
+							ids.add(file.getId());
+						}
+					}
+				}
+			}
+		}
+		return (Collection<FileAnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the collection of the files that are linked to all the selected
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection<FileAnnotationData> getCommonAttachments()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<FileAnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<FileAnnotationData> tags;
+		Map<Long, Integer> 
+			ids = new HashMap<Long, Integer>();
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData tag;
+		
+		Integer value;
+		String ns;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getAttachments();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					ns = tag.getNameSpace();
+					if (!isNameSpaceExcluded(ns)) {
+						value = ids.get(tag.getId());
+						if (value != null) {
+							value++;
+						} else value = 1;
+						ids.put(tag.getId(), value);
+					}
+					
+				}
+			}
+		}
+		
+		//Extract the common tags.
+		//The number of selected objects.
+		List<FileAnnotationData> results = new ArrayList<FileAnnotationData>();
+		List<Long> count = new ArrayList<Long>();
+		
+		int max = r.size();
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getAttachments();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null && 
+							value == max && !count.contains(tag.getId())) {
+						results.add(tag);
+						count.add(tag.getId());
+					}
+				}
+			}
+		}
+		
+		return (Collection<FileAnnotationData>) sorter.sort(results);
+	}
+	
 	/**
 	 * Returns the collection of XML annotations.
 	 * 
@@ -1392,36 +1786,53 @@ class EditorModel
 	 */
 	List<AnalysisResultsItem> getAnalysisResults()
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return null;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return null;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		j = r.entrySet().iterator();
+		StructuredDataResults data;
+		Collection<FileAnnotationData> attachments;
+		Iterator<FileAnnotationData> i;
 		FileAnnotationData f;
 		String ns;
 		AnalysisResultsItem item;
 		
 		Map<Long, FileAnnotationData> 
 		ids = new HashMap<Long, FileAnnotationData>();
-		while (i.hasNext()) {
-			f = i.next();
-			ns = f.getNameSpace();
-			if (FileAnnotationData.FLIM_NS.equals(ns)) {
-				ids.put(f.getId(), f);
+		
+		while (j.hasNext()) {
+			e = j.next();
+			data = e.getValue();
+			if (data != null) {
+				attachments = data.getAttachments();
+				if (attachments != null) {
+					i = attachments.iterator();
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.FLIM_NS.equals(ns)) {
+							ids.put(f.getId(), f);
+						}
+					}
+				}
 			}
 		}
+
+		if (ids.size() == 0) return null;
 		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
-		if (orderedIds.size() == 0) return null;
+		
 		int index = 0; //this should be modified.
-		Iterator<Long> j = orderedIds.iterator();
+		Iterator<Long> k = orderedIds.iterator();
 		Long id;
 		List<AnalysisResultsItem> 
 		results = new ArrayList<AnalysisResultsItem>();
 		item = null;
 		int n = 6;
 		int number = 1;
-		while (j.hasNext()) {
-			id = j.next();
+		while (k.hasNext()) {
+			id = k.next();
 			if (index == 0) {
 				item = new AnalysisResultsItem((DataObject) getRefObject(), 
 						FileAnnotationData.FLIM_NS, number);
@@ -1498,24 +1909,51 @@ class EditorModel
 		*/
 		return null;
 	}
-	
+
 	/**
 	 * Returns the number of ratings for that object.
 	 * 
+	 * @param filter One of the filtering components defined by this class.
 	 * @return See above.
 	 */
-	int getRatingCount()
+	int getRatingCount(int filter)
 	{
-		StructuredDataResults data = parent.getStructuredData();
-		Collection ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return 0;
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
+		if (data == null) return 0;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
 		int n = 0;
-		Iterator i = ratings.iterator();
-		RatingAnnotationData rate;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long userID = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
-			if (rate.getOwner().getId() != id) n++;
+			e = i.next();
+			results = e.getValue();
+			ratings = results.getRatings();
+			if (ratings != null) {
+				
+				switch (filter) {
+				case ALL:
+					n += ratings.size();
+					break;
+				case ME:
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						if (j.next().getOwner().getId() == userID)
+							n++;
+					}
+				case OTHER:
+				default:
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						if (j.next().getOwner().getId() != userID)
+							n++;
+					}
+				}
+			}
 		}
 		return n;
 	}
@@ -1530,17 +1968,58 @@ class EditorModel
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
-		Collection ratings = data.getRatings();
+		Collection<RatingAnnotationData> ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return null;
-		Iterator i = ratings.iterator();
+		Iterator<RatingAnnotationData> i = ratings.iterator();
 		RatingAnnotationData rate;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long id = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
+			rate = i.next();
 			if (rate.getOwner().getId() == id)
 				return rate;
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the rating annotation related to the logged in user,
+	 * or <code>null</code> if no annotation.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, RatingAnnotationData> getAllUserRatingAnnotation()
+	{
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
+		if (data == null) return null;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
+		RatingAnnotationData rating;
+		Map<DataObject, RatingAnnotationData> 
+		map = new HashMap<DataObject, RatingAnnotationData>();
+		long id = getUserID();
+		while (i.hasNext()) {
+			e = i.next();
+			results = e.getValue();
+			if (results != null) {
+				ratings = results.getRatings();
+				if (ratings != null) {
+					j = ratings.iterator();
+					while (j.hasNext()) {
+						rating = j.next();
+						if (rating.getOwner().getId() == id) {
+							map.put(e.getKey(), rating);
+						}
+					}
+				}
+			}
+		}
+		
+		return map;
 	}
 	
 	/**
@@ -1567,27 +2046,81 @@ class EditorModel
 		return data.getRating();
 	}
 	
+	/**
+	 * Returns the rating done by the current user.
+	 * 
+	 * @return See above
+	 */
+	int getAllUserRating()
+	{
+		Map<DataObject, RatingAnnotationData>
+		map = getAllUserRatingAnnotation();
+		if (map == null) return 0;
+		Collection<RatingAnnotationData> ratings = map.values();
+		Iterator<RatingAnnotationData> i = ratings.iterator();
+		int n = 0;
+		while (i.hasNext()) {
+			n += i.next().getRating();
+		}
+		return n;
+	}
+	
 	/** 
 	 * Returns the average rating value.
 	 * 
+	 * @param filter One of the filtering components defined by this class.
 	 * @return See above.
 	 */
-	int getRatingAverage() 
+	int getRatingAverage(int filter) 
 	{
-		StructuredDataResults data = parent.getStructuredData();
+		Map<DataObject, StructuredDataResults> 
+		data = parent.getAllStructuredData();
 		if (data == null) return 0;
-		Collection ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return 0;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = data.entrySet().iterator();
+		Collection<RatingAnnotationData> ratings;
+		StructuredDataResults results;
+		Iterator<RatingAnnotationData> j;
+		RatingAnnotationData rating;
 		int n = 0;
-		Iterator i = ratings.iterator();
-		RatingAnnotationData rate;
 		int value = 0;
-		long id = MetadataViewerAgent.getUserDetails().getId();
+		long userID = getUserID();
 		while (i.hasNext()) {
-			rate = (RatingAnnotationData) i.next();
-			if (rate.getOwner().getId() != id) {
-				value += rate.getRating();
-				n++;
+			e = i.next();
+			results = e.getValue();
+			ratings = results.getRatings();
+			if (ratings != null) {
+				
+				j = ratings.iterator();
+				switch (filter) {
+					case ALL:
+						while (j.hasNext()) {
+							rating = j.next();
+							value += rating.getRating();
+							n++;
+						}
+						break;
+					case ME:
+						
+						while (j.hasNext()) {
+							rating = j.next();
+							if (rating.getOwner().getId() == userID) {
+								value += rating.getRating();
+								n++;
+							}
+						}
+					case OTHER:
+					default:
+						j = ratings.iterator();
+						while (j.hasNext()) {
+							rating = j.next();
+							if (rating.getOwner().getId() != userID) {
+								value += rating.getRating();
+								n++;
+							}
+						}
+				}
 			}
 		}
 		if (n == 0) return 0;
@@ -3044,32 +3577,6 @@ class EditorModel
     }
     
     /**
-     * Loads the group corresponding to the specified identifier.
-     * 
-     * @param groupID The identifier of the group to load.
-     * @return See above.
-     */
-    GroupData loadGroup(long groupID)
-    {
-    	/*
-    	try {
-			AdminService svc = 
-				MetadataViewerAgent.getRegistry().getAdminService();
-			List<GroupData> groups = svc.loadGroups(groupID);
-			Iterator<GroupData> i = groups.iterator();
-			GroupData g;
-			while (i.hasNext()) {
-				g = i.next();
-				if (g.getId() == groupID) return g;
-			}
-		} catch (Exception e) {
-			//ignore
-		}
-		*/
-		return null;
-    }
-    
-    /**
      * Loads the attachments.
      * 
      * @param analysis The object hosting the results.
@@ -3288,5 +3795,28 @@ class EditorModel
 		} catch (Exception e) {}
 		return false;
 	}
+
+	/**
+	 * Returns the annotations associated to the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return parent.getAllStructuredData();
+	}
 	
+	/**
+	 * Returns <code>true</code> if the specified namespace is excluded.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ns The namespace to handle.
+	 * @return See above.
+	 */
+	boolean isNameSpaceExcluded(String ns)
+	{
+		if (ns == null) return false;
+		return EXCLUDED_FILE_NS.contains(ns);
+	}
+
 }

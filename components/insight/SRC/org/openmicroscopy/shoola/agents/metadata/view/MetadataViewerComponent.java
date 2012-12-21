@@ -32,14 +32,12 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -240,80 +238,57 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#cancel(TreeBrowserDisplay)
+	 * @see MetadataViewer#cancel(int)
 	 */
-	public void cancel(TreeBrowserDisplay refNode) { model.cancel(refNode); }
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadMetadata(TreeBrowserDisplay)
-	 */
-	public void loadMetadata(TreeBrowserDisplay node)
+	public void cancel(int loaderID)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (node == null)
-			throw new IllegalArgumentException("No node specified.");
-		Object userObject = node.getUserObject();
-		if (userObject instanceof DataObject) {
-			if (model.isSingleMode()) {
-				model.fireStructuredDataLoading(node);
-				fireStateChange();
-			}
-		} else if (userObject instanceof File) {
-			File f = (File) userObject;
-			if (f.isDirectory() && model.isSingleMode()) {
-				model.fireStructuredDataLoading(node);
-				fireStateChange();
-			}
-		}
+		if (model.getState() == DISCARDED) return;
+		model.cancel(loaderID);
 	}
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object, boolean)
+	 * @see MetadataViewer#setMetadata(Map<DataObject, StructuredDataResults>)
 	 */
-	public void setMetadata(TreeBrowserDisplay node, Object result)
+	public void setMetadata(Map<DataObject, StructuredDataResults> results)
 	{
-		if (node == null)
-			throw new IllegalArgumentException("No node specified.");
-		Object userObject = node.getUserObject();
-		Object refObject = model.getRefObject();
-		if (refObject != userObject) {
-			model.setStructuredDataResults(null, node);
-			fireStateChange();
-			return;
-		}
+		if (results == null || results.size() == 0) return;
+		//Need to check the size of the results map.
 		Browser browser = model.getBrowser();
-		if (result instanceof StructuredDataResults) {
-			StructuredDataResults data = (StructuredDataResults) result;
-			Object object = data.getRelatedObject();
-			if (object == model.getParentRefObject() ||
-				(object instanceof PlateData && userObject 
-						instanceof WellSampleData)) {
-				model.setParentDataResults((StructuredDataResults) result,
-						node);
-				loadMetadata(node);
-			} else {
-				model.setStructuredDataResults((StructuredDataResults) result,
-						node);
-				browser.setParents(node, 
-						model.getStructuredData().getParents());
-				
-				model.getEditor().setStructuredDataResults();
-				view.setOnScreen();
+		DataObject node;
+		StructuredDataResults data;
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>> 
+		i = results.entrySet().iterator();
+		if (results.size() == 1) { //handle the single selection
+			while (i.hasNext()) {
+				e = i.next();
+				node = e.getKey();
+				if (!model.isSameObject(node)) {
+					model.setStructuredDataResults(null);
+					fireStateChange();
+					return;
+				}
+				data = e.getValue();
+				Object object = data.getRelatedObject();
+				if (object == model.getParentRefObject() ||
+					(object instanceof PlateData && node 
+							instanceof WellSampleData)) {
+					model.setParentDataResults(data, node);
+					model.fireStructuredDataLoading(node);
+				} else {
+					model.setStructuredDataResults(results);
+					browser.setParents(null, data.getParents());
+					model.getEditor().setStructuredDataResults();
+				}
+				fireStateChange();
 			}
-			fireStateChange();
-			return;
+		} else {
+			if (model.isSameSelection(results.keySet())) {
+				model.setStructuredDataResults(results);
+				model.getEditor().setStructuredDataResults();
+			}
 		}
-		if (!(userObject instanceof String)) return;
-		String name = (String) userObject;
-		
-		if (browser == null) return;
-		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
-			browser.setParents((TreeBrowserSet) node, (Collection) result);
-		model.notifyLoadingEnd(node);
 	}
 
 	/** 
@@ -381,6 +356,10 @@ class MetadataViewerComponent
 		//Previewed the image.
 		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
+		if (model.isSingleMode()) {
+			model.fireStructuredDataLoading(root);
+			fireStateChange();
+		}
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
@@ -393,7 +372,16 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#refresh()
 	 */
-	public void refresh() { model.refresh(); }
+	public void refresh()
+	{
+		if (model.isSingleMode()) {
+			model.fireStructuredDataLoading(model.getRefObject());
+		} else {
+			model.setRelatedNodes(model.getRelatedNodes());
+		}
+		fireStateChange();
+		view.setRootObject();
+	}
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -474,7 +462,6 @@ class MetadataViewerComponent
 		}
 		Collection nodes = model.getRelatedNodes();
 		Iterator n;
-		toSave.add(data);
 		if (!model.isSingleMode()) {
 			if (nodes != null) {
 				n = nodes.iterator();
@@ -489,7 +476,7 @@ class MetadataViewerComponent
 					} else toSave.add(o);
 				}
 			}
-		}
+		} else toSave.add(data);
 		boolean b = true;
 		if (refObject instanceof ProjectData || 
 			refObject instanceof ScreenData ||
@@ -565,10 +552,14 @@ class MetadataViewerComponent
 		if (dataObject != null && model.isSameObject(dataObject)) {
 			setRootObject(model.getRefObject(), model.getUserID(),
 					model.getSecurityContext());
+			model.setState(READY);
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
-		} else
+		} else {
+			if (model.isSameSelection(data))
+				model.setRelatedNodes(data);
+			else model.setState(READY);
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
-		model.setState(READY);
+		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		fireStateChange();
 	}
@@ -598,7 +589,7 @@ class MetadataViewerComponent
 		if (nodes == null || nodes.size() == 0) return;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = nodes.iterator();
-		List results = new ArrayList();
+		List<DataObject> results = new ArrayList<DataObject>();
 		DataObject data;
 		while (i.hasNext()) {
 			Object object = i.next();
@@ -1157,7 +1148,7 @@ class MetadataViewerComponent
 			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 			}
-		}	
+		}
 	}
     
 	/** 
@@ -1180,7 +1171,6 @@ class MetadataViewerComponent
 	public SecurityContext getSecurityContext()
 	{ 
 		return model.getSecurityContext();
-	
 	}
 	
 	/** 
@@ -1190,6 +1180,24 @@ class MetadataViewerComponent
 	public boolean isSameObject(Object object)
 	{
 		return model.isSameObject(object);
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getAllStructuredData()
+	 */
+	public Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return model.getAllStructuredData();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getStructuredData()
+	 */
+	public StructuredDataResults getStructuredData(Object refObject)
+	{
+		return model.getStructuredData(refObject);
 	}
 	
 	/** 

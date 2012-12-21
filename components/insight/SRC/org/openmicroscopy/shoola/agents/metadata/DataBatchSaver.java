@@ -80,12 +80,13 @@ public class DataBatchSaver
 	 *             Mustn't be <code>null</code>.
 	 * @param toAdd The collection of annotations to add.
 	 * @param toRemove The collection of annotations to remove.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<Object> toRemove)
+		List<Object> toRemove, int loaderID)
 	{
-		super(viewer, null);
+		super(viewer, null, loaderID);
 		if (data == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.data = data;
@@ -103,12 +104,13 @@ public class DataBatchSaver
 	 * 						Mustn't be <code>null</code>.
 	 * @param toAdd			The collection of annotations to add.
 	 * @param toRemove		The collection of annotations to remove.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-		List<Object> toRemove)
+		List<Object> toRemove, int loaderID)
 	{
-		super(viewer, null);
+		super(viewer, null, loaderID);
 		if (timeRefObject == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.timeRefObject = timeRefObject;
