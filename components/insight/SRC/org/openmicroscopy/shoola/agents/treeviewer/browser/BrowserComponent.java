@@ -1357,7 +1357,7 @@ class BrowserComponent
 	    //root.setToRefresh(false);
 	    
 	    RefreshExperimenterDef def;
-	    RefreshVisitor v = new RefreshVisitor(this);
+	    RefreshVisitor v; 
 	    int n = root.getChildCount();
 	    Map<SecurityContext, RefreshExperimenterDef> 
 	    	m = new HashMap<SecurityContext, RefreshExperimenterDef>(n);
@@ -1374,6 +1374,7 @@ class BrowserComponent
 	    	for (int i = 0; i < n; i++) {
 	    		expNode = (TreeImageSet) root.getChildAt(i);
 		    	if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+		    		v = new RefreshVisitor(this);
 		    		expNode.accept(v, 
 							TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			    	foundNodes = v.getFoundNodes();
@@ -1393,12 +1394,14 @@ class BrowserComponent
 	    	for (int i = 0; i < n; i++) {
 		    	groupNode = (TreeImageSet) root.getChildAt(i);
 		    	if (groupNode.isExpanded()) {
+		    		v = new RefreshVisitor(this);
 		    		gid = groupNode.getUserObjectId();
 			    	children = groupNode.getChildrenDisplay();
 			    	j = children.iterator();
 			    	while (j.hasNext()) {
 						expNode = (TreeImageSet) j.next();
 						if (expNode.isChildrenLoaded()) {
+							v = new RefreshVisitor(this);
 							expNode.accept(v, 
 									TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 					    	foundNodes = v.getFoundNodes();

@@ -103,7 +103,7 @@ public class TestExample
         //Note that calls to the DMS are synchronous even when the Container
         //is not in test mode.
         long start = System.currentTimeMillis(), end;
-        os.getExperimenterImages(new SecurityContext(0), 1);
+        os.getExperimenterImages(new SecurityContext(0), 1, false);
         //TODO: check result.
         end = System.currentTimeMillis();
         assertTrue("The call took too long: "+(end-start)+"ms.", 
