@@ -429,7 +429,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
+
+        <iterate buildpathref="OmeroMatlab.buildpath" target="release-zip"/>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
+
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
