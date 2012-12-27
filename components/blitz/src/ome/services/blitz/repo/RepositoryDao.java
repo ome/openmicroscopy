@@ -6,11 +6,9 @@ import java.util.List;
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
-import ome.system.Principal;
 
 import omero.SecurityViolation;
 import omero.ServerError;
-import omero.grid.ImportLocation;
 import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Job;

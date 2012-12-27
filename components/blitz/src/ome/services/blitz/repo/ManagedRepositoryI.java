@@ -53,6 +53,7 @@ import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
+import omero.grid.ImportRequest;
 import omero.grid.ImportSettings;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
@@ -89,12 +90,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private final String template;
 
     /**
-     * The Registry provides access to internal OMERO conections (i.e. within the
-     * firewall).
-     */
-    private final Registry reg;
-
-    /**
      * Fields used in date-time calculations.
      */
     private static final DateFormatSymbols DATE_FORMAT;
@@ -103,9 +98,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         DATE_FORMAT = new DateFormatSymbols();
     }
 
-    public ManagedRepositoryI(String template, RepositoryDao dao, Registry reg) throws Exception {
+    public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         super(dao);
-        this.reg = reg;
         this.template = template;
         log.info("Repository template: " + this.template);
     }
@@ -113,10 +107,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
     @Override
     public Ice.Object tie() {
         return new _ManagedRepositoryTie(this);
-    }
-
-    public Registry getRegistry() {
-        return this.reg;
     }
 
     //
@@ -381,7 +371,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             throws omero.ApiUsageException {
 
         // Static elements which will be re-used throughout
-        final ImportLocation data = new ImportLocation(); // Return value
+        final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
         final List<String> parts = splitElements(basePath);
         final File relFile = new File(relPath);
         final File trueFile = new File(trueRoot, relPath);
@@ -414,11 +404,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final File newBase = new File(relFile, endPart);
             data.sharedPath = normalize(newBase.toString());
             data.usedFiles = new ArrayList<String>(paths.size());
+            data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
             for (String path : paths) {
                 URI pathUri = new File(path).toURI();
                 String relative = baseUri.relativize(pathUri).getPath();
                 path = normalize(new File(newBase, relative).toString());
                 data.usedFiles.add(path);
+                data.checkedPaths.add(checkPath(path, __current));
             }
     
             try {

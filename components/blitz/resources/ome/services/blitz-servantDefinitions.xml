@@ -351,4 +351,10 @@
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
+  <bean class="ome.services.blitz.repo.RequestObjectFactoryRegistry"
+    lazy-init="false">
+     <constructor-arg ref="Registry"/>
+     <constructor-arg ref="configuredTileSizes"/>
+     <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
 </beans>

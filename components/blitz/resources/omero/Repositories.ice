@@ -320,6 +320,17 @@ module omero {
              **/
             omero::model::FilesetJobLink activity;
 
+            /**
+             *
+             **/
+             ImportSettings settings;
+
+            /**
+             *
+             **/
+             ImportLocation location;
+
+
         };
 
         /**

@@ -20,7 +20,6 @@ package ome.services.blitz.test;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 
 import loci.formats.FormatTools;
 
@@ -47,7 +46,6 @@ import omero.grid.ImportProcessPrx;
 import omero.grid.ImportSettings;
 import omero.model.Fileset;
 import omero.model.FilesetI;
-import omero.model.Pixels;
 import omero.util.TempFileManager;
 
 /**
@@ -82,7 +80,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         targetDir.mkdirs();
 
         repo = new ManagedRepositoryI("template",
-                new RepositoryDaoImpl(rootPrincipal, user.ex), reg);
+                new RepositoryDaoImpl(rootPrincipal, user.ex));
         repo.setApplicationContext(user.ctx);
 
         internal = new LegacyRepositoryI(user.adapter, reg, user.ex, rootPrincipal,

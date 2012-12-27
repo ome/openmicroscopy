@@ -68,7 +68,6 @@
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fslite.path}"/>
               <constructor-arg ref="repositoryDao"/>
-              <constructor-arg ref="Registry"/>
           </bean>
       </constructor-arg>
   </bean>

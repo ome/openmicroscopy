@@ -82,8 +82,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public class TestManagedRepositoryI extends ManagedRepositoryI {
 
         public TestManagedRepositoryI(String template,
-                RepositoryDao repositoryDao, Registry reg) throws Exception {
-            super(template, repositoryDao, reg);
+                RepositoryDao repositoryDao) throws Exception {
+            super(template, repositoryDao);
             File dir = TempFileManager.create_path("mng-repo.", ".test", true);
             initialize(new FileMaker(dir.getAbsolutePath()),
                     -1L /*id*/, "fake-uuid");
@@ -129,7 +129,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         this.daoMock = mock(RepositoryDao.class);
         this.reg = (Registry) mockReg.proxy();
         this.tmri = new TestManagedRepositoryI("/%year%/%month%/%day%",
-                (RepositoryDao) daoMock.proxy(), this.reg);
+                (RepositoryDao) daoMock.proxy());
         this.curr = new Ice.Current();
         this.curr.ctx = new HashMap<String, String>();
         this.curr.ctx.put(omero.constants.SESSIONUUID.value, "TEST");
