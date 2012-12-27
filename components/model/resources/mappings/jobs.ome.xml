@@ -38,6 +38,35 @@
 			<child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.core.OriginalFile"/>
 		</properties>
 	</type>
+
+	<type id="ome.model.jobs.UploadJob" superclass="ome.model.jobs.Job">
+		<!-- Note: UploadJob is not in model-->
+		<properties>
+                    <optional name="versionInfo" type="ome.model.fs.FilesetVersionInfo"/>
+		</properties>
+	</type>
+	<type id="ome.model.jobs.MetadataImportJob" superclass="ome.model.jobs.Job">
+		<!-- Note: MetadataImportJob is not in model-->
+		<properties>
+                    <required name="versionInfo" type="ome.model.fs.FilesetVersionInfo"/>
+		</properties>
+	</type>
+	<type id="ome.model.jobs.ThumbnailGenerationJob" superclass="ome.model.jobs.Job">
+		<!-- Note: ThumbnailGenerationJob is not in model-->
+		<properties>
+		</properties>
+	</type>
+	<type id="ome.model.jobs.PyramidGenerationJob" superclass="ome.model.jobs.Job">
+		<!-- Note: PyramidGenerationJob is not in model-->
+		<properties>
+		</properties>
+	</type>
+	<type id="ome.model.jobs.IntegrityCheckJob" superclass="ome.model.jobs.Job">
+		<!-- Note: IntegrityCheckJob is not in model-->
+		<properties>
+		</properties>
+	</type>
+        <!-- Deprecated -->
 	<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
 		<!-- Note: ImportJob is not in model-->
 		<properties>

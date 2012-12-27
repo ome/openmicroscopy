@@ -37,6 +37,8 @@ import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
 import omero.model.FilesetVersionInfo;
 import omero.model.FilesetVersionInfoI;
+import omero.model.UploadJob;
+import omero.model.UploadJobI;
 import omero.model.IObject;
 
 public class ImportContainer
@@ -247,7 +249,9 @@ public class ImportContainer
         FilesetVersionInfo clientVersionInfo = new FilesetVersionInfoI();
         clientVersionInfo.setBioformatsReader(rstring(reader));
         config.fillVersionInfo(clientVersionInfo);
-        fs.setClientVersionInfo(clientVersionInfo);
+        UploadJob upload = new UploadJobI();
+        upload.setVersionInfo(clientVersionInfo);
+        fs.linkJob(upload);
 
     }
 

@@ -42,7 +42,6 @@ import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
-import omero.model.FilesetActivity;
 import omero.model.Pixels;
 import omero.util.IceMapper;
 
@@ -242,7 +241,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
     public List<HandlePrx> verifyUpload(List<String> hashes, Current __current)
             throws ServerError {
 
-        final int size = fs.sizeOfFilesetEntry();
+        final int size = fs.sizeOfUsedFiles();
         if (hashes == null) {
             throw new omero.ApiUsageException(null, null,
                     "hashes list cannot be null");

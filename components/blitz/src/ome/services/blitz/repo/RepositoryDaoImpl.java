@@ -257,10 +257,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
             parents.add(path.parent());
         }
 
-        final ome.model.core.Fileset fs = (ome.model.core.Fileset) mapper.reverse(_fs);
+        final ome.model.fs.Fileset fs = (ome.model.fs.Fileset) mapper.reverse(_fs);
 
         try {
-            return (Fileset) mapper.map((ome.model.core.Fileset)
+            return (Fileset) mapper.map((ome.model.fs.Fileset)
                     executor.execute(currentUser, new Executor.SimpleWork(
                     this, "saveFileset", paths) {
                 @Transactional(readOnly = false)

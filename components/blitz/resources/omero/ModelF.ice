@@ -29,7 +29,7 @@ module omero {
         class Family;
         class Filament;
         class Fileset;
-        class FilesetActivity;
+        class FilesetJobLink;
         class Format;
         class IObject;
         class Image;

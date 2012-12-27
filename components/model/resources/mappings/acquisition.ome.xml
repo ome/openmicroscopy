@@ -113,34 +113,14 @@
 		</properties>
 	</type>
 
-        <!-- Should likely be a constant -->
-	<enum id="ome.model.enums.FilesetActivityType">
-		<entry name="Upload"/>
-		<entry name="Import"/>
-		<entry name="Thumbnails"/>
-		<entry name="Pyramids"/>
-		<entry name="Checksum"/>
-		<entry name="IntegrityCheck"/>
-		<entry name="Other"/>
-		<entry name="Unknown"/>
-	</enum>
-        <type id="ome.model.core.FilesetActivity" described="true">
+        <type id="ome.model.fs.FilesetEntry">
                 <properties>
-                    <required name="filesetActivityType" type="ome.model.enums.FilesetActivityType"/>
-                    <required name="fileset" type="ome.model.core.Fileset"/>
-                    <required name="job" type="ome.model.jobs.Job"/>
-                    <required name="hideUntilDone" type="boolean"/>
-                </properties>
-        </type>
-
-        <type id="ome.model.core.FilesetEntry">
-                <properties>
-                    <manyone name="fileset" type="ome.model.core.Fileset" ordered="true"/>
+                    <manyone name="fileset" type="ome.model.fs.Fileset" ordered="true"/>
                     <required name="originalFile" type="ome.model.core.OriginalFile"/>
                     <required name="clientPath" type="text"/>
                 </properties>
         </type>
-        <type id="ome.model.core.FilesetVersionInfo">
+        <type id="ome.model.fs.FilesetVersionInfo">
                 <properties>
                     <required name="bioformatsReader" type="string"/>
                     <required name="bioformatsVersion" type="string"/>
@@ -151,14 +131,16 @@
                     <required name="locale" type="string"/>
                 </properties>
         </type>
-        <type id="ome.model.core.Fileset" annotated="true">
+        <link id="ome.model.fs.FilesetJobLink">
+		<properties>
+                        <from_parent type="ome.model.fs.Fileset" ordered="true"/>
+                        <to_child type="ome.model.jobs.Job"/>
+		</properties>
+	</link>
+        <type id="ome.model.fs.Fileset" annotated="true">
                 <properties>
-                    <onemany name="filesetEntry" type="ome.model.core.FilesetEntry" inverse="fileset" ordered="true"/>
-                    <zeromany name="filesetActivity" type="ome.model.core.FilesetActivity" inverse="fileset"/>
-                    <required name="clientVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
-                    <required name="serverVersionInfo" type="ome.model.core.FilesetVersionInfo"/>
-                    <!-- FIXME: include user/group -->
-                    <!-- config options -->
+                    <onemany name="usedFiles" type="ome.model.fs.FilesetEntry" inverse="fileset" ordered="true"/>
+                    <child name="jobLinks" type="ome.model.fs.FilesetJobLink" target="ome.model.jobs.Job" ordered="true"/>
                 </properties>
         </type>
 

@@ -34,7 +34,7 @@ import omero.grid.ImportResponse;
 import omero.model.Pixels;
 
 /**
- * Wrapper around {@link FilesetActivity} instances which need to be handled
+ * Wrapper around {@link FilesetJobLink} instances which need to be handled
  * on the server-side. This will primarily provide the step-location required
  * by {@link omero.cmd.Handle} by calling back to the
  * {@link ManagedImportProcessI} object.

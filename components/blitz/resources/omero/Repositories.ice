@@ -318,7 +318,7 @@ module omero {
              * Activity that this will be filling
              * out in the database.
              **/
-            omero::model::FilesetActivity activity;
+            omero::model::FilesetJobLink activity;
 
         };
 

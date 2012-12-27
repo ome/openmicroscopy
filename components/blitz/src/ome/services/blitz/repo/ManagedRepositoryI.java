@@ -58,10 +58,15 @@ import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
+import omero.model.FilesetJobLink;
 import omero.model.FilesetVersionInfo;
 import omero.model.FilesetVersionInfoI;
+import omero.model.Job;
+import omero.model.MetadataImportJob;
+import omero.model.MetadataImportJobI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.UploadJob;
 import omero.sys.EventContext;
 
 import static omero.rtypes.rstring;
@@ -123,12 +128,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
     public ImportProcessPrx prepareImport(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
 
-        if (fs == null || fs.sizeOfFilesetEntry() < 1) {
+        if (fs == null || fs.sizeOfUsedFiles() < 1) {
             throw new omero.ApiUsageException(null, null, "No paths provided");
         }
 
         final List<String> paths = new ArrayList<String>();
-        for (FilesetEntry entry : fs.copyFilesetEntry()) {
+        for (FilesetEntry entry : fs.copyUsedFiles()) {
             paths.add(entry.getClientPath().getValue());
         }
 
@@ -246,11 +251,35 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final FilesetVersionInfo serverVersionInfo = new FilesetVersionInfoI();
         serverVersionInfo.setBioformatsReader(rstring("Unknown"));
         config.fillVersionInfo(serverVersionInfo);
-        fs.setServerVersionInfo(serverVersionInfo);
+
+        // Create and validate jobs
+        if (fs.sizeOfJobLinks() != 1) {
+            throw new omero.ValidationException(null, null,
+                    "Found more than one job link. "+
+                    "Link only updateJob on creation!");
+        }
+        final FilesetJobLink jobLink = fs.getFilesetJobLink(0);
+        final Job job = jobLink.getChild();
+        if (job == null) {
+            throw new omero.ValidationException(null, null,
+                    "Found null-UploadJob on creation");
+        }
+        if (!(job instanceof UploadJob)) {
+            throw new omero.ValidationException(null, null,
+                    "Found non-UploadJob on creation: "+
+                    job.getClass().getName());
+        }
+        final UploadJob upload = (UploadJob) job;
+        // Client can optionally set version
+
+        final MetadataImportJob metadata = new MetadataImportJobI();
+        metadata.setVersionInfo(serverVersionInfo);
+        fs.linkJob(metadata);
+        // TODO: other jobs
 
         // Create CheckedPath objects for use by saveFileset
         final Principal currentUser = currentUser(__current);
-        final int size = fs.sizeOfFilesetEntry();
+        final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
         for (int i = 0; i < size; i++) {
             final String path = location.usedFiles.get(i);
