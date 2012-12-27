@@ -1,9 +1,5 @@
 package ome.services.blitz.repo;
 
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -13,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -23,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import Ice.Current;
 
 import ome.api.IQuery;
+import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
@@ -36,9 +32,8 @@ import ome.util.SqlAction;
 
 import omero.SecurityViolation;
 import omero.ServerError;
-import omero.grid.ImportLocation;
 import omero.model.Fileset;
-import omero.model.FilesetEntry;
+import omero.model.Job;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -311,6 +306,65 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
+    public Job saveJob(final Job job, final Ice.Current current)
+            throws ServerError {
+
+        if (job == null) {
+            throw new omero.ValidationException(null, null,
+                    "Job is null!");
+        }
+
+        final IceMapper mapper = new IceMapper();
+
+        try {
+            final ome.model.jobs.Job in = (ome.model.jobs.Job) mapper.reverse(job);
+            final ome.model.jobs.Job out = (ome.model.jobs.Job)
+                    executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(
+                    this, "saveJob", in) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    JobHandle jh = sf.createJobHandle();
+                    jh.submit(in);
+                    return jh.getJob();
+                }
+            });
+
+            return (Job) mapper.map(out);
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
+    }
+
+
+    public void updateJob(final Job job, final String message, final String status,
+            final Ice.Current current) throws ServerError {
+
+        if (job == null || job.getId() == null) {
+            throw new omero.ValidationException(null, null,
+                    "Job is null!");
+        }
+
+        final IceMapper mapper = new IceMapper();
+
+        try {
+            final ome.model.jobs.Job in = (ome.model.jobs.Job) mapper.reverse(job);
+            executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(
+                    this, "updateJob", in, message, status) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    JobHandle jh = sf.createJobHandle();
+                    jh.attach(in.getId());
+                    jh.setStatusAndMessage(status, message);
+                    return null;
+                }
+            });
+
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
+    }
     /**
      * Internal file registration which must happen within a single tx.
      *

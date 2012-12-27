@@ -549,7 +549,7 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(ImportContainer container, int index,
+    public List<Pixels> importImage(final ImportContainer container, int index,
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
@@ -569,8 +569,15 @@ public class ImportLibrary implements IObservable
         final Ice.Communicator ic = oa.getCommunicator();
         final String category = omero.client.getRouter(ic).getCategoryForClient();
 
+        List<Pixels> pixList = null;
         for (HandlePrx handle : handles) {
-            final CmdCallbackI cb = new CmdCallbackI(oa, category, handle);
+            final CmdCallbackI cb = new CmdCallbackI(oa, category, handle) {
+                public void step(int step, int total, Ice.Current current) {
+                    notifyObservers(new ImportEvent.PROGRESS_EVENT(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                }
+            };
             cb.loop(60*60, 1000); // Wait 1 hr per step.
             Response rsp = cb.getResponse();
             if (rsp instanceof ERR) {
@@ -586,15 +593,24 @@ public class ImportLibrary implements IObservable
                         container.getUsedFiles(), container.getReader()));
                 throw rt;
             } else if (rsp instanceof ImportResponse) {
-                List<Pixels> pixList = ((ImportResponse) rsp).pixels;
-                notifyObservers(new ImportEvent.IMPORT_DONE(
-                        index, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, pixList));
-                return pixList;
+                pixList = ((ImportResponse) rsp).pixels;
             }
 
         }
-        throw new RuntimeException("FIXME");
+
+        if (pixList == null) {
+            final RuntimeException rt = new RuntimeException("No pixels");
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    container.getFile().getAbsolutePath(), rt,
+                    container.getUsedFiles(), container.getReader()));
+            throw rt;
+        }
+
+        notifyObservers(new ImportEvent.IMPORT_DONE(
+                index, container.getFile().getAbsolutePath(),
+                null, null, 0, null, pixList));
+
+        return pixList;
     }
 
     /**

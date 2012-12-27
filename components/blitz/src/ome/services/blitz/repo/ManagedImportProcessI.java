@@ -42,6 +42,8 @@ import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
+import omero.model.FilesetJobLink;
+import omero.model.Job;
 import omero.model.Pixels;
 import omero.util.IceMapper;
 
@@ -264,15 +266,22 @@ public class ManagedImportProcessI extends AbstractAmdServant
             }
         }
 
-        final AMD_submit submit = new AMD_submit();
-        final ManagedImportRequestI req = new ManagedImportRequestI(this);
-        sf.submit_async(submit, req, __current);
-        if (submit.ex != null) {
-            IceMapper mapper = new IceMapper();
-            throw mapper.handleServerError(submit.ex, repo.context);
-        }
+        // i==0 is the upload job which is implicit.
+        FilesetJobLink link = fs.getFilesetJobLink(0);
+        repo.repositoryDao.updateJob(link.getChild(),
+                "Finished", "Finished", __current);
 
-        handles.add(submit.ret);
+        for (int i = 1; i < fs.sizeOfJobLinks(); i++) {
+            link = fs.getFilesetJobLink(i);
+            final AMD_submit submit = new AMD_submit();
+            final ManagedImportRequestI req = new ManagedImportRequestI(this, link);
+            sf.submit_async(submit, req, __current);
+            if (submit.ex != null) {
+                IceMapper mapper = new IceMapper();
+                throw mapper.handleServerError(submit.ex, repo.context);
+            }
+            handles.add(submit.ret);
+        }
         return handles;
     }
 

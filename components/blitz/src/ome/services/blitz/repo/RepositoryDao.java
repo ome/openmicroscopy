@@ -13,6 +13,7 @@ import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.model.Fileset;
 import omero.model.IObject;
+import omero.model.Job;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 
@@ -89,7 +90,7 @@ public interface RepositoryDao {
      * @param currentUser
      */
     Fileset saveFileset(String repoUuid, Fileset fs, List<CheckedPath> paths,
-            Principal currentUser) throws ServerError;
+            Ice.Current current) throws ServerError;
 
     /**
      * Register an OriginalFile object
@@ -122,6 +123,28 @@ public interface RepositoryDao {
      */
     File getFile(final long id, final Ice.Current current,
             final String repoUuid, final CheckedPath root);
+
+    /**
+     * Create a job from an instance provided by either the client or the
+     * server. Only those fields which are modifiable by the user will be
+     * copied.
+     *
+     * @param job Not null.
+     * @param current Not null.
+     * @return
+     * @throws ServerError
+     */
+    <T extends Job> T saveJob(T job, Ice.Current current) throws ServerError;
+
+    /**
+     * Set both the message and the status of the given job.
+     *
+     * @param job Not null.
+     * @param message If null, no modification will be made for the message
+     * @param status If null, no modification will be made for the status.
+     */
+    void updateJob(Job job, String message, String status, Ice.Current current)
+        throws ServerError;
 
     /**
      * Look up information for the current session as specified in the ctx

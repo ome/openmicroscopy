@@ -31,7 +31,11 @@ import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
+import omero.model.FilesetJobLink;
+import omero.model.Job;
+import omero.model.MetadataImportJob;
 import omero.model.Pixels;
+import omero.model.ThumbnailGenerationJob;
 
 /**
  * Wrapper around {@link FilesetJobLink} instances which need to be handled
@@ -54,8 +58,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private final ManagedImportProcessI proc;
 
-    public ManagedImportRequestI(ManagedImportProcessI proc) {
+    private final FilesetJobLink link;
+
+    public ManagedImportRequestI(ManagedImportProcessI proc, FilesetJobLink link) {
         this.proc = proc;
+        this.link = link;
     }
 
     //
@@ -74,15 +81,30 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     public Object step(int step) {
         helper.assertStep(step);
         try {
-            return proc.importMetadata();
+            Job j = link.getChild();
+            if (j == null) {
+                throw helper.cancel(new ERR(), null, "null-job");
+            } else if (j instanceof MetadataImportJob) {
+                return proc.importMetadata();
+            } else if (j instanceof ThumbnailGenerationJob) {
+                throw helper.cancel(new ERR(), null, "NYI");
+            } else {
+                throw helper.cancel(new ERR(), null, "unknown-job-type",
+                        "job-type", j.ice_id());
+            }
         } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "import-metadata-failed");
+            throw helper.cancel(new ERR(), t, "import-request-failure");
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        helper.setResponseIfNull(new ImportResponse((List<Pixels>) object));
+        if (object instanceof List) {
+            helper.setResponseIfNull(new ImportResponse((List<Pixels>) object));
+        } else {
+            helper.setResponseIfNull(new OK());
+        }
     }
 
     public Response getResponse() {

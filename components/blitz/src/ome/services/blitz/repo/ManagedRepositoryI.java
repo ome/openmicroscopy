@@ -66,6 +66,8 @@ import omero.model.MetadataImportJob;
 import omero.model.MetadataImportJobI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.ThumbnailGenerationJob;
+import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
 import omero.sys.EventContext;
 
@@ -269,13 +271,24 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     "Found non-UploadJob on creation: "+
                     job.getClass().getName());
         }
-        final UploadJob upload = (UploadJob) job;
+        UploadJob upload = (UploadJob) job;
+        upload = repositoryDao.saveJob(upload, __current);
+        jobLink.setChild(upload);
         // Client can optionally set version
 
-        final MetadataImportJob metadata = new MetadataImportJobI();
+        MetadataImportJob metadata = new MetadataImportJobI();
         metadata.setVersionInfo(serverVersionInfo);
+        metadata = repositoryDao.saveJob(metadata, __current);
         fs.linkJob(metadata);
-        // TODO: other jobs
+
+        if (settings.doThumbnails != null && settings.doThumbnails.getValue()) {
+            ThumbnailGenerationJob thumbnail = new ThumbnailGenerationJobI();
+            thumbnail = repositoryDao.saveJob(thumbnail, __current);
+        }
+
+        //
+        // TODO: other jobs - pyramids, etc.
+        //
 
         // Create CheckedPath objects for use by saveFileset
         final int size = fs.sizeOfUsedFiles();
