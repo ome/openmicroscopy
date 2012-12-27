@@ -629,9 +629,7 @@ public class ImportLibrary implements IObservable
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
-        String[] domains = null;
         String[] usedFiles = new String[1];
-        boolean isScreeningDomain = false;
 
         usedFiles[0] = file.getAbsolutePath();
 
@@ -642,7 +640,6 @@ public class ImportLibrary implements IObservable
 
             open(file.getAbsolutePath());
             format = reader.getFormat();
-            domains = reader.getDomains();
             if (reader.getUsedFiles() != null)
             {
                 usedFiles = reader.getUsedFiles();
@@ -651,14 +648,7 @@ public class ImportLibrary implements IObservable
                 throw new NullPointerException(
                         "usedFiles must be non-null");
             }
-            for (String domain : domains)
-            {
-                if (domain.equals(FormatTools.HCS_DOMAIN))
-                {
-                    isScreeningDomain = true;
-                    break;
-                }
-            }
+
             IFormatReader baseReader = reader.getImageReader().getReader();
             if (log.isInfoEnabled())
             {
