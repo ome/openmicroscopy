@@ -278,7 +278,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // TODO: other jobs
 
         // Create CheckedPath objects for use by saveFileset
-        final Principal currentUser = currentUser(__current);
         final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
         for (int i = 0; i < size; i++) {
@@ -286,7 +285,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             checked.add(checkPath(path, __current));
         }
 
-        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, currentUser);
+        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, __current);
         final ManagedImportProcessI proc = new ManagedImportProcessI(this, managedFs,
                 location, settings, __current);
         return proc.getProxy();

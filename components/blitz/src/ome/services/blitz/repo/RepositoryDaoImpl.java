@@ -249,7 +249,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     public Fileset saveFileset(final String repoUuid, final Fileset _fs,
             final List<CheckedPath> paths,
-            final Principal currentUser) throws ServerError {
+            final Ice.Current current) throws ServerError {
 
         final IceMapper mapper = new IceMapper();
         final List<CheckedPath> parents = new ArrayList<CheckedPath>();
@@ -261,8 +261,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         try {
             return (Fileset) mapper.map((ome.model.fs.Fileset)
-                    executor.execute(currentUser, new Executor.SimpleWork(
-                    this, "saveFileset", paths) {
+                    executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(
+                    this, "saveFileset", repoUuid, fs, paths) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
                     int size = paths.size();
