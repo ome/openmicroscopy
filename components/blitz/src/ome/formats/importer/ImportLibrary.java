@@ -114,9 +114,6 @@ public class ImportLibrary implements IObservable
 
     private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
 
-    /** Whether or not to import as metadata only. */
-    private boolean isMetadataOnly = false;
-
     /** Maximum plane width. */
     private int maxPlaneWidth;
 
@@ -170,29 +167,6 @@ public class ImportLibrary implements IObservable
             log.debug("Maximum plane width: " + maxPlaneWidth);
             log.debug("Maximum plane height: " + maxPlaneHeight);
         }
-    }
-
-    /**
-     * Sets the metadata only flag.
-     * @param isMetadataOnly Whether or not to perform metadata only imports
-     * with this import library.
-     */
-    public void setMetadataOnly(boolean isMetadataOnly)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Setting metadata only flag: " + isMetadataOnly);
-        }
-        this.isMetadataOnly = isMetadataOnly;
-    }
-
-    /**
-     * Retrieves the metadata only flag.
-     * @return See above.
-     */
-    public boolean isMetadataOnly()
-    {
-        return isMetadataOnly;
     }
 
     //
@@ -690,7 +664,6 @@ public class ImportLibrary implements IObservable
             {
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
-                log.info("Metadata only import? " + isMetadataOnly);
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
