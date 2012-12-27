@@ -115,6 +115,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return new _ManagedRepositoryTie(this);
     }
 
+    public Registry getRegistry() {
+        return this.reg;
+    }
+
     //
     // INTERFACE METHODS
     //
@@ -157,82 +161,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         return createImportProcess(fs, location, settings, __current);
     }
-
-    /** Now an internal, trusted method */
-    public List<Pixels> importMetadata(CheckedPath cp, ImportLocation location,
-            ImportSettings settings, Current __current) throws ServerError {
-
-        ServiceFactoryPrx sf = null;
-        OMEROMetadataStoreClient store = null;
-        OMEROWrapper reader = null;
-        List<Pixels> pix = null;
-        boolean error = false;
-        try {
-            final ImportConfig config = new ImportConfig();
-            final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
-            final String clientUuid = UUID.randomUUID().toString();
-
-            sf = reg.getInternalServiceFactory(
-                    sessionUuid, "unused", 3, 1, clientUuid);
-            reader = new OMEROWrapper(config);
-            store = new OMEROMetadataStoreClient();
-            store.initialize(sf);
-            ImportLibrary library = new ImportLibrary(store, reader);
-            pix = library.importImageInternal(settings, 0, 0, 1, cp.file);
-        }
-        catch (ServerError se) {
-            error = false;
-            throw se;
-        }
-        catch (Throwable t) {
-            error = false;
-            throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
-        }
-        finally {
-            Throwable readerErr = null;
-            Throwable storeErr = null;
-            Throwable sfPrxErr = null;
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (Throwable e){
-                readerErr = e;
-            }
-            try {
-                if (store != null) {
-                    store.logout();
-                }
-            } catch (Throwable e) {
-                storeErr = e;
-            }
-            try {
-                if (sf != null) {
-                    sf.destroy();
-                }
-            } catch (Throwable e) {
-                sfPrxErr = e;
-            }
-            if (readerErr != null || storeErr != null || sfPrxErr != null) {
-                StringBuilder stacks = new StringBuilder();
-                StringBuilder message = new StringBuilder();
-                append(stacks, message, readerErr);
-                append(stacks, message, storeErr);
-                append(stacks, message, sfPrxErr);
-                if (error) {
-                    // In order to throw the original error just log this
-                    log.error(String.format(
-                            "Error on importMetadata cleanup lost. %s\n%s\n",
-                            stacks.toString(), message.toString()));
-                } else {
-                    throw new omero.InternalException(
-                            stacks.toString(), null, message.toString());
-                }
-            }
-        }
-        return pix;
-    }
-
 
     //
     // HELPERS

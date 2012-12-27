@@ -19,18 +19,27 @@ package ome.services.blitz.repo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import Ice.Current;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import ome.system.OmeroContext;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.fire.Registry;
 
+import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
+import omero.grid.ImportLocation;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
+import omero.grid.ImportSettings;
 import omero.model.FilesetJobLink;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
@@ -50,19 +59,31 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private static final long serialVersionUID = -303948503984L;
 
+    private static Log log = LogFactory.getLog(ManagedImportRequestI.class);
+
     /**
      * Helper instance for this class. Will create a number of sub-helper
      * instances for each request.
      */
     private Helper helper;
 
-    private final ManagedImportProcessI proc;
+    private final Registry reg;
 
     private final FilesetJobLink link;
 
-    public ManagedImportRequestI(ManagedImportProcessI proc, FilesetJobLink link) {
-        this.proc = proc;
+    private final ImportSettings settings;
+
+    private final CheckedPath checkedPath;
+
+    private final Ice.Current current;
+
+    public ManagedImportRequestI(Registry reg, ImportSettings settings,
+            CheckedPath checkedPath, FilesetJobLink link, Ice.Current current) {
+        this.reg = reg;
+        this.settings = settings;
+        this.checkedPath = checkedPath;
         this.link = link;
+        this.current = current;
     }
 
     //
@@ -85,7 +106,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (j == null) {
                 throw helper.cancel(new ERR(), null, "null-job");
             } else if (j instanceof MetadataImportJob) {
-                return proc.importMetadata();
+                return importMetadata();
             } else if (j instanceof ThumbnailGenerationJob) {
                 throw helper.cancel(new ERR(), null, "NYI");
             } else {
@@ -109,6 +130,57 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    //
+    // ACTIONS
+    //
+
+
+    /** Now an internal, trusted method */
+    public List<Pixels> importMetadata() throws Throwable {
+
+        ServiceFactoryPrx sf = null;
+        OMEROMetadataStoreClient store = null;
+        OMEROWrapper reader = null;
+        List<Pixels> pix = null;
+        try {
+            final ImportConfig config = new ImportConfig();
+            final String sessionUuid = current.ctx.get(omero.constants.SESSIONUUID.value);
+            final String clientUuid = UUID.randomUUID().toString();
+
+            sf = reg.getInternalServiceFactory(
+                    sessionUuid, "unused", 3, 1, clientUuid);
+            reader = new OMEROWrapper(config);
+            store = new OMEROMetadataStoreClient();
+            store.initialize(sf);
+            ImportLibrary library = new ImportLibrary(store, reader);
+            pix = library.importImageInternal(settings, 0, 0, 1, checkedPath.file);
+        }
+        finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (Throwable e){
+                log.error(e);
+            }
+            try {
+                if (store != null) {
+                    store.logout();
+                }
+            } catch (Throwable e) {
+                log.error(e);
+            }
+            try {
+                if (sf != null) {
+                    sf.destroy();
+                }
+            } catch (Throwable e) {
+                log.error(e);
+            }
+        }
+        return pix;
     }
 
 }

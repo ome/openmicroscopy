@@ -274,7 +274,8 @@ public class ManagedImportProcessI extends AbstractAmdServant
         for (int i = 1; i < fs.sizeOfJobLinks(); i++) {
             link = fs.getFilesetJobLink(i);
             final AMD_submit submit = new AMD_submit();
-            final ManagedImportRequestI req = new ManagedImportRequestI(this, link);
+            final ManagedImportRequestI req = new ManagedImportRequestI(
+                    repo.getRegistry(), settings, target, link, __current);
             sf.submit_async(submit, req, __current);
             if (submit.ex != null) {
                 IceMapper mapper = new IceMapper();
@@ -327,14 +328,6 @@ public class ManagedImportProcessI extends AbstractAmdServant
     public void cancelImport(Ice.Current __current)
             throws ServerError {
         throw new omero.InternalException(null, null, "NYI"); // FIXME
-    }
-
-    //
-    // CALLBACK METHODS FROM ManagedImportRequestI
-    //
-
-    List<Pixels> /*package*/ importMetadata() throws ServerError {
-        return repo.importMetadata(target, location, settings, current);
     }
 
     //
