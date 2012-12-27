@@ -286,7 +286,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final String mimetype, final Ice.Current current) throws ServerError {
 
         if (checked.isRoot) {
-            throw new ome.conditions.SecurityViolation(
+            throw new omero.SecurityViolation(null, null,
                     "Can't re-register the repository");
         }
 
