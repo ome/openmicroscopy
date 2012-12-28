@@ -95,7 +95,15 @@ module omero {
             bool fileExists(string path) throws ServerError;
 
             ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
-            void makeDir(string path) throws ServerError;
+
+            /**
+             * Create a directory at the given path. If parents is true,
+             * then all preceding paths will be generated and no exception
+             * will be thrown if the directory already exists. Otherwise,
+             * all parent directories must exist in both the DB and on the
+             * filesystem and be readable.
+             **/
+            void makeDir(string path, bool parents) throws ServerError;
 
             /**
              * Delete the path at the given location. If the file cannot be deleted

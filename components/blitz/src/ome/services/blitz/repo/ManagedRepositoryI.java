@@ -115,7 +115,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Return a template based directory path. The path will be created
-     * by calling {@link #makeDir(String, Ice.Current)}. Any exception will
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}. Any exception will
      * be handled by incrementing some part of the template to create a viable
      * directory.
      *
@@ -323,27 +323,26 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /**
      * Take the relative path created by
      * {@link #expandTemplate(String, Ice.Current)} and call
-     * {@link makeDir(String, Ice.Current)} on each element of the path
+     * {@link makeDir(String, boolean, Ice.Current)} on each element of the path
      * starting at the top, until all the directories have been created.
      * After any exception, append an increment so that a writeable directory
      * exists for the current caller context.
      */
-    protected String createTemplateDir(String relPath, Ice.Current curr) {
+    protected String createTemplateDir(String relPath, Ice.Current curr) throws ServerError {
         String[] parts = relPath.split("/");
         String dir = ".";
-        int version = 0;
         for (int i = 0; i < parts.length; i++) {
+            int version = 0;
             dir = FilenameUtils.concat(dir, parts[i]);
-            while (true) {
+            while (version < 10000) { // Seems a sensible limit.
+                if (version != 0) {
+                    dir = dir+"__"+version;
+                }
                 try {
-                    if (version == 0) {
-                        makeDir(dir, curr);
-                    } else {
-                        makeDir(dir+"__"+version, curr);
-                    }
+                    makeDir(dir, false, curr);
                     break;
                 }
-                catch (ServerError e) { // FIXME need specific error here!
+                catch (omero.ServerError e) {
                     log.debug("Error on createTemplateDir", e);
                     version += 1;
                 }
@@ -384,7 +383,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         while (true) {
 
             String suffix = (version == null ? null :
-                "-" + Integer.toString(version));
+                "__" + Integer.toString(version));
             String endPart = concatSuffix1(parts, suffix);
 
             for (String path: paths)
@@ -415,7 +414,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
             try {
                 makeDir(normalize(relFile.toString()) + "/" + endPart,
-                        __current);
+                        true, __current);
                 break;
             } catch (omero.ServerError se) {
                 log.debug("Trying next directory", se);

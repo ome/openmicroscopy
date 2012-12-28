@@ -111,7 +111,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String createTemplateDir(String template, Ice.Current curr) {
+        public String createTemplateDir(String template, Ice.Current curr) throws omero.ServerError {
             return super.createTemplateDir(template, curr);
         }
 
@@ -413,13 +413,13 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     //
 
     @Test
-    public void testTemplateDirSimple() {
+    public void testTemplateDirSimple() throws Exception {
         assertReturnFile(1L);
         assertEquals("test", this.tmri.createTemplateDir("test", curr));
     }
 
     @Test
-    public void testTemplateDir() {
+    public void testTemplateDir() throws Exception {
         assertRegisterFails("test");
         assertReturnFile("test__1", 1L);
         assertEquals("test", this.tmri.createTemplateDir("test", curr));

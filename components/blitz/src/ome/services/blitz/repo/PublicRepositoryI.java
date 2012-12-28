@@ -461,27 +461,37 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      * @param path
      *            A path on a repository.
+     * @param parent
+     *            Boolean switch like the "mkdir -p" flag in unix.
      * @param __current
      *            ice context.
      */
-    public void makeDir(String path, Current __current) throws ServerError {
+    public void makeDir(String path, boolean parents, Current __current) throws ServerError {
         CheckedPath checked = checkPath(path, __current);
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
             paths.addFirst(checked);
             checked = checked.parent();
+            if (!parents) {
+                break; // Only include last element
+            }
         }
 
         if (paths.size() == 0) {
-            throw new omero.ResourceError(null, null, "Cannot re-create root!");
+            if (parents) {
+                throw new omero.ResourceError(null, null, "Cannot re-create root!");
+            } else{
+                log.debug("Ignoring re-creation of root");
+                return;
+            }
         }
 
         // Since we now have some number of elements, we start at the most
         // parent element and work our way down through all the parents.
         // If the file exists, then we check its permissions. If it doesn't
         // exist, it gets created.
-        while (paths.size() > 1) {
+        while (paths.size() > 1) { // Only possible if `parents`
             checked = paths.removeFirst();
 
             if (checked.file.exists()) {
@@ -492,13 +502,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     throw new omero.ResourceError(null, null,
                             "Directory is not readable");
                 }
+                assertFindDir(checked, __current);
 
-                OriginalFile ofile = repositoryDao.findRepoFile(repoUuid,
-                        checked, null, __current);
-                if (ofile == null) {
-                    throw new omero.ResourceError(null, null,
-                            "Directory exists but is not registered");
-                }
             } else {
                 // This will fail if the file already exists in
                 repositoryDao.register(repoUuid, checked,
@@ -510,8 +515,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         // Now we are ready to work on the actual intended path.
         checked = paths.removeFirst(); // Size is now empty
         if (checked.file.exists()) {
-            throw new omero.ResourceError(null, null,
-                "Path exists on disk:" + path);
+            if (parents) {
+                assertFindDir(checked, __current);
+            } else {
+                throw new omero.ResourceError(null, null,
+                    "Path exists on disk:" + path);
+            }
         }
         repositoryDao.register(repoUuid, checked,
                 DIRECTORY_MIMETYPE, __current);
@@ -562,6 +571,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         CheckedPath checked = new CheckedPath(root, file.getPath());
         checked.setId(id);
         return checked;
+    }
+
+    private void assertFindDir(final CheckedPath checked, final Ice.Current curr)
+        throws omero.ServerError {
+        if (null == repositoryDao.findRepoFile(repoUuid, checked, null, curr)) {
+            omero.ResourceError re = new omero.ResourceError(null, null,
+                    "Directory exists but is not registered: " + checked);
+            IceMapper.fillServerError(re, new RuntimeException());
+            throw re;
+        }
     }
 
     // Utility function for passing stack traces back in exceptions.
