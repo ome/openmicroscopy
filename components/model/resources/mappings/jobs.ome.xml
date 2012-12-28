@@ -56,11 +56,17 @@
 		<properties>
 		</properties>
 	</type>
-	<type id="ome.model.jobs.PyramidGenerationJob" superclass="ome.model.jobs.Job">
-		<!-- Note: PyramidGenerationJob is not in model-->
-		<properties>
-		</properties>
-	</type>
+        <!-- pyramids, min/max, plane sha1 -->
+        <type id="ome.model.jobs.PixelDataJob" superclass="ome.model.jobs.Job">
+                <!-- Note: PyramidGenerationJob is not in model-->
+                <properties>
+                </properties>
+        </type>
+        <type id="ome.model.jobs.IndexingJob" superclass="ome.model.jobs.Job">
+                <!-- Note: PyramidGenerationJob is not in model-->
+                <properties>
+                </properties>
+        </type>
 	<type id="ome.model.jobs.IntegrityCheckJob" superclass="ome.model.jobs.Job">
 		<!-- Note: IntegrityCheckJob is not in model-->
 		<properties>

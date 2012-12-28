@@ -22,6 +22,7 @@ import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
+import ome.model.fs.FilesetJobLink;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.util.Executor;
@@ -261,6 +262,17 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     this, "saveFileset", repoUuid, fs, paths) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
+                    // Pre-save all the jobs.
+                    for (int i = 0; i < fs.sizeOfJobLinks(); i++) {
+                        FilesetJobLink link = fs.getFilesetJobLink(i);
+                        JobHandle jh = sf.createJobHandle();
+                        try {
+                            jh.submit(link.child());
+                            link.setChild(jh.getJob());
+                        } finally {
+                            jh.close();
+                        }
+                    }
                     int size = paths.size();
                     for (int i = 0; i < size; i++) {
                         CheckedPath checked = paths.get(i);

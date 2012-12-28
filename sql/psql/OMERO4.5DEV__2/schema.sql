@@ -972,6 +972,11 @@
         primary key (job_id)
     );;
 
+    create table indexingjob (
+        job_id int8 not null,
+        primary key (job_id)
+    );;
+
     create table instrument (
         id int8 not null,
         permissions int8 not null,
@@ -1425,6 +1430,11 @@
         primary key (id)
     );;
 
+    create table pixeldatajob (
+        job_id int8 not null,
+        primary key (job_id)
+    );;
+
     create table pixels (
         id int8 not null,
         permissions int8 not null,
@@ -1664,11 +1674,6 @@
         value varchar(255) not null unique,
         external_id int8 unique,
         primary key (id)
-    );;
-
-    create table pyramidgenerationjob (
-        job_id int8 not null,
-        primary key (job_id)
     );;
 
     create table quantumdef (
@@ -3421,6 +3426,11 @@
         foreign key (job_id)
         references job  ;;
 
+    alter table indexingjob
+        add constraint FKindexingjob_job_id_job
+        foreign key (job_id)
+        references job  ;;
+
     alter table instrument
         add constraint FKinstrument_creation_id_event
         foreign key (creation_id)
@@ -4206,6 +4216,11 @@
         foreign key (external_id)
         references externalinfo  ;;
 
+    alter table pixeldatajob
+        add constraint FKpixeldatajob_job_id_job
+        foreign key (job_id)
+        references job  ;;
+
     alter table pixels
         add constraint FKpixels_creation_id_event
         foreign key (creation_id)
@@ -4620,11 +4635,6 @@
         add constraint FKpulse_external_id_externalinfo
         foreign key (external_id)
         references externalinfo  ;;
-
-    alter table pyramidgenerationjob
-        add constraint FKpyramidgenerationjob_job_id_job
-        foreign key (job_id)
-        references job  ;;
 
     alter table quantumdef
         add constraint FKquantumdef_creation_id_event
