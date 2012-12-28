@@ -7,6 +7,7 @@ WITHOUT_POSTGRESQL=${WITHOUT_POSTGRESQL:-false}
 WITHOUT_MPLAYER=${WITHOUT_MPLAYER:-false}
 ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 OMERO_ALT=${OMERO_ALT:-ome/alt}
+DUPES=${DUPES:-homebrew/dupes}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
@@ -37,9 +38,13 @@ cd "$BREW_DIR"
 
 # Next we must either add the "tap" which will provide
 # the formulae for OMERO if it hasn't been tapped already.
-bin/brew tap | grep -q "$OMERO_ALT" || {
-    bin/brew tap "$OMERO_ALT"
+tap() {
+    bin/brew tap | grep -q "$1" || {
+        bin/brew tap "$1"
+    }
 }
+tap "$OMERO_ALT"
+tap "$DUPES"
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
@@ -77,6 +82,7 @@ installed $OMERO_ALT/$ICE_VERSION || bin/brew install $OMERO_ALT/$ICE_VERSION
 # Requirements for PIL ============================================
 installed libjpeg || bin/brew install libjpeg
 # Requirements for scipy ============================================
+installed gcc|| bin/brew install gcc # From dupes
 installed gfortran || bin/brew install gfortran
 
 if ! $WITHOUT_MPLAYER; then
