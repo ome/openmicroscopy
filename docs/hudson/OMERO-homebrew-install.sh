@@ -50,9 +50,7 @@ bin/brew update
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
 # Install homebrew dependencies
-curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > /tmp/omero_homebrew.sh
-chmod +x /tmp/omero_homebrew.sh
-. /tmp/omero_homebrew.sh
+source docs/install/homebrew/omero_homebrew.sh
 
 # Install omero
 bin/brew install omero
