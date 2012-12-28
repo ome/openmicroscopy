@@ -19,10 +19,6 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -30,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.formats.FormatTools;
@@ -45,10 +40,8 @@ import org.apache.commons.logging.LogFactory;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
-import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.ImportSize;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
@@ -59,22 +52,24 @@ import ome.util.Utils;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
+import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.grid.ImportLocation;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
-import omero.grid.ImportSettings;
 import omero.model.Annotation;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
 
 /**
@@ -104,6 +99,42 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private final TileSizes sizes;
 
+    //
+    // Import items. Initialized in init(Helper)
+    //
+
+    private ServiceFactoryPrx sf = null;
+
+    private OMEROMetadataStoreClient store = null;
+
+    private OMEROWrapper reader = null;
+
+    private File file = null;
+
+    private IObject userSpecifiedTarget = null; // TODO: remove?
+
+    private String userSpecifiedName = null;
+
+    private String userSpecifiedDescription = null;
+
+    private double[] userPixels = null;
+
+    private List<Annotation> annotationList = null;
+
+    private boolean doThumbnails = true;
+
+    private String fileName = null;
+
+    private String shortName = null;
+
+    private String format = null;
+
+    private String formatString = null;
+
+    private String[] usedFiles = null;
+
+    private List<Pixels> pixList;
+
     public ManagedImportRequestI(Registry reg, TileSizes sizes) {
         this.reg = reg;
         this.sizes = sizes;
@@ -121,149 +152,40 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(1);
-    }
 
-    public Object step(int step) {
-        helper.assertStep(step);
-        try {
-            Job j = activity.getChild();
-            if (j == null) {
-                throw helper.cancel(new ERR(), null, "null-job");
-            } else if (j instanceof MetadataImportJob) {
-                return importMetadata();
-            } else if (j instanceof ThumbnailGenerationJob) {
-                throw helper.cancel(new ERR(), null, "NYI");
-            } else {
-                throw helper.cancel(new ERR(), null, "unknown-job-type",
-                        "job-type", j.ice_id());
-            }
-        } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "import-request-failure");
+        final ImportConfig config = new ImportConfig();
+        final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
+        final String clientUuid = UUID.randomUUID().toString();
+
+        if (!(location instanceof ManagedImportLocationI)) {
+            throw helper.cancel(new ERR(), null, "bad-location",
+                    "location-type", location.getClass().getName());
         }
-    }
 
-    @SuppressWarnings("unchecked")
-    public void buildResponse(int step, Object object) {
-        helper.assertResponse(step);
-        if (object instanceof List) {
-            helper.setResponseIfNull(new ImportResponse((List<Pixels>) object));
-        } else {
-            helper.setResponseIfNull(new OK());
-        }
-    }
+        file = ((ManagedImportLocationI) location).getTarget();
 
-    public Response getResponse() {
-        return helper.getResponse();
-    }
-
-    //
-    // ACTIONS
-    //
-
-
-    /** Now an internal, trusted method */
-    public List<Pixels> importMetadata() throws Throwable {
-
-        ServiceFactoryPrx sf = null;
-        OMEROMetadataStoreClient store = null;
-        OMEROWrapper reader = null;
-        List<Pixels> pix = null;
         try {
-            final ImportConfig config = new ImportConfig();
-            final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
-            final String clientUuid = UUID.randomUUID().toString();
-
             sf = reg.getInternalServiceFactory(
                     sessionUuid, "unused", 3, 1, clientUuid);
             reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
 
-            if (!(location instanceof ManagedImportLocationI)) {
-                throw new RuntimeException("Bad location type: " +
-                        location.getClass().getName());
-            }
-            File file = ((ManagedImportLocationI) location).getTarget();
-            pix = importImageInternal(store, reader, settings, 0, 0, 1, file);
+            userSpecifiedTarget = settings.userSpecifiedTarget;
+            userSpecifiedName = settings.userSpecifiedName == null ? null :
+                settings.userSpecifiedName.getValue();
+            userSpecifiedDescription = settings.userSpecifiedDescription == null ? null :
+                settings.userSpecifiedDescription.getValue();
+            userPixels = settings.userSpecifiedPixels;
+            annotationList = settings.userSpecifiedAnnotationList;
+            doThumbnails = settings.doThumbnails == null ? true :
+                settings.doThumbnails.getValue();
 
-        }
-        finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (Throwable e){
-                log.error(e);
-            }
-            try {
-                if (store != null) {
-                    store.logout();
-                }
-            } catch (Throwable e) {
-                log.error(e);
-            }
-            try {
-                if (sf != null) {
-                    sf.destroy();
-                }
-            } catch (Throwable e) {
-                log.error(e);
-            }
-        }
-        return pix;
-    }
-
-    /**
-     * Perform an image import on already uploaded files. <em>Note: this method both
-     *notifies {@link #observers} of error states AND throws the exception to cancel
-     * processing.</em>
-     * {@link #importCandidates(ImportConfig, ImportCandidates)}
-     * uses {@link ImportConfig#contOnError} to act on these exceptions.
-     * @param container The import container which houses all the configuration
-     * values and target for the import.
-     * @param index Index of the import in a set. <code>0</code> is safe if
-     * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
-     * @return List of Pixels that have been imported.
-     * @throws FormatException If there is a Bio-Formats image file format
-     * error during import.
-     * @throws IOException If there is an I/O error.
-     * @throws ServerError If there is an error communicating with the OMERO
-     * server we're importing into.
-     * @since OMERO Beta 4.5.
-     */
-    public List<Pixels> importImageInternal(
-            OMEROMetadataStoreClient store, OMEROWrapper reader,
-            ImportSettings data, int index,
-            int numDone, int total,
-            final File file)
-            throws FormatException, IOException, Throwable
-    {
-
-        final IObject userSpecifiedTarget = data.userSpecifiedTarget;
-        final String userSpecifiedName = data.userSpecifiedName == null ? null :
-            data.userSpecifiedName.getValue();
-        final String userSpecifiedDescription = data.userSpecifiedDescription == null ? null :
-            data.userSpecifiedDescription.getValue();
-        final double[] userPixels = data.userSpecifiedPixels;
-        final List<Annotation> annotationList = data.userSpecifiedAnnotationList;
-        final boolean doThumbnails = data.doThumbnails == null ? true :
-            data.doThumbnails.getValue();
-
-        String fileName = file.getAbsolutePath();
-        String shortName = file.getName();
-        String format = null;
-        String[] usedFiles = new String[1];
-
-        usedFiles[0] = file.getAbsolutePath();
-
-        try {
-            //TODO: must check that files exist in repository
-            notifyObservers(new ImportEvent.LOADING_IMAGE(
-                    shortName, index, numDone, total));
+            fileName = file.getAbsolutePath();
+            shortName = file.getName();
+            format = null;
+            usedFiles = new String[1];
+            usedFiles[0] = file.getAbsolutePath();
 
             open(reader, store, file.getAbsolutePath());
             format = reader.getFormat();
@@ -283,122 +205,247 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 log.info("Base reader: " + baseReader.getClass().getName());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
-                    shortName, index, numDone, total));
+                    shortName, 0, 0, 0));
 
-            String formatString = baseReader.getClass().toString();
-            formatString = formatString.replace("class loci.formats.in.", "");
+            formatString = baseReader.getClass().getSimpleName();
             formatString = formatString.replace("Reader", "");
 
-            List<Pixels> pixList = importMetadata(store, index, userSpecifiedTarget,
-                    userSpecifiedName, userSpecifiedDescription, userPixels,
-                    annotationList);
+        } catch (Cancel c) {
+            throw c;
+        } catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "error-on-init");
+        }
 
-            List<Long> plateIds = new ArrayList<Long>();
-            Image image = pixList.get(0).getImage();
-            if (image.sizeOfWellSamples() > 0)
-            {
-                Plate plate =
-                    image.copyWellSamples().get(0).getWell().getPlate();
-                plateIds.add(plate.getId().getValue());
+
+    }
+
+    /**
+     * Called during {@link #getResponse()}.
+     */
+    private void cleanup() {
+        try {
+            if (reader != null) {
+                reader.close();
             }
-            List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
-            for (Pixels pixels : pixList)
-            {
-                pixelsIds.add(pixels.getId().getValue());
+        } catch (Throwable e){
+            log.error(e);
+        }
+        try {
+            if (store != null) {
+                store.logout();
             }
-            boolean saveSha1 = false;
-            // Parse the binary data to generate min/max values
-            int seriesCount = reader.getSeriesCount();
-            for (int series = 0; series < seriesCount; series++) {
-                ImportSize size = new ImportSize(fileName,
-                        pixList.get(series), reader.getDimensionOrder());
-                Pixels pixels = pixList.get(series);
-                MessageDigest md = parseData(reader, store, fileName, series, size);
-                if (md != null) {
-                    String s = Utils.bytesToHex(md.digest());
-                    pixels.setSha1(store.toRType(s));
-                    saveSha1 = true;
-                }
+        } catch (Throwable e) {
+            log.error(e);
+        }
+        try {
+            if (sf != null) {
+                sf.destroy();
             }
+        } catch (Throwable e) {
+            log.error(e);
+        }
+    }
 
-            // As we're in metadata only mode  on we need to
-            // tell the server which Pixels set matches up to which series.
-            String targetName = file.getAbsolutePath();
-            int series = 0;
-            for (Long pixelsId : pixelsIds)
-            {
-                store.setPixelsParams(pixelsId, series, targetName);
-                series++;
+    public Object step(int step) {
+        helper.assertStep(step);
+        try {
+            Job j = activity.getChild();
+            if (j == null) {
+                throw helper.cancel(new ERR(), null, "null-job");
+            } else if (j instanceof MetadataImportJob) {
+                importMetadata((MetadataImportJob) j);
+                pixelData(null);//(PixelDataJob) j);
+                generateThumbnails(null);//(ThumbnailGenerationJob) j);
+                store.launchProcessing();
+                return pixList;
+            } else if (j instanceof PixelDataJob) {
+                return null;
+            } else if (j instanceof ThumbnailGenerationJob) {
+                return null;
+            } else if (j instanceof IndexingJob) {
+                return index((IndexingJob) j);
+            } else if (j instanceof ScriptJob) {
+                return script((ScriptJob) j);
+            } else {
+                throw helper.cancel(new ERR(), null, "unknown-job-type",
+                        "job-type", j.ice_id());
             }
-
-            if (saveSha1)
-            {
-                store.updatePixels(pixList);
-            }
-
-            if (reader.isMinMaxSet() == false)
-            {
-                store.populateMinMax();
-            }
-
-            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(
-                    index, null, userSpecifiedTarget, null, 0, null));
-            importOverlays(reader, store, pixList, plateIds);
-
-            notifyObservers(new ImportEvent.IMPORT_PROCESSING(
-                    index, null, userSpecifiedTarget, null, 0, null));
-            if (doThumbnails)
-            {
-                store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
-            }
-            else
-            {
-                log.warn("Not creating thumbnails at user request!");
-            }
-
-            store.launchProcessing(); // Use or return value here later. TODO
-
-            return pixList;
-
         } catch (MissingLibraryException mle) {
             notifyObservers(new ErrorHandler.MISSING_LIBRARY(
                     fileName, mle, usedFiles, format));
-            throw mle;
-        } catch (IOException io) {
-            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
-                    fileName, io, usedFiles, format));
-            throw io;
+            throw helper.cancel(new ERR(), mle, "import-missing-library",
+                    "filename", fileName);
         } catch (UnsupportedCompressionException uce) {
             // Handling as UNKNOWN_FORMAT for 4.3.0
             notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
                     fileName, uce, this));
-            throw uce;
+            throw helper.cancel(new ERR(), uce, "import-unknown-format",
+                    "filename", fileName);
         } catch (UnknownFormatException ufe) {
             notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
                     fileName, ufe, this));
-            throw ufe;
+            throw helper.cancel(new ERR(), ufe, "import-unknown-format",
+                    "filename", fileName);
+        } catch (IOException io) {
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
+                    fileName, io, usedFiles, format));
+            throw helper.cancel(new ERR(), io, "import-file-exception",
+                    "filename", fileName);
         } catch (FormatException fe) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(
                     fileName, fe, usedFiles, format));
-            throw fe;
-        } catch (NullPointerException npe) {
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                    fileName, npe, usedFiles, format));
-            throw npe;
-        } catch (Exception e) {
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                    fileName, e, usedFiles, format));
-            throw e;
+            throw helper.cancel(new ERR(), fe, "import-file-exception",
+                    "filename", fileName);
+        } catch (Cancel c) {
+            throw c;
         } catch (Throwable t) {
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                     fileName, new RuntimeException(t), usedFiles, format));
-            throw t;
-        } finally {
-            store.setGroup(null);
-            store.createRoot(); // CLEAR MetadataStore
+            throw helper.cancel(new ERR(), t, "import-request-failure");
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+        if (object instanceof List) {
+            helper.setResponseIfNull(new ImportResponse((List<Pixels>) object));
+        } else {
+            helper.setResponseIfNull(new OK());
+        }
+    }
+
+    public Response getResponse() {
+        cleanup();
+        return helper.getResponse();
+    }
+
+    //
+    // ACTIONS
+    //
+
+    /**
+     * Uses the {@link OMEROMetadataStoreClient} to save the current all
+     * image metadata provided.
+     *
+     * @param index Index of the file being imported.
+     * @param container The import container which houses all the configuration
+     * values for the import.
+     * @return the newly created {@link Pixels} id.
+     * @throws FormatException if there is an error parsing metadata.
+     * @throws IOException if there is an error reading the file.
+     */
+    public List<Pixels> importMetadata(MetadataImportJob mij) throws Throwable {
+        notifyObservers(new ImportEvent.LOADING_IMAGE(
+                shortName, 0, 0, 0));
+
+        // 1st we post-process the metadata that we've been given.
+        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
+                0, null, null, null, 0, null));
+        store.setUserSpecifiedName(userSpecifiedName);
+        store.setUserSpecifiedDescription(userSpecifiedDescription);
+        if (userPixels != null && userPixels.length >= 3)
+            // The array could be empty due to Ice-non-null semantics.
+            store.setUserSpecifiedPhysicalPixelSizes(
+                    userPixels[0], userPixels[1], userPixels[2]);
+        store.setUserSpecifiedTarget(userSpecifiedTarget);
+        store.setUserSpecifiedAnnotations(annotationList);
+        store.postProcess();
+        notifyObservers(new ImportEvent.END_POST_PROCESS(
+                0, null, userSpecifiedTarget, null, 0, null));
+
+        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
+                0, null, userSpecifiedTarget, null, 0, null));
+        pixList = store.saveToDB();
+        notifyObservers(new ImportEvent.END_SAVE_TO_DB(
+                0, null, userSpecifiedTarget, null, 0, null));
+
+        return pixList;
+
+    }
+
+    public Object pixelData(PixelDataJob pdj) throws Throwable {
+
+        boolean saveSha1 = false;
+        // Parse the binary data to generate min/max values
+        int seriesCount = reader.getSeriesCount();
+        for (int series = 0; series < seriesCount; series++) {
+            ImportSize size = new ImportSize(fileName,
+                    pixList.get(series), reader.getDimensionOrder());
+            Pixels pixels = pixList.get(series);
+            MessageDigest md = parseData(fileName, series, size);
+            if (md != null) {
+                String s = Utils.bytesToHex(md.digest());
+                pixels.setSha1(store.toRType(s));
+                saveSha1 = true;
+            }
+        }
+
+        // As we're in metadata only mode  on we need to
+        // tell the server which Pixels set matches up to which series.
+        String targetName = file.getAbsolutePath();
+        int series = 0;
+        for (Long pixelsId : pixelIds())
+        {
+            store.setPixelsParams(pixelsId, series, targetName);
+            series++;
+        }
+
+        if (saveSha1)
+        {
+            store.updatePixels(pixList);
+        }
+
+        if (reader.isMinMaxSet() == false)
+        {
+            store.populateMinMax();
+        }
+
+
+        return null;
+    }
+
+
+    public Object generateThumbnails(ThumbnailGenerationJob tgj) throws Throwable {
+
+        List<Long> plateIds = new ArrayList<Long>();
+        Image image = pixList.get(0).getImage();
+        if (image.sizeOfWellSamples() > 0)
+        {
+            Plate plate =
+                image.copyWellSamples().get(0).getWell().getPlate();
+            plateIds.add(plate.getId().getValue());
+        }
+
+        notifyObservers(new ImportEvent.IMPORT_OVERLAYS(
+                0, null, userSpecifiedTarget, null, 0, null));
+        importOverlays(pixList, plateIds);
+
+        notifyObservers(new ImportEvent.IMPORT_PROCESSING(
+                0, null, userSpecifiedTarget, null, 0, null));
+        if (doThumbnails)
+        {
+            store.resetDefaultsAndGenerateThumbnails(plateIds, pixelIds());
+        }
+        else
+        {
+            log.warn("Not creating thumbnails at user request!");
+        }
+
+        return null;
+    }
+
+    public Object index(IndexingJob ij) {
+        return null;
+    }
+
+    public Object script(ScriptJob sj) {
+        return null;
+    }
+
+    //
+    // HELPERS
+    //
 
     /** opens the file using the {@link FormatReader} instance */
     private void open(OMEROWrapper reader, OMEROMetadataStoreClient store,
@@ -424,8 +471,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * @return The SHA1 message digest for the binary data.
      */
     public MessageDigest parseData(
-            OMEROWrapper reader,
-            OMEROMetadataStoreClient store,
             String fileName, int series,
             ImportSize size)
         throws FormatException, IOException, ServerError
@@ -455,7 +500,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         for (int t = 0; t < size.sizeT; t++) {
             for (int c = 0; c < size.sizeC; c++) {
                 for (int z = 0; z < size.sizeZ; z++) {
-                    parseDataByPlane(reader, size, z, c, t,
+                    parseDataByPlane(size, z, c, t,
                             bytesPerPixel, fileName, md);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
@@ -483,11 +528,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * Bio-Formats.
      */
     private void parseDataByPlane(
-            OMEROWrapper reader,
             ImportSize size, int z, int c, int t,
             int bytesPerPixel, String fileName,
             MessageDigest md)
-        throws FormatException, IOException, ServerError
+        throws FormatException, IOException
     {
         int tileHeight = reader.getOptimalTileHeight();
         int tileWidth = reader.getOptimalTileWidth();
@@ -539,58 +583,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     /**
-     * Uses the {@link OMEROMetadataStoreClient} to save the current all
-     * image metadata provided.
-     *
-     * @param index Index of the file being imported.
-     * @param container The import container which houses all the configuration
-     * values for the import.
-     * @return the newly created {@link Pixels} id.
-     * @throws FormatException if there is an error parsing metadata.
-     * @throws IOException if there is an error reading the file.
-     */
-    private List<Pixels> importMetadata(
-            OMEROMetadataStoreClient store,
-            final int index,
-            final IObject target, final String userSpecifiedName,
-            final String userSpecifiedDescription,
-            final double[] userPixels,
-            final List<Annotation> annotationList)
-            throws FormatException, IOException
-    {
-        // 1st we post-process the metadata that we've been given.
-        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
-                index, null, target, null, 0, null));
-        store.setUserSpecifiedName(userSpecifiedName);
-        store.setUserSpecifiedDescription(userSpecifiedDescription);
-        if (userPixels != null && userPixels.length >= 3)
-            // The array could be empty due to Ice-non-null semantics.
-            store.setUserSpecifiedPhysicalPixelSizes(
-                    userPixels[0], userPixels[1], userPixels[2]);
-        store.setUserSpecifiedTarget(target);
-        store.setUserSpecifiedAnnotations(annotationList);
-        store.postProcess();
-        notifyObservers(new ImportEvent.END_POST_PROCESS(
-                index, null, target, null, 0, null));
-
-        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
-                index, null, target, null, 0, null));
-        List<Pixels> pixelsList = store.saveToDB();
-        notifyObservers(new ImportEvent.END_SAVE_TO_DB(
-                index, null, target, null, 0, null));
-        return pixelsList;
-    }
-
-
-    /**
      * If available, populates overlays for a given set of pixels objects.
      * @param pixelsList Pixels objects to populate overlays for.
      * @param plateIds Plate object IDs to populate overlays for.
      */
-    private void importOverlays(OMEROWrapper reader,
-            OMEROMetadataStoreClient store,
+    private void importOverlays(
             List<Pixels> pixelsList, List<Long> plateIds)
-        throws ServerError, FormatException, IOException
+        throws FormatException, IOException
     {
         IFormatReader baseReader = reader.getImageReader().getReader();
         if (baseReader instanceof MIASReader)
@@ -645,7 +644,17 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
 
+    private List<Long> pixelIds() {
+        List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
+        for (Pixels pixels : pixList)
+        {
+            pixelsIds.add(pixels.getId().getValue());
+        }
+        return pixelsIds;
+    }
+
     private void notifyObservers(Object...args) {
         // TEMPORARY REPLACEMENT. FIXME
     }
+
 }
